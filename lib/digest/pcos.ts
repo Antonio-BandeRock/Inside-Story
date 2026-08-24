@@ -44,7 +44,28 @@ export const PCOS_ENTRIES: DigestEntry[] = [
       { source: 'A case-control observational study of insulin resistance and metabolic syndrome among the four phenotypes of polycystic ovary syndrome based on Rotterdam criteria', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4417246/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['pcos-myo-dchiro-inositol', 'pcos-weight-loss-modest', 'type2-overview', 'type2-metabolic-syndrome-cluster', 'pcos-dairy-igf1-hyperandrogenism', 'prostate-metabolic-syndrome-bph-link'],
+    relatedIds: ['pcos-myo-dchiro-inositol', 'pcos-weight-loss-modest', 'type2-overview', 'type2-metabolic-syndrome-cluster', 'pcos-dairy-igf1-hyperandrogenism', 'prostate-metabolic-syndrome-bph-link', 'pcos-insulin-resistance-depression-mechanism'],
+  },
+  // Added 2026-08-24, fact-checking a shared Google AI Mode conversation on
+  // diet and mental illness. This category's own sleep/mental-health entry
+  // (pcos-sleep-mental-health-real-data) already covers anxiety comorbidity
+  // broadly, this entry covers the specific insulin-resistance mechanism
+  // proposed to drive it, distinct rather than duplicated, and matches the
+  // same mechanism now documented for Type 2 Diabetes in that category's
+  // own file.
+  {
+    id: 'pcos-insulin-resistance-depression-mechanism',
+    category: 'pcos',
+    title: "PCOS's Own Central Mechanism, Insulin Resistance, Is Independently Linked to Its Elevated Depression and Anxiety Risk",
+    teaser: 'A pooled analysis found roughly a third of women with PCOS meet criteria for depression, and research finds the same insulin resistance driving PCOS\'s hormonal symptoms also disrupting the brain pathways that regulate mood.',
+    summary:
+      "PCOS carries a pooled depression prevalence of roughly 34.8%, with anxiety prevalence reported even higher depending on the screening tool used, both well above general-population rates. This category's own insulin-resistance research above already established that mechanism as PCOS's central driver, hyperandrogenism, irregular cycles, and metabolic symptoms all trace back to it. Research specifically into the mood connection finds the same neuroendocrine dysregulation, insulin resistance and elevated androgens together, plausibly disrupting the hypothalamic-pituitary-adrenal stress axis and neurotransmitter balance, a proposed mechanistic link independent of a person's weight or BMI. This doesn't reduce PCOS's own mental health burden to a purely biochemical explanation, psychosocial factors (visible symptoms like hirsutism and acne, fertility concerns) matter too, but it means managing insulin resistance through diet and the other levers already covered in this category carries a plausible mood benefit alongside its metabolic and reproductive ones.",
+    citations: [
+      { source: 'High prevalence of moderate and severe depressive and anxiety symptoms in polycystic ovary syndrome: a systematic review and meta-analysis, Human Reproduction', url: 'https://academic.oup.com/humrep/article/32/5/1075/3064352' },
+      { source: 'Insulin Resistance as a Shared Pathogenic Mechanism Between Depression and Type 2 Diabetes, PMC6382695', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6382695/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['pcos-insulin-resistance-mechanism', 'pcos-sleep-mental-health-real-data', 'mentalhealth-glycemic-instability-mood', 'type2-insulin-resistance-depression-mechanism'],
   },
   {
     id: 'pcos-myo-dchiro-inositol',

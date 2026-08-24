@@ -432,7 +432,25 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
       { source: 'Evidence of bidirectional relationship between type 2 diabetes and depression; a Mendelian randomization study, Molecular Psychiatry', url: 'https://www.nature.com/articles/s41380-025-03083-0' },
     ],
     overallTier: 'strong',
-    relatedIds: ['mentalhealth-overview', 'mentalhealth-inflammation-link', 'type1-diabetes-distress-psychological-burden'],
+    relatedIds: ['mentalhealth-overview', 'mentalhealth-inflammation-link', 'type1-diabetes-distress-psychological-burden', 'type2-insulin-resistance-depression-mechanism'],
+  },
+  // Added 2026-08-24, fact-checking a shared Google AI Mode conversation on
+  // diet and mental illness. The bidirectional epidemiology above already
+  // covers how often depression and T2D co-occur, this entry covers the
+  // specific brain mechanism proposed to explain why, distinct rather than
+  // duplicated.
+  {
+    id: 'type2-insulin-resistance-depression-mechanism',
+    category: 'type2Diabetes',
+    title: 'Insulin Resistance Itself, Not Just Blood Sugar, Is a Documented Shared Mechanism With Depression',
+    teaser: 'Research finds defective insulin signaling directly disrupts the brain\'s own reward system and stress-response axis, a specific proposed mechanism behind why T2D and depression track together so closely.',
+    summary:
+      "Beyond the epidemiological bidirectional risk this category already documents, research into T2D's own underlying biology, insulin resistance, finds it functioning as a shared pathogenic mechanism with depression rather than only a downstream metabolic complication of it. Insulin resistance has been shown to develop in the brains of people with depression, involving defective insulin signaling that affects the brain's reward system, neurogenesis, synaptic plasticity, and the hypothalamic-pituitary-adrenal stress axis, the same axis this category's own cortisol and stress research already covers. One specific proposed pathway: the inflammatory cytokine TNF-alpha promotes both defective insulin signaling and depressive-like behavior through overlapping molecular signaling, giving inflammation, insulin resistance, and mood a documented common thread rather than three separate problems that happen to occur in the same person. This sits alongside this category's own already-covered blood-sugar management guidance: stabilizing glucose and improving insulin sensitivity is a metabolic goal with a plausible mood benefit attached, not an unrelated, separate concern.",
+    citations: [
+      { source: 'Insulin Resistance as a Shared Pathogenic Mechanism Between Depression and Type 2 Diabetes, PMC6382695', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6382695/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['type2-depression-bidirectional-real-data', 'mentalhealth-glycemic-instability-mood', 'pcos-insulin-resistance-depression-mechanism'],
   },
   {
     id: 'type2-diabetic-foot-ulcer-amputation-risk',

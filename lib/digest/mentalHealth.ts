@@ -153,4 +153,100 @@ export const MENTAL_HEALTH_ENTRIES: DigestEntry[] = [
       'prostate-depression-anxiety-real-data',
     ],
   },
+
+  // Nutritional Psychiatry, diet-as-exposure batch, added 2026-08-24,
+  // sourced from a shared Google AI Mode conversation on diet and mental
+  // illness, independently fact-checked via WebSearch rather than trusted
+  // as given (two of its claims needed correction: the "toxicity" framing
+  // turned out to mean inflammation, not literal poisoning, and the implied
+  // "gut serotonin reaches the brain" framing is wrong, see
+  // mentalhealth-gut-scfa-mood-mechanism below for the actual mechanism).
+  // An overlap check ran first, not assumed: this category already had a
+  // dedicated Mental Health & Food topic (the entries above) covering
+  // the inflammation-CRP link, the SMILES trial, EPA/DHA, exercise, and
+  // B12/folate, plus an individually-cited depression/anxiety comorbidity
+  // entry for all 19 conditions. What the source conversation raised that
+  // wasn't already covered: ultra-processed food intake itself as a
+  // diet-quality exposure (distinct from the comorbidity findings above,
+  // which describe two conditions co-occurring, not a food-choice risk
+  // factor), the actual mechanism connecting gut microbiome health to mood
+  // (IBS's own ibs-gut-serotonin-mechanism entry already covers gut
+  // serotonin's role in motility correctly; this fills the separate,
+  // mood-specific mechanism gap), blood sugar instability as a moment-to-
+  // moment mood driver, and micronutrient-specific evidence for vitamin D,
+  // magnesium, and zinc that this category's own existing nutrient-overview
+  // entries (essentialNutrients.ts) don't cover. Two further, condition-
+  // specific entries built from the same insulin-resistance mechanism live
+  // in type2Diabetes.ts and pcos.ts, cross-linked below, since both
+  // conditions' own existing depression entries cover epidemiological risk
+  // rather than this specific brain mechanism.
+  {
+    id: 'mentalhealth-ultraprocessed-food-risk',
+    category: 'basicHealth',
+    title: 'Ultra-Processed Food Intake Itself Tracks With Higher Depression and Anxiety Risk',
+    teaser: 'A meta-analysis of over 385,000 people found the highest ultra-processed food intake linked to 44% higher odds of depressive symptoms and 48% higher odds of anxiety symptoms than the lowest intake group.',
+    summary:
+      "A 2022 systematic review and meta-analysis pooled 17 observational studies covering 385,541 people and found greater ultra-processed food intake cross-sectionally associated with higher odds of depressive symptoms (odds ratio 1.44), anxiety symptoms (odds ratio 1.48), and the two combined (odds ratio 1.53). The same review's pooled prospective studies, which track people forward in time rather than measuring diet and mood at a single moment, found higher ultra-processed food intake predicted a 22% increased risk of later depression. A separate 2022 meta-analysis of 26 studies and 260,385 people confirmed the depression link (a 28% increased risk) but found no statistically significant anxiety link in its own pooled data, a disagreement between meta-analyses on the anxiety half specifically that this entry reports rather than smooths over. Every number above comes from observational research, association and prediction, not a randomized trial proving ultra-processed food itself causes depression or anxiety, the same limitation this category's own inflammation-CRP entry already flags for that adjacent body of evidence. Tiered moderate for exactly that reason, alongside the SMILES trial's own randomized, controlled evidence that improving diet quality measurably treats depression.",
+    citations: [
+      { source: 'Ultra-Processed Food Consumption and Mental Health: A Systematic Review and Meta-Analysis of Observational Studies, Nutrients 2022, PMC9268228', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9268228/' },
+      { source: 'The association of ultra-processed food consumption with adult mental health disorders: a systematic review and dose-response meta-analysis of 260,385 participants, Nutritional Neuroscience 2022', url: 'https://www.tandfonline.com/doi/full/10.1080/1028415X.2022.2110188' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['mentalhealth-overview', 'mentalhealth-inflammation-link', 'mentalhealth-smiles-trial'],
+  },
+  {
+    id: 'mentalhealth-gut-scfa-mood-mechanism',
+    category: 'basicHealth',
+    title: 'Fiber Fermented Into Short-Chain Fatty Acids, Not Serotonin Crossing Into the Brain, Is the Documented Gut-Mood Mechanism',
+    teaser: 'Gut bacteria make roughly 90% of the body\'s serotonin, but that gut-made serotonin does not cross the blood-brain barrier. The documented mood mechanism runs through a different molecule entirely.',
+    summary:
+      "This category's own IBS research (see ibs-gut-serotonin-mechanism) already documents that specialized gut cells produce the large majority of the body's serotonin, and that this system directly governs gut motility. A common but imprecise extension of that fact claims this gut-made serotonin also travels to the brain and directly shapes mood, it does not: peripheral serotonin, including the kind gut cells produce, cannot cross the blood-brain barrier, and the brain synthesizes its own separate serotonin supply from dietary tryptophan. The actual, better-documented mechanism connecting gut health to mood runs through short-chain fatty acids (SCFAs), acetate, propionate, and especially butyrate, produced when gut bacteria ferment fiber from whole foods. A 2024 review in General Psychiatry details how these SCFAs regulate DNA methylation and histone acetylation in brain cells and microglia, reducing pro-inflammatory cytokine activity and promoting brain-derived neurotrophic factor (BDNF) synthesis, and finds fecal SCFA levels consistently lower in people with depression than in controls. Butyrate specifically shows an antidepressant-like effect in animal studies, reversing markers of low energy and anhedonia. The practical takeaway matches this whole category's own core direction without needing an inflated mechanism: fiber-rich whole foods feed the bacteria that make SCFAs, a documented, if still-developing, path from diet to mood that doesn't depend on serotonin transport that doesn't actually happen.",
+    citations: [
+      { source: 'Gut microbiota-derived short-chain fatty acids and depression: deep insight into biological mechanisms and potential applications, General Psychiatry 2024, PMID 38390241', url: 'https://pubmed.ncbi.nlm.nih.gov/38390241/' },
+      { source: 'Gut microbes and metabolites as modulators of blood-brain barrier integrity and brain health, PMC7053956', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7053956/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ibs-gut-serotonin-mechanism', 'mentalhealth-overview', 'gut-scfa-treg'],
+  },
+  {
+    id: 'mentalhealth-glycemic-instability-mood',
+    category: 'basicHealth',
+    title: 'Blood Sugar Swings Drive Mood Symptoms in the Short Term, and Insulin Resistance Shapes Depression Risk in the Long Term',
+    teaser: 'A sharp glucose spike followed by a crash triggers a measurable stress-hormone response, cortisol and adrenaline, that shows up as irritability, anxiety, and brain fog, on a timescale of hours, not weeks.',
+    summary:
+      "Refined carbohydrates and free sugars, stripped of the fiber and protein that would normally slow digestion, produce a fast, pronounced rise in blood glucose. The body's insulin response to that spike can overshoot, driving glucose back down quickly enough to trigger a counter-regulatory stress response: the release of cortisol and adrenaline to push stored glucose back into circulation. That hormone response, not the low blood sugar number alone, is what produces the acute irritability, anxiety, and difficulty concentrating people commonly describe after a sugar crash. Separately from this hour-to-hour pattern, a growing body of research finds insulin resistance itself, the same underlying problem driving Type 2 Diabetes, PCOS, and MASLD, functions as a shared biological mechanism with depression rather than just a statistical companion to it: defective brain insulin signaling affects the reward system, neurogenesis, and the hypothalamic-pituitary-adrenal stress axis, and inflammatory signaling (TNF-alpha) has been shown to directly promote both impaired insulin signaling and depressive-like behavior in the same pathway. This category's own Type 2 Diabetes and PCOS entries build on this specific mechanism further.",
+    citations: [
+      { source: 'Insulin Resistance as a Shared Pathogenic Mechanism Between Depression and Type 2 Diabetes, PMC6382695', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6382695/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['mentalhealth-overview', 'type2-insulin-resistance-depression-mechanism', 'pcos-insulin-resistance-depression-mechanism'],
+  },
+  {
+    id: 'mentalhealth-vitamin-d-mixed-evidence',
+    category: 'basicHealth',
+    title: 'Vitamin D and Depression: A Documented Biological Rationale, and an Evidence Base Still Mixed',
+    teaser: 'Vitamin D receptors sit throughout the brain and vitamin D helps activate serotonin synthesis, but supplementation trials for depression have swung between finding no benefit and finding a modest one.',
+    summary:
+      "Vitamin D receptors are distributed across brain regions involved in mood regulation, and vitamin D transcriptionally activates the enzyme tryptophan hydroxylase-2, a step in the brain's own serotonin synthesis pathway, giving low vitamin D a plausible mechanism for affecting mood. Low vitamin D status correlates with more depressive symptoms in observational research. Trial evidence for whether supplementing vitamin D actually improves depression has moved less consistently: a 2014 meta-analysis found no significant benefit, largely because most included trials enrolled people who were not vitamin D deficient to begin with, while newer, larger analyses, including a 2024 dose-response meta-analysis of 31 trials and over 24,000 people, find a measurable reduction in depressive symptoms, most consistently at shorter follow-up windows. This sits alongside this category's own existing, more conservative vitamin D entries (the 2024 Endocrine Society guideline against routine population-wide testing and supplementation, and the VITAL trial's own null result for cancer and cardiovascular prevention), evidence for a depression-specific benefit doesn't override that broader conservative stance for otherwise healthy adults, it's a distinct, still-developing question rather than a settled one.",
+    citations: [
+      { source: 'The effect of vitamin D supplementation on depression: a systematic review and dose-response meta-analysis of randomized controlled trials, Psychological Medicine 2024, PMC11650176', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11650176/' },
+      { source: 'Vitamin D supplementation to reduce depression in adults: meta-analysis of randomized controlled trials, PMID 25701329', url: 'https://pubmed.ncbi.nlm.nih.gov/25701329/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['vitamind-overview', 'vitamind-2024-guideline-honest-correction', 'vitamind-vital-trial-non-skeletal', 'mentalhealth-overview'],
+  },
+  {
+    id: 'mentalhealth-magnesium-zinc-mood',
+    category: 'basicHealth',
+    title: 'Low Magnesium and Zinc Levels Are Both Measurably Linked to Depression',
+    teaser: 'A meta-analysis of over 450 depressed patients found zinc supplementation reduced depressive symptoms, and depressed people average about 14% less blood zinc than the general population.',
+    summary:
+      "Both minerals have a documented, if modest, evidence base specific to mood, distinct from either one's own broader deficiency-symptom profile already covered in this app's essential-nutrients research. For zinc, a 2013 meta-analysis of 17 studies found depressed people carried roughly 14% less blood zinc on average than people without depression, with the gap widening in more severe depression, and a separate meta-analysis of randomized trials totaling over 450 depressed patients found adding zinc to standard antidepressant treatment (imipramine) produced a measurable reduction in depressive symptoms. For magnesium, a systematic review and meta-analysis of seven clinical trials (325 people) found magnesium supplementation produced a significant decline in depression scores, though the underlying relationship is more tangled than a simple deficiency story, dietary magnesium intake correlates with depression prevalence but not with new-onset depression in longitudinal data, and magnesium acts as a cofactor in over 350 enzymes, many involved in the same neurotransmitter-balancing processes already covered elsewhere in this topic. Neither mineral is framed here as a standalone depression treatment, both function as one modifiable factor among several, most useful for someone whose levels are actually low to begin with.",
+    citations: [
+      { source: 'Zinc, Magnesium, Selenium and Depression: A Review of the Evidence, Potential Mechanisms and Implications, Nutrients 2018', url: 'https://www.mdpi.com/2072-6643/10/5/584' },
+      { source: 'Magnesium and mood disorders: systematic review and meta-analysis, BJPsych Open', url: 'https://www.cambridge.org/core/journals/bjpsych-open/article/magnesium-and-mood-disorders-systematic-review-and-metaanalysis/9257DB9E4EAC7F0A5C5B84E63B4D3AEF' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['zinc-overview', 'magnesium-overview', 'mentalhealth-overview'],
+  },
 ];

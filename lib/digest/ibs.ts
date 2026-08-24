@@ -288,7 +288,7 @@ export const IBS_ENTRIES: DigestEntry[] = [
       { source: 'Mechanosensory Signaling in Enterochromaffin Cells and 5-HT Release: Potential Implications for Gut Inflammation, PMC5165017', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5165017/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ibs-overview', 'gut-scfa-treg'],
+    relatedIds: ['ibs-overview', 'gut-scfa-treg', 'mentalhealth-gut-scfa-mood-mechanism'],
   },
 
   // -- Volumetric depth pass batch 4, 2026-08-08, continuing toward
