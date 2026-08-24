@@ -88,12 +88,14 @@ import { buildTime24, formatTime12, splitTime24, type TimeOfDayInput } from '../
 import {
   ALL_HOME_SECTION_KEYS,
   GENERIC_PALETTE_LABELS,
+  getOrderedHomeSectionKeys,
   HOME_SECTION_LABELS,
   isHomeSectionVisible,
   setVisualPreferences,
   SHARED_BACKGROUND_SCOPE_KEY,
   type BackgroundStyle,
   type GenericPalette,
+  type HomeSectionKey,
   type TabHubIconChoice,
 } from '../lib/visualPreferences';
 
@@ -563,6 +565,27 @@ export default function ProfileScreen() {
   // in lib/visualPreferences.ts) rather than replacing the whole map.
   function toggleHomeSection(key: (typeof ALL_HOME_SECTION_KEYS)[number]) {
     setVisualPreferences({ homeSectionVisibility: { [key]: !isHomeSectionVisible(visualPrefs, key) } });
+  }
+
+  // Home Screen order, 2026-08-23, direct request: "they should be able
+  // to move the things on the home screen they have chosen to be there
+  // into any order they want to from top to bottom, except the welcome
+  // box." Reads the real, reconciled order via getOrderedHomeSectionKeys
+  // (never visualPrefs.homeSectionOrder directly, same discipline
+  // isHomeSectionVisible already establishes for its own sibling field),
+  // swaps the moved key with its neighbor, and saves the whole new order
+  // in one write -- setVisualPreferences replaces homeSectionOrder
+  // wholesale rather than merging it key by key (see that function's own
+  // comment in lib/visualPreferences.ts), which is exactly right for a
+  // full reordered list, not a problem to work around.
+  function moveHomeSection(key: HomeSectionKey, direction: 'up' | 'down') {
+    const order = getOrderedHomeSectionKeys(visualPrefs);
+    const index = order.indexOf(key);
+    const swapWith = direction === 'up' ? index - 1 : index + 1;
+    if (index === -1 || swapWith < 0 || swapWith >= order.length) return;
+    const reordered = [...order];
+    [reordered[index], reordered[swapWith]] = [reordered[swapWith], reordered[index]];
+    setVisualPreferences({ homeSectionOrder: reordered });
   }
 
   // Header growth vine toggle, 2026-08-21, Phase 0 of the header growth
@@ -2593,6 +2616,53 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
+
+            {/* Order, 2026-08-23, direct request: "they should be able to
+                move the things on the home screen they have chosen to be
+                there into any order they want to from top to bottom,
+                except the welcome box with all of the basic daily info
+                available." The welcome box (greeting/date/weather) isn't
+                in this list at all -- it's not a HomeSectionKey to begin
+                with, see this list's own comment. Up/down buttons rather
+                than drag-and-drop: no drag library is part of this
+                project yet, and a plain, explicit tap is the same
+                low-risk control every other picker on this screen already
+                favors (see the PopoverSelect standard this app follows).
+                Shown in the person's own real current order, top to
+                bottom, matching exactly what Home itself will render. */}
+            <Text style={styles.subLabelDivided}>Order</Text>
+            <Text style={styles.helpText}>
+              Move any of these up or down to change the order they appear on Home, top to bottom.
+            </Text>
+            <View style={styles.homeOrderList}>
+              {getOrderedHomeSectionKeys(visualPrefs).map((key, index, order) => (
+                <View key={key} style={styles.homeOrderRow}>
+                  <Text style={styles.homeOrderLabel} numberOfLines={1}>
+                    {HOME_SECTION_LABELS[key]}
+                  </Text>
+                  <View style={styles.homeOrderButtons}>
+                    <TouchableOpacity
+                      onPress={() => moveHomeSection(key, 'up')}
+                      disabled={index === 0}
+                      style={[styles.homeOrderButton, index === 0 && styles.homeOrderButtonDisabled]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Move ${HOME_SECTION_LABELS[key]} up`}
+                    >
+                      <Ionicons name="chevron-up" size={18} color={index === 0 ? colors.textMuted : colors.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => moveHomeSection(key, 'down')}
+                      disabled={index === order.length - 1}
+                      style={[styles.homeOrderButton, index === order.length - 1 && styles.homeOrderButtonDisabled]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Move ${HOME_SECTION_LABELS[key]} down`}
+                    >
+                      <Ionicons name="chevron-down" size={18} color={index === order.length - 1 ? colors.textMuted : colors.primary} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </View>
           </View>
         ) : null}
       </View>
@@ -3206,6 +3276,30 @@ const styles = StyleSheet.create({
   pillTextActive: {
     color: colors.textOnPrimary,
   },
+  // Home Screen's own "Order" list, 2026-08-23 -- one row per reorderable
+  // section, up/down buttons rather than drag-and-drop (see the JSX's own
+  // comment for why).
+  homeOrderList: { gap: 8, marginTop: 4 },
+  homeOrderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  homeOrderLabel: { ...typography.body, color: colors.textPrimary, flex: 1, marginRight: 8 },
+  homeOrderButtons: { flexDirection: 'row', gap: 4 },
+  homeOrderButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+  },
+  homeOrderButtonDisabled: { opacity: 0.35 },
   // The Conditions & Check-In condition picker's even 2-column grid,
   // 2026-08-21, see the JSX's comment above for why this list needed a
   // grid instead of the plain pillRow every other picker on this screen

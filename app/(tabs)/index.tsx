@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter, type Href } from 'expo-router';
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeOut, ZoomIn } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -63,7 +64,7 @@ import {
 } from '../../lib/nutrientAnalysis';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { getSixDimensionsFlagTrendSeries } from '../../lib/trendAnalysis';
-import { ALL_HOME_SECTION_KEYS, isHomeSectionVisible } from '../../lib/visualPreferences';
+import { ALL_HOME_SECTION_KEYS, getOrderedHomeSectionKeys, isHomeSectionVisible, type HomeSectionKey } from '../../lib/visualPreferences';
 import { useVisualPreferences } from '../../hooks/useVisualPreferences';
 
 // 'YYYY-MM-DD' in LOCAL time -- same helper (and same reasoning) duplicated
@@ -589,6 +590,22 @@ export default function HomeScreen() {
   // person had scrolled to).
   const hasLoadedOnceRef = useRef(false);
   const scrollRef = useRef<ScrollView>(null);
+  // The greeting card's own collapse state, 2026-08-23 direct request:
+  // full size for the first minute after Home first mounts ('initial',
+  // in normal document flow, unchanged from before this), then
+  // ('collapsed') a small floating seed-icon square pinned at the top
+  // left, tap to reopen ('expanded', a semi-transparent floating overlay
+  // on top of the rest of Home rather than back in document flow, since
+  // the rest of Home has already moved up to fill the space by then),
+  // auto-collapsing again after 30 seconds or a tap on its own small
+  // seed badge. Plain useState, not tied to visualPreferences -- this is
+  // moment-to-moment display state for the current session, not a saved
+  // preference, the same way visibleFlipCardCount just above isn't one
+  // either. Home stays mounted across tab switches (see
+  // hasLoadedOnceRef's own comment above), so a timer started once here
+  // genuinely means "once per app session," not "every time Home
+  // refocuses."
+  const [greetingCardState, setGreetingCardState] = useState<'initial' | 'collapsed' | 'expanded'>('initial');
 
   // Kept separate from `load` below -- getSixDimensionsFlagTrendSeries
   // loops one DB call per day over 14 days, so it's noticeably heavier
@@ -737,6 +754,32 @@ export default function HomeScreen() {
       });
     }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope]),
   );
+
+  // Plain useEffect (mount-once), not useFocusEffect -- this is meant to
+  // fire once per real app open, not restart every time someone swipes
+  // back to Home from another tab. Only actually collapses if still
+  // 'initial' by the time this fires, so a person who's already tapped
+  // the corner badge to collapse it manually before the minute is up
+  // isn't yanked back into a re-collapse of a state they already left.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setGreetingCardState((current) => (current === 'initial' ? 'collapsed' : current));
+    }, 60000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Separate effect keyed on greetingCardState itself, 2026-08-23: the
+  // 30-second auto-close only ever applies to a tap-triggered reopen, not
+  // the original minute-long first display, so this has to be its own
+  // effect rather than folded into the one above. Re-armed every time
+  // greetingCardState actually becomes 'expanded' again, cleared (and not
+  // fired) if it leaves 'expanded' before the 30 seconds are up, whether
+  // from this same timer or a manual tap on the corner badge.
+  useEffect(() => {
+    if (greetingCardState !== 'expanded') return;
+    const timer = setTimeout(() => setGreetingCardState('collapsed'), 30000);
+    return () => clearTimeout(timer);
+  }, [greetingCardState]);
 
   // --- Today's Check-In (2026-08-08) -------------------------------------
   //
@@ -979,6 +1022,484 @@ export default function HomeScreen() {
     skyGridItems.push({ emoji: '⚠️', label: skyResult.message, tone: 'moderate', fullWidth: true });
   }
 
+  // Shared between the card's two full-size states ('initial', in normal
+  // document flow, and 'expanded', a floating overlay) -- the actual
+  // greeting/date/affirmation/weather content never changes between them,
+  // only where and how the card itself is positioned does. Split into a
+  // header row (badge plus greeting/affirmation/date, side by side, so
+  // the badge genuinely sits in the card's own top left corner rather
+  // than floating over the text) and the weather grid below it, spanning
+  // the card's own full width rather than being squeezed into the
+  // header row's narrower text column.
+  function renderGreetingCardFull() {
+    return (
+      <>
+        <View style={styles.greetingCardRow}>
+          {renderGreetingSeedBadge('collapse')}
+          <View style={styles.greetingCardTextCol}>
+            <Text style={styles.greetingText}>
+              {timeGreeting()}
+              {firstName ? `, ${firstName}` : ''}
+            </Text>
+            <Text style={styles.affirmationText}>{pickAffirmation()}</Text>
+            <Text style={styles.dateText}>{todayLabel}</Text>
+          </View>
+        </View>
+
+        {isHomeSectionVisible(visualPrefs, 'weather') ? (
+          <View style={styles.skyGrid}>
+            {skyGridItems.map((item, index) => (
+              <SkyGridItem key={index} {...item} />
+            ))}
+          </View>
+        ) : null}
+      </>
+    );
+  }
+
+  // The small seed-icon badge, 2026-08-23 direct request: "make sure the
+  // sprouting seed default TabHub button continues to be used... Make it
+  // have that as a small version of it on the top left corner of the
+  // card, and then it shrinks into that sprouting seed on a little
+  // square." One shared render function rather than three near-identical
+  // copies (the badge sitting in the corner of both full-size states,
+  // plus the collapsed state's own standalone square) -- same asset the
+  // TabHub button's own default icon already uses
+  // (assets/branding/seed-tall-transparent.png), not a new icon
+  // commissioned for this. Always the tap target that collapses the
+  // card, in every state it appears in.
+  // Reused in two different contexts with two different taps: sitting in
+  // the corner of a full-size card, it collapses; standing on its own as
+  // the resting collapsed state, it expands. A plain parameter rather
+  // than a fixed 'collapse' behavior baked in, since a badge that always
+  // collapsed would have silently done nothing (already collapsed, tap
+  // ignored) the one time it actually needs to reopen the card.
+  function renderGreetingSeedBadge(action: 'collapse' | 'expand') {
+    return (
+      <TouchableOpacity
+        onPress={() => setGreetingCardState(action === 'collapse' ? 'collapsed' : 'expanded')}
+        activeOpacity={0.8}
+        style={styles.greetingSeedBadge}
+        accessibilityRole="button"
+        accessibilityLabel={action === 'collapse' ? 'Collapse the greeting card' : 'Expand the greeting card'}
+      >
+        <Image source={require('../../assets/branding/seed-tall-transparent.png')} style={styles.greetingSeedIcon} resizeMode="contain" />
+      </TouchableOpacity>
+    );
+  }
+
+  // 2026-08-23, direct request: "they should be able to move the things
+  // on the home screen they have chosen to be there into any order they
+  // want to from top to bottom, except the welcome box." Every
+  // reorderable section's own exact JSX, unchanged from before this
+  // change, just pulled into its own function so the render below can
+  // pick each one up in whatever order Profile's own Order list saved,
+  // rather than a fixed sequence hardcoded into the JSX itself.
+  // digestCards used to render as its own separate block, always, right
+  // after this whole loading-gated group rather than inside it (its own
+  // data, visibleFlipCards, doesn't depend on `loading` at all) -- folded
+  // in here too now, since once every section can land anywhere in the
+  // order, one section skipping the same loading gate every other one
+  // respects would leave a real, confusing gap in the middle of the
+  // sequence while the rest are still waiting to appear.
+
+  // 2026-08-08, explicitly requested: the periodic symptom check-in
+  // (app/assessment.tsx) "need[s] to automatically pop up every 30
+  // days" -- this is that pop-up. A rolling cadence (see
+  // ASSESSMENT_DUE_AFTER_DAYS's own comment above), not a
+  // calendar-anchored one.
+  function renderSymptomCheckinReminder() {
+    if (!assessmentDue || !isHomeSectionVisible(visualPrefs, 'symptomCheckinReminder')) return null;
+    return (
+      <TouchableOpacity style={styles.assessmentDueBanner} onPress={() => router.push('/assessment')} activeOpacity={0.85}>
+        <Ionicons name="pulse-outline" size={20} color={colors.primary} />
+        <View style={styles.assessmentDueTextCol}>
+          <Text style={styles.assessmentDueTitle}>
+            {data?.daysSinceAssessment == null ? 'Take your first symptom check-in' : 'Time for your symptom check-in'}
+          </Text>
+          <Text style={styles.assessmentDueSubtitle}>
+            {data?.daysSinceAssessment == null
+              ? "A few minutes now becomes a baseline to compare against next time."
+              : `It's been ${data.daysSinceAssessment} days since your last one. Retaking it is what turns today into a trend.`}
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+      </TouchableOpacity>
+    );
+  }
+
+  // Today's Check-In -- 2026-08-08, explicitly requested: "on the home
+  // page they need to have the ability to select how they feel today,
+  // just a one question thing... the list to choose from... might need
+  // to be quite extensive." Reuses lib/checkinTags.ts's own
+  // already-extensive, categorized vocabulary and the existing
+  // wellbeing_checkins table (checkinType 'general') -- see the handlers
+  // above (openFeelingPicker/toggleFeelingTag/saveFeelingCheckin) for the
+  // full reasoning, including how valence is derived rather than asked
+  // as its own separate question.
+  function renderTodaysCheckin() {
+    if (!isHomeSectionVisible(visualPrefs, 'todaysCheckin')) return null;
+    return (
+      <View style={[styles.feelingCard, { borderColor: tabColorFor('/log') }]}>
+        <CardLabel tabPath="/log" text="Today's Check-In" />
+        {feelingPickerOpen ? (
+          <>
+            <Text style={[styles.feelingPrompt, { color: tabColorFor('/log') }]}>
+              How are you feeling today? Pick everything that applies.
+            </Text>
+            {getCheckinTagsByCategory().map((group) => (
+              <View key={group.category} style={styles.feelingCategoryBlock}>
+                <Text style={styles.feelingCategoryLabel}>{group.label}</Text>
+                <View style={styles.feelingTagRow}>
+                  {group.tags.map((tag) => {
+                    const active = selectedFeelingTags.includes(tag.code);
+                    return (
+                      <TouchableOpacity
+                        key={tag.code}
+                        style={[
+                          styles.feelingTagChip,
+                          active && { backgroundColor: tabColorFor('/log'), borderColor: tabColorFor('/log') },
+                        ]}
+                        onPress={() => toggleFeelingTag(tag.code)}
+                      >
+                        <Text style={[styles.feelingTagText, active && styles.feelingTagTextActive]}>{tag.label}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            ))}
+            <View style={styles.feelingActionsRow}>
+              <TouchableOpacity style={styles.feelingCancelButton} onPress={() => setFeelingPickerOpen(false)}>
+                <Text style={styles.feelingCancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.feelingSaveButton,
+                  { backgroundColor: tabColorFor('/log') },
+                  selectedFeelingTags.length === 0 && styles.feelingSaveButtonDisabled,
+                ]}
+                onPress={saveFeelingCheckin}
+                disabled={selectedFeelingTags.length === 0 || feelingSaving}
+              >
+                <Text style={styles.feelingSaveButtonText}>{feelingSaving ? 'Saving…' : 'Save'}</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : data?.feelingCheckin ? (
+          <TouchableOpacity onPress={openFeelingPicker} activeOpacity={0.75}>
+            <Text style={[styles.feelingLoggedText, { color: tabColorFor('/log') }]}>
+              {data.feelingCheckin.tags.length > 0
+                ? data.feelingCheckin.tags.map((code) => getCheckinTagDefinition(code)?.label ?? code).join(', ')
+                : 'Logged for today, no specific tags'}
+            </Text>
+            <Text style={styles.feelingChangeLink}>Tap to update</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={[styles.feelingStartButton, { borderColor: tabColorFor('/log') }]}
+            onPress={openFeelingPicker}
+            activeOpacity={0.85}
+          >
+            <Text style={[styles.feelingStartButtonText, { color: tabColorFor('/log') }]}>Log how you feel today</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  }
+
+  function renderYourDay() {
+    if (!isHomeSectionVisible(visualPrefs, 'yourDay')) return null;
+    return (
+      <View style={[styles.arcCard, { borderColor: tabColorFor('/schedule') }]}>
+        <CardLabel tabPath="/schedule" text="Your Day" />
+        <DayArc items={data?.scheduledToday ?? []} onPressItem={setSelectedItem} labelColor={tabColorFor('/schedule')} />
+        <Text style={[styles.arcCaption, { color: tabColorFor('/schedule') }]}>
+          {upNext
+            ? upNext.isPast
+              ? `${upNext.item.title} was due ${formatTime12(upNext.item.scheduledFor.slice(11, 16))}: anything to log?`
+              : `Next: ${upNext.item.title} at ${formatTime12(upNext.item.scheduledFor.slice(11, 16))}`
+            : 'Nothing scheduled yet today.'}
+        </Text>
+      </View>
+    );
+  }
+
+  function renderStatTiles() {
+    if (!isHomeSectionVisible(visualPrefs, 'statTiles')) return null;
+    return (
+      <View style={styles.statRow}>
+        <TouchableOpacity
+          style={[styles.statTile, { borderColor: tabColorFor('/food') }]}
+          onPress={() => router.navigate('/food')}
+          activeOpacity={0.75}
+        >
+          <CardLabel tabPath="/food" text={mealsLoggedToday === 1 ? 'Meal logged today' : 'Meals logged today'} />
+          <Text style={[styles.statNumber, { color: tabColorFor('/food') }]}>{mealsLoggedToday}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.statTile, { borderColor: tabColorFor('/insights') }]}
+          onPress={() => router.navigate('/insights')}
+          activeOpacity={0.75}
+        >
+          <CardLabel tabPath="/insights" text="Worth a look" />
+          <Text
+            style={[
+              styles.statNumber,
+              { color: tabColorFor('/insights') },
+              worthALookCount > 0 && styles.statNumberFlagged,
+            ]}
+          >
+            {mealsLoggedToday === 0 ? '—' : worthALookCount}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  function renderQuickActions() {
+    if (!isHomeSectionVisible(visualPrefs, 'quickActions')) return null;
+    return (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.fullBleedScroll}
+        contentContainerStyle={styles.quickActionsRow}
+      >
+        {/* Daily check-in is now first, 2026-07-28 -- explicitly
+            requested reorder, Log a meal moved to second (right after
+            this one, unchanged otherwise). Deliberately left the generic
+            colors.primary, not tab-colored like the others below -- it
+            opens Assessment, a standalone screen outside TAB_ROUTES
+            entirely (see TabHub.tsx's own profileActive comment for the
+            same "not really a tab" situation), so there's no real tab
+            color to borrow here.
+            Relabeled "Symptom check-in," 2026-08-08 -- this opens the
+            full periodic assessment (30 real questions across 3
+            domains), which was never actually a daily action; "Daily
+            check-in" became genuinely misleading once a real daily
+            action (Today's Check-In, above) exists on this same page.
+            This pill still opens the same assessment as always -- just
+            named for what it actually is, available any time regardless
+            of whether the new 30-day due banner above is currently
+            showing. */}
+        <TouchableOpacity style={styles.quickActionSecondary} onPress={() => router.push('/assessment')} activeOpacity={0.85}>
+          <Ionicons name="pulse-outline" size={18} color={colors.primary} />
+          <Text style={styles.quickActionSecondaryText}>Symptom check-in</Text>
+        </TouchableOpacity>
+        {/* Reverted the solid green fill, same day -- just the
+            border/icon/text carry Food's color now, matching every
+            secondary pill's own outline treatment instead of standing
+            out as a differently-colored filled button. */}
+        <TouchableOpacity
+          style={[styles.quickActionSecondary, { borderColor: tabColorFor('/food') }]}
+          onPress={() => router.navigate('/food')}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="add-circle-outline" size={18} color={tabColorFor('/food')} />
+          <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/food') }]}>Log a meal</Text>
+        </TouchableOpacity>
+        {/* "Scan a Product," 2026-08-17 -- a real shortcut to the
+            barcode-scanning screen (app/scan-product.tsx), moved here
+            directly per its own explicit request: "having a shortcut to
+            it on the Home screen seems appropriate." Food-colored, same
+            as "Log a meal" right above it -- the screen it opens is
+            reached from Food's own "My Foods" menu and lives entirely
+            within that tab's own real identity, even though it's a
+            standalone Stack screen, not a Food-tab lens. */}
+        <TouchableOpacity
+          style={[styles.quickActionSecondary, { borderColor: tabColorFor('/food') }]}
+          onPress={() => router.push('/scan-product')}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="barcode-outline" size={18} color={tabColorFor('/food')} />
+          <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/food') }]}>Scan a product</Text>
+        </TouchableOpacity>
+        {/* These three all write to Signals's own data (flares, and
+            blood pressure/exercise under its Other lens) -- explicitly
+            requested, 2026-07-27, so a pill's own color matches where
+            its data actually lives, the same tab-color consistency
+            already applied to every info box above. Blood
+            pressure/exercise open a local modal rather than literally
+            navigating to /log, but the data they save is Signals's
+            regardless. */}
+        <TouchableOpacity
+          style={[styles.quickActionSecondary, { borderColor: tabColorFor('/log') }]}
+          onPress={() => router.navigate('/log')}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="flame-outline" size={18} color={tabColorFor('/log')} />
+          <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/log') }]}>Log a flare</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.quickActionSecondary, { borderColor: tabColorFor('/log') }]}
+          onPress={() => setQuickLogModal('bp')}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="heart-outline" size={18} color={tabColorFor('/log')} />
+          <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/log') }]}>Log blood pressure</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.quickActionSecondary, { borderColor: tabColorFor('/log') }]}
+          onPress={() => setQuickLogModal('exercise')}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="walk-outline" size={18} color={tabColorFor('/log')} />
+          <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/log') }]}>Log exercise</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  }
+
+  // "How You're Feeling" (Signals, a warm peach) used to always come
+  // right before "Today's Fuel Gauges" (Insights, a cool teal-green) --
+  // explicitly ordered that way, 2026-07-27, so the two Insights-colored
+  // boxes (this one and the "Worth a look" stat tile) don't stack
+  // directly on top of each other. That specific pairing is no longer
+  // guaranteed once order is customizable, an honest, accepted tradeoff
+  // of the reordering feature itself, not something silently lost.
+  function renderHowYoureFeeling() {
+    if (!isHomeSectionVisible(visualPrefs, 'howYoureFeeling')) return null;
+    return (
+      <View style={[styles.orbCard, { borderColor: tabColorFor('/log') }]}>
+        <CardLabel tabPath="/log" text="How You're Feeling" />
+        <EnergyOrb
+          recentMaxSeverity={data?.recentMaxSeverity ?? null}
+          hasAnyHistory={data?.hasAnyLogHistory ?? false}
+          onPress={() => router.navigate('/log')}
+          textColor={tabColorFor('/log')}
+        />
+      </View>
+    );
+  }
+
+  function renderFuelGauges() {
+    if (!isHomeSectionVisible(visualPrefs, 'fuelGauges')) return null;
+    if (mealsLoggedToday === 0) {
+      return (
+        <View style={[styles.emptyCard, { borderColor: tabColorFor('/insights') }]}>
+          <CardLabel tabPath="/insights" text="Today's Fuel Gauges" />
+          <Text style={[styles.emptyText, { color: tabColorFor('/insights') }]}>Log a meal to see today's fuel gauges fill in.</Text>
+        </View>
+      );
+    }
+    return (
+      <View style={[styles.fuelGaugesCard, { borderColor: tabColorFor('/insights') }]}>
+        <CardLabel tabPath="/insights" text="Today's Fuel Gauges" />
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.ringRow}>
+          {coreNutrientRings.map((entry) => (
+            <TouchableOpacity key={entry.nutrientCode} onPress={() => router.navigate('/insights')} activeOpacity={0.75}>
+              <ProgressRing
+                percent={entry.percentOfTarget}
+                color={nutrientRingColor(entry.status)}
+                label={entry.displayName}
+                sublabel={`${Math.round(entry.percentOfTarget)}%`}
+              />
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+    );
+  }
+
+  function renderWeekTrend() {
+    if (!weekTrend || !isHomeSectionVisible(visualPrefs, 'weekTrend')) return null;
+    return (
+      <TouchableOpacity
+        style={[styles.trendCard, { borderColor: tabColorFor('/trends') }]}
+        onPress={() => router.navigate('/trends')}
+        activeOpacity={0.75}
+      >
+        <CardLabel tabPath="/trends" text="This Week's Trend" />
+        <Text style={[styles.trendNumber, { color: tabColorFor('/trends') }]}>
+          {weekTrend.thisWeekCount} {weekTrend.thisWeekCount === 1 ? 'flag' : 'flags'} this week
+        </Text>
+        {weekTrend.lastWeekCount != null ? (
+          <Text style={[styles.trendDelta, { color: weekTrendColor(weekTrendDirection(weekTrend)) }]}>
+            {weekTrendLabel(weekTrendDirection(weekTrend))} from {weekTrend.lastWeekCount} last week
+          </Text>
+        ) : (
+          <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Keep logging to compare against last week.</Text>
+        )}
+        <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Tap to see Trends →</Text>
+      </TouchableOpacity>
+    );
+  }
+
+  // Explicitly requested, 2026-07-27: no header above this row ("A Few
+  // Things Worth Knowing" is gone) -- the ribbon icon/purple coloring on
+  // the cards themselves, plus the "More from The Digest" card at the
+  // end, already say what this is without a label spelling it out too.
+  // See digestFlipCardPool's own comment (top of file) for the bigger
+  // change this is part of, 2026-08-23: real Digest entries, scoped to
+  // Basic Health plus the person's own conditions, rather than a fixed
+  // hand-written array, reshuffled daily, with more revealed on tap
+  // rather than shown all at once.
+  function renderDigestCards() {
+    if (!isHomeSectionVisible(visualPrefs, 'digestCards')) return null;
+    return (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={[styles.fullBleedScroll]}
+        contentContainerStyle={styles.flipRow}
+      >
+        {visibleFlipCards.map((card) => (
+          <FlipCard
+            key={card.id}
+            icon={<PurpleRibbonIcon size={28} color={colors.tabPurpleDigest} />}
+            hook={card.hook}
+            backTitle={card.backTitle}
+            backBody={card.backBody}
+            onReadMore={() => router.push({ pathname: '/purple-digest', params: { openEntryId: card.id } })}
+            borderColor={colors.tabPurpleDigest}
+          />
+        ))}
+        {hasMoreFlipCards ? (
+          <TouchableOpacity
+            style={[styles.moreFlipCard, { borderColor: colors.tabPurpleDigest }]}
+            onPress={() => setVisibleFlipCardCount((count) => Math.min(count + 4, flipCardPool.length))}
+            activeOpacity={0.85}
+          >
+            <Ionicons name="add-circle-outline" size={32} color={colors.tabPurpleDigest} />
+            <Text style={[styles.moreFlipCardText, { color: colors.tabPurpleDigest }]}>More from{'\n'}The Digest</Text>
+          </TouchableOpacity>
+        ) : null}
+      </ScrollView>
+    );
+  }
+
+  // Single dispatcher rather than a Record<HomeSectionKey, fn> object --
+  // this only ever gets called with a REORDERABLE_HOME_SECTION_KEYS
+  // member (see getOrderedHomeSectionKeys), never 'weather' (which stays
+  // embedded in the fixed greeting card, not part of this reorderable
+  // list at all), so the default branch below covering 'weather' is a
+  // real, deliberate safety net, not a case actually expected to fire.
+  function renderHomeSection(key: HomeSectionKey) {
+    switch (key) {
+      case 'symptomCheckinReminder':
+        return renderSymptomCheckinReminder();
+      case 'todaysCheckin':
+        return renderTodaysCheckin();
+      case 'yourDay':
+        return renderYourDay();
+      case 'statTiles':
+        return renderStatTiles();
+      case 'quickActions':
+        return renderQuickActions();
+      case 'howYoureFeeling':
+        return renderHowYoureFeeling();
+      case 'fuelGauges':
+        return renderFuelGauges();
+      case 'weekTrend':
+        return renderWeekTrend();
+      case 'digestCards':
+        return renderDigestCards();
+      default:
+        return null;
+    }
+  }
+
   return (
     <View style={styles.screen}>
       {infoAlertElement}
@@ -989,22 +1510,9 @@ export default function HomeScreen() {
           style={styles.scroll}
           contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}
         >
-          <View style={styles.greetingCard}>
-            <Text style={styles.greetingText}>
-              {timeGreeting()}
-              {firstName ? `, ${firstName}` : ''}
-            </Text>
-            <Text style={styles.affirmationText}>{pickAffirmation()}</Text>
-            <Text style={styles.dateText}>{todayLabel}</Text>
-
-            {isHomeSectionVisible(visualPrefs, 'weather') ? (
-              <View style={styles.skyGrid}>
-                {skyGridItems.map((item, index) => (
-                  <SkyGridItem key={index} {...item} />
-                ))}
-              </View>
-            ) : null}
-          </View>
+          {greetingCardState === 'initial' ? (
+            <View style={styles.greetingCard}>{renderGreetingCardFull()}</View>
+          ) : null}
 
           {loading ? (
             <View style={styles.loadingCard}>
@@ -1012,361 +1520,11 @@ export default function HomeScreen() {
             </View>
           ) : (
             <>
-              {/* 2026-08-08, explicitly requested: the periodic symptom
-                  check-in (app/assessment.tsx) "need[s] to automatically
-                  pop up every 30 days" -- this is that pop-up. A rolling
-                  cadence (see ASSESSMENT_DUE_AFTER_DAYS's own comment
-                  above), not a calendar-anchored one; shown right at the
-                  top of Home, above everything else, so it's genuinely
-                  hard to miss rather than something to notice buried in
-                  the quick-actions row's own "Symptom check-in" pill
-                  further down (which stays available regardless, for
-                  taking it early/again any time). */}
-              {assessmentDue && isHomeSectionVisible(visualPrefs, 'symptomCheckinReminder') ? (
-                <TouchableOpacity style={styles.assessmentDueBanner} onPress={() => router.push('/assessment')} activeOpacity={0.85}>
-                  <Ionicons name="pulse-outline" size={20} color={colors.primary} />
-                  <View style={styles.assessmentDueTextCol}>
-                    <Text style={styles.assessmentDueTitle}>
-                      {data?.daysSinceAssessment == null ? 'Take your first symptom check-in' : 'Time for your symptom check-in'}
-                    </Text>
-                    <Text style={styles.assessmentDueSubtitle}>
-                      {data?.daysSinceAssessment == null
-                        ? "A few minutes now becomes a baseline to compare against next time."
-                        : `It's been ${data.daysSinceAssessment} days since your last one. Retaking it is what turns today into a trend.`}
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color={colors.primary} />
-                </TouchableOpacity>
-              ) : null}
-
-              {/* Today's Check-In -- 2026-08-08, explicitly requested: "on
-                  the home page they need to have the ability to select how
-                  they feel today, just a one question thing... the list to
-                  choose from... might need to be quite extensive." Reuses
-                  lib/checkinTags.ts's own already-extensive, categorized
-                  vocabulary and the existing wellbeing_checkins table
-                  (checkinType 'general') -- see the handlers above
-                  (openFeelingPicker/toggleFeelingTag/saveFeelingCheckin)
-                  for the full reasoning, including how valence is derived
-                  rather than asked as its own separate question. */}
-              {isHomeSectionVisible(visualPrefs, 'todaysCheckin') ? (
-              <View style={[styles.feelingCard, { borderColor: tabColorFor('/log') }]}>
-                <CardLabel tabPath="/log" text="Today's Check-In" />
-                {feelingPickerOpen ? (
-                  <>
-                    <Text style={[styles.feelingPrompt, { color: tabColorFor('/log') }]}>
-                      How are you feeling today? Pick everything that applies.
-                    </Text>
-                    {getCheckinTagsByCategory().map((group) => (
-                      <View key={group.category} style={styles.feelingCategoryBlock}>
-                        <Text style={styles.feelingCategoryLabel}>{group.label}</Text>
-                        <View style={styles.feelingTagRow}>
-                          {group.tags.map((tag) => {
-                            const active = selectedFeelingTags.includes(tag.code);
-                            return (
-                              <TouchableOpacity
-                                key={tag.code}
-                                style={[
-                                  styles.feelingTagChip,
-                                  active && { backgroundColor: tabColorFor('/log'), borderColor: tabColorFor('/log') },
-                                ]}
-                                onPress={() => toggleFeelingTag(tag.code)}
-                              >
-                                <Text style={[styles.feelingTagText, active && styles.feelingTagTextActive]}>{tag.label}</Text>
-                              </TouchableOpacity>
-                            );
-                          })}
-                        </View>
-                      </View>
-                    ))}
-                    <View style={styles.feelingActionsRow}>
-                      <TouchableOpacity style={styles.feelingCancelButton} onPress={() => setFeelingPickerOpen(false)}>
-                        <Text style={styles.feelingCancelButtonText}>Cancel</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[
-                          styles.feelingSaveButton,
-                          { backgroundColor: tabColorFor('/log') },
-                          selectedFeelingTags.length === 0 && styles.feelingSaveButtonDisabled,
-                        ]}
-                        onPress={saveFeelingCheckin}
-                        disabled={selectedFeelingTags.length === 0 || feelingSaving}
-                      >
-                        <Text style={styles.feelingSaveButtonText}>{feelingSaving ? 'Saving…' : 'Save'}</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </>
-                ) : data?.feelingCheckin ? (
-                  <TouchableOpacity onPress={openFeelingPicker} activeOpacity={0.75}>
-                    <Text style={[styles.feelingLoggedText, { color: tabColorFor('/log') }]}>
-                      {data.feelingCheckin.tags.length > 0
-                        ? data.feelingCheckin.tags.map((code) => getCheckinTagDefinition(code)?.label ?? code).join(', ')
-                        : 'Logged for today, no specific tags'}
-                    </Text>
-                    <Text style={styles.feelingChangeLink}>Tap to update</Text>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    style={[styles.feelingStartButton, { borderColor: tabColorFor('/log') }]}
-                    onPress={openFeelingPicker}
-                    activeOpacity={0.85}
-                  >
-                    <Text style={[styles.feelingStartButtonText, { color: tabColorFor('/log') }]}>Log how you feel today</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-              ) : null}
-
-              {isHomeSectionVisible(visualPrefs, 'yourDay') ? (
-              <View style={[styles.arcCard, { borderColor: tabColorFor('/schedule') }]}>
-                <CardLabel tabPath="/schedule" text="Your Day" />
-                <DayArc items={data?.scheduledToday ?? []} onPressItem={setSelectedItem} labelColor={tabColorFor('/schedule')} />
-                <Text style={[styles.arcCaption, { color: tabColorFor('/schedule') }]}>
-                  {upNext
-                    ? upNext.isPast
-                      ? `${upNext.item.title} was due ${formatTime12(upNext.item.scheduledFor.slice(11, 16))}: anything to log?`
-                      : `Next: ${upNext.item.title} at ${formatTime12(upNext.item.scheduledFor.slice(11, 16))}`
-                    : 'Nothing scheduled yet today.'}
-                </Text>
-              </View>
-              ) : null}
-
-              {isHomeSectionVisible(visualPrefs, 'statTiles') ? (
-              <View style={styles.statRow}>
-                <TouchableOpacity
-                  style={[styles.statTile, { borderColor: tabColorFor('/food') }]}
-                  onPress={() => router.navigate('/food')}
-                  activeOpacity={0.75}
-                >
-                  <CardLabel tabPath="/food" text={mealsLoggedToday === 1 ? 'Meal logged today' : 'Meals logged today'} />
-                  <Text style={[styles.statNumber, { color: tabColorFor('/food') }]}>{mealsLoggedToday}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.statTile, { borderColor: tabColorFor('/insights') }]}
-                  onPress={() => router.navigate('/insights')}
-                  activeOpacity={0.75}
-                >
-                  <CardLabel tabPath="/insights" text="Worth a look" />
-                  <Text
-                    style={[
-                      styles.statNumber,
-                      { color: tabColorFor('/insights') },
-                      worthALookCount > 0 && styles.statNumberFlagged,
-                    ]}
-                  >
-                    {mealsLoggedToday === 0 ? '—' : worthALookCount}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-              ) : null}
-
-              {isHomeSectionVisible(visualPrefs, 'quickActions') ? (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.fullBleedScroll}
-                contentContainerStyle={styles.quickActionsRow}
-              >
-                {/* Daily check-in is now first, 2026-07-28 -- explicitly
-                    requested reorder, Log a meal moved to second (right
-                    after this one, unchanged otherwise). Deliberately left
-                    the generic colors.primary, not tab-colored like the
-                    others below -- it opens Assessment, a standalone
-                    screen outside TAB_ROUTES entirely (see TabHub.tsx's
-                    own profileActive comment for the same "not really a
-                    tab" situation), so there's no real tab color to
-                    borrow here.
-                    Relabeled "Symptom check-in," 2026-08-08 -- this opens
-                    the full periodic assessment (30 real questions across
-                    3 domains), which was never actually a daily action;
-                    "Daily check-in" became genuinely misleading once a
-                    real daily action (Today's Check-In, above) exists on
-                    this same page. This pill still opens the same
-                    assessment as always -- just named for what it actually
-                    is, available any time regardless of whether the new
-                    30-day due banner above is currently showing. */}
-                <TouchableOpacity style={styles.quickActionSecondary} onPress={() => router.push('/assessment')} activeOpacity={0.85}>
-                  <Ionicons name="pulse-outline" size={18} color={colors.primary} />
-                  <Text style={styles.quickActionSecondaryText}>Symptom check-in</Text>
-                </TouchableOpacity>
-                {/* Reverted the solid green fill, same day -- just the
-                    border/icon/text carry Food's color now, matching every
-                    secondary pill's own outline treatment instead of
-                    standing out as a differently-colored filled button. */}
-                <TouchableOpacity
-                  style={[styles.quickActionSecondary, { borderColor: tabColorFor('/food') }]}
-                  onPress={() => router.navigate('/food')}
-                  activeOpacity={0.85}
-                >
-                  <Ionicons name="add-circle-outline" size={18} color={tabColorFor('/food')} />
-                  <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/food') }]}>Log a meal</Text>
-                </TouchableOpacity>
-                {/* "Scan a Product," 2026-08-17 -- a real shortcut to the
-                    barcode-scanning screen (app/scan-product.tsx), moved
-                    here directly per its own explicit request: "having a
-                    shortcut to it on the Home screen seems appropriate."
-                    Food-colored, same as "Log a meal" right above it --
-                    the screen it opens is reached from Food's own "My
-                    Foods" menu and lives entirely within that tab's own
-                    real identity, even though it's a standalone Stack
-                    screen, not a Food-tab lens. */}
-                <TouchableOpacity
-                  style={[styles.quickActionSecondary, { borderColor: tabColorFor('/food') }]}
-                  onPress={() => router.push('/scan-product')}
-                  activeOpacity={0.85}
-                >
-                  <Ionicons name="barcode-outline" size={18} color={tabColorFor('/food')} />
-                  <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/food') }]}>Scan a product</Text>
-                </TouchableOpacity>
-                {/* These three all write to Signals's own data (flares,
-                    and blood pressure/exercise under its Other lens) --
-                    explicitly requested, 2026-07-27, so a pill's own color
-                    matches where its data actually lives, the same
-                    tab-color consistency already applied to every info box
-                    above. Blood pressure/exercise open a local modal
-                    rather than literally navigating to /log, but the data
-                    they save is Signals's regardless. */}
-                <TouchableOpacity
-                  style={[styles.quickActionSecondary, { borderColor: tabColorFor('/log') }]}
-                  onPress={() => router.navigate('/log')}
-                  activeOpacity={0.85}
-                >
-                  <Ionicons name="flame-outline" size={18} color={tabColorFor('/log')} />
-                  <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/log') }]}>Log a flare</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.quickActionSecondary, { borderColor: tabColorFor('/log') }]}
-                  onPress={() => setQuickLogModal('bp')}
-                  activeOpacity={0.85}
-                >
-                  <Ionicons name="heart-outline" size={18} color={tabColorFor('/log')} />
-                  <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/log') }]}>Log blood pressure</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.quickActionSecondary, { borderColor: tabColorFor('/log') }]}
-                  onPress={() => setQuickLogModal('exercise')}
-                  activeOpacity={0.85}
-                >
-                  <Ionicons name="walk-outline" size={18} color={tabColorFor('/log')} />
-                  <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/log') }]}>Log exercise</Text>
-                </TouchableOpacity>
-              </ScrollView>
-              ) : null}
-
-              {/* "How You're Feeling" (Signals, a warm peach) now comes
-                  before "Today's Fuel Gauges" (Insights, a cool teal-green)
-                  -- explicitly reordered, 2026-07-27, so the two Insights-
-                  colored boxes (this one and the "Worth a look" stat tile
-                  right above) don't stack directly on top of each other.
-                  Food's green and Insights' teal-green already sit right
-                  next to each other in the stat row above (unavoidable --
-                  they're a deliberately paired "today's stats" duo), and
-                  adding a third same-family green immediately below them
-                  made that whole top section read as one indistinct green
-                  blur. A genuinely different hue (peach) in between breaks
-                  that up; see TAB_BORDER_WIDTH's own comment for the other
-                  half of this fix (a thicker border makes each individual
-                  color easier to read regardless of ordering). */}
-              {isHomeSectionVisible(visualPrefs, 'howYoureFeeling') ? (
-              <View style={[styles.orbCard, { borderColor: tabColorFor('/log') }]}>
-                <CardLabel tabPath="/log" text="How You're Feeling" />
-                <EnergyOrb
-                  recentMaxSeverity={data?.recentMaxSeverity ?? null}
-                  hasAnyHistory={data?.hasAnyLogHistory ?? false}
-                  onPress={() => router.navigate('/log')}
-                  textColor={tabColorFor('/log')}
-                />
-              </View>
-              ) : null}
-
-              {isHomeSectionVisible(visualPrefs, 'fuelGauges') ? (
-              mealsLoggedToday === 0 ? (
-                <View style={[styles.emptyCard, { borderColor: tabColorFor('/insights') }]}>
-                  <CardLabel tabPath="/insights" text="Today's Fuel Gauges" />
-                  <Text style={[styles.emptyText, { color: tabColorFor('/insights') }]}>Log a meal to see today's fuel gauges fill in.</Text>
-                </View>
-              ) : (
-                <View style={[styles.fuelGaugesCard, { borderColor: tabColorFor('/insights') }]}>
-                  <CardLabel tabPath="/insights" text="Today's Fuel Gauges" />
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.ringRow}>
-                    {coreNutrientRings.map((entry) => (
-                      <TouchableOpacity key={entry.nutrientCode} onPress={() => router.navigate('/insights')} activeOpacity={0.75}>
-                        <ProgressRing
-                          percent={entry.percentOfTarget}
-                          color={nutrientRingColor(entry.status)}
-                          label={entry.displayName}
-                          sublabel={`${Math.round(entry.percentOfTarget)}%`}
-                        />
-                      </TouchableOpacity>
-                    ))}
-                  </ScrollView>
-                </View>
-              )
-              ) : null}
-
-              {weekTrend && isHomeSectionVisible(visualPrefs, 'weekTrend') ? (
-                <TouchableOpacity
-                  style={[styles.trendCard, { borderColor: tabColorFor('/trends') }]}
-                  onPress={() => router.navigate('/trends')}
-                  activeOpacity={0.75}
-                >
-                  <CardLabel tabPath="/trends" text="This Week's Trend" />
-                  <Text style={[styles.trendNumber, { color: tabColorFor('/trends') }]}>
-                    {weekTrend.thisWeekCount} {weekTrend.thisWeekCount === 1 ? 'flag' : 'flags'} this week
-                  </Text>
-                  {weekTrend.lastWeekCount != null ? (
-                    <Text style={[styles.trendDelta, { color: weekTrendColor(weekTrendDirection(weekTrend)) }]}>
-                      {weekTrendLabel(weekTrendDirection(weekTrend))} from {weekTrend.lastWeekCount} last week
-                    </Text>
-                  ) : (
-                    <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Keep logging to compare against last week.</Text>
-                  )}
-                  <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Tap to see Trends →</Text>
-                </TouchableOpacity>
-              ) : null}
+              {getOrderedHomeSectionKeys(visualPrefs).map((key) => (
+                <Fragment key={key}>{renderHomeSection(key)}</Fragment>
+              ))}
             </>
           )}
-
-          {/* Explicitly requested, 2026-07-27: no header above this row
-              anymore ("A Few Things Worth Knowing" is gone) -- the ribbon
-              icon/purple coloring on the cards themselves, plus the "More
-              from The Digest" card at the end, already say what
-              this is without a label spelling it out too. See
-              digestFlipCardPool's own comment (top of file) for the bigger
-              change this is part of, 2026-08-23: real Digest entries,
-              scoped to Basic Health plus the person's own conditions,
-              rather than a fixed hand-written array, reshuffled daily,
-              with more revealed on tap rather than shown all at once. */}
-          {isHomeSectionVisible(visualPrefs, 'digestCards') ? (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={[styles.fullBleedScroll]}
-            contentContainerStyle={styles.flipRow}
-          >
-            {visibleFlipCards.map((card) => (
-              <FlipCard
-                key={card.id}
-                icon={<PurpleRibbonIcon size={28} color={colors.tabPurpleDigest} />}
-                hook={card.hook}
-                backTitle={card.backTitle}
-                backBody={card.backBody}
-                onReadMore={() => router.push({ pathname: '/purple-digest', params: { openEntryId: card.id } })}
-                borderColor={colors.tabPurpleDigest}
-              />
-            ))}
-            {hasMoreFlipCards ? (
-              <TouchableOpacity
-                style={[styles.moreFlipCard, { borderColor: colors.tabPurpleDigest }]}
-                onPress={() => setVisibleFlipCardCount((count) => Math.min(count + 4, flipCardPool.length))}
-                activeOpacity={0.85}
-              >
-                <Ionicons name="add-circle-outline" size={32} color={colors.tabPurpleDigest} />
-                <Text style={[styles.moreFlipCardText, { color: colors.tabPurpleDigest }]}>More from{'\n'}The Digest</Text>
-              </TouchableOpacity>
-            ) : null}
-          </ScrollView>
-          ) : null}
 
           {/* 2026-08-21, direct request alongside the section toggles
               above: "they may end up wanting everything, or even
@@ -1405,6 +1563,31 @@ export default function HomeScreen() {
             replaced Home's former flat footer-line copy, and for why its
             own top (not bottom) sits at bottomInset. */}
         <EdgeShadow direction="up" style={{ position: 'absolute', bottom: bottomInset - EDGE_SHADOW_HEIGHT }} />
+
+        {/* The greeting card's own collapsed/expanded states, 2026-08-23
+            direct request -- both real siblings of the ScrollView above,
+            not inside it, same "floats over the scrollable content"
+            technique bottomMask/EdgeShadow already use on this exact
+            screen. 'collapsed': just the small seed badge, pinned at the
+            top left of contentArea (which itself already starts below
+            ScreenHeader, see that style's own comment, so no separate
+            safe-area math is needed here). 'expanded': the full card
+            again, at the same top-left origin so it visibly grows back
+            out of the badge it came from, but now floating over
+            everything else that has already moved up to fill the space
+            the card used to occupy in normal flow, and a little more
+            transparent than the resting card look so it reads as a
+            temporary overlay rather than a permanent fixture. */}
+        {greetingCardState === 'collapsed' ? (
+          <Animated.View entering={ZoomIn.springify()} exiting={FadeOut} style={styles.greetingCollapsedWrap}>
+            {renderGreetingSeedBadge('expand')}
+          </Animated.View>
+        ) : null}
+        {greetingCardState === 'expanded' ? (
+          <Animated.View entering={ZoomIn.springify()} exiting={FadeOut} style={styles.greetingExpandedCard}>
+            {renderGreetingCardFull()}
+          </Animated.View>
+        ) : null}
         </View>
       </SwipeableTabScreen>
 
@@ -1675,6 +1858,50 @@ const styles = StyleSheet.create({
   greetingText: { ...typography.screenTitle, ...textShadow, color: colors.textPrimary },
   affirmationText: { ...typography.body, ...textShadow, color: colors.primary, marginTop: 2, fontStyle: 'italic' },
   dateText: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 2 },
+
+  // 2026-08-23: the greeting card's own collapse/expand system. See
+  // greetingCardState's own comment near this screen's other state for
+  // the full behavior; these are just the visual pieces.
+  greetingCardRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  greetingCardTextCol: { flex: 1 },
+  // The seed badge itself -- same size as this app's own established
+  // floating-button footprint (FLOATING_BUTTON_SIZE), not a new number,
+  // so it reads as belonging to the same family of floating controls as
+  // TabHub's own corner button rather than a one-off size.
+  greetingSeedBadge: {
+    width: FLOATING_BUTTON_SIZE,
+    height: FLOATING_BUTTON_SIZE,
+    borderRadius: 14,
+    backgroundColor: colors.surfaceMuted,
+    borderWidth: TAB_BORDER_WIDTH,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  greetingSeedIcon: { width: 32, height: 38 },
+  // Pinned at the same top-left origin the card itself starts from
+  // (matching content's own paddingHorizontal/paddingTop), so collapsing
+  // reads as the card shrinking into this exact corner rather than a
+  // control appearing somewhere new.
+  greetingCollapsedWrap: { position: 'absolute', top: 12, left: 20 },
+  greetingExpandedCard: {
+    position: 'absolute',
+    top: 12,
+    left: 20,
+    right: 20,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: TAB_BORDER_WIDTH,
+    borderColor: colors.border,
+    // "a little more transparent so it isn't distracting" -- a modest
+    // reduction applied to the whole floating card, background and text
+    // together, deliberately kept small (not a heavy fade) since every
+    // text style inside already carries its own textShadow for
+    // legibility, and a steep opacity drop here would work against that
+    // rather than alongside it.
+    opacity: 0.92,
+  },
 
   // Moon phase / equinox-solstice / sunrise-sunset / temp / humidity / UV /
   // AQI / pollen -- two-column grid, 2026-08-18 (see the SkyGridItem

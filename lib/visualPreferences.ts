@@ -241,6 +241,18 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'digestCards',
 ];
 
+// 2026-08-23, direct request: "they should be able to move the things on
+// the home screen they have chosen to be there into any order they want
+// to from top to bottom, except the welcome box with all of the basic
+// daily info available." The welcome box itself isn't a HomeSectionKey at
+// all (see this file's own 2026-08-21 comment above: "the plain
+// greeting/date text stays fixed"), and 'weather' specifically renders
+// physically embedded inside that same fixed welcome box, not as an
+// independent section in the reorderable sequence below it -- so this is
+// ALL_HOME_SECTION_KEYS minus 'weather', derived rather than a second
+// hand-maintained list that could drift out of sync with it.
+export const REORDERABLE_HOME_SECTION_KEYS: HomeSectionKey[] = ALL_HOME_SECTION_KEYS.filter((key) => key !== 'weather');
+
 // The label Profile's own toggle grid shows for each section -- kept here,
 // next to the key list itself, so a future section added to Home only
 // ever needs one new entry in both places, not a separate lookup built at
@@ -329,6 +341,19 @@ export type VisualPreferences = {
   // contract, this field is always present once DEFAULT_VISUAL_PREFERENCES
   // is spread in, so it's read directly rather than through a helper.
   growthVineEnabled: boolean;
+  // 2026-08-23: which order Home's own reorderable sections render top to
+  // bottom (see REORDERABLE_HOME_SECTION_KEYS' own comment above for
+  // which ones that covers). Partial, not a full, always-present array,
+  // deliberately matching homeSectionVisibility's own "absence means
+  // default" contract just above -- an empty/missing array means "use
+  // REORDERABLE_HOME_SECTION_KEYS' own built-in order," so a future
+  // section added to Home lands in its own designed position for every
+  // existing user automatically, the same "no migration step" guarantee
+  // homeSectionVisibility already gives, rather than needing every saved
+  // order backfilled by hand. Use getOrderedHomeSectionKeys() below rather
+  // than reading this field directly, the same discipline
+  // isHomeSectionVisible() already establishes for its own sibling field.
+  homeSectionOrder: HomeSectionKey[];
 };
 
 // Absence of `key` in `prefs.homeSectionVisibility` means visible -- see
@@ -337,6 +362,22 @@ export type VisualPreferences = {
 // inlining `!== false` at each call site.
 export function isHomeSectionVisible(prefs: VisualPreferences, key: HomeSectionKey): boolean {
   return prefs.homeSectionVisibility[key] !== false;
+}
+
+// See homeSectionOrder's own comment above for the "absence means
+// default" contract this follows. Reconciles a saved order against
+// REORDERABLE_HOME_SECTION_KEYS' own current, real list rather than
+// trusting it blindly: any key missing from the saved order (a section
+// added to Home after that order was last saved) is appended in its own
+// designed position, and any key in the saved order that no longer
+// exists (a section since removed) is silently dropped, so a stale saved
+// order can never hide a real section or crash on one that no longer is.
+export function getOrderedHomeSectionKeys(prefs: VisualPreferences): HomeSectionKey[] {
+  const saved = prefs.homeSectionOrder ?? [];
+  const known = new Set(REORDERABLE_HOME_SECTION_KEYS);
+  const ordered = saved.filter((key) => known.has(key));
+  const missing = REORDERABLE_HOME_SECTION_KEYS.filter((key) => !ordered.includes(key));
+  return [...ordered, ...missing];
 }
 
 // homeBackgroundStyle/genericPalette changed 2026-08-19, direct request:
@@ -357,6 +398,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   groundTheme: 'teal',
   homeSectionVisibility: {},
   growthVineEnabled: true,
+  homeSectionOrder: [],
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';
