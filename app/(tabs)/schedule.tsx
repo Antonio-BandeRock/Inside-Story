@@ -9,6 +9,7 @@ import { useConfirmSheet } from '../../components/ConfirmSheet';
 import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
 import {
+  addMealPlanDayToSchedule,
   applyRotationSelection,
   applyRotationSelectionsToIngredients,
   createOtcTreatment,
@@ -22,6 +23,7 @@ import {
   getNutrientTiming,
   getSupplementForms,
   getTreatmentNutrients,
+  getUpcomingShoppingList,
   getUserProfile,
   linkScheduleItemToDeviceCalendarEvent,
   listAllActiveTreatments,
@@ -49,6 +51,7 @@ import {
   setScheduledMealSkipped,
   settlePastScheduledMeals,
   setTreatmentActive,
+  setUpMealPlan,
   unlinkScheduleItemFromDeviceCalendarEvent,
   updateAppointment,
   updateOtcTreatment,
@@ -59,11 +62,13 @@ import {
   type FavoriteRecord,
   type MealFavoritePayload,
   type MealIngredientInput,
+  type MealPlanDay,
   type MealRecord,
   type NutrientTiming,
   type RepeatConfig,
   type RotationSelection,
   type ScheduleItemRecord,
+  type ShoppingListSection,
   type SupplementForm,
   type SupplementIngredientInput,
   type TrackedNutrient,
@@ -71,6 +76,8 @@ import {
   type TreatmentRecord,
   type UserProfile,
 } from '../../lib/db';
+import { RECIPES_ENTRIES } from '../../lib/digest/recipes';
+import { MEAL_PLAN } from '../../lib/mealPlan';
 import {
   createDeviceCalendarEvent,
   deleteDeviceCalendarEvent,
@@ -120,7 +127,17 @@ const USUAL_TIME_MEAL_TYPES = new Set(['breakfast', 'lunch', 'dinner', 'snack'])
 // soon" placeholders, the same pattern already used for the Trends/Reports
 // bottom tabs, rather than guessing at data models for domains that
 // haven't been designed yet.
-type Lens = 'meals' | 'pastMeals' | 'hydration' | 'myMeds' | 'supplements' | 'prescriptions' | 'appointments' | 'exercise';
+type Lens =
+  | 'meals'
+  | 'pastMeals'
+  | 'mealPlan'
+  | 'shoppingList'
+  | 'hydration'
+  | 'myMeds'
+  | 'supplements'
+  | 'prescriptions'
+  | 'appointments'
+  | 'exercise';
 
 // A repeat picker exists on Meals, Supplements' own reminder times, and
 // Prescriptions -- shared across those three Info entries below rather
@@ -187,6 +204,36 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Skipped meals',
         body: 'A meal you marked Skipped ahead of time shows here too, as a plain record -- it was never assumed to have happened, so there is nothing to correct.',
+      },
+    ],
+  },
+  {
+    key: 'mealPlan',
+    label: 'Meal Plan',
+    icon: 'calendar-outline',
+    help: [
+      {
+        heading: 'What this is',
+        body: 'A real, ready-made 6-week rotation of whole-food breakfasts, lunches, and dinners, no two days the same, built from this Digest\'s own curated recipes. "Set Up My Plan" fills your Meals schedule automatically starting from a date you choose; each day below also has its own "Add to Schedule" button if you\'d rather pick days one at a time.',
+      },
+      {
+        heading: 'Still growing',
+        body: 'The first 2 weeks are built now; more weeks are on the way in a future update. Nothing here ever repeats a day\'s own combination of meals.',
+      },
+    ],
+  },
+  {
+    key: 'shoppingList',
+    label: 'Shopping List',
+    icon: 'cart-outline',
+    help: [
+      {
+        heading: 'What this is',
+        body: 'Every ingredient your already-scheduled meals need over the next few days, added up and grouped by aisle, so a single trip covers everything. Only counts meals you\'ve actually scheduled (from the Meal Plan, or scheduled any other way), never a guess at what you might eat.',
+      },
+      {
+        heading: 'Choosing the window',
+        body: 'Matches how often you\'d rather shop for fresh ingredients, 3 to 4 days is the usual sweet spot for produce that doesn\'t keep long, a full week works too if that suits you better.',
       },
     ],
   },
@@ -288,7 +335,7 @@ const LENSES: LensOption<Lens>[] = [
   },
 ];
 
-const COMING_SOON_COPY: Record<Exclude<Lens, 'meals' | 'pastMeals' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>, string> = {
+const COMING_SOON_COPY: Record<Exclude<Lens, 'meals' | 'pastMeals' | 'mealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>, string> = {
   exercise: 'Schedule planned workouts and activity. Not built yet.',
 };
 
@@ -1565,6 +1612,205 @@ function PastMealsLens() {
       )}
     </ScrollView>
   );
+}
+
+// A quick, synchronous title lookup for lib/mealPlan.ts's own recipe
+// references -- built once from RECIPES_ENTRIES (already imported for the
+// whole app either way), not a DB round-trip, since this lens only needs
+// a name to show, not the full resolved ingredient list.
+const RECIPE_TITLE_BY_ID: Record<string, string> = Object.fromEntries(
+  RECIPES_ENTRIES.filter((entry): entry is typeof entry & { linkedCuratedRecipeId: string } => Boolean(entry.linkedCuratedRecipeId)).map(
+    (entry) => [entry.linkedCuratedRecipeId, entry.title],
+  ),
+);
+
+function mealPlanSlotLabel(slot: MealPlanDay['breakfast']): string {
+  const mainTitle = RECIPE_TITLE_BY_ID[slot.main.curatedRecipeId] ?? slot.main.curatedRecipeId;
+  if (!slot.side) return mainTitle;
+  const sideTitle = RECIPE_TITLE_BY_ID[slot.side.curatedRecipeId] ?? slot.side.curatedRecipeId;
+  return `${mainTitle} with ${sideTitle}`;
+}
+
+// 2026-08-24, direct request: "I want a button that will set it up for
+// them if they want it to, or they can go through and individually import
+// meals into the schedule." Both paths call the exact same real
+// scheduleMealPlanSlot logic under the hood (see lib/db.ts's own
+// setUpMealPlan/addMealPlanDayToSchedule), so a day added individually
+// here behaves identically to one the bulk button would have created.
+function MealPlanLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [startDate, setStartDate] = useState(todayDateString());
+  const [settingUp, setSettingUp] = useState(false);
+  const [addingDay, setAddingDay] = useState<number | null>(null);
+  const [dayDates, setDayDates] = useState<Record<number, string>>(
+    Object.fromEntries(MEAL_PLAN.map((planDay) => [planDay.day, addDaysToDateStringLocal(todayDateString(), planDay.day - 1)])),
+  );
+
+  async function handleSetUpPlan() {
+    if (!isValidDateString(startDate)) {
+      showInfoAlert('Almost there', 'Enter a valid start date (YYYY-MM-DD).');
+      return;
+    }
+    setSettingUp(true);
+    try {
+      const result = await setUpMealPlan(startDate, MEAL_PLAN);
+      showInfoAlert(
+        'Plan scheduled',
+        `${result.scheduled} meal${result.scheduled === 1 ? '' : 's'} added to your schedule` +
+          (result.skipped > 0 ? `, ${result.skipped} already had something planned and were left as-is.` : '.'),
+      );
+    } catch (error) {
+      showInfoAlert('Could not set up the plan', error instanceof Error ? error.message : String(error));
+    } finally {
+      setSettingUp(false);
+    }
+  }
+
+  async function handleAddDay(planDay: MealPlanDay) {
+    const date = dayDates[planDay.day];
+    if (!isValidDateString(date)) {
+      showInfoAlert('Almost there', 'Enter a valid date (YYYY-MM-DD) for this day.');
+      return;
+    }
+    setAddingDay(planDay.day);
+    try {
+      await addMealPlanDayToSchedule(planDay, date);
+      showInfoAlert('Added', `Day ${planDay.day} was added to your schedule for ${date}.`);
+    } catch (error) {
+      showInfoAlert('Could not add this day', error instanceof Error ? error.message : String(error));
+    } finally {
+      setAddingDay(null);
+    }
+  }
+
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
+      <View style={styles.formCard}>
+        <Text style={styles.label}>Set up the whole plan at once</Text>
+        <Text style={styles.helperText}>
+          Choose a start date and every day below fills in your Meals schedule automatically, breakfast, lunch, and dinner.
+        </Text>
+        <AppTextInput
+          style={styles.input}
+          placeholder="YYYY-MM-DD"
+          value={startDate}
+          onChangeText={setStartDate}
+        />
+        <TouchableOpacity
+          style={[styles.primaryButton, { marginTop: 12 }, settingUp && styles.primaryButtonDisabled]}
+          activeOpacity={0.85}
+          disabled={settingUp}
+          onPress={handleSetUpPlan}
+        >
+          <Text style={styles.primaryButtonText}>{settingUp ? 'Setting up…' : 'Set Up My 6-Week Plan'}</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.sourceList}>
+        {MEAL_PLAN.map((planDay) => (
+          <View key={planDay.day} style={styles.mealPlanDayRow}>
+            <Text style={styles.rowTitle}>Day {planDay.day}</Text>
+            <Text style={styles.mealPlanSlotText}>Breakfast: {mealPlanSlotLabel(planDay.breakfast)}</Text>
+            <Text style={styles.mealPlanSlotText}>Lunch: {mealPlanSlotLabel(planDay.lunch)}</Text>
+            <Text style={styles.mealPlanSlotText}>Dinner: {mealPlanSlotLabel(planDay.dinner)}</Text>
+            <View style={styles.mealPlanDayFooter}>
+              <AppTextInput
+                style={[styles.input, styles.mealPlanDayDateInput]}
+                placeholder="YYYY-MM-DD"
+                value={dayDates[planDay.day] ?? ''}
+                onChangeText={(text) => setDayDates((current) => ({ ...current, [planDay.day]: text }))}
+              />
+              <TouchableOpacity
+                style={[styles.secondaryButton, addingDay === planDay.day && styles.primaryButtonDisabled]}
+                activeOpacity={0.85}
+                disabled={addingDay === planDay.day}
+                onPress={() => handleAddDay(planDay)}
+              >
+                <Text style={styles.secondaryButtonText}>{addingDay === planDay.day ? 'Adding…' : 'Add to Schedule'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
+
+const SHOPPING_LIST_WINDOW_OPTIONS = [3, 4, 7];
+
+// "receive a full shopping list for all ingredients to be purchased fresh
+// every 3 to 4 days" -- calls lib/db.ts's own getUpcomingShoppingList,
+// which resolves ANY already-planned meal in the chosen window, not just
+// ones the Meal Plan lens itself created, so this stays useful even for
+// someone who never touches that lens at all.
+function ShoppingListLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [daysAhead, setDaysAhead] = useState(4);
+  const [sections, setSections] = useState<ShoppingListSection[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const load = useCallback((window: number) => {
+    setLoading(true);
+    setErrorMessage('');
+    getUpcomingShoppingList(window)
+      .then(setSections)
+      .catch((error) => setErrorMessage(`Could not load your shopping list: ${error instanceof Error ? error.message : String(error)}`))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      load(daysAhead);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [daysAhead]),
+  );
+
+  const totalItems = sections.reduce((sum, section) => sum + section.items.length, 0);
+
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      <View style={styles.pillRow}>
+        {SHOPPING_LIST_WINDOW_OPTIONS.map((option) => (
+          <TouchableOpacity
+            key={option}
+            style={[styles.pill, daysAhead === option && styles.pillActive]}
+            activeOpacity={0.85}
+            onPress={() => setDaysAhead(option)}
+          >
+            <Text style={[styles.pillText, daysAhead === option && styles.pillTextActive]}>Next {option} days</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+      {loading ? (
+        <Text style={styles.emptyText}>Loading…</Text>
+      ) : totalItems === 0 ? (
+        <Text style={styles.emptyText}>
+          Nothing scheduled in this window yet. Meals added from the Meal Plan lens (or scheduled any other way) will show up here.
+        </Text>
+      ) : (
+        sections.map((section) => (
+          <View key={section.category} style={styles.formCard}>
+            <Text style={styles.label}>{section.category}</Text>
+            {section.items.map((item) => (
+              <Text key={`${item.foodName}|${item.unit}`} style={styles.mealPlanSlotText}>
+                {item.foodName}: {roundForDisplay(item.quantity)} {item.unit}
+              </Text>
+            ))}
+          </View>
+        ))
+      )}
+    </ScrollView>
+  );
+}
+
+function roundForDisplay(value: number): string {
+  const rounded = Math.round(value * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 }
 
 // The Hydration lens -- deliberately not a separate tracking system from
@@ -4416,7 +4662,7 @@ function AppointmentsLens() {
 // A short, honest placeholder for the remaining schedule type not built
 // yet -- same "coming soon" pattern already used for the Trends/Reports
 // bottom tabs, one level deeper inside Schedule.
-function ComingSoonLens({ lens }: { lens: Exclude<Lens, 'meals' | 'pastMeals' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'> }) {
+function ComingSoonLens({ lens }: { lens: Exclude<Lens, 'meals' | 'pastMeals' | 'mealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'> }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
@@ -4460,6 +4706,10 @@ export default function ScheduleScreen() {
             <MealsLens />
           ) : lens === 'pastMeals' ? (
             <PastMealsLens />
+          ) : lens === 'mealPlan' ? (
+            <MealPlanLens />
+          ) : lens === 'shoppingList' ? (
+            <ShoppingListLens />
           ) : lens === 'hydration' ? (
             <HydrationLens />
           ) : lens === 'myMeds' ? (
@@ -4688,6 +4938,19 @@ const styles = StyleSheet.create({
   secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.primary },
   primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  primaryButtonDisabled: { opacity: 0.5 },
+  // Meal Plan/Shopping List lenses, 2026-08-24.
+  mealPlanDayRow: {
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.surface,
+    gap: 2,
+  },
+  mealPlanSlotText: { ...typography.body, color: TAB_COLOR },
+  mealPlanDayFooter: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
+  mealPlanDayDateInput: { flex: 1 },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
   // 2026-07-27.
   table: {

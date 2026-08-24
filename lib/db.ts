@@ -9886,6 +9886,285 @@ export function getComponentIngredients(componentType: MealComponentType, compon
   }
 }
 
+// --- 6-Week Meal Plan (2026-08-24) -----------------------------------------
+//
+// Direct request: "I want a button that will set it up for them if they want
+// it to, or they can go through and individually import meals into the
+// schedule." Both paths below build on the exact same real primitives this
+// file already has, rather than a new persistence mechanism: a curated
+// recipe resolves via getCuratedRecipe() into a BuilderFavoritePayload (the
+// same call recipes.ts's own "Build This Recipe" button already makes), one
+// of the 11 saveX() functions just above turns that into a real, standalone
+// saved dish (the same save every builder's own Save button already calls),
+// and scheduleSingleComponent()/scheduleMeal() (both already existed, built
+// 2026-08-15 for My Kitchen/My Favorites) place it on a specific date. This
+// section only adds the one small piece that didn't exist yet: a generic
+// dispatcher across all 11 saveX() functions, mirroring getComponentDetail/
+// getComponentIngredients' own per-type switch just above rather than a new
+// pattern.
+async function saveComponentFromCuratedPayload(
+  builderType: BuilderFavoriteItemType,
+  payload: BuilderFavoritePayload,
+): Promise<{ id: string }> {
+  // Every one of the 11 saveX() functions requires a real instructions
+  // array (never undefined) even though BuilderFavoritePayload's own
+  // instructions field is optional -- getCuratedRecipe() never actually
+  // populates it (curated_recipes/curated_recipe_ingredients has no
+  // instructions column at all; recipes.ts's own recipeCard.instructions is
+  // customer-facing Digest text, a separate real thing), so every saved
+  // dish built this way starts with no steps of its own, the same real gap
+  // the existing thumbs-up-to-favorite path (tryAddEntryToFavorites in
+  // purple-digest.tsx) already has for the identical reason. "View Full
+  // Recipe" back in the Digest still shows the real, authored steps; this
+  // just doesn't duplicate them into a second copy nothing reads.
+  const withInstructions = { ...payload, instructions: payload.instructions ?? [] };
+  switch (builderType) {
+    case 'side':
+      return saveSide({ ...withInstructions, ingredients: withInstructions.ingredients as SideIngredientInput[] });
+    case 'salad':
+      return saveSalad({ ...withInstructions, ingredients: withInstructions.ingredients as SaladIngredientInput[] });
+    case 'smoothie':
+      return saveSmoothie({ ...withInstructions, ingredients: withInstructions.ingredients as SmoothieIngredientInput[] });
+    case 'fermentation':
+      return saveFermentation({ ...withInstructions, ingredients: withInstructions.ingredients as FermentationIngredientInput[] });
+    case 'beverage':
+      return saveBeverage({ ...withInstructions, ingredients: withInstructions.ingredients as BeverageIngredientInput[] });
+    case 'snack':
+      return saveSnack({ ...withInstructions, ingredients: withInstructions.ingredients as SnackIngredientInput[] });
+    case 'bakedGoods':
+      return saveBakedGoods({ ...withInstructions, ingredients: withInstructions.ingredients as BakedGoodsIngredientInput[] });
+    case 'soup':
+      return saveSoup({ ...withInstructions, ingredients: withInstructions.ingredients as SoupIngredientInput[] });
+    case 'sauce':
+      return saveSauce({ ...withInstructions, ingredients: withInstructions.ingredients as SauceIngredientInput[] });
+    case 'handheld':
+      return saveHandheld({ ...withInstructions, ingredients: withInstructions.ingredients as HandheldIngredientInput[] });
+    case 'dessert':
+      return saveDessert({ ...withInstructions, ingredients: withInstructions.ingredients as DessertIngredientInput[] });
+  }
+}
+
+// One breakfast/lunch/dinner slot's real content -- one main component
+// (linkedCuratedRecipeId/linkedBuilderType, matching recipes.ts's own two
+// fields of the same name) plus, for lunch and dinner only, an optional
+// second "side" component, so a real dinner can pair a main dish with a
+// distinct vegetable side the same way an actual plate would, without
+// forcing every single day's dinner to be one monolithic recipe. See
+// lib/mealPlan.ts's own header comment for why this shape was chosen.
+export type MealPlanComponentRef = {
+  builderType: BuilderFavoriteItemType;
+  curatedRecipeId: string;
+};
+
+export type MealPlanSlot = {
+  main: MealPlanComponentRef;
+  side?: MealPlanComponentRef;
+};
+
+export type MealPlanDay = {
+  day: number;
+  breakfast: MealPlanSlot;
+  lunch: MealPlanSlot;
+  dinner: MealPlanSlot;
+};
+
+// Builds every real component a slot references, saves each as a real,
+// standalone dish, wraps them into one real meal favorite (a genuine dinner
+// with a side is 2 real components under one favorite, not 2 separate
+// meals), and schedules that favorite for the given date. Returns the new
+// schedule_items id. Shared by both setUpMealPlan (all 42 days at once) and
+// addMealPlanDayToSchedule (one day at a time) below, so the two paths can
+// never drift apart in what they actually build.
+async function scheduleMealPlanSlot(
+  slot: MealPlanSlot,
+  mealType: 'breakfast' | 'lunch' | 'dinner',
+  scheduledFor: string,
+): Promise<string> {
+  const refs = slot.side ? [slot.main, slot.side] : [slot.main];
+  const components: MealFavoriteComponent[] = [];
+  let title = '';
+
+  for (const ref of refs) {
+    const recipe = await getCuratedRecipe(ref.curatedRecipeId);
+    if (!recipe) {
+      throw new Error(`[scheduleMealPlanSlot] Missing curated recipe: ${ref.curatedRecipeId}`);
+    }
+    const saved = await saveComponentFromCuratedPayload(ref.builderType, recipe);
+    components.push({ componentType: ref.builderType, componentId: saved.id, yourSharePercent: 100 });
+    title = title ? `${title} with ${recipe.name}` : recipe.name;
+  }
+
+  const favorite = await saveMealFavorite({ name: title, mealType, components });
+  return scheduleMeal({ title, mealType, scheduledFor, sourceFavoriteId: favorite.id });
+}
+
+// "set this up for them if they want it to" -- walks every day in
+// lib/mealPlan.ts's own MEAL_PLAN, scheduling all 3 slots starting from
+// startDate (a plain 'YYYY-MM-DD' local date, day 1 = startDate). Real,
+// re-run-safe: if a prior partial run already scheduled some days (the app
+// closing mid-setup, say), this skips any date that already has a planned
+// meal for that exact mealType rather than double-booking it, checked via a
+// direct query rather than assumed from how far a loop got.
+export async function setUpMealPlan(
+  startDate: string,
+  mealPlan: MealPlanDay[],
+): Promise<{ scheduled: number; skipped: number }> {
+  const db = await getDatabase();
+  let scheduled = 0;
+  let skipped = 0;
+
+  for (const planDay of mealPlan) {
+    const date = addDaysToLocalDate(startDate, planDay.day - 1);
+    for (const [mealType, slot] of [
+      ['breakfast', planDay.breakfast],
+      ['lunch', planDay.lunch],
+      ['dinner', planDay.dinner],
+    ] as const) {
+      const time = mealType === 'breakfast' ? '08:00' : mealType === 'lunch' ? '12:30' : '18:30';
+      const scheduledFor = `${date}T${time}`;
+      const existing = await db.getFirstAsync<{ id: string }>(
+        `SELECT id FROM schedule_items WHERE item_type = 'meal' AND meal_type = ? AND substr(scheduled_for, 1, 10) = ? AND status = 'planned' LIMIT 1`,
+        mealType,
+        date,
+      );
+      if (existing) {
+        skipped += 1;
+        continue;
+      }
+      await scheduleMealPlanSlot(slot, mealType, scheduledFor);
+      scheduled += 1;
+    }
+  }
+
+  return { scheduled, skipped };
+}
+
+// The manual/individual path -- "or they can go through and individually
+// import meals into the schedule" -- the same real per-slot logic as
+// setUpMealPlan above, for just one already-chosen day and date, so picking
+// a single day from the Meal Plan lens works exactly like the bulk button
+// did for that one day, no separate code path to drift out of sync.
+export async function addMealPlanDayToSchedule(planDay: MealPlanDay, date: string): Promise<void> {
+  await scheduleMealPlanSlot(planDay.breakfast, 'breakfast', `${date}T08:00`);
+  await scheduleMealPlanSlot(planDay.lunch, 'lunch', `${date}T12:30`);
+  await scheduleMealPlanSlot(planDay.dinner, 'dinner', `${date}T18:30`);
+}
+
+function addDaysToLocalDate(date: string, days: number): string {
+  const [year, month, day] = date.split('-').map(Number);
+  const utcMidnight = new Date(Date.UTC(year, month - 1, day));
+  utcMidnight.setUTCDate(utcMidnight.getUTCDate() + days);
+  return utcMidnight.toISOString().slice(0, 10);
+}
+
+// --- Shopping list (2026-08-24) ---------------------------------------------
+//
+// "receive a full shopping list for all ingredients to be purchased fresh
+// every 3 to 4 days" -- a genuinely new capability, confirmed directly: no
+// existing code resolves a still-planned (not yet eaten/settled)
+// schedule_items row's real ingredients today. schedule.tsx's own
+// favoriteBaseIngredients only understands the OLD flat-ingredient meal-
+// favorite shape (MealFavoritePayload.ingredients), not the component-
+// reference shape saveMealFavorite/scheduleSingleComponent actually create
+// (MealFavoriteComponentsPayload.components, always ingredients: [] on
+// purpose -- see that type's own comment above). This walks that real chain
+// instead: schedule_items -> its favorite's real components[] ->
+// getComponentIngredients() (already existed) per component, OR, for a
+// schedule_items row scheduled straight from an already-logged meal
+// (source_meal_id, not source_favorite_id -- Meal Builder's own older
+// path), meal_items directly. Works for ANY planned meal in range, not just
+// ones the 6-Week Meal Plan itself created, so this is a real, general
+// Schedule capability rather than a plan-only side effect.
+export type ShoppingListItem = {
+  category: string;
+  foodName: string;
+  unit: string;
+  quantity: number;
+};
+
+export type ShoppingListSection = {
+  category: string;
+  items: ShoppingListItem[];
+};
+
+async function shoppingListItemsForFavorite(favoriteId: string): Promise<ShoppingListItem[]> {
+  const favorite = await getMealFavorite(favoriteId);
+  if (!favorite) return [];
+  const items: ShoppingListItem[] = [];
+  for (const component of favorite.components) {
+    const ingredients = await getComponentIngredients(component.componentType, component.componentId);
+    for (const ingredient of ingredients ?? []) {
+      items.push({ category: ingredient.category ?? 'Other', foodName: ingredient.foodName, unit: ingredient.unit ?? '', quantity: ingredient.quantity });
+    }
+  }
+  return items;
+}
+
+// meal_items' own real amount-for-this-person math (shareFraction, see
+// getDailyNutrientBreakdown's own identical formula elsewhere in this file)
+// without that other path's grams-conversion step -- a shopping list wants
+// "how much to buy" in the ingredient's own real, natural unit (2 cups,
+// 3 apples), not converted into grams the way nutrient math needs.
+async function shoppingListItemsForMeal(mealId: string): Promise<ShoppingListItem[]> {
+  const items = await getMealItems(mealId);
+  return items.map((item) => {
+    const shareFraction = item.yourSharePercent != null ? item.yourSharePercent / 100 : 1 / (item.dishServings ?? 1);
+    return {
+      category: item.category ?? 'Other',
+      foodName: item.foodName,
+      unit: item.servingUnit ?? '',
+      quantity: (item.servingSize ?? 0) * shareFraction,
+    };
+  });
+}
+
+// daysAhead counts today as day 1 of the window, matching how "every 3 to 4
+// days" reads in normal speech (today plus the next 2-3, not today plus 4
+// more).
+export async function getUpcomingShoppingList(daysAhead: number = 4): Promise<ShoppingListSection[]> {
+  const db = await getDatabase();
+  const startDate = new Date().toISOString().slice(0, 10);
+  const endDate = addDaysToLocalDate(startDate, Math.max(1, daysAhead) - 1);
+
+  const rows = await db.getAllAsync<{ source_favorite_id: string | null; source_meal_id: string | null }>(
+    `
+      SELECT source_favorite_id, source_meal_id FROM schedule_items
+      WHERE item_type = 'meal' AND status = 'planned' AND substr(scheduled_for, 1, 10) BETWEEN ? AND ?
+    `,
+    startDate,
+    endDate,
+  );
+
+  const allItems: ShoppingListItem[] = [];
+  for (const row of rows) {
+    if (row.source_favorite_id) {
+      allItems.push(...(await shoppingListItemsForFavorite(row.source_favorite_id)));
+    } else if (row.source_meal_id) {
+      allItems.push(...(await shoppingListItemsForMeal(row.source_meal_id)));
+    }
+  }
+
+  const grouped = new Map<string, Map<string, ShoppingListItem>>();
+  for (const item of allItems) {
+    if (!grouped.has(item.category)) grouped.set(item.category, new Map());
+    const byName = grouped.get(item.category)!;
+    const key = `${item.foodName}|${item.unit}`;
+    const existing = byName.get(key);
+    if (existing) {
+      existing.quantity += item.quantity;
+    } else {
+      byName.set(key, { ...item });
+    }
+  }
+
+  return Array.from(grouped.entries())
+    .map(([category, byName]) => ({
+      category,
+      items: Array.from(byName.values()).sort((a, b) => a.foodName.localeCompare(b.foodName)),
+    }))
+    .sort((a, b) => a.category.localeCompare(b.category));
+}
+
 export type MealComponentSelection = {
   componentType: MealComponentType;
   componentId: string;
