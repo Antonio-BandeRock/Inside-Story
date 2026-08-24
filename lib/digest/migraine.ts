@@ -284,7 +284,7 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
       { source: 'CGRP and the Trigeminal System in Migraine, PMID 30982963', url: 'https://pubmed.ncbi.nlm.nih.gov/30982963/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['migraine-cgrp-inhibitors'],
+    relatedIds: ['migraine-cgrp-inhibitors', 'migraine-aip-elimination-diet-inflammation', 'migraine-histamine-dao-deficiency'],
   },
   {
     id: 'migraine-ketogenic-low-carb-diet',
@@ -537,7 +537,7 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['recipe-ferment-water-kefir', 'fermentmethod-dairy-free-gluten-free-survey'],
+    relatedIds: ['recipe-ferment-water-kefir', 'fermentmethod-dairy-free-gluten-free-survey', 'migraine-histamine-dao-deficiency'],
   },
   {
     id: 'migraine-circadian-clock-genes',
@@ -551,5 +551,34 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     relatedIds: ['chrono-circadian-clock-biology', 'chrono-shift-work-metabolic-cardiovascular-risk'],
+  },
+  {
+    id: 'migraine-aip-elimination-diet-inflammation',
+    category: 'migraine',
+    title: 'AIP and Elimination Diets for Migraine: A Real Mechanism, Not Yet a Direct Trial',
+    teaser: 'No published trial has tested the Autoimmune Protocol itself on migraine, but a 2025 controlled trial of the same underlying approach measured drops in the exact molecule that drives an attack.',
+    summary:
+      "The headline first: no published trial has tested the Autoimmune Protocol (AIP) specifically on migraine. That gap is stated directly in the current literature, which names migraine, alongside ADHD and autism spectrum conditions, as a neuroinflammatory condition future AIP research should investigate, not one it has already settled. What does exist is controlled trial evidence for the mechanism AIP is built on: removing suspected trigger foods to calm systemic inflammation. A 2025 randomized, sham-controlled trial assigned 98 adults with migraine and a positive food-specific IgG antibody test to either a true elimination diet or a sham diet eliminating different, IgG-negative foods, then measured blood markers at 12 weeks. The true-diet group showed a statistically significant drop in IL-6 (down 3.8 pg/mL), TNF-alpha (down 11.4 pg/mL), and CGRP itself (down 9.6 pg/mL, the same neuropeptide behind an actual migraine attack), alongside 1.4 fewer migraine days over the prior 4 weeks and a 10.3-point drop in MIDAS severity scores, all statistically significant; the sham group showed almost no change on any measure. This trial eliminated foods flagged by antibody testing, not AIP's fixed list of grains, legumes, dairy, nightshades, eggs, nuts and seeds, but the shared principle, and the shared drop in a migraine-specific inflammatory signal, is the current evidence base connecting elimination-style eating to measurable change in migraine biology. A separate 2024 review names the specific pathway most likely responsible: increased intestinal permeability lets inflammatory molecules pass into systemic circulation, where they can directly stimulate the trigeminovascular system, the same nerve pathway already covered in this category. One practical complication to know before starting AIP specifically for migraine: its elimination list includes coffee, and abruptly cutting caffeine is itself a well-documented headache trigger through withdrawal. A difficult first week doesn't necessarily mean the approach isn't working.",
+    citations: [
+      { source: 'Food-specific IgG-based elimination diet decreased IL-6, TNF-alpha, and CGRP and improved symptoms in adults with migraine, Frontiers in Nutrition, PMID 41473187', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12745268/' },
+      { source: 'The Brain, the Eating Plate, and the Gut Microbiome: Partners in Migraine Pathogenesis, PMID 39064664', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11280178/' },
+      { source: 'Autoimmune protocol diet: A personalized elimination diet for patients with autoimmune diseases, PMC11755016', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11755016/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['migraine-trigeminovascular-cgrp-mechanism', 'migraine-food-triggers-honest-nuance', 'diet-aip', 'migraine-histamine-dao-deficiency'],
+  },
+  {
+    id: 'migraine-histamine-dao-deficiency',
+    category: 'migraine',
+    title: 'Histamine and DAO Deficiency: a Distinct Pathway AIP-Style Elimination Also Touches',
+    teaser: 'A study of 198 people found 87% of migraine patients measurably struggle to break down dietary histamine, compared to 44% of people without migraine.',
+    summary:
+      "Diamine oxidase (DAO) is the gut enzyme responsible for breaking down histamine from food before it reaches general circulation. A study comparing 137 people with migraine to 61 without found the migraine group's mean DAO activity was significantly lower (64.5 versus 91.9 HDU/mL, p<0.0001), and 87% of the migraine group fell below the deficiency threshold, compared to 44% of the comparison group. The proposed mechanism connects directly to this category's trigeminovascular research: when DAO capacity is reduced, dietary histamine that would normally be neutralized in the gut enters circulation instead, where it can trigger CGRP-mediated vasodilation and meningeal mast-cell release, both direct inputs into the same nerve pathway an actual attack runs through. A separate randomized, double-blind trial gave a DAO enzyme supplement, not a dietary change, to 100 DAO-deficient migraine patients for one month and found a reduction in headache burden compared to placebo, evidence the DAO-histamine pathway is a causal contributor for at least some people with migraine, beyond a plain correlation. The connection to AIP: the Autoimmune Protocol was never designed around histamine specifically, but its elimination list overlaps substantially with the foods highest in histamine, fermented foods, aged cheese, cured meats, and alcohol among them, several already flagged as migraine triggers elsewhere in this category. Someone whose migraine tracks with histamine-rich meals may see benefit from AIP's structure for a reason that has nothing to do with autoimmunity at all.",
+    citations: [
+      { source: 'Low serum diamine oxidase (DAO) activity levels in patients with migraine, Journal of Physiology and Biochemistry, PMID 28624934', url: 'https://pubmed.ncbi.nlm.nih.gov/28624934/' },
+      { source: 'Diamine oxidase (DAO) supplement reduces headache in episodic migraine patients with DAO deficiency: A randomized double-blind trial, Clinical Nutrition, PMID 30017233', url: 'https://pubmed.ncbi.nlm.nih.gov/30017233/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['migraine-trigeminovascular-cgrp-mechanism', 'migraine-fermented-drinks', 'migraine-aip-elimination-diet-inflammation'],
   },
 ];

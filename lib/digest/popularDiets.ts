@@ -126,7 +126,7 @@ export const POPULAR_DIETS_ENTRIES: DigestEntry[] = [
       { source: 'Controlled trial of fasting and one-year vegetarian diet in rheumatoid arthritis, The Lancet, 1991', url: 'https://www.thelancet.com/journals/lancet/article/PII0140-6736(91)91770-U/fulltext' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['healing-stage-map', 'ra-elimination-fasting'],
+    relatedIds: ['healing-stage-map', 'ra-elimination-fasting', 'migraine-aip-elimination-diet-inflammation'],
   },
   {
     id: 'diet-fibermaxxing',
