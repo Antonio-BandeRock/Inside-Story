@@ -4941,7 +4941,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8 },
-  searchResultCategory: { ...typography.caption, color: TAB_TEXT_COLOR, marginBottom: 4 },
+  searchResultCategory: { ...typography.caption, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginBottom: 4 },
   // topicGrid/topicCard/topicCardTitle/topicCardCount/treeBackLink/
   // treeHeading (Basic Health's own real tree navigation) removed
   // 2026-08-14 alongside BasicHealthTree/TopicCard -- see that removal's
@@ -4963,7 +4963,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
   },
-  digestTopicMenuItemLabel: { ...typography.label, color: TAB_TEXT_COLOR, flex: 1, marginRight: 8 },
+  digestTopicMenuItemLabel: { ...typography.label, ...menuLabelShadow, color: TAB_TEXT_COLOR, flex: 1, marginRight: 8 },
   digestTopicMenuItemCount: { ...typography.caption, color: colors.textSecondary },
   // 2026-08-23, direct report: this text floats directly over the real
   // photo background now that GatedTabContent actually reveals one, with
@@ -4975,6 +4975,7 @@ const styles = StyleSheet.create({
   // rather than stretching edge to edge.
   shelfHeading: {
     ...typography.label,
+    ...menuLabelShadow,
     color: TAB_TEXT_COLOR,
     marginBottom: 8,
     alignSelf: 'flex-start',
@@ -5075,7 +5076,7 @@ const styles = StyleSheet.create({
   matchTermPillTitle: { backgroundColor: TAB_COLOR, borderColor: TAB_COLOR },
   matchTermPillBody: { backgroundColor: 'transparent', borderColor: TAB_COLOR },
   matchTermPillMiss: { backgroundColor: 'transparent', borderColor: colors.border },
-  matchTermPillText: { ...typography.caption, color: TAB_TEXT_COLOR, fontSize: 11 },
+  matchTermPillText: { ...typography.caption, ...menuLabelShadow, color: TAB_TEXT_COLOR, fontSize: 11 },
   matchTermPillTextTitle: { color: colors.background, fontWeight: '700' },
   matchTermPillTextMiss: { color: colors.textMuted },
   // SearchMatchDemo's own worked-example block, inside the "About Search
@@ -5086,8 +5087,8 @@ const styles = StyleSheet.create({
   // whole pill row via MatchSummaryRow -- reuses the app's real styles
   // directly, not a copy.
   demoBlock: { marginTop: 4 },
-  demoHeading: { ...typography.label, color: TAB_TEXT_COLOR, marginBottom: 4 },
-  demoSubheading: { ...typography.label, color: TAB_TEXT_COLOR, marginTop: 18, marginBottom: 4 },
+  demoHeading: { ...typography.label, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginBottom: 4 },
+  demoSubheading: { ...typography.label, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginTop: 18, marginBottom: 4 },
   demoIntro: { ...typography.caption, color: colors.textMuted, marginBottom: 10, lineHeight: 17 },
   demoExample: {
     backgroundColor: colors.surface,
@@ -5117,8 +5118,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     maxWidth: 160,
   },
-  crossConditionPillText: { ...typography.caption, color: TAB_TEXT_COLOR, fontSize: 11 },
-  detailLabel: { ...typography.eyebrow, color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
+  crossConditionPillText: { ...typography.caption, ...menuLabelShadow, color: TAB_TEXT_COLOR, fontSize: 11 },
+  detailLabel: { ...typography.eyebrow, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
   detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19 },
   detailTextBold: { fontWeight: '700' },
   swapText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 2 },
@@ -5171,7 +5172,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
   },
-  dynamicActionButtonText: { ...typography.bodyEmphasis, color: TAB_TEXT_COLOR },
+  dynamicActionButtonText: { ...typography.bodyEmphasis, ...menuLabelShadow, color: TAB_TEXT_COLOR },
   dynamicActionButtonTextDanger: { color: colors.danger },
   dynamicActionConfirm: { ...typography.caption, color: colors.accent, marginTop: 8 },
   dynamicScheduleForm: {
@@ -5210,7 +5211,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
   },
-  recipeNutritionLabel: { ...typography.eyebrow, color: TAB_TEXT_COLOR, marginBottom: 4 },
+  recipeNutritionLabel: { ...typography.eyebrow, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginBottom: 4 },
   recipeNutritionText: { ...typography.body, color: colors.textPrimary, lineHeight: 18, marginTop: 2 },
   // The per-condition caution box -- a real, distinct tint from the
   // nutrition callout above (a warm accent rather than the tab's own
@@ -5239,7 +5240,7 @@ const styles = StyleSheet.create({
   // confirmation, see FeedbackRow's own comment.
   favoriteAddedText: { ...typography.caption, color: colors.accent, marginTop: 4 },
   citationsBlock: { marginTop: 10 },
-  citationsLabel: { ...typography.eyebrow, color: TAB_TEXT_COLOR, marginBottom: 2 },
+  citationsLabel: { ...typography.eyebrow, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginBottom: 2 },
   citationLink: {
     ...typography.caption,
     color: colors.primary,
@@ -5248,7 +5249,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   relatedBlock: { marginTop: 10 },
-  relatedLabel: { ...typography.eyebrow, color: TAB_TEXT_COLOR, marginBottom: 4 },
+  relatedLabel: { ...typography.eyebrow, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginBottom: 4 },
   relatedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   relatedChip: {
     borderWidth: 1,
