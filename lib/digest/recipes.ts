@@ -23,18 +23,32 @@
 // real, one-off computation script (scripts/compute_recipe_data.js), not
 // invented.
 //
-// 2-person scaling follows a real, deliberate rule, not a blind halving:
-// a meal-type recipe (the dish IS the meal, eaten in one sitting -- most
+// 2026-08-24, direct request: every recipe rescaled again, from 2 people
+// down to 1. "This app will begin for a person not knowing that they have
+// more than one person living in their home with them. The app can do the
+// math to increase the ingredients to accommodate for additional people."
+// A person's own household size isn't collected anywhere yet, so 1 is the
+// only honest default; scaling a known recipe up for more people is much
+// simpler math than guessing a stranger's own household down from an
+// assumed 2. Same rule as before, just aimed at 1 real serving instead of
+// 2: a meal-type recipe (the dish IS the meal, eaten in one sitting -- most
 // salads, soups, sides, smoothies, some snacks/handhelds/desserts) has its
 // own real ingredient quantities scaled so the whole recipe yields exactly
-// 2 real servings. A batch/pantry recipe (bread, tortillas, biscuits,
+// 1 real serving. A batch/pantry recipe (bread, tortillas, biscuits,
 // cookies, both yogurts, sauerkraut, kombucha, all 4 sauces, trail mix,
 // roasted chickpeas, and the 2 real pitcher-style beverages) keeps its
-// own real, natural batch size instead -- its own yield line says so
-// directly ("plenty for 2 people across a few days"), since a literal
-// mathematical half-loaf of bread is an awkward, sometimes baking-ratio-
-// risky yield, not what "enough for 2 people" actually means for a pantry
-// item.
+// own real, natural batch size instead, just halved from its own prior
+// 2-person size -- its own yield line says so directly ("plenty for 1
+// person across a few days"), since a literal mathematical quarter-loaf of
+// bread is an awkward, sometimes baking-ratio-risky yield, not what
+// "enough for 1 person over several days" actually means for a pantry
+// item. Every ingredient quantity below was individually rescaled by hand,
+// not run through a blind halving script -- whole units (an egg, a
+// tortilla, a garlic clove) were rounded to a real, buyable, cookable
+// amount rather than left as an odd fraction, and nutritionHighlights was
+// left untouched everywhere its own stated serving SIZE didn't change,
+// since halving the recipe's total yield down to 1 serving doesn't change
+// what's already true about that one serving's own nutrition.
 //
 // conditionNotes deliberately doesn't repeat every real flagged sub-
 // criterion this app's own 6-DFF/condition-scoring data returns for a
@@ -85,22 +99,22 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_whole_wheat_bread',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
-      yield: 'Makes one 8-slice loaf. A whole loaf sliced and stored well keeps two people in bread for the better part of a week.',
+      yield: 'Makes one small 4-slice loaf. A loaf this size comfortably keeps one person in bread for several days.',
       ingredients: [
-        { text: '500g (about 4 cups) whole-grain wheat flour' },
-        { text: '300ml warm water' },
-        { text: '7g (about 2 teaspoons) active dry yeast' },
-        { text: '6g (about 1 teaspoon) salt' },
-        { text: '15g (about 1 tablespoon) honey' },
-        { text: '15ml (about 1 tablespoon) olive oil' },
+        { text: '250g (about 2 cups) whole-grain wheat flour' },
+        { text: '150ml warm water' },
+        { text: '3.5g (about 1 teaspoon) active dry yeast' },
+        { text: '3g (about ½ teaspoon) salt' },
+        { text: '7.5g (about ½ tablespoon) honey' },
+        { text: '7.5ml (about ½ tablespoon) olive oil' },
       ],
       instructions: [
         'Dissolve the yeast and honey in the warm water and let it sit for about 5 minutes, until it looks foamy on top. That foam is how you know the yeast is actually alive.',
         'In a large bowl, whisk the flour and salt together, then make a well in the center and pour in the yeast mixture and the olive oil.',
-        'Mix until a shaggy dough forms, then turn it out and knead for 8-10 minutes, until it feels smooth and springs back when you poke it.',
+        'Mix until a shaggy dough forms, then turn it out and knead for 6-8 minutes, until it feels smooth and springs back when you poke it.',
         'Place the dough in an oiled bowl, cover, and let it rise somewhere warm for about an hour, until roughly doubled.',
-        'Punch the dough down, shape it into a loaf, and set it in a greased loaf pan. Cover again and let it rise a second time, about 30-40 minutes.',
-        'Bake at 375°F (190°C) for 35-40 minutes, until the crust is deep golden and the loaf sounds hollow when you tap the bottom.',
+        'Punch the dough down, shape it into a small loaf, and set it in a small greased loaf pan (a standard-size pan works too, the loaf will just sit lower). Cover again and let it rise a second time, about 25-30 minutes.',
+        'Bake at 375°F (190°C) for 25-30 minutes, until the crust is deep golden and the loaf sounds hollow when you tap the bottom. A smaller loaf bakes faster than a full-size one, so start checking early.',
         'Let it cool completely on a rack before slicing. Cutting it warm makes the crumb gummy.',
       ],
       nutritionHighlights: [
@@ -126,18 +140,18 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_wheat_tortillas',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
-      yield: 'Makes 8 tortillas. Two people can get through these across a couple of days of wraps and tacos.',
+      yield: 'Makes 4 tortillas. One person can get through these across a couple of days of wraps and tacos.',
       ingredients: [
-        { text: '250g (about 2 cups) white flour tortilla mix (or all-purpose flour)' },
-        { text: '150ml warm water' },
-        { text: '20ml (about 1½ tablespoons) olive oil' },
-        { text: '3g (about ½ teaspoon) salt' },
+        { text: '125g (about 1 cup) white flour tortilla mix (or all-purpose flour)' },
+        { text: '75ml warm water' },
+        { text: '10ml (about 2 teaspoons) olive oil' },
+        { text: '1.5g (about ¼ teaspoon) salt' },
       ],
       instructions: [
         'Whisk the flour and salt together in a large bowl.',
         'Add the olive oil and rub it into the flour with your fingers until the mixture looks like coarse crumbs.',
         'Pour in the warm water and mix until a soft dough comes together. Knead it for 2-3 minutes, just until smooth.',
-        'Divide the dough into 8 equal pieces, roll each into a ball, cover with a towel, and let them rest for 15 minutes. This relaxes the gluten so they roll out easily instead of springing back.',
+        'Divide the dough into 4 equal pieces, roll each into a ball, cover with a towel, and let them rest for 15 minutes. This relaxes the gluten so they roll out easily instead of springing back.',
         'On a lightly floured surface, roll each ball into a thin, roughly 8-inch circle.',
         'Cook each tortilla in a dry, hot skillet for about 30-45 seconds per side, until it puffs slightly and picks up light golden spots.',
         'Stack the cooked tortillas under a clean towel to keep them soft and warm while you finish the rest.',
@@ -164,13 +178,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_buttermilk_biscuits',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
-      yield: 'Makes 8 biscuits. Two people can eat 2 apiece over breakfast and still have a couple left for later.',
+      yield: 'Makes 4 biscuits. One person can eat 1-2 over breakfast and still have a couple left for later.',
       ingredients: [
-        { text: '250g (about 2 cups) whole-grain wheat flour' },
-        { text: '60g (about 4 tablespoons) cold salted butter, cubed' },
-        { text: '180ml buttermilk' },
-        { text: '10g (about 2½ teaspoons) baking powder' },
-        { text: '3g (about ½ teaspoon) salt' },
+        { text: '125g (about 1 cup) whole-grain wheat flour' },
+        { text: '30g (about 2 tablespoons) cold salted butter, cubed' },
+        { text: '90ml buttermilk' },
+        { text: '5g (about 1¼ teaspoons) baking powder' },
+        { text: '1.5g (about ¼ teaspoon) salt' },
       ],
       instructions: [
         'Preheat the oven to 425°F (220°C).',
@@ -203,13 +217,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_banana_oat_cookies',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
-      yield: 'Makes 12 cookies. Two people can eat a couple each and still have breakfast covered for a few more days.',
+      yield: 'Makes 6 cookies. One person can eat a couple and still have breakfast covered for a few more days.',
       ingredients: [
-        { text: '150g (about 1½ cups) rolled oats' },
-        { text: '200g (about 2 medium) ripe bananas, mashed' },
-        { text: '15g (about 2 tablespoons) ground flax seeds' },
-        { text: '20g (about 1 tablespoon) honey' },
-        { text: '2g (about ½ teaspoon) ground cinnamon' },
+        { text: '75g (about ¾ cup) rolled oats' },
+        { text: '100g (about 1 medium) ripe banana, mashed' },
+        { text: '7.5g (about 1 tablespoon) ground flax seeds' },
+        { text: '10g (about 1½ teaspoons) honey' },
+        { text: '1g (about ¼ teaspoon) ground cinnamon' },
       ],
       instructions: [
         'Preheat the oven to 350°F (175°C) and line a baking sheet with parchment paper.',
@@ -248,14 +262,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_ginger_turmeric_tonic',
     linkedBuilderType: 'beverage',
     recipeCard: {
-      yield: 'Makes about 4 cups. This is a pitcher-style drink, so brew the whole batch and keep it in the fridge, plenty for 2 people across a couple of days.',
+      yield: 'Makes about 2 cups. This is a pitcher-style drink, so brew the whole batch and keep it in the fridge, plenty for 1 person across a couple of days.',
       ingredients: [
-        { text: '15g (about 1 tablespoon) fresh ginger root, grated' },
-        { text: '3g (about 1 teaspoon) ground turmeric' },
-        { text: '30g (juice of about 1 lemon)' },
-        { text: '15g (about 1 tablespoon) honey' },
-        { text: '500ml water' },
-        { text: '1g (a pinch) ground black pepper' },
+        { text: '7.5g (about ½ tablespoon) fresh ginger root, grated' },
+        { text: '1.5g (about ½ teaspoon) ground turmeric' },
+        { text: '15g (juice of about ½ lemon)' },
+        { text: '7.5g (about ½ tablespoon) honey' },
+        { text: '250ml water' },
+        { text: 'A pinch of ground black pepper' },
       ],
       instructions: [
         'Bring the water to a simmer in a small pot.',
@@ -283,12 +297,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_electrolyte_water',
     linkedBuilderType: 'beverage',
     recipeCard: {
-      yield: 'Makes about 4 cups (1000ml), 2 2-cup glasses, one for each person.',
+      yield: 'Makes about 2 cups (500ml), one glass for one person.',
       ingredients: [
-        { text: '1000ml water' },
-        { text: '4g (about ¾ teaspoon) salt' },
-        { text: '60g (juice of about 2 lemons)' },
-        { text: '20g (about 4 teaspoons) honey' },
+        { text: '500ml water' },
+        { text: '2g (about ⅓ teaspoon) salt' },
+        { text: '30g (juice of about 1 lemon)' },
+        { text: '10g (about 2 teaspoons) honey' },
       ],
       instructions: [
         'Combine the water, salt, lemon juice, and honey in a large pitcher or jug.',
@@ -313,10 +327,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_iced_green_tea_mint',
     linkedBuilderType: 'beverage',
     recipeCard: {
-      yield: 'Makes about 4 cups. A pitcher-style drink: brew it once, keep it cold, and it\'ll cover 2 people for a couple of days.',
+      yield: 'Makes about 2 cups. A pitcher-style drink: brew it once, keep it cold, and it\'ll cover 1 person for a couple of days.',
       ingredients: [
-        { text: '1000ml brewed green tea, cooled' },
-        { text: '5g (a small handful) fresh spearmint leaves, torn' },
+        { text: '500ml brewed green tea, cooled' },
+        { text: '2.5g (a few) fresh spearmint leaves, torn' },
       ],
       instructions: [
         'Brew the green tea according to the package (usually 2-3 minutes in water just under a boil, since fully boiling water can make green tea taste bitter).',
@@ -343,13 +357,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_golden_milk',
     linkedBuilderType: 'beverage',
     recipeCard: {
-      yield: 'Makes about 2½ cups, 2 mugs, one for each person.',
+      yield: 'Makes about 1¼ cups, one mug for one person.',
       ingredients: [
-        { text: '600ml whole milk' },
-        { text: '4g (about 1½ teaspoons) ground turmeric' },
-        { text: '2g (about ½ teaspoon) ground cinnamon' },
-        { text: '1g (a pinch) ground black pepper' },
-        { text: '20g (about 4 teaspoons) honey' },
+        { text: '300ml whole milk' },
+        { text: '2g (about ¾ teaspoon) ground turmeric' },
+        { text: '1g (about ¼ teaspoon) ground cinnamon' },
+        { text: 'A pinch of ground black pepper' },
+        { text: '10g (about 2 teaspoons) honey' },
       ],
       instructions: [
         'Warm the milk in a small pot over medium-low heat. Don\'t let it come to a full boil.',
@@ -383,13 +397,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_dessert_baked_cinnamon_apples',
     linkedBuilderType: 'dessert',
     recipeCard: {
-      yield: 'Makes 2 baked apple halves-worth (about 300g apple total), 1 serving per person.',
+      yield: 'Makes 1 baked apple\'s worth (about 150g apple total), 1 serving for 1 person.',
       ingredients: [
-        { text: '300g (about 2 medium) apples, cored and sliced' },
-        { text: '1.5g (about ¼ teaspoon) ground cinnamon' },
-        { text: '30g (about ¼ cup) walnuts, chopped, for topping' },
-        { text: '15g (about 1 tablespoon) honey' },
-        { text: '7.5g (about ½ tablespoon) salted butter' },
+        { text: '150g (about 1 medium) apple, cored and sliced' },
+        { text: '0.75g (about ⅛ teaspoon) ground cinnamon' },
+        { text: '15g (about 2 tablespoons) walnuts, chopped, for topping' },
+        { text: '7.5g (about ½ tablespoon) honey' },
+        { text: '4g (about ¾ teaspoon) salted butter' },
       ],
       instructions: [
         'Preheat the oven to 375°F (190°C).',
@@ -420,15 +434,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_dessert_mixed_berry_chia_pudding',
     linkedBuilderType: 'dessert',
     recipeCard: {
-      yield: 'Makes about 1 cup, 2 ½-cup servings.',
+      yield: 'Makes about ½ cup, 1 serving for 1 person.',
       ingredients: [
-        { text: '30g (about 2 tablespoons) chia seeds' },
-        { text: '250ml unsweetened almond milk' },
-        { text: '2.5ml (about ½ teaspoon) vanilla extract' },
-        { text: '10g (about 2 teaspoons) honey' },
-        { text: '37.5g (about ¼ cup) blueberries, whole' },
-        { text: '37.5g (about ¼ cup) strawberries, sliced' },
-        { text: '37.5g (about ¼ cup) raspberries, whole' },
+        { text: '15g (about 1 tablespoon) chia seeds' },
+        { text: '125ml unsweetened almond milk' },
+        { text: '1.25ml (about ¼ teaspoon) vanilla extract' },
+        { text: '5g (about 1 teaspoon) honey' },
+        { text: '19g (about 2 tablespoons) blueberries, whole' },
+        { text: '19g (about 2 tablespoons) strawberries, sliced' },
+        { text: '19g (about 2 tablespoons) raspberries, whole' },
       ],
       instructions: [
         'Whisk the chia seeds, almond milk, vanilla extract, and honey together in a bowl or jar.',
@@ -467,9 +481,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_plain_yogurt',
     linkedBuilderType: 'fermentation',
     recipeCard: {
-      yield: 'Makes about 8 cups. A batch meant to last 2 people a week or more in the fridge, the way a jar of yogurt would.',
+      yield: 'Makes about 4 cups. A batch meant to last 1 person a week or more in the fridge, the way a jar of yogurt would.',
       ingredients: [
-        { text: '1000ml whole milk, plus 2 tablespoons of a plain live-culture yogurt as your starter' },
+        { text: '500ml whole milk, plus 1 tablespoon of a plain live-culture yogurt as your starter' },
       ],
       instructions: [
         'Heat the milk in a pot to about 180°F (82°C), stirring occasionally to keep it from scorching on the bottom. This step denatures the milk proteins, which is what lets the finished yogurt set to a thick texture.',
@@ -498,9 +512,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_probiotic_yogurt',
     linkedBuilderType: 'fermentation',
     recipeCard: {
-      yield: 'Makes about 8 cups. A batch meant to last 2 people a week or more in the fridge.',
+      yield: 'Makes about 4 cups. A batch meant to last 1 person a week or more in the fridge.',
       ingredients: [
-        { text: '1000ml whole milk, plus a starter culture blend containing S. thermophilus, L. bulgaricus, L. acidophilus, and Bifidobacterium species (a probiotic-labeled starter yogurt or a powdered starter blend both work)' },
+        { text: '500ml whole milk, plus a starter culture blend containing S. thermophilus, L. bulgaricus, L. acidophilus, and Bifidobacterium species (a probiotic-labeled starter yogurt or a powdered starter blend both work, at about half the package\'s stated amount for this smaller batch)' },
       ],
       instructions: [
         'Heat the milk in a pot to about 180°F (82°C), stirring occasionally to keep it from scorching.',
@@ -529,10 +543,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_sauerkraut',
     linkedBuilderType: 'fermentation',
     recipeCard: {
-      yield: 'Makes about 4 cups. A fermented batch, kept in the fridge, easily lasts 2 people several weeks as a regular side.',
+      yield: 'Makes about 2 cups. A fermented batch, kept in the fridge, easily lasts 1 person several weeks as a regular side.',
       ingredients: [
-        { text: '1000g (about 1 medium head) cabbage, shredded' },
-        { text: '20g (about 1½ tablespoons) salt' },
+        { text: '500g (about ½ medium head) cabbage, shredded' },
+        { text: '10g (about 2¼ teaspoons) salt' },
       ],
       instructions: [
         'Toss the shredded cabbage with the salt in a large bowl.',
@@ -564,11 +578,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_kombucha',
     linkedBuilderType: 'fermentation',
     recipeCard: {
-      yield: 'Makes about 8 cups. A batch meant to be brewed once and shared across a week or more between 2 people.',
+      yield: 'Makes about 4 cups. A batch meant to be brewed once and last 1 person a week or more.',
       ingredients: [
-        { text: '2000ml brewed black tea, cooled to room temperature' },
-        { text: '200g (about 1 cup) cane sugar' },
-        { text: 'A SCOBY (symbiotic culture of bacteria and yeast), plus about 1 cup of starter liquid from a previous batch or a bottle of plain, unflavored, unpasteurized kombucha' },
+        { text: '1000ml brewed black tea, cooled to room temperature' },
+        { text: '100g (about ½ cup) cane sugar' },
+        { text: 'A SCOBY (symbiotic culture of bacteria and yeast, a standard-size one works even for this smaller batch), plus about ½ cup of starter liquid from a previous batch or a bottle of plain, unflavored, unpasteurized kombucha' },
       ],
       instructions: [
         'Brew the black tea strong and dissolve the sugar into it while it\'s still hot, then let it cool completely to room temperature. Adding a SCOBY to hot tea will kill it.',
@@ -586,7 +600,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Handhelds -- 4 real sandwiches/wraps/tacos, each scaled to feed 2.
+  // Handhelds -- 4 real sandwiches/wraps/tacos, each scaled to feed 1.
   // -------------------------------------------------------------------
   {
     id: 'recipe-handheld-turkey-avocado-wrap',
@@ -599,19 +613,19 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_turkey_avocado_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
-      yield: 'Makes 2 wraps, 1 wrap per person.',
+      yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
-        { text: '2 large flour tortillas' },
-        { text: '200g (about 7oz) turkey breast, sliced' },
-        { text: '160g (about 1 large) avocado, sliced' },
-        { text: '60g (about 2 cups) green leaf lettuce' },
-        { text: '120g (about 1 large) tomato, sliced' },
+        { text: '1 large flour tortilla' },
+        { text: '100g (about 3½oz) turkey breast, sliced' },
+        { text: '80g (about ½ large) avocado, sliced' },
+        { text: '30g (about 1 cup) green leaf lettuce' },
+        { text: '60g (about ½ large) tomato, sliced' },
       ],
       instructions: [
-        'Lay each tortilla flat and layer the lettuce down the center first, so it acts as a barrier that keeps the tortilla from getting soggy from the tomato.',
+        'Lay the tortilla flat and layer the lettuce down the center first, so it acts as a barrier that keeps the tortilla from getting soggy from the tomato.',
         'Add the sliced turkey, avocado, and tomato on top of the lettuce.',
         'Fold in the two sides of the tortilla, then roll it tightly from the bottom up, tucking the filling in as you go.',
-        'Slice each wrap in half on a diagonal before serving.',
+        'Slice the wrap in half on a diagonal before serving.',
       ],
       nutritionHighlights: [
         { nutrient: 'Niacin (B3)', note: 'A striking 76-87% of a day\'s worth per wrap, mostly from the turkey.' },
@@ -634,19 +648,19 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_grilled_chicken_sandwich',
     linkedBuilderType: 'handheld',
     recipeCard: {
-      yield: 'Makes 2 sandwiches, 1 sandwich per person.',
+      yield: 'Makes 1 sandwich, for 1 person.',
       ingredients: [
-        { text: '4 slices whole-grain bread' },
-        { text: '240g (about 2 breasts) chicken breast, skinless and boneless, grilled' },
-        { text: '40g (about 1½ cups) green leaf lettuce' },
-        { text: '80g (about ¾ large) tomato, sliced' },
-        { text: '80g (about ½ large) avocado, sliced' },
+        { text: '2 slices whole-grain bread' },
+        { text: '120g (about 1 breast) chicken breast, skinless and boneless, grilled' },
+        { text: '20g (about ¾ cup) green leaf lettuce' },
+        { text: '40g (about ⅓ large) tomato, sliced' },
+        { text: '40g (about ¼ large) avocado, sliced' },
       ],
       instructions: [
-        'Season the chicken breasts with salt and pepper (or your own preferred spices) and grill over medium-high heat for about 6-7 minutes per side, until the internal temperature reaches 165°F (74°C) and the juices run clear.',
+        'Season the chicken breast with salt and pepper (or your own preferred spices) and grill over medium-high heat for about 6-7 minutes per side, until the internal temperature reaches 165°F (74°C) and the juices run clear.',
         'Let the chicken rest for 5 minutes before slicing. This keeps it juicy rather than letting the juices run out the moment you cut it.',
         'Slice the rested chicken and layer it onto the bread with the lettuce, tomato, and avocado.',
-        'Assemble the sandwiches and serve.',
+        'Assemble the sandwich and serve.',
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin B6', note: 'A striking 123% of a day\'s worth per sandwich.' },
@@ -671,20 +685,20 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_black_bean_sweet_potato_tacos',
     linkedBuilderType: 'handheld',
     recipeCard: {
-      yield: 'Makes 2 tacos, 1 taco per person.',
+      yield: 'Makes 1 taco, for 1 person.',
       ingredients: [
-        { text: '2 small flour tortillas' },
-        { text: '150g (about ¾ cup) black beans' },
-        { text: '150g (about 1 medium) sweet potato, cubed and roasted' },
-        { text: '60g (about ½ small) avocado, sliced' },
-        { text: '15g (juice of about 1 lime)' },
-        { text: '5g (a small handful) fresh cilantro leaves, chopped' },
+        { text: '1 small flour tortilla' },
+        { text: '75g (about ⅜ cup) black beans' },
+        { text: '75g (about ½ medium) sweet potato, cubed and roasted' },
+        { text: '30g (about ¼ small) avocado, sliced' },
+        { text: '7.5g (juice of about ½ lime)' },
+        { text: '2.5g (a pinch) fresh cilantro leaves, chopped' },
       ],
       instructions: [
         'Preheat the oven to 400°F (200°C). Toss the cubed sweet potato with a little oil and salt, spread on a baking sheet, and roast for 20-25 minutes, until fork-tender and caramelized at the edges.',
         'Warm the black beans in a small pot, or in the microwave, until heated through.',
-        'Warm the tortillas briefly in a dry skillet, about 30 seconds per side, until pliable.',
-        'Fill each tortilla with roasted sweet potato and black beans.',
+        'Warm the tortilla briefly in a dry skillet, about 30 seconds per side, until pliable.',
+        'Fill the tortilla with roasted sweet potato and black beans.',
         'Top with sliced avocado and chopped cilantro, and finish with a squeeze of fresh lime juice.',
       ],
       nutritionHighlights: [
@@ -710,13 +724,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_egg_salad_lettuce_wraps',
     linkedBuilderType: 'handheld',
     recipeCard: {
-      yield: 'Makes 2 wraps, 1 wrap per person.',
+      yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
-        { text: '4 eggs, hard-boiled' },
-        { text: '30g (about 2 tablespoons) mayonnaise' },
-        { text: '40g (about ¼ cup) celery, diced' },
-        { text: '60g (about 2 large leaves) green leaf lettuce' },
-        { text: '5g (about 1 teaspoon) prepared yellow mustard' },
+        { text: '2 eggs, hard-boiled' },
+        { text: '15g (about 1 tablespoon) mayonnaise' },
+        { text: '20g (about 2 tablespoons) celery, diced' },
+        { text: '30g (about 1 large leaf) green leaf lettuce' },
+        { text: '2.5g (about ½ teaspoon) prepared yellow mustard' },
       ],
       instructions: [
         'Bring a pot of water to a boil, gently lower in the eggs, and boil for 10-12 minutes for a fully set yolk.',
@@ -737,8 +751,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Salads -- all 6 already yield exactly 2 real servings as written, no
-  // scaling needed.
+  // Salads -- all 6 halved from their own prior 2-serving amounts to
+  // yield exactly 1 real serving.
   // -------------------------------------------------------------------
   {
     id: 'recipe-salad-mediterranean-chickpea-feta',
@@ -751,16 +765,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_mediterranean_chickpea_feta',
     linkedBuilderType: 'salad',
     recipeCard: {
-      yield: 'Makes about 4 cups, 2 2-cup servings.',
+      yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
-        { text: '1 cup chickpeas, whole' },
-        { text: '½ cup feta, crumbled' },
-        { text: '1 cup cucumber, diced' },
-        { text: '1 cup tomato, diced' },
-        { text: '¼ cup onion, diced' },
-        { text: '2 tablespoons olive oil' },
-        { text: '1 tablespoon lemon juice' },
-        { text: '1 teaspoon dried oregano' },
+        { text: '½ cup chickpeas, whole' },
+        { text: '¼ cup feta, crumbled' },
+        { text: '½ cup cucumber, diced' },
+        { text: '½ cup tomato, diced' },
+        { text: '2 tablespoons onion, diced' },
+        { text: '1 tablespoon olive oil' },
+        { text: '1½ teaspoons lemon juice' },
+        { text: '½ teaspoon dried oregano' },
       ],
       instructions: [
         'Combine the chickpeas, feta, cucumber, tomato, and onion in a large bowl.',
@@ -791,14 +805,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_kale_citrus_iron',
     linkedBuilderType: 'salad',
     recipeCard: {
-      yield: 'Makes about 4 cups, 2 2-cup servings.',
+      yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
-        { text: '3 cups kale, chopped' },
-        { text: '1 orange, sliced' },
-        { text: '2 tablespoons onion, sliced' },
-        { text: '2 tablespoons pumpkin seeds, whole' },
-        { text: '1 tablespoon olive oil' },
-        { text: '1 tablespoon lemon juice' },
+        { text: '1½ cups kale, chopped' },
+        { text: '½ orange, sliced' },
+        { text: '1 tablespoon onion, sliced' },
+        { text: '1 tablespoon pumpkin seeds, whole' },
+        { text: '1½ teaspoons olive oil' },
+        { text: '1½ teaspoons lemon juice' },
       ],
       instructions: [
         'Massage the chopped kale with a small pinch of salt and a few drops of the olive oil for about 2 minutes, until it visibly softens and darkens slightly. This simple step breaks down kale\'s naturally tough texture and makes it far more pleasant to eat raw.',
@@ -829,15 +843,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_sesame_ginger_slaw',
     linkedBuilderType: 'salad',
     recipeCard: {
-      yield: 'Makes about 4 cups, 2 2-cup servings.',
+      yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
-        { text: '3 cups cabbage, shredded' },
-        { text: '1 cup carrot, grated' },
-        { text: '1 tablespoon sesame seeds, whole' },
-        { text: '1 teaspoon fresh ginger, grated' },
-        { text: '2 tablespoons rice vinegar' },
-        { text: '1 teaspoon honey' },
-        { text: '1 tablespoon olive oil' },
+        { text: '1½ cups cabbage, shredded' },
+        { text: '½ cup carrot, grated' },
+        { text: '1½ teaspoons sesame seeds, whole' },
+        { text: '½ teaspoon fresh ginger, grated' },
+        { text: '1 tablespoon rice vinegar' },
+        { text: '½ teaspoon honey' },
+        { text: '1½ teaspoons olive oil' },
       ],
       instructions: [
         'Combine the shredded cabbage, grated carrot, and sesame seeds in a large bowl.',
@@ -868,14 +882,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_beet_walnut_arugula',
     linkedBuilderType: 'salad',
     recipeCard: {
-      yield: 'Makes about 4 cups, 2 2-cup servings.',
+      yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
-        { text: '1½ cups beets, diced and roasted' },
-        { text: '¼ cup walnuts, chopped' },
-        { text: '2 cups arugula, whole' },
-        { text: '¼ cup feta, crumbled' },
-        { text: '1 tablespoon balsamic vinegar' },
-        { text: '1 tablespoon olive oil' },
+        { text: '¾ cup beets, diced and roasted' },
+        { text: '2 tablespoons walnuts, chopped' },
+        { text: '1 cup arugula, whole' },
+        { text: '2 tablespoons feta, crumbled' },
+        { text: '1½ teaspoons balsamic vinegar' },
+        { text: '1½ teaspoons olive oil' },
       ],
       instructions: [
         'Preheat the oven to 400°F (200°C). Toss the diced beets with a little oil, spread on a baking sheet, and roast for 25-30 minutes, until fork-tender.',
@@ -907,16 +921,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_southwest_quinoa_black_bean',
     linkedBuilderType: 'salad',
     recipeCard: {
-      yield: 'Makes about 4 cups, 2 2-cup servings.',
+      yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
-        { text: '1½ cups quinoa, cooked' },
-        { text: '1 cup black beans, whole' },
-        { text: '¾ cup sweet corn, whole kernels' },
-        { text: '1 avocado, diced' },
-        { text: '½ cup red bell pepper, diced' },
-        { text: '2 tablespoons lime juice' },
-        { text: '2 tablespoons fresh cilantro, chopped' },
-        { text: '½ teaspoon ground cumin' },
+        { text: '¾ cup quinoa, cooked' },
+        { text: '½ cup black beans, whole' },
+        { text: '6 tablespoons sweet corn, whole kernels' },
+        { text: '½ avocado, diced' },
+        { text: '¼ cup red bell pepper, diced' },
+        { text: '1 tablespoon lime juice' },
+        { text: '1 tablespoon fresh cilantro, chopped' },
+        { text: '¼ teaspoon ground cumin' },
       ],
       instructions: [
         'Cook the quinoa according to the package (usually a 2:1 ratio of water to quinoa, simmered covered for about 15 minutes, then rested off heat for 5 more).',
@@ -948,14 +962,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_spinach_strawberry_almond',
     linkedBuilderType: 'salad',
     recipeCard: {
-      yield: 'Makes about 4 cups, 2 2-cup servings.',
+      yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
-        { text: '3 cups spinach, whole' },
-        { text: '1 cup strawberries, sliced' },
-        { text: '¼ cup almonds, sliced' },
-        { text: '2 tablespoons onion, sliced' },
-        { text: '1 tablespoon balsamic vinegar' },
-        { text: '1 tablespoon olive oil' },
+        { text: '1½ cups spinach, whole' },
+        { text: '½ cup strawberries, sliced' },
+        { text: '2 tablespoons almonds, sliced' },
+        { text: '1 tablespoon onion, sliced' },
+        { text: '1½ teaspoons balsamic vinegar' },
+        { text: '1½ teaspoons olive oil' },
       ],
       instructions: [
         'Combine the spinach, sliced strawberries, sliced almonds, and onion in a large bowl.',
@@ -991,14 +1005,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_basic_tomato',
     linkedBuilderType: 'sauce',
     recipeCard: {
-      yield: 'Makes about 3 cups. A batch condiment meant to cover 2 people over multiple meals.',
+      yield: 'Makes about 1½ cups. A batch condiment meant to cover 1 person over multiple meals.',
       ingredients: [
-        { text: '600g (about 4 cups) tomatoes, chopped' },
-        { text: '6g (about 2 cloves) garlic, minced' },
-        { text: '80g (about ½ cup) onion, diced' },
-        { text: '20ml (about 1½ tablespoons) olive oil' },
-        { text: '5g (a small handful) fresh basil, chopped' },
-        { text: '3g (about ½ teaspoon) salt' },
+        { text: '300g (about 2 cups) tomatoes, chopped' },
+        { text: '3g (about 1 clove) garlic, minced' },
+        { text: '40g (about ¼ cup) onion, diced' },
+        { text: '10ml (about 2 teaspoons) olive oil' },
+        { text: '2.5g (a small pinch) fresh basil, chopped' },
+        { text: '1.5g (about ¼ teaspoon) salt' },
       ],
       instructions: [
         'Heat the olive oil in a pot over medium heat and sauté the onion for 4-5 minutes, until soft and translucent.',
@@ -1027,14 +1041,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_garlic_herb_vinaigrette',
     linkedBuilderType: 'sauce',
     recipeCard: {
-      yield: 'Makes about 1 cup. A batch dressing meant to cover 2 people\'s salads for a week or more.',
+      yield: 'Makes about ½ cup. A batch dressing meant to cover 1 person\'s salads for a week or more.',
       ingredients: [
-        { text: '60ml (about ¼ cup) olive oil' },
-        { text: '30ml (about 2 tablespoons) balsamic vinegar' },
-        { text: '4g (about 1 clove) garlic, minced' },
-        { text: '5g (about 1 teaspoon) prepared yellow mustard' },
-        { text: '1g (a pinch) salt' },
-        { text: '1g (a pinch) ground black pepper' },
+        { text: '30ml (about 2 tablespoons) olive oil' },
+        { text: '15ml (about 1 tablespoon) balsamic vinegar' },
+        { text: '2g (about ½ clove) garlic, minced' },
+        { text: '2.5g (about ½ teaspoon) prepared yellow mustard' },
+        { text: 'A pinch of salt' },
+        { text: 'A pinch of ground black pepper' },
       ],
       instructions: [
         'Combine the balsamic vinegar, minced garlic, mustard, salt, and pepper in a jar or bowl.',
@@ -1060,14 +1074,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_simple_pesto',
     linkedBuilderType: 'sauce',
     recipeCard: {
-      yield: 'Makes about 1 cup. A batch sauce meant to cover 2 people\'s meals for a week or more.',
+      yield: 'Makes about ½ cup. A batch sauce meant to cover 1 person\'s meals for a week or more.',
       ingredients: [
-        { text: '40g (about 2 cups packed) fresh basil' },
-        { text: '20g (about 2 tablespoons) pine nuts' },
-        { text: '6g (about 2 cloves) garlic' },
-        { text: '60ml (about ¼ cup) olive oil' },
-        { text: '20g (about 3 tablespoons) Parmesan, grated' },
-        { text: '1g (a pinch) salt' },
+        { text: '20g (about 1 cup packed) fresh basil' },
+        { text: '10g (about 1 tablespoon) pine nuts' },
+        { text: '3g (about 1 clove) garlic' },
+        { text: '30ml (about 2 tablespoons) olive oil' },
+        { text: '10g (about 1½ tablespoons) Parmesan, grated' },
+        { text: 'A pinch of salt' },
       ],
       instructions: [
         'Combine the basil, pine nuts, garlic, and salt in a food processor or blender.',
@@ -1097,13 +1111,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_tahini_lemon',
     linkedBuilderType: 'sauce',
     recipeCard: {
-      yield: 'Makes about ¾ cup. A batch sauce meant to cover 2 people\'s meals for a week or more.',
+      yield: 'Makes about 6 tablespoons. A batch sauce meant to cover 1 person\'s meals for a week or more.',
       ingredients: [
-        { text: '60g (about ¼ cup) tahini' },
-        { text: '30g (juice of about 1 lemon)' },
-        { text: '3g (about 1 clove) garlic, minced' },
-        { text: '60ml (about ¼ cup) water' },
-        { text: '1g (a pinch) salt' },
+        { text: '30g (about 2 tablespoons) tahini' },
+        { text: '15g (juice of about ½ lemon)' },
+        { text: '1.5g (about ½ clove) garlic, minced' },
+        { text: '30ml (about 2 tablespoons) water' },
+        { text: 'A pinch of salt' },
       ],
       instructions: [
         'Combine the tahini, lemon juice, garlic, and salt in a bowl.',
@@ -1121,7 +1135,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Sides -- all 5 originally serve 4, scaled down to 2 real servings.
+  // Sides -- all 5 halved from their own prior 2-serving amounts to
+  // yield exactly 1 real serving.
   // -------------------------------------------------------------------
   {
     id: 'recipe-side-herb-roasted-root-vegetables',
@@ -1134,16 +1149,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_herb_roasted_potatoes',
     linkedBuilderType: 'side',
     recipeCard: {
-      yield: 'Makes about 2 cups, 2 1-cup servings.',
+      yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
-        { text: '150g (about 1 medium) potato, diced' },
-        { text: '7.5ml (about 1½ teaspoons) olive oil' },
-        { text: '3g (about 1 clove) garlic, minced' },
-        { text: '1g (about ½ teaspoon) fresh rosemary, chopped' },
-        { text: '1g (a pinch) salt' },
-        { text: '0.5g (a pinch) ground black pepper' },
-        { text: '75g (about ½ small) sweet potato, diced' },
-        { text: '30g (about ¼ small) onion, sliced' },
+        { text: '75g (about ½ medium) potato, diced' },
+        { text: '3.75ml (about ¾ teaspoon) olive oil' },
+        { text: '1.5g (about ½ clove) garlic, minced' },
+        { text: '0.5g (about ¼ teaspoon) fresh rosemary, chopped' },
+        { text: 'A pinch of salt' },
+        { text: 'A pinch of ground black pepper' },
+        { text: '37.5g (about ¼ small) sweet potato, diced' },
+        { text: '15g (about ⅛ small) onion, sliced' },
       ],
       instructions: [
         'Preheat the oven to 425°F (220°C).',
@@ -1173,15 +1188,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lemon_garlic_broccoli',
     linkedBuilderType: 'side',
     recipeCard: {
-      yield: 'Makes about 2 cups, 2 1-cup servings.',
+      yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
-        { text: '100g (about 1½ cups) broccoli, chopped' },
-        { text: '7.5ml (about 1½ teaspoons) olive oil' },
-        { text: '3g (about 1 clove) garlic, minced' },
-        { text: '15g (juice of about ½ lemon)' },
-        { text: '1g (a pinch) salt' },
-        { text: '50g (about ⅓ cup) carrot, sliced' },
-        { text: '50g (about ⅓ cup) red bell pepper, sliced' },
+        { text: '50g (about ¾ cup) broccoli, chopped' },
+        { text: '3.75ml (about ¾ teaspoon) olive oil' },
+        { text: '1.5g (about ½ clove) garlic, minced' },
+        { text: '7.5g (juice of about ¼ lemon)' },
+        { text: 'A pinch of salt' },
+        { text: '25g (about 3 tablespoons) carrot, sliced' },
+        { text: '25g (about 3 tablespoons) red bell pepper, sliced' },
       ],
       instructions: [
         'Preheat the oven to 425°F (220°C).',
@@ -1212,13 +1227,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_garlic_mashed_cauliflower',
     linkedBuilderType: 'side',
     recipeCard: {
-      yield: 'Makes about 2 cups, 2 1-cup servings.',
+      yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
-        { text: '150g (about 2 cups) cauliflower, chopped' },
-        { text: '3g (about 1 clove) garlic, minced' },
-        { text: '7.5ml (about 1½ teaspoons) olive oil' },
-        { text: '1g (a pinch) salt' },
-        { text: '0.5g (a pinch) ground black pepper' },
+        { text: '75g (about 1 cup) cauliflower, chopped' },
+        { text: '1.5g (about ½ clove) garlic, minced' },
+        { text: '3.75ml (about ¾ teaspoon) olive oil' },
+        { text: 'A pinch of salt' },
+        { text: 'A pinch of ground black pepper' },
       ],
       instructions: [
         'Bring a pot of water to a boil and add the chopped cauliflower and minced garlic.',
@@ -1246,13 +1261,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_sauteed_spinach_garlic',
     linkedBuilderType: 'side',
     recipeCard: {
-      yield: 'Makes about 1 cup, 2 ½-cup servings.',
+      yield: 'Makes about ½ cup, 1 ½-cup serving.',
       ingredients: [
-        { text: '100g (about 3½ cups) fresh spinach, whole' },
-        { text: '5ml (about 1 teaspoon) olive oil' },
-        { text: '2g (about ½ clove) garlic, minced' },
-        { text: '0.5g (a pinch) salt' },
-        { text: '7.5g (juice of about ¼ lemon)' },
+        { text: '50g (about 1¾ cups) fresh spinach, whole' },
+        { text: '2.5ml (about ½ teaspoon) olive oil' },
+        { text: '1g (about ¼ clove) garlic, minced' },
+        { text: 'A pinch of salt' },
+        { text: '3.75g (juice of about ⅛ lemon)' },
       ],
       instructions: [
         'Heat the olive oil in a large skillet over medium heat.',
@@ -1283,18 +1298,18 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_rainbow_stir_fry',
     linkedBuilderType: 'side',
     recipeCard: {
-      yield: 'Makes about 2 cups, 2 1-cup servings.',
+      yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
-        { text: '75g (about 1 cup) broccoli, chopped into florets' },
-        { text: '50g (about ⅓ cup) carrot, sliced' },
-        { text: '50g (about ⅓ cup) red bell pepper, sliced' },
-        { text: '50g (about ⅓ cup) yellow bell pepper, sliced' },
-        { text: '50g (about ⅓ cup) green beans, trimmed' },
-        { text: '30g (about ¼ small) onion, sliced' },
-        { text: '4g (about 1 clove) garlic, minced' },
-        { text: '4g (about 1 teaspoon) fresh ginger, minced' },
-        { text: '15ml (about 1 tablespoon) soy sauce' },
-        { text: '4g (about 1 teaspoon) sesame seeds' },
+        { text: '37.5g (about ½ cup) broccoli, chopped into florets' },
+        { text: '25g (about 3 tablespoons) carrot, sliced' },
+        { text: '25g (about 3 tablespoons) red bell pepper, sliced' },
+        { text: '25g (about 3 tablespoons) yellow bell pepper, sliced' },
+        { text: '25g (about 3 tablespoons) green beans, trimmed' },
+        { text: '15g (about ⅛ small) onion, sliced' },
+        { text: '2g (about ½ clove) garlic, minced' },
+        { text: '2g (about ½ teaspoon) fresh ginger, minced' },
+        { text: '7.5ml (about 1½ teaspoons) soy sauce' },
+        { text: '2g (about ½ teaspoon) sesame seeds' },
       ],
       instructions: [
         'Heat a splash of oil in a wok or large skillet over high heat until it\'s shimmering.',
@@ -1317,8 +1332,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Smoothies -- all 6 originally make 1 real 2-cup serving, doubled here
-  // to make 2 real servings, one glass per person.
+  // Smoothies -- all 6 make exactly 1 real 2-cup serving, one glass for
+  // one person.
   // -------------------------------------------------------------------
   {
     id: 'recipe-smoothie-green-glow',
@@ -1331,13 +1346,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_green_glow',
     linkedBuilderType: 'smoothie',
     recipeCard: {
-      yield: 'Makes about 4 cups, 2 2-cup servings.',
+      yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
-        { text: '3 cups spinach, whole' },
-        { text: '2 bananas, sliced' },
-        { text: '1 cup pineapple, diced' },
-        { text: '2 cups unsweetened almond milk' },
-        { text: '2 tablespoons chia seeds' },
+        { text: '1½ cups spinach, whole' },
+        { text: '1 banana, sliced' },
+        { text: '½ cup pineapple, diced' },
+        { text: '1 cup unsweetened almond milk' },
+        { text: '1 tablespoon chia seeds' },
       ],
       instructions: [
         'Combine all the ingredients in a blender.',
@@ -1366,14 +1381,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_golden_turmeric',
     linkedBuilderType: 'smoothie',
     recipeCard: {
-      yield: 'Makes about 4 cups, 2 2-cup servings.',
+      yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
-        { text: '1 teaspoon ground turmeric' },
-        { text: '2 bananas, sliced' },
-        { text: '2 cups unsweetened almond milk' },
-        { text: '¼ teaspoon ground black pepper' },
-        { text: '½ teaspoon ground cinnamon' },
-        { text: '2 teaspoons honey' },
+        { text: '½ teaspoon ground turmeric' },
+        { text: '1 banana, sliced' },
+        { text: '1 cup unsweetened almond milk' },
+        { text: 'A pinch of ground black pepper' },
+        { text: '¼ teaspoon ground cinnamon' },
+        { text: '1 teaspoon honey' },
       ],
       instructions: [
         'Combine all the ingredients in a blender.',
@@ -1400,12 +1415,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_brazil_nut_selenium',
     linkedBuilderType: 'smoothie',
     recipeCard: {
-      yield: 'Makes about 4 cups, 2 2-cup servings.',
+      yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
-        { text: '4 Brazil nuts, whole' },
-        { text: '2 cups pineapple, diced' },
-        { text: '1½ cups coconut milk' },
-        { text: '2 bananas, sliced' },
+        { text: '2 Brazil nuts, whole' },
+        { text: '1 cup pineapple, diced' },
+        { text: '¾ cup coconut milk' },
+        { text: '1 banana, sliced' },
       ],
       instructions: [
         'Combine all the ingredients in a blender.',
@@ -1434,13 +1449,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_berry_antioxidant',
     linkedBuilderType: 'smoothie',
     recipeCard: {
-      yield: 'Makes about 4 cups, 2 2-cup servings.',
+      yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
-        { text: '2 cups blueberries, whole' },
-        { text: '2 cups strawberries, whole' },
-        { text: '2 tablespoons flaxseed, whole' },
-        { text: '2 cups coconut water' },
-        { text: '2 teaspoons honey' },
+        { text: '1 cup blueberries, whole' },
+        { text: '1 cup strawberries, whole' },
+        { text: '1 tablespoon flaxseed, whole' },
+        { text: '1 cup coconut water' },
+        { text: '1 teaspoon honey' },
       ],
       instructions: [
         'Combine all the ingredients in a blender.',
@@ -1467,12 +1482,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_iron_vitamin_c',
     linkedBuilderType: 'smoothie',
     recipeCard: {
-      yield: 'Makes about 4 cups, 2 2-cup servings.',
+      yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
-        { text: '2 cups spinach, whole' },
-        { text: '2 oranges, quartered' },
-        { text: '2 cups strawberries, whole' },
-        { text: '2 bananas, sliced' },
+        { text: '1 cup spinach, whole' },
+        { text: '1 orange, quartered' },
+        { text: '1 cup strawberries, whole' },
+        { text: '1 banana, sliced' },
       ],
       instructions: [
         'Combine all the ingredients in a blender.',
@@ -1501,13 +1516,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_tropical_ginger',
     linkedBuilderType: 'smoothie',
     recipeCard: {
-      yield: 'Makes about 4 cups, 2 2-cup servings.',
+      yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
-        { text: '3 cups pineapple, diced' },
-        { text: '2 teaspoons fresh ginger, grated' },
-        { text: '2 bananas, sliced' },
-        { text: '2 cups coconut water' },
-        { text: '2 tablespoons lime juice' },
+        { text: '1½ cups pineapple, diced' },
+        { text: '1 teaspoon fresh ginger, grated' },
+        { text: '1 banana, sliced' },
+        { text: '1 cup coconut water' },
+        { text: '1 tablespoon lime juice' },
       ],
       instructions: [
         'Combine all the ingredients in a blender.',
@@ -1526,8 +1541,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
 
   // -------------------------------------------------------------------
   // Snacks -- 2 (roasted chickpeas, trail mix) are real batch/pantry
-  // items that keep their own natural size; the other 2 (already
-  // single-serving) are doubled to make 2 real servings.
+  // items, halved from their own prior 2-person batch size to a 1-person
+  // one; the other 2 are meal-type snacks, halved to 1 real serving.
   // -------------------------------------------------------------------
   {
     id: 'recipe-snack-roasted-chickpeas',
@@ -1540,12 +1555,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_roasted_chickpeas',
     linkedBuilderType: 'snack',
     recipeCard: {
-      yield: 'Makes about 2 cups. A batch snack meant to last 2 people several days.',
+      yield: 'Makes about 1 cup. A batch snack meant to last 1 person several days.',
       ingredients: [
-        { text: '200g (about 1½ cups) chickpeas, drained' },
-        { text: '10ml (about 2 teaspoons) olive oil' },
-        { text: '2g (about ⅓ teaspoon) salt' },
-        { text: '2g (about 1 teaspoon) paprika' },
+        { text: '100g (about ¾ cup) chickpeas, drained' },
+        { text: '5ml (about 1 teaspoon) olive oil' },
+        { text: '1g (about ⅙ teaspoon) salt' },
+        { text: '1g (about ½ teaspoon) paprika' },
       ],
       instructions: [
         'Preheat the oven to 400°F (200°C).',
@@ -1575,12 +1590,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_trail_mix',
     linkedBuilderType: 'snack',
     recipeCard: {
-      yield: 'Makes about 1½ cups. A batch snack meant to last 2 people several days.',
+      yield: 'Makes about ¾ cup. A batch snack meant to last 1 person several days.',
       ingredients: [
-        { text: '40g (about ¼ cup) almonds' },
-        { text: '40g (about ¼ cup) walnuts' },
-        { text: '40g (about ¼ cup) dark seedless raisins' },
-        { text: '30g (about ¼ cup) pumpkin seeds' },
+        { text: '20g (about 2 tablespoons) almonds' },
+        { text: '20g (about 2 tablespoons) walnuts' },
+        { text: '20g (about 2 tablespoons) dark seedless raisins' },
+        { text: '15g (about 2 tablespoons) pumpkin seeds' },
       ],
       instructions: [
         'Combine all the ingredients in a bowl or jar.',
@@ -1609,11 +1624,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_apple_almond_butter',
     linkedBuilderType: 'snack',
     recipeCard: {
-      yield: 'Makes 2 servings, 1 apple\'s worth per person.',
+      yield: 'Makes 1 serving, 1 apple\'s worth for 1 person.',
       ingredients: [
-        { text: '300g (about 2 medium) apples, sliced' },
-        { text: '60g (about ¼ cup) almond butter' },
-        { text: '2g (about ½ teaspoon) ground cinnamon' },
+        { text: '150g (about 1 medium) apple, sliced' },
+        { text: '30g (about 2 tablespoons) almond butter' },
+        { text: '1g (about ¼ teaspoon) ground cinnamon' },
       ],
       instructions: [
         'Core and slice the apples.',
@@ -1642,16 +1657,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_berries_yogurt',
     linkedBuilderType: 'snack',
     recipeCard: {
-      yield: 'Makes 2 bowls, 1 per person.',
+      yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
-        { text: '400g (about 1⅔ cups) Greek yogurt, plain' },
-        { text: '150g (about 1 cup) blueberries' },
-        { text: '150g (about 1 cup) strawberries, sliced' },
-        { text: '20g (about 4 teaspoons) honey' },
+        { text: '200g (about ¾ cup) Greek yogurt, plain' },
+        { text: '75g (about ½ cup) blueberries' },
+        { text: '75g (about ½ cup) strawberries, sliced' },
+        { text: '10g (about 2 teaspoons) honey' },
       ],
       instructions: [
-        'Divide the Greek yogurt between two bowls.',
-        'Top each with the blueberries and sliced strawberries.',
+        'Spoon the Greek yogurt into a bowl.',
+        'Top with the blueberries and sliced strawberries.',
         'Drizzle the honey over the top and serve.',
       ],
       nutritionHighlights: [
@@ -1665,7 +1680,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Soups -- all 4 originally serve 4, scaled down to 2 real servings.
+  // Soups -- all 4 halved from their own prior 2-serving amounts to
+  // yield exactly 1 real serving.
   // -------------------------------------------------------------------
   {
     id: 'recipe-soup-chicken-vegetable',
@@ -1678,16 +1694,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_chicken_vegetable',
     linkedBuilderType: 'soup',
     recipeCard: {
-      yield: 'Makes about 3 cups, 2 1½-cup servings.',
+      yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
-        { text: '100g (about ⅔ cup) chicken breast, skinless and boneless, diced' },
-        { text: '50g (about ⅓ cup) carrot, diced' },
-        { text: '40g (about ¼ cup) celery, diced' },
-        { text: '50g (about ⅓ cup) onion, diced' },
-        { text: '3g (about 1 clove) garlic, minced' },
-        { text: '5g (about 1½ teaspoons) chicken bouillon' },
-        { text: '500ml water' },
-        { text: '1.5g (a pinch) salt' },
+        { text: '50g (about ⅓ cup) chicken breast, skinless and boneless, diced' },
+        { text: '25g (about 3 tablespoons) carrot, diced' },
+        { text: '20g (about 2 tablespoons) celery, diced' },
+        { text: '25g (about 3 tablespoons) onion, diced' },
+        { text: '1.5g (about ½ clove) garlic, minced' },
+        { text: '2.5g (about ¾ teaspoon) chicken bouillon' },
+        { text: '250ml water' },
+        { text: 'A pinch of salt' },
       ],
       instructions: [
         'Combine the water and chicken bouillon in a pot and bring to a simmer.',
@@ -1718,16 +1734,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_butternut_squash',
     linkedBuilderType: 'soup',
     recipeCard: {
-      yield: 'Makes about 3 cups, 2 1½-cup servings.',
+      yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
-        { text: '250g (about 2 cups) butternut squash, cubed' },
-        { text: '50g (about ⅓ cup) onion, diced' },
-        { text: '3g (about 1 clove) garlic, minced' },
-        { text: '7.5g (about 1½ teaspoons) vegetable stock' },
-        { text: '375ml water' },
-        { text: '7.5ml (about 1½ teaspoons) olive oil' },
-        { text: '0.5g (a pinch) ground nutmeg' },
-        { text: '1.5g (a pinch) salt' },
+        { text: '125g (about 1 cup) butternut squash, cubed' },
+        { text: '25g (about 3 tablespoons) onion, diced' },
+        { text: '1.5g (about ½ clove) garlic, minced' },
+        { text: '3.75g (about ¾ teaspoon) vegetable stock' },
+        { text: '190ml water' },
+        { text: '3.75ml (about ¾ teaspoon) olive oil' },
+        { text: 'A pinch of ground nutmeg' },
+        { text: 'A pinch of salt' },
       ],
       instructions: [
         'Heat the olive oil in a pot over medium heat and sauté the onion for 4-5 minutes, until soft.',
@@ -1757,17 +1773,17 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_red_lentil',
     linkedBuilderType: 'soup',
     recipeCard: {
-      yield: 'Makes about 3 cups, 2 1½-cup servings.',
+      yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
-        { text: '100g (about ½ cup) red lentils' },
-        { text: '40g (about ¼ cup) carrot, diced' },
-        { text: '30g (about ⅓ cup) celery, diced' },
-        { text: '50g (about ⅓ cup) onion, diced' },
-        { text: '3g (about 1 clove) garlic, minced' },
-        { text: '7.5g (about 1½ teaspoons) vegetable stock' },
-        { text: '500ml water' },
-        { text: '1.5g (about ¼ teaspoon) ground cumin' },
-        { text: '1.5g (a pinch) salt' },
+        { text: '50g (about ¼ cup) red lentils' },
+        { text: '20g (about 2 tablespoons) carrot, diced' },
+        { text: '15g (about 2½ tablespoons) celery, diced' },
+        { text: '25g (about 3 tablespoons) onion, diced' },
+        { text: '1.5g (about ½ clove) garlic, minced' },
+        { text: '3.75g (about ¾ teaspoon) vegetable stock' },
+        { text: '250ml water' },
+        { text: '0.75g (about ⅛ teaspoon) ground cumin' },
+        { text: 'A pinch of salt' },
       ],
       instructions: [
         'Combine the red lentils, carrot, celery, onion, garlic, vegetable stock, and water in a pot.',
@@ -1796,16 +1812,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_tomato_basil',
     linkedBuilderType: 'soup',
     recipeCard: {
-      yield: 'Makes about 3 cups, 2 1½-cup servings.',
+      yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
-        { text: '300g (about 2 cups) tomatoes, chopped' },
-        { text: '50g (about ⅓ cup) onion, diced' },
-        { text: '3g (about 1 clove) garlic, minced' },
-        { text: '2.5g (a small handful) fresh basil, chopped' },
-        { text: '7.5ml (about 1½ teaspoons) olive oil' },
-        { text: '5g (about 1 teaspoon) vegetable stock' },
-        { text: '250ml water' },
-        { text: '1.5g (a pinch) salt' },
+        { text: '150g (about 1 cup) tomatoes, chopped' },
+        { text: '25g (about 3 tablespoons) onion, diced' },
+        { text: '1.5g (about ½ clove) garlic, minced' },
+        { text: '1.25g (a small pinch) fresh basil, chopped' },
+        { text: '3.75ml (about ¾ teaspoon) olive oil' },
+        { text: '2.5g (about ½ teaspoon) vegetable stock' },
+        { text: '125ml water' },
+        { text: 'A pinch of salt' },
       ],
       instructions: [
         'Heat the olive oil in a pot over medium heat and sauté the onion for 4-5 minutes, until soft.',
@@ -1869,13 +1885,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       'gout-fermented-drinks',
     ],
     recipeCard: {
-      yield: 'Makes about 4 cups of finished tonic. A jar this size covers two people a 4-6 ounce evening pour for several nights.',
+      yield: 'Makes about 2 cups of finished tonic. A jar this size covers one person a 4-6 ounce evening pour for a few nights.',
       ingredients: [
-        { text: '2 cups (about 300g) tart cherries, fresh or thawed frozen, pitted and lightly crushed' },
-        { text: '1 large thumb (about 20g) organic ginger, unpeeled, sliced' },
-        { text: '1 small thumb (about 10g) organic turmeric, unpeeled, sliced (or 2 teaspoons ground if fresh isn\'t available)' },
-        { text: '1/3 cup (about 65g) raw honey' },
-        { text: '4 cups (950ml) filtered, unchlorinated water' },
+        { text: '1 cup (about 150g) tart cherries, fresh or thawed frozen, pitted and lightly crushed' },
+        { text: '1 small thumb (about 10g) organic ginger, unpeeled, sliced' },
+        { text: 'A few slices (about 5g) organic turmeric, unpeeled (or 1 teaspoon ground if fresh isn\'t available)' },
+        { text: '3 tablespoons (about 32g) raw honey' },
+        { text: '2 cups (475ml) filtered, unchlorinated water' },
         { text: 'A small pinch of black pepper' },
       ],
       instructions: [
@@ -1913,13 +1929,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'interaction-curcumin-piperine'],
     recipeCard: {
-      yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
+      yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
-        { text: '2 cups (about 300g) blueberries, fresh or frozen (no need to thaw first)' },
-        { text: '1 large thumb (about 20g) organic ginger, unpeeled, sliced' },
-        { text: '1 small thumb (about 10g) organic turmeric, unpeeled, sliced' },
-        { text: '1/3 cup (about 65g) raw honey' },
-        { text: '4 cups (950ml) filtered, unchlorinated water' },
+        { text: '1 cup (about 150g) blueberries, fresh or frozen (no need to thaw first)' },
+        { text: '1 small thumb (about 10g) organic ginger, unpeeled, sliced' },
+        { text: 'A few slices (about 5g) organic turmeric, unpeeled' },
+        { text: '3 tablespoons (about 32g) raw honey' },
+        { text: '2 cups (475ml) filtered, unchlorinated water' },
         { text: 'A small pinch of black pepper' },
       ],
       instructions: [
@@ -1955,13 +1971,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'prostate-fermented-drinks'],
     recipeCard: {
-      yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
+      yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
-        { text: '1 1/4 cups (300ml) unsweetened pure pomegranate juice, or fresh arils pulsed in a food processor and strained' },
-        { text: '1 large thumb (about 20g) organic ginger, unpeeled, sliced' },
-        { text: '1 small thumb (about 10g) organic turmeric, unpeeled, sliced' },
-        { text: '3 tablespoons (about 50g) raw honey' },
-        { text: '2 3/4 cups (650ml) filtered, unchlorinated water' },
+        { text: '2/3 cup (150ml) unsweetened pure pomegranate juice, or fresh arils pulsed in a food processor and strained' },
+        { text: '1 small thumb (about 10g) organic ginger, unpeeled, sliced' },
+        { text: 'A few slices (about 5g) organic turmeric, unpeeled' },
+        { text: '1 1/2 tablespoons (about 25g) raw honey' },
+        { text: '1 1/3 cups (325ml) filtered, unchlorinated water' },
         { text: 'A small pinch of black pepper' },
       ],
       instructions: [
@@ -1996,13 +2012,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
-      yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
+      yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
-        { text: '1 3/4 cups (about 250g) cranberries, fresh or frozen, pulsed in a food processor to break the skins' },
-        { text: '1 large thumb (about 20g) organic ginger, unpeeled, sliced' },
-        { text: '1 small thumb (about 10g) organic turmeric, unpeeled, sliced' },
-        { text: '1/3 cup plus 1 tablespoon (about 85g) raw honey (cranberries need a bit more sweetener than most fruit here, given how tart they are)' },
-        { text: '4 cups (950ml) filtered, unchlorinated water' },
+        { text: '7/8 cup (about 125g) cranberries, fresh or frozen, pulsed in a food processor to break the skins' },
+        { text: '1 small thumb (about 10g) organic ginger, unpeeled, sliced' },
+        { text: 'A few slices (about 5g) organic turmeric, unpeeled' },
+        { text: '3 tablespoons (about 42g) raw honey (cranberries need a bit more sweetener than most fruit here, given how tart they are)' },
+        { text: '2 cups (475ml) filtered, unchlorinated water' },
         { text: 'A small pinch of black pepper' },
       ],
       instructions: [
@@ -2037,13 +2053,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'pcos-fermented-drinks', 'cvd-fermented-drinks'],
     recipeCard: {
-      yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
+      yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
-        { text: '2 cups (about 300g) red or purple grapes, halved' },
-        { text: '1 large thumb (about 20g) organic ginger, unpeeled, sliced' },
-        { text: '1 small thumb (about 10g) organic turmeric, unpeeled, sliced' },
-        { text: '1/4 cup (about 50g) raw honey' },
-        { text: '4 cups (950ml) filtered, unchlorinated water' },
+        { text: '1 cup (about 150g) red or purple grapes, halved' },
+        { text: '1 small thumb (about 10g) organic ginger, unpeeled, sliced' },
+        { text: 'A few slices (about 5g) organic turmeric, unpeeled' },
+        { text: '2 tablespoons (about 25g) raw honey' },
+        { text: '2 cups (475ml) filtered, unchlorinated water' },
         { text: 'A small pinch of black pepper' },
       ],
       instructions: [
@@ -2077,13 +2093,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'cvd-fermented-drinks'],
     recipeCard: {
-      yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
+      yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
-        { text: '1/2 cup dried hibiscus flowers (Flor de Jamaica)' },
-        { text: '4 cups (900ml) boiling water, cooled to room temperature after steeping' },
-        { text: '1 large thumb (about 20g) organic ginger, unpeeled, sliced' },
-        { text: '1 small thumb (about 10g) organic turmeric, unpeeled, sliced' },
-        { text: '1/3 cup (about 65g) raw honey' },
+        { text: '1/4 cup dried hibiscus flowers (Flor de Jamaica)' },
+        { text: '2 cups (450ml) boiling water, cooled to room temperature after steeping' },
+        { text: '1 small thumb (about 10g) organic ginger, unpeeled, sliced' },
+        { text: 'A few slices (about 5g) organic turmeric, unpeeled' },
+        { text: '3 tablespoons (about 32g) raw honey' },
         { text: 'A small pinch of black pepper' },
       ],
       instructions: [
@@ -2117,14 +2133,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
-      yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
+      yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
-        { text: '1 cup (about 150g) blackberries, fresh or frozen, lightly crushed' },
-        { text: '1 cup (about 150g) raspberries, fresh or frozen, lightly crushed' },
-        { text: '1 large thumb (about 20g) organic ginger, unpeeled, sliced' },
-        { text: '1 small thumb (about 10g) organic turmeric, unpeeled, sliced' },
-        { text: '1/3 cup (about 65g) raw honey' },
-        { text: '4 cups (950ml) filtered, unchlorinated water' },
+        { text: '1/2 cup (about 75g) blackberries, fresh or frozen, lightly crushed' },
+        { text: '1/2 cup (about 75g) raspberries, fresh or frozen, lightly crushed' },
+        { text: '1 small thumb (about 10g) organic ginger, unpeeled, sliced' },
+        { text: 'A few slices (about 5g) organic turmeric, unpeeled' },
+        { text: '3 tablespoons (about 32g) raw honey' },
+        { text: '2 cups (475ml) filtered, unchlorinated water' },
         { text: 'A small pinch of black pepper' },
       ],
       instructions: [
@@ -2157,13 +2173,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'lupus-fermented-drinks'],
     recipeCard: {
-      yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
+      yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
-        { text: '1 3/4 cups (about 250g) elderberries, stems removed, lightly crushed (fresh or frozen)' },
-        { text: '1 large thumb (about 20g) organic ginger, unpeeled, sliced' },
-        { text: '1 small thumb (about 10g) organic turmeric, unpeeled, sliced' },
-        { text: '1/3 cup plus 2 teaspoons (about 75g) raw honey' },
-        { text: '4 cups (950ml) filtered, unchlorinated water' },
+        { text: '7/8 cup (about 125g) elderberries, stems removed, lightly crushed (fresh or frozen)' },
+        { text: '1 small thumb (about 10g) organic ginger, unpeeled, sliced' },
+        { text: 'A few slices (about 5g) organic turmeric, unpeeled' },
+        { text: '2 tablespoons plus 1 teaspoon (about 37g) raw honey' },
+        { text: '2 cups (475ml) filtered, unchlorinated water' },
         { text: 'A small pinch of black pepper' },
       ],
       instructions: [
@@ -2197,13 +2213,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
-      yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
+      yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
-        { text: '1 medium apple (about 200g), unpeeled, grated' },
-        { text: '1 medium pear (about 200g), unpeeled, grated' },
-        { text: '1 medium thumb (about 15g) organic ginger, unpeeled, sliced' },
-        { text: '1/4 cup (about 50g) raw honey' },
-        { text: '4 cups (950ml) filtered, unchlorinated water' },
+        { text: '1 small apple (about 100g), unpeeled, grated' },
+        { text: '1 small pear (about 100g), unpeeled, grated' },
+        { text: '1 small thumb (about 7.5g) organic ginger, unpeeled, sliced' },
+        { text: '2 tablespoons (about 25g) raw honey' },
+        { text: '2 cups (475ml) filtered, unchlorinated water' },
       ],
       instructions: [
         'Grate the unpeeled apple and pear directly into a clean quart jar.',
@@ -2232,13 +2248,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
-      yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
+      yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
-        { text: '1 large lemon (about 150g), unpeeled, sliced' },
-        { text: '1 large lime (about 100g), unpeeled, sliced' },
-        { text: '1 large thumb (about 20g) organic ginger, unpeeled, sliced' },
-        { text: '1/3 cup plus 2 teaspoons (about 75g) raw honey' },
-        { text: '4 cups (950ml) filtered, unchlorinated water' },
+        { text: '1/2 large lemon (about 75g), unpeeled, sliced' },
+        { text: '1/2 large lime (about 50g), unpeeled, sliced' },
+        { text: '1 small thumb (about 10g) organic ginger, unpeeled, sliced' },
+        { text: '2 tablespoons plus 1 teaspoon (about 37g) raw honey' },
+        { text: '2 cups (475ml) filtered, unchlorinated water' },
       ],
       instructions: [
         'Slice the unpeeled lemon and lime and place them in a clean quart jar with the sliced ginger.',
@@ -2279,11 +2295,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       'ibs-fermented-drinks',
     ],
     recipeCard: {
-      yield: 'Makes about 6 cups. Traditionally taken as a 1-2 ounce shot rather than a full glass, so this batch lasts a good while.',
+      yield: 'Makes about 3 cups. Traditionally taken as a 1-2 ounce shot rather than a full glass, so this batch lasts a good while for one person.',
       ingredients: [
-        { text: '1 pound (about 500g) beets, peeled and chopped into chunks' },
-        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
-        { text: '4 teaspoons (about 20g) non-iodized salt' },
+        { text: '1/2 pound (about 250g) beets, peeled and chopped into chunks' },
+        { text: '3 cups (750ml) filtered, unchlorinated water' },
+        { text: '2 teaspoons (about 10g) non-iodized salt' },
       ],
       instructions: [
         'Put the chopped beets into a clean half-gallon jar.',
@@ -2317,12 +2333,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-lacto-fermented-vegetables', 'fermented-leuconostoc-mesenteroides'],
     recipeCard: {
-      yield: 'Makes about 6 cups. Traditionally taken as a small shot rather than a full glass.',
+      yield: 'Makes about 3 cups. Traditionally taken as a small shot rather than a full glass, so this batch lasts a good while for one person.',
       ingredients: [
-        { text: '1 pound (about 500g) carrots, peeled and sliced into batons' },
-        { text: '2 teaspoons (about 10g) mustard seed, lightly crushed' },
-        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
-        { text: '4 teaspoons (about 20g) non-iodized salt' },
+        { text: '1/2 pound (about 250g) carrots, peeled and sliced into batons' },
+        { text: '1 teaspoon (about 5g) mustard seed, lightly crushed' },
+        { text: '3 cups (750ml) filtered, unchlorinated water' },
+        { text: '2 teaspoons (about 10g) non-iodized salt' },
       ],
       instructions: [
         'Put the carrot batons and crushed mustard seed into a clean half-gallon jar.',
@@ -2359,11 +2375,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       'migraine-fermented-drinks',
     ],
     recipeCard: {
-      yield: 'Makes about 4 cups. A batch this size restarts easily every 1-2 days once the grains are active.',
+      yield: 'Makes about 2 cups, enough for one person. A batch this size restarts easily every 1-2 days once the grains are active.',
       ingredients: [
-        { text: '1/4 cup (about 60g) active water kefir grains' },
-        { text: '1/4 cup (about 60g) sugar (the grains feed on this; very little remains in the finished drink)' },
-        { text: '4 cups (1 liter) filtered, unchlorinated water' },
+        { text: '2 tablespoons (about 30g) active water kefir grains' },
+        { text: '2 tablespoons (about 30g) sugar (the grains feed on this; very little remains in the finished drink)' },
+        { text: '2 cups (500ml) filtered, unchlorinated water' },
         { text: '1 lemon slice, for flavor' },
       ],
       instructions: [
@@ -2394,10 +2410,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-water-kefir', 'nutrients-fermented-drinks-hashimotos', 'graves-fermented-drinks', 'sjogrens-fermented-drinks'],
     recipeCard: {
-      yield: 'Makes about 4 cups. Restarts easily every 24-48 hours once the grains are active.',
+      yield: 'Makes about 2 cups, enough for one person. Restarts easily every 24-48 hours once the grains are active.',
       ingredients: [
-        { text: '1/4 cup (about 60g) active water kefir grains (dairy-free, the same grains used for water kefir)' },
-        { text: '4 cups (1 liter) unsweetened coconut water' },
+        { text: '2 tablespoons (about 30g) active water kefir grains (dairy-free, the same grains used for water kefir)' },
+        { text: '2 cups (500ml) unsweetened coconut water' },
       ],
       instructions: [
         'Put the coconut water and kefir grains in a clean quart jar.',
@@ -2429,11 +2445,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
-      yield: 'Makes a reusable starter culture plus about 4 cups of drinkable soda once active.',
+      yield: 'Makes a reusable starter culture plus about 2 cups of drinkable soda once active, enough for one person.',
       ingredients: [
-        { text: '1/4 cup (about 60g) fresh organic ginger, grated, unpeeled, plus 1 tablespoon more added daily' },
-        { text: '1/4 cup (about 60g) sugar, plus 1 tablespoon more added daily' },
-        { text: '4 cups (1 liter) filtered, unchlorinated water' },
+        { text: '2 tablespoons (about 30g) fresh organic ginger, grated, unpeeled, plus 1 tablespoon more added daily' },
+        { text: '2 tablespoons (about 30g) sugar, plus 1 tablespoon more added daily' },
+        { text: '2 cups (500ml) filtered, unchlorinated water' },
       ],
       instructions: [
         'Combine the ginger, sugar, and water in a clean quart jar.',
@@ -2463,13 +2479,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
-      yield: 'Makes about 4 cups, enough for two people across a few days.',
+      yield: 'Makes about 2 cups, enough for one person across a few days.',
       ingredients: [
-        { text: '1/3 cup (about 80g) fresh ginger, grated, unpeeled' },
-        { text: '1/4 cup (about 60g) lemon juice' },
-        { text: '1/2 cup (about 100g) sugar' },
-        { text: '4 cups (1 liter) filtered, unchlorinated water' },
-        { text: '1/2 cup active ginger bug liquid (see Ginger Bug Soda recipe)' },
+        { text: '3 tablespoons (about 40g) fresh ginger, grated, unpeeled' },
+        { text: '2 tablespoons (about 30g) lemon juice' },
+        { text: '1/4 cup (about 50g) sugar' },
+        { text: '2 cups (500ml) filtered, unchlorinated water' },
+        { text: '1/4 cup active ginger bug liquid (see Ginger Bug Soda recipe)' },
       ],
       instructions: [
         'Combine the grated ginger, lemon juice, sugar, and water in a saucepan and warm gently just until the sugar dissolves. Let it cool completely to room temperature.',
@@ -2500,12 +2516,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'interaction-curcumin-piperine', 'ra-fermented-drinks', 'psoriasis-fermented-drinks'],
     recipeCard: {
-      yield: 'Makes about 4 cups, enough for two people across a few days.',
+      yield: 'Makes about 2 cups, enough for one person across a few days.',
       ingredients: [
-        { text: '2 tablespoons (about 30g) fresh turmeric, grated, unpeeled' },
-        { text: '1 large thumb (about 20g) fresh ginger, grated, unpeeled' },
-        { text: '1/3 cup (about 65g) raw honey' },
-        { text: '4 cups (1 liter) filtered, unchlorinated water' },
+        { text: '1 tablespoon (about 15g) fresh turmeric, grated, unpeeled' },
+        { text: '1 small thumb (about 10g) fresh ginger, grated, unpeeled' },
+        { text: '3 tablespoons (about 32g) raw honey' },
+        { text: '2 cups (500ml) filtered, unchlorinated water' },
         { text: 'A small pinch of black pepper' },
       ],
       instructions: [
@@ -2536,11 +2552,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
-      yield: 'Makes about 6 cups, enough for two people across several days.',
+      yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
-        { text: 'Rind and core of 1 pineapple (about 600g), roughly chopped' },
-        { text: '1/2 cup (about 100g) piloncillo, dark brown sugar, or molasses' },
-        { text: '8 cups (2 liters) filtered, unchlorinated water' },
+        { text: 'Rind and core of 1/2 pineapple (about 300g), roughly chopped' },
+        { text: '1/4 cup (about 50g) piloncillo, dark brown sugar, or molasses' },
+        { text: '4 cups (1 liter) filtered, unchlorinated water' },
         { text: 'A cinnamon stick, optional' },
       ],
       instructions: [
@@ -2601,12 +2617,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'sjogrens-fermented-drinks'],
     recipeCard: {
-      yield: 'Makes about 6 cups, enough for two people across several days.',
+      yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
-        { text: '2 tablespoons (about 30g) fresh ginger, grated, unpeeled' },
-        { text: '1/4 cup (60ml) cider vinegar' },
-        { text: '1/4 cup (about 60g) molasses' },
-        { text: '6 cups (1.5 liters) filtered water' },
+        { text: '1 tablespoon (about 15g) fresh ginger, grated, unpeeled' },
+        { text: '2 tablespoons (30ml) cider vinegar' },
+        { text: '2 tablespoons (about 30g) molasses' },
+        { text: '3 cups (750ml) filtered water' },
       ],
       instructions: [
         'Combine the grated ginger, cider vinegar, and molasses in a clean jar or pitcher and stir until the molasses dissolves.',
@@ -2635,11 +2651,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-kombucha'],
     recipeCard: {
-      yield: 'Makes about 8 cups, enough for two people across a week or more.',
+      yield: 'Makes about 4 cups, enough for one person across a week or more.',
       ingredients: [
-        { text: '8 cups (2 liters) brewed green tea, cooled to room temperature' },
-        { text: '1 cup (about 200g) raw honey' },
-        { text: '1 jun culture (SCOBY) plus 1 cup starter liquid from a previous batch' },
+        { text: '4 cups (1 liter) brewed green tea, cooled to room temperature' },
+        { text: '1/2 cup (about 100g) raw honey' },
+        { text: '1 jun culture (SCOBY, a standard-size one works even for this smaller batch) plus 1/2 cup starter liquid from a previous batch' },
       ],
       instructions: [
         'Brew the green tea and let it cool completely to room temperature.',
@@ -2722,10 +2738,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-milk-kefir-and-yogurt', 'recipe-ferment-coconut-kefir'],
     recipeCard: {
-      yield: 'Makes about 4 cups. Restarts easily every 24 hours once the grains are active.',
+      yield: 'Makes about 2 cups, enough for one person. Restarts easily every 24 hours once the grains are active.',
       ingredients: [
-        { text: '4 cups (1 liter) whole milk' },
-        { text: '1/4 cup (about 60g) active milk kefir grains' },
+        { text: '2 cups (500ml) whole milk' },
+        { text: '2 tablespoons (about 30g) active milk kefir grains' },
       ],
       instructions: [
         'Put the milk kefir grains in a clean quart jar and pour the milk over them.',
@@ -2758,11 +2774,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'type1-fermented-drinks', 'type2-fermented-drinks'],
     recipeCard: {
-      yield: 'Makes about 4 cups, enough for two people across several days.',
+      yield: 'Makes about 2 cups, enough for one person across several days.',
       ingredients: [
-        { text: '1 cup (200g) rice, rinsed well' },
-        { text: '3 1/3 cups (800ml) water' },
-        { text: 'Koji rice culture, per package instructions (available from a fermentation or Japanese grocery supplier)' },
+        { text: '1/2 cup (100g) rice, rinsed well' },
+        { text: '1 2/3 cups (400ml) water' },
+        { text: 'Koji rice culture, at about half the package\'s stated amount for this smaller batch (available from a fermentation or Japanese grocery supplier)' },
       ],
       instructions: [
         'Cook the rice with the water until soft, then let it cool to around 140°F (60°C), warm but not hot enough to kill the koji culture.',
@@ -2794,10 +2810,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'celiac-fermented-drinks', 'lupus-fermented-drinks'],
     recipeCard: {
-      yield: 'Makes about 6 cups, enough for two people across several days.',
+      yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
-        { text: '1 cup (200g) quinoa, sprouted (rinse and soak 8 hours, then drain and rinse twice daily for 2 days until small tails appear)' },
-        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+        { text: '1/2 cup (100g) quinoa, sprouted (rinse and soak 8 hours, then drain and rinse twice daily for 2 days until small tails appear)' },
+        { text: '3 cups (750ml) filtered, unchlorinated water' },
       ],
       instructions: [
         'Once the quinoa has sprouted small tails, put it in a clean half-gallon jar.',
@@ -2826,13 +2842,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
-      yield: 'Makes about 6 cups. Traditionally taken as a small glass rather than a full pitcher serving.',
+      yield: 'Makes about 3 cups, enough for one person. Traditionally taken as a small glass rather than a full pitcher serving.',
       ingredients: [
-        { text: '1/2 cup (100g) burdock root, sliced' },
-        { text: '1 teaspoon (3g) cinnamon' },
-        { text: '1/4 teaspoon (1g) ground cloves' },
-        { text: '1/3 cup (about 65g) raw honey' },
-        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+        { text: '1/4 cup (50g) burdock root, sliced' },
+        { text: '1/2 teaspoon (1.5g) cinnamon' },
+        { text: 'A pinch (about 0.5g) ground cloves' },
+        { text: '3 tablespoons (about 32g) raw honey' },
+        { text: '3 cups (750ml) filtered, unchlorinated water' },
       ],
       instructions: [
         'Combine the sliced burdock root, cinnamon, and cloves in a clean half-gallon jar.',
@@ -2865,12 +2881,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
-      yield: 'Makes about 6 cups, enough for two people across several days.',
+      yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
-        { text: '1/3 cup (80g) burdock root, sliced' },
-        { text: '1 cup (60g) dandelion greens, chopped' },
-        { text: '1/3 cup plus 1 tablespoon (about 85g) raw honey' },
-        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+        { text: '3 tablespoons (40g) burdock root, sliced' },
+        { text: '1/2 cup (30g) dandelion greens, chopped' },
+        { text: '3 tablespoons (about 42g) raw honey' },
+        { text: '3 cups (750ml) filtered, unchlorinated water' },
       ],
       instructions: [
         'Combine the burdock root and dandelion greens in a clean half-gallon jar.',
@@ -2902,10 +2918,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
-      yield: 'Makes about 6 cups, enough for two people across several days.',
+      yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
-        { text: '2 1/2 cups (400g) hominy (nixtamalized corn)' },
-        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+        { text: '1 1/4 cups (200g) hominy (nixtamalized corn)' },
+        { text: '3 cups (750ml) filtered, unchlorinated water' },
       ],
       instructions: [
         'Blend the hominy with about a third of the water until it forms a thick, coarse paste.',
@@ -2937,13 +2953,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
-      yield: 'Makes about 6 cups, enough for two people across several days.',
+      yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
-        { text: '2/3 cup (150g) rice, soaked several hours then blended smooth with a little water' },
-        { text: '1 3/4 cups (400ml) coconut milk' },
-        { text: '1/2 teaspoon (2g) ground cardamom' },
-        { text: '2 1/2 tablespoons (about 50g) raw honey' },
-        { text: '3 1/3 cups (800ml) filtered water' },
+        { text: '1/3 cup (75g) rice, soaked several hours then blended smooth with a little water' },
+        { text: '7/8 cup (200ml) coconut milk' },
+        { text: '1/4 teaspoon (1g) ground cardamom' },
+        { text: '1 1/4 tablespoons (about 25g) raw honey' },
+        { text: '1 2/3 cups (400ml) filtered water' },
       ],
       instructions: [
         'Combine the blended rice, coconut milk, cardamom, and water in a clean half-gallon jar.',
@@ -3006,11 +3022,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
-      yield: 'Makes about 6 cups, enough for two people across several days.',
+      yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
-        { text: '2 cups (200g) puffed millet' },
-        { text: '1/3 cup (80g) sugar' },
-        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+        { text: '1 cup (100g) puffed millet' },
+        { text: '2 1/2 tablespoons (40g) sugar' },
+        { text: '3 cups (750ml) filtered, unchlorinated water' },
       ],
       instructions: [
         'Simmer the puffed millet in the water for 15-20 minutes, until it breaks down into a thick, porridge-like consistency.',
@@ -3040,11 +3056,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
-      yield: 'Makes about 6 cups, enough for two people across several days.',
+      yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
-        { text: '2 1/2 cups (400g) hominy, sprouted (soak 24 hours, drain, and let sit covered until small sprouts appear, 2-3 days)' },
-        { text: '1/4 cup (60g) sugar' },
-        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+        { text: '1 1/4 cups (200g) hominy, sprouted (soak 24 hours, drain, and let sit covered until small sprouts appear, 2-3 days)' },
+        { text: '2 tablespoons (30g) sugar' },
+        { text: '3 cups (750ml) filtered, unchlorinated water' },
       ],
       instructions: [
         'Simmer the sprouted hominy in the water for 30-40 minutes, until softened.',
@@ -3077,11 +3093,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-beet-kvass', 'celiac-fermented-drinks'],
     recipeCard: {
-      yield: 'Makes about 6 cups, enough for two people across several days.',
+      yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
-        { text: '1 cup (200g) quinoa, toasted in a dry pan until fragrant and lightly browned' },
-        { text: '1/3 cup (about 65g) raw honey' },
-        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+        { text: '1/2 cup (100g) quinoa, toasted in a dry pan until fragrant and lightly browned' },
+        { text: '3 tablespoons (about 32g) raw honey' },
+        { text: '3 cups (750ml) filtered, unchlorinated water' },
       ],
       instructions: [
         'Toast the quinoa in a dry skillet over medium heat, stirring often, until fragrant and lightly browned, about 5-8 minutes.',
@@ -3112,11 +3128,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
     recipeCard: {
-      yield: 'Makes about 8 cups, meant to be sipped in small amounts given its alcohol content.',
+      yield: 'Makes about 4 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
-        { text: '2 cups (400g) rice, rinsed well' },
-        { text: '6 cups (1.5 liters) water' },
-        { text: 'Koji rice culture and sake yeast, per package instructions (available from a fermentation supplier)' },
+        { text: '1 cup (200g) rice, rinsed well' },
+        { text: '3 cups (750ml) water' },
+        { text: 'Koji rice culture and sake yeast, at about half the package\'s stated amount for this smaller batch (available from a fermentation supplier)' },
       ],
       instructions: [
         'Cook the rice with the water until soft, then let it cool to room temperature.',
@@ -3146,11 +3162,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
     recipeCard: {
-      yield: 'Makes about 8 cups, meant to be sipped in small amounts given its alcohol content.',
+      yield: 'Makes about 4 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
-        { text: '2 cups (400g) rice, rinsed well' },
-        { text: '6 cups (1.5 liters) water' },
-        { text: 'Nuruk (Korean fermentation starter), per package instructions (available from a Korean grocery or fermentation supplier)' },
+        { text: '1 cup (200g) rice, rinsed well' },
+        { text: '3 cups (750ml) water' },
+        { text: 'Nuruk (Korean fermentation starter), at about half the package\'s stated amount for this smaller batch (available from a Korean grocery or fermentation supplier)' },
       ],
       instructions: [
         'Cook the rice with the water until soft, then let it cool to room temperature.',
@@ -3182,11 +3198,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-milk-kefir-and-yogurt'],
     recipeCard: {
-      yield: 'Makes about 4 cups, enough for two people.',
+      yield: 'Makes about 2 cups, enough for one person.',
       ingredients: [
-        { text: '1 1/4 cups (300g) plain yogurt' },
-        { text: '3 cups (700ml) cold water' },
-        { text: '1/2 teaspoon (3g) salt' },
+        { text: '2/3 cup (150g) plain yogurt' },
+        { text: '1 1/2 cups (350ml) cold water' },
+        { text: '1/4 teaspoon (1.5g) salt' },
         { text: 'A few fresh mint leaves, torn, optional garnish' },
       ],
       instructions: [
@@ -3219,13 +3235,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-milk-kefir-and-yogurt', 'recipe-ferment-ayran'],
     recipeCard: {
-      yield: 'Makes about 4 cups, enough for two people.',
+      yield: 'Makes about 2 cups, enough for one person.',
       ingredients: [
-        { text: '1 1/4 cups (300g) plain yogurt' },
-        { text: '1 1/3 cups (200g) mango, diced' },
-        { text: 'A pinch (1g) ground cardamom' },
-        { text: '4 teaspoons (20g) raw honey' },
-        { text: '3/4 cup (200ml) cold water' },
+        { text: '2/3 cup (150g) plain yogurt' },
+        { text: '2/3 cup (100g) mango, diced' },
+        { text: 'A pinch (0.5g) ground cardamom' },
+        { text: '2 teaspoons (10g) raw honey' },
+        { text: '1/3 cup (100ml) cold water' },
       ],
       instructions: [
         'Blend the yogurt, mango, cardamom, honey, and water together until smooth.',
@@ -3257,10 +3273,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-milk-kefir'],
     recipeCard: {
-      yield: 'Makes about 4 cups. Restarts easily every 24 hours once active.',
+      yield: 'Makes about 2 cups, enough for one person. Restarts easily every 24 hours once active.',
       ingredients: [
-        { text: '4 cups (1 liter) whole milk' },
-        { text: '1/4 cup (about 60g) active milk kefir grains, or 2 tablespoons plain live-culture yogurt as a starter' },
+        { text: '2 cups (500ml) whole milk' },
+        { text: '2 tablespoons (about 30g) active milk kefir grains, or 1 tablespoon plain live-culture yogurt as a starter' },
       ],
       instructions: [
         'Put the milk and starter in a clean quart jar.',
@@ -3289,11 +3305,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-kombucha', 'fermentmethod-dairy-free-gluten-free-survey', 'masld-fermented-drinks', 'cvd-fermented-drinks'],
     recipeCard: {
-      yield: 'Makes about 8 cups, enough for two people across a week or more.',
+      yield: 'Makes about 4 cups, enough for one person across a week or more.',
       ingredients: [
-        { text: '8 cups (2 liters) brewed black tea, cooled to room temperature' },
-        { text: '1 cup (200g) sugar' },
-        { text: '1 SCOBY plus 1 cup starter liquid from a previous kombucha batch' },
+        { text: '4 cups (1 liter) brewed black tea, cooled to room temperature' },
+        { text: '1/2 cup (100g) sugar' },
+        { text: '1 SCOBY (a standard-size one works even for this smaller batch) plus 1/2 cup starter liquid from a previous kombucha batch' },
       ],
       instructions: [
         'Brew the black tea strong and let it cool completely to room temperature.',
@@ -3322,10 +3338,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-coconut-kefir', 'lifestyle-alcohol-advisory'],
     recipeCard: {
-      yield: 'Makes about 6 cups, meant to be sipped in small amounts given its alcohol content.',
+      yield: 'Makes about 3 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
-        { text: '6 cups (1.5 liters) unsweetened coconut water' },
-        { text: '1/2 cup (100g) sugar' },
+        { text: '3 cups (750ml) unsweetened coconut water' },
+        { text: '1/4 cup (50g) sugar' },
       ],
       instructions: [
         'Combine the coconut water and sugar in a clean half-gallon jar, stirring to dissolve.',
@@ -3357,10 +3373,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
     recipeCard: {
-      yield: 'Makes about 6 cups, meant to be sipped in small amounts given its alcohol content.',
+      yield: 'Makes about 3 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
-        { text: '2/3 cup (150g) pure maple syrup' },
-        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+        { text: '1/3 cup (75g) pure maple syrup' },
+        { text: '3 cups (750ml) filtered, unchlorinated water' },
       ],
       instructions: [
         'Dissolve the maple syrup in the water in a clean half-gallon jar.',
