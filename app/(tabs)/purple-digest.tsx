@@ -5237,10 +5237,25 @@ const styles = StyleSheet.create({
   categoryHeaderText: { ...typography.screenTitle, ...menuLabelShadow, color: TAB_TEXT_COLOR },
   categoryDescription: { ...typography.body, color: colors.textSecondary, lineHeight: 19 },
   // The Recipes lens's own real diet-filter control -- see its JSX
-  // comment above. detailLabel already carries menuLabelShadow, so the
-  // "Filter by diet" caption stays legible the same way every other
-  // eyebrow label on this screen does.
-  recipeDietFilterRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  // comment above. 2026-08-24, direct report: sitting bare on the
+  // scrolling body (straight over the shared photo background, unlike
+  // headerCard right above it) left both the "Filter by diet" label and
+  // PopoverSelect's own translucent field (inputBackground is only 35%
+  // opaque by design, meant to sit on top of an already-opaque card, not
+  // directly on a busy photo) blending into whatever was behind them.
+  // Same fix as headerCard's own -- an opaque colors.surface card with a
+  // TAB_COLOR border -- rather than a one-off transparency tweak.
+  recipeDietFilterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 16,
+  },
   emptyText: { ...typography.body, color: colors.textSecondary },
   // 2026-08-16 -- wraps the search AppTextInput with a real mic button
   // (VoiceInputButton), added inside DigestSearchInput itself rather than
