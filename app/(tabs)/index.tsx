@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter, type Href } from 'expo-router';
-import { useCallback, useRef, useState, type ComponentProps } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
@@ -22,6 +22,8 @@ import { TAB_ROUTES } from '../../constants/tabs';
 import { textShadow, typography } from '../../constants/typography';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
 import { getMoonPhase, getUpcomingSeasonalMarker } from '../../lib/celestialEvents';
+import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
+import { ALL_DIGEST_ENTRIES, isProblemFoodEntry, type DigestCategoryKey } from '../../lib/digest';
 import { markHomeDataReady } from '../../lib/homeReadySignal';
 import {
   aqiBandForIndex,
@@ -33,8 +35,10 @@ import {
 } from '../../lib/homeSky';
 import {
   getCheckinForDate,
+  getCuriousAboutConditions,
   getNutrientTotalsByDateRange,
   getSixDimensionsFlagCountsByDateRange,
+  getUserConditions,
   getUserProfile,
   listCheckins,
   listMealsForDate,
@@ -212,120 +216,48 @@ function SkyGridItem({
   return <View style={cellStyle}>{content}</View>;
 }
 
-// The "A Few Things Worth Knowing" flip-card pool, 2026-07-27 -- used to be
-// 4 hardcoded cards, always the same 4, every single day. Explicitly asked
-// to feel alive instead: a much bigger pool (16 real, cited-in-spirit
-// tidbits spanning Hashimoto's specifically and autoimmune disease more
-// broadly, matching The Digest's own broadened scope), a different
-// stable subset shown each day, and a "show more" card at the end that
-// reveals further cards from the same pool rather than an infinite/AI-
-// generated feed -- this app's whole ethos is curated and cited, not
-// generative, and that stays true here too.
+// The "A Few Things Worth Knowing" flip cards, drawn live from The
+// Digest -- 2026-08-23, direct request: "these should only reflect
+// things from the Digest that are either from the free tier info, or
+// from their own conditions they have selected in their profile...
+// they should be able to select to include data from any of the other
+// conditions... [without] those conditions... now [being] added to
+// their own that the app tracks and helps with." Replaces the earlier
+// 17 hand-written cards (used to be 4 fixed ones before that; the
+// original seeded-shuffle/daily-rotation design directly below this
+// comment is unchanged, just now shuffling real Digest entries instead
+// of a fixed array), which never actually drew from The Digest despite
+// this section's own name -- this makes that name true. Basic Health
+// (the free-tier content) always shows; a person's own selected
+// conditions and anything they've marked "curious about" without
+// adding it to what the app actually tracks (Profile's own separate
+// list, see curious_about_conditions in lib/db.ts) both widen the pool
+// further. condition_code values come from the `conditions` reference
+// table (snake_case); CONDITION_CODE_TO_DIGEST_KEY bridges them to this
+// app's own camelCase DigestCategoryKey, the same shared lookup
+// Digest's own LensHub pinning already uses.
 type FlipCardEntry = {
-  icon: ComponentProps<typeof Ionicons>['name'];
+  id: string;
   hook: string;
   backTitle: string;
   backBody: string;
 };
 
-const FLIP_CARD_POOL: FlipCardEntry[] = [
-  {
-    icon: 'body-outline',
-    hook: 'An autoimmune condition affecting your thyroid',
-    backTitle: "What is Hashimoto's?",
-    backBody: 'Your immune system gradually attacks your thyroid gland, lowering its hormone production. Full picture in Help, top right.',
-  },
-  {
-    icon: 'time-outline',
-    hook: 'Some foods can block your prescription',
-    backTitle: 'Why timing matters',
-    backBody: 'Calcium and iron can block prescription absorption if eaten too close to a dose. Schedules tracks timing for exactly this.',
-  },
-  {
-    icon: 'leaf-outline',
-    hook: 'Your gut and thyroid are connected',
-    backTitle: 'Gut health matters here',
-    backBody: "Digestion and absorption are often disrupted in Hashimoto's, so gut and microbiome support matters here, not as an afterthought.",
-  },
-  {
-    icon: 'sparkles-outline',
-    hook: 'This app does the hard part for you',
-    backTitle: 'What Inside Story does',
-    backBody: 'Matching foods to your chemistry, catching interactions, and finding your patterns, so eating feels like following clear rules, not homework.',
-  },
-  {
-    icon: 'nutrition-outline',
-    hook: 'One nut can cover a whole day of a key mineral',
-    backTitle: 'Selenium and your thyroid',
-    backBody: 'Selenium helps convert thyroid hormone into its active form. A single Brazil nut can cover a full day\'s worth, though more isn\'t automatically better; excess selenium has its own risks.',
-  },
-  {
-    icon: 'water-outline',
-    hook: "More iodine isn't always better",
-    backTitle: 'Iodine, a double-edged nutrient',
-    backBody: "Iodine is essential for making thyroid hormone, but in someone already prone to autoimmune thyroid disease, too much of it can actually trigger or worsen an attack.",
-  },
-  {
-    icon: 'people-outline',
-    hook: 'Autoimmune disease affects women far more than men',
-    backTitle: 'Why women are affected more',
-    backBody: "Roughly 3 out of 4 autoimmune disease patients are women. Hashimoto's specifically runs 7-10x more common in women, likely tied to hormonal and X-chromosome factors still being studied.",
-  },
-  {
-    icon: 'link-outline',
-    hook: 'One autoimmune disease raises the odds of another',
-    backTitle: 'Autoimmune conditions often cluster',
-    backBody: "Having one autoimmune disease measurably raises the risk of developing another (celiac disease and type 1 diabetes are common companions to Hashimoto's), part of why Signals tracks more than just thyroid symptoms.",
-  },
-  {
-    icon: 'flask-outline',
-    hook: "Your labs can lag behind how you feel",
-    backTitle: "Why labs and symptoms don't always match",
-    backBody: 'TSH can trail actual hormone shifts by weeks, part of why this app treats your own logged symptoms as data, not just noise between lab draws.',
-  },
-  {
-    icon: 'alert-circle-outline',
-    hook: 'A common supplement can throw off thyroid labs',
-    backTitle: 'Biotin can fake out thyroid tests',
-    backBody: 'High-dose biotin (common in hair/skin/nail supplements) can cause falsely abnormal thyroid results. Most labs recommend stopping it 2-3 days before a blood draw.',
-  },
-  {
-    icon: 'restaurant-outline',
-    hook: "Celiac and Hashimoto's often travel together",
-    backTitle: 'The gluten connection',
-    backBody: "People with Hashimoto's have a meaningfully higher rate of celiac disease than the general population, one more reason digestion gets close attention in this app.",
-  },
-  {
-    icon: 'battery-dead-outline',
-    hook: 'Thyroid fatigue has a physical cause, not "just stress"',
-    backTitle: "Fatigue isn't a character flaw",
-    backBody: "Hypothyroid fatigue has a physiological basis (slowed metabolism, reduced oxygen delivery), worth naming plainly since it's so often dismissed as something to just push through.",
-  },
-  {
-    icon: 'pulse-outline',
-    hook: 'Stress can trigger flares',
-    backTitle: 'The stress-immune connection',
-    backBody: 'Psychological stress measurably influences immune activity, part of why Signals logging is about more than just food.',
-  },
-  {
-    icon: 'flame-outline',
-    hook: "Cooking changes how 'goitrogenic' a food actually is",
-    backTitle: "Goitrogens aren't simply bad",
-    backBody: "Cooking meaningfully reduces the goitrogenic compounds in foods like broccoli and kale. Context (raw vs. cooked, how much) matters more than a blanket avoid list, exactly what the 6 Dimensions scoring accounts for.",
-  },
-  {
-    icon: 'hourglass-outline',
-    hook: 'What you eat can cut your prescription\'s effectiveness',
-    backTitle: 'The empty-stomach rule',
-    backBody: 'Levothyroxine absorption drops substantially when taken with food, especially coffee or high-fiber/high-calcium meals. Most guidance is 30-60 minutes before eating, at a consistent time every day.',
-  },
-  {
-    icon: 'person-outline',
-    hook: 'Your own patterns matter more than averages',
-    backTitle: 'You are not a population average',
-    backBody: "Population-level guidance is a starting point, not a verdict. This app's own trend-finding exists because your own repeated patterns are the most relevant data about your own body.",
-  },
-];
+function digestFlipCardPool(userConditionCodes: string[], curiousAboutConditionCodes: string[]): FlipCardEntry[] {
+  const visibleCategories = new Set<DigestCategoryKey>(['basicHealth']);
+  for (const code of [...userConditionCodes, ...curiousAboutConditionCodes]) {
+    const digestKey = CONDITION_CODE_TO_DIGEST_KEY[code];
+    if (digestKey) visibleCategories.add(digestKey);
+  }
+  // ProblemFoodEntry has no title/summary of its own (foodName/problem
+  // instead) -- see isProblemFoodEntry's own comment in lib/digest/types.ts
+  // for why category alone can't tell the two shapes apart.
+  return ALL_DIGEST_ENTRIES.filter((entry) => visibleCategories.has(entry.category)).map((entry) =>
+    isProblemFoodEntry(entry)
+      ? { id: entry.id, hook: entry.teaser, backTitle: entry.foodName, backBody: entry.problem }
+      : { id: entry.id, hook: entry.teaser, backTitle: entry.title, backBody: entry.summary },
+  );
+}
 
 // A fixed, seeded "random" shuffle rather than Math.random() -- reused
 // pattern from this app's own earlier starfield work (see the git history
@@ -614,13 +546,21 @@ export default function HomeScreen() {
   // deliberately NOT state at all -- both are pure, synchronous, offline
   // math (lib/celestialEvents.ts), computed directly in the render below.
   const [skyResult, setSkyResult] = useState<HomeSkyResult | undefined>(undefined);
-  // How many of FLIP_CARD_POOL's own today-shuffled order are currently
-  // shown -- starts at 4 (the original fixed count), grows via the "show
+  // How many of digestFlipCardPool's own today-shuffled order are
+  // currently shown -- starts at 4 (the original fixed count), grows via the "show
   // more" card at the end. Intentionally NOT reset on focus/day change --
   // if someone's mid-browsing when the date rolls over, snapping their
   // already-expanded view back to 4 would feel like a bug, not a feature;
   // it'll naturally reset next cold start.
   const [visibleFlipCardCount, setVisibleFlipCardCount] = useState(4);
+  // The real scope of Home's own Digest flip cards, 2026-08-23 direct
+  // request -- see digestFlipCardPool's own comment below for how these
+  // two lists actually get used. Both start empty (matching "nothing
+  // selected yet" honestly) rather than undefined, so the first render
+  // before this loads still shows Basic Health content rather than an
+  // empty or crashing pool.
+  const [userConditionCodes, setUserConditionCodes] = useState<string[]>([]);
+  const [curiousAboutConditionCodes, setCuriousAboutConditionCodes] = useState<string[]>([]);
   // Ref, not state -- read once per focus to decide whether this is the
   // very first load this session (show the loading gate, then reveal
   // everything at once, scrolled to the top) or a returning focus (Tabs
@@ -660,6 +600,16 @@ export default function HomeScreen() {
   // day resolves this from the local cache with no network at all.
   const loadSkyData = useCallback(() => {
     return getHomeSkyData().then(setSkyResult);
+  }, []);
+
+  // Also kept separate from `load` -- two small, cheap local reads, but
+  // logically about what Home's own Digest flip cards should draw from,
+  // not the rest of this screen's own health/schedule data.
+  const loadDigestConditionScope = useCallback(() => {
+    return Promise.all([getUserConditions(), getCuriousAboutConditions()]).then(([owned, curious]) => {
+      setUserConditionCodes(owned);
+      setCuriousAboutConditionCodes(curious);
+    });
   }, []);
 
   const load = useCallback(() => {
@@ -753,7 +703,7 @@ export default function HomeScreen() {
     useCallback(() => {
       const isFirstLoad = !hasLoadedOnceRef.current;
       if (isFirstLoad) setLoading(true);
-      Promise.all([load(), loadWeekTrend(), loadSkyData()]).then(() => {
+      Promise.all([load(), loadWeekTrend(), loadSkyData(), loadDigestConditionScope()]).then(() => {
         if (!isFirstLoad) return;
         hasLoadedOnceRef.current = true;
         setLoading(false);
@@ -766,7 +716,7 @@ export default function HomeScreen() {
         markHomeDataReady();
         scrollRef.current?.scrollTo({ y: 0, animated: false });
       });
-    }, [load, loadWeekTrend, loadSkyData]),
+    }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope]),
   );
 
   // --- Today's Check-In (2026-08-08) -------------------------------------
@@ -912,9 +862,18 @@ export default function HomeScreen() {
       )
     : [];
 
-  const dailyFlipCardOrder = seededShuffleIndices(FLIP_CARD_POOL.length, todayDaySeed());
-  const visibleFlipCards = dailyFlipCardOrder.slice(0, visibleFlipCardCount).map((index) => FLIP_CARD_POOL[index]);
-  const hasMoreFlipCards = visibleFlipCardCount < FLIP_CARD_POOL.length;
+  // Recomputed only when the person's own condition scope actually
+  // changes (Profile's two condition pickers), not on every render --
+  // filtering ALL_DIGEST_ENTRIES (1,500+ entries) is real, non-trivial
+  // work worth memoizing, the same lesson Basic Health's own perf fix
+  // already taught this app (see CLAUDE.md's 2026-08-23 entry on that).
+  const flipCardPool = useMemo(
+    () => digestFlipCardPool(userConditionCodes, curiousAboutConditionCodes),
+    [userConditionCodes, curiousAboutConditionCodes],
+  );
+  const dailyFlipCardOrder = seededShuffleIndices(flipCardPool.length, todayDaySeed());
+  const visibleFlipCards = dailyFlipCardOrder.slice(0, visibleFlipCardCount).map((index) => flipCardPool[index]);
+  const hasMoreFlipCards = visibleFlipCardCount < flipCardPool.length;
 
   // Moon phase + the next equinox/solstice countdown: pure, synchronous,
   // offline math (lib/celestialEvents.ts) -- always available, computed
@@ -1354,10 +1313,11 @@ export default function HomeScreen() {
               icon/purple coloring on the cards themselves, plus the "More
               from The Digest" card at the end, already say what
               this is without a label spelling it out too. See
-              FLIP_CARD_POOL's own comment (top of file) for the bigger
-              change this is part of: a real rotating pool instead of 4
-              fixed cards, reshuffled daily, with more revealed on tap
-              rather than shown all at once. */}
+              digestFlipCardPool's own comment (top of file) for the bigger
+              change this is part of, 2026-08-23: real Digest entries,
+              scoped to Basic Health plus the person's own conditions,
+              rather than a fixed hand-written array, reshuffled daily,
+              with more revealed on tap rather than shown all at once. */}
           {isHomeSectionVisible(visualPrefs, 'digestCards') ? (
           <ScrollView
             horizontal
@@ -1367,8 +1327,8 @@ export default function HomeScreen() {
           >
             {visibleFlipCards.map((card) => (
               <FlipCard
-                key={card.hook}
-                icon={<Ionicons name={card.icon} size={28} color={colors.tabPurpleDigest} />}
+                key={card.id}
+                icon={<PurpleRibbonIcon size={28} color={colors.tabPurpleDigest} />}
                 hook={card.hook}
                 backTitle={card.backTitle}
                 backBody={card.backBody}
@@ -1377,7 +1337,7 @@ export default function HomeScreen() {
             {hasMoreFlipCards ? (
               <TouchableOpacity
                 style={[styles.moreFlipCard, { borderColor: colors.tabPurpleDigest }]}
-                onPress={() => setVisibleFlipCardCount((count) => Math.min(count + 4, FLIP_CARD_POOL.length))}
+                onPress={() => setVisibleFlipCardCount((count) => Math.min(count + 4, flipCardPool.length))}
                 activeOpacity={0.85}
               >
                 <Ionicons name="add-circle-outline" size={32} color={colors.tabPurpleDigest} />
@@ -1587,8 +1547,18 @@ const INFO_CARD_PADDING_HORIZONTAL = 16;
 // several of the tab palette's own colors read as too close to tell apart
 // at the previous 1px width -- thickened to make the actual hue easier to
 // read at a glance, on every box whose border color is dynamically set to
-// a tab color (not the plain colors.border boxes like greetingCard/
-// loadingCard, which don't carry that meaning and don't need it).
+// a tab color.
+//
+// 2026-08-23, direct follow-up report: "line thicknesses need to be
+// consistent... many different thicknesses here and there." The plain
+// colors.border boxes (greetingCard, loadingCard, allSectionsHiddenCard)
+// were originally left at 1px, since their own border carries no tab-color
+// meaning to make legible -- reasonable at the time, but it read as
+// inconsistent once actually seen next to every tab-colored card on the
+// same screen. All of this screen's primary content cards now share this
+// same width; only small controls (pills, chips, buttons, the text input)
+// stay at a separate, deliberately thinner 1px, so a large card and a
+// small tappable control don't compete for the same visual weight.
 const TAB_BORDER_WIDTH = 2;
 
 const styles = StyleSheet.create({
@@ -1653,7 +1623,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 16,
-    borderWidth: 1,
+    borderWidth: TAB_BORDER_WIDTH,
     borderColor: colors.border,
   },
   loadingText: { ...typography.body, ...textShadow, color: colors.textSecondary },
@@ -1665,7 +1635,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 16,
-    borderWidth: 1,
+    borderWidth: TAB_BORDER_WIDTH,
     borderColor: colors.border,
     marginTop: 12,
   },
@@ -1675,7 +1645,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 16,
-    borderWidth: 1,
+    borderWidth: TAB_BORDER_WIDTH,
     borderColor: colors.border,
     // marginBottom removed, 2026-08-08 -- content's own new `gap: 10`
     // handles the space after this now; keeping this too would have
@@ -1695,7 +1665,7 @@ const styles = StyleSheet.create({
   skyGrid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10 },
   skyGridCell: { width: '50%', paddingVertical: 4, paddingRight: 8 },
   skyGridCellFull: { width: '100%' },
-  skyGridText: { ...typography.caption, color: colors.textPrimary },
+  skyGridText: { ...typography.caption, ...textShadow, color: colors.textPrimary },
   // 2026-08-18, directly reported: the plain caption-size emoji ("not big
   // enough to be seen as what they are") -- a real, separate, larger nested
   // Text span for just the icon character, not the whole label's own font
@@ -1716,7 +1686,7 @@ const styles = StyleSheet.create({
   // (arcCard, fuelGaugesCard, orbCard all center their real content).
   cardLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', marginBottom: 8 },
   // Color set inline per box (see CardLabel) to match that box's own tab.
-  cardLabelText: { ...typography.eyebrow },
+  cardLabelText: { ...typography.eyebrow, ...textShadow },
   emptyCard: {
     backgroundColor: colors.surface,
     borderRadius: 16,
@@ -1828,8 +1798,8 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   assessmentDueTextCol: { flex: 1 },
-  assessmentDueTitle: { ...typography.bodyEmphasis, color: colors.primary },
-  assessmentDueSubtitle: { ...typography.caption, color: colors.textSecondary, marginTop: 2, lineHeight: 16 },
+  assessmentDueTitle: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary },
+  assessmentDueSubtitle: { ...typography.caption, ...textShadow, color: colors.textSecondary, marginTop: 2, lineHeight: 16 },
 
   // Today's Check-In -- same card shape as orbCard/fuelGaugesCard above,
   // alignItems left at the default (stretch) rather than orbCard's own
@@ -1843,9 +1813,9 @@ const styles = StyleSheet.create({
     borderWidth: TAB_BORDER_WIDTH,
     borderColor: colors.border,
   },
-  feelingPrompt: { ...typography.body, marginBottom: 12 },
+  feelingPrompt: { ...typography.body, ...textShadow, marginBottom: 12 },
   feelingCategoryBlock: { marginBottom: 12 },
-  feelingCategoryLabel: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 6 },
+  feelingCategoryLabel: { ...typography.eyebrow, ...textShadow, color: colors.textMuted, marginBottom: 6 },
   // gap 10 (was 8), 2026-08-08 -- see content's own comment.
   feelingTagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   feelingTagChip: {
@@ -1856,7 +1826,7 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     backgroundColor: colors.surfaceMuted,
   },
-  feelingTagText: { ...typography.caption, color: colors.textPrimary },
+  feelingTagText: { ...typography.caption, ...textShadow, color: colors.textPrimary },
   feelingTagTextActive: { color: colors.textOnPrimary },
   feelingActionsRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
   feelingCancelButton: {
@@ -1867,7 +1837,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  feelingCancelButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary },
+  feelingCancelButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textSecondary },
   feelingSaveButton: {
     flex: 1,
     alignItems: 'center',
@@ -1875,18 +1845,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   feelingSaveButtonDisabled: { opacity: 0.5 },
-  feelingSaveButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  feelingSaveButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textOnPrimary },
   // Shown once today's entry already exists -- tapping it reopens the
   // picker (openFeelingPicker), pre-filled with what's already saved.
-  feelingLoggedText: { ...typography.bodyEmphasis },
-  feelingChangeLink: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
+  feelingLoggedText: { ...typography.bodyEmphasis, ...textShadow },
+  feelingChangeLink: { ...typography.caption, ...textShadow, color: colors.textMuted, marginTop: 2 },
   feelingStartButton: {
     alignItems: 'center',
     paddingVertical: 12,
     borderRadius: 12,
     borderWidth: 1,
   },
-  feelingStartButtonText: { ...typography.bodyEmphasis },
+  feelingStartButtonText: { ...typography.bodyEmphasis, ...textShadow },
 
   trendCard: {
     backgroundColor: colors.surface,
@@ -1911,7 +1881,7 @@ const styles = StyleSheet.create({
     width: 220,
     height: 260,
     borderRadius: 18,
-    borderWidth: 2,
+    borderWidth: TAB_BORDER_WIDTH,
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',

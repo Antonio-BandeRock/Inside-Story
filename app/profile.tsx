@@ -53,6 +53,7 @@ import {
   DietarySex,
   type FoodTrialRecord,
   getConditionStages,
+  getCuriousAboutConditions,
   getFoodTrialsForCondition,
   getStoredMeasurementSystem,
   getUserConditions,
@@ -66,6 +67,7 @@ import {
   removeFoodAllergy,
   reopenFoodTrial,
   setConditionStage,
+  setCuriousAboutConditionSelected,
   setStoredMeasurementSystem,
   setUserConditionSelected,
   setUserProfile,
@@ -527,6 +529,15 @@ export default function ProfileScreen() {
   // picks, local-only, backed by user_conditions.
   const [allConditions, setAllConditions] = useState<ConditionReference[]>([]);
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
+  // 2026-08-23, deliberately separate from selectedConditions above, per
+  // direct request: "they might be curious or worried about it for
+  // themselves or worried about it for someone else and just want to
+  // learn. However, this shouldn't mean that those conditions are now
+  // added to their own that the app tracks and helps with." Backed by
+  // its own curious_about_conditions table (lib/db.ts), never written to
+  // or read from anywhere condition scoring, medication rules, or the
+  // healing-stage system look.
+  const [curiousAboutConditions, setCuriousAboutConditions] = useState<string[]>([]);
   // Live, app-wide (lib/visualPreferences.ts): reading it via the same
   // hook every consumer uses means this screen's pills always reflect
   // whatever's really stored, and every edit here reaches the shared
@@ -708,6 +719,7 @@ export default function ProfileScreen() {
       listSymptomAssessments(1),
       listAllConditions(),
       getUserConditions(),
+      getCuriousAboutConditions(),
       listBodyMeasurements('weight', 1),
       listFoodAllergies(),
       getConditionStages(),
@@ -718,6 +730,7 @@ export default function ProfileScreen() {
         recentAssessments,
         conditionRoster,
         storedConditions,
+        storedCuriousAbout,
         weightReadings,
         storedAllergies,
         storedConditionStages,
@@ -728,6 +741,7 @@ export default function ProfileScreen() {
       setLastAssessment(recentAssessments[0] ?? null);
       setAllConditions(conditionRoster);
       setSelectedConditions(storedConditions);
+      setCuriousAboutConditions(storedCuriousAbout);
       setFoodAllergies(storedAllergies);
       setConditionStageMap(storedConditionStages);
       setFirstNameInput(storedProfile.firstName ?? '');
@@ -864,6 +878,25 @@ export default function ProfileScreen() {
         return updated;
       });
     }
+    // Selecting a condition as one's own also clears it from "curious
+    // about," 2026-08-23, so the same condition never shows pinned in both
+    // lists at once -- a real, tracked condition no longer needs a
+    // separate "just curious" marker.
+    if (nowSelected && curiousAboutConditions.includes(code)) {
+      setCuriousAboutConditions((current) => current.filter((c) => c !== code));
+      await setCuriousAboutConditionSelected(code, false);
+    }
+    flashSaved();
+  }
+
+  // See curiousAboutConditions' own comment above for what this is and
+  // why it's deliberately not folded into toggleCondition/user_conditions.
+  async function toggleCuriousAboutCondition(code: string) {
+    const nowSelected = !curiousAboutConditions.includes(code);
+    setCuriousAboutConditions((current) =>
+      nowSelected ? [...current, code] : current.filter((c) => c !== code),
+    );
+    await setCuriousAboutConditionSelected(code, nowSelected);
     flashSaved();
   }
 
@@ -2249,6 +2282,48 @@ export default function ProfileScreen() {
                   .join(', ')}
               </Text>
             ) : null}
+
+            {/* Curious about other conditions, 2026-08-23, direct request:
+                "They might be curious or worried about it for themselves or
+                worried about it for someone else and just want to learn.
+                However, this shouldn't mean that those conditions are now
+                added to their own that the app tracks and helps with."
+                Deliberately a separate list/table from the picker above,
+                not a second meaning layered onto the same pills -- see
+                curiousAboutConditions' own comment near this screen's own
+                state declarations. Feeds Home's own Digest flip cards
+                (app/(tabs)/index.tsx), which otherwise only draw from
+                Basic Health and the person's own selected conditions
+                above. Excludes whatever's already selected as one's own
+                just above, so the same condition is never offered in both
+                lists at once. Same conditionGrid layout reused directly. */}
+            <Text style={styles.subLabelDivided}>Curious about other conditions</Text>
+            <Text style={styles.helpText}>
+              Learn about a condition without adding it to what this app tracks and helps with for you personally,
+              whether you are wondering about yourself or someone else. Anything selected here can also show up
+              among the Home tab&apos;s own Digest flip cards.
+            </Text>
+            <View style={styles.conditionGrid}>
+              {allConditions
+                .filter((condition) => condition.status !== 'planned' && !selectedConditions.includes(condition.code))
+                .slice()
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((condition) => {
+                  const active = curiousAboutConditions.includes(condition.code);
+                  return (
+                    <View key={condition.code} style={styles.conditionGridItem}>
+                      <TouchableOpacity
+                        style={[styles.pill, styles.conditionPill, active && styles.pillActive]}
+                        onPress={() => toggleCuriousAboutCondition(condition.code)}
+                      >
+                        <Text style={[styles.pillText, styles.conditionPillText, active && styles.pillTextActive]}>
+                          {condition.name}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+            </View>
 
             {/* Food allergies, 2026-08-09, explicitly requested: "Add to
                 conditions area an ability to provide food allergies. They

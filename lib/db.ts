@@ -3781,6 +3781,21 @@ async function runDatabaseInitialization() {
         selected_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- 2026-08-23, direct request, built specifically for Home's own
+      -- "A Few Things Worth Knowing" flip cards: "they should be able to
+      -- select to include data from any of the other conditions... this
+      -- shouldn't mean that those conditions are now added to their own
+      -- that the app tracks and helps with." A deliberately separate table
+      -- from user_conditions above, same shape (one row per condition
+      -- code), so curiosity about a condition can never be confused with
+      -- actually having it: nothing that reads user_conditions (condition
+      -- scoring, medication interaction rules, the healing-stage system)
+      -- ever touches this table, and nothing here ever writes to that one.
+      CREATE TABLE IF NOT EXISTS curious_about_conditions (
+        condition_code TEXT PRIMARY KEY,
+        selected_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- The person's own real, individually-declared food allergies,
       -- 2026-08-09, explicitly requested inside Profile's own "conditions
       -- area." allergen_name IS the primary key (the same natural-key
@@ -11832,6 +11847,28 @@ export async function setUserConditionSelected(code: string, selected: boolean):
     await db.runAsync('INSERT OR IGNORE INTO user_conditions (condition_code) VALUES (?)', code);
   } else {
     await db.runAsync('DELETE FROM user_conditions WHERE condition_code = ?', code);
+  }
+}
+
+// The person's own "curious about" list -- see curious_about_conditions'
+// own schema comment above for why this is a fully separate table from
+// user_conditions, not a second flag on the same rows. No legacy
+// migration needed here, unlike getUserConditions above: there was never
+// an older, single-condition version of this concept to carry forward.
+export async function getCuriousAboutConditions(): Promise<string[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ condition_code: string }>(
+    'SELECT condition_code FROM curious_about_conditions ORDER BY selected_at',
+  );
+  return rows.map((row) => row.condition_code);
+}
+
+export async function setCuriousAboutConditionSelected(code: string, selected: boolean): Promise<void> {
+  const db = await getDatabase();
+  if (selected) {
+    await db.runAsync('INSERT OR IGNORE INTO curious_about_conditions (condition_code) VALUES (?)', code);
+  } else {
+    await db.runAsync('DELETE FROM curious_about_conditions WHERE condition_code = ?', code);
   }
 }
 
