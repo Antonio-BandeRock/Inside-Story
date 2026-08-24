@@ -38,6 +38,7 @@ export function FlipCard({
   backTitle,
   backBody,
   onReadMore,
+  borderColor = colors.border,
   width = 220,
   height = 260,
 }: {
@@ -46,6 +47,17 @@ export function FlipCard({
   backTitle: string;
   backBody: string;
   onReadMore?: () => void;
+  // 2026-08-23, direct follow-up: "Shouldn't the line color be the color
+  // for Digest?" The plain colors.border default below was never wrong on
+  // its own, just inconsistent -- moreFlipCard right next to this card in
+  // the same row already uses colors.tabPurpleDigest for exactly this
+  // border, this component just never took the same color as a prop.
+  // Optional with a neutral default rather than hardcoded purple, since
+  // FlipCard itself is a generic component, not Digest-specific -- Home's
+  // own call site passes colors.tabPurpleDigest explicitly, the same
+  // "shared component, tab color passed in by the caller" shape
+  // PopoverSelect's own tabColor prop already establishes elsewhere.
+  borderColor?: string;
   width?: number;
   height?: number;
 }) {
@@ -67,11 +79,11 @@ export function FlipCard({
 
   return (
     <TouchableOpacity onPress={toggle} activeOpacity={0.85} style={{ width, height }}>
-      <Animated.View style={[styles.face, frontStyle]}>
+      <Animated.View style={[styles.face, { borderColor }, frontStyle]}>
         {icon}
         <Text style={styles.hook}>{hook}</Text>
       </Animated.View>
-      <Animated.View style={[styles.face, styles.backFace, backStyle]}>
+      <Animated.View style={[styles.face, { borderColor }, styles.backFace, backStyle]}>
         <Text style={styles.backTitle}>{backTitle}</Text>
         <View style={styles.backDivider} />
         {/* Scrolls instead of the card growing taller to fit -- explicitly
@@ -123,7 +135,10 @@ const styles = StyleSheet.create({
     // dependency from this shared component back onto one specific
     // screen's own local constant, just the same literal value.
     borderWidth: 2,
-    borderColor: colors.border,
+    // borderColor itself is set inline per-render (see the component body
+    // above), not here -- the borderColor prop's own default lives on the
+    // function signature instead, so this StyleSheet entry would only ever
+    // be dead weight, immediately overridden either way.
     backgroundColor: colors.surface,
     padding: 18,
     justifyContent: 'center',

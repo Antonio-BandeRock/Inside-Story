@@ -1352,6 +1352,7 @@ export default function HomeScreen() {
                 backTitle={card.backTitle}
                 backBody={card.backBody}
                 onReadMore={() => router.push({ pathname: '/purple-digest', params: { openEntryId: card.id } })}
+                borderColor={colors.tabPurpleDigest}
               />
             ))}
             {hasMoreFlipCards ? (
