@@ -31,12 +31,21 @@
 // each recipe's own nutritionHighlights in recipes.ts naming what that
 // specific dish actually contributes.
 //
-// STATUS: 14 of 42 days built so far (days 1-14, a full 2 weeks). The
-// remaining 28 days (weeks 3-6) are a real, tracked continuation, not
-// forgotten -- see CLAUDE.md's own Status snapshot. Extending the
-// rotation is purely additive: write more recipes.ts entries (or reuse
-// ones already here that a later week hasn't touched yet), then append
-// more MealPlanDay entries below. No architecture changes needed.
+// STATUS: all 42 days built (2026-08-24, direct follow-up: "Keep going on
+// weeks 3-6"). Days 1-14 (weeks 1-2) reuse 20 of the pre-existing 88
+// curated recipes; days 15-42 (weeks 3-6) are entirely new content, since
+// every eligible Smoothie/Salad/Soup/Handheld/Side had already been used
+// exactly once by day 14. Weeks 3-6 deliberately reach for whole foods the
+// first two weeks never touched -- halibut, trout, tuna, sardine,
+// mackerel, scallop, mussel, crab, lamb, duck, bison, pork chop, pork
+// loin, turkey thigh, kiwi, papaya, peach, apricot, plum, nectarine,
+// clementine, grapefruit, fig, date, watermelon, cantaloupe, fennel,
+// parsnip, leek, radish, turnip, collards, kohlrabi, bok choy, okra,
+// artichoke, snow peas, edamame, kidney beans, pinto beans, lima beans,
+// buckwheat, millet, spelt, bulgur, wild rice, couscous, pistachio, and
+// cashew -- alongside genuine repeats of a handful of realistic everyday
+// staples (chicken, turkey, salmon, shrimp) in different dishes, the same
+// way an actual person's own 6 weeks of home cooking would.
 //
 // Reuse tally for days 1-14, so a future session extending this can see
 // at a glance what's already spoken for: all 6 Smoothies (breakfast, days
@@ -153,5 +162,176 @@ export const MEAL_PLAN: MealPlanDay[] = [
     breakfast: { main: ref('bakedGoods', 'curated_baked_oatmeal_cup_banana_cinnamon') },
     lunch: { main: ref('handheld', 'curated_handheld_hummus_roasted_vegetable_wrap') },
     dinner: { main: ref('soup', 'curated_soup_turkey_black_bean_chili') },
+  },
+
+  // Weeks 3-6 (days 15-42), all-new content -- see this file's own header
+  // comment for the full reasoning.
+  {
+    day: 15,
+    breakfast: { main: ref('snack', 'curated_snack_kiwi_pistachio_yogurt_bowl') },
+    lunch: { main: ref('salad', 'curated_salad_grilled_halibut_greens') },
+    dinner: { main: ref('side', 'curated_side_roast_chicken_fennel_leeks') },
+  },
+  {
+    day: 16,
+    breakfast: { main: ref('snack', 'curated_snack_peach_almond_overnight_oats') },
+    lunch: { main: ref('handheld', 'curated_handheld_turkey_hummus_collard_wrap') },
+    dinner: { main: ref('side', 'curated_side_baked_trout_parsnip_mash') },
+  },
+  {
+    day: 17,
+    breakfast: { main: ref('snack', 'curated_snack_papaya_cottage_cheese_bowl') },
+    lunch: { main: ref('salad', 'curated_salad_spelt_roasted_vegetable_salad') },
+    dinner: { main: ref('side', 'curated_side_lamb_skewers_couscous') },
+  },
+  {
+    day: 18,
+    breakfast: { main: ref('snack', 'curated_snack_buckwheat_porridge_blueberries_walnuts') },
+    lunch: { main: ref('salad', 'curated_salad_tuna_white_bean_salad') },
+    dinner: { main: ref('side', 'curated_side_pork_chop_brussels_apple') },
+  },
+  {
+    day: 19,
+    breakfast: { main: ref('snack', 'curated_snack_millet_porridge_apricots') },
+    lunch: { main: ref('salad', 'curated_salad_shrimp_watermelon_salad') },
+    dinner: { main: ref('side', 'curated_side_scallops_asparagus_lemon') },
+  },
+  {
+    day: 20,
+    breakfast: { main: ref('snack', 'curated_snack_grapefruit_yogurt_honey') },
+    lunch: { main: ref('side', 'curated_side_chickpea_spinach_curry_bowl') },
+    dinner: { main: ref('side', 'curated_side_duck_beets_orange') },
+  },
+  {
+    day: 21,
+    breakfast: { main: ref('snack', 'curated_snack_fig_walnut_yogurt_bowl') },
+    lunch: { main: ref('salad', 'curated_salad_bulgur_tabbouleh_salad') },
+    dinner: { main: ref('side', 'curated_side_turkey_thigh_turnip_carrot') },
+  },
+  {
+    day: 22,
+    breakfast: { main: ref('snack', 'curated_snack_date_cashew_breakfast_bowl') },
+    lunch: { main: ref('salad', 'curated_salad_mackerel_radish_salad') },
+    dinner: { main: ref('side', 'curated_side_chicken_okra_tomato_skillet') },
+  },
+  {
+    day: 23,
+    breakfast: { main: ref('snack', 'curated_snack_nectarine_chia_pudding_cashews') },
+    lunch: { main: ref('side', 'curated_side_sardine_white_bean_bowl') },
+    dinner: { main: ref('side', 'curated_side_braised_beef_kohlrabi_carrot') },
+  },
+  {
+    day: 24,
+    breakfast: { main: ref('snack', 'curated_snack_clementine_almond_yogurt_bowl') },
+    lunch: { main: ref('salad', 'curated_salad_roasted_artichoke_white_bean_salad') },
+    dinner: { main: ref('side', 'curated_side_sole_bok_choy_ginger') },
+  },
+  {
+    day: 25,
+    breakfast: { main: ref('snack', 'curated_snack_plum_walnut_overnight_oats') },
+    lunch: { main: ref('salad', 'curated_salad_crab_avocado_salad') },
+    dinner: { main: ref('side', 'curated_side_bison_root_vegetable_bowl') },
+  },
+  {
+    day: 26,
+    breakfast: { main: ref('snack', 'curated_snack_watermelon_feta_bowl') },
+    lunch: { main: ref('side', 'curated_side_edamame_brown_rice_sesame_bowl') },
+    dinner: { main: ref('soup', 'curated_soup_mussels_tomato_garlic_broth') },
+  },
+  {
+    day: 27,
+    breakfast: { main: ref('snack', 'curated_snack_cantaloupe_cottage_cheese_bowl') },
+    lunch: { main: ref('salad', 'curated_salad_pinto_bean_roasted_vegetable_bowl') },
+    dinner: { main: ref('side', 'curated_side_chicken_breast_snow_peas_carrots') },
+  },
+  {
+    day: 28,
+    breakfast: { main: ref('snack', 'curated_snack_pear_walnut_yogurt_bowl') },
+    lunch: { main: ref('salad', 'curated_salad_lima_bean_roasted_vegetable_salad') },
+    dinner: { main: ref('side', 'curated_side_pork_loin_turnip_kale') },
+  },
+  {
+    day: 29,
+    breakfast: { main: ref('snack', 'curated_snack_fig_pistachio_overnight_oats') },
+    lunch: { main: ref('salad', 'curated_salad_trout_cucumber_salad') },
+    dinner: { main: ref('side', 'curated_side_turkey_meatloaf_parsnip_carrot') },
+  },
+  {
+    day: 30,
+    breakfast: { main: ref('snack', 'curated_snack_apricot_cashew_yogurt_bowl') },
+    lunch: { main: ref('soup', 'curated_soup_white_bean_kale_soup') },
+    dinner: { main: ref('side', 'curated_side_salmon_leeks_lemon') },
+  },
+  {
+    day: 31,
+    breakfast: { main: ref('snack', 'curated_snack_date_walnut_breakfast_bowl') },
+    lunch: { main: ref('soup', 'curated_soup_lentil_kale_soup') },
+    dinner: { main: ref('side', 'curated_side_lamb_chops_roasted_eggplant') },
+  },
+  {
+    day: 32,
+    breakfast: { main: ref('snack', 'curated_snack_mango_coconut_chia_pudding') },
+    lunch: { main: ref('soup', 'curated_soup_crab_corn_chowder') },
+    dinner: { main: ref('side', 'curated_side_chicken_thighs_kohlrabi_apple') },
+  },
+  {
+    day: 33,
+    breakfast: { main: ref('snack', 'curated_snack_cottage_cheese_fig_honey') },
+    lunch: { main: ref('side', 'curated_side_shrimp_snow_pea_stir_fry_rice') },
+    dinner: { main: ref('side', 'curated_side_baked_cod_fennel_orange') },
+  },
+  {
+    day: 34,
+    breakfast: { main: ref('snack', 'curated_snack_pear_almond_yogurt_bowl') },
+    lunch: { main: ref('handheld', 'curated_handheld_bison_roasted_vegetable_wrap') },
+    dinner: { main: ref('side', 'curated_side_duck_cherry_wild_rice') },
+  },
+  {
+    day: 35,
+    breakfast: { main: ref('snack', 'curated_snack_kiwi_coconut_chia_pudding') },
+    lunch: { main: ref('soup', 'curated_soup_white_bean_swiss_chard_soup') },
+    dinner: { main: ref('side', 'curated_side_pork_loin_radish_carrot') },
+  },
+  {
+    day: 36,
+    breakfast: { main: ref('snack', 'curated_snack_papaya_lime_yogurt_bowl') },
+    lunch: { main: ref('salad', 'curated_salad_tuna_artichoke_salad') },
+    dinner: { main: ref('side', 'curated_side_turkey_wild_rice_cranberries') },
+  },
+  {
+    day: 37,
+    breakfast: { main: ref('snack', 'curated_snack_blackberry_almond_yogurt_bowl') },
+    lunch: { main: ref('soup', 'curated_soup_mussels_tomato_fennel_broth') },
+    dinner: { main: ref('side', 'curated_side_halibut_leeks_peas') },
+  },
+  {
+    day: 38,
+    breakfast: { main: ref('snack', 'curated_snack_clementine_pistachio_yogurt_bowl') },
+    lunch: { main: ref('side', 'curated_side_lentil_roasted_vegetable_tahini_bowl') },
+    dinner: { main: ref('side', 'curated_side_bison_meatballs_herb_tomato_sauce') },
+  },
+  {
+    day: 39,
+    breakfast: { main: ref('snack', 'curated_snack_apricot_coconut_overnight_oats') },
+    lunch: { main: ref('salad', 'curated_salad_sardine_roasted_pepper_salad') },
+    dinner: { main: ref('side', 'curated_side_chicken_breast_artichoke_lemon') },
+  },
+  {
+    day: 40,
+    breakfast: { main: ref('snack', 'curated_snack_fig_cashew_overnight_oats') },
+    lunch: { main: ref('salad', 'curated_salad_kidney_bean_roasted_vegetable_salad') },
+    dinner: { main: ref('side', 'curated_side_trout_radish_dill') },
+  },
+  {
+    day: 41,
+    breakfast: { main: ref('snack', 'curated_snack_mango_pistachio_chia_pudding') },
+    lunch: { main: ref('soup', 'curated_soup_turkey_white_bean_soup') },
+    dinner: { main: ref('side', 'curated_side_lamb_fennel_orange') },
+  },
+  {
+    day: 42,
+    breakfast: { main: ref('snack', 'curated_snack_grapefruit_pistachio_yogurt_bowl') },
+    lunch: { main: ref('salad', 'curated_salad_crab_mango_salad') },
+    dinner: { main: ref('side', 'curated_side_salmon_wild_rice_asparagus') },
   },
 ];
