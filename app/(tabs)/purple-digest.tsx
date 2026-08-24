@@ -537,10 +537,36 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
       // `estrogen-`, etc.), not a shared "hormone-" prefix -- a real,
       // pre-existing gap this validation pass surfaced and fixed, not
       // something this restructure introduced.
+      // 2026-08-23: 'adiponectin-' and 'lipodystrophy-' added -- these two
+      // entries (lib/digest/hormones.ts) were part of the same 2026-08-21
+      // fat-hormone research batch as every 'leptin-' entry already listed
+      // here, but never got their own prefix, so they fell through to the
+      // dynamic "More" catch-all. Found via a direct audit request: "In
+      // Basic Health there are 8 entries in the More section... how about
+      // now?"
       {
         label: 'Hormones',
-        prefixes: ['hormone-', 'hormones-', 'insulin-', 'cortisol-', 'thyroid-hormones-', 'leptin-', 'estrogen-', 'testosterone-'],
+        prefixes: [
+          'hormone-',
+          'hormones-',
+          'insulin-',
+          'cortisol-',
+          'thyroid-hormones-',
+          'leptin-',
+          'estrogen-',
+          'testosterone-',
+          'adiponectin-',
+          'lipodystrophy-',
+        ],
       },
+      // 2026-08-23, same audit: lib/digest/bodyFatBiology.ts's own 4
+      // entries (body-weight heritability, constrained total energy
+      // expenditure, the Hadza population studies, visceral-vs-subcutaneous
+      // fat distribution) are the other half of that same research batch,
+      // broader body-fat population biology rather than one specific
+      // hormone, so they get their own subtopic alongside Hormones instead
+      // of being folded into it.
+      { label: 'Body Fat Biology', prefixes: ['bodyfat-'] },
     ],
   },
   // 2026-08-13, direct request: "I don't see much about each individual
@@ -651,10 +677,17 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // this one is scoped per-DIET-PHILOSOPHY, condition-agnostic, and closes
   // with a real, honest entry on how this app helps track any of them.
   // See lib/digest/popularDiets.ts's own header comment.
+  // 2026-08-23: 'pbn-' added -- lib/digest/plantBasedNutrition.ts's own 2
+  // entries (the Ornish Lifestyle Heart Trial, Esselstyn's long-term
+  // cohort) are trial evidence for one specific dietary philosophy, the
+  // same shape every other entry in this topic already covers, but never
+  // got a prefix of their own and fell through to the dynamic "More"
+  // catch-all. Found via a direct audit request: "In Basic Health there
+  // are 8 entries in the More section... how about now?"
   {
     label: 'Popular Diets & Eating Styles',
     description: 'An evidence-based look at popular diets, keto, paleo, intermittent fasting, and more, organized by philosophy rather than by condition.',
-    prefixes: ['diet-'],
+    prefixes: ['diet-', 'pbn-'],
   },
   {
     label: 'Problem Foods & Swaps',
@@ -1139,6 +1172,7 @@ function groupConditionEntries(entries: AnyDigestEntry[]): {
 // substrings chosen don't collide the way "history" once silently did.
 type EarthMattersTopic =
   | 'Soil Science & Why It Matters'
+  | 'Climate Science & the Weather Machine'
   | 'The Gut Connection'
   | 'Pollinators'
   | 'Pesticides & Chemical Inputs'
@@ -1157,9 +1191,14 @@ type EarthMattersTopic =
 // movement's own history, resources), then the honest-limits/critique
 // material, then policy, with "How You Can Take Action" last of all --
 // the natural "what do I do with this" capstone position right before the
-// category's own closing "Putting It Together" card.
+// category's own closing "Putting It Together" card. 2026-08-23: "Climate
+// Science & the Weather Machine" added right after the soil-science lead,
+// the other planetary-systems foundation this category covers, before the
+// zoom into more specific topics -- see lib/digest/climateScience.ts's own
+// header comment for what this new topic covers and why.
 const EARTH_MATTERS_TOPIC_ORDER: EarthMattersTopic[] = [
   'Soil Science & Why It Matters',
+  'Climate Science & the Weather Machine',
   'The Gut Connection',
   'Pollinators',
   'Pesticides & Chemical Inputs',
@@ -1174,6 +1213,7 @@ const EARTH_MATTERS_TOPIC_ORDER: EarthMattersTopic[] = [
 function classifyEarthMattersTopic(entry: AnyDigestEntry): EarthMattersTopic {
   const id = entry.id.toLowerCase();
 
+  if (id.startsWith('climate-')) return 'Climate Science & the Weather Machine';
   if (
     id.includes('pollinator') ||
     id.includes('bee') ||

@@ -8,6 +8,7 @@ import { CARDIOVASCULAR_DISEASE_ENTRIES } from './cardiovascularDisease';
 import { CELIAC_ENTRIES } from './celiac';
 import { CHOOSING_QUALITY_PRODUCTS_ENTRIES } from './choosingQualityProducts';
 import { CHRONIC_KIDNEY_DISEASE_ENTRIES } from './chronicKidneyDisease';
+import { CLIMATE_SCIENCE_ENTRIES } from './climateScience';
 import { ESSENTIAL_NUTRIENTS_ENTRIES } from './essentialNutrients';
 import { FERMENTATION_METHODS_ENTRIES } from './fermentationMethods';
 import { FATTY_LIVER_DISEASE_ENTRIES } from './fattyLiverDisease';
@@ -90,6 +91,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...HISTORY_ENTRIES,
   ...NUTRIENT_INTERACTIONS_ENTRIES,
   ...FOOD_INDUSTRY_HISTORY_ENTRIES,
+  ...CLIMATE_SCIENCE_ENTRIES,
   ...BIG_PICTURE_ENTRIES,
   ...SELF_ADVOCACY_ENTRIES,
   ...PREGNANCY_FAMILY_PLANNING_ENTRIES,
