@@ -110,7 +110,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Magnesium', note: 'Roughly a quarter of a day\'s target per slice.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This is a full-gluten wheat loaf, so if gluten is something you avoid, this one isn\'t for you as written. The good news is it\'s an easy swap: a 1:1 gluten-free flour blend works in this same recipe, just expect a slightly denser, less springy crumb since it\'s missing gluten\'s own stretch.' },
+        { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This is a full-gluten wheat loaf, so if gluten is something you avoid, this one isn\'t for you as written. The good news is it\'s an easy swap: a 1:1 gluten-free flour blend works in this same recipe, just expect a slightly denser, less springy crumb since it\'s missing gluten\'s stretch.' },
       ],
       flavorNotes: 'This bakes up hearty and a little nutty, the way whole wheat always does, with a firm, chewy crumb rather than the airy softness of a white sandwich loaf. The crust turns deep golden and properly crackly right out of the oven. It\'s a plain, honest bread built for actual use: toast, sandwiches, or torn straight off the loaf and dipped in olive oil, not a delicate bakery showpiece.',
     },
@@ -307,7 +307,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Iced Green Tea with Mint',
     teaser: 'A simple, refreshing steeped tea with fresh mint.',
-    summary: 'Green tea\'s own catechin content is one of the most consistently studied plant compounds for antioxidant activity.',
+    summary: 'Green tea\'s catechin content is one of the most consistently studied plant compounds for antioxidant activity.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_bev_iced_green_tea_mint',
@@ -414,7 +414,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Mixed Berry Chia Pudding',
     teaser: 'A creamy, fiber-rich pudding you make the night before.',
-    summary: 'Chia seeds bring omega-3 fat and fiber, and three differently-colored berries each carry their own antioxidant profile.',
+    summary: 'Chia seeds bring omega-3 fat and fiber, and three differently-colored berries each carry their antioxidant profile.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_dessert_mixed_berry_chia_pudding',
@@ -461,7 +461,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Homemade Plain Yogurt',
     teaser: 'Two live cultures, a warm spot, and time.',
-    summary: 'Lactobacillus delbrueckii subsp. bulgaricus and Streptococcus thermophilus are the two cultures Codex Alimentarius\'s own international standard requires for something to legally be called yogurt.',
+    summary: 'Lactobacillus delbrueckii subsp. bulgaricus and Streptococcus thermophilus are the two cultures Codex Alimentarius\'s international standard requires for something to legally be called yogurt.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_ferment_plain_yogurt',
@@ -536,7 +536,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       instructions: [
         'Toss the shredded cabbage with the salt in a large bowl.',
-        'Massage and squeeze the cabbage with your hands for 5-10 minutes, until it releases its own liquid and softens noticeably.',
+        'Massage and squeeze the cabbage with your hands for 5-10 minutes, until it releases its liquid and softens noticeably.',
         'Pack the cabbage tightly into a clean jar, pressing down firmly so the liquid rises above the cabbage itself. This liquid is what keeps oxygen out and lets fermentation happen safely.',
         'Weigh the cabbage down (a smaller jar filled with water, or a fermentation weight, works) so it stays fully submerged.',
         'Cover loosely (a ferment needs to release gas) and leave it at room temperature for 1-4 weeks, tasting every few days until it reaches the tang you like.',
@@ -665,7 +665,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Black Bean & Sweet Potato Tacos',
     teaser: 'Roasted sweet potato and black beans in a warm tortilla.',
-    summary: 'Sweet potato\'s own orange color comes from beta-carotene, which the body converts into vitamin A.',
+    summary: 'Sweet potato\'s orange color comes from beta-carotene, which the body converts into vitamin A.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_handheld_black_bean_sweet_potato_tacos',
@@ -745,7 +745,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Mediterranean Chickpea & Feta',
     teaser: 'A hearty, protein-rich salad built on chickpeas and feta.',
-    summary: 'Chickpeas bring plant protein and fiber together, a combination that helps slow how quickly the meal\'s own carbohydrates raise blood sugar.',
+    summary: 'Chickpeas bring plant protein and fiber together, a combination that helps slow how quickly the meal\'s carbohydrates raise blood sugar.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_mediterranean_chickpea_feta',
@@ -971,7 +971,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Both raw spinach and almonds carry a notably high oxalate load, and this salad has meaningful amounts of both. Pairing this with a calcium source at the same meal (a side of yogurt, or a sprinkle of cheese) is a practical way to help offset it if oxalate is something you\'re watching.' },
         { condition: 'Irritable Bowel Syndrome', note: 'Balsamic vinegar is a known digestive irritant for some people with IBS. A squeeze of fresh orange juice makes an easy substitute in the dressing.' },
       ],
-      flavorNotes: 'Sweet, juicy strawberries against spinach\'s own mild, slightly earthy leaves, with good crunch from the sliced almonds and a tangy balsamic dressing tying it all together: a classic combination for good reason.',
+      flavorNotes: 'Sweet, juicy strawberries against spinach\'s mild, slightly earthy leaves, with good crunch from the sliced almonds and a tangy balsamic dressing tying it all together: a classic combination for good reason.',
     },
   },
 
@@ -1269,7 +1269,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Spinach carries a notably high oxalate load, cooked or raw. Pairing it with a calcium source at the same meal is a practical way to help offset it if oxalate is something you\'re watching.' },
       ],
-      flavorNotes: 'Simple and quick, with the garlic and a bright squeeze of lemon keeping the spinach\'s own mild, earthy flavor from tasting flat. A classic, no-frills green side.',
+      flavorNotes: 'Simple and quick, with the garlic and a bright squeeze of lemon keeping the spinach\'s mild, earthy flavor from tasting flat. A classic, no-frills green side.',
     },
   },
   {
@@ -1325,7 +1325,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Green Glow',
     teaser: 'A vegetable-forward green smoothie.',
-    summary: 'Spinach\'s own mild flavor gets almost entirely masked by the banana and pineapple here, an effective way to get a vegetable serving into a smoothie without tasting like a salad.',
+    summary: 'Spinach\'s mild flavor gets almost entirely masked by the banana and pineapple here, an effective way to get a vegetable serving into a smoothie without tasting like a salad.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_smoothie_green_glow',
@@ -1428,7 +1428,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Berry Antioxidant Blast',
     teaser: 'A vibrant double-berry smoothie.',
-    summary: 'Blueberries and strawberries each carry their own distinct set of antioxidant compounds, so combining them broadens what you\'re getting rather than just doubling up on the same one.',
+    summary: 'Blueberries and strawberries each carry their distinct set of antioxidant compounds, so combining them broadens what you\'re getting rather than just doubling up on the same one.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_smoothie_berry_antioxidant',
@@ -1751,7 +1751,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Red Lentil Soup',
     teaser: 'A hearty plant-protein soup.',
-    summary: 'Red lentils cook down faster than most other legumes and thicken a soup on their own as they break down, without needing any added cream or flour.',
+    summary: 'Red lentils cook down faster than most other legumes and thicken a soup on their as they break down, without needing any added cream or flour.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_soup_red_lentil',
@@ -1850,8 +1850,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-tonic-tart-cherry-ginger-turmeric',
     category: 'recipes',
     title: 'Wild-Fermented Tart Cherry, Ginger & Turmeric Tonic',
-    teaser: 'A dairy-free, gluten-free bedtime tonic built around tart cherry\'s own melatonin, with fermented ginger and turmeric for the joints and gut.',
-    summary: 'Tart (Montmorency-type) cherries are one of the few food sources of measurable melatonin, and randomized trial data shows tart cherry juice can extend sleep time and improve sleep efficiency, though a 2022 trial found the sleep-quality benefit held even without a significant melatonin-level change, so the mechanism isn\'t fully settled. This tonic ferments the cherries whole rather than juicing them, using raw ginger and turmeric skins as a wild-yeast starter (no separate culture needed), with black pepper added for turmeric\'s own well-documented curcumin-absorption boost.',
+    teaser: 'A dairy-free, gluten-free bedtime tonic built around tart cherry\'s melatonin, with fermented ginger and turmeric for the joints and gut.',
+    summary: 'Tart (Montmorency-type) cherries are one of the few food sources of measurable melatonin, and randomized trial data shows tart cherry juice can extend sleep time and improve sleep efficiency, though a 2022 trial found the sleep-quality benefit held even without a significant melatonin-level change, so the mechanism isn\'t fully settled. This tonic ferments the cherries whole rather than juicing them, using raw ginger and turmeric skins as a wild-yeast starter (no separate culture needed), with black pepper added for turmeric\'s well-documented curcumin-absorption boost.',
     citations: [
       { source: 'Howatson et al. 2011, European Journal of Nutrition: tart cherry juice, melatonin levels, and sleep quality', url: 'https://link.springer.com/article/10.1007/s00394-011-0263-7' },
       { source: 'Shoba et al. 1998, Planta Medica: piperine\'s effect on curcumin bioavailability', url: 'https://pubmed.ncbi.nlm.nih.gov/9619120/' },
@@ -1887,22 +1887,22 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Strain out the solids, bottle the liquid, and refrigerate. It keeps about 1-2 weeks refrigerated.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Melatonin & tryptophan', note: 'Tart cherries are one of the few whole foods that naturally contain measurable melatonin, the basis for this tonic\'s own bedtime use.' },
+        { nutrient: 'Melatonin & tryptophan', note: 'Tart cherries are one of the few whole foods that naturally contain measurable melatonin, the basis for this tonic\'s bedtime use.' },
         { nutrient: 'Anthocyanins', note: 'The same pigment compounds responsible for tart cherry\'s deep red color, with documented anti-inflammatory activity relevant to joint pain.' },
         { nutrient: 'Curcumin (from turmeric)', note: 'The added black pepper measurably increases how much of this gets absorbed, a documented pairing rather than a folk habit.' },
       ],
       conditionNotes: [
-        { condition: 'Gout', note: 'Tart cherry has its own separate evidence for lowering uric acid, on top of the sleep/joint framing here, relevant if gout is a factor.' },
+        { condition: 'Gout', note: 'Tart cherry has its separate evidence for lowering uric acid, on top of the sleep/joint framing here, relevant if gout is a factor.' },
         { condition: 'Migraine', note: 'A fully fermented batch (tart, not sweet) keeps histamine buildup lower than a short ferment, worth watching if fermented foods have triggered symptoms before.' },
       ],
-      flavorNotes: 'Tart and lightly fizzy, with cherry\'s own fruitiness upfront and a warm, earthy ginger-turmeric finish. Closer to a shrub than a soda: sip it, don\'t chug it.',
+      flavorNotes: 'Tart and lightly fizzy, with cherry\'s fruitiness upfront and a warm, earthy ginger-turmeric finish. Closer to a shrub than a soda: sip it, don\'t chug it.',
     },
   },
   {
     id: 'recipe-ferment-tonic-blueberry-ginger-turmeric',
     category: 'recipes',
     title: 'Wild-Fermented Blueberry, Ginger & Turmeric Tonic',
-    teaser: 'The same wild-ferment method built around blueberry\'s own anthocyanins, made more bioavailable by fermentation itself.',
+    teaser: 'The same wild-ferment method built around blueberry\'s anthocyanins, made more bioavailable by fermentation itself.',
     summary: 'Blueberries carry anthocyanins, the antioxidant pigments behind their color, and fermentation breaks down the fruit\'s own cell walls, which several studies suggest increases how much of that antioxidant content the body can actually absorb compared to eating the berries raw. Frozen blueberries work as well as fresh here since freezing already ruptures the cell walls, releasing juice faster once the ferment starts. This variant uses the same raw ginger-and-turmeric-skin wild-yeast method as the flagship tart cherry tonic.',
     citations: [
       { source: 'Potential health benefits of fermented blueberry: A review of current scientific evidence, ScienceDirect', url: 'https://www.sciencedirect.com/science/article/abs/pii/S092422442300002X' },
@@ -1933,7 +1933,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Anthocyanins', note: 'Fermentation breaks down blueberry\'s own cell walls, a documented mechanism for improving how bioavailable this antioxidant becomes.' },
         { nutrient: 'Vitamin K', note: 'Blueberries are a meaningful whole-food source, relevant if you take a blood thinner and track vitamin K intake.' },
-        { nutrient: 'Curcumin (from turmeric)', note: 'Boosted by the added black pepper, the same pairing already documented in this app\'s own Nutrient Interactions research.' },
+        { nutrient: 'Curcumin (from turmeric)', note: 'Boosted by the added black pepper, the same pairing already documented in this app\'s Nutrient Interactions research.' },
       ],
       conditionNotes: [
         { condition: 'Migraine', note: 'A short, under-fermented batch carries more residual histamine than a fully fermented one; let it run the full 3-5 days if fermented foods have been a trigger before.' },
@@ -1945,8 +1945,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-tonic-pomegranate-ginger-turmeric',
     category: 'recipes',
     title: 'Wild-Fermented Pomegranate, Ginger & Turmeric Tonic',
-    teaser: 'A tart, dry wild ferment built on pomegranate\'s own ellagitannins, with an honest caveat about what fermenting one actually delivers.',
-    summary: 'Pomegranate carries ellagitannins, which certain gut bacteria convert into Urolithin A, a compound with double-blind human trial data for improving mitochondrial and muscle function. Those trials dosed purified Urolithin A directly (1000mg/day), not fermented pomegranate juice, and not everyone\'s own gut bacteria are even capable of producing Urolithin A from ellagitannins at all. This tonic is a worthwhile antioxidant-rich drink either way, just not a guaranteed way to reach the dose those trials used.',
+    teaser: 'A tart, dry wild ferment built on pomegranate\'s ellagitannins, with an honest caveat about what fermenting one actually delivers.',
+    summary: 'Pomegranate carries ellagitannins, which certain gut bacteria convert into Urolithin A, a compound with double-blind human trial data for improving mitochondrial and muscle function. Those trials dosed purified Urolithin A directly (1000mg/day), not fermented pomegranate juice, and not everyone\'s gut bacteria are even capable of producing Urolithin A from ellagitannins at all. This tonic is a worthwhile antioxidant-rich drink either way, just not a guaranteed way to reach the dose those trials used.',
     citations: [
       { source: 'Andreux et al. 2019, Nature Metabolism: Urolithin A randomized controlled trial in humans', url: 'https://www.nature.com/articles/s42255-019-0073-4' },
     ],
@@ -1977,7 +1977,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'Pomegranate is a solid whole-food source, though fermentation gradually reduces the vitamin C content over time.' },
       ],
       conditionNotes: [
-        { condition: 'Type 2 Diabetes / PCOS', note: 'Let this ferment the full window so the microbes consume more of the juice\'s own natural sugar before drinking it.' },
+        { condition: 'Type 2 Diabetes / PCOS', note: 'Let this ferment the full window so the microbes consume more of the juice\'s natural sugar before drinking it.' },
       ],
       flavorNotes: 'Tart, dry, and ruby-colored, closer to a dry wine cooler than a sweet juice drink, with a warm ginger-turmeric edge.',
     },
@@ -1986,8 +1986,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-tonic-cranberry-ginger-turmeric',
     category: 'recipes',
     title: 'Wild-Fermented Cranberry, Ginger & Turmeric Tonic',
-    teaser: 'A sharply tart wild ferment built on cranberry\'s own well-documented urinary tract benefit.',
-    summary: 'Cranberries contain A-type proanthocyanidins, a compound structurally different from the proanthocyanidins in most other berries, with solid evidence for blocking E. coli and other bacteria from adhering to the urinary tract wall. Fermenting cranberries rather than drinking sweetened juice cocktail avoids the heavy added sugar most commercial cranberry juice relies on to offset the fruit\'s own intense tartness.',
+    teaser: 'A sharply tart wild ferment built on cranberry\'s well-documented urinary tract benefit.',
+    summary: 'Cranberries contain A-type proanthocyanidins, a compound structurally different from the proanthocyanidins in most other berries, with solid evidence for blocking E. coli and other bacteria from adhering to the urinary tract wall. Fermenting cranberries rather than drinking sweetened juice cocktail avoids the heavy added sugar most commercial cranberry juice relies on to offset the fruit\'s intense tartness.',
     citations: [
       { source: 'Howell et al. 2005, Phytochemistry: A-type cranberry proanthocyanidins and uropathogenic bacterial anti-adhesion activity', url: 'https://pubmed.ncbi.nlm.nih.gov/16055161/' },
     ],
@@ -2015,7 +2015,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'A-type proanthocyanidins', note: 'A structurally distinct compound from most other berries, with documented evidence for blocking bacterial adhesion in the urinary tract.' },
-        { nutrient: 'Vitamin C', note: 'Cranberries carry a meaningful amount, though fermentation and the honey needed to offset their own tartness both affect the final sugar content.' },
+        { nutrient: 'Vitamin C', note: 'Cranberries carry a meaningful amount, though fermentation and the honey needed to offset their tartness both affect the final sugar content.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease', note: 'Cranberries are relatively low in potassium compared to many other fruits here, but check with your care team before adding any new fruit-based drink to a restricted diet.' },
@@ -2068,7 +2068,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Wild-Fermented Hibiscus, Ginger & Turmeric Tonic',
     teaser: 'A cranberry-tart, floral wild ferment built on dried hibiscus, with trial evidence for a modest blood pressure benefit.',
-    summary: 'Dried hibiscus (sold as Flor de Jamaica in many grocery stores) carries an antioxidant profile that compares favorably to berries, and has its own separate randomized trial evidence for modestly lowering blood pressure. Because dried flowers rather than fresh fruit don\'t carry their own live wild yeast, this variant steeps the hibiscus into a tea first, then ferments that tea using the ginger-and-turmeric-skin method, the same approach Fermentation Builder\'s own Jun Tea and Kombucha recipes use for tea-based ferments.',
+    summary: 'Dried hibiscus (sold as Flor de Jamaica in many grocery stores) carries an antioxidant profile that compares favorably to berries, and has its separate randomized trial evidence for modestly lowering blood pressure. Because dried flowers rather than fresh fruit don\'t carry their live wild yeast, this variant steeps the hibiscus into a tea first, then ferments that tea using the ginger-and-turmeric-skin method, the same approach Fermentation Builder\'s Jun Tea and Kombucha recipes use for tea-based ferments.',
     citations: [
       { source: 'Systematic review and meta-analysis of the effects of Hibiscus sabdariffa on blood pressure and cardiometabolic markers, Nutrition Reviews', url: 'https://pubmed.ncbi.nlm.nih.gov/34927694/' },
     ],
@@ -2175,7 +2175,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Ferment 3-5 days at room temperature. Strain thoroughly through a fine-mesh cloth, bottle, and refrigerate.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Anthocyanins', note: 'Elderberry\'s own deep purple color comes from a concentration of these compounds that rivals or exceeds most other dark berries.' },
+        { nutrient: 'Anthocyanins', note: 'Elderberry\'s deep purple color comes from a concentration of these compounds that rivals or exceeds most other dark berries.' },
       ],
       conditionNotes: [
         { condition: 'Any autoimmune condition', note: 'Elderberry\'s immune-stimulating effect is generally framed around fighting off a cold or flu; if you\'re on an immunosuppressant, mention this one to your care team before drinking it regularly.' },
@@ -2187,7 +2187,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-tonic-apple-pear',
     category: 'recipes',
     title: 'Wild-Fermented Apple & Pear Tonic',
-    teaser: 'A crisp, lightly fizzy wild ferment closest to homemade sparkling cider, built on apple and pear\'s own pectin.',
+    teaser: 'A crisp, lightly fizzy wild ferment closest to homemade sparkling cider, built on apple and pear\'s pectin.',
     summary: 'Apples and pears both carry pectin, a soluble fiber lab-fermentation studies show feeds several beneficial gut bacteria species. That evidence so far comes from in-vitro fermentation studies of human stool samples, not completed human feeding trials, so pectin\'s prebiotic effect is a promising early finding rather than a settled one. Unlike the rest of this tonic family, this variant skips turmeric, since the mellow apple-pear flavor doesn\'t need turmeric\'s earthiness to balance it, though ginger still does the work of a wild-yeast starter.',
     citations: [
       { source: 'The Potential of Pectins to Modulate the Human Gut Microbiota Evaluated by In Vitro Fermentation: A Systematic Review, PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov/36079886/' },
@@ -2225,7 +2225,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Wild-Fermented Lemon-Lime Probiotic Soda',
     teaser: 'A bright, sharply citrusy wild ferment for when berries aren\'t in season, built on the same skin-yeast method.',
-    summary: 'Lemons and limes lack the anthocyanin antioxidants the rest of this tonic family leans on, but they\'re available everywhere year-round, and citrus\'s own bitter peel compounds have a traditional (though not rigorously trial-tested) reputation for supporting digestion. This is the simplest, most reliably available variant of the whole tonic family, worth keeping in rotation specifically because it never depends on a seasonal fruit.',
+    summary: 'Lemons and limes lack the anthocyanin antioxidants the rest of this tonic family leans on, but they\'re available everywhere year-round, and citrus\'s bitter peel compounds have a traditional (though not rigorously trial-tested) reputation for supporting digestion. This is the simplest, most reliably available variant of the whole tonic family, worth keeping in rotation specifically because it never depends on a seasonal fruit.',
     citations: [],
     overallTier: 'weak',
     linkedCuratedRecipeId: 'curated_ferment_tonic_lemon_lime',
@@ -2308,7 +2308,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Kanji (Fermented Carrot & Mustard Seed)',
     teaser: 'A traditional Indian winter lacto-ferment, sharp and lightly spiced with mustard seed.',
-    summary: 'Kanji is a traditional Indian fermented drink, usually made with purple carrots for their distinctive color; this app\'s own reference database doesn\'t carry a purple carrot variety, so this version uses ordinary carrots instead, still a lactic-acid-bacteria-rich ferment, just a different color than the traditional version. Mustard seed adds a sharp, slightly pungent note and its own documented antimicrobial compounds that help guide the fermentation.',
+    summary: 'Kanji is a traditional Indian fermented drink, usually made with purple carrots for their distinctive color; this app\'s reference database doesn\'t carry a purple carrot variety, so this version uses ordinary carrots instead, still a lactic-acid-bacteria-rich ferment, just a different color than the traditional version. Mustard seed adds a sharp, slightly pungent note and its documented antimicrobial compounds that help guide the fermentation.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermented vegetables guidance', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -2343,7 +2343,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Water Kefir',
     teaser: 'A mild, dairy-free, naturally carbonated soda built on live water kefir grains.',
-    summary: 'Water kefir grains are their own distinct multi-species culture of bacteria and yeast, different from a kombucha SCOBY, not simply "kombucha without the tea." The ferment itself runs faster than kombucha, often finished in 24 to 48 hours, producing a milder, less acidic drink. Live water kefir grains (available from a fermentation supplier or a friend already brewing) are needed to start this, the same way a sourdough starter is needed to start bread.',
+    summary: 'Water kefir grains are their distinct multi-species culture of bacteria and yeast, different from a kombucha SCOBY, not simply "kombucha without the tea." The ferment itself runs faster than kombucha, often finished in 24 to 48 hours, producing a milder, less acidic drink. Live water kefir grains (available from a fermentation supplier or a friend already brewing) are needed to start this, the same way a sourdough starter is needed to start bread.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -2374,7 +2374,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Strain out the grains (save them to start the next batch) and refrigerate the liquid, or bottle it sealed for 1-2 more days first to build extra carbonation.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Live cultures', note: 'A multi-species community of bacteria and yeast, distinct from kombucha\'s own SCOBY culture.' },
+        { nutrient: 'Live cultures', note: 'A multi-species community of bacteria and yeast, distinct from kombucha\'s SCOBY culture.' },
       ],
       conditionNotes: [],
       flavorNotes: 'Mild, lightly tangy, and naturally fizzy, much less sour than kombucha, an easy entry point if fermented drinks are new to you.',
@@ -2384,7 +2384,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-coconut-kefir',
     category: 'recipes',
     title: 'Coconut Kefir',
-    teaser: 'The gut-healing benefits of kefir without dairy\'s own casein protein, built on coconut water instead of milk.',
+    teaser: 'The gut-healing benefits of kefir without dairy\'s casein protein, built on coconut water instead of milk.',
     summary: 'Coconut kefir uses the same kefir-grain culture as milk kefir, fermented in coconut water instead of dairy, avoiding casein and lactose entirely. Coconut itself contributes lauric acid, a fatty acid with documented antimicrobial properties that can help balance gut flora during the same fermentation that\'s already introducing beneficial bacteria.',
     citations: [
       { source: 'Biomedical Applications of Lauric Acid: A Narrative Review, PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov/39036266/' },
@@ -2412,7 +2412,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Chronic Kidney Disease', note: 'Coconut water is high in potassium; check with your care team before making this a regular drink if potassium is restricted.' },
       ],
-      flavorNotes: 'Mild, tangy, and a little sweet from the coconut water\'s own natural sugar, lighter and less sour than dairy milk kefir.',
+      flavorNotes: 'Mild, tangy, and a little sweet from the coconut water\'s natural sugar, lighter and less sour than dairy milk kefir.',
     },
   },
   {
@@ -2420,7 +2420,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Ginger Bug Soda',
     teaser: 'A self-sustaining wild-yeast starter culture, fed daily, that doubles as a drinkable soda on its own.',
-    summary: 'A ginger bug is a wild-yeast starter culture built from nothing more than fresh ginger, sugar, and water, fed daily until it becomes reliably active. Once established, the same culture works as the starter for any of this app\'s other wild-ferment drinks in place of relying on a fruit\'s own skin yeast, useful when a fruit doesn\'t carry a strong enough wild culture on its own (frozen fruit, for instance, since freezing kills most of the yeast living on the skin).',
+    summary: 'A ginger bug is a wild-yeast starter culture built from nothing more than fresh ginger, sugar, and water, fed daily until it becomes reliably active. Once established, the same culture works as the starter for any of this app\'s other wild-ferment drinks in place of relying on a fruit\'s skin yeast, useful when a fruit doesn\'t carry a strong enough wild culture on its own (frozen fruit, for instance, since freezing kills most of the yeast living on the skin).',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -2454,7 +2454,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Traditional Fermented Ginger Beer',
     teaser: 'A sharply spicy, actually fermented ginger drink built from an active ginger bug, distinct from commercial ginger ale.',
-    summary: 'This is an actively fermented drink, built from an active ginger bug starter (see the Ginger Bug Soda recipe), distinct from commercial ginger ale, which gets its carbonation from added CO2 rather than live fermentation. The lemon juice adds vitamin C and balances the ginger\'s own heat with brightness.',
+    summary: 'This is an actively fermented drink, built from an active ginger bug starter (see the Ginger Bug Soda recipe), distinct from commercial ginger ale, which gets its carbonation from added CO2 rather than live fermentation. The lemon juice adds vitamin C and balances the ginger\'s heat with brightness.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -2490,8 +2490,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-turmeric-drink',
     category: 'recipes',
     title: 'Fermented Turmeric Drink',
-    teaser: 'A dairy-free, fermented take on this app\'s own Golden Milk recipe, with the same curcumin-and-pepper pairing.',
-    summary: 'Fermenting turmeric alongside ginger breaks down the root\'s own fibrous matrix, and the added black pepper measurably improves how well the curcumin inside actually absorbs, the same documented pairing already behind this app\'s own Golden Milk beverage recipe, built here as a dairy-free, wild-fermented drink instead.',
+    teaser: 'A dairy-free, fermented take on this app\'s Golden Milk recipe, with the same curcumin-and-pepper pairing.',
+    summary: 'Fermenting turmeric alongside ginger breaks down the root\'s fibrous matrix, and the added black pepper measurably improves how well the curcumin inside actually absorbs, the same documented pairing already behind this app\'s Golden Milk beverage recipe, built here as a dairy-free, wild-fermented drink instead.',
     citations: [
       { source: 'Shoba et al. 1998, Planta Medica: piperine\'s effect on curcumin bioavailability', url: 'https://pubmed.ncbi.nlm.nih.gov/9619120/' },
     ],
@@ -2516,18 +2516,18 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Ferment 3-5 days at room temperature, tasting daily. Strain, bottle, and refrigerate once tangy.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Curcumin', note: 'The active compound in turmeric, its absorption measurably boosted by the black pepper here, the same pairing behind this app\'s own Golden Milk recipe.' },
+        { nutrient: 'Curcumin', note: 'The active compound in turmeric, its absorption measurably boosted by the black pepper here, the same pairing behind this app\'s Golden Milk recipe.' },
       ],
       conditionNotes: [],
-      flavorNotes: 'Earthy, warming, and lightly tangy, with turmeric\'s own distinctive bitterness softened by the honey and fermentation.',
+      flavorNotes: 'Earthy, warming, and lightly tangy, with turmeric\'s distinctive bitterness softened by the honey and fermentation.',
     },
   },
   {
     id: 'recipe-ferment-tepache',
     category: 'recipes',
     title: 'Tepache',
-    teaser: 'A Mexican wild ferment built entirely on pineapple\'s own rind, one of the most reliably active wild-yeast sources of any fruit.',
-    summary: 'Tepache relies on pineapple rind\'s own naturally heavy wild-yeast load, meaningfully higher than most other fruit skins, which is why it ferments reliably without a separate starter culture. Using the rind and core rather than the flesh means the edible fruit itself stays free for eating, while the parts that would otherwise be discarded do the fermenting.',
+    teaser: 'A Mexican wild ferment built entirely on pineapple\'s rind, one of the most reliably active wild-yeast sources of any fruit.',
+    summary: 'Tepache relies on pineapple rind\'s naturally heavy wild-yeast load, meaningfully higher than most other fruit skins, which is why it ferments reliably without a separate starter culture. Using the rind and core rather than the flesh means the edible fruit itself stays free for eating, while the parts that would otherwise be discarded do the fermenting.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -2554,7 +2554,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Bromelain', note: 'An enzyme naturally present in pineapple, traditionally associated with aiding digestion and reducing inflammation.' },
       ],
       conditionNotes: [],
-      flavorNotes: 'Sweet, tangy, and lightly spiced if using cinnamon, with pineapple\'s own tropical brightness carried through the whole ferment.',
+      flavorNotes: 'Sweet, tangy, and lightly spiced if using cinnamon, with pineapple\'s tropical brightness carried through the whole ferment.',
     },
   },
   {
@@ -2562,7 +2562,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Shrub (Colonial Drinking Vinegar)',
     teaser: 'A sharply tart, sweet-and-sour fruit-and-vinegar syrup that predates refrigeration, meant to be diluted rather than drunk straight.',
-    summary: 'A shrub is an acetic-acid-forward syrup, fruit and sugar macerated together with vinegar rather than a live culture doing the fermenting. This acetic-acid style of drink supports stomach acid production, relevant given how common low stomach acid is alongside hypothyroidism\'s own effect on digestion. Traditionally diluted with still or sparkling water rather than drunk straight, given its intensity.',
+    summary: 'A shrub is an acetic-acid-forward syrup, fruit and sugar macerated together with vinegar rather than a live culture doing the fermenting. This acetic-acid style of drink supports stomach acid production, relevant given how common low stomach acid is alongside hypothyroidism\'s effect on digestion. Traditionally diluted with still or sparkling water rather than drunk straight, given its intensity.',
     citations: [],
     overallTier: 'weak',
     linkedCuratedRecipeId: 'curated_ferment_shrub',
@@ -2626,7 +2626,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Jun Tea',
     teaser: 'A lighter, more floral relative of kombucha, fermented from green tea and raw honey rather than black tea and cane sugar.',
-    summary: 'Jun uses its own distinct culture, fermenting green tea and raw honey specifically, not a kombucha SCOBY repurposed with different tea. This is a different ferment entirely, not a kombucha variant, and needs its own jun culture to start (available from a fermentation supplier), the same way kombucha needs its own SCOBY.',
+    summary: 'Jun uses its distinct culture, fermenting green tea and raw honey specifically, not a kombucha SCOBY repurposed with different tea. This is a different ferment entirely, not a kombucha variant, and needs its jun culture to start (available from a fermentation supplier), the same way kombucha needs its SCOBY.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -2650,7 +2650,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Remove the culture (set it aside with some starter liquid for the next batch), bottle the liquid, and refrigerate.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Live cultures', note: 'A distinct bacteria-and-yeast community from kombucha\'s own SCOBY, fed on honey rather than cane sugar.' },
+        { nutrient: 'Live cultures', note: 'A distinct bacteria-and-yeast community from kombucha\'s SCOBY, fed on honey rather than cane sugar.' },
       ],
       conditionNotes: [],
       flavorNotes: 'Lighter and more floral than kombucha, with a honeyed finish and gentler tartness.',
@@ -2660,8 +2660,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-garlic-honey-tonic',
     category: 'recipes',
     title: 'Fermented Garlic Honey Tonic',
-    teaser: 'A slow-fermenting garlic-and-honey syrup, with an honest note that raw honey\'s own antimicrobial nature makes this a different kind of ferment than the rest of this list.',
-    summary: 'Raw honey\'s low water content is naturally antimicrobial, which is exactly why this ferments slowly and unpredictably compared to a water-based drink, garlic\'s own moisture, released gradually as it macerates, is what actually feeds the process, producing occasional small bubbles over several weeks rather than the rapid fizz of a wild-fermented fruit tonic. Garlic itself carries allicin, released when the cloves are cut or crushed, with a well-documented traditional reputation for immune support.',
+    teaser: 'A slow-fermenting garlic-and-honey syrup, with an honest note that raw honey\'s antimicrobial nature makes this a different kind of ferment than the rest of this list.',
+    summary: 'Raw honey\'s low water content is naturally antimicrobial, which is exactly why this ferments slowly and unpredictably compared to a water-based drink, garlic\'s moisture, released gradually as it macerates, is what actually feeds the process, producing occasional small bubbles over several weeks rather than the rapid fizz of a wild-fermented fruit tonic. Garlic itself carries allicin, released when the cloves are cut or crushed, with a well-documented traditional reputation for immune support.',
     citations: [],
     overallTier: 'weak',
     linkedCuratedRecipeId: 'curated_ferment_garlic_honey_tonic',
@@ -2679,7 +2679,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Cover loosely (a lid that isn\'t fully airtight, since gas may build up as it ferments) and let it sit at room temperature.',
         'Burp the jar daily by opening it briefly, and turn or shake it gently to redistribute the honey around the cloves.',
         'Let it sit for at least 2-4 weeks. Small bubbles rising when you shake the jar mean it\'s actively fermenting; a strong off smell or visible mold means it should be discarded.',
-        'Store at room temperature once active; it keeps for months given honey\'s own natural preservation.',
+        'Store at room temperature once active; it keeps for months given honey\'s natural preservation.',
       ],
       nutritionHighlights: [
         { nutrient: 'Allicin', note: 'Released when garlic is cut or crushed, with a traditional reputation for supporting the immune response, though this specific fermented preparation hasn\'t been separately trial-tested.' },
@@ -2713,7 +2713,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Milk Kefir',
     teaser: 'A tangy, effervescent dairy ferment with a broader live culture than yogurt, a good everyday probiotic for anyone who tolerates dairy well.',
-    summary: 'Milk kefir grains carry a more varied community of bacteria and yeast species than yogurt\'s own two-strain starter culture, fermenting at ordinary room temperature rather than yogurt\'s held warm temperature. For most people, this makes it one of the more microbially diverse fermented dairy options available at home.',
+    summary: 'Milk kefir grains carry a more varied community of bacteria and yeast species than yogurt\'s two-strain starter culture, fermenting at ordinary room temperature rather than yogurt\'s held warm temperature. For most people, this makes it one of the more microbially diverse fermented dairy options available at home.',
     citations: [
       { source: 'Microbiome and Metabiotic Properties of Kefir Grains and Kefirs Based on Them, PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov/35967129/' },
     ],
@@ -2734,8 +2734,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Strain out the grains (save them to start the next batch) and refrigerate the liquid.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Live cultures', note: 'A broader, more varied bacteria-and-yeast community than yogurt\'s own required two-strain starter.' },
-        { nutrient: 'Calcium', note: 'Carries whole milk\'s own calcium content, relevant given calcium can interfere with thyroid medication absorption if taken too close together.' },
+        { nutrient: 'Live cultures', note: 'A broader, more varied bacteria-and-yeast community than yogurt\'s required two-strain starter.' },
+        { nutrient: 'Calcium', note: 'Carries whole milk\'s calcium content, relevant given calcium can interfere with thyroid medication absorption if taken too close together.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a full dairy ferment: casein and lactose are both present, though fermentation reduces the lactose. If dairy is a trigger, Coconut Kefir (also in this app) gives a similar live-culture drink without it.' },
@@ -2749,7 +2749,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Amazake',
     teaser: 'A naturally sweet Japanese rice ferment with no added sugar at all, its sweetness comes entirely from the fermentation itself.',
-    summary: 'Koji mold breaks rice starch down into maltose as it ferments, which is where every bit of amazake\'s own sweetness comes from, not an added sweetener. A pleasant everyday drink for most people, though its natural sugar content is concentrated enough to matter for anyone watching blood sugar.',
+    summary: 'Koji mold breaks rice starch down into maltose as it ferments, which is where every bit of amazake\'s sweetness comes from, not an added sweetener. A pleasant everyday drink for most people, though its natural sugar content is concentrated enough to matter for anyone watching blood sugar.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -2766,13 +2766,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       instructions: [
         'Cook the rice with the water until soft, then let it cool to around 140°F (60°C), warm but not hot enough to kill the koji culture.',
-        'Stir in the koji culture per its own package instructions.',
+        'Stir in the koji culture per its package instructions.',
         'Keep the mixture at a steady 130-140°F (54-60°C) for 8-10 hours, using a yogurt maker, rice cooker on "keep warm," or a warm oven with the door cracked.',
         'It\'s ready once noticeably sweet. Blend smooth if you prefer a thinner drink, or thin with a little extra water.',
         'Refrigerate. Keeps about a week.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Natural maltose', note: 'The entire sweetness of this drink, produced by koji breaking down the rice\'s own starch, no added sugar involved.' },
+        { nutrient: 'Natural maltose', note: 'The entire sweetness of this drink, produced by koji breaking down the rice\'s starch, no added sugar involved.' },
       ],
       conditionNotes: [
         { condition: 'Type 2 Diabetes / PCOS', note: 'Amazake\'s natural sugar content is concentrated; treat it more like a dessert drink than an everyday beverage if blood sugar is a concern.' },
@@ -2817,7 +2817,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Burdock Bark-Style Mauby Tonic',
     teaser: 'A bittersweet, warmly spiced digestive tonic, built from a bitter, available root instead of an unavailable tree bark.',
-    summary: 'Traditional Mauby ferments the bark of the soldierwood tree, an ingredient this app\'s own reference database has no matching row for at all. Burdock root fills the same bitter-tonic role and is a bitter root in its own right, paired here with the same warming spices (cinnamon, cloves) traditional Mauby uses. Bitter tonics have a long traditional reputation for stimulating digestion before a meal, though that specific traditional use hasn\'t been rigorously trial-tested the way many other claims in this app have been.',
+    summary: 'Traditional Mauby ferments the bark of the soldierwood tree, an ingredient this app\'s reference database has no matching row for at all. Burdock root fills the same bitter-tonic role and is a bitter root in its own right, paired here with the same warming spices (cinnamon, cloves) traditional Mauby uses. Bitter tonics have a long traditional reputation for stimulating digestion before a meal, though that specific traditional use hasn\'t been rigorously trial-tested the way many other claims in this app have been.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -2842,7 +2842,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Strain and refrigerate. Keeps about 1-2 weeks.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Bitter root compounds', note: 'Burdock root carries its own bitter compounds, the same traditional bitter-tonic role soldierwood bark plays in authentic Mauby.' },
+        { nutrient: 'Bitter root compounds', note: 'Burdock root carries its bitter compounds, the same traditional bitter-tonic role soldierwood bark plays in authentic Mauby.' },
       ],
       conditionNotes: [
         { condition: 'Gallbladder or bile duct conditions', note: 'Bitter tonics traditionally work by stimulating bile flow; check with your care team before making this a regular habit if you have a gallbladder or bile duct condition.' },
@@ -2893,7 +2893,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Pozol',
     teaser: 'A tangy, filling Mesoamerican fermented corn drink, built on the same alkaline corn preparation that prevents pellagra.',
-    summary: 'Pozol is built from nixtamalized corn, corn that\'s been soaked in an alkaline solution, the same preparation used to make tortillas and hominy. That process makes the corn\'s own niacin dramatically more bioavailable than untreated corn, historically the difference between populations that relied on corn as a staple without developing pellagra (a niacin-deficiency disease) and those that didn\'t nixtamalize it at all.',
+    summary: 'Pozol is built from nixtamalized corn, corn that\'s been soaked in an alkaline solution, the same preparation used to make tortillas and hominy. That process makes the corn\'s niacin dramatically more bioavailable than untreated corn, historically the difference between populations that relied on corn as a staple without developing pellagra (a niacin-deficiency disease) and those that didn\'t nixtamalize it at all.',
     citations: [
       { source: 'Nixtamalization: an overview, ScienceDirect Topics (compiling peer-reviewed food science literature)', url: 'https://www.sciencedirect.com/topics/food-science/nixtamalization' },
     ],
@@ -2915,7 +2915,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Refrigerate. Drink within a few days, this ferments quickly once mixed with water.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Niacin (B3)', note: 'The alkaline nixtamalization process makes corn\'s own niacin dramatically more absorbable than untreated corn.' },
+        { nutrient: 'Niacin (B3)', note: 'The alkaline nixtamalization process makes corn\'s niacin dramatically more absorbable than untreated corn.' },
       ],
       conditionNotes: [
         { condition: 'AIP / corn sensitivity', note: 'Corn is gluten-free but a known cross-reactive grain for some gluten-sensitive people, and is excluded from the strict Autoimmune Protocol elimination diet.' },
@@ -2928,7 +2928,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Sobia (Dairy-Free)',
     teaser: 'A creamy, cardamom-spiced Saudi Arabian rice ferment, built dairy-free using coconut milk in place of traditional dairy.',
-    summary: 'Traditional Sobia is often made with dairy milk. This version uses coconut milk instead, keeping the same creamy texture without dairy\'s own casein and lactose, a pleasant everyday drink for most people either way. A traditional dairy-milk version is equally valid if dairy isn\'t a concern for you, just swap in whole milk for the coconut milk here.',
+    summary: 'Traditional Sobia is often made with dairy milk. This version uses coconut milk instead, keeping the same creamy texture without dairy\'s casein and lactose, a pleasant everyday drink for most people either way. A traditional dairy-milk version is equally valid if dairy isn\'t a concern for you, just swap in whole milk for the coconut milk here.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -2986,7 +2986,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Store the syrup in the refrigerator. Use a spoonful stirred into water or tea.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Rosmarinic acid', note: 'Rosemary\'s own signature polyphenol, with a traditional reputation for antioxidant activity.' },
+        { nutrient: 'Rosmarinic acid', note: 'Rosemary\'s signature polyphenol, with a traditional reputation for antioxidant activity.' },
       ],
       conditionNotes: [],
       flavorNotes: 'Herbal, resinous, and sweet, closer to a rosemary simple syrup than a fizzy drink, meant to be diluted rather than drunk straight.',
@@ -2996,8 +2996,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-boza',
     category: 'recipes',
     title: 'Boza',
-    teaser: 'A thick, tangy, mildly sweet Balkan and Turkish grain ferment, built on millet, one of its own traditional grains.',
-    summary: 'Boza is traditionally made from millet, wheat, or corn. This version uses millet, naturally gluten-free, so no substitution was actually needed here, just a choice among Boza\'s own traditional options.',
+    teaser: 'A thick, tangy, mildly sweet Balkan and Turkish grain ferment, built on millet, one of its traditional grains.',
+    summary: 'Boza is traditionally made from millet, wheat, or corn. This version uses millet, naturally gluten-free, so no substitution was actually needed here, just a choice among Boza\'s traditional options.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -3020,7 +3020,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Refrigerate. Drink within a few days, stirring before serving since it settles.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Whole-grain fiber', note: 'A thicker, more filling drink than most other ferments here, from the millet\'s own intact starch and fiber.' },
+        { nutrient: 'Whole-grain fiber', note: 'A thicker, more filling drink than most other ferments here, from the millet\'s intact starch and fiber.' },
       ],
       conditionNotes: [],
       flavorNotes: 'Thick and tangy with a mild sweetness, closer to a drinkable porridge than a clear soda.',
@@ -3031,7 +3031,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Chicha de Jora',
     teaser: 'A tangy, lightly fizzy Andean fermented corn drink, made the malted-corn way rather than the older saliva-started method.',
-    summary: 'Chicha de Jora is built by sprouting corn before fermenting it (the \"jora\" malting step), the more common traditional method across the Andes today, distinct from the older saliva-started method some regional versions historically used. Sprouting develops natural enzymes that help convert the corn\'s own starch into fermentable sugar.',
+    summary: 'Chicha de Jora is built by sprouting corn before fermenting it (the \"jora\" malting step), the more common traditional method across the Andes today, distinct from the older saliva-started method some regional versions historically used. Sprouting develops natural enzymes that help convert the corn\'s starch into fermentable sugar.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -3055,7 +3055,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Refrigerate. Drink within a few days.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Resistant starch', note: 'Sprouting and fermenting the corn changes its own starch structure, generally making it gentler on digestion than unsprouted corn.' },
+        { nutrient: 'Resistant starch', note: 'Sprouting and fermenting the corn changes its starch structure, generally making it gentler on digestion than unsprouted corn.' },
       ],
       conditionNotes: [
         { condition: 'AIP / corn sensitivity', note: 'Corn is gluten-free but a known cross-reactive grain for some gluten-sensitive people, and this ferment can develop meaningful alcohol content if left fermenting several days.' },
@@ -3068,7 +3068,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Rye-Style Kvass (Toasted Quinoa)',
     teaser: 'A tangy, bready Russian and Ukrainian ferment tradition, built gluten-free with toasted quinoa standing in for rye bread.',
-    summary: 'Traditional kvass ferments rye bread, distinct from this app\'s own Beet Kvass (a root-vegetable ferment sharing only the name). This version toasts quinoa to develop a similar roasted, bready flavor without the gluten, the same substitution logic as this app\'s own Rejuvelac recipe above.',
+    summary: 'Traditional kvass ferments rye bread, distinct from this app\'s Beet Kvass (a root-vegetable ferment sharing only the name). This version toasts quinoa to develop a similar roasted, bready flavor without the gluten, the same substitution logic as this app\'s Rejuvelac recipe above.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -3092,7 +3092,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Strain and refrigerate. Keeps about a week.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Live wild cultures', note: 'Wild yeast and bacteria already present on the quinoa and in the air do the fermenting, the same wild-ferment principle as this app\'s own tonic family.' },
+        { nutrient: 'Live wild cultures', note: 'Wild yeast and bacteria already present on the quinoa and in the air do the fermenting, the same wild-ferment principle as this app\'s tonic family.' },
       ],
       conditionNotes: [],
       flavorNotes: 'Tangy and bready with a toasted, nutty background, closer to a light beer than a fruit soda.',
@@ -3120,7 +3120,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       instructions: [
         'Cook the rice with the water until soft, then let it cool to room temperature.',
-        'Stir in the koji culture per its own package instructions and let it sit 1-2 days until noticeably sweet, this is the starch-to-sugar step.',
+        'Stir in the koji culture per its package instructions and let it sit 1-2 days until noticeably sweet, this is the starch-to-sugar step.',
         'Add the sake yeast and transfer to a clean half-gallon jar, cover loosely (not fully airtight, since gas builds up).',
         'Ferment at room temperature for 1-2 weeks, stirring daily, until fermentation activity slows and it tastes distinctly alcoholic rather than sweet.',
         'Strain through a cloth, pressing to extract the liquid, and refrigerate.',
@@ -3154,7 +3154,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       instructions: [
         'Cook the rice with the water until soft, then let it cool to room temperature.',
-        'Crumble in the nuruk per its own package instructions and mix well.',
+        'Crumble in the nuruk per its package instructions and mix well.',
         'Transfer to a clean half-gallon jar, cover loosely (not fully airtight).',
         'Ferment at room temperature for 5-7 days, stirring daily, until it separates into a cloudy liquid layer and settled solids.',
         'Stir the whole batch together, strain through a cloth for a smoother drink or leave it thick and unstrained, and refrigerate.',
@@ -3248,7 +3248,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tarag-Style Fermented Milk',
     teaser: 'A tangy, effervescent Mongolian-style fermented milk drink, built with cow\'s milk since this app has no way to source mare\'s or camel\'s milk.',
-    summary: 'Traditional Tarag ferments mare\'s or camel\'s milk, neither of which this app\'s own reference database carries at all. This version uses cow\'s milk instead, the nearest available analogue: traditional Tarag\'s own higher lactose content and different fat profile from mare\'s milk aren\'t reproduced here, this is a cow\'s-milk-kefir-style approximation of the idea, not the traditional drink itself.',
+    summary: 'Traditional Tarag ferments mare\'s or camel\'s milk, neither of which this app\'s reference database carries at all. This version uses cow\'s milk instead, the nearest available analogue: traditional Tarag\'s higher lactose content and different fat profile from mare\'s milk aren\'t reproduced here, this is a cow\'s-milk-kefir-style approximation of the idea, not the traditional drink itself.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -3279,7 +3279,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-puerh-style-tea',
     category: 'recipes',
     title: 'Pu-erh-Style Fermented Tea',
-    teaser: 'A kombucha-style home ferment built to evoke pu-erh\'s own fermented-tea tradition, since true pu-erh leaf isn\'t something this database carries.',
+    teaser: 'A kombucha-style home ferment built to evoke pu-erh\'s fermented-tea tradition, since true pu-erh leaf isn\'t something this database carries.',
     summary: 'This database carries no true pu-erh tea leaf, so this version uses brewed black tea as the fermentable base for a home SCOBY ferment instead. True pu-erh is aged and fermented by microbes directly on the tea leaf over months or years, a process a quick home ferment doesn\'t actually replicate either way, so this is a home-kitchen homage to the idea, not a claim of authenticity. Pu-erh itself has separate, strong human trial evidence for improving cholesterol and liver fat, though this home version doesn\'t reproduce that specific research.',
     citations: [
       { source: 'Huang et al. 2019, Nature Communications: theabrownin from Pu-erh tea attenuates hypercholesterolemia via gut microbiota and bile acid metabolism, human and mouse data', url: 'https://pubmed.ncbi.nlm.nih.gov/31672964/' },
@@ -3313,7 +3313,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Coconut Palm Wine-Style Ferment',
     teaser: 'A wild-fermented coconut water drink built to evoke traditional palm wine, mildly alcoholic once fully fermented.',
-    summary: 'Traditional palm wine ferments sap tapped directly from a palm tree, which this database has no ingredient for. Coconut water (itself a palm-tree product, just not tapped sap) stands in instead, fermented longer than this app\'s own Coconut Kefir to develop meaningfully more alcohol content, a different drink from that shorter, milder ferment.',
+    summary: 'Traditional palm wine ferments sap tapped directly from a palm tree, which this database has no ingredient for. Coconut water (itself a palm-tree product, just not tapped sap) stands in instead, fermented longer than this app\'s Coconut Kefir to develop meaningfully more alcohol content, a different drink from that shorter, milder ferment.',
     citations: [
       { source: 'Biomedical Applications of Lauric Acid: A Narrative Review, PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov/39036266/' },
     ],
@@ -3348,7 +3348,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Maple "Pulque-Style" Wild Ferment',
     teaser: 'A wild-fermented maple syrup drink built to evoke traditional pulque, mildly alcoholic once fully fermented.',
-    summary: 'Traditional pulque ferments fresh agave sap (aguamiel). This database\'s own agave syrup rows are entirely hidden as a data-quality decision, so this version uses maple syrup instead, the nearest available pure plant syrup, different in flavor from traditional pulque\'s own distinctive tang.',
+    summary: 'Traditional pulque ferments fresh agave sap (aguamiel). This database\'s agave syrup rows are entirely hidden as a data-quality decision, so this version uses maple syrup instead, the nearest available pure plant syrup, different in flavor from traditional pulque\'s distinctive tang.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],

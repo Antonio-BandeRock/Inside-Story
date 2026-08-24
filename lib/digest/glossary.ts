@@ -123,9 +123,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-antibody-antigen',
     category: 'basicHealth',
     title: 'Antibody & Antigen',
-    teaser: 'The immune system\'s own recognition system: a threat gets flagged, then a specific defender gets built to match it.',
+    teaser: 'The immune system\'s recognition system: a threat gets flagged, then a specific defender gets built to match it.',
     summary:
-      'An antigen is anything the immune system can learn to recognize, normally a foreign threat like a virus or bacterium. An antibody is the specific protein the immune system builds to identify and help destroy that exact antigen, part of ordinary, healthy immune defense. This same recognition system occasionally misfires and builds an antibody against one of the body\'s own tissues instead of an outside threat, the defining feature of an autoimmune disease, covered in depth throughout this Digest\'s own per-condition research.',
+      'An antigen is anything the immune system can learn to recognize, normally a foreign threat like a virus or bacterium. An antibody is the specific protein the immune system builds to identify and help destroy that exact antigen, part of ordinary, healthy immune defense. This same recognition system occasionally misfires and builds an antibody against one of the body\'s own tissues instead of an outside threat, the defining feature of an autoimmune disease, covered in depth throughout this Digest\'s per-condition research.',
     citations: [],
     overallTier: 'strong',
   },
@@ -148,7 +148,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Autoimmune Disease',
     teaser: 'The immune system, built to defend the body, mistakenly attacking a part of the body itself.',
     summary:
-      'A broad category of disease where the immune system fails to distinguish the body\'s own tissue from an outside threat, and attacks it directly. Hashimoto\'s thyroiditis is one specific example (the thyroid gland is the target); this Digest\'s own Other Autoimmune Diseases category covers seven more examples, each attacking a different organ through some of the same recurring underlying mechanisms.',
+      'A broad category of disease where the immune system fails to distinguish the body\'s own tissue from an outside threat, and attacks it directly. Hashimoto\'s thyroiditis is one specific example (the thyroid gland is the target); this Digest\'s Other Autoimmune Diseases category covers seven more examples, each attacking a different organ through some of the same recurring underlying mechanisms.',
     citations: [
       { source: 'Autoimmune thyroid disease: a review discussing the 1956 discovery and its significance', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7266799/' },
     ],
@@ -159,9 +159,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-autophagy-mitophagy',
     category: 'hashimotos',
     title: 'Autophagy & Mitophagy',
-    teaser: 'The cell\'s own internal cleanup crew, and a specific target of Hashimoto\'s own inflammation.',
+    teaser: 'The cell\'s internal cleanup crew, and a specific target of Hashimoto\'s inflammation.',
     summary:
-      "Autophagy is a cell's own built-in process for breaking down and recycling damaged internal components. Mitophagy is the same process specifically targeting worn-out mitochondria. Hashimoto's-specific research found elevated IL-23 directly suppresses this process in thyroid cells. See Mitochondria & Metabolism for the full mechanism, and for the tension between fasting (which powerfully triggers autophagy but also suppresses active thyroid hormone) and exercise (which triggers it too, without that same tradeoff).",
+      "Autophagy is a cell's built-in process for breaking down and recycling damaged internal components. Mitophagy is the same process specifically targeting worn-out mitochondria. Hashimoto's-specific research found elevated IL-23 directly suppresses this process in thyroid cells. See Mitochondria & Metabolism for the full mechanism, and for the tension between fasting (which powerfully triggers autophagy but also suppresses active thyroid hormone) and exercise (which triggers it too, without that same tradeoff).",
     citations: [
       {
         source: "Increased Interleukin-23 in Hashimoto's Thyroiditis Disease Induces Autophagy Suppression and Reactive Oxygen Species Accumulation (Frontiers in Immunology, 2018)",
@@ -228,7 +228,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'CRP (C-Reactive Protein)',
     teaser: 'One of the most common checkable blood markers of general inflammation, used throughout the Mitochondria & Metabolism research.',
     summary:
-      'A protein the liver produces in response to inflammation anywhere in the body; a standard blood test most doctors can order. CRP shows up repeatedly across this Digest\'s own research as the measured outcome behind claims like "a Mediterranean-style diet reduces inflammation" or "fiber intake lowers inflammatory markers," a checkable number behind an otherwise vague-sounding claim.',
+      'A protein the liver produces in response to inflammation anywhere in the body; a standard blood test most doctors can order. CRP shows up repeatedly across this Digest\'s research as the measured outcome behind claims like "a Mediterranean-style diet reduces inflammation" or "fiber intake lowers inflammatory markers," a checkable number behind an otherwise vague-sounding claim.',
     citations: [],
     overallTier: 'strong',
   },
@@ -238,7 +238,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Cytokine',
     teaser: 'A chemical messenger the immune system uses to coordinate itself, whether fighting an infection or driving chronic inflammation.',
     summary:
-      'A broad category of small signaling proteins immune cells use to communicate with each other and with other tissues, part of ordinary, healthy immune coordination. Some cytokines drive inflammation (IL-6, IL-23, and TNF-alpha are three commonly named ones), others calm it back down, and the balance between them is a recurring thread across this Digest\'s own per-condition research.',
+      'A broad category of small signaling proteins immune cells use to communicate with each other and with other tissues, part of ordinary, healthy immune coordination. Some cytokines drive inflammation (IL-6, IL-23, and TNF-alpha are three commonly named ones), others calm it back down, and the balance between them is a recurring thread across this Digest\'s per-condition research.',
     citations: [],
     overallTier: 'strong',
   },
@@ -269,7 +269,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Deiodinase (D1, D2, D3)',
     teaser: 'The family of enzymes that actually converts thyroid hormone into its active form, mostly outside the thyroid gland itself.',
     summary:
-      "Three enzymes, type 1, 2, and 3 deiodinase, that convert T4 into active T3 (D1 and D2) or break T3 down (D3). Roughly 80% of the body's active T3 is made this way, outside the thyroid gland itself, with the liver's own D1 the single largest contributor, meaning organs like the liver are doing much of the work usually credited to the thyroid alone. Inflammation (via cortisol or IL-6, both covered elsewhere in this glossary) can suppress D1/D2 and activate D3 at the same time, a double hit to active thyroid hormone.",
+      "Three enzymes, type 1, 2, and 3 deiodinase, that convert T4 into active T3 (D1 and D2) or break T3 down (D3). Roughly 80% of the body's active T3 is made this way, outside the thyroid gland itself, with the liver's D1 the single largest contributor, meaning organs like the liver are doing much of the work usually credited to the thyroid alone. Inflammation (via cortisol or IL-6, both covered elsewhere in this glossary) can suppress D1/D2 and activate D3 at the same time, a double hit to active thyroid hormone.",
     citations: [
       {
         source: 'Role of hepatic deiodinases in thyroid hormone homeostasis and liver metabolism, inflammation, and fibrosis (European Thyroid Journal)',
@@ -305,7 +305,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'EGFR (Estimated Glomerular Filtration Rate)',
     teaser: 'The standard measure of how well the kidneys are filtering, and the number a person\'s own kidney health gets tracked by.',
     summary:
-      'A standard blood-test-derived estimate of how much blood the kidneys are filtering per minute, the most common way kidney function gets checked, whether as part of a routine physical or to monitor a specific concern. A staged framework (G1 through G5) exists specifically to track this number over time, since kidney function loss is usually gradual and symptom-free in its early stages. See this Digest\'s own dedicated Chronic Kidney Disease research for the full staging system and what actually protects it.',
+      'A standard blood-test-derived estimate of how much blood the kidneys are filtering per minute, the most common way kidney function gets checked, whether as part of a routine physical or to monitor a specific concern. A staged framework (G1 through G5) exists specifically to track this number over time, since kidney function loss is usually gradual and symptom-free in its early stages. See this Digest\'s dedicated Chronic Kidney Disease research for the full staging system and what actually protects it.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ckd-overview'],
@@ -366,7 +366,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Gliadin',
     teaser: 'The specific fragment of gluten with a named mechanism for loosening the gut barrier, in anyone who eats it.',
     summary:
-      'A specific protein fragment within gluten (found in wheat, barley, and rye). Gliadin binds a receptor called CXCR3 on intestinal cells, triggering those cells to release zonulin, a specific, reversible mechanism for increased gut permeability. This is a general digestive-physiology effect, not limited to any one diagnosis, though how much it matters for any one person varies, and this Digest\'s own per-condition research covers it in more depth wherever it\'s a documented factor.',
+      'A specific protein fragment within gluten (found in wheat, barley, and rye). Gliadin binds a receptor called CXCR3 on intestinal cells, triggering those cells to release zonulin, a specific, reversible mechanism for increased gut permeability. This is a general digestive-physiology effect, not limited to any one diagnosis, though how much it matters for any one person varies, and this Digest\'s per-condition research covers it in more depth wherever it\'s a documented factor.',
     citations: [
       { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
@@ -393,7 +393,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-graves-disease',
     category: 'graves',
     title: "Graves' Disease",
-    teaser: "Hashimoto's own opposite-direction cousin: another autoimmune thyroid disease, but overactive instead of underactive.",
+    teaser: "Hashimoto's opposite-direction cousin: another autoimmune thyroid disease, but overactive instead of underactive.",
     summary:
       'An autoimmune thyroid disease, like Hashimoto\'s, but with the opposite effect: antibodies stimulate the thyroid into overproducing hormone rather than attacking and destroying thyroid tissue. Smoking is a documented risk factor for Graves\', the counterintuitive opposite of its protective association with Hashimoto\'s specifically, covered under Lifestyle & Environment.',
     citations: [
@@ -430,7 +430,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'hashimotos',
     title: 'IL-6, IL-23 & TNF-α',
     teaser: 'Three specific, named inflammatory messengers, each with a documented effect relevant to Hashimoto\'s.',
-    summary: 'Three specific cytokines that show up repeatedly across the research. IL-23 directly suppresses autophagy in Hashimoto\'s thyroid tissue. IL-6 directly suppresses the enzymes that activate thyroid hormone while activating the one that destroys it. TNF-alpha is a broader inflammatory marker, one of several this Digest\'s own diet-and-inflammation research (Mediterranean-diet trials, fiber intake) tracks as a measurable outcome.',
+    summary: 'Three specific cytokines that show up repeatedly across the research. IL-23 directly suppresses autophagy in Hashimoto\'s thyroid tissue. IL-6 directly suppresses the enzymes that activate thyroid hormone while activating the one that destroys it. TNF-alpha is a broader inflammatory marker, one of several this Digest\'s diet-and-inflammation research (Mediterranean-diet trials, fiber intake) tracks as a measurable outcome.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['mito-il23-autophagy-suppression', 'lifestyle-il6-deiodinase'],
@@ -440,7 +440,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Insulin Resistance',
     teaser: 'A state where the body\'s cells stop responding normally to insulin, a shared thread behind several conditions already tracked.',
-    summary: 'A physiological state where cells respond less effectively to insulin, the hormone that normally moves sugar out of the bloodstream and into cells. A precursor to type 2 diabetes, and a shared underlying mechanism connecting several other conditions already covered in depth, PCOS, fatty liver disease, chronic kidney disease, and gout among them, each with its own documented link back to this same root cause. See this Digest\'s own dedicated Type 2 Diabetes research for the full, connected picture across all of them.',
+    summary: 'A physiological state where cells respond less effectively to insulin, the hormone that normally moves sugar out of the bloodstream and into cells. A precursor to type 2 diabetes, and a shared underlying mechanism connecting several other conditions already covered in depth, PCOS, fatty liver disease, chronic kidney disease, and gout among them, each with its documented link back to this same root cause. See this Digest\'s dedicated Type 2 Diabetes research for the full, connected picture across all of them.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['type2-metabolic-syndrome-cluster'],
@@ -451,7 +451,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Leaky Gut / Intestinal Permeability',
     teaser: 'A measurable phenomenon, and a contested clinical diagnosis. Both true at once.',
     summary:
-      'Intestinal permeability is a directly measurable phenomenon (via zonulin levels or lactulose-mannitol testing), a physical property of the gut lining relevant to digestive health broadly. "Leaky gut syndrome" as a standalone clinical diagnosis remains debated in mainstream gastroenterology, not because the biology is fake but because no agreed clinical definition or diagnostic threshold exists yet. See this Digest\'s own per-condition research for where this measurable phenomenon does and doesn\'t have a documented link to a specific diagnosis.',
+      'Intestinal permeability is a directly measurable phenomenon (via zonulin levels or lactulose-mannitol testing), a physical property of the gut lining relevant to digestive health broadly. "Leaky gut syndrome" as a standalone clinical diagnosis remains debated in mainstream gastroenterology, not because the biology is fake but because no agreed clinical definition or diagnostic threshold exists yet. See this Digest\'s per-condition research for where this measurable phenomenon does and doesn\'t have a documented link to a specific diagnosis.',
     citations: [
       { source: 'Biomarkers for assessment of intestinal permeability in clinical practice (Scandinavian Journal of Gastroenterology, 2021)', url: 'https://pubmed.ncbi.nlm.nih.gov/34009040/' },
     ],
@@ -477,7 +477,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Meta-Analysis & Systematic Review',
     teaser: 'Research that combines many smaller studies into one, usually the strongest single kind of evidence a claim can carry.',
     summary:
-      'A systematic review is a methodical search and evaluation of every study on a given question. A meta-analysis goes one step further, statistically combining the results of multiple studies into one pooled estimate, generally the strongest single form of evidence a claim can have, which is why this Digest\'s own Strong tier usually points at one. Selenium\'s own case is an instructive exception: a large meta-analysis rates it Strong, while a stricter Cochrane review of a smaller slice of the same evidence urges more caution. See Nutrients & Micronutrients.',
+      'A systematic review is a methodical search and evaluation of every study on a given question. A meta-analysis goes one step further, statistically combining the results of multiple studies into one pooled estimate, generally the strongest single form of evidence a claim can have, which is why this Digest\'s Strong tier usually points at one. Selenium\'s case is an instructive exception: a large meta-analysis rates it Strong, while a stricter Cochrane review of a smaller slice of the same evidence urges more caution. See Nutrients & Micronutrients.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['nutrient-selenium'],
@@ -496,8 +496,8 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-mitochondria',
     category: 'basicHealth',
     title: 'Mitochondria',
-    teaser: 'The cell\'s own energy-producing structures, present in nearly every cell in the body.',
-    summary: "Tiny structures inside nearly every cell responsible for producing the cell's own usable energy, foundational cell biology relevant to how the whole body runs, from muscle to brain to organ function. Mitochondrial health shows up as a recurring thread across several of the condition-specific findings, worth a look at the specific mechanism wherever it's documented as a factor.",
+    teaser: 'The cell\'s energy-producing structures, present in nearly every cell in the body.',
+    summary: "Tiny structures inside nearly every cell responsible for producing the cell's usable energy, foundational cell biology relevant to how the whole body runs, from muscle to brain to organ function. Mitochondrial health shows up as a recurring thread across several of the condition-specific findings, worth a look at the specific mechanism wherever it's documented as a factor.",
     citations: [],
     overallTier: 'strong',
     relatedIds: ['glossary-mots-c'],
@@ -537,7 +537,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'MTOR',
     teaser: 'A central cellular pathway governing growth, metabolism, and how a cell decides whether to clean house or keep building.',
     summary:
-      'A central cellular signaling pathway that governs growth, metabolism, and autophagy (the cell\'s own internal cleanup process, see that entry). General cell biology relevant to fasting, exercise, and aging for anyone, and a specific, documented factor in several of this Digest\'s own condition-specific findings, worth a look wherever it shows up as a named mechanism.',
+      'A central cellular signaling pathway that governs growth, metabolism, and autophagy (the cell\'s internal cleanup process, see that entry). General cell biology relevant to fasting, exercise, and aging for anyone, and a specific, documented factor in several of this Digest\'s condition-specific findings, worth a look wherever it shows up as a named mechanism.',
     citations: [],
     overallTier: 'strong',
   },
@@ -576,7 +576,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'PMID',
     teaser: 'The unique ID number behind nearly every citation in this Digest, a direct way to verify any claim yourself.',
     summary:
-      'A PubMed ID, a unique reference number assigned to a paper indexed in PubMed, the US National Library of Medicine\'s own database of biomedical research. Every citation in this Digest links to its own source page (PubMed, a journal\'s own site, or a government agency page). Tap any citation to read the actual source directly, rather than trusting a summary alone.',
+      'A PubMed ID, a unique reference number assigned to a paper indexed in PubMed, the US National Library of Medicine\'s database of biomedical research. Every citation in this Digest links to its source page (PubMed, a journal\'s site, or a government agency page). Tap any citation to read the actual source directly, rather than trusting a summary alone.',
     citations: [],
     overallTier: 'strong',
   },
@@ -619,7 +619,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'ROS (Reactive Oxygen Species)',
     teaser: 'Chemically unstable molecules produced as a byproduct of normal cell activity, harmless in moderation, damaging in excess.',
     summary:
-      'Chemically reactive molecules containing oxygen, produced naturally as a byproduct of normal cellular activity (and mitochondrial energy production specifically). The body has its own built-in antioxidant systems to keep them in check under ordinary conditions. In excess, unchecked by those systems, they cause measurable cellular stress and damage, a recurring factor in several of this Digest\'s own condition-specific findings.',
+      'Chemically reactive molecules containing oxygen, produced naturally as a byproduct of normal cellular activity (and mitochondrial energy production specifically). The body has its built-in antioxidant systems to keep them in check under ordinary conditions. In excess, unchecked by those systems, they cause measurable cellular stress and damage, a recurring factor in several of this Digest\'s condition-specific findings.',
     citations: [],
     overallTier: 'strong',
   },
@@ -642,7 +642,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'T3 (Triiodothyronine)',
     teaser: 'The active form of thyroid hormone, the one that actually does the work inside the body\'s own cells.',
     summary:
-      'The biologically active thyroid hormone, the one thyroid receptors throughout the body actually respond to. Only about 20% of circulating T3 comes directly from the thyroid gland itself; the remaining ~80% is converted from T4 elsewhere in the body, mainly by the liver\'s own deiodinase enzymes. See Organs & Body Systems for the full picture of how much of "thyroid function" actually happens outside the thyroid.',
+      'The biologically active thyroid hormone, the one thyroid receptors throughout the body actually respond to. Only about 20% of circulating T3 comes directly from the thyroid gland itself; the remaining ~80% is converted from T4 elsewhere in the body, mainly by the liver\'s deiodinase enzymes. See Organs & Body Systems for the full picture of how much of "thyroid function" actually happens outside the thyroid.',
     citations: [
       {
         source: 'Role of hepatic deiodinases in thyroid hormone homeostasis and liver metabolism, inflammation, and fibrosis (European Thyroid Journal)',
@@ -674,7 +674,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Tg (Thyroglobulin) & Anti-Tg Antibody',
     teaser: 'A protein the thyroid uses to store and build hormone, and, in Hashimoto\'s, one of the two antibody targets tracked on a lab panel.',
     summary:
-      'Thyroglobulin is a protein the thyroid gland uses as scaffolding to store and synthesize thyroid hormone. Anti-Tg antibodies, antibodies mistakenly targeting this protein, were the first evidence, discovered in 1956, that Hashimoto\'s was an autoimmune disease at all. TPO antibodies (a separate, later-identified target) are the more commonly tracked marker today, but Tg\'s own history is where this whole field of evidence actually began.',
+      'Thyroglobulin is a protein the thyroid gland uses as scaffolding to store and synthesize thyroid hormone. Anti-Tg antibodies, antibodies mistakenly targeting this protein, were the first evidence, discovered in 1956, that Hashimoto\'s was an autoimmune disease at all. TPO antibodies (a separate, later-identified target) are the more commonly tracked marker today, but Tg\'s history is where this whole field of evidence actually began.',
     citations: [
       { source: 'Autoimmune thyroid disease: a review discussing the 1956 discovery and its significance', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7266799/' },
     ],
@@ -714,7 +714,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-tpo',
     category: 'hashimotos',
     title: 'TPO (Thyroid Peroxidase) & TPO Antibody',
-    teaser: 'The actual enzyme Hashimoto\'s antibodies attack, and the lab value this whole app\'s own tracking is built around.',
+    teaser: 'The actual enzyme Hashimoto\'s antibodies attack, and the lab value this whole app\'s tracking is built around.',
     summary: 'Thyroid peroxidase is the enzyme responsible for making thyroid hormone in the first place. TPO antibodies, the immune system mistakenly attacking this exact enzyme, weren\'t identified as the target until 1985, decades after Hashimoto\'s was first confirmed autoimmune. The modern TPO antibody blood test, tracking that same antibody, is the primary lab signal the Healing Stages guide uses to gauge long-term progress.',
     citations: [
       {
@@ -731,7 +731,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Treg (Regulatory T Cell)',
     teaser: 'The immune cell type responsible for keeping the immune system from attacking the body itself.',
     summary:
-      'A specific subtype of T cell whose job is promoting immune tolerance, helping keep the immune system from attacking the body\'s own tissue, everyday immune housekeeping relevant to anyone\'s baseline immune balance. SCFAs from dietary fiber directly induce Treg activity in the gut, a food-controllable lever, and Treg levels show up as a specific, documented factor across several of this Digest\'s own condition-specific findings.',
+      'A specific subtype of T cell whose job is promoting immune tolerance, helping keep the immune system from attacking the body\'s own tissue, everyday immune housekeeping relevant to anyone\'s baseline immune balance. SCFAs from dietary fiber directly induce Treg activity in the gut, a food-controllable lever, and Treg levels show up as a specific, documented factor across several of this Digest\'s condition-specific findings.',
     citations: [
       { source: 'Furusawa et al. 2013, Nature: commensal microbe-derived butyrate induces colonic Treg differentiation', url: 'https://pubmed.ncbi.nlm.nih.gov/24226770/' },
     ],
@@ -743,7 +743,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'TSH (Thyroid-Stimulating Hormone)',
     teaser: 'The hormone that tells the thyroid how hard to work, and the single most commonly ordered thyroid lab value.',
     summary:
-      'A hormone released by the pituitary gland that tells the thyroid gland how much hormone to produce, rising when thyroid hormone runs low, in anyone\'s own endocrine system. TSH follows a daily rhythm (higher overnight, lower in the afternoon), which is exactly why a consistent, morning, fasting draw matters for tracking a trend over time, general lab-testing practice regardless of the reason for the test.',
+      'A hormone released by the pituitary gland that tells the thyroid gland how much hormone to produce, rising when thyroid hormone runs low, in anyone\'s endocrine system. TSH follows a daily rhythm (higher overnight, lower in the afternoon), which is exactly why a consistent, morning, fasting draw matters for tracking a trend over time, general lab-testing practice regardless of the reason for the test.',
     citations: [
       { source: 'Circadian and 30 minutes variations in serum TSH and thyroid hormones in normal subjects', url: 'https://pubmed.ncbi.nlm.nih.gov/716774/' },
     ],
@@ -756,7 +756,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Visceral Fat',
     teaser: 'Fat stored deep around the internal organs, active tissue rather than passive storage.',
     summary:
-      'Fat stored deep in the abdomen, around the internal organs (distinct from fat stored just under the skin), active, hormone-producing tissue, not passive padding. Research finds it does complicated things: it drives metabolic risk in excess, but a 2024 reappraisal suggests some of that same fat\'s own inflammation may actually be defending against a leaky gut, rather than simply causing harm on its own. A recurring, specific factor across several of this Digest\'s own condition-specific findings.',
+      'Fat stored deep in the abdomen, around the internal organs (distinct from fat stored just under the skin), active, hormone-producing tissue, not passive padding. Research finds it does complicated things: it drives metabolic risk in excess, but a 2024 reappraisal suggests some of that same fat\'s inflammation may actually be defending against a leaky gut, rather than simply causing harm on its own. A recurring, specific factor across several of this Digest\'s condition-specific findings.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['mito-sugar-visceral-fat-cytokine-chain'],
@@ -835,9 +835,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-aps-antiphospholipid',
     category: 'lupus',
     title: 'APS (Antiphospholipid Syndrome)',
-    teaser: 'A separate, treatable clotting disorder that commonly overlaps with lupus, not the same thing as this glossary\'s own APS-2 (Autoimmune Polyglandular Syndrome Type 2) entry.',
+    teaser: 'A separate, treatable clotting disorder that commonly overlaps with lupus, not the same thing as this glossary\'s APS-2 (Autoimmune Polyglandular Syndrome Type 2) entry.',
     summary:
-      'Antiphospholipid syndrome is an autoimmune clotting disorder where the immune system produces antibodies that raise the risk of blood clots and pregnancy complications, including recurrent miscarriage. It commonly overlaps with lupus, though it can also occur on its own. Since the two share an acronym, APS (Antiphospholipid Syndrome) is a different condition from APS-2 (Autoimmune Polyglandular Syndrome Type 2, this glossary\'s own separate entry), unrelated beyond the coincidence of the same short name.',
+      'Antiphospholipid syndrome is an autoimmune clotting disorder where the immune system produces antibodies that raise the risk of blood clots and pregnancy complications, including recurrent miscarriage. It commonly overlaps with lupus, though it can also occur on its own. Since the two share an acronym, APS (Antiphospholipid Syndrome) is a different condition from APS-2 (Autoimmune Polyglandular Syndrome Type 2, this glossary\'s separate entry), unrelated beyond the coincidence of the same short name.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['lupus-cardiovascular-risk'],
@@ -848,7 +848,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'ATP (Adenosine Triphosphate)',
     teaser: 'The molecule every cell actually spends as usable energy, made mostly inside mitochondria.',
     summary:
-      'ATP is the molecule cells use as their direct, spendable form of energy for essentially everything they do, muscle contraction, nerve signaling, building new proteins, and more. Mitochondria, the cell\'s own energy-producing structures, generate the large majority of the body\'s ATP by converting food and oxygen into it, which is why mitochondrial health and ATP production are treated as the same underlying story throughout this Digest\'s own Mitochondria & Metabolism research.',
+      'ATP is the molecule cells use as their direct, spendable form of energy for essentially everything they do, muscle contraction, nerve signaling, building new proteins, and more. Mitochondria, the cell\'s energy-producing structures, generate the large majority of the body\'s ATP by converting food and oxygen into it, which is why mitochondrial health and ATP production are treated as the same underlying story throughout this Digest\'s Mitochondria & Metabolism research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['mito-mots-c'],
@@ -859,7 +859,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'BDNF (Brain-Derived Neurotrophic Factor)',
     teaser: 'A protein that supports the growth and survival of new brain cells, measurably raised by exercise.',
     summary:
-      'BDNF is a protein the brain produces that supports the growth, survival, and connection of neurons, including the new ones created through neurogenesis. Exercise is one of the most consistently documented ways to raise BDNF levels, part of the direct mechanistic link between physical activity and brain health covered in this Digest\'s own Neurogenesis research.',
+      'BDNF is a protein the brain produces that supports the growth, survival, and connection of neurons, including the new ones created through neurogenesis. Exercise is one of the most consistently documented ways to raise BDNF levels, part of the direct mechanistic link between physical activity and brain health covered in this Digest\'s Neurogenesis research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['neurogenesis-bdnf-exercise'],
@@ -870,7 +870,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'BPH (Benign Prostatic Hyperplasia)',
     teaser: 'Non-cancerous prostate enlargement, extremely common with age and a completely separate condition from prostate cancer.',
     summary:
-      'BPH is a non-cancerous enlargement of the prostate gland that becomes increasingly common with age, causing urinary symptoms (frequent urination, weak stream, nighttime bathroom trips) by pressing on the urethra. It is a separate condition from prostate cancer, though the two can coexist and some of the same lab values (like PSA) can be affected by either one, a common source of confusion covered directly in this Digest\'s own Prostate Health research.',
+      'BPH is a non-cancerous enlargement of the prostate gland that becomes increasingly common with age, causing urinary symptoms (frequent urination, weak stream, nighttime bathroom trips) by pressing on the urethra. It is a separate condition from prostate cancer, though the two can coexist and some of the same lab values (like PSA) can be affected by either one, a common source of confusion covered directly in this Digest\'s Prostate Health research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['prostate-gut-microbiome-bph'],
@@ -892,7 +892,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'CBT (Cognitive Behavioral Therapy)',
     teaser: 'A structured, evidence-based talk therapy that identifies and changes unhelpful thought and behavior patterns, first-line treatment for chronic insomnia.',
     summary:
-      'CBT is a structured form of talk therapy that works by identifying and changing unhelpful thought patterns and behaviors. A specific version, CBT-I (for insomnia), is the current first-line, guideline-recommended treatment for chronic insomnia, ahead of sleep medication, covered directly in this Digest\'s own Sleep & Health research.',
+      'CBT is a structured form of talk therapy that works by identifying and changing unhelpful thought patterns and behaviors. A specific version, CBT-I (for insomnia), is the current first-line, guideline-recommended treatment for chronic insomnia, ahead of sleep medication, covered directly in this Digest\'s Sleep & Health research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['sleep-cbti-first-line'],
@@ -914,7 +914,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'CGRP (Calcitonin Gene-Related Peptide)',
     teaser: 'A signaling molecule directly involved in triggering migraine pain, and the specific target of a newer class of migraine medication.',
     summary:
-      'CGRP is a signaling molecule released around blood vessels and nerves that plays a direct, documented role in triggering migraine attacks. Newer migraine medications (CGRP inhibitors, including "gepants" and injectable monoclonal antibodies) work by blocking CGRP or its receptor directly, a more targeted mechanism than older, broader migraine treatments, covered in this Digest\'s own Migraine research.',
+      'CGRP is a signaling molecule released around blood vessels and nerves that plays a direct, documented role in triggering migraine attacks. Newer migraine medications (CGRP inhibitors, including "gepants" and injectable monoclonal antibodies) work by blocking CGRP or its receptor directly, a more targeted mechanism than older, broader migraine treatments, covered in this Digest\'s Migraine research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['migraine-cgrp-inhibitors'],
@@ -925,7 +925,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'CMP (Comprehensive Metabolic Panel)',
     teaser: 'A standard blood panel checking kidney function, liver function, blood sugar, and electrolytes all at once.',
     summary:
-      'A CMP is a standard blood panel measuring roughly 14 markers at once, including kidney function (creatinine, eGFR), liver enzymes, blood sugar, and electrolytes like potassium and sodium. It is a common baseline test for monitoring overall organ function, and specific values on it can be affected by conditions or medications that might not seem directly related to the kidneys or liver at first glance, covered directly in this Digest\'s own self-advocacy research.',
+      'A CMP is a standard blood panel measuring roughly 14 markers at once, including kidney function (creatinine, eGFR), liver enzymes, blood sugar, and electrolytes like potassium and sodium. It is a common baseline test for monitoring overall organ function, and specific values on it can be affected by conditions or medications that might not seem directly related to the kidneys or liver at first glance, covered directly in this Digest\'s self-advocacy research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['advocacy-cmp'],
@@ -936,7 +936,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'CPAP (Continuous Positive Airway Pressure)',
     teaser: 'The standard treatment device for obstructive sleep apnea, delivering steady air pressure through a mask to keep the airway open overnight.',
     summary:
-      'CPAP is a machine that delivers a steady stream of pressurized air through a mask worn during sleep, keeping the airway from collapsing, the standard, first-line treatment for obstructive sleep apnea. Sleep apnea itself has documented bidirectional links to several conditions tracked across this Digest, including fatty liver disease, covered directly in that category\'s own research.',
+      'CPAP is a machine that delivers a steady stream of pressurized air through a mask worn during sleep, keeping the airway from collapsing, the standard, first-line treatment for obstructive sleep apnea. Sleep apnea itself has documented bidirectional links to several conditions tracked across this Digest, including fatty liver disease, covered directly in that category\'s research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['masld-sleep-apnea-bidirectional'],
@@ -947,7 +947,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'DKA (Diabetic Ketoacidosis)',
     teaser: 'A dangerous, fast-developing complication of insufficient insulin, most relevant to Type 1 Diabetes, that needs urgent medical attention.',
     summary:
-      'DKA is a dangerous, potentially life-threatening complication that develops when the body has too little insulin to use blood sugar for energy and starts breaking down fat instead, producing a buildup of acidic ketones in the blood. It can develop over hours, most often in Type 1 Diabetes, and specific "sick day rules" exist precisely to catch and prevent it during illness, covered directly in this Digest\'s own Type 1 Diabetes research.',
+      'DKA is a dangerous, potentially life-threatening complication that develops when the body has too little insulin to use blood sugar for energy and starts breaking down fat instead, producing a buildup of acidic ketones in the blood. It can develop over hours, most often in Type 1 Diabetes, and specific "sick day rules" exist precisely to catch and prevent it during illness, covered directly in this Digest\'s Type 1 Diabetes research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['type1-dka-sick-day-rules'],
@@ -958,7 +958,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'DMARD (Disease-Modifying Antirheumatic Drug)',
     teaser: 'A class of medication that slows or changes the underlying disease process in rheumatoid arthritis, not just the pain it causes.',
     summary:
-      'DMARDs are a class of medication that work on the underlying immune process driving rheumatoid arthritis, slowing or preventing joint damage, rather than just easing pain or inflammation the way an over-the-counter pain reliever would. Starting a DMARD early, within the first few months of symptoms, is documented to produce measurably better long-term outcomes than starting the same treatment later, the "window of opportunity" covered directly in this Digest\'s own Rheumatoid Arthritis research.',
+      'DMARDs are a class of medication that work on the underlying immune process driving rheumatoid arthritis, slowing or preventing joint damage, rather than just easing pain or inflammation the way an over-the-counter pain reliever would. Starting a DMARD early, within the first few months of symptoms, is documented to produce measurably better long-term outcomes than starting the same treatment later, the "window of opportunity" covered directly in this Digest\'s Rheumatoid Arthritis research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ra-window-of-opportunity-early-treatment'],
@@ -969,7 +969,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'EBV (Epstein-Barr Virus)',
     teaser: 'An extremely common virus (the cause of mononucleosis) linked to triggering several autoimmune diseases through molecular mimicry.',
     summary:
-      'EBV is an extremely common virus, the cause of infectious mononucleosis, that the large majority of adults have been infected with at some point. Research has found a specific molecular resemblance between certain EBV proteins and the body\'s own tissues, a documented example of molecular mimicry, one proposed trigger mechanism for several autoimmune diseases including multiple sclerosis, covered directly in this Digest\'s own Multiple Sclerosis research.',
+      'EBV is an extremely common virus, the cause of infectious mononucleosis, that the large majority of adults have been infected with at some point. Research has found a specific molecular resemblance between certain EBV proteins and the body\'s own tissues, a documented example of molecular mimicry, one proposed trigger mechanism for several autoimmune diseases including multiple sclerosis, covered directly in this Digest\'s Multiple Sclerosis research.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['ms-ebna1-glialcam-mimicry', 'glossary-molecular-mimicry'],
@@ -980,7 +980,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'FIB-4 (Fibrosis-4 Index)',
     teaser: 'A free, calculator-based screening score estimating liver scarring risk from routine lab values and age, no biopsy required.',
     summary:
-      'FIB-4 is a calculated score (using age plus three routine liver-related lab values already on a standard panel) that estimates the likelihood of significant liver scarring, or fibrosis, without needing a biopsy. Clinical guidance recommends it as a first-line screening step for fatty liver disease specifically because it is low-cost and uses labs many people already have, though its own accuracy has shown inconsistency in some studies, an honest limitation covered directly in this Digest\'s own Fatty Liver Disease research.',
+      'FIB-4 is a calculated score (using age plus three routine liver-related lab values already on a standard panel) that estimates the likelihood of significant liver scarring, or fibrosis, without needing a biopsy. Clinical guidance recommends it as a first-line screening step for fatty liver disease specifically because it is low-cost and uses labs many people already have, though its accuracy has shown inconsistency in some studies, an honest limitation covered directly in this Digest\'s Fatty Liver Disease research.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['masld-fib4-fibrosis-screening'],
@@ -1000,9 +1000,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-gi',
     category: 'basicHealth',
     title: 'GI (Gastrointestinal)',
-    teaser: 'The everyday shorthand for the digestive tract, stomach through intestines, used throughout this Digest\'s own gut-related research.',
+    teaser: 'The everyday shorthand for the digestive tract, stomach through intestines, used throughout this Digest\'s gut-related research.',
     summary:
-      'GI is standard shorthand for the gastrointestinal tract, the whole digestive system from the stomach through the intestines. It appears constantly across this Digest\'s own gut-health, microbiome, and per-condition research (a "GI symptom," "GI tract," or "GI bleed") as a plain abbreviation for the digestive system, not a distinct medical concept of its own.',
+      'GI is standard shorthand for the gastrointestinal tract, the whole digestive system from the stomach through the intestines. It appears constantly across this Digest\'s gut-health, microbiome, and per-condition research (a "GI symptom," "GI tract," or "GI bleed") as a plain abbreviation for the digestive system, not a distinct medical concept of its own.',
     citations: [],
     overallTier: 'strong',
   },
@@ -1034,7 +1034,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'HOMA-IR',
     teaser: 'A calculated score estimating insulin resistance from two ordinary lab values, fasting glucose and fasting insulin.',
     summary:
-      'HOMA-IR is a score calculated from two routine fasting lab values, glucose and insulin, used mostly in research to estimate how insulin-resistant someone\'s body is. It appears throughout this Digest\'s own research on magnesium, chromium, vitamin D, and PCOS as a measured outcome in supplementation trials, a research tool rather than a routine clinical diagnosis on its own.',
+      'HOMA-IR is a score calculated from two routine fasting lab values, glucose and insulin, used mostly in research to estimate how insulin-resistant someone\'s body is. It appears throughout this Digest\'s research on magnesium, chromium, vitamin D, and PCOS as a measured outcome in supplementation trials, a research tool rather than a routine clinical diagnosis on its own.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['magnesium-insulin-glucose'],
@@ -1043,9 +1043,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-igf1',
     category: 'basicHealth',
     title: 'IGF-1 (Insulin-Like Growth Factor 1)',
-    teaser: 'A growth-signaling hormone, raised by dairy intake among other things, tied to both PCOS symptoms and prostate cancer risk in this Digest\'s own research.',
+    teaser: 'A growth-signaling hormone, raised by dairy intake among other things, tied to both PCOS symptoms and prostate cancer risk in this Digest\'s research.',
     summary:
-      'IGF-1 is a hormone that signals cell growth throughout the body, structurally similar to insulin, hence the name. Dairy intake measurably raises circulating IGF-1 levels, a documented mechanism this Digest connects to worsened androgen-driven PCOS symptoms and, separately, to prostate cancer risk, covered in each condition\'s own research.',
+      'IGF-1 is a hormone that signals cell growth throughout the body, structurally similar to insulin, hence the name. Dairy intake measurably raises circulating IGF-1 levels, a documented mechanism this Digest connects to worsened androgen-driven PCOS symptoms and, separately, to prostate cancer risk, covered in each condition\'s research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['pcos-dairy-igf1-hyperandrogenism'],
@@ -1054,9 +1054,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-ivf',
     category: 'pcos',
     title: 'IVF (In Vitro Fertilization)',
-    teaser: 'A fertility treatment where an egg is fertilized outside the body, relevant to this Digest\'s own PCOS research on real-world fertility outcomes.',
+    teaser: 'A fertility treatment where an egg is fertilized outside the body, relevant to this Digest\'s PCOS research on real-world fertility outcomes.',
     summary:
-      'IVF fertilizes an egg with sperm outside the body, then transfers the resulting embryo into the uterus, one of several fertility treatment options. PCOS is a leading cause of infertility, and this Digest\'s own research covers real-world IVF outcomes specifically for people with PCOS, not just fertility treatment in general.',
+      'IVF fertilizes an egg with sperm outside the body, then transfers the resulting embryo into the uterus, one of several fertility treatment options. PCOS is a leading cause of infertility, and this Digest\'s research covers real-world IVF outcomes specifically for people with PCOS, not just fertility treatment in general.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['pcos-ivf-real-outcomes'],
@@ -1067,7 +1067,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'JAK Inhibitors',
     teaser: 'A newer class of oral rheumatoid arthritis medication carrying a serious, FDA-mandated safety warning.',
     summary:
-      'JAK inhibitors (tofacitinib, baricitinib, upadacitinib) are a newer class of oral medication for rheumatoid arthritis and other inflammatory conditions. A dedicated safety trial found increased risk of heart attack, stroke, cancer, blood clots, serious infection, and death compared with an older medication class in an at-risk population, leading the FDA to require a class-wide boxed warning, its strongest warning label, covered directly in this Digest\'s own Rheumatoid Arthritis research.',
+      'JAK inhibitors (tofacitinib, baricitinib, upadacitinib) are a newer class of oral medication for rheumatoid arthritis and other inflammatory conditions. A dedicated safety trial found increased risk of heart attack, stroke, cancer, blood clots, serious infection, and death compared with an older medication class in an at-risk population, leading the FDA to require a class-wide boxed warning, its strongest warning label, covered directly in this Digest\'s Rheumatoid Arthritis research.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['ra-jak-inhibitors-oral-surveillance'],
@@ -1078,7 +1078,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'LDL & HDL (Cholesterol)',
     teaser: 'The two cholesterol types tracked on a standard lipid panel, one that drives artery damage and one that helps clear it.',
     summary:
-      'LDL and HDL are two types of lipoprotein that carry cholesterol through the blood. LDL ("bad" cholesterol) contributes directly to artery-clogging plaque when levels run high, while HDL ("good" cholesterol) helps carry cholesterol away from artery walls for disposal. Both are standard values on a lipid panel, and this Digest\'s own Cardiovascular Disease research covers a large, pooled trial base showing measured LDL reduction directly tracking with reduced heart attack and stroke risk.',
+      'LDL and HDL are two types of lipoprotein that carry cholesterol through the blood. LDL ("bad" cholesterol) contributes directly to artery-clogging plaque when levels run high, while HDL ("good" cholesterol) helps carry cholesterol away from artery walls for disposal. Both are standard values on a lipid panel, and this Digest\'s Cardiovascular Disease research covers a large, pooled trial base showing measured LDL reduction directly tracking with reduced heart attack and stroke risk.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['cvd-statin-evidence'],
@@ -1089,7 +1089,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'MASH & NASH (Fatty Liver Terminology)',
     teaser: 'Two names for essentially the same thing, the more advanced, inflamed stage of fatty liver disease, with NASH the older term MASH is replacing.',
     summary:
-      'NASH (non-alcoholic steatohepatitis) was the established name for the more advanced, inflamed stage of fatty liver disease. The field has been transitioning to MASH (metabolic dysfunction-associated steatohepatitis), a renaming meant to describe the condition by its actual metabolic cause rather than by what it isn\'t, without changing the underlying disease itself, covered throughout this Digest\'s own Fatty Liver Disease research.',
+      'NASH (non-alcoholic steatohepatitis) was the established name for the more advanced, inflamed stage of fatty liver disease. The field has been transitioning to MASH (metabolic dysfunction-associated steatohepatitis), a renaming meant to describe the condition by its actual metabolic cause rather than by what it isn\'t, without changing the underlying disease itself, covered throughout this Digest\'s Fatty Liver Disease research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['masld-resmetirom'],
@@ -1100,7 +1100,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'NDT (Natural Desiccated Thyroid)',
     teaser: 'A thyroid hormone medication made from dried animal thyroid gland, an alternative to synthetic levothyroxine with a mixed evidence picture.',
     summary:
-      'NDT is a thyroid hormone replacement medication made from dried, processed animal (typically pig) thyroid gland, containing both T4 and T3 in a fixed ratio, unlike synthetic levothyroxine, which is T4 alone. This Digest\'s own labs and medication research covers the real, ongoing debate over NDT and combination T3/T4 therapy directly, including the batch-to-batch consistency concerns that come with a biological rather than synthetic source.',
+      'NDT is a thyroid hormone replacement medication made from dried, processed animal (typically pig) thyroid gland, containing both T4 and T3 in a fixed ratio, unlike synthetic levothyroxine, which is T4 alone. This Digest\'s labs and medication research covers the real, ongoing debate over NDT and combination T3/T4 therapy directly, including the batch-to-batch consistency concerns that come with a biological rather than synthetic source.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['labs-combination-t3-ndt'],
@@ -1111,7 +1111,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'NSAID',
     teaser: 'The drug class behind common over-the-counter pain relievers like ibuprofen and naproxen, with real, condition-specific risks.',
     summary:
-      'NSAIDs (nonsteroidal anti-inflammatory drugs) are a common class of pain and inflammation reliever including ibuprofen and naproxen, available both over the counter and by prescription. This Digest\'s own research covers real, condition-specific risks, including documented kidney injury risk in chronic kidney disease, covered in that category\'s own research.',
+      'NSAIDs (nonsteroidal anti-inflammatory drugs) are a common class of pain and inflammation reliever including ibuprofen and naproxen, available both over the counter and by prescription. This Digest\'s research covers real, condition-specific risks, including documented kidney injury risk in chronic kidney disease, covered in that category\'s research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ckd-nsaid-kidney-injury-real-data'],
@@ -1122,7 +1122,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'OGTT (Oral Glucose Tolerance Test)',
     teaser: 'A more thorough diabetes-screening test than fasting glucose alone, drinking a glucose solution then rechecking blood sugar two hours later.',
     summary:
-      'An OGTT measures blood sugar at a baseline, then again two hours after drinking a standardized glucose solution, catching impaired glucose handling that a fasting glucose test alone can miss. This Digest\'s own PCOS research covers direct evidence that fasting glucose alone missed glucose intolerance in a majority of PCOS cases that a full OGTT correctly caught, one reason it\'s specifically recommended over fasting glucose alone for that condition.',
+      'An OGTT measures blood sugar at a baseline, then again two hours after drinking a standardized glucose solution, catching impaired glucose handling that a fasting glucose test alone can miss. This Digest\'s PCOS research covers direct evidence that fasting glucose alone missed glucose intolerance in a majority of PCOS cases that a full OGTT correctly caught, one reason it\'s specifically recommended over fasting glucose alone for that condition.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['pcos-ogtt-screening'],
@@ -1133,7 +1133,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Omega-3 Fatty Acid Types (ALA, EPA & DHA)',
     teaser: 'Three different omega-3 fats, one plant-based and two marine-based, and the well-documented bottleneck converting the plant version into the more active two.',
     summary:
-      'ALA (alpha-linolenic acid) is the plant-based omega-3, found in flaxseed and walnuts; EPA and DHA are the two marine-based omega-3s, found in fatty fish and algae, and generally considered the more biologically active forms. The body can convert ALA into EPA and DHA, but only inefficiently, a well-documented conversion bottleneck covered directly in this Digest\'s own Essential Nutrients research, one reason a plant-only omega-3 source doesn\'t automatically deliver the same effect as a marine one.',
+      'ALA (alpha-linolenic acid) is the plant-based omega-3, found in flaxseed and walnuts; EPA and DHA are the two marine-based omega-3s, found in fatty fish and algae, and generally considered the more biologically active forms. The body can convert ALA into EPA and DHA, but only inefficiently, a well-documented conversion bottleneck covered directly in this Digest\'s Essential Nutrients research, one reason a plant-only omega-3 source doesn\'t automatically deliver the same effect as a marine one.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['omega3-ala-conversion-bottleneck'],
@@ -1144,7 +1144,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'PAD (Peripheral Artery Disease)',
     teaser: 'Narrowed arteries in the legs, the same underlying atherosclerosis process as coronary artery disease, just in a different location.',
     summary:
-      'PAD is narrowing of the arteries supplying the legs (and sometimes other organs), caused by the same underlying atherosclerosis process that causes coronary artery disease, just affecting a different part of the body. Its presence is a marker of broader cardiovascular risk, covered directly in this Digest\'s own Cardiovascular Disease research alongside its kidney- and brain-related counterparts.',
+      'PAD is narrowing of the arteries supplying the legs (and sometimes other organs), caused by the same underlying atherosclerosis process that causes coronary artery disease, just affecting a different part of the body. Its presence is a marker of broader cardiovascular risk, covered directly in this Digest\'s Cardiovascular Disease research alongside its kidney- and brain-related counterparts.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['cvd-kidney-brain-pad-real-data'],
@@ -1155,7 +1155,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'PASI (Psoriasis Area and Severity Index)',
     teaser: 'The standard scoring tool researchers and dermatologists use to measure how much psoriasis has actually improved, the same bar most drug trials use to define success.',
     summary:
-      'PASI is a standardized score combining how much of the body psoriasis covers with how severe it looks (redness, thickness, scaling), used to track disease severity and treatment response. "PASI75," a 75% improvement in this score, is the bar most psoriasis drug and lifestyle trials use to define a successful result, covered directly in this Digest\'s own Psoriasis research.',
+      'PASI is a standardized score combining how much of the body psoriasis covers with how severe it looks (redness, thickness, scaling), used to track disease severity and treatment response. "PASI75," a 75% improvement in this score, is the bar most psoriasis drug and lifestyle trials use to define a successful result, covered directly in this Digest\'s Psoriasis research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['psoriasis-weight-loss'],
@@ -1166,7 +1166,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'PSA (Prostate-Specific Antigen)',
     teaser: 'The standard prostate-cancer screening blood test, with a more complicated benefit-versus-harm picture than "more screening is always better."',
     summary:
-      'PSA is a protein made by the prostate, measured by a standard blood test as a screening tool for prostate cancer. It can also rise from BPH, prostatitis, or normal variation, not just cancer, which is why current guidance treats the screening decision as an individual, doctor-guided one rather than a routine recommendation for everyone, covered directly and honestly in this Digest\'s own Prostate Health research.',
+      'PSA is a protein made by the prostate, measured by a standard blood test as a screening tool for prostate cancer. It can also rise from BPH, prostatitis, or normal variation, not just cancer, which is why current guidance treats the screening decision as an individual, doctor-guided one rather than a routine recommendation for everyone, covered directly and honestly in this Digest\'s Prostate Health research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['prostate-psa-screening'],
@@ -1177,7 +1177,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'PSC (Primary Sclerosing Cholangitis)',
     teaser: 'A rare but serious liver condition affecting the bile ducts, one of the extraintestinal complications IBD can carry beyond the gut itself.',
     summary:
-      'PSC is a condition causing progressive scarring and narrowing of the bile ducts inside and outside the liver, which can lead to serious liver damage over time. It occurs at a notably higher rate in people with IBD, particularly ulcerative colitis, than in the general population, one of several extraintestinal complications, effects reaching beyond the gut itself, covered directly in this Digest\'s own IBD research.',
+      'PSC is a condition causing progressive scarring and narrowing of the bile ducts inside and outside the liver, which can lead to serious liver damage over time. It occurs at a notably higher rate in people with IBD, particularly ulcerative colitis, than in the general population, one of several extraintestinal complications, effects reaching beyond the gut itself, covered directly in this Digest\'s IBD research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ibd-extraintestinal-manifestations'],
@@ -1188,7 +1188,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'PSMA (Prostate-Specific Membrane Antigen)',
     teaser: 'A protein prostate cancer cells make far more of than healthy tissue, now the target of both a precision imaging technique and an approved radiation therapy.',
     summary:
-      'PSMA is a protein that prostate cancer cells express at much higher levels than healthy tissue does. That difference is now used two ways: as a more sensitive imaging tool for locating exactly where prostate cancer has spread, and as the target of an FDA-approved radioligand therapy that binds to PSMA before releasing its radiation dose directly at the cancer, a more precise approach than a broad external beam, covered directly in this Digest\'s own Prostate Health research.',
+      'PSMA is a protein that prostate cancer cells express at much higher levels than healthy tissue does. That difference is now used two ways: as a more sensitive imaging tool for locating exactly where prostate cancer has spread, and as the target of an FDA-approved radioligand therapy that binds to PSMA before releasing its radiation dose directly at the cancer, a more precise approach than a broad external beam, covered directly in this Digest\'s Prostate Health research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['horizon-prostate'],
@@ -1199,7 +1199,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'PTU (Propylthiouracil)',
     teaser: 'An antithyroid medication that slows an overactive thyroid, used for Graves\' disease, needing regular monitoring for a rare but serious liver risk.',
     summary:
-      'PTU is a medication that reduces thyroid hormone production, used to manage an overactive thyroid, most often from Graves\' disease. It carries a rare but serious risk of liver injury, which is why regular monitoring is part of standard care while taking it, covered directly in this Digest\'s own Graves\' disease research on antithyroid drug monitoring.',
+      'PTU is a medication that reduces thyroid hormone production, used to manage an overactive thyroid, most often from Graves\' disease. It carries a rare but serious risk of liver injury, which is why regular monitoring is part of standard care while taking it, covered directly in this Digest\'s Graves\' disease research on antithyroid drug monitoring.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['graves-antithyroid-drug-monitoring'],
@@ -1210,7 +1210,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'REM Sleep',
     teaser: 'The dream-heavy sleep stage tied to memory consolidation and emotional processing, one part of the larger sleep-architecture cycle this Digest covers.',
     summary:
-      'REM (rapid eye movement) sleep is one of the major stages the body cycles through overnight, marked by vivid dreaming, and is specifically tied to memory consolidation and emotional processing. It sits alongside the deeper, non-REM stages as part of the full sleep architecture cycle, covered directly in this Digest\'s own Sleep & Health research.',
+      'REM (rapid eye movement) sleep is one of the major stages the body cycles through overnight, marked by vivid dreaming, and is specifically tied to memory consolidation and emotional processing. It sits alongside the deeper, non-REM stages as part of the full sleep architecture cycle, covered directly in this Digest\'s Sleep & Health research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['sleep-architecture'],
@@ -1221,7 +1221,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'SGLT2 Inhibitors',
     teaser: 'A medication class originally built for Type 2 Diabetes that turned out to independently protect the kidneys and heart too.',
     summary:
-      'SGLT2 inhibitors (empagliflozin and similar drugs) lower blood sugar by causing the kidneys to remove more glucose through urine. Beyond blood sugar control, the class carries documented, independent protective benefits for the kidneys and heart, which is why current guidance recommends it for chronic kidney disease and heart failure specifically, not only for diabetes, covered directly in this Digest\'s own Chronic Kidney Disease research.',
+      'SGLT2 inhibitors (empagliflozin and similar drugs) lower blood sugar by causing the kidneys to remove more glucose through urine. Beyond blood sugar control, the class carries documented, independent protective benefits for the kidneys and heart, which is why current guidance recommends it for chronic kidney disease and heart failure specifically, not only for diabetes, covered directly in this Digest\'s Chronic Kidney Disease research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ckd-sglt2-inhibitors'],
@@ -1232,7 +1232,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'SLEDAI',
     teaser: 'The formal scoring tool turning "feeling worse" into a specific number for lupus, with a defined point rise counting as an official flare.',
     summary:
-      'SLEDAI (and its updated version, SLEDAI-2K) is a formal instrument scoring lupus disease activity across several organ systems, producing a specific number rather than a subjective impression. A rise of 4 or more points from the previous visit is the formal, standard definition of a flare, covered directly in this Digest\'s own Lupus research alongside its own remission and low-disease-activity thresholds.',
+      'SLEDAI (and its updated version, SLEDAI-2K) is a formal instrument scoring lupus disease activity across several organ systems, producing a specific number rather than a subjective impression. A rise of 4 or more points from the previous visit is the formal, standard definition of a flare, covered directly in this Digest\'s Lupus research alongside its remission and low-disease-activity thresholds.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['lupus-sledai-disease-activity'],
@@ -1243,7 +1243,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'TMAO (Trimethylamine N-Oxide)',
     teaser: 'A compound gut bacteria produce from certain foods (notably red meat and eggs) that independently raises cardiovascular risk.',
     summary:
-      'TMAO is a compound produced when gut bacteria metabolize choline and carnitine, nutrients found notably in red meat and eggs, which the liver then converts into TMAO. Research finds elevated TMAO levels independently associated with cardiovascular risk, a documented gut-microbiome connection to heart disease covered directly in this Digest\'s own Cardiovascular Disease research.',
+      'TMAO is a compound produced when gut bacteria metabolize choline and carnitine, nutrients found notably in red meat and eggs, which the liver then converts into TMAO. Research finds elevated TMAO levels independently associated with cardiovascular risk, a documented gut-microbiome connection to heart disease covered directly in this Digest\'s Cardiovascular Disease research.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['cvd-tmao-gut-microbiome-real-data'],
@@ -1254,7 +1254,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'TPMT (Thiopurine Methyltransferase)',
     teaser: 'An enzyme whose activity is tested before starting a common IBD medication class, since low activity raises the risk of serious, dose-related side effects.',
     summary:
-      'TPMT is an enzyme that helps the body break down thiopurine medications (azathioprine and similar drugs), commonly used for IBD. People with naturally low TPMT activity, a genetic trait, process these drugs more slowly, raising the risk of serious, dose-related side effects, which is why testing TPMT activity before starting treatment is standard practice, covered directly in this Digest\'s own IBD research.',
+      'TPMT is an enzyme that helps the body break down thiopurine medications (azathioprine and similar drugs), commonly used for IBD. People with naturally low TPMT activity, a genetic trait, process these drugs more slowly, raising the risk of serious, dose-related side effects, which is why testing TPMT activity before starting treatment is standard practice, covered directly in this Digest\'s IBD research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ibd-azathioprine-tpmt'],
@@ -1265,7 +1265,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: "UC & Crohn's Disease",
     teaser: 'The two distinct diseases grouped under "IBD," different enough that several findings run in opposite directions depending on which one someone actually has.',
     summary:
-      'Inflammatory bowel disease is an umbrella term for two different autoimmune conditions. Ulcerative colitis (UC) causes continuous inflammation limited to the colon and rectum; Crohn\'s disease can affect any part of the digestive tract from mouth to anus, often in patchy patterns, and can penetrate deeper into the intestinal wall. The distinction matters directly, since several findings covered in this Digest\'s own IBD research, most strikingly how smoking affects each disease, run in different, even opposite, directions depending on which one someone actually has.',
+      'Inflammatory bowel disease is an umbrella term for two different autoimmune conditions. Ulcerative colitis (UC) causes continuous inflammation limited to the colon and rectum; Crohn\'s disease can affect any part of the digestive tract from mouth to anus, often in patchy patterns, and can penetrate deeper into the intestinal wall. The distinction matters directly, since several findings covered in this Digest\'s IBD research, most strikingly how smoking affects each disease, run in different, even opposite, directions depending on which one someone actually has.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ibd-overview'],
@@ -1276,7 +1276,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Vitamin K2 (MK-4 & MK-7)',
     teaser: 'Two structurally different forms of vitamin K2, one closer to plant-based K1 with faster clearance, the other longer-acting with more available trial evidence at realistic doses.',
     summary:
-      'MK-4 and MK-7 are two structurally different forms of vitamin K2, distinct from the plant-based vitamin K1 most people get from leafy greens. MK-4 is structurally closer to K1, with a much shorter half-life in the body, while MK-7 stays active longer and has more supporting trial evidence at doses realistic for a supplement, both covered directly in this Digest\'s own Essential Nutrients research comparing the two forms.',
+      'MK-4 and MK-7 are two structurally different forms of vitamin K2, distinct from the plant-based vitamin K1 most people get from leafy greens. MK-4 is structurally closer to K1, with a much shorter half-life in the body, while MK-7 stays active longer and has more supporting trial evidence at doses realistic for a supplement, both covered directly in this Digest\'s Essential Nutrients research comparing the two forms.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['vitamink-supplement-forms-compared'],
@@ -1298,7 +1298,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'DASH Diet',
     teaser: 'A specific, sodium-numbered eating pattern developed and studied directly for blood pressure, not a vague "eat less salt" suggestion.',
     summary:
-      "DASH (Dietary Approaches to Stop Hypertension) is a specific eating pattern built around vegetables, fruits, whole grains, and low-fat dairy, with reduced saturated fat and sodium. Current guidance sets a specific sodium target of under 2,300mg a day, with a lower 1,500mg target for anyone with existing high blood pressure. Distinct from the Mediterranean diet, though both are whole-food, plant-forward patterns with independent cardiovascular trial support rather than competing approaches, covered directly in this Digest's own Cardiovascular Disease research.",
+      "DASH (Dietary Approaches to Stop Hypertension) is a specific eating pattern built around vegetables, fruits, whole grains, and low-fat dairy, with reduced saturated fat and sodium. Current guidance sets a specific sodium target of under 2,300mg a day, with a lower 1,500mg target for anyone with existing high blood pressure. Distinct from the Mediterranean diet, though both are whole-food, plant-forward patterns with independent cardiovascular trial support rather than competing approaches, covered directly in this Digest's Cardiovascular Disease research.",
     citations: [],
     overallTier: 'strong',
     relatedIds: ['cvd-dash-sodium'],
@@ -1309,7 +1309,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'SCOBY',
     teaser: 'The mixed bacteria-and-yeast starter culture behind kombucha, a literal description rather than a brand or marketing term.',
     summary:
-      'SCOBY stands for Symbiotic Culture Of Bacteria and Yeast, the starter culture used to ferment sweetened tea into kombucha. The community typically includes Acetobacter species, various yeasts, and often Gluconobacter, a mixed community rather than the single-strain focus of most other fermented-food entries in this Digest. Because yeast fermentation of sugar always produces some ethanol as a byproduct, this is also why kombucha carries a documented, if usually small, alcohol content, covered directly in this Digest\'s own Recipes research.',
+      'SCOBY stands for Symbiotic Culture Of Bacteria and Yeast, the starter culture used to ferment sweetened tea into kombucha. The community typically includes Acetobacter species, various yeasts, and often Gluconobacter, a mixed community rather than the single-strain focus of most other fermented-food entries in this Digest. Because yeast fermentation of sugar always produces some ethanol as a byproduct, this is also why kombucha carries a documented, if usually small, alcohol content, covered directly in this Digest\'s Recipes research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['fermented-kombucha'],
@@ -1320,7 +1320,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'NOVA Classification',
     teaser: 'The four-group food-classification system behind "ultra-processed food," grouping by how a food was made rather than by its nutrient content alone.',
     summary:
-      'NOVA is a food-classification system that sorts foods into four groups by the extent and purpose of industrial processing, not by nutrient content alone. Group 4, "ultra-processed food," covers industrially formulated products with ingredients rarely used in home cooking. Research finds this level of processing independently associated with higher all-cause mortality and cardiometabolic risk even after adjusting for the specific nutrients involved, evidence that the level of processing itself, not just individual ingredients, may matter on its own, covered directly in this Digest\'s own Lifestyle & Environment research.',
+      'NOVA is a food-classification system that sorts foods into four groups by the extent and purpose of industrial processing, not by nutrient content alone. Group 4, "ultra-processed food," covers industrially formulated products with ingredients rarely used in home cooking. Research finds this level of processing independently associated with higher all-cause mortality and cardiometabolic risk even after adjusting for the specific nutrients involved, evidence that the level of processing itself, not just individual ingredients, may matter on its own, covered directly in this Digest\'s Lifestyle & Environment research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['lifestyle-ultra-processed-food'],
@@ -1331,7 +1331,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'CAR-T Cell Therapy',
     teaser: 'Engineering a patient\'s own immune cells to target and reset the immune process driving their disease, an emerging approach for the hardest-to-treat autoimmune cases.',
     summary:
-      "CAR-T (Chimeric Antigen Receptor T-cell) therapy engineers a patient's own T cells, a type of immune cell, to specifically target and reset the immune process driving their disease. Originally developed for certain cancers, it's now in early human testing for autoimmune rheumatic disease, including rheumatoid arthritis and lupus. Data across this whole approach for autoimmune disease remains overwhelmingly early-stage (roughly 64% of trials still Phase 1), covered directly in this Digest's own Rheumatoid Arthritis research.",
+      "CAR-T (Chimeric Antigen Receptor T-cell) therapy engineers a patient's own T cells, a type of immune cell, to specifically target and reset the immune process driving their disease. Originally developed for certain cancers, it's now in early human testing for autoimmune rheumatic disease, including rheumatoid arthritis and lupus. Data across this whole approach for autoimmune disease remains overwhelmingly early-stage (roughly 64% of trials still Phase 1), covered directly in this Digest's Rheumatoid Arthritis research.",
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['horizon-ra'],
@@ -1342,7 +1342,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'PNPLA3',
     teaser: 'A gene variant linked to fatty liver disease risk, a textbook example of gene-environment interaction: carrying it alone raises risk, but combining it with alcohol, obesity, or diabetes amplifies that risk further.',
     summary:
-      'PNPLA3 is a specific gene variant linked to MASLD (fatty liver disease) risk. Carrying the variant alone measurably raises risk, but combining it with alcohol, obesity, or diabetes amplifies that risk considerably further, a documented example of gene-environment interaction rather than genetics alone determining outcome. Research finds diet interventions (Mediterranean or low-fat) work similarly well regardless of PNPLA3 genotype, covered directly in this Digest\'s own Fatty Liver Disease research.',
+      'PNPLA3 is a specific gene variant linked to MASLD (fatty liver disease) risk. Carrying the variant alone measurably raises risk, but combining it with alcohol, obesity, or diabetes amplifies that risk considerably further, a documented example of gene-environment interaction rather than genetics alone determining outcome. Research finds diet interventions (Mediterranean or low-fat) work similarly well regardless of PNPLA3 genotype, covered directly in this Digest\'s Fatty Liver Disease research.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['masld-pnpla3-genetic-risk'],
@@ -1353,7 +1353,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'CGM (Continuous Glucose Monitor)',
     teaser: 'A device measuring glucose constantly rather than at a single blood draw, making Time in Range trackable in a way a standard HbA1c test alone can\'t.',
     summary:
-      'A continuous glucose monitor (CGM) measures blood glucose constantly throughout the day, rather than at a single blood draw or lab test. This makes Time in Range (TIR), the percentage of a day spent within a safe glucose window, practical to track, a newer, complementary metric that catches dangerous swings a three-month HbA1c average alone can hide. Current guidance targets at least 70% time in range, corresponding to roughly the same control an HbA1c of 7% represents, covered directly in this Digest\'s own Type 1 Diabetes research.',
+      'A continuous glucose monitor (CGM) measures blood glucose constantly throughout the day, rather than at a single blood draw or lab test. This makes Time in Range (TIR), the percentage of a day spent within a safe glucose window, practical to track, a newer, complementary metric that catches dangerous swings a three-month HbA1c average alone can hide. Current guidance targets at least 70% time in range, corresponding to roughly the same control an HbA1c of 7% represents, covered directly in this Digest\'s Type 1 Diabetes research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['type1-hba1c-time-in-range'],
@@ -1364,7 +1364,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'TRAb & TSI (Thyroid-Stimulating Antibodies)',
     teaser: 'The antibodies behind Graves\' disease, which bind to and stimulate the same receptor TSH normally uses, driving the thyroid to overproduce hormone rather than attacking and destroying tissue.',
     summary:
-      "TRAb (TSH-receptor antibody) and TSI (thyroid-stimulating immunoglobulin) are antibodies that bind to and stimulate the same receptor TSH normally uses, driving the thyroid to overproduce hormone. That's a structurally different mechanism from TPO antibodies, which attack and gradually destroy thyroid tissue, which is why Graves' disease behaves so differently from Hashimoto's despite both being autoimmune thyroid conditions. Testing levels over time helps predict remission and relapse, covered directly in this Digest's own Graves' Disease research.",
+      "TRAb (TSH-receptor antibody) and TSI (thyroid-stimulating immunoglobulin) are antibodies that bind to and stimulate the same receptor TSH normally uses, driving the thyroid to overproduce hormone. That's a structurally different mechanism from TPO antibodies, which attack and gradually destroy thyroid tissue, which is why Graves' disease behaves so differently from Hashimoto's despite both being autoimmune thyroid conditions. Testing levels over time helps predict remission and relapse, covered directly in this Digest's Graves' Disease research.",
     citations: [],
     overallTier: 'strong',
     relatedIds: ['graves-trab-tsi-testing'],
@@ -1375,7 +1375,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'DDT',
     teaser: 'A once-widespread pesticide, banned in the US in 1972 after well-documented ecological harm, whose own historical arc (adopted, trusted, later reversed) recurs as a pattern throughout food-industry history.',
     summary:
-      'DDT is a pesticide developed for wartime disease control that moved into mainstream agriculture after 1945, then was banned in the US in 1972 following well-documented ecological harm (Rachel Carson\'s Silent Spring, 1962). Its own historical arc, widely adopted and trusted, then later reversed once harm became clear, recurs as a pattern this Digest\'s own Food Industry & History research draws on directly when discussing other food-industry ingredients and practices with a similar shape.',
+      'DDT is a pesticide developed for wartime disease control that moved into mainstream agriculture after 1945, then was banned in the US in 1972 following well-documented ecological harm (Rachel Carson\'s Silent Spring, 1962). Its own historical arc, widely adopted and trusted, then later reversed once harm became clear, recurs as a pattern this Digest\'s Food Industry & History research draws on directly when discussing other food-industry ingredients and practices with a similar shape.',
     citations: [
       { source: 'EPA: DDT: A Brief History and Status', url: 'https://www.epa.gov/ingredients-used-pesticide-products/ddt-brief-history-and-status' },
     ],
@@ -1388,7 +1388,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'DAS28 & CDAI (Disease Activity Scores)',
     teaser: 'The two most common tools for scoring how active RA is, not interchangeable: they can disagree on which activity category the same patient falls into.',
     summary:
-      "DAS28 and CDAI are the two most commonly used tools for scoring rheumatoid arthritis disease activity. CDAI is a pure clinical count (joint exam plus patient/doctor global assessments) needing no lab work, while DAS28 also factors in an ESR or CRP blood-inflammation marker. A large validation study found both tools valid and strongly correlated overall, but disagreeing on which specific activity category (remission, low, moderate, high) the same patient falls into a meaningful share of the time, covered directly in this Digest's own Rheumatoid Arthritis research.",
+      "DAS28 and CDAI are the two most commonly used tools for scoring rheumatoid arthritis disease activity. CDAI is a pure clinical count (joint exam plus patient/doctor global assessments) needing no lab work, while DAS28 also factors in an ESR or CRP blood-inflammation marker. A large validation study found both tools valid and strongly correlated overall, but disagreeing on which specific activity category (remission, low, moderate, high) the same patient falls into a meaningful share of the time, covered directly in this Digest's Rheumatoid Arthritis research.",
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ra-das28-cdai-scoring'],
@@ -1397,9 +1397,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-confidence-interval',
     category: 'basicHealth',
     title: 'Confidence Interval (CI)',
-    teaser: 'The range a study\'s own true effect likely falls within, not just its single headline number, and how wide that range is says a lot about how much to trust it.',
+    teaser: 'The range a study\'s true effect likely falls within, not just its single headline number, and how wide that range is says a lot about how much to trust it.',
     summary:
-      'A confidence interval (CI) is the range a study\'s own true effect likely falls within, reported alongside a single headline number (e.g. "72% lower odds, 95% CI 0.088-0.883") rather than instead of it. A narrow interval signals a more precise estimate; a wide one, especially one that stretches close to the point where an effect would disappear entirely, signals a finding built on a smaller or noisier sample, worth treating as suggestive rather than settled. This Digest names a study\'s own confidence interval directly wherever it materially changes how confidently a finding should be read.',
+      'A confidence interval (CI) is the range a study\'s true effect likely falls within, reported alongside a single headline number (e.g. "72% lower odds, 95% CI 0.088-0.883") rather than instead of it. A narrow interval signals a more precise estimate; a wide one, especially one that stretches close to the point where an effect would disappear entirely, signals a finding built on a smaller or noisier sample, worth treating as suggestive rather than settled. This Digest names a study\'s confidence interval directly wherever it materially changes how confidently a finding should be read.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['cvd-tavr-vs-surgery-low-risk-partner3'],
@@ -1410,7 +1410,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'CBC (Complete Blood Count)',
     teaser: 'A general-purpose blood test measuring red cells, white cells, and platelets, worth having on file even outside a specific diagnosis.',
     summary:
-      "A complete blood count (CBC) measures red blood cells, white blood cells, and platelets, a general-purpose panel rather than one built for any single condition. It can catch anemia, infection, or a medication side effect that a condition-specific lab panel alone would miss, covered directly in this Digest's own Self Advocacy research as one of the tests worth having on a regular baseline schedule.",
+      "A complete blood count (CBC) measures red blood cells, white blood cells, and platelets, a general-purpose panel rather than one built for any single condition. It can catch anemia, infection, or a medication side effect that a condition-specific lab panel alone would miss, covered directly in this Digest's Self Advocacy research as one of the tests worth having on a regular baseline schedule.",
     citations: [],
     overallTier: 'strong',
     relatedIds: ['advocacy-cbc'],
@@ -1421,7 +1421,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'HIF & VEGF (Hypoxia and Blood Vessel Growth)',
     teaser: 'The signaling pathway low-oxygen tissue uses to trigger new blood vessel growth, shared by ordinary tissue repair and, in a more amplified form, tumor growth.',
     summary:
-      'HIF (hypoxia-inducible factor) is a signaling protein that activates when tissue oxygen runs low, triggering VEGF (vascular endothelial growth factor), which drives the growth of new blood vessels toward that oxygen-starved tissue. The same pathway is active in ordinary tissue repair and, in a more amplified form, in tumor growth, which is why it shows up as a shared mechanism between benign and cancerous tissue growth in this Digest\'s own Prostate Health research.',
+      'HIF (hypoxia-inducible factor) is a signaling protein that activates when tissue oxygen runs low, triggering VEGF (vascular endothelial growth factor), which drives the growth of new blood vessels toward that oxygen-starved tissue. The same pathway is active in ordinary tissue repair and, in a more amplified form, in tumor growth, which is why it shows up as a shared mechanism between benign and cancerous tissue growth in this Digest\'s Prostate Health research.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['prostate-hif-vegf-angiogenesis-shared-pathway'],
@@ -1432,7 +1432,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'JC Virus',
     teaser: 'A common virus most people carry without ever knowing it, whose reactivation risk is specifically monitored for anyone on certain MS medications.',
     summary:
-      "The JC virus is a common virus most people carry without ever knowing it. Its reactivation is the cause of PML (progressive multifocal leukoencephalopathy), a rare but potentially fatal brain infection that's a known risk of natalizumab, a highly effective MS medication. The anti-JC virus antibody index is the established tool for tracking this risk over time, with current guidance recommending testing every six months, covered directly in this Digest's own Multiple Sclerosis research.",
+      "The JC virus is a common virus most people carry without ever knowing it. Its reactivation is the cause of PML (progressive multifocal leukoencephalopathy), a rare but potentially fatal brain infection that's a known risk of natalizumab, a highly effective MS medication. The anti-JC virus antibody index is the established tool for tracking this risk over time, with current guidance recommending testing every six months, covered directly in this Digest's Multiple Sclerosis research.",
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ms-jc-virus-testing'],
@@ -1441,9 +1441,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-mri-ct',
     category: 'basicHealth',
     title: 'MRI & CT (Imaging)',
-    teaser: 'Two common imaging tools with different strengths: MRI uses magnetic fields and shows soft tissue detail well, CT uses X-rays and is faster, each with its own role in confirming a diagnosis or tracking progression.',
+    teaser: 'Two common imaging tools with different strengths: MRI uses magnetic fields and shows soft tissue detail well, CT uses X-rays and is faster, each with its role in confirming a diagnosis or tracking progression.',
     summary:
-      'MRI (magnetic resonance imaging) uses magnetic fields and radio waves to produce detailed images, particularly strong for soft tissue, joints, and the nervous system, without the radiation exposure a CT (computed tomography) scan carries. CT scans use X-rays and are faster, often preferred for urgent or structural imaging. Which one a specific finding in this Digest relies on usually reflects that same tradeoff, covered directly in the imaging research within this Digest\'s own Rheumatoid Arthritis research.',
+      'MRI (magnetic resonance imaging) uses magnetic fields and radio waves to produce detailed images, particularly strong for soft tissue, joints, and the nervous system, without the radiation exposure a CT (computed tomography) scan carries. CT scans use X-rays and are faster, often preferred for urgent or structural imaging. Which one a specific finding in this Digest relies on usually reflects that same tradeoff, covered directly in the imaging research within this Digest\'s Rheumatoid Arthritis research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ra-mri-ultrasound-early-erosion'],

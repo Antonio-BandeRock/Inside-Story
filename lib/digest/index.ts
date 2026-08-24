@@ -180,7 +180,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'hashimotos',
     label: "Hashimoto's Disease",
     icon: 'medkit-outline',
-    description: "Every Hashimoto's-specific finding in this Digest, in one place: nutrients, labs and medication timing, healing stages, organ systems, history, pregnancy, corroborating cross-disease evidence, and Hashimoto's own self-advocacy guidance.",
+    description: "Every Hashimoto's-specific finding in this Digest, in one place: nutrients, labs and medication timing, healing stages, organ systems, history, pregnancy, corroborating cross-disease evidence, and Hashimoto's self-advocacy guidance.",
   },
   // 2026-08-08, eleventh addition (unchanged from its own original build),
   // and the first genuinely new condition this app has ever built out:
@@ -207,7 +207,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'graves',
     label: "Graves' Disease",
     icon: 'eye-outline',
-    description: 'Food, medication, and self-advocacy guidance for Graves\' disease, including several findings that run in the literal opposite direction from this app\'s own Hashimoto\'s research.',
+    description: 'Food, medication, and self-advocacy guidance for Graves\' disease, including several findings that run in the literal opposite direction from this app\'s Hashimoto\'s research.',
   },
   // 2026-08-08, same day, fifth condition: Type 1 Diabetes. See
   // type1Diabetes.ts's own header comment -- a genuinely different shape
