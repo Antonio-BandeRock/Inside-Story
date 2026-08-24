@@ -757,29 +757,52 @@ export default function HomeScreen() {
 
   // Plain useEffect (mount-once), not useFocusEffect -- this is meant to
   // fire once per real app open, not restart every time someone swipes
-  // back to Home from another tab. Only actually collapses if still
+  // back to Home from another tab (see the dedicated blur effect further
+  // below for that specific behavior). Only actually collapses if still
   // 'initial' by the time this fires, so a person who's already tapped
-  // the corner badge to collapse it manually before the minute is up
+  // the corner badge to collapse it manually before the 30 seconds are up
   // isn't yanked back into a re-collapse of a state they already left.
+  // 30000ms, 2026-08-23 direct follow-up (was 60000) -- now the same
+  // duration the 'expanded' auto-close below already uses, though kept as
+  // its own separate effect regardless, since they're conceptually
+  // different triggers (first display vs. a tap-triggered reopen) that
+  // happen to currently share one number, not the same event.
   useEffect(() => {
     const timer = setTimeout(() => {
       setGreetingCardState((current) => (current === 'initial' ? 'collapsed' : current));
-    }, 60000);
+    }, 30000);
     return () => clearTimeout(timer);
   }, []);
 
-  // Separate effect keyed on greetingCardState itself, 2026-08-23: the
-  // 30-second auto-close only ever applies to a tap-triggered reopen, not
-  // the original minute-long first display, so this has to be its own
-  // effect rather than folded into the one above. Re-armed every time
-  // greetingCardState actually becomes 'expanded' again, cleared (and not
-  // fired) if it leaves 'expanded' before the 30 seconds are up, whether
-  // from this same timer or a manual tap on the corner badge.
+  // Separate effect keyed on greetingCardState itself -- the 30-second
+  // auto-close here only ever applies to a tap-triggered reopen, re-armed
+  // every time greetingCardState actually becomes 'expanded' again,
+  // cleared (and not fired) if it leaves 'expanded' before the 30 seconds
+  // are up, whether from this same timer or a manual tap on the corner
+  // badge.
   useEffect(() => {
     if (greetingCardState !== 'expanded') return;
     const timer = setTimeout(() => setGreetingCardState('collapsed'), 30000);
     return () => clearTimeout(timer);
   }, [greetingCardState]);
+
+  // 2026-08-23, direct request: "if the user swipes to either side or
+  // chooses another tab, the welcome shrinks right then and stays shrunk
+  // until they select it again." useFocusEffect's own cleanup function
+  // (the part a plain useEffect doesn't have) fires exactly on blur --
+  // leaving Home for another tab, by swipe or by TabHub -- which is
+  // precisely the moment this needs to act. Setting 'collapsed'
+  // unconditionally here is deliberately safe even when it's already
+  // collapsed (a no-op re-set, not a bug), so this doesn't need to read
+  // the current state first. Home staying mounted across tab switches
+  // (see hasLoadedOnceRef's own comment) is exactly what makes "stays
+  // shrunk until they select it again" true for free -- there's no
+  // remount here to reset it back.
+  useFocusEffect(
+    useCallback(() => {
+      return () => setGreetingCardState('collapsed');
+    }, []),
+  );
 
   // --- Today's Check-In (2026-08-08) -------------------------------------
   //
@@ -1074,7 +1097,18 @@ export default function HomeScreen() {
   // than a fixed 'collapse' behavior baked in, since a badge that always
   // collapsed would have silently done nothing (already collapsed, tap
   // ignored) the one time it actually needs to reopen the card.
+  //
+  // 2026-08-23, direct follow-up: "while it is visible, the sprout is
+  // full color and only goes to 50% transparency after." action already
+  // encodes exactly this distinction, action === 'collapse' only ever
+  // happens while the card itself is currently full-size and visible
+  // (that's the only context this badge collapses anything from), and
+  // action === 'expand' only ever happens once it's already shrunk down
+  // to just this badge on its own -- so dimmed is derived from action
+  // directly rather than threading a second, separately-tracked prop
+  // that would only ever move in lockstep with the one already here.
   function renderGreetingSeedBadge(action: 'collapse' | 'expand') {
+    const dimmed = action === 'expand';
     return (
       <TouchableOpacity
         onPress={() => setGreetingCardState(action === 'collapse' ? 'collapsed' : 'expanded')}
@@ -1083,7 +1117,11 @@ export default function HomeScreen() {
         accessibilityRole="button"
         accessibilityLabel={action === 'collapse' ? 'Collapse the greeting card' : 'Expand the greeting card'}
       >
-        <Image source={require('../../assets/branding/seed-tall-transparent.png')} style={styles.greetingSeedIcon} resizeMode="contain" />
+        <Image
+          source={require('../../assets/branding/seed-tall-transparent.png')}
+          style={[styles.greetingSeedIcon, dimmed && styles.greetingSeedIconDimmed]}
+          resizeMode="contain"
+        />
       </TouchableOpacity>
     );
   }
@@ -1881,17 +1919,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // opacity here, not on greetingSeedBadge itself -- this app's own
-  // established split (see FlipCard's own borderColor prop comment, and
-  // the greeting card's own expanded-overlay opacity comment) between the
-  // interactive element and what's actually drawn, so the tap target's
-  // own hit area never shrinks or fades along with the icon's look.
-  greetingSeedIcon: { width: 32, height: 38, opacity: 0.5 },
-  // Pinned at the same top-left origin the card itself starts from
-  // (matching content's own paddingHorizontal/paddingTop), so collapsing
-  // reads as the card shrinking into this exact corner rather than a
-  // control appearing somewhere new.
-  greetingCollapsedWrap: { position: 'absolute', top: 12, left: 20 },
+  // opacity lives on the icon, not on greetingSeedBadge itself -- this
+  // app's own established split (see FlipCard's own borderColor prop
+  // comment, and the greeting card's own expanded-overlay opacity
+  // comment) between the interactive element and what's actually drawn,
+  // so the tap target's own hit area never shrinks or fades along with
+  // the icon's look. Full color (no opacity here at all) by default,
+  // 2026-08-23 direct follow-up: "while it is visible, the sprout is
+  // full color and only goes to 50% transparency after" -- see
+  // renderGreetingSeedBadge's own comment for exactly when
+  // greetingSeedIconDimmed below applies instead.
+  greetingSeedIcon: { width: 32, height: 38 },
+  greetingSeedIconDimmed: { opacity: 0.5 },
+  // 2026-08-23, direct follow-up: "it should go farther into the corner,
+  // sort of in the margin. It needs to be visible but not take away from
+  // the other things as much as possible." Moved from matching content's
+  // own left/top padding (where the full card itself still starts, see
+  // greetingCard/greetingExpandedCard below, both unchanged) to sitting
+  // almost flush with the true screen edge instead, once it's shrunk down
+  // to just this badge -- a deliberately different, smaller offset than
+  // the full card's own, not the same constant reused.
+  greetingCollapsedWrap: { position: 'absolute', top: 4, left: 4 },
   greetingExpandedCard: {
     position: 'absolute',
     top: 12,
