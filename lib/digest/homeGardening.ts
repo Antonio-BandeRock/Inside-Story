@@ -818,6 +818,64 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     stageNote: 'Extension-sourced practical guidance for the manure and bone/blood meal figures, peer-reviewed trial data for the seaweed-cytokinin and tomato-yield findings specifically.',
     relatedIds: ['garden-composting-at-home', 'garden-cover-crops-home', 'foodhistory-regen-organic-yield-gap-meta-analysis'],
   },
+  // Deep-dive continuation, added 2026-08-24, same day and source
+  // conversation as garden-organic-fertility-amendments above, direct
+  // follow-up request: "I believe there are far more than just 4 new
+  // entries that could be gotten from this... do a deep dive." Checked
+  // against this category's own existing content first: composting was
+  // already covered at the basic EPA level (browns/greens ratio, timeline),
+  // not at the temperature/pathogen-kill level a more serious home
+  // composter would want; companion planting was already covered for pest
+  // reduction (garden-natural-pest-management), not for the separate,
+  // distinct yield/space-efficiency case the Three Sisters system makes; and
+  // nothing yet named which pesticides "organic" actually allows a home
+  // gardener to buy and use, a practical gap next to the new
+  // USDA-certification entry in Earth Matters.
+  {
+    id: 'garden-organic-approved-pesticides',
+    category: 'homeGardening',
+    title: '"Organic" Doesn\'t Mean Pesticide-Free, and Knowing What It Does Allow Helps a Home Garden Too',
+    teaser: 'Bt, a bacterium toxic only once a caterpillar actually eats it, and spinosad, derived from a soil microbe, are both OMRI-listed pesticides organic farms and home gardens alike are allowed to use.',
+    summary:
+      "A common assumption worth correcting directly, since Earth Matters' own USDA certification entry establishes that organic farming permits specific natural and biological substances rather than banning pesticides outright: certified organic farms, and a home gardener aiming for the same standard, can use a defined list of approved products, evaluated by the Organic Materials Review Institute (OMRI) against USDA National Organic Program rules. Bacillus thuringiensis (Bt), a naturally occurring soil bacterium, is the most widely used example, its proteins are only toxic once an insect actually eats them, meaning it targets caterpillars specifically and does far less collateral damage to a garden's own pollinators and beneficial insects than a broad-spectrum spray would. Spinosad, derived from a different soil organism, a bacterium called Saccharopolyspora spinosa, works against caterpillars, some beetles, and thrips through its own separate mechanism. Copper-based products (copper hydroxide, copper oxide) are OMRI-approved fungicides, with a documented caution attached directly by the same standard: copper has to be used in a way that avoids building up in soil over repeated seasons, since it doesn't break down the way a biological product does. None of this replaces the prevention-first approach this category's own companion-planting and beneficial-insect research already covers, it's the next option once prevention alone isn't enough, and knowing the specific, named products (Bt, spinosad, copper) beats reaching for a generic \"organic-labeled\" product without knowing what's actually in it or why.",
+    citations: [
+      { source: 'The list of organic pesticides approved by the USDA, AGDAILY', url: 'https://www.agdaily.com/technology/the-list-of-pesticides-approved-for-organic-production/' },
+      { source: 'Proper Use of Approved Insecticides in Organic Farming Systems, Alabama Cooperative Extension System', url: 'https://www.aces.edu/blog/topics/farming/proper-use-of-approved-insecticides-in-organic-farming-systems/' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Extension and OMRI-sourced guidance on specific, named, currently-approved products, not a generic "organic pesticides exist" gesture.',
+    relatedIds: ['foodhistory-regen-usda-organic-certification', 'garden-natural-pest-management'],
+  },
+  {
+    id: 'garden-hot-composting',
+    category: 'homeGardening',
+    title: 'A Hot Compost Pile Kills Weed Seeds and Pathogens, an Ordinary Pile Usually Doesn\'t Get There',
+    teaser: 'A pile sustained at 131°F for a few days kills most weed seeds; at 158°F, it takes less than an hour. A cool, slow compost pile never reaches either threshold.',
+    summary:
+      "This category's own basic composting entry covers the browns-to-greens ratio and the three-to-five-month timeline for an ordinary backyard pile, this entry covers the temperature threshold that actually determines whether that pile kills weed seeds and plant pathogens or simply breaks them down and, potentially, spreads them back into the garden. A large enough pile, kept moist and turned, self-insulates and moves into a thermophilic (heat-loving-microbe) phase once it passes 113°F, and can reach 131°F to 170°F within one to three days if built and maintained correctly. The specific, checkable thresholds: at 131°F sustained for a few days, most common weed seeds are killed; research measuring this directly found 90% of seeds across six weed species killed in under three hours at 140°F, and 100% killed in under an hour at 158°F. Human pathogens (E. coli, Salmonella) need a slightly higher, sustained threshold, roughly 140°F held for several days, to be reliably destroyed. An ordinary, unturned, cooler pile can still finish into usable compost, it just can't be relied on to have killed whatever weed seeds or pathogens went into it, the practical reason a hot compost pile matters most specifically for anyone adding weedy material or wanting to safely compost a small amount of manure rather than just kitchen scraps.",
+    citations: [
+      { source: 'Composting to Reduce Weed Seeds and Plant Pathogens, eOrganic', url: 'https://eorganic.org/node/4751' },
+      { source: 'How Hot Composting Will Kill Weed Seeds, GrowIt BuildIt', url: 'https://growitbuildit.com/hot-composting-kill-weed-seeds/' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The specific temperature-and-time thresholds come from studies measuring weed-seed and pathogen mortality directly, not a rounded rule of thumb.',
+    relatedIds: ['garden-composting-at-home', 'garden-organic-fertility-amendments'],
+  },
+  {
+    id: 'garden-three-sisters-companion-planting',
+    category: 'homeGardening',
+    title: 'The Three Sisters Is the Most Rigorously Studied Companion-Planting System, and USDA Research Confirms the Yield Math',
+    teaser: 'Corn, beans, and squash grown together produce as much as growing 20% to 40% more separate monoculture land would, though the nitrogen the beans add mostly helps next year\'s crop, not this year\'s.',
+    summary:
+      "The Three Sisters, a Native American method of growing corn, pole beans, and squash together, is a different case from the pest-reduction companion planting this category's own natural-pest-management entry already covers, this is about space efficiency and yield, and it is the most rigorously studied traditional polyculture system in agricultural research specifically because it works through several distinct, individually confirmed mechanisms at once. Corn stalks give climbing beans a living trellis; squash's broad leaves shade the soil, suppressing weeds and holding moisture, functioning as a living mulch; and the three plants root at different depths and pull nutrients from different soil zones rather than competing directly for the same resources, a mechanism called niche complementarity. USDA-linked research confirms the practical payoff directly: the three grown together produce a Land Equivalent Ratio of 1.2 to 1.4, meaning the same total harvest would otherwise require 20% to 40% more separate, single-crop land to produce. Since the popular version of this story oversimplifies one part of it, that part is worth naming directly: isotopic tracing studies find only 2% to 8% of the nitrogen beans fix actually transfers to the neighboring corn and squash within that same growing season, most of it stays locked in the bean plant's own tissue and only becomes available to future crops after that tissue breaks down, meaning the nitrogen benefit is measurable but works across seasons, not as an instant, same-year boost the simplified version of this story often implies.",
+    citations: [
+      { source: 'Five Fascinating Facets of the Indigenous Three Sisters Cropping Method, University of Wisconsin-Madison', url: 'https://grow.cals.wisc.edu/departments/front-list/five-fascinating-facets-of-the-indigenous-three-sisters-cropping-method' },
+      { source: 'The Science of Companion Planting: What Actually Works, GrowPerma', url: 'https://growperma.com/blog/the-science-of-companion-planting-what-actually-works' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The Land Equivalent Ratio figure and the isotopic nitrogen-transfer percentage both come from measured agronomic research, not a folklore-level companion-planting claim.',
+    relatedIds: ['garden-natural-pest-management', 'garden-cover-crops-home', 'foodhistory-regen-rhizobia-nitrogen-fixation'],
+  },
   {
     id: 'garden-tying-together',
     category: 'homeGardening',
@@ -840,6 +898,9 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       'garden-indoor-growing-methods-overview',
       'garden-symbiosis-mission',
       'garden-organic-fertility-amendments',
+      'garden-organic-approved-pesticides',
+      'garden-hot-composting',
+      'garden-three-sisters-companion-planting',
     ],
   },
 ];

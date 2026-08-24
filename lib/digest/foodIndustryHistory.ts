@@ -2454,6 +2454,126 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     stageNote: 'A verified state-level policy transition with an independently confirmed compliance outcome, tiered moderate rather than strong specifically because its own documented economic tradeoffs (market access, certification cost, food-security concerns) are unresolved, not because the transition itself is in doubt.',
     relatedIds: ['foodhistory-regen-india-zbnf-case-study', 'foodhistory-regen-organic-yield-gap-meta-analysis'],
   },
+  // Deep-dive continuation, added 2026-08-24, same day and same source
+  // conversation as the yield-gap/ZBNF/Sikkim batch above, direct follow-up
+  // request: "I believe there are far more than just 4 new entries that
+  // could be gotten from this... do a deep dive." Checked against this
+  // category's own existing content first (the full topic list, not just a
+  // guess): the underlying soil-biology mechanism the source conversation
+  // opened with (the soil food web, nutrient cycling) had never been
+  // written up as its own dedicated entry, only referenced through its
+  // downstream effects (mycorrhizal networks, soil carbon, water
+  // infiltration); no entry explained what "certified organic" or
+  // "biodynamic" actually mean or require; the natural-farming cluster
+  // (ZBNF) had no broader Asian counterpart (Korean Natural Farming); and
+  // the documentary's own title, "Who Owns the World? - Food," pointed at
+  // farmland ownership itself, a distinct angle from the existing
+  // seed-industry-consolidation entry.
+  {
+    id: 'foodhistory-regen-soil-food-web-mineralization',
+    category: 'earthMatters',
+    title: "The Soil Food Web's Actual Mechanism: How Microbes Turn Organic Matter Into a Nutrient a Root Can Absorb",
+    teaser: 'Bacteria and fungi lock nutrients inside their own bodies first, not release them directly, it takes a second set of organisms grazing on those microbes to actually free the nitrogen a plant can use.',
+    summary:
+      "This category's own research already documents several downstream effects of a healthy soil food web (mycorrhizal nutrient-trading networks, water infiltration, stored soil carbon), this entry covers the underlying mechanism connecting all of them: how a soil actually converts organic matter into a form a plant root can absorb, a process called mineralization. Bacteria and fungi at the base of the soil food web consume and decompose organic matter first, but they immobilize much of that nitrogen inside their own living cells rather than releasing it, an often-missed step. Release happens at the next trophic level up: protozoa and nematodes graze on those bacteria and fungi, and their waste products, ammonium and phosphate, are what a plant root can actually take up. Research quantifying this pathway finds soil fauna responsible for roughly 30% of net nitrogen mineralization in many studied systems, with some research attributing as much as 80% of a plant's available nitrogen to protozoal grazing specifically in certain soils, a measured contribution, not a rough estimate offered for effect. This is a short food chain, typically only four to five trophic levels, with roughly 90% of the energy lost at every step up (a released nutrient, not stored biomass, is the actual product), which is exactly why the sheer biological diversity of a healthy soil, not any single organism, is what this whole category keeps pointing back to as the thing that matters most to protect.",
+    citations: [
+      { source: 'Microbial-feeding nematodes and protozoa in soil: their effects on microbial activity and nitrogen mineralization in decomposition hotspots and the rhizosphere, Plant and Soil', url: 'https://link.springer.com/article/10.1007/BF00010107' },
+      { source: 'The Soil Food Web: Nature\'s Way to Build Healthy Soils, Piedmont Master Gardeners', url: 'https://www.piedmontmastergardeners.org/article/the-soil-food-web-natures-way-to-build-healthy-soils/' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The mineralization pathway itself is well-established soil science; the specific percentage contributions vary by study and soil type, reported here as a range rather than one fixed number.',
+    relatedIds: ['foodhistory-regen-mycorrhizal-networks', 'foodhistory-regen-uc-davis-century-experiment', 'foodhistory-regen-rhizobia-nitrogen-fixation', 'garden-composting-at-home'],
+  },
+  {
+    id: 'foodhistory-regen-rhizobia-nitrogen-fixation',
+    category: 'earthMatters',
+    title: 'The Real Mechanism Behind "Legumes Add Nitrogen to Soil": A Bacterium Living Inside the Root Itself',
+    teaser: 'A cover crop like clover does not pull nitrogen from the air on its own, it recruits a specific soil bacterium into its own roots first, and the two organisms build a working factory together.',
+    summary:
+      "This category's own cover-crop and nitrogen-fixing-microbe research already references the effect (a legume adds usable nitrogen to soil); this entry covers the actual biological mechanism behind it. Legumes, when soil nitrogen runs low, release specific chemical signals (flavonoids) into the surrounding soil, and a matching species of rhizobia bacteria in that soil responds with its own signal back, a two-way molecular handshake, not merely a passive presence. That exchange triggers the plant's own root cells to divide and form a nodule, a small physical structure the bacteria are then drawn into, and once inside, the plant encloses the bacteria in its own membrane, forming what is called a symbiosome, effectively a small, jointly built organ neither organism could have made alone. Inside that nodule, in a deliberately low-oxygen environment (the enzyme responsible, nitrogenase, is destroyed by oxygen), the bacteria convert atmospheric nitrogen gas into ammonia the plant can use directly, in exchange for sugars the plant supplies back to the bacteria. This is a highly specific partnership, not a generic one, most rhizobia species interact with only one particular group of legumes, which is part of why matching the right cover crop to the right soil actually matters agronomically, not just picking any nitrogen-fixing plant at random.",
+    citations: [
+      { source: 'Compatibility between Legumes and Rhizobia for the Establishment of a Successful Nitrogen-Fixing Symbiosis, PMC5867846', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5867846/' },
+      { source: 'Molecular Basis of Root Nodule Symbiosis between Bradyrhizobium and \'Crack-Entry\' Legume Groundnut, PMC7076665', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7076665/' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A well-established, textbook-level mechanism in plant biology, not a disputed or emerging finding.',
+    relatedIds: ['foodhistory-regen-soil-food-web-mineralization', 'foodhistory-regen-engineered-nitrogen-fixing-microbes', 'garden-cover-crops-home'],
+  },
+  {
+    id: 'foodhistory-regen-usda-organic-certification',
+    category: 'earthMatters',
+    title: '"Certified Organic" Is a Specific, Legally Enforced Standard, Not a Marketing Word',
+    teaser: 'Land needs three full years free of prohibited substances before a single crop grown on it can legally be called organic, and annual on-site inspections and residue testing are what actually enforce the label.',
+    summary:
+      "The word \"organic\" on a US food label is not self-declared, it is a regulated legal claim under the USDA's National Organic Program, with a specific, checkable set of requirements behind it. Land must go a full 36 months, three complete years, without any prohibited substance applied to it before anything grown on it can be sold, labeled, or represented as organic, a waiting period with no shortcut, which is exactly why a farm's own transition period (already covered elsewhere in this category as a documented yield-gap factor) carries a measurable financial cost before any organic premium becomes available. The underlying rule for what counts as prohibited is a specific structure, not a vague \"natural good, synthetic bad\" rule of thumb: for crops, synthetic substances are banned by default unless specifically allowed, while natural substances are allowed by default unless specifically prohibited (arsenic and strychnine are both banned examples of a natural substance). Enforcement isn't paperwork alone, certifying agents conduct annual on-site inspections and periodic residue testing to verify compliance, the same verification mechanism behind Sikkim's own independently confirmed compliance already covered in this category. Knowing this specific structure is what actually lets a shopper or gardener evaluate a competing claim like \"pesticide-free\" or \"natural,\" neither of which carries this same enforced, third-party-verified meaning.",
+    citations: [
+      { source: 'USDA Agricultural Marketing Service: Organic Transitioning', url: 'https://www.ams.usda.gov/services/organic-certification/transitioning-to-organic' },
+      { source: 'USDA Agricultural Marketing Service: Allowed and Prohibited Substances', url: 'https://www.ams.usda.gov/sites/default/files/media/Allowed-Prohibited%20Substances.pdf' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Directly sourced from the federal regulation itself (USDA AMS), not a summary or a third-party interpretation.',
+    relatedIds: ['foodhistory-regen-organic-yield-gap-meta-analysis', 'foodhistory-regen-sikkim-organic-state', 'garden-organic-approved-pesticides'],
+  },
+  {
+    id: 'foodhistory-regen-biodynamic-farming-correction',
+    category: 'earthMatters',
+    title: 'Biodynamic Farming Uses Real Organic Methods Underneath a Layer of Unproven Ritual, and the Peer-Reviewed Evidence Says So Directly',
+    teaser: 'Its own founder built the method from spiritual visions, not experiments, and peer-reviewed research finds little evidence that its specific ritual "preparations," burying a manure-filled cow horn, for instance, do anything organic farming alone doesn\'t already do.',
+    summary:
+      "Biodynamic farming, developed by Rudolf Steiner in the 1920s, requires everything organic certification already requires (no synthetic inputs) plus a further layer of specific ritual practices: nine numbered \"preparations,\" mineral, herbal, and animal-derived substances (one, for example, is cow manure packed into a cow horn, buried over winter, then dug up and diluted into a spray) applied on a calendar timed to lunar and astrological cycles. Since it's often marketed as simply organic farming plus something extra beneficial, that added claim is worth checking against the peer-reviewed literature directly rather than assumed either way. The literature says: Steiner's own instructions were drawn from spiritualistic exercises and personal visions, not agricultural experiments, by his own account, and a scientific literature review found little evidence that the specific preparations improve soil, boost microbial activity, raise crop yields or quality, or control pests beyond what organic methods already achieve on their own, with a small number of individual studies finding a modest, specific effect on root growth and biological soil properties, a mixed signal rather than a flat zero, but nowhere near the sweeping claims often made for the method. What biodynamic farming does reliably deliver is everything organic certification already requires, avoiding synthetic pesticides and fertilizers is doing the measurable work whenever a biodynamic farm shows better outcomes than a conventional one, not the astrological calendar or the preparations layered on top of it.",
+    citations: [
+      { source: 'The Science Behind Biodynamic Preparations: A Literature Review, ResearchGate', url: 'https://www.researchgate.net/publication/286356710_The_Science_Behind_Biodynamic_Preparations_A_Literature_Review' },
+      { source: 'Cosmic Flavour, Spiritual Nutrition?: The Biodynamic Agricultural Method and the Legacy of Rudolf Steiner\'s Anthroposophy in Viticulture', url: 'https://www.researchgate.net/publication/257937877_Cosmic_Flavour_Spiritual_Nutrition_The_Biodynamic_Agricultural_Method_and_the_Legacy_of_Rudolf_Steiner\'s_Anthroposophy_in_Viticulture' },
+    ],
+    overallTier: 'weak',
+    stageNote: 'Tiered weak specifically for the biodynamic-specific preparations and astrological timing, the same claims the cited literature review itself finds little evidence for, not for organic methods broadly, which this same entry credits directly.',
+    relatedIds: ['foodhistory-regen-usda-organic-certification', 'foodhistory-regen-organic-yield-gap-meta-analysis'],
+  },
+  {
+    id: 'foodhistory-regen-farmland-ownership-concentration',
+    category: 'earthMatters',
+    title: 'Who Actually Owns the Land Food Gets Grown On? Foreign Ownership Gets the Headlines, Domestic Consolidation Is the Bigger Number',
+    teaser: 'Foreign investors hold about 3.6% of US private agricultural land, a measured and growing figure, and the same researchers flagging it directly name domestic farmland consolidation into fewer, larger operations as the actual bigger structural story.',
+    summary:
+      "The documentary this batch of research is checked against is itself titled around a direct question, who owns the world's food-producing land, and the checkable answer is more layered than either a reassuring or an alarming one-line version. USDA's own most recent disclosure data finds foreign investors holding 45.85 million acres of US agricultural land as of 2023, 3.61% of all privately held agricultural land, concentrated heavily in a handful of states (Texas, Maine, and Alabama lead), with Canadian investors the single largest foreign holder by a wide margin, not the nationalities most often assumed. That number has been climbing at a measured pace, and institutional (non-farmer) investors, largely domestic, poured over $12 billion into US farmland in 2021 alone, a separate trend from foreign purchases specifically. The more direct structural story, per the same researchers tracking this data, is domestic farmland consolidation: the same total acreage held by steadily fewer, larger farm operations over time, squeezing out small and mid-sized family farms regardless of who technically holds the deed, a distinctly different, more foundational concern than foreign ownership alone, and one directly connected to this category's own already-covered farmer mental-health and debt-crisis research.",
+    citations: [
+      { source: 'Foreign Footprints: Trends in U.S. Agricultural Land Ownership, American Farm Bureau Federation', url: 'https://www.fb.org/market-intel/foreign-footprints-trends-in-u-s-agricultural-land-ownership' },
+      { source: 'Farmland Consolidation, Not Chinese Ownership, Is the Real National Security Threat, Union of Concerned Scientists', url: 'https://blog.ucs.org/omanjana-goswami/farmland-consolidation-not-chinese-ownership-is-the-real-national-security-threat/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'The foreign-ownership figures come directly from a federal disclosure system (AFIDA) whose own data quality is publicly questioned by researchers using it, tiered moderate for that reason; the domestic-consolidation framing is a researcher interpretation of the same underlying trend, not a separately audited statistic.',
+    relatedIds: ['foodhistory-regen-seed-industry-consolidation', 'foodhistory-regen-farmer-mental-health-debt-crisis'],
+  },
+  {
+    id: 'foodhistory-regen-uc-davis-century-experiment',
+    category: 'earthMatters',
+    title: 'A 19-Year UC Davis Trial Found Compost, Not Cover Crops Alone, Is What Actually Locks Carbon Deep in the Soil',
+    teaser: 'Cover crops alone raised topsoil carbon while measurably losing carbon further down, only the combination of compost and cover crops together produced a net gain, an honest complication to the "just plant a cover crop" story.',
+    summary:
+      "The Century Experiment, run at UC Davis's Russell Ranch Sustainable Agriculture Facility since 1993, is one of the longest-running controlled agroecological trials in the country, and its own 19-year results on soil carbon, published in Global Change Biology, complicate a claim this category's own research otherwise treats as settled. Researchers dug roughly six feet down, not just sampling the surface, to compare conventional, cover-cropped, and compost-plus-cover-cropped plots. Cover crops alone did raise carbon in the top 12 inches of soil, but the same plots measurably lost carbon at greater depth, a specific, counterintuitive finding: cover-crop roots supplied carbon deep in the soil, but not the other nutrients microbes needed to actually stabilize it there. Only the plots receiving both compost and cover crops together showed a net gain across the full depth measured, soil carbon rising 12.6% over the 19-year study, roughly 0.7% a year, because compost supplies the additional nutrients that let deep-soil microbes hold onto the carbon cover-crop roots deliver rather than letting it cycle back out. This is a direct, field-measured confirmation of why this category's own composting and cover-crop entries are already paired rather than presented as interchangeable options, and a needed correction to any version of the soil-carbon story that credits cover cropping alone.",
+    citations: [
+      { source: 'Synergy between compost and cover crops in a Mediterranean row crop system leads to increased subsoil carbon storage, SOIL (Copernicus)', url: 'https://soil.copernicus.org/articles/8/59/2022/' },
+      { source: 'Compost Key to Sequestering Carbon in the Soil, UC Davis', url: 'https://www.ucdavis.edu/climate/news/compost-key-sequestering-carbon-soil' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A single long-term trial, not a meta-analysis, but 19 years and full-depth (not just surface) sampling make this one of the more rigorous individual studies in this whole category.',
+    relatedIds: ['foodhistory-regen-soil-food-web-mineralization', 'garden-composting-at-home', 'garden-cover-crops-home', 'foodhistory-regen-4-per-1000-initiative'],
+  },
+  {
+    id: 'foodhistory-regen-korean-natural-farming-jadam',
+    category: 'earthMatters',
+    title: "Korean Natural Farming and JADAM: India's ZBNF Has a Direct Asian Counterpart, Built on the Same Zero-Cost Logic",
+    teaser: 'A Korean method builds fertilizer and pest control from locally collected microorganisms rather than anything purchased, and Canadian farmers who adopted it report cutting pest-management costs by as much as 80%, a farmer-reported figure, not yet a controlled trial.',
+    summary:
+      "This category's own India-focused Zero Budget Natural Farming case study isn't a regional one-off, it belongs to a broader movement of natural-farming methods built on the same core idea: locally sourced, zero-cost microbial inputs instead of purchased fertilizer or pesticide, whether organic or synthetic. Korean Natural Farming (KNF), developed by Cho Han-Kyu, and JADAM, a further ultra-low-cost variant developed by his son, both center on cultivating \"indigenous microorganisms,\" local leaf mold and soil life collected directly from forest floor near a farm, on the premise that organisms already adapted to that exact local environment outperform any purchased, generic product. A batch of these microorganisms, cultured in water with a small amount of cooked potato and salt, becomes the base for homemade liquid fertilizers and pest treatments. This is newer, thinner evidence than the ZBNF entry's own controlled field trial, current adoption data comes from farmer reporting rather than a peer-reviewed trial: growers across Alberta, Canada report up to an 80% reduction in pest-management costs while maintaining or improving yield, a specific but self-reported figure, not yet independently verified the way Andhra Pradesh's own ZBNF trial was. Tiered accordingly: the underlying logic (local microbial inputs replacing purchased ones) is the same well-evidenced mechanism as ZBNF and composting more broadly, the specific cost and yield claims for KNF/JADAM itself are still farmer-reported, not yet controlled-trial-confirmed.",
+    citations: [
+      { source: 'JADAM Organic Farming for Sustainable Low-Cost Agriculture in South Korea, IDEASSonline', url: 'https://www.ideassonline.org/public/pdf/JadamOrganicFarming-ENG.pdf' },
+      { source: 'JADAM Farming: How Canadian Farmers Are Crushing Pest Problems Naturally, Organic Agriculture Centre of Canada', url: 'https://organicagcentre.ca/technology-and-digital-innovation/jadam-farming-how-canadian-farmers-are-crushing-pest-problems-naturally-2/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'The core microbial-input logic is well-supported by this category\'s own broader soil-biology research; the specific 80% cost-reduction figure is farmer-reported field experience, not yet a controlled trial the way the ZBNF entry\'s own Andhra Pradesh data is.',
+    relatedIds: ['foodhistory-regen-india-zbnf-case-study', 'foodhistory-regen-soil-food-web-mineralization'],
+  },
   {
     id: 'foodhistory-regen-tying-together',
     category: 'earthMatters',
@@ -2486,6 +2606,10 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       'foodhistory-regen-organic-yield-gap-meta-analysis',
       'foodhistory-regen-india-zbnf-case-study',
       'foodhistory-regen-sikkim-organic-state',
+      'foodhistory-regen-soil-food-web-mineralization',
+      'foodhistory-regen-usda-organic-certification',
+      'foodhistory-regen-farmland-ownership-concentration',
+      'foodhistory-regen-uc-davis-century-experiment',
     ],
   },
 
