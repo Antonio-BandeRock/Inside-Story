@@ -3206,7 +3206,7 @@ const styles = StyleSheet.create({
   // real nutrition callout box shape/tinting (a bordered box in this
   // page's own tabColor), not invented fresh for this screen.
   recipeNutritionBox: {
-    borderWidth: 1,
+    borderWidth: 2,
     borderRadius: 10,
     padding: 12,
     marginTop: 14,
@@ -3229,7 +3229,7 @@ const styles = StyleSheet.create({
   // treatment) so it reads as a genuinely different kind of information
   // than the nutrition box just above it.
   recipeConditionBox: {
-    borderWidth: 1,
+    borderWidth: 2,
     borderRadius: 10,
     padding: 12,
     marginTop: 14,

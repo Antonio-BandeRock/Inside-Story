@@ -3368,7 +3368,14 @@ export default function PurpleDigestScreen() {
                             groupRefs.current[TYING_TOGETHER_GROUP_KEY] = r as unknown as Measurable | null;
                           }}
                         >
-                          <Text style={styles.shelfHeading}>Putting It Together</Text>
+                          {/* 2026-08-24, direct report: this section only ever
+                              holds the one closing synthesis card, and that
+                              card's own title already says what it is ("...,
+                              Pulled Together," "Putting It Together: ..."),
+                              so a standalone "Putting It Together" heading
+                              above it just repeated the card's own point with
+                              nothing else in the section to justify a label
+                              at all. Removed outright rather than reworded. */}
                           <Animated.View layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}>
                             <DigestCard
                               entry={tyingTogether}
@@ -3906,6 +3913,12 @@ function shelfGroupDisplayLabel(label: string): string {
 // it at all" -- the render site below skips the <Text> entirely rather
 // than leave a blank line.
 function shelfHeadingLabel(label: string, hideTopLevelLabel?: string): string {
+  // A closing synthesis section always holds exactly one card, whose own
+  // title already says what it is -- a "Putting It Together" label above
+  // it (the search-results path can reach this same group through the
+  // ordinary groups prop, not just the dedicated section below) is always
+  // redundant, not just when hideTopLevelLabel happens to match.
+  if (label === TYING_TOGETHER_GROUP_KEY) return '';
   if (!hideTopLevelLabel) return shelfGroupDisplayLabel(label);
   if (label === hideTopLevelLabel) return '';
   if (label.startsWith(`${hideTopLevelLabel}::`)) {
@@ -5116,7 +5129,10 @@ const styles = StyleSheet.create({
   // flower background (see the JSX's own comment above this style's use).
   headerCard: {
     backgroundColor: colors.surface,
-    borderWidth: 1,
+    // 2026-08-24: was 1, the standing rule for any card whose border
+    // carries a tab-identity color (see index.tsx's own TAB_BORDER_WIDTH
+    // comment) is 2, and this card had never been brought in line with it.
+    borderWidth: 2,
     borderColor: TAB_COLOR,
     borderRadius: 12,
     padding: 14,
