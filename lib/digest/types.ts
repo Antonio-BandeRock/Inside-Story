@@ -371,6 +371,23 @@ export type RecipeCard = {
   // entirely when absent, the same convention flavorNotes/instructions
   // already use.
   dietTags?: RecipeDietTag[];
+  // 2026-08-24, direct request: "there needs to be an association
+  // between the recipes and the conditions... so that the user can look
+  // through their specific condition that will then show them meals
+  // they can eat." Real condition CODES (the live database's own
+  // snake_case `conditions.code` values, e.g. 'hashimotos',
+  // 'chronic_kidney_disease' -- see lib/conditionCodeMap.ts) this recipe
+  // has zero significant (red- or yellow-tier) flagged ingredients for,
+  // scoped to each condition's own real relevant sub-criteria the exact
+  // same way lib/db.ts's own getFoodScoresForCondition already scopes
+  // it. Computed once, offline, via
+  // scripts/compute_recipe_condition_data.js -- see that script's own
+  // header comment for the full, auditable methodology, including why
+  // Migraine (zero real condition-specific scoring data in this
+  // database) is honestly excluded rather than trivially marked safe
+  // for. Drives the real "Meals You Can Eat" topic on each covered
+  // condition's own Digest page (app/(tabs)/purple-digest.tsx).
+  safeForConditions?: string[];
   ingredients: RecipeIngredientLine[];
   // One real step per entry, numbered by the UI. Optional, 2026-08-15 --
   // My Kitchen/My Favorites (lib/digestDynamicEntries.ts) build a real

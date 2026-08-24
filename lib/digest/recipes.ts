@@ -99,6 +99,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_whole_wheat_bread',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes one small 4-slice loaf. A loaf this size comfortably keeps one person in bread for several days.',
       ingredients: [
@@ -126,6 +127,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This is a full-gluten wheat loaf, so if gluten is something you avoid, this one isn\'t for you as written. The good news is it\'s an easy swap: a 1:1 gluten-free flour blend works in this same recipe, just expect a slightly denser, less springy crumb since it\'s missing gluten\'s stretch.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'This bakes up hearty and a little nutty, the way whole wheat always does, with a firm, chewy crumb rather than the airy softness of a white sandwich loaf. The crust turns deep golden and properly crackly right out of the oven. It\'s a plain, honest bread built for actual use: toast, sandwiches, or torn straight off the loaf and dipped in olive oil, not a delicate bakery showpiece.',
     },
@@ -141,6 +147,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_wheat_tortillas',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 4 tortillas. One person can get through these across a couple of days of wraps and tacos.',
       ingredients: [
@@ -165,6 +172,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This is an ordinary wheat-flour tortilla, so the gluten content is unavoidable as written. A gluten-free tortilla-style flour blend can be substituted directly in this same recipe. It rolls out a little more delicately, so handle it gently when you flip it in the pan.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Fresh tortillas taste like almost nothing else: a little toasty, a little chewy, soft in a way that a package sitting on a shelf for weeks just can\'t match. Warm, straight out of the skillet, they don\'t even need a filling to be good on their own.',
     },
@@ -180,6 +191,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_buttermilk_biscuits',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian'],
       yield: 'Makes 4 biscuits. One person can eat 1-2 over breakfast and still have a couple left for later.',
       ingredients: [
@@ -205,6 +217,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This is a full-gluten wheat recipe. A gluten-free flour blend built for baking can generally stand in 1:1, though you may need a touch more buttermilk since gluten-free blends often absorb liquid differently.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Warm from the oven, these have a good tang from the buttermilk balanced against rich, salty butter, with a craggy golden top and layers that actually pull apart. Split one open and it\'s begging for more butter or a spoonful of jam.',
     },
@@ -220,6 +236,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_banana_oat_cookies',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 6 cookies. One person can eat a couple and still have breakfast covered for a few more days.',
       ingredients: [
@@ -243,7 +260,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Magnesium', note: 'Around 8-10% of a day\'s target per cookie.' },
         { nutrient: 'Fiber', note: 'Roughly 6-9% of a day\'s worth per cookie, from oats and banana together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'These taste like banana bread in cookie form: soft, a little chewy, warm with cinnamon, and sweet from ripe banana rather than a cup of sugar. They\'re dense enough to actually be filling, which is exactly what a good breakfast cookie should be.',
     },
   },
@@ -266,6 +286,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_ginger_turmeric_tonic',
     linkedBuilderType: 'beverage',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups. This is a pitcher-style drink, so brew the whole batch and keep it in the fridge, plenty for 1 person across a couple of days.',
       ingredients: [
@@ -287,7 +308,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Manganese', note: 'Around 18-23% of a day\'s worth per cup, mostly from the turmeric and ginger.' },
         { nutrient: 'Vitamin C', note: 'A modest 5-6% of a day\'s target per cup, from the fresh lemon juice.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'This is warm, peppery, and a little sharp from fresh ginger, balanced by honey\'s sweetness and a bright hit of lemon at the end. The black pepper is barely noticeable on its own but gives the whole drink a little more depth and bite.',
     },
   },
@@ -302,6 +325,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_electrolyte_water',
     linkedBuilderType: 'beverage',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups (500ml), one glass for one person.',
       ingredients: [
@@ -318,7 +342,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'About 18-22% of a day\'s worth per glass, from the lemon juice.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'This tastes like a light, gently salty lemonade, refreshing rather than sweet, with the salt working in the background to make it thirst-quenching rather than just sugary.',
     },
   },
@@ -333,6 +359,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_iced_green_tea_mint',
     linkedBuilderType: 'beverage',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups. A pitcher-style drink: brew it once, keep it cold, and it\'ll cover 1 person for a couple of days.',
       ingredients: [
@@ -349,7 +376,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Manganese', note: 'Around 48-62% of a day\'s worth per cup.' },
         { nutrient: 'Riboflavin (B2)', note: 'About 11-13% of a day\'s target per cup.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Cold, lightly grassy green tea with a cooling lift from fresh mint, crisp and clean rather than sweet, closer to a herbal refresher than a soft drink.',
     },
   },
@@ -364,6 +393,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_golden_milk',
     linkedBuilderType: 'beverage',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 1¼ cups, one mug for one person.',
       ingredients: [
@@ -385,7 +415,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Calcium', note: 'Around 36% of a day\'s target per mug.' },
         { nutrient: 'Vitamin A', note: 'Roughly 15-20% of a day\'s worth per mug.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'This drinks like a warm, spiced dessert: earthy turmeric, sweet cinnamon, a gentle honey sweetness, and just enough black pepper in the background to add warmth without any actual heat. Closer to a comfort drink than a health shot.',
     },
   },
@@ -405,6 +440,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_dessert_baked_cinnamon_apples',
     linkedBuilderType: 'dessert',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 baked apple\'s worth (about 150g apple total), 1 serving for 1 person.',
       ingredients: [
@@ -428,6 +464,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Walnuts carry a notably high oxalate load. This is a small topping amount, so it\'s unlikely to matter for most people, but if oxalate is something you\'re actively watching, pairing this with a calcium source (a scoop of Greek yogurt alongside it works well) helps offset it.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Soft, warm, and cinnamon-sweet, with crunch from the walnuts on top. This eats like a fruit dessert rather than a pastry, closer to the inside of an apple pie without the crust.',
     },
@@ -443,6 +481,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_dessert_mixed_berry_chia_pudding',
     linkedBuilderType: 'dessert',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about ½ cup, 1 serving for 1 person.',
       ingredients: [
@@ -467,6 +506,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Chia seeds carry a notably high oxalate load. Pairing this pudding with a calcium source (the almond milk already helps a little, or add a spoonful of yogurt) helps offset it if oxalate is something you\'re watching.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'This lands closer to a fruit-and-seed pudding than a sugary dessert: creamy and just barely sweet, with the tiny chia seeds giving it a tapioca-like texture, and whole berries folded through for bright bursts of tartness.',
     },
@@ -491,6 +534,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_plain_yogurt',
     linkedBuilderType: 'fermentation',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 4 cups. A batch meant to last 1 person a week or more in the fridge, the way a jar of yogurt would.',
       ingredients: [
@@ -508,7 +552,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Calcium', note: 'About 14% of a day\'s target per cup.' },
         { nutrient: 'Protein', note: 'Roughly 7-9% of a day\'s worth per cup.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Homemade yogurt tastes noticeably tangier and less sweet than most store-bought tubs, with a thinner, more natural set unless you strain it Greek-style. It\'s a different product from a sweetened commercial cup: plain, a little sour, and ready to be built on with fruit or honey.',
     },
   },
@@ -523,6 +572,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_probiotic_yogurt',
     linkedBuilderType: 'fermentation',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 4 cups. A batch meant to last 1 person a week or more in the fridge.',
       ingredients: [
@@ -540,7 +590,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Calcium', note: 'About 14% of a day\'s target per cup.' },
         { nutrient: 'Protein', note: 'Roughly 7-9% of a day\'s worth per cup.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Tastes very close to the plain version, tangy and thick, not sweet, though the extra culture blend can give it a slightly softer set and a touch more sourness depending on how long it ferments.',
     },
   },
@@ -555,6 +610,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_sauerkraut',
     linkedBuilderType: 'fermentation',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups. A fermented batch, kept in the fridge, easily lasts 1 person several weeks as a regular side.',
       ingredients: [
@@ -576,6 +632,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s', note: 'Raw cabbage carries a goitrogenic compound that can interfere with the thyroid\'s own iodine uptake in large, regular raw amounts. Fermentation helps here: the fermentation process itself, and the acidity it produces, measurably reduces this compound compared to eating the cabbage fully raw, which is part of why fermented cabbage is generally treated more leniently than a raw cabbage salad.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Homemade sauerkraut is noticeably sour and a little effervescent, with a crunch that store-bought pasteurized kraut (which kills off the live cultures and softens the texture) just doesn\'t have. The exact tang and complexity shift as it ferments longer, so tasting along the way is part of the process.',
     },
@@ -591,6 +650,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_kombucha',
     linkedBuilderType: 'fermentation',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 4 cups. A batch meant to be brewed once and last 1 person a week or more.',
       ingredients: [
@@ -608,7 +668,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Manganese', note: 'Around 32-40% of a day\'s worth per cup.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Homemade kombucha lands somewhere between a tart apple cider vinegar and a light, effervescent soda: tangy, a little funky, and alive in a way flat, shelf-stable drinks aren\'t. The exact flavor shifts with brew time, so a shorter ferment stays sweeter and a longer one gets noticeably more sour.',
     },
   },
@@ -627,6 +689,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_turkey_avocado_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
@@ -648,7 +711,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin K', note: 'About 49-65% of a day\'s worth per wrap, from the greens.' },
         { nutrient: 'Protein', note: 'Roughly half a day\'s target per wrap.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Fresh, clean, and satisfying: lean turkey and creamy avocado against crisp lettuce and juicy tomato, all wrapped up in a soft tortilla. This is straightforward, deli-counter-quality flavor with nothing to hide behind.',
     },
   },
@@ -663,6 +731,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_grilled_chicken_sandwich',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 sandwich, for 1 person.',
       ingredients: [
@@ -686,6 +755,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This uses whole-grain bread, so it carries gluten as written. Swapping in a gluten-free sandwich bread works directly in this same recipe.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Smoky, charred edges on the chicken from the grill, layered with creamy avocado and fresh, juicy tomato: a hearty sandwich that eats more like a meal than a snack.',
     },
@@ -701,6 +774,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_black_bean_sweet_potato_tacos',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 taco, for 1 person.',
       ingredients: [
@@ -726,6 +800,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome / Celiac', note: 'Black beans carry a fair amount of fermentable fiber that some people with an already-sensitive gut find harder to digest. If that\'s you, a smaller portion of beans, or swapping in a well-rinsed canned bean (which reduces some of the fermentable content), can make this easier on the gut.' },
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Sweet potato carries a notably elevated oxalate content. Pairing it with a calcium source at the same meal helps offset it if that\'s something you\'re watching.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Sweet, caramelized roasted sweet potato against the earthiness of black beans, brightened by fresh lime and cilantro: a satisfying vegetarian taco with plenty of textural contrast between the soft filling and the creamy avocado on top.',
     },
@@ -741,6 +819,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_egg_salad_lettuce_wraps',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
@@ -763,7 +842,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Riboflavin (B2)', note: 'About 43-51% of a day\'s worth per wrap.' },
         { nutrient: 'Protein', note: 'Roughly a quarter of a day\'s target per wrap.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy, savory egg salad with a little tang from the mustard and a good crunch from the celery, wrapped in cool, crisp lettuce instead of bread. Lighter than a sandwich but every bit as filling.',
     },
   },
@@ -783,6 +864,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_mediterranean_chickpea_feta',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -809,6 +891,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome / Celiac', note: 'Chickpeas carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion, or a well-rinsed canned chickpea, tends to sit easier if that\'s a concern for you.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Bright and tangy from the lemon and oregano, with salty richness from the feta against the cool crunch of cucumber and tomato: a simple, no-cook Mediterranean-style salad that tastes like it took more effort than it actually did.',
     },
@@ -824,6 +913,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_kale_citrus_iron',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -848,6 +938,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s', note: 'Raw kale carries a goitrogenic compound that can interfere with the thyroid\'s own iodine uptake when eaten raw and often. It\'s well tolerated in normal portions like this one for most people, but if you\'re eating raw cruciferous vegetables like this daily, lightly steaming the kale first is an easy way to reduce that compound while keeping most of the nutrition.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Earthy, slightly bitter kale balanced against sweet, juicy orange segments and a little sharpness from raw onion, with pumpkin seeds adding good crunch. The massage step noticeably changes kale\'s texture from tough to tender, which makes a big difference here.',
     },
@@ -863,6 +957,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_sesame_ginger_slaw',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -888,6 +983,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Hashimoto\'s', note: 'Raw cabbage carries a goitrogenic compound relevant to thyroid iodine uptake, and this is a fairly large raw cabbage portion. If you eat cabbage this way often, occasionally swapping in a lightly steamed slaw keeps the crunch while reducing that compound.' },
         { condition: 'Irritable Bowel Syndrome', note: 'Vinegar-based dressings are a known digestive irritant for some people with IBS. If that\'s you, a milder dressing built on a splash of orange or lime juice instead of vinegar can be substituted directly.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Crisp and crunchy from the raw cabbage and carrot, with a sharp gingery bite and a savory-sweet dressing that balances the vinegar\'s sharpness. The toasted flavor of the sesame seeds ties the whole thing together.',
     },
@@ -903,6 +1004,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_beet_walnut_arugula',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -928,6 +1030,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s', note: 'Raw arugula carries a goitrogenic compound relevant to thyroid iodine uptake, though it\'s a smaller amount than a food like raw kale or cabbage and is generally well tolerated in a normal portion like this one.' },
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Walnuts carry a notably elevated oxalate load. Pairing them with a calcium source (the feta in this same salad already helps) is an easy way to offset it.' },
         { condition: 'Irritable Bowel Syndrome', note: 'Balsamic vinegar is a known digestive irritant for some people with IBS. A citrus-based dressing can be substituted directly if vinegar tends to bother you.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Earthy, sweet roasted beets against arugula\'s peppery bite, with salty feta and a good crunch from the walnuts: a fine balance of sweet, sharp, salty, and crunchy all in one bowl.',
     },
@@ -943,6 +1052,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_southwest_quinoa_black_bean',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -970,6 +1080,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome / Celiac', note: 'Black beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller bean portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Nutty quinoa, earthy black beans, and sweet corn come together with a bright, citrusy lime dressing and a warm hit of cumin: creamy avocado ties the whole thing together into a filling southwest-style bowl.',
     },
@@ -985,6 +1101,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_spinach_strawberry_almond',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -1008,6 +1125,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Both raw spinach and almonds carry a notably high oxalate load, and this salad has meaningful amounts of both. Pairing this with a calcium source at the same meal (a side of yogurt, or a sprinkle of cheese) is a practical way to help offset it if oxalate is something you\'re watching.' },
         { condition: 'Irritable Bowel Syndrome', note: 'Balsamic vinegar is a known digestive irritant for some people with IBS. A squeeze of fresh orange juice makes an easy substitute in the dressing.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Sweet, juicy strawberries against spinach\'s mild, slightly earthy leaves, with good crunch from the sliced almonds and a tangy balsamic dressing tying it all together: a classic combination for good reason.',
     },
@@ -1029,6 +1150,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_basic_tomato',
     linkedBuilderType: 'sauce',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 1½ cups. A batch condiment meant to cover 1 person over multiple meals.',
       ingredients: [
@@ -1051,7 +1173,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'Around 22-27% of a day\'s worth per half-cup serving.' },
         { nutrient: 'Vitamin K', note: 'About 17-23% of a day\'s target per serving.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright tomato flavor with a natural sweetness that develops as it simmers and reduces, rounded out by garlic and fresh basil at the end. This is closer to an Italian nonna\'s weeknight sauce than a jarred version: simple, honest, and versatile.',
     },
   },
@@ -1066,6 +1193,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_garlic_herb_vinaigrette',
     linkedBuilderType: 'sauce',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about ½ cup. A batch dressing meant to cover 1 person\'s salads for a week or more.',
       ingredients: [
@@ -1085,6 +1213,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [],
       conditionNotes: [
         { condition: 'Irritable Bowel Syndrome', note: 'Balsamic vinegar is a known digestive irritant for some people with IBS. Substituting fresh citrus juice for the vinegar keeps this same dressing structure while avoiding that trigger.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Sharp and tangy from the balsamic, mellowed by garlic and a touch of mustard, this coats a salad without drowning it. A handy, all-purpose dressing worth keeping stocked in the fridge.',
     },
@@ -1100,6 +1231,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_simple_pesto',
     linkedBuilderType: 'sauce',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about ½ cup. A batch sauce meant to cover 1 person\'s meals for a week or more.',
       ingredients: [
@@ -1123,6 +1255,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Pine nuts carry a notably elevated oxalate load. Pairing pesto-topped dishes with a calcium source (the Parmesan already in this recipe helps some) is one way to offset it if oxalate is a concern for you.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Bright, herbaceous, and properly garlicky, with a rich nuttiness from the pine nuts and a savory, salty finish from the Parmesan. This tastes distinctly fresher and more vivid than a jarred pesto that\'s been sitting on a shelf.',
     },
@@ -1138,6 +1275,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_tahini_lemon',
     linkedBuilderType: 'sauce',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 6 tablespoons. A batch sauce meant to cover 1 person\'s meals for a week or more.',
       ingredients: [
@@ -1157,7 +1295,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Magnesium', note: 'Around 9-11% of a day\'s worth per 2-tablespoon serving.' },
         { nutrient: 'Zinc', note: 'About 6-9% of a day\'s target per serving.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Nutty and rich from the tahini, cut through with bright lemon acidity and a little bite from the garlic: a versatile sauce that works equally well drizzled over roasted vegetables, a grain bowl, or falafel.',
     },
   },
@@ -1177,6 +1317,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_herb_roasted_potatoes',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
@@ -1202,6 +1343,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Sweet potato carries a notably elevated oxalate content. Pairing this side with a calcium-containing dish at the same meal helps offset it if that\'s something you\'re watching.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Crispy, caramelized edges on the outside with a soft, tender bite inside, seasoned simply with rosemary and garlic: a comforting side that goes with almost anything.',
     },
@@ -1217,6 +1361,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lemon_garlic_broccoli',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
@@ -1242,6 +1387,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s', note: 'Raw broccoli carries a goitrogenic compound relevant to thyroid iodine uptake, but roasting measurably reduces this compound compared to eating it raw, which is exactly why this side is roasted rather than served as a raw salad.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'A good roasty char on the broccoli florets pairs with sweet roasted carrot and bell pepper, all brightened at the end by fresh lemon juice and garlic: simple, colorful, and easy to crave for a vegetable side.',
     },
@@ -1257,6 +1405,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_garlic_mashed_cauliflower',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
@@ -1277,7 +1426,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A solid 37-44% of a day\'s worth per serving.' },
         { nutrient: 'Vitamin K', note: 'Around 9-12% of a day\'s target per serving.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy and garlicky, this stands in nicely for mashed potatoes, with a similar smooth texture but a lighter, slightly sweeter, more vegetal flavor underneath.',
     },
   },
@@ -1292,6 +1445,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_sauteed_spinach_garlic',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about ½ cup, 1 ½-cup serving.',
       ingredients: [
@@ -1315,6 +1469,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Spinach carries a notably high oxalate load, cooked or raw. Pairing it with a calcium source at the same meal is a practical way to help offset it if oxalate is something you\'re watching.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Simple and quick, with the garlic and a bright squeeze of lemon keeping the spinach\'s mild, earthy flavor from tasting flat. A classic, no-frills green side.',
     },
@@ -1330,6 +1485,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_rainbow_stir_fry',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free'],
       yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
@@ -1359,6 +1515,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'Regular soy sauce is brewed from wheat and carries gluten. Tamari (a traditionally gluten-free soy sauce) or coconut aminos both swap in directly for the same salty, savory flavor without the gluten.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Fast, crisp-tender, and vibrant with color, the vegetables stay bright and retain good crunch rather than going soft, tied together with a savory, gingery, garlicky sauce.',
     },
@@ -1379,6 +1540,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_green_glow',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -1400,6 +1562,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Both spinach and chia seeds carry a notably high oxalate load, and this smoothie has meaningful amounts of both. The Greek yogurt already in this recipe helps offset it with real calcium.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Fruity and sweet, with the banana and pineapple doing most of the talking and the Greek yogurt adding real body and a light tang. The spinach adds color and nutrition without adding much flavor of its own, which is exactly the point.',
     },
@@ -1415,6 +1582,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_golden_turmeric',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -1435,7 +1603,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin B6', note: 'A solid amount per serving.' },
         { nutrient: 'Curcumin', note: 'The black pepper alongside it measurably improves how much the body actually absorbs.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Warm, spiced flavor from the turmeric and cinnamon against the natural sweetness of the banana and the tang of real Greek yogurt. This drinks more like a dessert smoothie than a health-food shot, with just enough black pepper in the background to notice without any actual heat.',
     },
   },
@@ -1450,6 +1623,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_brazil_nut_selenium',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -1470,6 +1644,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Brazil nuts carry a notably elevated oxalate load. The Greek yogurt already in this recipe helps offset it with real calcium.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Rich and creamy from the Greek yogurt and Brazil nuts, with plenty of tropical sweetness from the pineapple and banana. This drinks thick and indulgent, closer to a milkshake than a light fruit smoothie.',
     },
@@ -1485,6 +1664,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_berry_antioxidant',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -1504,7 +1684,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Manganese', note: 'A striking amount per serving.' },
         { nutrient: 'Vitamin C', note: 'An exceptional amount per serving.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and fruity, with plenty of natural sweetness from the berries and real body from the Greek yogurt. This tastes closer to a real breakfast than a fruit punch.',
     },
   },
@@ -1519,6 +1705,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_iron_vitamin_c',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -1540,6 +1727,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Spinach carries a notably high oxalate load. The Greek yogurt already in this recipe helps offset it with real calcium.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Sweet and citrusy from the orange, with strawberry, banana, and real body from the Greek yogurt rounding it out. The spinach disappears almost entirely into the flavor, leaving a fruity, refreshing smoothie behind.',
     },
@@ -1555,6 +1746,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_tropical_ginger',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -1574,7 +1766,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Manganese', note: 'An exceptional amount per serving.' },
         { nutrient: 'Vitamin C', note: 'A solid amount per serving.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright, tropical, and properly zingy from the fresh ginger and lime, with pineapple, banana, and real body from the Greek yogurt underneath. Refreshing rather than heavy, closer to a real breakfast than a typical fruit smoothie.',
     },
   },
@@ -1595,6 +1792,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_roasted_chickpeas',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1 cup. A batch snack meant to last 1 person several days.',
       ingredients: [
@@ -1616,7 +1814,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'About 10-16% of a day\'s target per serving.' },
         { nutrient: 'Protein', note: 'Roughly 8-10% of a day\'s worth per serving.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Crunchy and savory with a smoky warmth from the paprika, this is a satisfying stand-in for chips or crackers with a lot more staying power in your stomach.',
     },
   },
@@ -1631,6 +1834,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_trail_mix',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about ¾ cup. A batch snack meant to last 1 person several days.',
       ingredients: [
@@ -1651,6 +1855,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Both almonds and walnuts carry a notably elevated oxalate load. If oxalate is something you\'re watching, keeping portions moderate and pairing this snack with a calcium source helps offset it.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'A classic mix of crunchy nuts, seeds, and chewy sweetness from the raisins, satisfying and portable, without any added sugar coating or chocolate to distract from the ingredients themselves.',
     },
@@ -1666,6 +1872,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_apple_almond_butter',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 serving, 1 apple\'s worth for 1 person.',
       ingredients: [
@@ -1685,6 +1892,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Almond butter carries a notably elevated oxalate load. If that\'s something you\'re watching, keeping the portion moderate and pairing it with a calcium source at the same meal helps offset it.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Crisp, sweet apple against creamy, nutty almond butter, with a warm hit of cinnamon over the top: a simple snack that still feels like a treat.',
     },
@@ -1700,6 +1909,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_berries_yogurt',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -1718,7 +1928,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Riboflavin (B2)', note: 'Around 40-47% of a day\'s target per bowl.' },
         { nutrient: 'Protein', note: 'About 37-46% of a day\'s worth per bowl.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Cool, creamy, and tangy from the Greek yogurt, sweetened just enough by the honey and the berries themselves: a satisfying snack that reads more like a dessert than a health food.',
     },
   },
@@ -1738,6 +1953,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_chicken_vegetable',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
@@ -1764,6 +1980,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Graves\' Disease', note: 'Bouillon cubes are an easy-to-overlook source of concentrated iodine, which can matter for someone actively managing Graves\' disease. Using a homemade, unsalted stock instead of a bouillon cube, or a low-iodine bouillon alternative, keeps this soup\'s flavor while cutting that iodine load substantially.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'A comforting, classic chicken soup: savory broth, tender chicken, and soft vegetables, the kind of thing that feels like it\'s doing something good for you while you eat it.',
     },
@@ -1779,6 +1997,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_butternut_squash',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
@@ -1804,7 +2023,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Manganese', note: 'Around 37-48% of a day\'s target per serving.' },
         { nutrient: 'Vitamin C', note: 'About 24-29% of a day\'s worth per serving.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Naturally sweet and creamy from the squash itself, with warm background notes from the nutmeg: rich-tasting without needing any cream at all to get there.',
     },
   },
@@ -1819,6 +2040,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_red_lentil',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
@@ -1844,7 +2066,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'About 22-33% of a day\'s worth per serving.' },
         { nutrient: 'Protein', note: 'Roughly 22-27% of a day\'s target per serving.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Warm and earthy with a good hit of cumin, this soup thickens into something hearty and satisfying as the lentils break down, filling enough to work as a full meal on its own.',
     },
   },
@@ -1859,6 +2084,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_tomato_basil',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
@@ -1883,7 +2109,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Manganese', note: 'Around 32-41% of a day\'s target per serving.' },
         { nutrient: 'Vitamin K', note: 'About 25-34% of a day\'s worth per serving.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright, tangy tomato flavor rounded out by sweet sautéed onion and fragrant fresh basil: a classic comfort soup that tastes noticeably fresher than anything from a can.',
     },
   },
@@ -1933,6 +2164,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       'gout-fermented-drinks',
     ],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic. A jar this size covers one person a 4-6 ounce evening pour for a few nights.',
       ingredients: [
@@ -1959,6 +2191,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Gout', note: 'Tart cherry has its separate evidence for lowering uric acid, on top of the sleep/joint framing here, relevant if gout is a factor.' },
         { condition: 'Migraine', note: 'A fully fermented batch (tart, not sweet) keeps histamine buildup lower than a short ferment, worth watching if fermented foods have triggered symptoms before.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Tart and lightly fizzy, with cherry\'s fruitiness upfront and a warm, earthy ginger-turmeric finish. Closer to a shrub than a soda: sip it, don\'t chug it.',
     },
@@ -1978,6 +2211,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'interaction-curcumin-piperine'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
@@ -2003,6 +2237,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Migraine', note: 'A short, under-fermented batch carries more residual histamine than a fully fermented one; let it run the full 3-5 days if fermented foods have been a trigger before.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Deep purple, tangy rather than sweet, with a mellow berry flavor and a warm ginger-turmeric background note.',
     },
@@ -2021,6 +2256,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'prostate-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
@@ -2045,6 +2281,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Type 2 Diabetes / PCOS', note: 'Let this ferment the full window so the microbes consume more of the juice\'s natural sugar before drinking it.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Tart, dry, and ruby-colored, closer to a dry wine cooler than a sweet juice drink, with a warm ginger-turmeric edge.',
     },
@@ -2063,6 +2300,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
@@ -2087,6 +2325,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease', note: 'Cranberries are relatively low in potassium compared to many other fruits here, but check with your care team before adding any new fruit-based drink to a restricted diet.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Sharply tart and ruby-red, lightly fizzy, closer to a dry cranberry spritzer than a sweet juice.',
     },
@@ -2105,6 +2344,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'pcos-fermented-drinks', 'cvd-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
@@ -2128,6 +2368,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Type 2 Diabetes / PCOS / Gout', note: 'Grapes ferment unusually fast because their sugar is so readily available to wild yeast; let this one run its full course so as little residual sugar as possible remains.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Fruity and wine-adjacent, highly carbonated, with a warm ginger-turmeric background.',
     },
@@ -2146,6 +2387,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'cvd-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
@@ -2169,6 +2411,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / low blood pressure conditions', note: 'Hibiscus has documented blood-pressure-lowering activity, worth mentioning to your care team if you already take a blood pressure medication.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Deeply red, cranberry-tart, and floral, with a warm ginger-turmeric finish underneath.',
     },
@@ -2187,6 +2430,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
@@ -2210,7 +2454,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Ellagic acid', note: 'Higher in blackberries and raspberries than in most other fruit in this tonic family.' },
         { nutrient: 'Prebiotic fiber', note: 'Feeds beneficial bifidobacteria directly in the large intestine, a distinct mechanism from the antioxidant framing most other entries here lead with.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Deep, jammy berry flavor, tart and lightly fizzy, with a mellow ginger-turmeric background.',
     },
   },
@@ -2228,6 +2474,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'lupus-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
@@ -2251,6 +2498,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Any autoimmune condition', note: 'Elderberry\'s immune-stimulating effect is generally framed around fighting off a cold or flu; if you\'re on an immunosuppressant, mention this one to your care team before drinking it regularly.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Deep purple and tart, with a warmly spiced ginger-turmeric finish, closer to a mulled-wine flavor profile than a bright berry soda.',
     },
@@ -2269,6 +2517,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
@@ -2289,7 +2538,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Pectin', note: 'A soluble fiber with early, lab-based evidence for feeding beneficial gut bacteria, concentrated mostly in the peel, which is why this recipe keeps both fruits unpeeled.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Crisp and mildly sweet with a gentle ginger warmth, the closest of this whole tonic family to a homemade sparkling cider.',
     },
   },
@@ -2305,6 +2556,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
@@ -2325,7 +2577,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A meaningful whole-food source, though some is lost gradually over the course of fermentation.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and sharply citrusy, highly carbonated, with a clean ginger bite. The closest of this family to a homemade probiotic lemon-lime soda.',
     },
   },
@@ -2353,6 +2607,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       'ibs-fermented-drinks',
     ],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups. Traditionally taken as a 1-2 ounce shot rather than a full glass, so this batch lasts a good while for one person.',
       ingredients: [
@@ -2374,6 +2629,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Chronic Kidney Disease', note: 'Beets are relatively high in potassium; check with your care team before adding this one if potassium is restricted.' },
         { condition: 'Gout', note: 'Beets carry a moderate oxalate load, worth being aware of alongside any other oxalate-rich foods already in your diet.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Earthy, salty, and tangy rather than sweet, an acquired taste for some, traditionally sipped in small amounts rather than drunk like a soda.',
     },
@@ -2392,6 +2648,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-lacto-fermented-vegetables', 'fermented-leuconostoc-mesenteroides'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups. Traditionally taken as a small shot rather than a full glass, so this batch lasts a good while for one person.',
       ingredients: [
@@ -2410,7 +2667,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Beta-carotene', note: 'Carrots are a rich whole-food source, the same nutrient responsible for their orange color.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sharp, tangy, and lightly spiced from the mustard seed, traditionally sipped as a small shot rather than a full glass.',
     },
   },
@@ -2435,6 +2695,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       'migraine-fermented-drinks',
     ],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 2 cups, enough for one person. A batch this size restarts easily every 1-2 days once the grains are active.',
       ingredients: [
@@ -2453,7 +2714,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Live cultures', note: 'A multi-species community of bacteria and yeast, distinct from kombucha\'s SCOBY culture.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild, lightly tangy, and naturally fizzy, much less sour than kombucha, an easy entry point if fermented drinks are new to you.',
     },
   },
@@ -2471,6 +2734,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-water-kefir', 'nutrients-fermented-drinks-hashimotos', 'graves-fermented-drinks', 'sjogrens-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups, enough for one person. Restarts easily every 24-48 hours once the grains are active.',
       ingredients: [
@@ -2489,6 +2753,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease', note: 'Coconut water is high in potassium; check with your care team before making this a regular drink if potassium is restricted.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Mild, tangy, and a little sweet from the coconut water\'s natural sugar, lighter and less sour than dairy milk kefir.',
     },
@@ -2507,6 +2772,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes a reusable starter culture plus about 2 cups of drinkable soda once active, enough for one person.',
       ingredients: [
@@ -2524,7 +2790,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Gingerol', note: 'The same active compound in raw ginger, made more available through fermentation, with a traditional reputation for easing nausea.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sharply spicy and warming, lightly sweet and naturally carbonated once fully active.',
     },
   },
@@ -2542,6 +2810,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 2 cups, enough for one person across a few days.',
       ingredients: [
@@ -2562,7 +2831,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Gingerol', note: 'The same active compound as fresh ginger, made more concentrated through the reduction step before fermenting.' },
         { nutrient: 'Vitamin C', note: 'From the added lemon juice, though fermentation gradually reduces it over time.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sharply spicy and warming, brightened by lemon, with a natural fizz built from live fermentation rather than added carbonation.',
     },
   },
@@ -2580,6 +2851,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'interaction-curcumin-piperine', 'ra-fermented-drinks', 'psoriasis-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups, enough for one person across a few days.',
       ingredients: [
@@ -2599,7 +2871,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Curcumin', note: 'The active compound in turmeric, its absorption measurably boosted by the black pepper here, the same pairing behind this app\'s Golden Milk recipe.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Earthy, warming, and lightly tangy, with turmeric\'s distinctive bitterness softened by the honey and fermentation.',
     },
   },
@@ -2617,6 +2891,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -2635,7 +2910,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Bromelain', note: 'An enzyme naturally present in pineapple, traditionally associated with aiding digestion and reducing inflammation.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet, tangy, and lightly spiced if using cinnamon, with pineapple\'s tropical brightness carried through the whole ferment.',
     },
   },
@@ -2651,6 +2928,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'sjogrens-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 2 cups of concentrated syrup, enough for many diluted glasses (1-2 tablespoons of syrup per glass of water).',
       ingredients: [
@@ -2668,7 +2946,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Acetic acid', note: 'The same active compound in any vinegar, traditionally used to support digestion when diluted and taken before a meal.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sharply tart and sweet-and-sour, meant to be diluted with still or sparkling water rather than drunk straight from the bottle.',
     },
   },
@@ -2684,6 +2966,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'sjogrens-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -2701,7 +2984,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Iron', note: 'Blackstrap-style molasses is a meaningful whole-food source, more than plain sugar carries.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Tangy, gingery, and lightly sweet, refreshing over ice, traditionally drunk to replace minerals lost to sweat during hot outdoor work.',
     },
   },
@@ -2719,6 +3006,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-kombucha'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 4 cups, enough for one person across a week or more.',
       ingredients: [
@@ -2737,7 +3025,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Live cultures', note: 'A distinct bacteria-and-yeast community from kombucha\'s SCOBY, fed on honey rather than cane sugar.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Lighter and more floral than kombucha, with a honeyed finish and gentler tartness.',
     },
   },
@@ -2753,6 +3043,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'lupus-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 1 1/2 cups of finished tonic, taken by the spoonful rather than as a drink.',
       ingredients: [
@@ -2770,7 +3061,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Allicin', note: 'Released when garlic is cut or crushed, with a traditional reputation for supporting the immune response, though this specific fermented preparation hasn\'t been separately trial-tested.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Pungent and sweet-hot, syrupy in texture, traditionally taken by the spoonful rather than diluted into a drink.',
     },
   },
@@ -2808,6 +3101,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-milk-kefir-and-yogurt', 'recipe-ferment-coconut-kefir'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 2 cups, enough for one person. Restarts easily every 24 hours once the grains are active.',
       ingredients: [
@@ -2827,6 +3121,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a full dairy ferment: casein and lactose are both present, though fermentation reduces the lactose. If dairy is a trigger, Coconut Kefir (also in this app) gives a similar live-culture drink without it.' },
         { condition: 'Anyone taking levothyroxine', note: 'Its calcium content can block thyroid medication absorption if taken within about 4 hours of a dose; space this out from your morning pill.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Thin, tangy, and lightly effervescent, more sour and less thick than yogurt.',
     },
@@ -2845,6 +3143,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'type1-fermented-drinks', 'type2-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 2 cups, enough for one person across several days.',
       ingredients: [
@@ -2864,6 +3163,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Type 2 Diabetes / PCOS', note: 'Amazake\'s natural sugar content is concentrated; treat it more like a dessert drink than an everyday beverage if blood sugar is a concern.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Thick, naturally sweet, and lightly tangy, closer to a rice pudding you drink than a soda.',
     },
@@ -2882,6 +3182,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'celiac-fermented-drinks', 'lupus-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -2897,7 +3198,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Live wild cultures', note: 'Sprouting first activates enzymes already present in the grain, and the fermentation that follows adds bacteria on top of that.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Tart, lightly cloudy, and mild, closer to a very light lemon water than a fruit soda.',
     },
   },
@@ -2915,6 +3218,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, enough for one person. Traditionally taken as a small glass rather than a full pitcher serving.',
       ingredients: [
@@ -2937,6 +3241,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Gallbladder or bile duct conditions', note: 'Bitter tonics traditionally work by stimulating bile flow; check with your care team before making this a regular habit if you have a gallbladder or bile duct condition.' },
         { condition: 'Pregnancy', note: 'Concentrated bitter herbal ferments like this one are generally best discussed with your care provider before regular use during pregnancy.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Bittersweet and warmly spiced, an acquired taste, traditionally sipped rather than gulped.',
     },
@@ -2955,6 +3260,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -2975,6 +3281,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease / blood pressure medication', note: 'Dandelion has a documented diuretic effect; check with your care team before regular use if you take a diuretic medication or have kidney concerns.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Earthy and bitter with a lightly fizzy finish, closer to a craft root beer without the sweetness than an actual ale.',
     },
@@ -2993,6 +3300,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -3011,6 +3319,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'AIP / corn sensitivity', note: 'Corn is gluten-free but a known cross-reactive grain for some gluten-sensitive people, and is excluded from the strict Autoimmune Protocol elimination diet.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Tangy, thick, and filling, traditionally drunk cold as a hydrating, energizing field drink.',
     },
@@ -3029,6 +3338,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -3048,7 +3358,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Lauric acid', note: 'From the coconut milk, a documented antimicrobial fatty acid, on top of whatever live culture develops during the short ferment.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy, spiced, and lightly sweet, closer to a chilled rice horchata than a tangy soda.',
     },
   },
@@ -3066,6 +3378,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 1 cup of finished syrup, used a spoonful at a time in water or tea.',
       ingredients: [
@@ -3082,7 +3395,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Rosmarinic acid', note: 'Rosemary\'s signature polyphenol, with a traditional reputation for antioxidant activity.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Herbal, resinous, and sweet, closer to a rosemary simple syrup than a fizzy drink, meant to be diluted rather than drunk straight.',
     },
   },
@@ -3100,6 +3415,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -3117,7 +3433,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Whole-grain fiber', note: 'A thicker, more filling drink than most other ferments here, from the millet\'s intact starch and fiber.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Thick and tangy with a mild sweetness, closer to a drinkable porridge than a clear soda.',
     },
   },
@@ -3135,6 +3453,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -3155,6 +3474,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'AIP / corn sensitivity', note: 'Corn is gluten-free but a known cross-reactive grain for some gluten-sensitive people, and this ferment can develop meaningful alcohol content if left fermenting several days.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Tangy and lightly effervescent, mildly sweet, traditionally served slightly chilled.',
     },
@@ -3173,6 +3493,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-beet-kvass', 'celiac-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -3191,7 +3512,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Live wild cultures', note: 'Wild yeast and bacteria already present on the quinoa and in the air do the fermenting, the same wild-ferment principle as this app\'s tonic family.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Tangy and bready with a toasted, nutty background, closer to a light beer than a fruit soda.',
     },
   },
@@ -3209,6 +3532,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 4 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
@@ -3226,6 +3550,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [],
       conditionNotes: [
         { condition: 'Pregnancy / liver conditions / alcohol-avoidant', note: 'This is an alcoholic ferment, not a low-alcohol soda the way this app\'s wild-fermented tonics are. Skip it entirely if you avoid alcohol for any reason.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Cloudy, mildly sweet, and warming, with alcohol content that builds the longer it ferments.',
     },
@@ -3244,6 +3569,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 4 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
@@ -3263,6 +3589,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Pregnancy / liver conditions / alcohol-avoidant', note: 'This is an alcoholic ferment. Skip it entirely if you avoid alcohol for any reason.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Milky, tangy, and lightly sparkling, thicker and cloudier than sake, with a mild natural sweetness.',
     },
@@ -3281,6 +3608,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-milk-kefir-and-yogurt'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, enough for one person.',
       ingredients: [
@@ -3301,6 +3629,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a dairy drink; if dairy is a trigger, this one isn\'t easily made without it the way some other ferments here are.' },
         { condition: 'Chronic Kidney Disease / sodium-restricted diets', note: 'Its salt content is deliberate; adjust or skip if you\'re on a sodium-restricted diet.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Salty, tangy, and refreshing, savory rather than sweet, traditionally served ice-cold.',
     },
@@ -3319,6 +3652,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-milk-kefir-and-yogurt', 'recipe-ferment-ayran'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, enough for one person.',
       ingredients: [
@@ -3340,6 +3674,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a dairy drink, relevant if dairy is a trigger for you.' },
         { condition: 'Type 2 Diabetes / PCOS', note: 'Mango is a naturally sweet fruit; this is more of an occasional treat than an everyday drink if blood sugar is a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Creamy, sweet, and fragrant with cardamom, a dessert-like drink rather than a tart one.',
     },
@@ -3358,6 +3696,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-milk-kefir'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 2 cups, enough for one person. Restarts easily every 24 hours once active.',
       ingredients: [
@@ -3373,6 +3712,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a full dairy ferment, relevant if dairy is a trigger for you.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Tangy and slightly effervescent, thinner than yogurt, similar in spirit to milk kefir.',
     },
@@ -3391,6 +3734,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-kombucha', 'fermentmethod-dairy-free-gluten-free-survey', 'masld-fermented-drinks', 'cvd-fermented-drinks'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 4 cups, enough for one person across a week or more.',
       ingredients: [
@@ -3407,7 +3751,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Remove the SCOBY, bottle the liquid, and refrigerate.',
       ],
       nutritionHighlights: [],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Tangy and lightly effervescent, deep and malty from the black tea base, closer to standard kombucha than to true aged pu-erh.',
     },
   },
@@ -3425,6 +3771,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-coconut-kefir', 'lifestyle-alcohol-advisory'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
@@ -3443,6 +3790,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Pregnancy / liver conditions / alcohol-avoidant', note: 'This is an alcoholic ferment once fully fermented, distinct from this app\'s milder Coconut Kefir. Skip it entirely if you avoid alcohol for any reason.' },
         { condition: 'Chronic Kidney Disease', note: 'Coconut water is high in potassium; check with your care team before making this a regular drink if potassium is restricted.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Tangy and winy, less sweet than fresh coconut water, with alcohol content that builds the longer it ferments.',
     },
@@ -3461,6 +3809,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
@@ -3478,6 +3827,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Pregnancy / liver conditions / alcohol-avoidant', note: 'This is an alcoholic ferment once fully fermented. Skip it entirely if you avoid alcohol for any reason.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Tangy and less sweet than plain maple water, with alcohol content that builds the longer it ferments.',
     },
@@ -3510,6 +3860,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_veggie_cheddar_scramble_potatoes',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -3534,7 +3885,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the bell pepper and the potato\'s own skin.' },
         { nutrient: 'Protein', note: 'A hearty start to the day, from both the eggs and the cheese.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and cheesy, with the potato adding real textural contrast, crisp outside and soft inside, against the soft-set eggs.',
     },
   },
@@ -3549,6 +3906,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_overnight_oats_chia_berries',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -3569,7 +3927,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A strong combined dose from the oats and chia seeds together.' },
         { nutrient: 'Vitamin C', note: 'A solid contribution from the two berries.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Thick and creamy once it sets overnight, with a real tang from the Greek yogurt against bursts of tart berry on top.',
     },
   },
@@ -3584,6 +3948,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_soft_boiled_eggs_avocado_tomato',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -3605,7 +3970,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Lycopene', note: 'From the tomato, made more available for the body to absorb thanks to the fat in the avocado alongside it.' },
         { nutrient: 'Fiber', note: 'A meaningful amount from the avocado.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and creamy from the yolk and avocado together, brightened by the lemon and the tomato\'s own acidity.',
     },
   },
@@ -3620,6 +3989,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_savory_quinoa_bowl_fried_egg',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -3644,6 +4014,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Spinach carries a notably high oxalate load, cooked or raw. Pairing it with a calcium source at the same meal is a practical way to help offset it if oxalate is something you\'re watching.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Nutty quinoa against wilted, mildly earthy spinach, tied together by a runny egg yolk acting almost like a sauce.',
     },
@@ -3659,6 +4032,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_cottage_cheese_pineapple_walnuts',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -3679,6 +4053,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Walnuts carry a notably elevated oxalate load. This is a small topping amount, so it\'s unlikely to matter for most people, but worth being aware of if oxalate is something you\'re watching closely.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Cool and tangy from the cottage cheese, sweetened by juicy pineapple, with good crunch from the walnuts on top.',
     },
@@ -3694,6 +4070,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_breakfast_burrito_eggs_black_beans',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'High-Protein'],
       yield: 'Makes 1 burrito, for 1 person.',
       ingredients: [
@@ -3721,6 +4098,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This uses an ordinary wheat-flour tortilla, so the gluten content is unavoidable as written. A gluten-free tortilla-style flour blend can be substituted directly in this same recipe.' },
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Black beans carry a fair amount of fermentable fiber that some people with an already-sensitive gut find harder to digest. A smaller portion of beans, or a well-rinsed canned bean, can make this easier on the gut.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Warm, savory eggs and beans against a bright, fresh pico, with melted cheddar tying the whole thing together.',
     },
@@ -3736,6 +4120,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_oatmeal_cup_banana_cinnamon',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 cup, for 1 person.',
       ingredients: [
@@ -3758,7 +4143,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Manganese', note: 'A strong contribution from the oats.' },
         { nutrient: 'Potassium', note: 'A meaningful amount from the banana.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Soft and lightly sweet, closer to banana bread than a bowl of oatmeal, warm with cinnamon throughout.',
     },
   },
@@ -3773,6 +4164,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_ginger_soy_chicken_thighs',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -3795,7 +4187,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Iron', note: 'A real contribution, another advantage dark meat has over white meat.' },
         { nutrient: 'Vitamin B12', note: 'A solid amount from the chicken.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and lightly sweet, with a sticky glaze that caramelizes at the edges under the oven\'s heat.',
     },
   },
@@ -3810,6 +4208,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_white_bean_roasted_vegetable_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -3836,6 +4235,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome / Celiac', note: 'White beans carry a fair amount of fermentable fiber that some people with an already-sensitive gut find harder to digest. A smaller portion, or a well-rinsed canned bean, tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Sweet, caramelized roasted vegetables against creamy white beans, brightened by lemon and finished with salty feta.',
     },
@@ -3851,6 +4257,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_egg_vegetable_fried_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -3875,7 +4282,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the carrot.' },
         { nutrient: 'Fiber', note: 'A real whole-grain amount, more than a white-rice version would carry.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and lightly nutty from the brown rice and toasted sesame seeds, with sweetness from the peas and carrot throughout.',
     },
   },
@@ -3890,6 +4303,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_salmon_lemon_dill',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 fillet, for 1 person.',
       ingredients: [
@@ -3911,7 +4325,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the salmon.' },
         { nutrient: 'Vitamin D', note: 'A meaningful amount, unusual for a whole food outside of fatty fish.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and flaky, with the lemon and fresh dill keeping it bright rather than heavy.',
     },
   },
@@ -3926,6 +4343,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_herb_crusted_pork_tenderloin',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 serving, for 1 person.',
       ingredients: [
@@ -3949,7 +4367,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A lean, concentrated amount.' },
         { nutrient: 'Vitamin B6', note: 'A solid amount from the pork.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and herbaceous, with a browned, seasoned crust against tender, juicy meat inside.',
     },
   },
@@ -3964,6 +4385,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_cod_paprika_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 fillet, for 1 person.',
       ingredients: [
@@ -3985,7 +4407,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin B12', note: 'A solid contribution from the cod.' },
         { nutrient: 'Selenium', note: 'A meaningful amount, common among whole-food fish.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and flaky, with paprika adding a little color and warmth and lemon keeping it bright.',
     },
   },
@@ -4000,6 +4427,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_turkey_meatballs_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 serving, for 1 person.',
       ingredients: [
@@ -4025,7 +4453,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the cooked tomato.' },
         { nutrient: 'Niacin (B3)', note: 'A solid contribution from the turkey.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory, tomatoey, and lightly herbal, closer to a comforting weeknight classic than anything fussy.',
     },
   },
@@ -4040,6 +4474,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_teriyaki_baked_tofu',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 serving, for 1 person.',
       ingredients: [
@@ -4062,7 +4497,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Manganese', note: 'A solid contribution from the tofu.' },
         { nutrient: 'Iron', note: 'A meaningful plant-based amount.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sticky and savory-sweet, with a lightly caramelized edge from the oven and a nutty finish from the sesame seeds.',
     },
   },
@@ -4077,6 +4518,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_one_pan_shrimp_asparagus_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -4100,7 +4542,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A lean, fast-cooking amount from the shrimp.' },
         { nutrient: 'Selenium', note: 'A solid contribution from the shrimp.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Light and garlicky, with a bright squeeze of lemon keeping the whole dish from tasting heavy.',
     },
   },
@@ -4115,6 +4559,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_beef_mushroom_stir_fry_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -4140,7 +4585,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Zinc', note: 'A strong contribution from the beef.' },
         { nutrient: 'Vitamin B12', note: 'A solid amount, found almost exclusively in animal foods.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and quick-seared, with the mushroom soaking up the soy sauce and ginger\'s warmth running through the whole dish.',
     },
   },
@@ -4155,6 +4606,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_chicken_thighs_brussels_sweet_potato',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -4180,6 +4632,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s', note: 'Raw brussels sprouts carry a goitrogenic compound relevant to thyroid iodine uptake, but roasting measurably reduces this compound compared to eating them raw, which is exactly why this dish roasts rather than serves them raw.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'A comforting, real sheet-pan dinner: crisp, caramelized brussels sprouts and sweet potato against juicy roasted chicken.',
     },
@@ -4195,6 +4651,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_green_lentil_vegetable_stew',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
@@ -4222,6 +4679,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Lentils carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern for you.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Thick, earthy, and warmly spiced with cumin, hearty enough to work as a full meal on its own.',
     },
@@ -4237,6 +4698,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_turkey_breast_zucchini_tomatoes',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -4260,7 +4722,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the tomato and zucchini.' },
         { nutrient: 'Protein', note: 'A lean, concentrated amount.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Light and herby, with the zucchini and tomato softening down into the turkey\'s own juices as it bakes.',
     },
   },
@@ -4275,6 +4742,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_hummus_roasted_vegetable_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
@@ -4304,6 +4772,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This uses an ordinary wheat-flour tortilla, so the gluten content is unavoidable as written. A gluten-free tortilla-style flour blend can be substituted directly in this same recipe.' },
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Chickpeas carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion, or a well-rinsed canned chickpea, tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Creamy and nutty from the hummus, with sweet roasted vegetables and a little fresh crunch from the spinach.',
     },
@@ -4319,6 +4792,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_kiwi_pistachio_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -4337,7 +4811,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
         { nutrient: 'Healthy fat', note: 'A real contribution from the pistachios.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and tangy from the kiwi, with a satisfying crunch from the pistachios against the smooth yogurt.',
     },
   },
@@ -4352,6 +4832,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_grilled_halibut_greens',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -4375,7 +4856,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin K', note: 'A meaningful amount from the greens.' },
         { nutrient: 'Selenium', note: 'A solid contribution from the halibut.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Light and clean, with the halibut\'s own mild flavor letting the fresh vegetables and lemon come through.',
     },
   },
@@ -4390,6 +4876,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_roast_chicken_fennel_leeks',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -4412,7 +4899,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Potassium', note: 'A real contribution from the fennel.' },
         { nutrient: 'Fiber', note: 'A meaningful amount from the fennel and leek together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and savory, with fennel\'s own subtle anise flavor mellowing considerably once roasted.',
     },
   },
@@ -4427,6 +4917,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_peach_almond_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -4447,7 +4938,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A strong combined amount from the oats and chia seeds.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the peach.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy and mildly tangy from the Greek yogurt, with soft peach and a bit of crunch from the almonds on top.',
     },
   },
@@ -4462,6 +4959,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_turkey_hummus_collard_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
@@ -4487,6 +4985,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Chickpeas carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion, or a well-rinsed canned chickpea, tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Fresh and slightly earthy from the collard leaf itself, with creamy hummus and lean turkey filling it out.',
     },
@@ -4502,6 +5004,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_trout_parsnip_mash',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -4524,7 +5027,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A real contribution from the parsnip.' },
         { nutrient: 'Vitamin B12', note: 'A solid amount from the trout.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild, flaky trout over a sweet, creamy mash, brightened at the end by fresh lemon.',
     },
   },
@@ -4539,6 +5045,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_papaya_cottage_cheese_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -4557,7 +5064,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A concentrated amount from the cottage cheese.' },
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the papaya.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Cool and sweet, with a bright squeeze of lime keeping it from tasting flat.',
     },
   },
@@ -4572,6 +5082,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_spelt_roasted_vegetable_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -4594,6 +5105,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'Spelt is an ancient wheat variety and carries gluten, unlike quinoa or rice. A gluten-free grain like quinoa can be substituted directly in this same recipe.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Nutty and hearty from the spelt, with sweet roasted vegetables and a salty finish from the feta.',
     },
@@ -4609,6 +5124,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lamb_skewers_couscous',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -4634,6 +5150,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'Couscous is made from durum wheat and carries gluten. Quinoa or rice can be substituted directly in this same recipe.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Smoky and savory from the grill, with sweet vegetables and a bright finish from the lemon.',
     },
@@ -4649,6 +5170,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_buckwheat_porridge_blueberries_walnuts',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -4670,7 +5192,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Manganese', note: 'A strong contribution from the buckwheat.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the blueberries.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Warm and earthy from the buckwheat, with a real tang from the yogurt swirl, sweet-tart blueberries, and a good crunch from the walnuts.',
     },
   },
@@ -4685,6 +5213,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_tuna_white_bean_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -4709,6 +5238,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'White beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory and slightly peppery from the arugula, with creamy beans balancing the tuna\'s own meatiness.',
     },
@@ -4724,6 +5259,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_pork_chop_brussels_apple',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -4748,6 +5284,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s', note: 'Raw brussels sprouts carry a goitrogenic compound relevant to thyroid iodine uptake, but roasting measurably reduces this compound compared to eating them raw.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory pork against sweet, caramelized apple and brussels sprouts, a comforting cold-weather pairing.',
     },
@@ -4763,6 +5303,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_millet_porridge_apricots',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -4783,7 +5324,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Magnesium', note: 'A real contribution from the millet.' },
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the apricot.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Warm and mildly nutty from the millet, with a real tang from the yogurt swirl, sweet apricot, and a gentle hit of cinnamon.',
     },
   },
@@ -4798,6 +5344,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_shrimp_watermelon_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -4819,7 +5366,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A lean amount from the shrimp.' },
         { nutrient: 'Selenium', note: 'A solid contribution from the shrimp.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and juicy from the watermelon, salty from the feta, with tender shrimp tying it together.',
     },
   },
@@ -4834,6 +5386,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_scallops_asparagus_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -4855,7 +5408,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Folate', note: 'A meaningful amount from the asparagus.' },
         { nutrient: 'Selenium', note: 'A solid amount from the scallops.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Delicate and slightly sweet from the scallops, brightened by lemon and the asparagus\'s own crisp bite.',
     },
   },
@@ -4870,6 +5425,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_grapefruit_yogurt_honey',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -4888,6 +5444,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Anyone taking a statin or certain other prescriptions', note: 'Grapefruit is a well-documented interaction with several common medications, including some statins. Worth a quick check with your pharmacist if you take one of these regularly.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Tart and juicy, balanced by the yogurt\'s own creaminess and a touch of honey.',
     },
@@ -4903,6 +5463,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chickpea_spinach_curry_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -4931,6 +5492,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Spinach carries a notably high oxalate load, cooked or raw. Pairing it with a calcium source at the same meal helps offset it if oxalate is something you\'re watching.' },
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Chickpeas carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Warm and gently spiced, with creamy coconut milk mellowing the curry powder\'s own heat.',
     },
@@ -4946,6 +5509,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_duck_beets_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -4968,7 +5532,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Folate', note: 'A real contribution from the beets.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the orange.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich, crisp-skinned duck against sweet earthy beets and bright citrus, a real contrast of flavors.',
     },
   },
@@ -4983,6 +5549,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_fig_walnut_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5001,7 +5568,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A meaningful amount from the fig and walnut together.' },
         { nutrient: 'Omega-3 fat', note: 'A solid plant-based contribution from the walnuts.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and slightly chewy from the fig, with good crunch from the walnuts against the smooth yogurt.',
     },
   },
@@ -5016,6 +5589,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_bulgur_tabbouleh_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5039,6 +5613,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'Bulgur is made from wheat and carries gluten. Quinoa or rice can be substituted directly in this same recipe.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Fresh and herby, with the parsley doing most of the talking against bright lemon and crisp vegetables.',
     },
@@ -5054,6 +5632,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_turkey_thigh_turnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -5076,7 +5655,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Zinc', note: 'A real contribution from the dark meat.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and herby, with the roasted turnip taking on a mild, slightly sweet flavor next to the carrot.',
     },
   },
@@ -5091,6 +5675,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_date_cashew_breakfast_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5111,6 +5696,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Type 2 Diabetes / PCOS', note: 'Dates are a concentrated source of natural sugar. A smaller portion, or pairing it with the protein already in this bowl, helps soften its effect on blood sugar.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Naturally sweet and a little chewy from the dates, with good crunch from the cashews.',
     },
@@ -5126,6 +5716,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_mackerel_radish_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5147,7 +5738,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the mackerel.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the radish.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and savory from the mackerel, with the radish\'s own sharp crunch cutting right through it.',
     },
   },
@@ -5162,6 +5758,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chicken_okra_tomato_skillet',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -5185,7 +5782,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the tomato.' },
         { nutrient: 'Zinc', note: 'A solid amount from the chicken thigh.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and lightly thickened, with the okra taking on the tomato\'s own flavor as it simmers.',
     },
   },
@@ -5200,6 +5802,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_nectarine_chia_pudding_cashews',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5220,7 +5823,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A strong amount from the chia seeds.' },
         { nutrient: 'Vitamin C', note: 'A real contribution from the nectarine.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Thick and creamy once set, with a real tang from the Greek yogurt, juicy nectarine, and a bit of crunch from the cashews.',
     },
   },
@@ -5235,6 +5844,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_sardine_white_bean_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5258,6 +5868,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'White beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory and a little briny from the sardines, balanced by creamy beans and fresh parsley.',
     },
@@ -5273,6 +5889,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_braised_beef_kohlrabi_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
@@ -5297,7 +5914,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A real, often-overlooked contribution from the kohlrabi.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Tender, savory beef in a rich broth, with kohlrabi\'s own mild sweetness coming through after a long simmer.',
     },
   },
@@ -5312,6 +5934,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_clementine_almond_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5330,7 +5953,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A real contribution from eating the fruit whole rather than juiced.' },
         { nutrient: 'Protein', note: 'A concentrated amount from the Greek yogurt.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and sweet from the clementine, with a bit of crunch from the almonds.',
     },
   },
@@ -5345,6 +5974,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_roasted_artichoke_white_bean_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5368,6 +5998,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'White beans and artichoke both carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Earthy and slightly tangy from the roasted artichoke, with creamy beans and a salty finish from the feta.',
     },
@@ -5383,6 +6020,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_sole_bok_choy_ginger',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -5404,7 +6042,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the bok choy.' },
         { nutrient: 'Vitamin C', note: 'A real contribution from the bok choy.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Delicate and mild from the sole, with a gingery, savory bok choy underneath.',
     },
   },
@@ -5419,6 +6063,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_plum_walnut_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5438,7 +6083,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Antioxidant pigments', note: 'A real, meaningful amount from the plum\'s own skin, left on rather than peeled.' },
         { nutrient: 'Fiber', note: 'A strong combined amount from the oats and plum.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy and mildly tangy from the Greek yogurt, with sweet-tart plum and a good crunch from the walnuts.',
     },
   },
@@ -5453,6 +6104,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_crab_avocado_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5473,7 +6125,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the crab.' },
         { nutrient: 'Healthy fat', note: 'A real amount from the avocado.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and delicate from the crab, with the avocado\'s own creaminess rounding out every bite.',
     },
   },
@@ -5488,6 +6143,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_bison_root_vegetable_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5509,7 +6165,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A lean, real amount, meaningfully lower in fat than the same weight of beef.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory, slightly sweet bison against earthy roasted root vegetables.',
     },
   },
@@ -5524,6 +6185,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_watermelon_feta_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5542,7 +6204,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Hydration', note: 'A real contribution from watermelon\'s own high water content.' },
         { nutrient: 'Calcium', note: 'A solid amount from the feta.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Cool and sweet, with salty feta and fresh basil turning fruit into something closer to a savory course.',
     },
   },
@@ -5557,6 +6225,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_edamame_brown_rice_sesame_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5578,7 +6247,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A meaningful whole-soybean amount.' },
         { nutrient: 'Manganese', note: 'A strong contribution from the brown rice.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Nutty and savory, with a good pop of texture from the whole edamame beans.',
     },
   },
@@ -5593,6 +6268,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_mussels_tomato_garlic_broth',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
@@ -5617,7 +6293,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Iron', note: 'A real, meaningful contribution.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Briny and savory, with a rich tomato broth worth spooning up on its own.',
     },
   },
@@ -5632,6 +6313,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_cantaloupe_cottage_cheese_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5649,7 +6331,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A solid amount from the cottage cheese.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the cantaloupe.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and fragrant from the cantaloupe, against the cottage cheese\'s own mild tang.',
     },
   },
@@ -5664,6 +6348,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_pinto_bean_roasted_vegetable_bowl',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5687,6 +6372,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Pinto beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Creamy and earthy from the beans, brightened by lime and fresh cilantro.',
     },
@@ -5702,6 +6393,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chicken_breast_snow_peas_carrots',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -5722,7 +6414,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A real, whole-pod contribution from the snow peas.' },
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the carrot.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Simple and clean, with the snow peas\' own crunch and a little gingery warmth alongside the chicken.',
     },
   },
@@ -5737,6 +6432,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_pear_walnut_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5755,7 +6451,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Omega-3 fat', note: 'A meaningful plant-based amount from the walnuts.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and mild from the pear, with good crunch from the walnuts against the smooth yogurt.',
     },
   },
@@ -5770,6 +6472,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_lima_bean_roasted_vegetable_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5793,6 +6496,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Lima beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Buttery and mild from the lima beans, with sweet roasted eggplant and a bright herbal finish.',
     },
@@ -5808,6 +6517,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_pork_loin_turnip_kale',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -5830,7 +6540,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin K', note: 'A striking amount from the kale.' },
         { nutrient: 'Protein', note: 'A lean, concentrated amount.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory pork against lightly bitter, garlicky kale and sweet roasted turnip.',
     },
   },
@@ -5845,6 +6560,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_fig_pistachio_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5864,7 +6580,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Potassium', note: 'A real amount from the fresh fig.' },
         { nutrient: 'Fiber', note: 'A strong combined amount from the oats and fig.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy and tangy from the Greek yogurt, naturally sweet from the fig, with a good crunch from the pistachios.',
     },
   },
@@ -5879,6 +6601,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_trout_cucumber_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5901,7 +6624,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin B12', note: 'A solid contribution from the trout.' },
         { nutrient: 'Vitamin C', note: 'A real amount from the cucumber.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Light and fresh, with cool cucumber and fresh dill against the trout\'s own mild flavor.',
     },
   },
@@ -5916,6 +6642,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_turkey_meatloaf_parsnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -5939,7 +6666,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the carrot.' },
         { nutrient: 'Fiber', note: 'A real contribution from the parsnip.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and hearty, with sweet roasted parsnip and carrot balancing the turkey\'s own richness.',
     },
   },
@@ -5954,6 +6684,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_apricot_cashew_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -5972,7 +6703,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
         { nutrient: 'Healthy fat', note: 'A real contribution from the cashews.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and slightly tart from the apricot, with good crunch from the cashews.',
     },
   },
@@ -5987,6 +6724,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_white_bean_kale_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
@@ -6013,6 +6751,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'White beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Thick and hearty, with kale wilted down soft and creamy white beans throughout.',
     },
@@ -6028,6 +6772,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_salmon_leeks_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -6048,7 +6793,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the salmon.' },
         { nutrient: 'Fiber', note: 'A real amount from the leek.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich, flaky salmon over softened, mildly sweet leeks, brightened by fresh lemon.',
     },
   },
@@ -6063,6 +6811,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_date_walnut_breakfast_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6083,6 +6832,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Type 2 Diabetes / PCOS', note: 'Dates are a concentrated source of natural sugar. A smaller portion, or pairing it with the protein already in this bowl, helps soften its effect on blood sugar.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Naturally sweet from the dates, with a satisfying crunch and richness from the walnuts.',
     },
@@ -6098,6 +6852,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_lentil_kale_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
@@ -6123,6 +6878,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Lentils carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Thick and earthy, with kale wilted through a warmly spiced, naturally thickened broth.',
     },
@@ -6138,6 +6897,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lamb_chops_roasted_eggplant',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -6159,7 +6919,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the lamb.' },
         { nutrient: 'Manganese', note: 'A meaningful amount from the eggplant.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich, savory lamb against sweet, tender eggplant, finished with fragrant rosemary.',
     },
   },
@@ -6174,6 +6939,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_mango_coconut_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6194,7 +6960,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the mango.' },
         { nutrient: 'Fiber', note: 'A strong amount from the chia seeds.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and tropical, with coconut milk\'s own creaminess and a real tang from the yogurt against sweet, juicy mango.',
     },
   },
@@ -6209,6 +6981,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_crab_corn_chowder',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
@@ -6232,7 +7005,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the crab.' },
         { nutrient: 'Fiber', note: 'A real amount from the corn.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and lightly sweet, with sweet corn and coconut milk balancing crab\'s own natural brininess.',
     },
   },
@@ -6247,6 +7023,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chicken_thighs_kohlrabi_apple',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -6267,7 +7044,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Zinc', note: 'A meaningful amount from the chicken thigh.' },
         { nutrient: 'Fiber', note: 'A solid contribution from the kohlrabi and apple together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory chicken against kohlrabi\'s own mild sweetness, echoed by the roasted apple alongside it.',
     },
   },
@@ -6282,6 +7064,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_cottage_cheese_fig_honey',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6299,7 +7082,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Potassium', note: 'A real amount from the fresh fig.' },
         { nutrient: 'Fiber', note: 'A meaningful amount from the fig.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Cool and mild from the cottage cheese, with naturally sweet, chewy fig on top.',
     },
   },
@@ -6314,6 +7099,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_shrimp_snow_pea_stir_fry_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6337,7 +7123,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A real, well-preserved amount from the quickly-cooked snow peas.' },
         { nutrient: 'Selenium', note: 'A solid amount from the shrimp.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Quick, gingery, and savory, with the snow peas keeping their own crisp bite throughout.',
     },
   },
@@ -6352,6 +7143,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_cod_fennel_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -6372,7 +7164,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the orange.' },
         { nutrient: 'Fiber', note: 'A real amount from the fennel.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild, flaky cod against softened, anise-like fennel and bright citrus.',
     },
   },
@@ -6387,6 +7182,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_pear_almond_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6405,7 +7201,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Healthy fat', note: 'A meaningful amount from the almonds.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and sweet, with a gentle crunch from the almonds against the smooth yogurt.',
     },
   },
@@ -6420,6 +7222,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_bison_roasted_vegetable_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
@@ -6444,6 +7247,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This uses an ordinary wheat-flour tortilla, so the gluten content is unavoidable as written. A gluten-free tortilla-style flour blend can be substituted directly in this same recipe.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory bison against sweet roasted vegetables, wrapped up for an easy handheld dinner.',
     },
@@ -6459,6 +7267,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_duck_cherry_wild_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -6479,7 +7288,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete amount from the duck and wild rice together.' },
         { nutrient: 'Manganese', note: 'A solid contribution from the wild rice.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich, crisp-skinned duck against a tart, lightly sweet cherry sauce and chewy wild rice.',
     },
   },
@@ -6494,6 +7305,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_kiwi_coconut_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6514,7 +7326,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A strong amount from the kiwi.' },
         { nutrient: 'Fiber', note: 'A substantial amount from the chia seeds and kiwi\'s own edible seeds together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and tropical from the coconut milk, with a real tang from the yogurt and a bright lift from the kiwi.',
     },
   },
@@ -6529,6 +7347,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_white_bean_swiss_chard_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
@@ -6556,6 +7375,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'White beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Swiss chard carries a notably high oxalate load, similar to spinach. Pairing it with a calcium source at the same meal helps offset it if that\'s something you\'re watching.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Thick and hearty, with tender Swiss chard, stems and all, throughout the broth.',
     },
@@ -6571,6 +7394,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_pork_loin_radish_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -6591,7 +7415,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A real amount from the radish.' },
         { nutrient: 'Protein', note: 'A lean, concentrated amount.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory grilled pork against roasted radish\'s own surprisingly mild, sweet flavor.',
     },
   },
@@ -6606,6 +7435,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_papaya_lime_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6623,7 +7453,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the papaya.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and tropical, brightened by a real squeeze of fresh lime.',
     },
   },
@@ -6638,6 +7473,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_tuna_artichoke_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6659,7 +7495,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Prebiotic fiber (inulin)', note: 'A genuine, distinct contribution from the artichoke.' },
         { nutrient: 'Selenium', note: 'A strong amount from the tuna.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and slightly earthy from the artichoke, with the tuna\'s own meatiness and a peppery bite from the arugula.',
     },
   },
@@ -6674,6 +7515,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_turkey_wild_rice_cranberries',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -6694,7 +7536,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Manganese', note: 'A strong contribution from the wild rice.' },
         { nutrient: 'Vitamin C', note: 'A real amount from the cranberries.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory turkey against chewy wild rice and tart, whole cranberries, a familiar pairing outside of any one holiday.',
     },
   },
@@ -6709,6 +7554,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_blackberry_almond_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6727,7 +7573,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the blackberries.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Tart and juicy from the blackberries, with a bit of crunch from the almonds.',
     },
   },
@@ -6742,6 +7594,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_mussels_tomato_fennel_broth',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
@@ -6765,7 +7618,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Iron', note: 'A real, meaningful contribution.' },
         { nutrient: 'Fiber', note: 'A meaningful amount from the fennel.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Briny and aromatic, fennel\'s own anise-like flavor running through the broth.',
     },
   },
@@ -6780,6 +7637,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_halibut_leeks_peas',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -6800,7 +7658,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A real contribution from the leek and peas together.' },
         { nutrient: 'Selenium', note: 'A solid amount from the halibut.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild, flaky halibut over softened leeks, with a pop of sweetness from the peas.',
     },
   },
@@ -6815,6 +7676,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_clementine_pistachio_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6833,7 +7695,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Healthy fat', note: 'A real contribution from the pistachios.' },
         { nutrient: 'Protein', note: 'A concentrated amount from the Greek yogurt.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and sweet from the clementine, with a good crunch from the pistachios.',
     },
   },
@@ -6848,6 +7716,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lentil_roasted_vegetable_tahini_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6872,6 +7741,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Lentils carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Earthy lentils and sweet roasted vegetables, tied together by a nutty, tangy tahini drizzle.',
     },
@@ -6887,6 +7760,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_bison_meatballs_herb_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 serving, for 1 person.',
       ingredients: [
@@ -6911,7 +7785,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A lean, real amount.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the cooked tomato.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory, tomatoey, and lightly herbal, with the bison\'s own leaner flavor coming through clearly.',
     },
   },
@@ -6926,6 +7805,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_apricot_coconut_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6945,7 +7825,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin A', note: 'A real amount from the apricot.' },
         { nutrient: 'Fiber', note: 'A strong combined amount from the oats and apricot.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and creamy from the coconut milk and yogurt together, with sweet-tart apricot throughout.',
     },
   },
@@ -6960,6 +7846,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_sardine_roasted_pepper_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6981,7 +7868,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Omega-3 fat', note: 'A real, concentrated amount from the sardines.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the roasted pepper.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and briny from the sardines, balanced by sweet roasted pepper and peppery arugula.',
     },
   },
@@ -6996,6 +7888,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chicken_breast_artichoke_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -7017,7 +7910,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Prebiotic fiber (inulin)', note: 'A genuine, distinct contribution from the artichoke.' },
         { nutrient: 'Vitamin C', note: 'A real amount from the lemon and artichoke together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Simple and bright, with roasted artichoke\'s own earthiness against fresh lemon.',
     },
   },
@@ -7032,6 +7928,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_fig_cashew_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -7051,7 +7948,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Potassium', note: 'A real amount from the fresh fig.' },
         { nutrient: 'Fiber', note: 'A strong combined amount from the oats and fig.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy and tangy from the Greek yogurt, naturally sweet from the fig, with a rich crunch from the cashews.',
     },
   },
@@ -7066,6 +7969,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_kidney_bean_roasted_vegetable_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -7089,6 +7993,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Kidney beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Hearty and earthy from the kidney beans, brightened by lime and fresh cilantro.',
     },
@@ -7104,6 +8014,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_trout_radish_dill',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -7125,7 +8036,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A real amount from the radish.' },
         { nutrient: 'Vitamin B12', note: 'A solid contribution from the trout.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild, flaky trout over roasted radish\'s own surprisingly gentle flavor, finished with fresh dill.',
     },
   },
@@ -7140,6 +8056,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_mango_pistachio_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -7160,7 +8077,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the mango.' },
         { nutrient: 'Fiber', note: 'A strong amount from the chia seeds.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy and sweet from the mango, with a satisfying crunch from the pistachios.',
     },
   },
@@ -7175,6 +8098,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_turkey_white_bean_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
@@ -7201,6 +8125,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'White beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Plain and comforting, a simple, brothy soup that leans on the turkey and vegetables themselves rather than heavy spicing.',
     },
@@ -7216,6 +8144,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lamb_fennel_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -7236,7 +8165,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the lamb.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the orange.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich, savory lamb against aromatic roasted fennel and bright citrus.',
     },
   },
@@ -7251,6 +8183,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_grapefruit_pistachio_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -7271,6 +8204,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Anyone taking a statin or certain other prescriptions', note: 'Grapefruit is a well-documented interaction with several common medications, including some statins. Worth a quick check with your pharmacist if you take one of these regularly.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Bright and tart from the grapefruit, with a good crunch from the pistachios.',
     },
@@ -7286,6 +8224,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_crab_mango_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -7306,7 +8245,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A strong combined amount from the mango and lime.' },
         { nutrient: 'Vitamin B12', note: 'A real contribution from the crab.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and bright, with juicy mango and delicate crab meat against peppery arugula.',
     },
   },
@@ -7321,6 +8265,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_salmon_wild_rice_asparagus',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
@@ -7343,7 +8288,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Folate', note: 'A meaningful amount from the asparagus.' },
         { nutrient: 'Manganese', note: 'A solid contribution from the wild rice.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich, flaky salmon over nutty wild rice, with crisp asparagus and fresh dill rounding it out.',
     },
   },
@@ -7358,6 +8306,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_turkey_black_bean_chili',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
@@ -7388,6 +8337,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Black beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion, or a well-rinsed canned bean, tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Warm and smoky from the cumin and paprika, hearty and thick, the kind of dinner that\'s just as good reheated the next day.',
     },
@@ -7416,6 +8371,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_green_glow',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -7437,6 +8393,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Both spinach and chia seeds carry a notably high oxalate load, and this smoothie has meaningful amounts of both.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Fruity and sweet, with the banana and pineapple doing most of the talking and the silken tofu adding real body without a distinct flavor of its own. The spinach adds color and nutrition without adding much flavor either, which is exactly the point.',
     },
@@ -7452,6 +8410,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_golden_turmeric',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -7472,7 +8431,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin B6', note: 'A solid amount per serving.' },
         { nutrient: 'Curcumin', note: 'The black pepper alongside it measurably improves how much the body actually absorbs.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Warm, spiced flavor from the turmeric and cinnamon against the natural sweetness of the banana. This drinks more like a dessert smoothie than a health-food shot, with just enough black pepper in the background to notice without any actual heat.',
     },
   },
@@ -7487,6 +8448,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_brazil_nut_selenium',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -7506,7 +8468,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, meaningful amount from the silken tofu base.' },
         { nutrient: 'Manganese', note: 'A solid contribution from the pineapple.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Tropical and creamy, the coconut milk and pineapple carrying most of the flavor while the Brazil nuts add a mellow, buttery richness in the background.',
     },
   },
@@ -7521,6 +8486,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_berry_antioxidant',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -7540,7 +8506,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, meaningful amount from the silken tofu base.' },
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the flaxseed.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright, tart, and sweet all at once, the two berries balancing each other while the silken tofu smooths everything into a real, drinkable body.',
     },
   },
@@ -7555,6 +8524,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_iron_vitamin_c',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -7574,7 +8544,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Iron', note: 'A real plant-based amount from the spinach and tofu, absorbed measurably better alongside this much vitamin C.' },
         { nutrient: 'Protein', note: 'A real, meaningful amount from the silken tofu base.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and citrusy, the orange and strawberries carrying the flavor while the spinach and tofu add color and body without much taste of their own.',
     },
   },
@@ -7589,6 +8561,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_tropical_ginger',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -7608,7 +8581,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Manganese', note: 'A very high amount from the pineapple.' },
         { nutrient: 'Protein', note: 'A real, meaningful amount from the silken tofu base.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and tangy, the pineapple and lime up front with a warm ginger kick trailing behind, the tofu keeping it from tasting like a straight fruit punch.',
     },
   },
@@ -7623,6 +8598,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_berries_silken_tofu_cream',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, about 1½ cups.',
       ingredients: [
@@ -7643,7 +8619,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A solid amount from the berries.' },
         { nutrient: 'Vitamin E', note: 'A real contribution from the almonds.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mildly sweet and creamy, closer to a whipped pudding than a smoothie, with the berries and toasted almonds adding real texture on top.',
     },
   },
@@ -7658,6 +8639,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_tofu_scramble_potatoes',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -7682,7 +8664,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin B12', note: 'A meaningful fortified amount from the nutritional yeast, worth checking the specific product\'s own label since fortification levels vary by brand.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper and potato.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and satisfying, with the turmeric giving the tofu a real egg-like color and the nutritional yeast adding a mild, cheesy depth against the crisp roasted potatoes.',
     },
   },
@@ -7697,6 +8684,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_overnight_oats_chia_berries',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -7718,7 +8706,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real amount from the soy milk and almond butter together.' },
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the chia seeds.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy and lightly sweet, with the almond butter adding real body and the fresh berries adding a bright, tart contrast on top.',
     },
   },
@@ -7733,6 +8724,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_tofu_avocado_tomato',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -7753,7 +8745,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Healthy fats', note: 'A genuine monounsaturated contribution from the avocado.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato and lemon.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and satisfying, the lightly seared tofu carrying a mild tang against the cool creaminess of the avocado and the fresh acidity of the tomato.',
     },
   },
@@ -7768,6 +8765,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_savory_quinoa_bowl_tofu_scramble',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -7790,7 +8788,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin K', note: 'A striking amount from the spinach.' },
         { nutrient: 'Iron', note: 'A real plant-based amount from the tofu and spinach together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Hearty and savory, the nutty quinoa giving the scramble real substance underneath.',
     },
   },
@@ -7805,6 +8808,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_cashew_cream_pineapple_walnuts',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -7824,7 +8828,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
         { nutrient: 'Manganese', note: 'A very high amount from the pineapple.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Cool and creamy, the sweet pineapple and crunchy walnut playing off the mild, custardy tofu base.',
     },
   },
@@ -7839,6 +8848,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_breakfast_burrito_tofu_black_beans',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'lupus', 'multiple_sclerosis', 'pcos', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 burrito.',
       ingredients: [
@@ -7866,6 +8876,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Black beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion, or a well-rinsed canned bean, tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Warm and savory, the bright, fresh pico cutting through the richer scramble and beans underneath.',
     },
@@ -7881,6 +8898,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_baked_oatmeal_cup_banana_cinnamon',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 large baked oatmeal cup.',
       ingredients: [
@@ -7903,7 +8921,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the flaxseed.' },
         { nutrient: 'Potassium', note: 'A solid amount from the banana.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Warm and comforting, closer to a small cake than a bowl of oatmeal, with the banana and cinnamon carrying most of the flavor.',
     },
   },
@@ -7918,6 +8939,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_kiwi_almond_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -7936,7 +8958,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real amount from the silken tofu and almond butter together.' },
         { nutrient: 'Vitamin E', note: 'A real contribution from the almond butter.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and tangy from the kiwi against a rich, nutty tofu base.',
     },
   },
@@ -7951,6 +8976,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_peach_almond_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -7971,7 +8997,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real amount from the soy milk and almond butter together.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the peach.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mellow and creamy, the peach adding a gentle, mildly floral sweetness distinct from a berry-based bowl.',
     },
   },
@@ -7986,6 +9015,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_papaya_cashew_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8004,7 +9034,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A solid amount from the papaya and lime together.' },
         { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Soft and tropical, the papain in the papaya adding a subtly different, almost musky sweetness against the mild tofu base.',
     },
   },
@@ -8019,6 +9052,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_buckwheat_porridge_blueberries_walnuts',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8040,7 +9074,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real amount from the soy milk and almond butter together.' },
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Warm and earthy from the buckwheat, with the almond butter and cinnamon rounding it into something closer to a nutty custard than a plain porridge.',
     },
   },
@@ -8055,6 +9092,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_millet_porridge_apricots',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8075,7 +9113,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin A', note: 'A solid amount from the apricot.' },
         { nutrient: 'Magnesium', note: 'A real contribution from the millet.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and comforting, with the apricot adding a soft, honeyed sweetness against the warm cinnamon and nutty almond butter.',
     },
   },
@@ -8090,6 +9131,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_grapefruit_tofu_maple',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8107,7 +9149,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A strong amount from the grapefruit.' },
         { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Tart and bright, the grapefruit\'s own bitterness balanced by the maple syrup and the mild, creamy tofu base underneath.',
     },
   },
@@ -8122,6 +9168,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_fig_walnut_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8140,7 +9187,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A real amount from the fig and walnuts together.' },
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and mellow, the fig\'s own honeyed flavor against the crunchy, slightly bitter walnut and the mild tofu base.',
     },
   },
@@ -8155,6 +9205,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_date_cashew_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8172,7 +9223,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A real amount from the dates.' },
         { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and naturally sweet, no added sugar doing any of the work, with the cashew adding a buttery crunch.',
     },
   },
@@ -8187,6 +9241,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_nectarine_chia_pudding_cashews',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8206,7 +9261,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete protein from the soy milk.' },
         { nutrient: 'Fiber', note: 'A substantial amount from the chia seeds.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Thick and pudding-like, with the nectarine adding a juicy, floral sweetness on top.',
     },
   },
@@ -8221,6 +9279,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_clementine_almond_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8239,7 +9298,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
         { nutrient: 'Vitamin E', note: 'A real contribution from the almonds.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and lightly sweet, the clementine\'s own gentle citrus flavor against the mild tofu base and crunchy almond.',
     },
   },
@@ -8254,6 +9316,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_plum_walnut_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8273,7 +9336,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial combined amount from the oats and plum.' },
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy and mildly tart, the plum\'s own skin adding a slightly tangy edge against the crunchy walnut.',
     },
   },
@@ -8288,6 +9354,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_watermelon_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8308,7 +9375,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
         { nutrient: 'Hydration', note: 'Watermelon is over 90% water by weight, a genuinely hydrating way to start the day.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Cool and refreshing, the salty marinated tofu playing the same role a cube of feta would against the sweet watermelon and fresh mint.',
     },
   },
@@ -8323,6 +9393,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_cantaloupe_tofu_maple',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8340,7 +9411,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A solid amount from the cantaloupe.' },
         { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and fragrant, the cantaloupe carrying most of the flavor against a mild, creamy tofu base.',
     },
   },
@@ -8355,6 +9428,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_pear_walnut_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8372,7 +9446,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
         { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and comforting, the pear\'s own gentle sweetness against the crunchy walnut and warm cinnamon.',
     },
   },
@@ -8387,6 +9464,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_fig_pistachio_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8406,7 +9484,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real amount from the soy milk and pistachios together.' },
         { nutrient: 'Fiber', note: 'A substantial combined amount from the oats and fig.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and nutty, a genuinely Mediterranean-leaning combination distinct from this plan\'s other, more tropical bowls.',
     },
   },
@@ -8421,6 +9502,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_apricot_cashew_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8438,7 +9520,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin A', note: 'A solid amount from the apricot.' },
         { nutrient: 'Protein', note: 'A real amount from the silken tofu and cashews together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Soft and lightly sweet, the apricot\'s own gentle tang against the buttery cashew and mild tofu base.',
     },
   },
@@ -8453,6 +9538,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_date_walnut_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8470,7 +9556,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
         { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and naturally sweet, closer to a dessert than a plain tofu bowl, with the walnut adding a bitter edge to balance the date.',
     },
   },
@@ -8485,6 +9574,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_mango_coconut_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8504,7 +9594,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the chia and hemp seeds together.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the mango.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and tropical, the coconut milk giving it real body while the mango adds bright, juicy sweetness on top.',
     },
   },
@@ -8519,6 +9612,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_cashew_ricotta_fig_maple',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8536,7 +9630,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
         { nutrient: 'Potassium', note: 'A solid amount from the fig.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Tangy and thick, genuinely closer to a sweetened ricotta than the plainer tofu bowls elsewhere in this plan, with the fig and maple keeping it dessert-like.',
     },
   },
@@ -8551,6 +9647,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_pear_almond_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8569,7 +9666,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin E', note: 'A real contribution from the almonds.' },
         { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and gently sweet, a calmer bowl than this plan\'s more tropical or dried-fruit versions.',
     },
   },
@@ -8584,6 +9684,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_kiwi_coconut_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8603,7 +9704,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the hemp seeds.' },
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the chia and hemp seeds together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and tropical from the coconut milk, the kiwi adding a bright, tart contrast on top.',
     },
   },
@@ -8618,6 +9722,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_papaya_lime_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8635,7 +9740,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A solid amount from the papaya and lime together.' },
         { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Soft and tropical, the lime cutting through the papaya\'s own natural sweetness.',
     },
   },
@@ -8650,6 +9757,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_blackberry_almond_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8668,7 +9776,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin K', note: 'A solid amount from the blackberries.' },
         { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Tart and juicy, the blackberries\' own small seeds adding a bit of real texture against the smooth tofu base.',
     },
   },
@@ -8683,6 +9794,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_clementine_pistachio_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8700,7 +9812,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A solid amount from the clementine.' },
         { nutrient: 'Protein', note: 'A real amount from the silken tofu and pistachios together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and lightly sweet, the pistachio adding a distinct, slightly savory crunch against the citrus.',
     },
   },
@@ -8715,6 +9830,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_apricot_coconut_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8734,7 +9850,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real amount from the soy milk.' },
         { nutrient: 'Fiber', note: 'A substantial combined amount from the oats and apricot.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and lightly tropical from the coconut milk, the apricot adding a soft, honeyed sweetness on top.',
     },
   },
@@ -8749,6 +9868,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_fig_cashew_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8768,7 +9888,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real amount from the soy milk and cashews together.' },
         { nutrient: 'Fiber', note: 'A substantial combined amount from the oats and fig.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy and mellow, the fig and cashew together giving it a rounder, less tart flavor than this plan\'s berry-based oats.',
     },
   },
@@ -8783,6 +9906,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_mango_pistachio_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8803,7 +9927,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A solid amount from the mango.' },
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the chia seeds.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Thicker and creamier than this plan\'s coconut-based chia pudding, with the pistachio adding a distinct, slightly savory crunch.',
     },
   },
@@ -8818,6 +9945,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_grapefruit_pistachio_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -8835,7 +9963,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A strong amount from the grapefruit.' },
         { nutrient: 'Protein', note: 'A real amount from the silken tofu and pistachios together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Tart and bright, the grapefruit\'s own bitterness balanced by the maple syrup and the nutty pistachio on top.',
     },
   },
@@ -8862,6 +9993,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_seitan_roasted_vegetable_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 wrap.',
       ingredients: [
@@ -8884,6 +10016,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Seitan is pure wheat gluten and is not appropriate here. A firm tofu, cubed and seared the same way, works as a gluten-free swap.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory and hearty, the seared seitan carrying a real chew close to a sliced roast against the sweet roasted vegetables.',
     },
@@ -8899,6 +10036,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_grilled_tempeh_sandwich',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 sandwich.',
       ingredients: [
@@ -8917,7 +10055,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
         { nutrient: 'Healthy fats', note: 'A genuine monounsaturated contribution from the avocado.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Hearty and nutty from the grilled tempeh, the avocado adding real creaminess against the fresh lettuce and tomato.',
     },
   },
@@ -8932,6 +10075,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_chickpea_avocado_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap.',
       ingredients: [
@@ -8950,7 +10094,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial amount from the chickpeas.' },
         { nutrient: 'Protein', note: 'A real, plant-based amount from the chickpeas.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Hearty and fresh, the mashed chickpea giving real substance against the cool avocado and crisp vegetables.',
     },
   },
@@ -8965,6 +10114,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_tempeh_hummus_collard_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap.',
       ingredients: [
@@ -8986,7 +10136,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, combined amount from the tempeh and chickpea hummus.' },
         { nutrient: 'Vitamin K', note: 'A striking amount from the collard leaves.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and nutty, the tempeh and hummus both carrying real body against the sturdy, slightly bitter collard leaf.',
     },
   },
@@ -9001,6 +10156,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_chickpea_egg_salad_lettuce_wraps',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap.',
       ingredients: [
@@ -9020,7 +10176,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial amount from the chickpeas.' },
         { nutrient: 'Protein', note: 'A real, plant-based amount from the chickpeas and tahini together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy and tangy, close enough to a classic egg salad in texture and color that the turmeric does real work here, not just decoration.',
     },
   },
@@ -9035,6 +10194,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_hearts_of_palm_avocado_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9054,7 +10214,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A real amount from the hearts of palm and avocado together.' },
         { nutrient: 'Healthy fats', note: 'A genuine monounsaturated contribution from the avocado.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and slightly briny from the hearts of palm, with the avocado adding real creaminess and the lime keeping it bright.',
     },
   },
@@ -9069,6 +10231,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_hearts_of_palm_mango_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9088,7 +10251,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A solid amount from the mango.' },
         { nutrient: 'Fiber', note: 'A real amount from the hearts of palm and mango together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and mildly briny, the mango and peppery arugula giving this a brighter, fruitier profile than this plan\'s avocado version.',
     },
   },
@@ -9103,6 +10270,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_grilled_tofu_greens_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9124,7 +10292,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Fresh and light, the grilled tofu carrying a real smoky char against the crisp, cool greens.',
     },
   },
@@ -9139,6 +10312,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_smoky_tempeh_radish_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9159,7 +10333,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
         { nutrient: 'Fiber', note: 'A genuine contribution from the tempeh itself.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Smoky and savory from the paprika-seared tempeh, the crisp, peppery radish keeping it fresh.',
     },
   },
@@ -9174,6 +10353,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_white_bean_roasted_pepper_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9193,7 +10373,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial amount from the white beans.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the roasted pepper.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and creamy from the white beans, the sweet roasted pepper adding real color and depth.',
     },
   },
@@ -9208,6 +10395,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_king_oyster_watermelon_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9227,7 +10415,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Hydration', note: 'Watermelon is over 90% water by weight, a genuinely hydrating base for this bowl.' },
         { nutrient: 'Protein', note: 'A real amount from the marinated tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Cool and refreshing, the grilled mushroom bringing real savory depth against the sweet watermelon and tangy tofu.',
     },
   },
@@ -9242,6 +10433,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_tofu_cucumber_dill_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9262,7 +10454,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
         { nutrient: 'Hydration', note: 'A genuinely hydrating amount from the cucumber.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Cool and herbaceous, the fresh dill doing most of the flavor work against the mild tofu and crisp cucumber.',
     },
   },
@@ -9277,6 +10472,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_white_bean_artichoke_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9296,7 +10492,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial combined amount from the white beans and artichoke.' },
         { nutrient: 'Protein', note: 'A real, plant-based amount from the white beans.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and creamy from the white beans, the roasted artichoke adding a real nutty, slightly tangy depth.',
     },
   },
@@ -9311,6 +10514,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_chickpea_white_bean_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9330,7 +10534,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the two legumes together.' },
         { nutrient: 'Fiber', note: 'A substantial amount from the chickpeas and white beans.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Hearty and mild, the two legumes carrying real substance against the sharp raw onion and peppery arugula.',
     },
   },
@@ -9345,6 +10556,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_beet_walnut_arugula_tofu',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9363,7 +10575,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Folate', note: 'A solid amount from the beets.' },
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Earthy and sweet from the roasted beet, the marinated tofu adding a real tangy note where feta would sit.',
     },
   },
@@ -9378,6 +10597,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_mediterranean_chickpea_tofu',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9398,7 +10618,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, combined amount from the chickpeas and tofu.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato and cucumber together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and herbaceous, the oregano and lemon carrying a genuine Mediterranean character against the tangy marinated tofu.',
     },
   },
@@ -9413,6 +10638,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_roasted_artichoke_white_bean_tofu',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9432,7 +10658,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial combined amount from the artichoke and white beans.' },
         { nutrient: 'Protein', note: 'A real, combined amount from the white beans and tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Nutty and tangy, the roasted artichoke and marinated tofu both carrying real depth.',
     },
   },
@@ -9447,6 +10678,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_spelt_roasted_vegetable_tofu',
     linkedBuilderType: 'salad',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9468,6 +10700,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Spelt is a wheat relative and is not appropriate here. Cooked quinoa works as a gluten-free swap in the same amount.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Nutty and earthy from the spelt and roasted root vegetables, the marinated tofu adding a real tangy finish.',
     },
@@ -9483,6 +10720,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tempeh_brussels_sweet_potato',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -9503,7 +10741,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
         { nutrient: 'Vitamin A', note: 'A very high amount from the sweet potato.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Hearty and savory, the rosemary and garlic tying the tempeh and vegetables together into one real roasted plate.',
     },
   },
@@ -9518,6 +10761,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tofu_fennel_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -9536,7 +10780,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the orange.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Light and aromatic, the roasted fennel\'s own mild anise flavor against the bright citrus and mild tofu.',
     },
   },
@@ -9551,6 +10798,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tofu_paprika_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -9568,7 +10816,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the lemon.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Simple and lightly smoky from the paprika, with the lemon keeping it bright.',
     },
   },
@@ -9583,6 +10836,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tofu_lemon_dill',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -9599,7 +10853,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and herbaceous, the fresh dill doing most of the flavor work against the mild tofu.',
     },
   },
@@ -9614,6 +10871,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tempeh_parsnip_mash',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -9633,7 +10891,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
         { nutrient: 'Fiber', note: 'A substantial amount from the parsnip.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Creamy and garlicky, the parsnip mash bringing real comfort-food body against the firmer tempeh.',
     },
   },
@@ -9648,6 +10909,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_seitan_zucchini_tomatoes',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -9670,6 +10932,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Seitan is pure wheat gluten and is not appropriate here. Baked tempeh, cut into slabs, works as a gluten-free swap in the same amount.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory and herby, the oregano and garlic tying the seitan and vegetables together.',
     },
@@ -9685,6 +10952,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_mushroom_walnut_stir_fry_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9707,7 +10975,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
         { nutrient: 'Selenium', note: 'A solid amount from the mushrooms.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Deeply savory and umami-rich, the two mushrooms doing real work here, with the walnut adding a distinct crunch.',
     },
   },
@@ -9722,6 +10996,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_lentil_walnut_meatballs_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -9745,7 +11020,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial amount from the lentils.' },
         { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts and flaxseed together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Hearty and savory, the walnut giving the meatballs real texture against the bright, herby tomato sauce.',
     },
   },
@@ -9760,6 +11040,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_root_vegetable_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9780,7 +11061,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
         { nutrient: 'Fiber', note: 'A substantial amount from the three root vegetables together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Earthy and hearty, the roasted root vegetables carrying real sweetness against the firmer, savory tempeh.',
     },
   },
@@ -9795,6 +11081,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_braised_seitan_kohlrabi_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -9818,6 +11105,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Seitan is pure wheat gluten and is not appropriate here. Braised tempeh cubes work as a gluten-free swap in the same amount.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Rich and savory, the long braise giving the seitan real depth against the tender root vegetables.',
     },
@@ -9833,6 +11125,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_lemon_tofu_artichoke',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -9851,7 +11144,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
         { nutrient: 'Fiber', note: 'A substantial amount from the artichoke.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Bright and simple, the lemon marinade giving the tofu real character against the nutty roasted artichoke.',
     },
   },
@@ -9866,6 +11162,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_snow_peas_carrots',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -9885,7 +11182,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Fresh and crisp, the snow peas and carrot keeping real crunch against the firmer tempeh.',
     },
   },
@@ -9900,6 +11200,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_chickpea_okra_tomato_skillet',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -9921,7 +11222,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial combined amount from the chickpeas and okra.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Warm and hearty, the paprika giving it a real smoky depth against the tangy tomato.',
     },
   },
@@ -9936,6 +11242,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_kohlrabi_apple',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -9954,7 +11261,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the kohlrabi.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet and earthy, the roasted apple bringing real natural sweetness against the mild kohlrabi and firm tempeh.',
     },
   },
@@ -9969,6 +11281,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_portobello_beets_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -9986,7 +11299,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Folate', note: 'A solid amount from the beets.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the orange.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Deep and savory from the portobello, the sweet beet and bright orange keeping the plate from feeling one-note.',
     },
   },
@@ -10001,6 +11316,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_cherry_wild_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -10019,7 +11335,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
         { nutrient: 'Antioxidant polyphenols', note: 'A meaningful amount from the sour cherry.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and tart, the sour cherry adding real brightness against the firm, nutty tempeh and wild rice.',
     },
   },
@@ -10034,6 +11353,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_ginger_soy_tempeh',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10052,7 +11372,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Sweet, salty, and gingery, the glaze caramelizing into a real sticky coating over the roasted tempeh.',
     },
   },
@@ -10067,6 +11393,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_leeks_peas',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10085,7 +11412,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
         { nutrient: 'Fiber', note: 'A real amount from the peas.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and sweet, the leek and pea keeping the plate light against the tofu.',
     },
   },
@@ -10100,6 +11430,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_herb_crusted_seitan_roast',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10120,6 +11451,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Seitan is pure wheat gluten and is not appropriate here. A roasted tempeh slab works as a gluten-free swap in the same amount.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory and herby, the rosemary and thyme crust giving the seitan a real roast-dinner character.',
     },
@@ -10135,6 +11471,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_seitan_chops_roasted_eggplant',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10156,6 +11493,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Seitan is pure wheat gluten and is not appropriate here. Grilled tofu slabs work as a gluten-free swap in the same amount.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Hearty and herby, the grilled seitan bringing a real chew against the soft, roasted eggplant.',
     },
@@ -10171,6 +11513,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_braised_chickpea_fennel_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -10189,7 +11532,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial amount from the chickpeas.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the orange.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Warm and aromatic, the roasted fennel\'s own mild anise flavor against the bright citrus and hearty chickpea.',
     },
   },
@@ -10204,6 +11550,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_skewers_couscous',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10227,6 +11574,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Couscous is made from wheat and is not appropriate here. Cooked quinoa works as a gluten-free swap in the same amount.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Smoky and warmly spiced from the cumin, the grilled vegetables adding real char alongside the tofu.',
     },
@@ -10242,6 +11594,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_one_pan_king_oyster_asparagus_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -10262,7 +11615,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Folate', note: 'A solid amount from the asparagus.' },
         { nutrient: 'Selenium', note: 'A real amount from the king oyster mushroom.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and bright, the mushroom carrying a real chewy bite close to shrimp against the crisp asparagus.',
     },
   },
@@ -10277,6 +11632,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_seitan_chop_brussels_apple',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10297,6 +11653,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Seitan is pure wheat gluten and is not appropriate here. Baked tempeh works as a gluten-free swap in the same amount.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Sweet and savory, the roasted apple\'s own natural sweetness against the firm seitan and slightly bitter brussels sprouts.',
     },
@@ -10312,6 +11673,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_radish_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10330,7 +11692,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and slightly sweet once roasted, the radish and carrot working well against the firmer grilled tempeh.',
     },
   },
@@ -10345,6 +11712,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_seitan_turnip_kale',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10366,6 +11734,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Seitan is pure wheat gluten and is not appropriate here. Roasted tempeh works as a gluten-free swap in the same amount.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Earthy and hearty, the sauteed kale and roasted turnip both leaning into the same rustic character as the seitan.',
     },
@@ -10381,6 +11754,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_roast_tempeh_fennel_leeks',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10400,7 +11774,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
         { nutrient: 'Fiber', note: 'A real amount from the fennel and leek together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and aromatic, the roasted fennel and leek carrying a gentle sweetness against the firm tempeh.',
     },
   },
@@ -10415,6 +11792,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_leeks_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10432,7 +11810,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Mild and bright, the sauteed leek adding real sweetness against the tofu and fresh lemon.',
     },
   },
@@ -10447,6 +11828,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_wild_rice_asparagus',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -10465,7 +11847,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
         { nutrient: 'Folate', note: 'A solid amount from the asparagus.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Nutty and mild, the wild rice giving real texture underneath the tofu and roasted asparagus.',
     },
   },
@@ -10480,6 +11865,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_white_bean_tomato_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -10498,7 +11884,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial amount from the white beans.' },
         { nutrient: 'Protein', note: 'A real, plant-based amount from the white beans.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Simple and comforting, the fresh parsley and lemon keeping the creamy beans bright.',
     },
   },
@@ -10513,6 +11906,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_king_oyster_scallops_asparagus_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10532,7 +11926,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Folate', note: 'A solid amount from the asparagus.' },
         { nutrient: 'Selenium', note: 'A real amount from the king oyster mushroom.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and richly seared, the mushroom rounds carrying a real caramelized crust close to a pan-seared scallop.',
     },
   },
@@ -10547,6 +11943,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_king_oyster_snow_pea_stir_fry_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -10567,7 +11964,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Selenium', note: 'A real amount from the king oyster mushroom.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the snow peas.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and gingery, the mushroom carrying a real chewy bite through the crisp snow peas.',
     },
   },
@@ -10582,6 +11984,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_bok_choy_ginger',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10601,7 +12004,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the bok choy.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Light and gingery, the bok choy staying crisp against the softer tofu.',
     },
   },
@@ -10616,6 +12025,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_radish_dill',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10633,7 +12043,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and herbaceous, the fresh dill adding real brightness against the firm tempeh and roasted radish.',
     },
   },
@@ -10648,6 +12063,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_chickpea_walnut_meatballs_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10672,7 +12088,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial amount from the chickpeas.' },
         { nutrient: 'Vitamin B12', note: 'A meaningful fortified amount from the nutritional yeast, worth checking the specific product\'s own label since fortification levels vary by brand.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Hearty and savory, the walnut and nutritional yeast together giving the meatballs a real umami depth against the bright tomato sauce.',
     },
   },
@@ -10687,6 +12108,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_lentil_meatloaf_parsnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10708,7 +12130,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial amount from the lentils.' },
         { nutrient: 'Protein', note: 'A real, plant-based amount from the lentils.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Hearty and comforting, the real sliceable lentil loaf carrying much the same weeknight-dinner feel as a meatloaf.',
     },
   },
@@ -10723,6 +12148,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_turnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
@@ -10742,7 +12168,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Earthy and hearty, the rosemary tying the roasted tempeh and root vegetables together.',
     },
   },
@@ -10757,6 +12188,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_wild_rice_cranberries',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -10774,7 +12206,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
         { nutrient: 'Antioxidant polyphenols', note: 'A meaningful amount from the cranberries.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and slightly tart, the whole cranberries adding real bursts of brightness through the nutty wild rice.',
     },
   },
@@ -10789,6 +12224,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_vegetable_fried_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -10811,7 +12247,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Savory and satisfying, the turmeric-tofu bits breaking up through the rice much the way scrambled egg would.',
     },
   },
@@ -10826,6 +12268,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_white_bean_roasted_vegetable_tofu_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -10847,7 +12290,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial combined amount from the white beans and roasted vegetables.' },
         { nutrient: 'Protein', note: 'A real, combined amount from the white beans and tofu.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Hearty and Mediterranean-leaning, the roasted vegetables and marinated tofu together carrying real depth.',
     },
   },
@@ -10862,6 +12312,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_white_bean_vegetable_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, about 1 cup.',
       ingredients: [
@@ -10883,7 +12334,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A real amount from the white beans.' },
         { nutrient: 'Protein', note: 'A real, plant-based amount from the white beans.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Light and homey, the classic carrot-celery-onion base carrying real comfort-food familiarity.',
     },
   },
@@ -10898,6 +12354,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_hearts_of_palm_corn_chowder',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -10918,7 +12375,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A real amount from the hearts of palm and corn together.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Rich and creamy from the coconut milk, the hearts of palm adding a real flaky texture through the chowder.',
     },
   },
@@ -10933,6 +12392,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_white_bean_tomato_fennel_broth',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -10953,7 +12413,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial amount from the white beans.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Light and aromatic, the fennel\'s own mild anise flavor carrying through the tomato broth.',
     },
   },
@@ -10968,6 +12435,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_white_bean_tomato_garlic_broth',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -10989,7 +12457,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A substantial amount from the white beans.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Garlicky and bright, the fresh parsley keeping the broth from feeling heavy.',
     },
   },
@@ -11004,6 +12479,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_lentil_black_bean_chili',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -11030,6 +12506,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Both lentils and black beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
+        { condition: 'Hashimoto\'s Disease: Digging (Removing Triggers)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Disease: Gut Repair (Reintroduction)', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Warm and smoky from the cumin and paprika, the lentil giving the chili a real hearty, meaty texture.',
     },
@@ -11045,6 +12527,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_mushroom_white_bean_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      safeForConditions: ['cardiovascular_disease', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'lupus', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
@@ -11066,7 +12549,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A real amount from the white beans.' },
         { nutrient: 'Selenium', note: 'A solid amount from the mushroom.' },
       ],
-      conditionNotes: [],
+      conditionNotes: [
+        { condition: 'Irritable Bowel Syndrome: Elimination Phase', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+      ],
       flavorNotes: 'Deeply savory from the sauteed mushroom, the white beans giving the soup real body.',
     },
   },

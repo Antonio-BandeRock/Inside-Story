@@ -33,3 +33,12 @@ export const CONDITION_CODE_TO_DIGEST_KEY: Record<string, DigestCategoryKey> = {
   gout: 'gout',
   prostate_health: 'prostateHealth',
 };
+
+// The reverse direction -- 2026-08-24, built for the "Meals You Can Eat"
+// topic (RecipeCard.safeForConditions stores the real snake_case
+// condition code; a condition's own Digest page only knows its own
+// camelCase DigestCategoryKey). Derived from the map above rather than
+// hand-duplicated, so the two can never drift apart.
+export const DIGEST_KEY_TO_CONDITION_CODE: Partial<Record<DigestCategoryKey, string>> = Object.fromEntries(
+  Object.entries(CONDITION_CODE_TO_DIGEST_KEY).map(([code, key]) => [key, code]),
+);

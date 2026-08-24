@@ -26,7 +26,7 @@ import { TAB_REVEAL_DURATION_MS } from '../../constants/tabReveal';
 import { menuLabelShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
-import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
+import { CONDITION_CODE_TO_DIGEST_KEY, DIGEST_KEY_TO_CONDITION_CODE } from '../../lib/conditionCodeMap';
 import {
   deleteFavorite,
   getCuratedRecipe,
@@ -963,6 +963,7 @@ function basicHealthTopicHasSubtopics(label: string): boolean {
 // always do), the same standing caveat the original pillar version and
 // every other grouping feature in this app already ships under.
 type ConditionTopic =
+  | 'Meals You Can Eat'
   | 'Core Science'
   | 'Diet & Food'
   | 'Medications & Treatment'
@@ -981,10 +982,15 @@ type ConditionTopic =
   | 'Other Autoimmune Diseases'
   | 'The Big Picture';
 
-// Real row order, most inviting/actionable first -- Diet & Food leads
-// deliberately (this app's own core mission, and the single most concrete,
-// "I want to read more" topic most conditions carry); Core Science follows
-// as the grounding/mechanism read; the Hashimoto's-only clusters (Gut &
+// Real row order, most inviting/actionable first -- Meals You Can Eat
+// leads where it exists (2026-08-24: a real, computed positive recipe
+// list, only present for the 18 conditions this app has actual
+// condition-scoped food-scoring data for -- see groupConditionEntries'
+// own comment below), the single most directly actionable thing a
+// condition page can show. Diet & Food follows (this app's own core
+// mission, and the most concrete narrative topic most conditions carry);
+// Core Science follows as the grounding/mechanism read; the
+// Hashimoto's-only clusters (Gut &
 // Microbiome, Mitochondria & Metabolism, Lifestyle & Environment, Healing
 // Stages, Complementary & Manual Therapies, Other Autoimmune Diseases, The
 // Big Picture -- none of these ever populate for any other condition, see
@@ -996,6 +1002,7 @@ type ConditionTopic =
 // together" card (pulled out separately, below) -- a fitting spot for
 // Hashimoto's own narrative-arc chapters.
 const CONDITION_TOPIC_ORDER: ConditionTopic[] = [
+  'Meals You Can Eat',
   'Diet & Food',
   'Core Science',
   'Gut & Microbiome',
@@ -1064,6 +1071,16 @@ function isTyingTogetherEntry(entry: AnyDigestEntry): boolean {
 //    this app's own food-first mission over a stricter "which is more
 //    medically precise" reading).
 function classifyConditionTopic(entry: AnyDigestEntry): ConditionTopic {
+  // 2026-08-24: a Recipe entry showing up here at all only ever happens
+  // via the synthetic "Meals You Can Eat" topic (groupConditionEntries
+  // builds that bucket directly, bypassing this classifier entirely) --
+  // this check exists only so shelfGroupKeyForEntry's own real
+  // classifyTopicForCategory call (used by toggleEntry/jumpToRelated to
+  // scroll a tapped card into view) resolves a recipe card back to the
+  // SAME topic key it was actually grouped under, not whatever this
+  // classifier's own keyword/id heuristics would otherwise guess for a
+  // recipe id it was never designed to recognize.
+  if (entry.category === 'recipes') return 'Meals You Can Eat';
   const id = entry.id.toLowerCase();
   if (id.endsWith('overview')) return 'Core Science';
 
@@ -1144,7 +1161,59 @@ function classifyConditionTopic(entry: AnyDigestEntry): ConditionTopic {
 // (`{label, entries}[]`) to match exactly what BasicHealthShelves below
 // already expects, the shared shelf-row-plus-detail-panel component every
 // condition's own topic grouping renders through.
-function groupConditionEntries(entries: AnyDigestEntry[]): {
+// 2026-08-24, direct request: "there needs to be an association between
+// the recipes and the conditions somehow, so that the user can look
+// through their specific condition that will then show them meals they
+// can eat, depending on the stage of their conditions." A real,
+// synthetic "Meals You Can Eat" topic, built from RecipeCard.
+// safeForConditions (computed offline against this app's own real
+// condition-scoped food-scoring data, see scripts/
+// compute_recipe_condition_data.js) -- the one topic on a condition's
+// own page whose entries come from a DIFFERENT category (Recipes), not
+// that condition's own content array. Deliberately reuses the exact
+// same DigestCard/RecipeCardDetail rendering every Recipes-category
+// entry already uses (an entry's own real `category` field still reads
+// 'recipes', which is honest, not a bug -- a Related-entry chip or any
+// other place that reads `entry.category` sees exactly what this really
+// is). Only 18 of the 19 tracked conditions get real coverage; Migraine
+// has zero real condition-specific scoring data in this database
+// (confirmed by direct query before building this), so it contributes
+// nothing here, silently and correctly, the same "no real data, no
+// guessed placeholder" precedent lib/conditionStageAdvisory.ts's own
+// dispatcher already established.
+// Computed once and cached at module scope, not per-render -- 2026-08-24,
+// the same "static bundled content never changes at runtime, so a
+// one-time bulk pass beats recomputing it" reasoning lib/db.ts's own
+// getSafeFoodIds already established. getEntriesForCategory('recipes')
+// itself does a full filter() over every Digest entry, and this whole
+// function would otherwise re-run on every render of a condition's own
+// page (groupEntriesForLens is called inline in JSX, not memoized),
+// exactly the class of bug already found and fixed for
+// basicHealthAllGroups/categorySearchGroups on 2026-08-23.
+let recipesByConditionCodeCache: Map<string, AnyDigestEntry[]> | null = null;
+function recipesByConditionCode(): Map<string, AnyDigestEntry[]> {
+  if (!recipesByConditionCodeCache) {
+    const map = new Map<string, AnyDigestEntry[]>();
+    for (const entry of getEntriesForCategory('recipes')) {
+      if (isProblemFoodEntry(entry)) continue;
+      for (const code of entry.recipeCard?.safeForConditions ?? []) {
+        if (!map.has(code)) map.set(code, []);
+        map.get(code)!.push(entry);
+      }
+    }
+    recipesByConditionCodeCache = map;
+  }
+  return recipesByConditionCodeCache;
+}
+
+function safeRecipesForCondition(conditionCode: string): AnyDigestEntry[] {
+  return recipesByConditionCode().get(conditionCode) ?? [];
+}
+
+function groupConditionEntries(
+  entries: AnyDigestEntry[],
+  conditionCode?: string,
+): {
   topics: { label: string; entries: AnyDigestEntry[] }[];
   tyingTogether: AnyDigestEntry | null;
 } {
@@ -1156,9 +1225,13 @@ function groupConditionEntries(entries: AnyDigestEntry[]): {
     if (!buckets.has(topic)) buckets.set(topic, []);
     buckets.get(topic)!.push(entry);
   }
+  if (conditionCode) {
+    const safeRecipes = safeRecipesForCondition(conditionCode);
+    if (safeRecipes.length > 0) buckets.set('Meals You Can Eat', sortDigestEntriesLogically(safeRecipes));
+  }
   const topics = CONDITION_TOPIC_ORDER.map((topic) => ({
     label: topic as string,
-    entries: sortDigestEntriesLogically(buckets.get(topic) ?? []),
+    entries: topic === 'Meals You Can Eat' ? (buckets.get(topic) ?? []) : sortDigestEntriesLogically(buckets.get(topic) ?? []),
   })).filter((group) => group.entries.length > 0);
   return { topics, tyingTogether };
 }
@@ -1667,7 +1740,7 @@ function groupEntriesForLens(
   if (category === 'homeGardening') return groupHomeGardeningEntries(entries);
   if (category === 'recipes') return groupRecipesEntries(entries);
   if (category === 'myKitchen' || category === 'myFavorites') return groupDynamicEntries(entries);
-  return groupConditionEntries(entries);
+  return groupConditionEntries(entries, DIGEST_KEY_TO_CONDITION_CODE[category]);
 }
 
 // A fixed, internal-only ref key for a condition's own standalone "tying
