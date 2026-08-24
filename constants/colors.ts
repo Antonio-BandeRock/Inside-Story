@@ -568,6 +568,24 @@ export const colors = {
   // surface pairing), not a fresh, unmitigated regression. Worth an
   // on-device look, not just this math, before calling it settled.
   tabPurpleDigest: '#AF88F2',
+  // Same-day follow-up, direct report after seeing the darker value above
+  // on-device: "you darkened the font on the Digest purple headings and
+  // topics. Those need to go back to the lighter shade of purple." This
+  // confirms, rather than solves differently, the one honest tradeoff
+  // already named in the comment above: `tabPurpleDigest` reading as text
+  // directly on `colors.surface`/`menuSurface` (category headers, topic
+  // menu labels, shelf and entry titles) was the exact contrast gap
+  // flagged as needing an on-device look before calling it settled, and
+  // the look came back negative. Rather than re-lighten the shared token
+  // itself (which would undo the actual fix the darker value gives every
+  // button, border, and icon use, the part of the original report this
+  // color change was for), this restores the pre-2026-08-23 lighter value
+  // as its own separate token, used only where this color paints text.
+  // Same split TabHub/LensHub's own label color already draws (see
+  // `lighten`/`MENU_LABEL_LIGHTEN_FRACTION` below): the underlying
+  // identity color and the color actually painted as on-screen font are
+  // allowed to differ on purpose.
+  tabPurpleDigestText: '#C7ACF6',
   // Garden's own identity color, changed 2026-08-13, direct request:
   // "let's try using 'Forest Green' (Hex #228B22)" -- a deliberate,
   // real-world color choice, not another member of the computed
