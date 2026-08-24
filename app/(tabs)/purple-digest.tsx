@@ -1758,7 +1758,14 @@ export default function PurpleDigestScreen() {
   // this is safe to leave unconsumed after the fact: SwipeableTabScreen's
   // own swipe-driven navigation never carries params at all, so a later
   // swipe away and back always lands back on a bare, param-free route.
-  const { openDigestLens } = useLocalSearchParams<{ openDigestLens?: string }>();
+  // openEntryId, 2026-08-23: a real deep link straight to one specific
+  // entry's own card, not just its category -- built for Home's own
+  // Digest flip cards ("Read more" needs to land on the exact entry it
+  // teased, not just that entry's own lens). Handled in the same
+  // useFocusEffect below as openDigestLens, via the same jumpToRelated
+  // this screen's own Related-entry chips already use, rather than a
+  // second, parallel navigation mechanism.
+  const { openDigestLens, openEntryId } = useLocalSearchParams<{ openDigestLens?: string; openEntryId?: string }>();
   const [lens, setLens] = useState<PurpleDigestLens>('basicHealth');
   // Hide-sync for any Digest entry tagged with `relatedFoodNames` (currently
   // just the Fruits, Vegetables, Nuts & Seeds profile guide -- see
@@ -1989,6 +1996,18 @@ export default function PurpleDigestScreen() {
         setRevealed(true);
         return;
       }
+      // openEntryId takes the same "reveal and land directly" precedence
+      // as openDigestLens above -- jumpToRelated already does everything a
+      // fresh arrival needs (right category, right topic, the entry
+      // expanded, scrolled into view), it just also needs revealed set
+      // true first, since jumpToRelated itself assumes the screen is
+      // already showing a category, not still on the resting LensHub
+      // picker the way a brand-new navigation always starts.
+      if (openEntryId) {
+        setRevealed(true);
+        jumpToRelated(openEntryId);
+        return;
+      }
       setRevealed(false);
       setSearchQuery('');
       setCategorySearchQuery('');
@@ -2001,7 +2020,16 @@ export default function PurpleDigestScreen() {
         setIsSearchActive(false);
         setSearchResetKey((key) => key + 1);
       };
-    }, [openDigestLens]),
+      // jumpToRelated deliberately left out of this dependency array --
+      // it's a plain function, not a useCallback, so it's a genuinely new
+      // reference every render, and this effect only needs to re-run when
+      // openEntryId itself changes, not on every unrelated render of this
+      // whole screen. Everything jumpToRelated reads is either a setState
+      // setter (stable by React's own guarantee) or groupRefs.current (a
+      // ref, always the current object regardless of which render's
+      // closure captured it), so there's no real stale-closure risk here.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [openDigestLens, openEntryId]),
   );
 
   // Which single entry (by id) is currently expanded to its full detail,

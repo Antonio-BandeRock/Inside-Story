@@ -243,6 +243,25 @@ type FlipCardEntry = {
   backBody: string;
 };
 
+// 2026-08-23, direct report: the card's own back face used to show an
+// entry's full summary (sometimes several hundred words), which read as
+// cutting off mid-sentence at the bottom of the visible box rather than
+// building interest in reading the rest. This trims to a short excerpt
+// instead, cut at the end of a real sentence wherever one falls close
+// enough to the limit, so a card teases rather than dumps the whole
+// entry, with FlipCard's own new "Read more" link (see that component)
+// carrying someone the rest of the way to the real card in Digest.
+function flipCardExcerpt(text: string, maxLength = 200): string {
+  if (text.length <= maxLength) return text;
+  const truncated = text.slice(0, maxLength);
+  const lastSentenceEnd = Math.max(truncated.lastIndexOf('. '), truncated.lastIndexOf('! '), truncated.lastIndexOf('? '));
+  if (lastSentenceEnd > maxLength * 0.4) {
+    return truncated.slice(0, lastSentenceEnd + 1);
+  }
+  const lastSpace = truncated.lastIndexOf(' ');
+  return `${truncated.slice(0, lastSpace > 0 ? lastSpace : maxLength)}…`;
+}
+
 function digestFlipCardPool(userConditionCodes: string[], curiousAboutConditionCodes: string[]): FlipCardEntry[] {
   const visibleCategories = new Set<DigestCategoryKey>(['basicHealth']);
   for (const code of [...userConditionCodes, ...curiousAboutConditionCodes]) {
@@ -254,8 +273,8 @@ function digestFlipCardPool(userConditionCodes: string[], curiousAboutConditionC
   // for why category alone can't tell the two shapes apart.
   return ALL_DIGEST_ENTRIES.filter((entry) => visibleCategories.has(entry.category)).map((entry) =>
     isProblemFoodEntry(entry)
-      ? { id: entry.id, hook: entry.teaser, backTitle: entry.foodName, backBody: entry.problem }
-      : { id: entry.id, hook: entry.teaser, backTitle: entry.title, backBody: entry.summary },
+      ? { id: entry.id, hook: entry.teaser, backTitle: entry.foodName, backBody: flipCardExcerpt(entry.problem) }
+      : { id: entry.id, hook: entry.teaser, backTitle: entry.title, backBody: flipCardExcerpt(entry.summary) },
   );
 }
 
@@ -1332,6 +1351,7 @@ export default function HomeScreen() {
                 hook={card.hook}
                 backTitle={card.backTitle}
                 backBody={card.backBody}
+                onReadMore={() => router.push({ pathname: '/purple-digest', params: { openEntryId: card.id } })}
               />
             ))}
             {hasMoreFlipCards ? (

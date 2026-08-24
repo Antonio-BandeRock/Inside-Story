@@ -22,11 +22,22 @@ import { textShadow, typography } from '../constants/typography';
 // used several at a time in a row, so a big idea (what Hashimoto's is, why
 // food timing matters) is broken into pieces small enough to actually get
 // read, instead of one long paragraph nobody taps into.
+//
+// 2026-08-23, direct report on Home's own Digest-sourced cards: "they
+// don't link back to the information card in Digest where they refer to,
+// and they cut off in mid sentence without baiting their appetite." Two
+// real, separate problems, both fixed here rather than by shortening the
+// text passed in from the caller: `backBody` cutting off mid-scroll with
+// nothing signaling there was more, and no way to actually reach the full
+// entry this card teases. `onReadMore` is optional so this component still
+// works for any caller with nothing real to link to; every current caller
+// (Home's own Digest flip cards) passes one.
 export function FlipCard({
   icon,
   hook,
   backTitle,
   backBody,
+  onReadMore,
   width = 220,
   height = 260,
 }: {
@@ -34,6 +45,7 @@ export function FlipCard({
   hook: string;
   backTitle: string;
   backBody: string;
+  onReadMore?: () => void;
   width?: number;
   height?: number;
 }) {
@@ -66,11 +78,28 @@ export function FlipCard({
             requested, 2026-07-27, once the bigger flip-card pool started
             including longer tips than the original 4 fixed ones. flex: 1
             lets this fill exactly the space left between the divider and
-            the hint below, whatever that is, and only scrolls if the text
-            actually overflows it. */}
+            "Read more"/the flip hint below, whatever that is, and only
+            scrolls if the text actually overflows it. backBody itself is
+            now a short excerpt (see digestFlipCardPool's own comment in
+            app/(tabs)/index.tsx), so this scroll is a safety margin for a
+            larger system font size, not the primary way to reach the rest
+            of the text -- "Read more" below is. */}
         <ScrollView style={styles.backBodyScroll} showsVerticalScrollIndicator={false}>
           <Text style={styles.backBody}>{backBody}</Text>
         </ScrollView>
+        {/* Deliberately outside the ScrollView above, not its last line --
+            always visible regardless of scroll position, the actual fix
+            for "give enough to catch their interest, and end with a way
+            to read more." A separate TouchableOpacity nested inside the
+            card's own outer one (which flips the card): React Native's
+            touch responder system already gives the innermost handler the
+            tap, so this reads as its own real link, not a second flip
+            trigger. */}
+        {onReadMore ? (
+          <TouchableOpacity onPress={onReadMore} hitSlop={8} style={styles.readMoreRow}>
+            <Text style={styles.readMoreText}>Read more →</Text>
+          </TouchableOpacity>
+        ) : null}
         <Text style={styles.backHint}>Tap to flip back</Text>
       </Animated.View>
     </TouchableOpacity>
@@ -86,7 +115,14 @@ const styles = StyleSheet.create({
     bottom: 0,
     backfaceVisibility: 'hidden',
     borderRadius: 18,
-    borderWidth: 1,
+    // 2026-08-23, direct report: "I don't think the lines around the
+    // Digest knowledge boxes is as thick as the other entities on the
+    // home screen." Matches TAB_BORDER_WIDTH, the width every primary
+    // card on Home now uses (see that constant's own comment in
+    // app/(tabs)/index.tsx) -- not imported directly to avoid a
+    // dependency from this shared component back onto one specific
+    // screen's own local constant, just the same literal value.
+    borderWidth: 2,
     borderColor: colors.border,
     backgroundColor: colors.surface,
     padding: 18,
@@ -99,12 +135,14 @@ const styles = StyleSheet.create({
   backDivider: { height: 1, backgroundColor: colors.primaryMuted, opacity: 0.4, marginTop: 8, marginBottom: 10 },
   backBodyScroll: { flex: 1 },
   backBody: { ...typography.body, ...textShadow, color: colors.textPrimary, textAlign: 'left', lineHeight: 21 },
+  readMoreRow: { alignSelf: 'flex-start', marginTop: 8 },
+  readMoreText: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary },
   backHint: {
     ...typography.caption,
     ...textShadow,
     color: colors.textMuted,
     textAlign: 'center',
-    marginTop: 12,
+    marginTop: 6,
     fontStyle: 'italic',
   },
 });
