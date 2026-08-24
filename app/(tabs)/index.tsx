@@ -1867,18 +1867,26 @@ const styles = StyleSheet.create({
   // The seed badge itself -- same size as this app's own established
   // floating-button footprint (FLOATING_BUTTON_SIZE), not a new number,
   // so it reads as belonging to the same family of floating controls as
-  // TabHub's own corner button rather than a one-off size.
+  // TabHub's own corner button rather than a one-off size. 2026-08-23,
+  // direct follow-up: "the sprout has a transparent background
+  // completely and no border around the square... make the sprout about
+  // 50% transparent, too." No fill, no border left on the square itself
+  // -- it's purely a tap target now, the icon alone is what's actually
+  // seen. Still the same width/height/borderRadius, so the tappable area
+  // (and where the card visually shrinks into/grows out of) is unchanged.
   greetingSeedBadge: {
     width: FLOATING_BUTTON_SIZE,
     height: FLOATING_BUTTON_SIZE,
     borderRadius: 14,
-    backgroundColor: colors.surfaceMuted,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  greetingSeedIcon: { width: 32, height: 38 },
+  // opacity here, not on greetingSeedBadge itself -- this app's own
+  // established split (see FlipCard's own borderColor prop comment, and
+  // the greeting card's own expanded-overlay opacity comment) between the
+  // interactive element and what's actually drawn, so the tap target's
+  // own hit area never shrinks or fades along with the icon's look.
+  greetingSeedIcon: { width: 32, height: 38, opacity: 0.5 },
   // Pinned at the same top-left origin the card itself starts from
   // (matching content's own paddingHorizontal/paddingTop), so collapsing
   // reads as the card shrinking into this exact corner rather than a
