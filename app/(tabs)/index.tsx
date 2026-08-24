@@ -1950,13 +1950,18 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: TAB_BORDER_WIDTH,
     borderColor: colors.border,
-    // "a little more transparent so it isn't distracting" -- a modest
-    // reduction applied to the whole floating card, background and text
-    // together, deliberately kept small (not a heavy fade) since every
-    // text style inside already carries its own textShadow for
-    // legibility, and a steep opacity drop here would work against that
-    // rather than alongside it.
-    opacity: 0.92,
+    // 2026-08-23, direct report: "the welcome screen needs to have a more
+    // solid background because right now I can see right through it."
+    // The extra opacity: 0.92 this card used to carry on top of
+    // colors.surface's own already-baked-in ~85% opacity (see that
+    // token's own comment in constants/colors.ts) compounded into
+    // something visibly see-through, not the subtle floating-overlay
+    // effect it was meant to be. Removed outright rather than tuned to a
+    // smaller number -- this now reads exactly as solid as every other
+    // colors.surface card on this screen, since being clearly readable
+    // matters more here than a faded, floaty look, and its own absolute
+    // positioning already reads as "floating over the content" on its
+    // own, without needing an extra transparency layer to say so too.
   },
 
   // Moon phase / equinox-solstice / sunrise-sunset / temp / humidity / UV /
