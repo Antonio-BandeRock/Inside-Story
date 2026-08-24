@@ -891,6 +891,19 @@ function basicHealthAllGroups(entries: AnyDigestEntry[]): { label: string; entri
   return groups;
 }
 
+// True only for a top-level Basic Health topic that actually has its own
+// real subtopics (Essential Nutrients, as of this writing, the only one) --
+// see selectedBasicHealthSubgroup's own comment for why this drives a real,
+// second menu step rather than showing every one of that topic's own
+// subtopic shelves together. A no-op false for BASIC_HEALTH_MORE_TOPIC_LABEL
+// (the dynamic "More" catch-all isn't a real BASIC_HEALTH_TOPICS entry) and
+// for every other category entirely, since only Basic Health topics are
+// ever looked up here.
+function basicHealthTopicHasSubtopics(label: string): boolean {
+  const topic = BASIC_HEALTH_TOPICS.find((t) => t.label === label);
+  return !!topic?.subtopics && topic.subtopics.length > 0;
+}
+
 // CONDITION_CODE_TO_DIGEST_KEY used to be defined locally here -- moved
 // into its own shared lib/conditionCodeMap.ts, 2026-08-09, once Profile's
 // own new TabHub-icon picker needed the identical snake_case-to-camelCase
@@ -1939,6 +1952,27 @@ export default function PurpleDigestScreen() {
   // own branch, above, already narrows what's shown once a topic is
   // picked, so an extra menu step would be redundant).
   const [selectedTopicGroup, setSelectedTopicGroup] = useState<string | null>(null);
+  // 2026-08-24, direct report: "when I go into Essential Nutrients, I
+  // should only see the subsections of that section... not yet specific
+  // stories... until I select one of the subsection header links." Basic
+  // Health's own Essential Nutrients topic was the one real spot left where
+  // picking a top-level topic still landed on every one of its own 22
+  // subtopic shelves at once (Magnesium, Vitamin D, Iron, and so on) rather
+  // than a further menu of just their names -- every other topic in every
+  // category (including Basic Health's own subtopic-free ones) already had
+  // exactly one menu step before content, since only Essential Nutrients
+  // has a real second level (BasicHealthTopic.subtopics) at all. Holds the
+  // picked SUBTOPIC's own short label (e.g. "Magnesium"), not a '::'-joined
+  // path -- combined with selectedTopicGroup (the top-level part) wherever
+  // the exact leaf group needs resolving. Null means "still choosing," the
+  // same convention selectedTopicGroup itself already uses one level up.
+  // Built generically (basicHealthTopicHasSubtopics, below) rather than
+  // hardcoded to Essential Nutrients by name, so any future Basic Health
+  // topic that grows real subtopics gets this same two-step menu for free.
+  // Irrelevant outside Basic Health -- every other category's own topics
+  // are already flat, single-level labels with nothing further to drill
+  // into, matching groupEntriesForLens' own comment on that same point.
+  const [selectedBasicHealthSubgroup, setSelectedBasicHealthSubgroup] = useState<string | null>(null);
   // The new fixed-header Glossary shortcut, 2026-08-23 -- see
   // basicHealthMenuGroups' own comment for why Glossary no longer shows as
   // a normal Basic Health menu row. A real, separate boolean rather than
@@ -1993,6 +2027,7 @@ export default function PurpleDigestScreen() {
         // previous visit could show that category already drilled into a
         // topic instead of its own menu.
         setSelectedTopicGroup(null);
+        setSelectedBasicHealthSubgroup(null);
         setRevealed(true);
         return;
       }
@@ -2240,8 +2275,18 @@ export default function PurpleDigestScreen() {
   // (see selectedTopicGroup's own comment) -- drilling into any topic, in
   // any lens, shows that topic's own name here instead of the category's
   // own name, not just Basic Health's.
+  // 2026-08-24, direct follow-up: a drilled-in Basic Health subgroup with
+  // its own real subtopics (Essential Nutrients) now has a THIRD real
+  // depth -- top-level menu, subtopic menu, then one subtopic's own shelf
+  // -- so this label shows whichever of those is currently deepest: the
+  // picked subtopic's own short name once one is picked, otherwise the
+  // top-level topic's name, same as before. shelfGroupDisplayLabel is a
+  // harmless no-op on a plain subtopic label (it only ever transforms a
+  // real '::'-joined path).
   const drilldownTopicLabel =
-    lens !== 'search' && selectedTopicGroup !== null ? shelfGroupDisplayLabel(selectedTopicGroup) : null;
+    lens !== 'search' && selectedTopicGroup !== null
+      ? shelfGroupDisplayLabel(selectedBasicHealthSubgroup ?? selectedTopicGroup)
+      : null;
   // 2026-08-23, direct follow-up: an empty header once drilled in still
   // left nothing explaining what the subgroup actually covers or how it
   // connects to basic health generally -- each BASIC_HEALTH_TOPICS entry's
@@ -2253,8 +2298,13 @@ export default function PurpleDigestScreen() {
   // Gardening topic has one yet, so this stays null for every other
   // category's own drilled-in view (just the topic name above, no
   // paragraph under it), an honest gap rather than an invented blurb.
+  // 2026-08-24: also null once a real SUBTOPIC is picked (Essential
+  // Nutrients' own individual nutrients carry no authored description of
+  // their own, only the parent topic does) -- the topic-level description
+  // now shows only on that topic's own subtopic-menu screen, one level
+  // shallower than where a single leaf's own shelf renders.
   const drilldownTopicDescription =
-    lens === 'basicHealth' && selectedTopicGroup !== null
+    lens === 'basicHealth' && selectedTopicGroup !== null && selectedBasicHealthSubgroup === null
       ? (BASIC_HEALTH_TOPICS.find((topic) => topic.label === selectedTopicGroup)?.description ??
         BASIC_HEALTH_MORE_TOPIC_DESCRIPTION)
       : null;
@@ -2371,13 +2421,23 @@ export default function PurpleDigestScreen() {
     if (lens === 'basicHealth') {
       const scoped: AnyDigestEntry[] = [];
       for (const group of basicHealthGroups) {
-        if (group.label.split('::')[0] === selectedTopicGroup) scoped.push(...group.entries);
+        // 2026-08-24: once a real subtopic is picked too (Essential
+        // Nutrients' own Magnesium, say), search narrows one level further,
+        // matching only that one leaf group rather than every subtopic
+        // under the same top-level topic -- the same "search the area
+        // where you are" rule this scoping already followed one level up,
+        // now honored at the new second depth too.
+        const matches =
+          selectedBasicHealthSubgroup !== null
+            ? group.label === `${selectedTopicGroup}::${selectedBasicHealthSubgroup}`
+            : group.label.split('::')[0] === selectedTopicGroup;
+        if (matches) scoped.push(...group.entries);
       }
       return scoped;
     }
     const { topics } = groupEntriesForLens(lens as DigestCategoryKey, entries);
     return topics.find((topic) => topic.label === selectedTopicGroup)?.entries ?? entries;
-  }, [entries, lens, selectedTopicGroup, basicHealthGroups]);
+  }, [entries, lens, selectedTopicGroup, selectedBasicHealthSubgroup, basicHealthGroups]);
   // 2026-08-09, keyed by id to a real SearchMatchInfo now, not just a plain
   // Set -- the same "which terms actually matched, title or just body"
   // detail Search All's own results already carry, threaded through to
@@ -2394,7 +2454,14 @@ export default function PurpleDigestScreen() {
       lens === 'basicHealth'
         ? selectedTopicGroup === null
           ? basicHealthGroups
-          : basicHealthGroups.filter((group) => group.label.split('::')[0] === selectedTopicGroup)
+          : basicHealthGroups.filter((group) =>
+              // 2026-08-24: same one-level-deeper narrowing as
+              // categorySearchScopeEntries above, once a real subtopic is
+              // picked too.
+              selectedBasicHealthSubgroup !== null
+                ? group.label === `${selectedTopicGroup}::${selectedBasicHealthSubgroup}`
+                : group.label.split('::')[0] === selectedTopicGroup,
+            )
         : (() => {
             const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries);
             const allTopics = tyingTogether ? [...topics, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }] : topics;
@@ -2406,7 +2473,7 @@ export default function PurpleDigestScreen() {
         entries: group.entries.filter((entry) => categorySearchMatchInfo.has(entry.id)),
       }))
       .filter((group) => group.entries.length > 0);
-  }, [entries, categorySearchMatchInfo, lens, basicHealthGroups, selectedTopicGroup]);
+  }, [entries, categorySearchMatchInfo, lens, basicHealthGroups, selectedTopicGroup, selectedBasicHealthSubgroup]);
   const categorySearchTotalMatches = categorySearchGroups.reduce((sum, group) => sum + group.entries.length, 0);
   // Basic Health's own topic MENU rows, 2026-08-23, direct follow-up
   // request: folds every leaf group in basicHealthGroups back under its own
@@ -2621,15 +2688,22 @@ export default function PurpleDigestScreen() {
   // also drills straight into it before scrolling, otherwise
   // scrollGroupIntoView would be reaching for a ref that was never mounted
   // (the topic menu would still be showing instead). Basic Health drills
-  // into just the TOP-LEVEL part (before the first '::', so a
-  // Magnesium-related jump drills into the whole "Essential Nutrients"
-  // row, same as tapping it from the menu directly); every other
+  // into the TOP-LEVEL part (before the first '::'); every other
   // category's own topics are already flat, so the key itself is the
   // target. A tying-together entry is the one real exception -- it only
   // ever renders on that category's own top-level menu (see the main
   // render branch, below), so jumping to one resets to the menu (null)
   // instead of trying to drill into a topic it was deliberately pulled
   // out of.
+  //
+  // 2026-08-24, direct follow-up: Basic Health's own Essential Nutrients
+  // topic now has a real second menu step (selectedBasicHealthSubgroup)
+  // between its top-level row and any one nutrient's own shelf -- a
+  // Magnesium-related jump has to set BOTH the top-level part ("Essential
+  // Nutrients") and the subtopic part ("Magnesium") now, not just the
+  // top-level one, or the specific shelf scrollGroupIntoView is about to
+  // scroll to would never actually mount (the subtopic menu would still be
+  // showing in its place instead).
   function jumpToRelated(id: string) {
     const target = findDigestEntryById(id);
     if (!target) return;
@@ -2641,9 +2715,12 @@ export default function PurpleDigestScreen() {
     const category = target.category as DigestCategoryKey;
     setLens(category);
     if (category === 'basicHealth') {
-      setSelectedTopicGroup(shelfGroupKeyForEntry(id, category).split('::')[0]);
+      const [topLevel, ...rest] = shelfGroupKeyForEntry(id, category).split('::');
+      setSelectedTopicGroup(topLevel);
+      setSelectedBasicHealthSubgroup(rest.length > 0 ? rest.join('::') : null);
     } else {
       setSelectedTopicGroup(isTyingTogetherEntry(target) ? null : shelfGroupKeyForEntry(id, category));
+      setSelectedBasicHealthSubgroup(null);
     }
     // A previous category's own shelf refs (Basic Health topic paths, or a
     // condition's own topic labels -- both real, plain strings that can
@@ -2869,12 +2946,30 @@ export default function PurpleDigestScreen() {
                   // same menu-first drill-down, so a Hashimoto's topic reads
                   // "‹ Back to Hashimoto's Disease," a Recipes topic reads
                   // "‹ Back to Recipes," and so on.
+                  //
+                  // 2026-08-24, direct follow-up: a real third depth exists
+                  // now wherever a Basic Health topic has its own subtopics
+                  // (Essential Nutrients). Viewing one subtopic's own shelf
+                  // (selectedBasicHealthSubgroup set) steps back to that
+                  // topic's own subtopic menu first, one level at a time,
+                  // the exact same "never skip a depth" discipline this link
+                  // already established for every other category -- only
+                  // once the subtopic menu itself is showing does this link
+                  // step all the way back out to {activeLensLabel}.
                   <TouchableOpacity
-                    onPress={() => setSelectedTopicGroup(null)}
+                    onPress={() => {
+                      if (selectedBasicHealthSubgroup !== null) {
+                        setSelectedBasicHealthSubgroup(null);
+                      } else {
+                        setSelectedTopicGroup(null);
+                      }
+                    }}
                     accessibilityRole="button"
-                    accessibilityLabel={`Back to ${activeLensLabel}, choose another topic`}
+                    accessibilityLabel={`Back to ${selectedBasicHealthSubgroup !== null ? shelfGroupDisplayLabel(selectedTopicGroup ?? '') : activeLensLabel}, choose another topic`}
                   >
-                    <Text style={styles.backToHomeText}>‹ Back to {activeLensLabel}</Text>
+                    <Text style={styles.backToHomeText}>
+                      ‹ Back to {selectedBasicHealthSubgroup !== null ? shelfGroupDisplayLabel(selectedTopicGroup ?? '') : activeLensLabel}
+                    </Text>
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity
@@ -3121,11 +3216,20 @@ export default function PurpleDigestScreen() {
                 // component and interaction as before, unchanged. Same-day
                 // follow-up: Essential Nutrients' own 22 individual leaf
                 // groups are picked as ONE combined menu row
-                // (basicHealthMenuGroups, above) and rendered TOGETHER here
-                // (every leaf group whose own top-level part matches), the
-                // same multi-shelf continuous view every condition category
-                // already uses, not drilled one nutrient at a time. No other
-                // category's own browsing view is touched by this.
+                // (basicHealthMenuGroups, above).
+                //
+                // 2026-08-24, superseding the "rendered together" behavior
+                // this comment block used to describe: direct report that
+                // picking Essential Nutrients from the menu still landed on
+                // every one of its own 22 shelves at once, "not yet specific
+                // stories... until I select one of the subsection header
+                // links." A real third branch below (basicHealthTopicHasSubtopics)
+                // now shows a further DigestTopicMenu of just those 22
+                // subtopics' own names first; only picking one of THOSE
+                // (selectedBasicHealthSubgroup) mounts its actual shelf. No
+                // other category's own browsing view is touched by this --
+                // every other one is still exactly one topic to one shelf,
+                // unchanged.
                 //
                 // Direct follow-up: alphabetized (basicHealthMenuGroups'
                 // own sort, and this drill-in view's own sort below, both by
@@ -3138,12 +3242,48 @@ export default function PurpleDigestScreen() {
                 // branch) already reads "‹ Back to Basic Health" whenever a
                 // subgroup is picked, and having a second back-to-the-same-
                 // place link in the body duplicated it for no reason.
+                //
+                // 2026-08-24, direct report: "when I go into Essential
+                // Nutrients, I should only see the subsections of that
+                // section... not yet specific stories... until I select one
+                // of the subsection header links." Essential Nutrients' own
+                // 22 leaf groups used to render TOGETHER the instant its one
+                // combined menu row was picked, the one real spot left where
+                // a topic's own content showed before a further choice was
+                // made. A real third branch now: a top-level topic WITH its
+                // own subtopics (basicHealthTopicHasSubtopics) shows a
+                // further DigestTopicMenu of just those subtopics' own names
+                // first; only picking one of THOSE (selectedBasicHealthSubgroup)
+                // shows its actual shelf. A subtopic-free topic still
+                // resolves straight to its one shelf, same as before, one
+                // real menu step either way before any story is visible.
                 selectedTopicGroup === null ? (
-                  <DigestTopicMenu groups={basicHealthMenuGroups} onSelectGroup={setSelectedTopicGroup} />
+                  <DigestTopicMenu
+                    groups={basicHealthMenuGroups}
+                    onSelectGroup={(label) => {
+                      setSelectedTopicGroup(label);
+                      setSelectedBasicHealthSubgroup(null);
+                    }}
+                  />
+                ) : basicHealthTopicHasSubtopics(selectedTopicGroup) && selectedBasicHealthSubgroup === null ? (
+                  <DigestTopicMenu
+                    groups={basicHealthGroups
+                      .filter((group) => group.label.split('::')[0] === selectedTopicGroup)
+                      .sort((a, b) => shelfGroupDisplayLabel(a.label).localeCompare(shelfGroupDisplayLabel(b.label)))
+                      .map((group) => ({
+                        label: group.label.slice(selectedTopicGroup.length + 2),
+                        entryCount: group.entries.length,
+                      }))}
+                    onSelectGroup={setSelectedBasicHealthSubgroup}
+                  />
                 ) : (
                   <BasicHealthShelves
                     groups={basicHealthGroups
-                      .filter((group) => group.label.split('::')[0] === selectedTopicGroup)
+                      .filter((group) =>
+                        selectedBasicHealthSubgroup !== null
+                          ? group.label === `${selectedTopicGroup}::${selectedBasicHealthSubgroup}`
+                          : group.label.split('::')[0] === selectedTopicGroup,
+                      )
                       .sort((a, b) => shelfGroupDisplayLabel(a.label).localeCompare(shelfGroupDisplayLabel(b.label)))}
                     expandedId={expandedId}
                     groupRefs={groupRefs}
@@ -3312,6 +3452,7 @@ export default function PurpleDigestScreen() {
           // its own top-level menu, never mid-drilled into whatever topic
           // a previous visit happened to leave selected.
           setSelectedTopicGroup(null);
+          setSelectedBasicHealthSubgroup(null);
           setExpandedId(null);
           // 2026-08-12, direct report: picking a different lens from this
           // popup left the ScrollView sitting at whatever offset the
