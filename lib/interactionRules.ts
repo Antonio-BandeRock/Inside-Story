@@ -42,6 +42,11 @@ export type InteractionWarning = {
   message: string;
   citation: string;
   confidence: 'confirmed' | 'unverified';
+  // A generic (no personal data involved) explanation of the actual
+  // mechanism behind this rule, shown only on request -- see
+  // InteractionRuleRecord's own comment in lib/db.ts. Null for any rule
+  // that hasn't been individually researched and written yet.
+  mechanism: string | null;
 };
 
 // A cited rule shown as static reference content, for a rule this app
@@ -60,6 +65,9 @@ export type ReferenceOnlyRule = {
   title: string;
   guidance: string;
   citation: string;
+  // See InteractionWarning's own comment above -- same field, same
+  // discipline.
+  mechanism: string | null;
 };
 
 export type InteractionEvaluation = {
@@ -261,6 +269,7 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
         title: rule.title,
         guidance: rule.guidance,
         citation: rule.citation,
+        mechanism: rule.mechanism,
       });
       continue;
     }
@@ -287,6 +296,7 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
           message: `${rule.guidance} You're tracking both, but at least one has no specific dose time set today -- add a reminder time below to let this be checked precisely.`,
           citation: rule.citation,
           confidence: 'unverified',
+          mechanism: rule.mechanism,
         });
         continue;
       }
@@ -307,6 +317,7 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
           message: `${rule.guidance} Today's scheduled times are ${gapLabel} -- aim for at least ${rule.minSeparationHours} hours.`,
           citation: rule.citation,
           confidence: 'confirmed',
+          mechanism: rule.mechanism,
         });
       }
       continue;
@@ -335,6 +346,7 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
           message: `${rule.guidance} Appointment: ${appointmentDate} -- "${matchingAppointment.title}".`,
           citation: rule.citation,
           confidence: 'confirmed',
+          mechanism: rule.mechanism,
         });
       }
       continue;
@@ -355,6 +367,7 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
           message: `${rule.guidance} You've logged very little dietary fat so far today (about ${Math.round(fatToday)}g).`,
           citation: rule.citation,
           confidence: 'confirmed',
+          mechanism: rule.mechanism,
         });
       }
       continue;
@@ -382,6 +395,7 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
         message: rule.guidance,
         citation: rule.citation,
         confidence: 'confirmed',
+        mechanism: rule.mechanism,
       });
       continue;
     }
@@ -417,6 +431,7 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
           message: `${rule.guidance} Add your birth date in Profile to see whether this specifically applies to you.`,
           citation: rule.citation,
           confidence: 'unverified',
+          mechanism: rule.mechanism,
         });
         continue;
       }
@@ -429,6 +444,7 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
           message: `${rule.guidance} Based on the age in your profile (${ageYears}).`,
           citation: rule.citation,
           confidence: 'confirmed',
+          mechanism: rule.mechanism,
         });
       }
       continue;

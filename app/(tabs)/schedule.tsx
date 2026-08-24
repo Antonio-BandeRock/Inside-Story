@@ -90,6 +90,7 @@ import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
+import { WhyExplainer } from '../../components/WhyExplainer';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
@@ -2770,6 +2771,7 @@ function MyMedsLens() {
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
                   <Text style={styles.interactionMessage}>{warning.message}</Text>
                   <Text style={styles.interactionCitation}>{warning.citation}</Text>
+                  <WhyExplainer title={warning.title} mechanism={warning.mechanism} onPress={showInfoAlert} />
                 </View>
               ))}
             </View>
@@ -2783,6 +2785,7 @@ function MyMedsLens() {
                   <Text style={styles.interactionTitle}>{rule.title}</Text>
                   <Text style={styles.interactionMessage}>{rule.guidance}</Text>
                   <Text style={styles.interactionCitation}>{rule.citation}</Text>
+                  <WhyExplainer title={rule.title} mechanism={rule.mechanism} onPress={showInfoAlert} />
                 </View>
               ))}
             </View>
@@ -3194,6 +3197,7 @@ function SupplementsLens() {
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
                   <Text style={styles.interactionMessage}>{warning.message}</Text>
                   <Text style={styles.interactionCitation}>{warning.citation}</Text>
+                  <WhyExplainer title={warning.title} mechanism={warning.mechanism} onPress={showInfoAlert} />
                 </View>
               ))}
             </View>
@@ -3211,6 +3215,7 @@ function SupplementsLens() {
                   <Text style={styles.interactionTitle}>{rule.title}</Text>
                   <Text style={styles.interactionMessage}>{rule.guidance}</Text>
                   <Text style={styles.interactionCitation}>{rule.citation}</Text>
+                  <WhyExplainer title={rule.title} mechanism={rule.mechanism} onPress={showInfoAlert} />
                 </View>
               ))}
             </View>
@@ -3668,6 +3673,7 @@ function PrescriptionsLens() {
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
                   <Text style={styles.interactionMessage}>{warning.message}</Text>
                   <Text style={styles.interactionCitation}>{warning.citation}</Text>
+                  <WhyExplainer title={warning.title} mechanism={warning.mechanism} onPress={showInfoAlert} />
                 </View>
               ))}
             </View>
@@ -4336,6 +4342,7 @@ function AppointmentsLens() {
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
                   <Text style={styles.interactionMessage}>{warning.message}</Text>
                   <Text style={styles.interactionCitation}>{warning.citation}</Text>
+                  <WhyExplainer title={warning.title} mechanism={warning.mechanism} onPress={showInfoAlert} />
                 </View>
               ))}
             </View>

@@ -101,6 +101,7 @@ import { MyItemsHub } from '../../components/MyItemsHub';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { ProgressRing } from '../../components/ProgressRing';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
+import { WhyExplainer } from '../../components/WhyExplainer';
 import { colors } from '../../constants/colors';
 import {
   FLOATING_BUTTON_SIZE,
@@ -3197,6 +3198,7 @@ function MyMedsView({
               <Text style={[styles.rankFoodName, { color: tabColor }]}>{warning.title}</Text>
               <Text style={styles.myMedsMessage}>{warning.message}</Text>
               <Text style={styles.myMedsCitation}>{warning.citation}</Text>
+              <WhyExplainer title={warning.title} mechanism={warning.mechanism} onPress={showInfoAlert} />
             </View>
           ))}
         </View>
@@ -3242,6 +3244,7 @@ function MyMedsView({
               <Text style={styles.rankFoodName}>{rule.title}</Text>
               <Text style={styles.myMedsMessage}>{rule.guidance}</Text>
               <Text style={styles.myMedsCitation}>{rule.citation}</Text>
+              <WhyExplainer title={rule.title} mechanism={rule.mechanism} onPress={showInfoAlert} />
             </View>
           ))}
         </View>

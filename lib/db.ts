@@ -12482,6 +12482,14 @@ export type InteractionRuleRecord = {
   title: string;
   guidance: string;
   citation: string;
+  // 2026-08-23, direct request: a generic (not personalized, no logged
+  // data involved) "why" explanation of the actual mechanism behind a
+  // rule, shown only when someone taps to ask, never sitting permanently
+  // on screen. Nullable rather than backfilled everywhere at once: this
+  // is real, individually-researched content being written in scoped
+  // batches, the same "ongoing, multi-session" discipline the Digest's
+  // own content already follows, not a claim that every row has one yet.
+  mechanism: string | null;
 };
 
 export async function listInteractionRules(): Promise<InteractionRuleRecord[]> {
@@ -12502,6 +12510,7 @@ export async function listInteractionRules(): Promise<InteractionRuleRecord[]> {
     title: string;
     guidance: string;
     citation: string;
+    mechanism: string | null;
   }>('SELECT * FROM interaction_rules ORDER BY id');
 
   return rows.map((row) => ({
@@ -12520,6 +12529,7 @@ export async function listInteractionRules(): Promise<InteractionRuleRecord[]> {
     title: row.title,
     guidance: row.guidance,
     citation: row.citation,
+    mechanism: row.mechanism,
   }));
 }
 
