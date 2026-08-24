@@ -287,7 +287,27 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
       { source: 'Psychiatric and Neurological Manifestations of Celiac Disease in Adults, PMC9984242', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9984242/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['celiac-overview'],
+    relatedIds: ['celiac-overview', 'celiac-adhd-symptoms-mixed-evidence'],
+  },
+  // Added 2026-08-24, fact-checking a shared Google AI Mode conversation on
+  // diet's effect on ADHD and OCD. The depression/anxiety entry above
+  // already covers celiac's own quantified mood-disorder burden, this entry
+  // covers a distinct, separately studied question, ADHD-spectrum symptoms
+  // rather than mood, and reports the evidence honestly as mixed rather
+  // than settled either way.
+  {
+    id: 'celiac-adhd-symptoms-mixed-evidence',
+    category: 'celiac',
+    title: 'ADHD-Like Symptoms Track With Gluten-Free Diet Compliance in Celiac Disease, Though the Evidence Stays Mixed',
+    teaser: 'Inattention and learning difficulties show up more often in celiac patients who aren\'t sticking to their gluten-free diet, but researchers reviewing the same literature find no conclusive proof that celiac disease and ADHD are directly linked.',
+    summary:
+      "Celiac disease and ADHD share enough surface overlap, inattention, learning difficulties, and behavioral symptoms, that the connection gets asked about often, and the honest answer is a documented association without a settled explanation. Research finds ADHD-like cognitive symptoms, along with psychosomatic complaints and poorer prosocial behavior, more common specifically in celiac patients who aren't strictly following their gluten-free diet, a correlation between diet compliance and these symptoms that held up at a statistically significant level in the underlying study. At the same time, a dedicated review asking the direct question, is there a relationship between ADHD and celiac disease, concluded there isn't yet conclusive evidence for one. Both things can be true at once: gluten exposure in an already-diagnosed celiac patient plausibly worsens inattention and related symptoms through the same intestinal and inflammatory pathways already covered in this category's own research, without celiac disease being a cause of ADHD itself. Strict adherence to the existing gluten-free diet guidance already covers the actionable step here, not a separate ADHD-specific protocol.",
+    citations: [
+      { source: 'Research: ADHD-like symptoms in celiac disease, GIG Gluten Intolerance Group', url: 'https://gluten.org/2023/02/23/research-adhd-like-symptoms-in-celiac-disease-and-relationship-between-covid-infection-and-autoimmune-disease-development/' },
+      { source: 'Association of ADHD and Celiac Disease: What Is the Evidence?, Journal of Attention Disorders', url: 'https://chadd.org/adhd-weekly/gluten-free-for-adhd-check-the-research/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['celiac-depression-anxiety-mental-health', 'mentalhealth-adhd-dietary-triggers', 'mentalhealth-adhd-ocd-diet-does-not-cause'],
   },
   {
     id: 'celiac-iceberg-underdiagnosis',

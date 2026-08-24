@@ -249,4 +249,95 @@ export const MENTAL_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['zinc-overview', 'magnesium-overview', 'mentalhealth-overview'],
   },
+
+  // ADHD and OCD batch, added 2026-08-24, sourced from a second shared
+  // Google AI Mode conversation asking specifically about diet's effect on
+  // ADHD and OCD. Neither condition is one of this app's 19 tracked
+  // conditions, so this content lives here in Basic Health, matching how
+  // this whole topic already covers general psychiatric conditions rather
+  // than one specific tracked disease. One correction caught while
+  // fact-checking, not just citing: the source conversation's own first
+  // answer claimed 78% of children improved on an elimination diet with a
+  // 63% relapse rate, then its own later answer, citing the same underlying
+  // Lancet trial, gave a different figure, 64% improved. The actual
+  // published INCA trial result is 64% (32 of 50 children), confirmed
+  // directly against the primary source, so that number is used here and
+  // the earlier, unconfirmed 78%/63% figures are dropped rather than
+  // repeated. A condition-specific check across all 19 tracked conditions
+  // found one honestly mixed connection: gluten-free diet compliance
+  // and ADHD-like symptoms in celiac disease, added directly to celiac.ts,
+  // cross-linked below. The other 18 conditions were checked and correctly
+  // left without a new entry, this conversation's own claims run through
+  // ADHD/OCD-specific neurobiology (dopamine/norepinephrine pathways,
+  // CSTC-circuit glutamate signaling), not a mechanism this Digest's own
+  // research ties to any of them specifically.
+  {
+    id: 'mentalhealth-adhd-ocd-diet-does-not-cause',
+    category: 'basicHealth',
+    title: "Diet Does Not Cause ADHD or OCD, and the Research Is Clear About That",
+    teaser: 'Both conditions are neurobiological, driven heavily by genetics and brain structure, not a food choice. What diet does measurably do is change how severe the symptoms are.',
+    summary:
+      "ADHD (dysregulation in dopamine and norepinephrine pathways governing attention and reward) and OCD (dysregulation in the Cortico-Striato-Thalamo-Cortical circuit, driven by serotonin and glutamate imbalance) are both complex neurobiological conditions, not something a person's diet produces. Framing either one as diet-caused overstates what the evidence supports and risks blaming a person or a parent for a condition rooted in brain structure and genetics. What a substantial and growing body of peer-reviewed research does support: nutritional intake measurably modulates neuroinflammation, neurotransmitter synthesis, and gut-brain signaling in ways that change how severe symptoms are day to day, the same distinction this category's own broader mental-health research already draws between diet as a modifiable risk factor and diet as a cause. The entries below in this category cover the specific, individually-cited evidence for each condition.",
+    citations: [
+      { source: 'A closer look at the role of nutrition in children and adults with ADHD and ASD, Frontiers in Nutrition 2025', url: 'https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2025.1506304/full' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['mentalhealth-overview', 'mentalhealth-adhd-dietary-triggers', 'mentalhealth-adhd-micronutrients-glycemic', 'mentalhealth-ocd-gut-brain-inflammation', 'mentalhealth-ocd-ketogenic-diet'],
+  },
+  {
+    id: 'mentalhealth-adhd-dietary-triggers',
+    category: 'basicHealth',
+    title: 'Two Randomized Trials Found Specific Foods and Additives Worsening ADHD Symptoms',
+    teaser: 'A restricted elimination diet improved symptoms in 64% of children in a Lancet trial, with a measurable relapse on reintroducing trigger foods, and a separate Lancet trial found artificial food colors and a common preservative directly increasing hyperactivity.',
+    summary:
+      "The INCA study (Pelsser et al., The Lancet, 2011), a randomized controlled trial, placed children with ADHD on a strict, restricted elimination diet. A significant, clinically meaningful reduction in ADHD symptoms occurred in 64% (32 of 50) of the children, and reintroducing the identified trigger foods produced a measurable behavioral relapse in those same responders, direct evidence that specific, non-allergic food sensitivities were driving a meaningful share of their symptoms, not a placebo effect. A separate, larger randomized, double-blind, placebo-controlled trial (McCann et al., The Lancet, 2007, often called the Southampton study, 297 children total) tested common artificial food colors (including tartrazine, sunset yellow, and carmoisine) combined with the preservative sodium benzoate against a placebo drink, and found the additive mixture measurably increased hyperactivity in the general child population, not just in children already diagnosed with ADHD. This finding prompted the FDA to hold a public hearing and review the evidence on food dyes specifically because of this trial's size and rigor. Neither trial identifies a single food or additive as universally responsible, elimination testing under guidance is the honest path to finding what actually matters for one specific person.",
+    citations: [
+      { source: 'Effects of a restricted elimination diet on the behaviour of children with attention-deficit hyperactivity disorder (INCA study): a randomised controlled trial, The Lancet, PMID 21296224', url: 'https://pubmed.ncbi.nlm.nih.gov/21296224/' },
+      { source: 'Food additives and hyperactive behaviour in 3-year-old and 8/9-year-old children in the community: a randomised, double-blinded, placebo-controlled trial, The Lancet', url: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(07)61306-3/abstract' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['mentalhealth-adhd-ocd-diet-does-not-cause', 'mentalhealth-adhd-micronutrients-glycemic'],
+  },
+  {
+    id: 'mentalhealth-adhd-micronutrients-glycemic',
+    category: 'basicHealth',
+    title: 'Omega-3s, Zinc, and Blood Sugar Stability Each Carry Documented, if Modest, Evidence for ADHD',
+    teaser: 'A meta-analysis of 534 youth found omega-3 supplementation improved ADHD symptom scores, though the most comprehensive reviews find the effect limited on the disorder\'s core symptoms specifically.',
+    summary:
+      "A 2017 systematic review and meta-analysis (Neuropsychopharmacology) pooled seven randomized controlled trials covering 534 youth with ADHD and found omega-3 polyunsaturated fatty acid supplementation improved clinical symptom scores, with a separate pooled set of 3 trials (214 youth) also finding improved attention-related cognitive measures. This category's own EPA-versus-DHA depression entry already establishes that these two fatty acids aren't interchangeable, and the honest caveat applies here too: the most comprehensive reviews of this same evidence find the effect on ADHD's own core diagnostic symptoms specifically more limited than the broader symptom-score improvement suggests. The proposed mechanism connects to zinc: zinc acts as a cofactor in dopamine synthesis and directly regulates how the dopamine transporter clears dopamine from synapses, and omega-3 deficiency has been shown to disrupt zinc metabolism in brain tissue, tying the two nutrients to the same dopamine pathway rather than working through separate mechanisms. Separately, a 2025 Frontiers in Nutrition study mapping the biochemical nutrient profiles of neurodivergent children and adults against standard intake references found baseline deficiencies in omega-3s, zinc, vitamin D, and B vitamins more common in this population than in the general one. On blood sugar specifically, a 2026 systematic review of dietary carbohydrates and ADHD symptoms found a mixed, heterogeneous evidence base, refined carbohydrates and added sugar track with worse symptom severity in most, not all, of the studies reviewed, this category's own glycemic-instability entry covers the shared blood-sugar-to-mood mechanism in more depth.",
+    citations: [
+      { source: 'Omega-3 Polyunsaturated Fatty Acids in Youths with Attention Deficit Hyperactivity Disorder: a Systematic Review and Meta-Analysis of Clinical Trials and Biological Studies, Neuropsychopharmacology 2017', url: 'https://www.nature.com/articles/npp2017160' },
+      { source: 'A closer look at the role of nutrition in children and adults with ADHD and ASD, Frontiers in Nutrition 2025', url: 'https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2025.1506304/full' },
+      { source: 'Dietary Carbohydrates and ADHD Symptoms: A Systematic Review, Nutrients', url: 'https://www.mdpi.com/2072-6643/18/10/1625' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['mentalhealth-adhd-dietary-triggers', 'mentalhealth-glycemic-instability-mood', 'zinc-overview'],
+  },
+  {
+    id: 'mentalhealth-ocd-gut-brain-inflammation',
+    category: 'basicHealth',
+    title: "OCD Has Its Own, Distinct Gut-Brain Research Base, Beyond the General Inflammation-Mood Link",
+    teaser: 'A systematic review found reduced short-chain fatty acid production and inflammatory-pathway enrichment in gut bacteria correlating directly with how severe someone\'s OCD symptoms actually are.',
+    summary:
+      "This category's own SCFA gut-mood mechanism entry already covers how fiber-derived short-chain fatty acids, not gut-made serotonin crossing the blood-brain barrier, connect gut health to mood generally. A systematic review specific to OCD (mapping the disorder's own biology to gut-relevant pathways) found the same underlying pattern with a disorder-specific detail: reduced short-chain-fatty-acid-producing capacity in the gut microbiome, enrichment of pro-inflammatory bacterial pathways, and measurable markers of intestinal barrier disruption all correlated with OCD severity specifically, not just general mood symptoms. The proposed chain of events: a compromised gut barrier lets bacterial byproducts (endotoxins) reach the bloodstream, triggering low-grade systemic inflammation, and circulating inflammatory cytokines that cross the blood-brain barrier activate microglia, the brain's own immune cells, in ways that disrupt serotonin signaling and worsen the intrusive, looping thought patterns central to OCD. This is an active, still-developing research area, tiered moderate for exactly that reason, evidence of correlation and a plausible mechanism, not yet a proven treatment pathway.",
+    citations: [
+      { source: 'Gut Microbiota and Obsessive-Compulsive Disorder: A Systematic Review of Mechanistic Links, Evidence from Human and Preclinical Studies, and Therapeutic Prospects, PMC12565408', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12565408/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['mentalhealth-gut-scfa-mood-mechanism', 'mentalhealth-adhd-ocd-diet-does-not-cause', 'mentalhealth-ocd-ketogenic-diet'],
+  },
+  {
+    id: 'mentalhealth-ocd-ketogenic-diet',
+    category: 'basicHealth',
+    title: "The Ketogenic Diet Shows Early Promise for OCD, From a Small Evidence Base That Is Openly Still Forming",
+    teaser: 'A case series of 3 patients on a ketogenic diet averaged a 90.5% reduction in OCD symptom scores and reached medication-free remission, results the researchers themselves are careful to call preliminary.',
+    summary:
+      "OCD involves excess signaling through glutamate, the brain's primary excitatory neurotransmitter, within the Cortico-Striato-Thalamo-Cortical circuit. A narrative review in Nutrients lays out the proposed mechanism: shifting the brain's fuel source from glucose to ketone bodies increases glutamate clearance and shifts its balance toward GABA, the brain's primary calming neurotransmitter, alongside separate proposed effects on mitochondrial function, oxidative stress, and inflammation, several of the same pathways already covered elsewhere in this category. The clinical evidence behind this mechanism is documented but still small: a case series of three patients following a ketogenic diet reached OCD remission and came off medication entirely, with an average 90.5% reduction in their Y-BOCS symptom scores (the standard clinical measure for OCD severity), and a separate case report found a treatment-resistant patient's symptoms improving on ketogenic metabolic therapy even before starting exposure and response prevention therapy, suggesting the metabolic shift itself, not just the added therapy, was doing measurable work. The review's own authors state directly that research on ketogenic diets for OCD is still lacking, these are individually documented cases, not yet a randomized trial, and this entry is tiered weak specifically because case series and case reports, however striking, cannot rule out placebo effect or regression to the mean the way a controlled trial can.",
+    citations: [
+      { source: 'Ketogenic Diet as a Nutritional Metabolic Intervention for Obsessive-Compulsive Disorder: A Narrative Review, Nutrients 2025', url: 'https://www.mdpi.com/2072-6643/17/1/31' },
+      { source: 'Ketogenic diet as a therapeutic intervention for obsessive-compulsive disorder: a case series of three patients, Frontiers in Nutrition, PMC12040614', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12040614/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['mentalhealth-ocd-gut-brain-inflammation', 'mentalhealth-adhd-ocd-diet-does-not-cause'],
+  },
 ];
