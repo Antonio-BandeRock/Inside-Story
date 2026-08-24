@@ -1945,23 +1945,26 @@ const styles = StyleSheet.create({
     top: 12,
     left: 20,
     right: 20,
-    backgroundColor: colors.surface,
+    // 2026-08-23, direct report, second round: dropping this card's own
+    // opacity: 0.92 helped ("that's a little better") but colors.surface
+    // itself is only ~85% opaque by design (see that token's own comment)
+    // -- fine for a card sitting in the normal page flow, not solid
+    // enough for one floating directly on top of everything else, which
+    // is exactly what "should be even less transparent" asked for next.
+    // colors.menuSurface instead: a fully opaque color (no alpha
+    // channel at all) already established in this app for exactly this
+    // "needs to read as solid, not translucent" job (see that token's own
+    // comment -- TabHub's own popup menu was deliberately kept opaque
+    // the same way). Not theme-reactive the way colors.surface is (one
+    // fixed color regardless of the person's own chosen ground theme), an
+    // accepted tradeoff for a card whose whole point right now is
+    // reading as solid above everything else, not matching the ground
+    // theme precisely.
+    backgroundColor: colors.menuSurface,
     borderRadius: 16,
     padding: 16,
     borderWidth: TAB_BORDER_WIDTH,
     borderColor: colors.border,
-    // 2026-08-23, direct report: "the welcome screen needs to have a more
-    // solid background because right now I can see right through it."
-    // The extra opacity: 0.92 this card used to carry on top of
-    // colors.surface's own already-baked-in ~85% opacity (see that
-    // token's own comment in constants/colors.ts) compounded into
-    // something visibly see-through, not the subtle floating-overlay
-    // effect it was meant to be. Removed outright rather than tuned to a
-    // smaller number -- this now reads exactly as solid as every other
-    // colors.surface card on this screen, since being clearly readable
-    // matters more here than a faded, floaty look, and its own absolute
-    // positioning already reads as "floating over the content" on its
-    // own, without needing an extra transparency layer to say so too.
   },
 
   // Moon phase / equinox-solstice / sunrise-sunset / temp / humidity / UV /
