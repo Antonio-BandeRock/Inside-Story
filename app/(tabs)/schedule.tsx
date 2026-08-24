@@ -78,6 +78,8 @@ import {
 } from '../../lib/db';
 import { RECIPES_ENTRIES } from '../../lib/digest/recipes';
 import { MEAL_PLAN } from '../../lib/mealPlan';
+import { VEGAN_MEAL_PLAN } from '../../lib/mealPlanVegan';
+import { VEGETARIAN_MEAL_PLAN } from '../../lib/mealPlanVegetarian';
 import {
   createDeviceCalendarEvent,
   deleteDeviceCalendarEvent,
@@ -1631,6 +1633,22 @@ function mealPlanSlotLabel(slot: MealPlanDay['breakfast']): string {
   return `${mainTitle} with ${sideTitle}`;
 }
 
+// 2026-08-24, direct follow-up to the chrononutrition pass above:
+// "we need vegan alternatives... vegan or vegetarian, or any point in
+// between." Confirmed as full, parallel 42-day tracks rather than a
+// smaller sampler. MEAL_PLAN/VEGAN_MEAL_PLAN/VEGETARIAN_MEAL_PLAN are
+// all the same real MealPlanDay[] shape (see mealPlanVegan.ts/
+// mealPlanVegetarian.ts's own header comments for how each was built),
+// so switching tracks here is just picking which array feeds everything
+// below, no separate code path per track.
+const DIET_TRACK_OPTIONS = ['Omnivore', 'Vegan', 'Vegetarian'] as const;
+type DietTrack = (typeof DIET_TRACK_OPTIONS)[number];
+const MEAL_PLAN_BY_TRACK: Record<DietTrack, MealPlanDay[]> = {
+  Omnivore: MEAL_PLAN,
+  Vegan: VEGAN_MEAL_PLAN,
+  Vegetarian: VEGETARIAN_MEAL_PLAN,
+};
+
 // 2026-08-24, direct request: "I want a button that will set it up for
 // them if they want it to, or they can go through and individually import
 // meals into the schedule." Both paths call the exact same real
@@ -1640,9 +1658,13 @@ function mealPlanSlotLabel(slot: MealPlanDay['breakfast']): string {
 function MealPlanLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [dietTrack, setDietTrack] = useState<DietTrack>('Omnivore');
+  const activePlan = MEAL_PLAN_BY_TRACK[dietTrack];
   const [startDate, setStartDate] = useState(todayDateString());
   const [settingUp, setSettingUp] = useState(false);
   const [addingDay, setAddingDay] = useState<number | null>(null);
+  // Every track has the same 42 days, so the day-number-to-date mapping
+  // stays valid across a track switch without needing to be reset.
   const [dayDates, setDayDates] = useState<Record<number, string>>(
     Object.fromEntries(MEAL_PLAN.map((planDay) => [planDay.day, addDaysToDateStringLocal(todayDateString(), planDay.day - 1)])),
   );
@@ -1654,7 +1676,7 @@ function MealPlanLens() {
     }
     setSettingUp(true);
     try {
-      const result = await setUpMealPlan(startDate, MEAL_PLAN);
+      const result = await setUpMealPlan(startDate, activePlan);
       showInfoAlert(
         'Plan scheduled',
         `${result.scheduled} meal${result.scheduled === 1 ? '' : 's'} added to your schedule` +
@@ -1688,6 +1710,20 @@ function MealPlanLens() {
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       {infoAlertElement}
       <View style={styles.formCard}>
+        <Text style={styles.label}>Diet track</Text>
+        <Text style={styles.helperText}>
+          The same 42-day plan, three ways: every fruit, vegetable, and whole-grain choice stays the same, only the protein changes.
+        </Text>
+        <PopoverSelect
+          selected={dietTrack}
+          options={[...DIET_TRACK_OPTIONS]}
+          onSelect={(value) => setDietTrack(value as DietTrack)}
+          placeholder="Diet track"
+          tabColor={TAB_COLOR}
+          width={220}
+        />
+      </View>
+      <View style={styles.formCard}>
         <Text style={styles.label}>Set up the whole plan at once</Text>
         <Text style={styles.helperText}>
           Choose a start date and every day below fills in your Meals schedule automatically, breakfast, lunch, and dinner.
@@ -1709,7 +1745,7 @@ function MealPlanLens() {
       </View>
 
       <View style={styles.sourceList}>
-        {MEAL_PLAN.map((planDay) => (
+        {activePlan.map((planDay) => (
           <View key={planDay.day} style={styles.mealPlanDayRow}>
             <Text style={styles.rowTitle}>Day {planDay.day}</Text>
             <Text style={styles.mealPlanSlotText}>Breakfast: {mealPlanSlotLabel(planDay.breakfast)}</Text>

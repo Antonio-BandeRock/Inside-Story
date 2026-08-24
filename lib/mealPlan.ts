@@ -89,7 +89,10 @@
 
 import type { MealPlanDay, MealPlanComponentRef } from './db';
 
-function ref(builderType: MealPlanComponentRef['builderType'], curatedRecipeId: string): MealPlanComponentRef {
+// Exported so mealPlanVegan.ts/mealPlanVegetarian.ts (2026-08-24, the
+// vegan/vegetarian parallel tracks) can build their own MealPlanDay[]
+// arrays with the same shape rather than a second, duplicated helper.
+export function ref(builderType: MealPlanComponentRef['builderType'], curatedRecipeId: string): MealPlanComponentRef {
   return { builderType, curatedRecipeId };
 }
 
