@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
-import { colors, inputBackground } from '../constants/colors';
+import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { BEVERAGE_BUILDER_CATEGORIES } from '../constants/foodBuilderCategories';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
@@ -1677,7 +1677,7 @@ export function BeverageBuilder({
               mode's own ready screen further down is. */}
           <View style={[styles.formCard, { borderColor: tabColor }]}>{renderStepsSection()}</View>
 
-          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: tabColor }]} onPress={() => void finishBeverage(ingredients)}>
+          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]} onPress={() => void finishBeverage(ingredients)}>
             <Text style={styles.primaryButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -1893,7 +1893,7 @@ export function BeverageBuilder({
             style={[
               styles.primaryButton,
               styles.continueButtonSpacing,
-              beverageFormReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted,
+              beverageFormReady ? { backgroundColor: colors.buttonColor } : styles.primaryButtonMuted,
             ]}
             onPress={handleContinuePress}
           >
@@ -2188,7 +2188,7 @@ export function BeverageBuilder({
               <View style={styles.buttonRow}>
                 {editBeverageId ? (
                   <TouchableOpacity
-                    style={[styles.splitButton, ingredientReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
+                    style={[styles.splitButton, ingredientReady ? { backgroundColor: colors.buttonColor } : styles.primaryButtonMuted]}
                     onPress={() => saveIngredient('add-new')}
                   >
                     <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
@@ -2198,7 +2198,7 @@ export function BeverageBuilder({
                 ) : (
                   <>
                     <TouchableOpacity
-                      style={[styles.splitButton, ingredientReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
+                      style={[styles.splitButton, ingredientReady ? { backgroundColor: colors.buttonColor } : styles.primaryButtonMuted]}
                       onPress={() => saveIngredient('add-new')}
                     >
                       <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
@@ -2206,7 +2206,7 @@ export function BeverageBuilder({
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[styles.splitButton, ingredientReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
+                      style={[styles.splitButton, ingredientReady ? { backgroundColor: colors.buttonColor } : styles.primaryButtonMuted]}
                       onPress={() => saveIngredient('finish')}
                     >
                       <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
@@ -2240,7 +2240,7 @@ export function BeverageBuilder({
                   <Text style={[styles.secondaryButtonText, { color: tabColor }]}>None used, continue</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.primaryButton, { backgroundColor: tabColor }]}
+                  style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
                   onPress={() => {
                     dismissKeyboard();
                     setFinishStep('building');
@@ -2344,7 +2344,7 @@ export function BeverageBuilder({
                   action. */}
               {renderFavoriteToggle()}
               <TouchableOpacity
-                style={[styles.primaryButton, { backgroundColor: tabColor }]}
+                style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
                 onPress={() => void finishBeverage(ingredients)}
               >
                 <Text style={styles.primaryButtonText}>{editBeverageId ? 'Save Changes' : 'Complete & Save This Beverage'}</Text>
@@ -2512,7 +2512,7 @@ const styles = StyleSheet.create({
   continueButtonSpacing: {
     marginTop: 28,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   // Continue's own "still missing something" look, 2026-07-28 -- dim
   // grey rather than this page's own tabColor, reading as not-quite-ready
   // without actually disabling the button (see handleContinuePress's own
@@ -2523,6 +2523,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     marginTop: 14,
+    ...BUTTON_SHADOW,
   },
   primaryButtonMuted: {
     backgroundColor: colors.border,
@@ -2750,6 +2751,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    ...BUTTON_SHADOW,
   },
   emptyText: {
     ...typography.body,

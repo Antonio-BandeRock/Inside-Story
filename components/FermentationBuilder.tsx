@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
-import { colors, inputBackground } from '../constants/colors';
+import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { FERMENTATION_BUILDER_CATEGORIES } from '../constants/foodBuilderCategories';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
@@ -1844,7 +1844,7 @@ export function FermentationBuilder({
               create mode's own ready screen further down is. */}
           <View style={[styles.formCard, { borderColor: tabColor }]}>{renderStepsSection()}</View>
 
-          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: tabColor }]} onPress={() => void finishFermentation(ingredients)}>
+          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]} onPress={() => void finishFermentation(ingredients)}>
             <Text style={styles.primaryButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -1968,7 +1968,7 @@ export function FermentationBuilder({
                   <Text style={styles.recipeMenuCardTeaser}>{recipe.flavorProfile}</Text>
                   <View style={styles.recipeMenuActionRow}>
                     <TouchableOpacity
-                      style={[styles.recipeMenuActionButton, { backgroundColor: tabColor }, startingRecipeId === recipe.id ? styles.disabled : null]}
+                      style={[styles.recipeMenuActionButton, { backgroundColor: colors.buttonColor }, startingRecipeId === recipe.id ? styles.disabled : null]}
                       onPress={() => handleStartCuratedRecipeToday(recipe.id, recipe.name)}
                       disabled={startingRecipeId === recipe.id}
                     >
@@ -2002,7 +2002,7 @@ export function FermentationBuilder({
                         placeholderTextColor={colors.textMuted}
                       />
                       <TouchableOpacity
-                        style={[styles.recipeMenuActionButton, styles.recipeMenuScheduleConfirm, { backgroundColor: tabColor }, schedulingInProgress ? styles.disabled : null]}
+                        style={[styles.recipeMenuActionButton, styles.recipeMenuScheduleConfirm, { backgroundColor: colors.buttonColor }, schedulingInProgress ? styles.disabled : null]}
                         onPress={() => handleScheduleCuratedRecipe(recipe.name)}
                         disabled={schedulingInProgress}
                       >
@@ -2171,7 +2171,7 @@ export function FermentationBuilder({
             style={[
               styles.primaryButton,
               styles.continueButtonSpacing,
-              fermentationFormReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted,
+              fermentationFormReady ? { backgroundColor: colors.buttonColor } : styles.primaryButtonMuted,
             ]}
             onPress={handleContinuePress}
           >
@@ -2456,7 +2456,7 @@ export function FermentationBuilder({
               <View style={styles.buttonRow}>
                 {editFermentationId ? (
                   <TouchableOpacity
-                    style={[styles.splitButton, ingredientReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
+                    style={[styles.splitButton, ingredientReady ? { backgroundColor: colors.buttonColor } : styles.primaryButtonMuted]}
                     onPress={() => saveIngredient('add-new')}
                   >
                     <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
@@ -2466,7 +2466,7 @@ export function FermentationBuilder({
                 ) : (
                   <>
                     <TouchableOpacity
-                      style={[styles.splitButton, ingredientReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
+                      style={[styles.splitButton, ingredientReady ? { backgroundColor: colors.buttonColor } : styles.primaryButtonMuted]}
                       onPress={() => saveIngredient('add-new')}
                     >
                       <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
@@ -2474,7 +2474,7 @@ export function FermentationBuilder({
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[styles.splitButton, ingredientReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
+                      style={[styles.splitButton, ingredientReady ? { backgroundColor: colors.buttonColor } : styles.primaryButtonMuted]}
                       onPress={() => saveIngredient('finish')}
                     >
                       <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
@@ -2508,7 +2508,7 @@ export function FermentationBuilder({
                   <Text style={[styles.secondaryButtonText, { color: tabColor }]}>None used, continue</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.primaryButton, { backgroundColor: tabColor }]}
+                  style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
                   onPress={() => {
                     dismissKeyboard();
                     setFinishStep('building');
@@ -2625,7 +2625,7 @@ export function FermentationBuilder({
                   action. */}
               {renderFavoriteToggle()}
               <TouchableOpacity
-                style={[styles.primaryButton, { backgroundColor: tabColor }]}
+                style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
                 onPress={() => void finishFermentation(ingredients)}
               >
                 <Text style={styles.primaryButtonText}>{editFermentationId ? 'Save Changes' : 'Complete & Save This Fermentation'}</Text>
@@ -2689,6 +2689,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     alignItems: 'center',
     flex: 1,
+    ...BUTTON_SHADOW,
   },
   recipeMenuActionButtonText: {
     ...typography.bodyEmphasis,
@@ -2901,7 +2902,7 @@ const styles = StyleSheet.create({
   continueButtonSpacing: {
     marginTop: 28,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   // Continue's own "still missing something" look, 2026-07-28 -- dim
   // grey rather than this page's own tabColor, reading as not-quite-ready
   // without actually disabling the button (see handleContinuePress's own
@@ -2912,6 +2913,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     marginTop: 14,
+    ...BUTTON_SHADOW,
   },
   primaryButtonMuted: {
     backgroundColor: colors.border,
@@ -3133,6 +3135,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    ...BUTTON_SHADOW,
   },
   emptyText: {
     ...typography.body,

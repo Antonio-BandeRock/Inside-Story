@@ -6,7 +6,7 @@ import { AppTextInput } from '../components/AppTextInput';
 import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
 import { PopoverSelect } from '../components/PopoverSelect';
-import { colors } from '../constants/colors';
+import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import {
   advanceFermentationBatch,
@@ -443,12 +443,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.buttonColor,
+    ...BUTTON_SHADOW,
     borderRadius: 10,
     paddingVertical: 12,
     marginTop: 4,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.background },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   secondaryButton: {
     flexDirection: 'row',
     alignItems: 'center',

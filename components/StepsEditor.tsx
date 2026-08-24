@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors, inputBackground } from '../constants/colors';
+import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { NAVIGATION_HAND } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import { appendDictatedText, parseVoiceCommands } from '../lib/voiceCommandParsing';
@@ -227,7 +227,7 @@ export function StepsEditor({
               <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.splitButton, stepDraft.trim() ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
+              style={[styles.splitButton, stepDraft.trim() ? { backgroundColor: colors.buttonColor } : styles.primaryButtonMuted]}
               onPress={saveStepDraft}
             >
               <Text style={[styles.primaryButtonText, !stepDraft.trim() && styles.primaryButtonTextMuted]}>Save Step</Text>
@@ -235,7 +235,7 @@ export function StepsEditor({
           </View>
         </View>
       ) : steps.length === 0 ? (
-        <TouchableOpacity style={[styles.primaryButton, { backgroundColor: tabColor }]} onPress={openAddStep}>
+        <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]} onPress={openAddStep}>
           <Text style={styles.primaryButtonText}>{addFirstLabel}</Text>
         </TouchableOpacity>
       ) : stepsComplete ? (
@@ -250,7 +250,7 @@ export function StepsEditor({
           <TouchableOpacity style={styles.splitButton} onPress={openAddStep}>
             <Text style={[styles.secondaryButtonText, { color: tabColor }]}>{addAnotherLabel}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.splitButton, { backgroundColor: tabColor }]} onPress={() => setStepsComplete(true)}>
+          <TouchableOpacity style={[styles.splitButton, { backgroundColor: colors.buttonColor }]} onPress={() => setStepsComplete(true)}>
             <Text style={styles.primaryButtonText}>{completeLabel}</Text>
           </TouchableOpacity>
         </View>
@@ -299,6 +299,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    ...BUTTON_SHADOW,
   },
   primaryButton: {
     borderRadius: 8,
@@ -306,9 +307,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     marginTop: 14,
+    ...BUTTON_SHADOW,
   },
   primaryButtonMuted: { backgroundColor: colors.border },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   primaryButtonTextMuted: { color: colors.textMuted },
   secondaryButtonText: { ...typography.bodyEmphasis },
   summaryEmptyText: { ...typography.caption, color: colors.textSecondary },

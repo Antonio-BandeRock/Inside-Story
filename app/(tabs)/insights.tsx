@@ -102,7 +102,7 @@ import { PopoverSelect } from '../../components/PopoverSelect';
 import { ProgressRing } from '../../components/ProgressRing';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { WhyExplainer } from '../../components/WhyExplainer';
-import { colors } from '../../constants/colors';
+import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import {
   FLOATING_BUTTON_SIZE,
   SECONDARY_HUB_CARD_LEFT_MARGIN,
@@ -3019,7 +3019,7 @@ function LabsView({
               <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.primaryButton, { backgroundColor: tabColor, flex: 1, opacity: saving ? 0.6 : 1 }]}
+              style={[styles.primaryButton, { backgroundColor: colors.buttonColor, flex: 1, opacity: saving ? 0.6 : 1 }]}
               onPress={handleSave}
               disabled={saving}
             >
@@ -3398,7 +3398,7 @@ function MyMedsView({
                 <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.primaryButton, { backgroundColor: tabColor, flex: 1, opacity: saving ? 0.6 : 1 }]}
+                style={[styles.primaryButton, { backgroundColor: colors.buttonColor, flex: 1, opacity: saving ? 0.6 : 1 }]}
                 onPress={handleSaveRule}
                 disabled={saving}
               >
@@ -3924,8 +3924,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
     alignItems: 'center',
+    ...BUTTON_SHADOW,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   secondaryButton: {
     borderRadius: 8,
     paddingVertical: 10,

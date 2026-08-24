@@ -62,6 +62,25 @@ type GroundFamily = {
   border: string;
   textMuted: string;
   keySurface: string;
+  // 2026-08-24, direct report: "there needs to be some sort of continuity
+  // between app buttons... buttons that follow the color of the ground
+  // color chosen in the Profile... look like buttons, not like pills...
+  // have some depth." Buttons across the app had no one shared color at
+  // all -- some used the fixed colors.primary turquoise, most of the Food
+  // builders used whichever tab's own identity color was active, with no
+  // relationship to the ground theme someone actually picked. This is
+  // that one real, computed color: background lightened toward white by a
+  // fixed 0.55 fraction (lighten's own remaining-headroom mix, the same
+  // technique inputBackground/popoverBackground already use), verified
+  // via real WCAG contrast math against textOnPrimary (#0F2E2B, already
+  // this app's own "dark text for a light fill" token) across all 5
+  // themes -- 4.72:1 (Burgundy, the tightest) to 6.68:1 (Teal), every one
+  // comfortably past the 4.5:1 AA floor, and each button color still
+  // reads as clearly distinct against its own ground background (4.41:1
+  // to 5.03:1). keySurface itself was tried first and rejected: it only
+  // measured 3.75-4.92:1 against textOnPrimary, failing outright on
+  // Purple and Burgundy.
+  buttonColor: string;
 };
 
 export const GROUND_THEMES: Record<GroundTheme, GroundFamily> = {
@@ -75,6 +94,7 @@ export const GROUND_THEMES: Record<GroundTheme, GroundFamily> = {
     border: '#5C6F94',
     textMuted: '#8B9BB8',
     keySurface: '#7E97C4',
+    buttonColor: '#8D9EC4',
   },
   // The new shipped default as of 2026-08-19. Landed on via the Ground
   // Color Lab explorer artifact: started from a "Deep Teal" preset (H190
@@ -87,6 +107,7 @@ export const GROUND_THEMES: Record<GroundTheme, GroundFamily> = {
     border: '#547F87',
     textMuted: '#7DA7B0',
     keySurface: '#70B0BD',
+    buttonColor: '#87B8C2',
   },
   // H280 S30 L21 -- kept a real distance from tabPurpleDigest's own hue
   // (262) and tabProfile's (330) so this ground is never confusable with
@@ -102,6 +123,7 @@ export const GROUND_THEMES: Record<GroundTheme, GroundFamily> = {
     border: '#755785',
     textMuted: '#9E7FAD',
     keySurface: '#A372BB',
+    buttonColor: '#AE88C0',
   },
   // H222 S6 L20 -- Navy's own hue at near-zero saturation, so this reads as
   // a true neutral gray rather than a colored dark, the one ground option
@@ -113,6 +135,7 @@ export const GROUND_THEMES: Record<GroundTheme, GroundFamily> = {
     border: '#6B6B6B',
     textMuted: '#949494',
     keySurface: '#888FA0',
+    buttonColor: '#9EA1A9',
   },
   // H350 S40 L20 -- see this const's own header comment for why the
   // saturation bump over the 30-32 every other hued theme uses.
@@ -123,6 +146,7 @@ export const GROUND_THEMES: Record<GroundTheme, GroundFamily> = {
     border: '#8C4A55',
     textMuted: '#B6727D',
     keySurface: '#C46474',
+    buttonColor: '#C77F8A',
   },
 };
 
@@ -147,6 +171,24 @@ export const colors = {
   // a light backdrop under the old theme).
   primaryTint: '#2E4A52',
   primaryMuted: '#4C7672',
+
+  // 2026-08-24, direct report: "there needs to be some sort of continuity
+  // between app buttons... buttons that follow the color of the ground
+  // color chosen in the Profile... look like buttons, not like pills...
+  // have some depth." Deliberately a NEW token, not a repurposing of
+  // `primary` above -- `primary` already carries checkbox/pill/link duty
+  // well beyond buttons, and changing its value would ripple into all of
+  // that when only buttons were actually reported. `buttonColor` is the
+  // one real, ground-theme-derived fill every real button in the app
+  // should share going forward (see GroundFamily's own comment in
+  // GROUND_THEMES above for the full contrast math); `textOnButton` is
+  // its matching dark text, verified to clear 4.5:1 against every one of
+  // the 5 themes' own buttonColor (see the same comment) -- happens to
+  // share textOnPrimary's exact value, kept as its own named token rather
+  // than reused directly so a future change to textOnPrimary (tuned for a
+  // different fixed color) can't silently drag button text along with it.
+  buttonColor: initialGround.buttonColor,
+  textOnButton: '#0F2E2B',
 
   // Accent -- warm gold sampled from the wing linework, reserved for
   // highlights deliberately distinct from primary.
@@ -603,6 +645,25 @@ export const colors = {
   // against `menuSurface` rises from ~1.6:1 to ~3.3:1, clearing the same
   // 3:1 floor every other tab color here is held to.
   tabGarden: '#50C878',
+};
+
+// 2026-08-24, direct report, same request as `buttonColor`/`textOnButton`
+// above: "they should have some depth, and not be an annoyance being
+// there but definitely noticable." No real button anywhere in this app
+// had a shadow of its own before this -- every `primaryButton`-style
+// TouchableOpacity across every Food builder and screen sits flat.
+// One shared recipe, not tuned per screen: a real but modest elevation,
+// deliberately smaller than the floating chrome this app already casts a
+// stronger shadow for (TabHub's own button, PopoverSelect's own open
+// popover, both real "floats above everything" UI, not a resting button).
+// Spread across both the iOS shadow* properties and Android's own
+// `elevation` so it reads consistently on either platform.
+export const BUTTON_SHADOW = {
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 3 },
+  shadowOpacity: 0.3,
+  shadowRadius: 4,
+  elevation: 4,
 };
 
 // "#RRGGBB" -> "rgba(r, g, b, alpha)" -- used anywhere a tab's own identity

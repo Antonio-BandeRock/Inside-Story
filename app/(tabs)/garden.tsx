@@ -14,7 +14,7 @@ import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLoo
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { COUNTRIES } from '../../constants/countries';
-import { colors, popoverBackground } from '../../constants/colors';
+import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { typography, textShadow } from '../../constants/typography';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
@@ -51,15 +51,17 @@ const TAB_COLOR = colors.tabGarden;
 // active-toggle pill in this file, 2026-08-13, direct report: "make the
 // background of the Add a Harvest button be a little easier to read and
 // easier on the eyes. This green is a bit too much for the eyes to deal
-// with." Reuses the same lightened, fully-opaque tint `popoverBackground`
-// already provides for a PopoverSelect popup's own floating surface (see
-// its own comment in constants/colors.ts) rather than a flat, saturated
-// TAB_COLOR fill -- computed once at module scope rather than re-run at
-// every one of this file's five call sites. Every primaryButton in this
-// file already sets its own text color to `colors.background` (a dark
-// navy), which reads even better against this lighter tint than it did
-// against the old raw fill.
-const PRIMARY_BUTTON_BACKGROUND = popoverBackground(TAB_COLOR);
+// with." Originally a lightened, fully-opaque tint of TAB_COLOR
+// (popoverBackground); superseded 2026-08-24 by the same app-wide fix
+// every other button got, direct report: "there needs to be some sort of
+// continuity between app buttons... follow the color of the ground color
+// chosen in the Profile." colors.buttonColor (see its own comment in
+// constants/colors.ts) replaces the tab-tinted fill so this file's own
+// buttons look like every other screen's, not a one-off green tint.
+// primaryButtonText below was updated to match (colors.textOnButton, the
+// dark text verified against this exact fill), not left on its old
+// colors.background value.
+const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 
 // COUNTRIES mapped once, at module scope, into the label/value shape
 // PopoverSelect's own searchable list expects -- a real, stable array
@@ -1201,7 +1203,7 @@ const styles = StyleSheet.create({
   // Phase 4's own Length/Width entry boxes -- narrow enough to sit
   // side-by-side with the Feet/Meters toggle in the same fieldRow.
   sizeInput: { width: 90 },
-  pillTextActive: { color: colors.background, fontWeight: '700' },
+  pillTextActive: { color: colors.textOnButton, fontWeight: '700' },
   expandedSection: { gap: 8, marginTop: 4 },
   plantingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   // A tappable row for picking a planting to log a harvest from -- a real,
@@ -1213,8 +1215,8 @@ const styles = StyleSheet.create({
   plantingPickRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border, gap: 2 },
   pendingCard: { gap: 8 },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 4 },
-  primaryButton: { borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, alignItems: 'center' },
-  primaryButtonText: { color: colors.background, fontWeight: '700' },
+  primaryButton: { borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, alignItems: 'center', ...BUTTON_SHADOW },
+  primaryButtonText: { color: colors.textOnButton, fontWeight: '700' },
   disabledButton: { opacity: 0.5 },
   errorText: { color: colors.danger },
   secondaryButton: { borderWidth: 1, borderRadius: 8, paddingVertical: 10, alignItems: 'center' },

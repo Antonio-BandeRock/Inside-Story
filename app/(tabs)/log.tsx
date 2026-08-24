@@ -13,7 +13,7 @@ import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
-import { colors } from '../../constants/colors';
+import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
@@ -1891,8 +1891,8 @@ const styles = StyleSheet.create({
   formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginTop: 16 },
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
   secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR },
-  primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.primary },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.buttonColor, ...BUTTON_SHADOW },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule, 2026-07-27.
   table: { borderWidth: 2, borderColor: TAB_COLOR, borderRadius: 10, overflow: 'hidden', backgroundColor: colors.surface },
   row: { borderTopWidth: 1, borderTopColor: colors.border, padding: 12 },

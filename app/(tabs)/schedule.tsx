@@ -100,7 +100,7 @@ import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { WhyExplainer } from '../../components/WhyExplainer';
-import { colors } from '../../constants/colors';
+import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
@@ -4972,8 +4972,8 @@ const styles = StyleSheet.create({
   formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginTop: 16 },
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
   secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR },
-  primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.primary },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.buttonColor, ...BUTTON_SHADOW },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   primaryButtonDisabled: { opacity: 0.5 },
   // Meal Plan/Shopping List lenses, 2026-08-24.
   mealPlanDayRow: {

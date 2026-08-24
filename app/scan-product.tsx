@@ -26,7 +26,7 @@ import { AppTextInput } from '../components/AppTextInput';
 import { DraggableCropOverlay, type CropRect } from '../components/DraggableCropOverlay';
 import { SimpleSlider } from '../components/SimpleSlider';
 import { VoiceInputButton } from '../components/VoiceInputButton';
-import { colors } from '../constants/colors';
+import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import { lookupProductByBarcode, type LookedUpProduct } from '../lib/barcodeLookup';
@@ -1471,11 +1471,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.buttonColor,
+    ...BUTTON_SHADOW,
     borderRadius: 10,
     paddingVertical: 14,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.background },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   secondaryButton: {
     flexDirection: 'row',
     alignItems: 'center',

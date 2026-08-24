@@ -46,7 +46,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors } from '../constants/colors';
+import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import { getConnectionByPublicKey } from '../lib/connections';
@@ -215,13 +215,14 @@ const styles = StyleSheet.create({
   actionRow: { flexDirection: 'row', gap: 12, marginTop: 24 },
   actionButton: { flex: 1 },
   primaryButton: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.buttonColor,
+    ...BUTTON_SHADOW,
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
   },
   primaryButtonDisabled: { opacity: 0.6 },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.background },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   secondaryButton: {
     borderWidth: 1,
     borderColor: colors.border,

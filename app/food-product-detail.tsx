@@ -7,7 +7,7 @@ import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
 import { TrendLineChart } from '../components/TrendLineChart';
 import { VoiceInputButton } from '../components/VoiceInputButton';
-import { colors } from '../constants/colors';
+import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import {
   deleteScannedProduct,
@@ -362,11 +362,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.buttonColor,
+    ...BUTTON_SHADOW,
     borderRadius: 10,
     paddingVertical: 12,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.background },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   secondaryButton: {
     flexDirection: 'row',
     alignItems: 'center',

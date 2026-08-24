@@ -2,7 +2,7 @@ import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Dimensions, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
-import { colors, inputBackground, popoverBackground } from '../constants/colors';
+import { BUTTON_SHADOW, colors, popoverBackground } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { useActiveInputControls } from './ActiveInputContext';
 import type { DropdownOption } from './Dropdown';
@@ -536,35 +536,48 @@ export const PopoverSelect = memo(function PopoverSelect({
   return (
     <TouchableOpacity
       ref={fieldRef}
-      style={[
-        styles.field,
-        { minWidth, backgroundColor: inputBackground(tabColor), borderColor: isOpen ? tabColor : colors.border },
-      ]}
+      style={[styles.field, { minWidth, borderColor: isOpen ? colors.buttonColor : 'transparent' }]}
       onPress={openMenu}
       activeOpacity={0.7}
     >
-      <Text numberOfLines={1} style={[styles.fieldText, selectedLabel ? { color: colors.textPrimary } : styles.fieldTextPlaceholder]}>
+      <Text numberOfLines={1} style={[styles.fieldText, selectedLabel ? { color: colors.textOnButton } : styles.fieldTextPlaceholder]}>
         {selectedLabel ?? placeholder}
       </Text>
-      <Text style={[styles.chevron, { color: tabColor }]}>{'▾'}</Text>
+      <Text style={styles.chevron}>{'▾'}</Text>
     </TouchableOpacity>
   );
 });
 
 const styles = StyleSheet.create({
+  // 2026-08-24, direct report: "the button next to [Filter by diet]... is
+  // transparent or blending in" led to a wider report the same day --
+  // "buttons... should follow the color of the ground color chosen in the
+  // Profile... look like buttons, not like pills... have some depth."
+  // This closed field IS the real, tappable button every PopoverSelect
+  // caller across the app already shares one copy of -- restyled here
+  // once, rather than per screen, so it updates everywhere at once. Was a
+  // translucent 35%-opaque tint of whichever tabColor the caller passed
+  // (inputBackground); now a real, solid, ground-theme-derived fill
+  // (colors.buttonColor -- see its own comment in constants/colors.ts)
+  // plus BUTTON_SHADOW for real depth. The open/closed border still uses
+  // isOpen (a real focus signal), just recolored to match the new fill
+  // rather than the caller's own tabColor, so the field reads as one
+  // consistent button regardless of which screen it's on.
   field: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 6,
-    borderWidth: 1,
+    backgroundColor: colors.buttonColor,
+    borderWidth: 2,
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 8,
+    ...BUTTON_SHADOW,
   },
-  fieldText: { ...typography.body, flexShrink: 1 },
-  fieldTextPlaceholder: { color: colors.textMuted },
-  chevron: { ...typography.caption },
+  fieldText: { ...typography.body, flexShrink: 1, color: colors.textOnButton },
+  fieldTextPlaceholder: { color: colors.textOnButton, opacity: 0.65 },
+  chevron: { ...typography.caption, color: colors.textOnButton },
   popover: {
     position: 'absolute',
     borderWidth: 1,

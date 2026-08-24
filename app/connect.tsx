@@ -19,7 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors } from '../constants/colors';
+import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import {
@@ -244,7 +244,8 @@ const styles = StyleSheet.create({
   actionButton: { flex: 1 },
   doneButton: { marginTop: 4, width: '100%' },
   primaryButton: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.buttonColor,
+    ...BUTTON_SHADOW,
     borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -253,7 +254,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   primaryButtonDisabled: { opacity: 0.6 },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.background, textAlign: 'center' },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, textAlign: 'center' },
   secondaryButton: {
     borderWidth: 1,
     borderColor: colors.border,

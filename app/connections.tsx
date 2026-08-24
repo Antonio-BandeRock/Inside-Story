@@ -14,7 +14,7 @@ import { AppTextInput } from '../components/AppTextInput';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
-import { colors } from '../constants/colors';
+import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import { buildConnectionInvite, buildConnectionInviteLink, listConnections, removeConnection, renameConnection, type Connection } from '../lib/connections';
@@ -192,12 +192,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: colors.accent,
+    backgroundColor: colors.buttonColor,
+    ...BUTTON_SHADOW,
     borderRadius: 10,
     paddingVertical: 14,
   },
   primaryButtonDisabled: { opacity: 0.6 },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.background },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4 },
   emptyText: { ...typography.body, color: colors.textMuted },
   row: {

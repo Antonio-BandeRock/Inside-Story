@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors, inputBackground } from '../constants/colors';
+import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import {
@@ -906,7 +906,7 @@ export function MealBuilder({
               })}
             </View>
             <TouchableOpacity
-              style={[styles.primaryButton, { backgroundColor: identityReady ? tabColor : colors.border }]}
+              style={[styles.primaryButton, { backgroundColor: identityReady ? colors.buttonColor : colors.border }]}
               onPress={handleContinuePress}
             >
               <Text style={[styles.primaryButtonText, identityReady ? null : styles.primaryButtonTextMuted]}>
@@ -938,7 +938,7 @@ export function MealBuilder({
               <TouchableOpacity style={[styles.secondaryButton, { flex: 1 }]} onPress={cancelPendingSelection}>
                 <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: tabColor, flex: 1, marginTop: 0 }]} onPress={confirmPendingSelection}>
+              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor, flex: 1, marginTop: 0 }]} onPress={confirmPendingSelection}>
                 <Text style={styles.primaryButtonText}>Add to Meal</Text>
               </TouchableOpacity>
             </View>
@@ -1010,11 +1010,11 @@ export function MealBuilder({
                 <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.primaryButton, { backgroundColor: tabColor, flex: 1, marginTop: 0, opacity: scheduling ? 0.6 : 1 }]}
+                style={[styles.primaryButton, { backgroundColor: colors.buttonColor, flex: 1, marginTop: 0, opacity: scheduling ? 0.6 : 1 }]}
                 onPress={confirmScheduleForLater}
                 disabled={scheduling}
               >
-                {scheduling ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.primaryButtonText}>Schedule It</Text>}
+                {scheduling ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Schedule It</Text>}
               </TouchableOpacity>
             </View>
           </View>
@@ -1119,11 +1119,11 @@ export function MealBuilder({
                 <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Back</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.primaryButton, { backgroundColor: tabColor, flex: 1, marginTop: 0, opacity: correcting ? 0.6 : 1 }]}
+                style={[styles.primaryButton, { backgroundColor: colors.buttonColor, flex: 1, marginTop: 0, opacity: correcting ? 0.6 : 1 }]}
                 onPress={confirmTrialDateCorrection}
                 disabled={correcting}
               >
-                {correcting ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.primaryButtonText}>Save Correction</Text>}
+                {correcting ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Save Correction</Text>}
               </TouchableOpacity>
             </View>
           </View>
@@ -1252,21 +1252,21 @@ export function MealBuilder({
           // calendar; this genuinely adjusts that same event, it doesn't
           // create a new one.
           <TouchableOpacity
-            style={[styles.primaryButton, styles.logButton, { backgroundColor: tabColor, opacity: savingEdit ? 0.6 : 1 }]}
+            style={[styles.primaryButton, styles.logButton, { backgroundColor: colors.buttonColor, opacity: savingEdit ? 0.6 : 1 }]}
             onPress={saveEditedMeal}
             disabled={savingEdit}
           >
-            {savingEdit ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.primaryButtonText}>Save Changes</Text>}
+            {savingEdit ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Save Changes</Text>}
           </TouchableOpacity>
         ) : components.length > 0 ? (
           <>
             {renderFavoriteToggle()}
             <TouchableOpacity
-              style={[styles.primaryButton, styles.logButton, { backgroundColor: tabColor, opacity: saving ? 0.6 : 1 }]}
+              style={[styles.primaryButton, styles.logButton, { backgroundColor: colors.buttonColor, opacity: saving ? 0.6 : 1 }]}
               onPress={confirmAndLogMealNow}
               disabled={saving}
             >
-              {saving ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.primaryButtonText}>Log This Now</Text>}
+              {saving ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Log This Now</Text>}
             </TouchableOpacity>
             {/* "Save & Schedule for Later," 2026-08-08 -- a separate action
                 from Log This Now, not a variant of it: this always saves its
@@ -1341,8 +1341,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     marginTop: 16,
+    ...BUTTON_SHADOW,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   primaryButtonTextMuted: { color: colors.textMuted },
   secondaryButton: {
     borderRadius: 8,

@@ -17,7 +17,7 @@ import { ProgressRing } from '../../components/ProgressRing';
 import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
 import { useBackgroundBottomInset } from '../../components/ScreenBackground';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
-import { colors } from '../../constants/colors';
+import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { FLOATING_BUTTON_SIZE, useBottomLeftHubPosition, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TAB_ROUTES } from '../../constants/tabs';
 import { textShadow, typography } from '../../constants/typography';
@@ -2217,8 +2217,8 @@ const styles = StyleSheet.create({
   modalTitle: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary },
   modalMeta: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 4 },
   modalActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 16 },
-  primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.primary },
-  primaryButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textOnPrimary },
+  primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.buttonColor, ...BUTTON_SHADOW },
+  primaryButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textOnButton },
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
   secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textSecondary },
 

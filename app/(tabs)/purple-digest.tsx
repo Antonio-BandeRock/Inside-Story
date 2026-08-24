@@ -20,7 +20,7 @@ import { PopoverSelect } from '../../components/PopoverSelect';
 import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
-import { colors } from '../../constants/colors';
+import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TAB_REVEAL_DURATION_MS } from '../../constants/tabReveal';
 import { menuLabelShadow, typography } from '../../constants/typography';
@@ -3172,7 +3172,11 @@ export default function PurpleDigestScreen() {
                   downstream view -- the topic menu, a drilled-in shelf,
                   category-scoped search results -- all narrow together
                   with no separate wiring needed in any of them. */}
-              {lens === 'recipes' ? (
+              {/* 2026-08-24, direct report: this stayed visible even when
+                  Glossary was open on top of the Recipes lens -- Glossary
+                  is its own flat, cross-category shelf, not a real recipe
+                  view, so a diet filter has no meaning there. */}
+              {lens === 'recipes' && !glossaryOpen ? (
                 <View style={styles.recipeDietFilterRow}>
                   <Text style={styles.detailLabel}>Filter by diet</Text>
                   <PopoverSelect
@@ -3198,6 +3202,12 @@ export default function PurpleDigestScreen() {
                   groupRefs={groupRefs}
                   onToggleEntry={toggleGlossaryEntry}
                   onJumpToRelated={jumpToRelated}
+                  // 2026-08-24, direct report: the same duplicate-header
+                  // bug as "Sides" -- the fixed header above already shows
+                  // "Glossary" as the page title, so this shelf's own
+                  // heading (an exact match against the same label) needs
+                  // hiding too, same fix as every other exact-match case.
+                  hideTopLevelLabel="Glossary"
                 />
               ) : lens === 'search' ? (
                 !isSearchActive ? (
@@ -5202,15 +5212,27 @@ const styles = StyleSheet.create({
   // text on a TAB_COLOR fill would vanish). No border needed once the fill
   // itself IS the tab's own color, a border in the same color would be
   // invisible anyway.
+  // 2026-08-24, direct report: "buttons... should follow the color of the
+  // ground color chosen in the Profile... look like buttons, not like
+  // pills... have some depth." This is a real, tappable navigation
+  // control ("‹ Back to Digest," "‹ Clear search," and so on) -- was
+  // filled with TAB_COLOR at a fully-rounded 20px radius, reading as a
+  // pill rather than a button, and every tab's own version looked
+  // different from every other tab's. Now colors.buttonColor (the one
+  // shared, ground-theme-derived button fill, see its own comment in
+  // constants/colors.ts) at the standing 8px button radius plus
+  // BUTTON_SHADOW for real depth, so this reads and behaves the same way
+  // regardless of which Digest category it's on.
   backToHomeText: {
     ...typography.body,
-    color: colors.textOnPrimary,
+    color: colors.textOnButton,
     fontWeight: '600',
     alignSelf: 'flex-start',
-    backgroundColor: TAB_COLOR,
-    borderRadius: 20,
+    backgroundColor: colors.buttonColor,
+    borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: 8,
+    ...BUTTON_SHADOW,
   },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
