@@ -1939,7 +1939,11 @@ const styles = StyleSheet.create({
   // almost flush with the true screen edge instead, once it's shrunk down
   // to just this badge -- a deliberately different, smaller offset than
   // the full card's own, not the same constant reused.
-  greetingCollapsedWrap: { position: 'absolute', top: 4, left: 4 },
+  // 2026-08-24, direct follow-up: "move the shrunken sprout farther left
+  // and a little bit higher... Left by about 5 to 10 pixels and up by
+  // about 3 to 5." Given as a range, not one exact number -- landed near
+  // the middle of each (7px left, 4px up).
+  greetingCollapsedWrap: { position: 'absolute', top: 0, left: -3 },
   greetingExpandedCard: {
     position: 'absolute',
     top: 12,

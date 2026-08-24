@@ -21,9 +21,11 @@ This file is the standing brief a new session reads automatically: current statu
 
 **Keep this file lean.** When a session finishes work, update the Status snapshot below in place and put the long-form account in the Notion log. Do not append to this file. That append-only habit is what grew the original to 2.05M characters and stopped Claude Code from responding at all.
 
-## Status snapshot (2026-08-23)
+## Status snapshot (2026-08-24)
 
 The app is under active development and substantially built. Current state:
+
+**Most recent (2026-08-24): the collapsed sprout badge, nudged a little farther into the corner.** "Can we or can we not move the shrunken sprout farther left and a little bit higher? Left by about 5 to 10 pixels and up by about 3 to 5." Yes, a small position adjustment: `greetingCollapsedWrap` moved from `top: 4, left: 4` to `top: 0, left: -3`, landing near the middle of each given range (7px left, 4px up). `tsc`/`eslint` clean, one file touched. **Not yet confirmed on-device.**
 
 **Most recent (2026-08-23): the expanded greeting card's background, second round.** "That's a little better but should be even less transparent." Dropping the extra `opacity: 0.92` layer helped, but `colors.surface` itself is only ~85% opaque by design, fine for a card sitting in normal page flow, not solid enough for one floating directly on top of everything else. Switched to `colors.menuSurface`, a fully opaque color (no alpha channel at all) already established in this app for exactly this job, TabHub's own popup menu was deliberately kept opaque the same way, for the same reason. Not theme-reactive the way `colors.surface` is (one fixed color regardless of the person's own chosen ground theme), an accepted tradeoff here since staying solid above everything else matters more right now than matching the ground theme precisely. `tsc`/`eslint` clean, one file touched. **Not yet confirmed on-device.**
 
