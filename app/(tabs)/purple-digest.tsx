@@ -3351,6 +3351,7 @@ export default function PurpleDigestScreen() {
                         onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
                         onJumpToRelated={jumpToRelated}
                         onDynamicEntriesChanged={refreshDynamicEntries}
+                        hideTopLevelLabel={selectedTopicGroup}
                       />
                     );
                   }
@@ -3894,8 +3895,20 @@ function shelfGroupDisplayLabel(label: string): string {
 // Nutrients › Magnesium" becomes plain "Magnesium" once the page itself
 // already says Essential Nutrients. Falls back to the ordinary full label
 // whenever hideTopLevelLabel isn't set or doesn't match this group.
+//
+// 2026-08-24, direct report: opening Recipes' own "Sides" topic showed
+// "Sides" a second time, directly under the page's own big header, which
+// already says "Sides." Every category outside Basic Health resolves one
+// topic to exactly one shelf, so that shelf's own label is never a
+// "Topic::Subtopic" path at all, it's just the topic name again, and the
+// startsWith check above never matched a label with no "::" in it. An
+// empty string here means "this heading is fully redundant, don't show
+// it at all" -- the render site below skips the <Text> entirely rather
+// than leave a blank line.
 function shelfHeadingLabel(label: string, hideTopLevelLabel?: string): string {
-  if (hideTopLevelLabel && label.startsWith(`${hideTopLevelLabel}::`)) {
+  if (!hideTopLevelLabel) return shelfGroupDisplayLabel(label);
+  if (label === hideTopLevelLabel) return '';
+  if (label.startsWith(`${hideTopLevelLabel}::`)) {
     return shelfGroupDisplayLabel(label.slice(hideTopLevelLabel.length + 2));
   }
   return shelfGroupDisplayLabel(label);
@@ -3974,12 +3987,15 @@ function BasicHealthShelves({
   // of its own 22 shelves still read "Essential Nutrients › Magnesium,"
   // "Essential Nutrients › Vitamin D," and so on -- redundant once the
   // header above (drilldownTopicLabel) and the back link already say
-  // exactly which subgroup this is. Set only by Basic Health's own
-  // drilled-in view (selectedTopicGroup), to that same top-level
-  // label -- a group whose own label starts with `${hideTopLevelLabel}::`
-  // shows just its remainder ("Magnesium") instead of the full path.
-  // Search results and every condition category's own topic shelves don't
-  // pass this at all, so they're unaffected.
+  // exactly which subgroup this is. Set to the current selectedTopicGroup
+  // by every drilled-in topic view (Basic Health's own subtopic case, and,
+  // 2026-08-24, the shared single-shelf case every other category uses
+  // too) -- a group whose own label starts with `${hideTopLevelLabel}::`
+  // shows just its remainder ("Magnesium") instead of the full path, and a
+  // group whose label is an exact match (a flat topic like "Sides," which
+  // only ever contains one shelf named exactly the same as the topic
+  // itself) hides its own heading entirely rather than repeating the page
+  // header word for word.
   hideTopLevelLabel?: string;
 }) {
   // 2026-08-21, a real, repeatedly-reported bug: "the title box was
@@ -4071,7 +4087,9 @@ function BasicHealthShelves({
                 filtered-search view below), so it's converted to a plain,
                 readable display string only here, at render time. See
                 shelfGroupDisplayLabel's own comment. */}
-            <Text style={styles.shelfHeading}>{shelfHeadingLabel(group.label, hideTopLevelLabel)}</Text>
+            {shelfHeadingLabel(group.label, hideTopLevelLabel) ? (
+              <Text style={styles.shelfHeading}>{shelfHeadingLabel(group.label, hideTopLevelLabel)}</Text>
+            ) : null}
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
