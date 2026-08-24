@@ -2367,6 +2367,93 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       sourceNote: 'Daily Coffee News (Journal of Applied Ecology study) and the Smithsonian Migratory Bird Center, two independently sourced percentages',
     },
   },
+  // Organic-versus-conventional yield batch, added 2026-08-24, sourced from
+  // a shared Google AI Mode conversation on the science behind organic
+  // farming, cross-referenced against the documentary "Who Owns the World?"
+  // (its own footage is not treated as a citable source, every claim below
+  // traces to the primary study or field trial, independently verified via
+  // WebSearch). One figure from the source conversation is deliberately
+  // dropped rather than repeated: its claim that India's own overall yield
+  // gap runs "around 5%" could not be traced to any specific, checkable
+  // study, so foodhistory-regen-yield-gap-context-dependent below cites the
+  // actual, checkable range that exists instead (a Kenya smallholder study and
+  // an India-specific cotton field trial), honestly reporting that the gap
+  // still varies substantially by crop even in a low-input, developing-
+  // country context, not one flat number. Checked against this category's
+  // own existing content first: the India water-harvesting entry above
+  // covers a different mechanism (farm ponds and groundwater), not organic
+  // methods or yield comparisons, so no overlap.
+  {
+    id: 'foodhistory-regen-organic-yield-gap-meta-analysis',
+    category: 'earthMatters',
+    title: 'The Organic-Versus-Conventional Yield Gap Is Real, Measured, and Crop-Dependent',
+    teaser: 'A landmark meta-analysis found organic yields 25% lower overall, dropping to 13% lower when best organic management practices are used, with legumes and perennials barely different at all.',
+    summary:
+      "The most-cited meta-analysis on this question, Seufert, Ramankutty, and Foley's 2012 study in Nature, pooled data across 66 studies and found organic yields averaging 25% lower than conventional ones overall, a measured gap, not a fringe finding disputed by later work. What the same study found underneath that headline number matters just as much: when the best available organic management practices are actually used (proper crop rotation, multi-cropping), the gap drops to 13%, and it varies enormously by crop type rather than applying evenly across agriculture. Legumes and perennial crops (beans, peas, lentils, tree fruit) show close to no yield difference at all, while starchy staple grains like cereals and potatoes carry the widest gap, in some analyses 30% to 40% lower under organic management. A separate, independent meta-analysis of 115 studies out of UC Berkeley found a similar 19% average gap. Later reviews have found figures across a range of roughly 9% to 25% depending on which studies and management practices are included, a spread across the literature, not one disputed number, and this whole cluster of research is consistent that the honest answer to \"does organic yield less\" is \"often yes, by a measurable but crop-dependent and management-dependent margin,\" not a flat percentage that applies everywhere.",
+    citations: [
+      { source: 'Seufert, V., Ramankutty, N., Foley, J.A. 2012, Nature: Comparing the yields of organic and conventional agriculture', url: 'https://www.nature.com/articles/nature11069' },
+      { source: 'Reframing the Debate Surrounding the Yield Gap between Organic and Conventional Farming, Agriculture (MDPI) 2019', url: 'https://www.mdpi.com/2073-4395/9/2/82' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Two independent, large-scale meta-analyses in agreement on the general size and shape of the gap, the strongest kind of evidence this category cites.',
+    relatedIds: ['foodhistory-regen-yield-gap-context-dependent', 'foodhistory-regen-india-zbnf-case-study', 'garden-organic-fertility-amendments'],
+  },
+  {
+    id: 'foodhistory-regen-yield-gap-context-dependent',
+    category: 'earthMatters',
+    title: 'The Yield Gap Shrinks Under Drought, in Low-Input Farming Systems, and As Soil Recovers Over Time',
+    teaser: 'Organic systems hold water better and often close the gap or pull ahead during drought, and a peer-reviewed study found first-year organic yields sometimes started even, not behind.',
+    summary:
+      "The meta-analysis entry above establishes the general size of the organic-versus-conventional yield gap; three separate, independently documented findings show that gap is not fixed, it moves with specific conditions. First, drought: organically managed soil holds more moisture and infiltrates rainwater better, the same soil-structure mechanism this category's own water-infiltration research already documents at a larger scale, and this pays off directly under water stress, with organic yields frequently matching or exceeding conventional ones in drought years specifically. Second, low-input and smallholder farming systems in developing countries show a measurably different, more crop-dependent picture than the global average: a Kenya study found maize and baby corn yield gaps ranging from a 13% organic deficit to a 12% organic advantage depending on conditions, while cabbage, French beans, and potato still carried a 30% to 50% gap in the same study, and a dedicated field trial in India comparing organic and conventional cotton-based systems found organic economic performance holding up despite a yield difference, not a uniform small gap across every crop. Third, timing: a peer-reviewed study on the organic transition itself found yield changes in the first years of conversion varied by farm, in some cases showing gains even in year one, complicating the common assumption that every organic transition starts with an automatic multi-year yield penalty before soil biology recovers, the honest finding is that the transition period is variable, not a fixed, universal dip.",
+    citations: [
+      { source: 'Closing the crop yield gap between organic and conventional farming systems in Kenya: Long-term trial research indicates agronomic viability, ScienceDirect', url: 'https://www.sciencedirect.com/science/article/pii/S2666154324005362' },
+      { source: 'Yield and Economic Performance of Organic and Conventional Cotton-Based Farming Systems, Results from a Field Trial in India, PLOS One', url: 'https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0081039' },
+      { source: 'Yield increases during the organic transition: improving soil quality or increasing experience?, ScienceDirect', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0378429003001990' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'Field trials and a long-term transition study, more context-dependent and mixed than the clean global-average figure above, tiered moderate for that variability rather than one settled number.',
+    relatedIds: ['foodhistory-regen-organic-yield-gap-meta-analysis', 'foodhistory-regen-water-infiltration-quantified', 'foodhistory-regen-india-zbnf-case-study'],
+  },
+  {
+    id: 'foodhistory-regen-india-zbnf-case-study',
+    category: 'earthMatters',
+    title: "India's Zero Budget Natural Farming: A Controlled Field Trial Found It Outyielding Both Conventional and Standard Organic",
+    teaser: 'A peer-reviewed trial across 28 farms and 6 districts of Andhra Pradesh found groundnut yields 30-40% higher under a zero-cost, cow-dung-and-mulch farming method than under either conventional chemical farming or standard organic practice.',
+    summary:
+      "Zero Budget Natural Farming (ZBNF) is a specific Indian farming method built entirely from free, on-farm inputs, desi cow dung and urine mixed into a microbial inoculant, mulching, and intercropping, deliberately avoiding both synthetic chemical inputs and purchased organic fertilizers alike, the \"zero budget\" name refers to input cost, not yield ambition. A peer-reviewed 2023 study in Agronomy for Sustainable Development ran controlled field experiments across 28 farms in 6 districts of Andhra Pradesh, spanning over 800 km, across three full cropping seasons, comparing ZBNF directly against both conventional and standard organic plots. The result runs against the usual yield-gap direction entirely: groundnut yields under ZBNF measured 30% to 40% higher than under conventional farming, with soil moisture and cooler root-zone temperatures identified as the likely mechanism, better water retention protecting root function during heat stress. This isn't a small pilot claim, it's a multi-season, multi-site controlled comparison, and it directly extends this category's own existing case-study evidence (Niger, Brazil, China) that soil-focused, low-input methods can match or beat conventional yields under the right conditions, this time with cost removed from the picture almost entirely rather than just yield.",
+    citations: [
+      { source: 'Natural farming improves crop yield in SE India when compared to conventional or organic systems by enhancing soil quality, Agronomy for Sustainable Development, 2023', url: 'https://link.springer.com/article/10.1007/s13593-023-00884-x' },
+      { source: 'Impact of Zero Budget Natural Farming on Crop Yields in Andhra Pradesh, SE India, Sustainability (MDPI) 2022', url: 'https://doi.org/10.3390/su14031689' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A controlled, multi-season, multi-site field trial directly comparing all three farming methods on the same measured outcomes, not a single-farm or single-season anecdote.',
+    relatedIds: ['foodhistory-regen-organic-yield-gap-meta-analysis', 'foodhistory-regen-sikkim-organic-state', 'foodhistory-regen-water-infiltration-quantified'],
+    chart: {
+      title: 'Andhra Pradesh Groundnut Yield by Farming Method',
+      unit: '% vs. conventional',
+      data: [
+        { label: 'Conventional', value: 0 },
+        { label: 'Standard organic', value: 5 },
+        { label: 'Zero Budget Natural Farming', value: 35 },
+      ],
+      sourceNote: 'Agronomy for Sustainable Development 2023, midpoint of the reported 30-40% ZBNF yield advantage over conventional; standard-organic value approximate, reported as roughly matched to conventional in the same study',
+    },
+  },
+  {
+    id: 'foodhistory-regen-sikkim-organic-state',
+    category: 'earthMatters',
+    title: "Sikkim Became the World's First Fully Organic State, and the Real Outcome Is a Genuine Mixed Picture",
+    teaser: 'An Indian state banned synthetic pesticides and fertilizers outright in 2016, won an FAO policy award for it, and researchers later confirmed the ban actually held, alongside documented tradeoffs in yield and market access.',
+    summary:
+      "Sikkim, a small Indian state in the eastern Himalayas, began a phased transition away from synthetic agricultural chemicals starting with a 2003 state resolution, and completed it in 2016, when it was declared the world's first 100% organic state, certifying roughly 75,000 hectares of farmland. The transition combined a legal ban on synthetic pesticide and fertilizer sale, phased farmer training and institutional support, and enforcement, not just a voluntary target. The achievement was internationally recognized: Sikkim won the Food and Agriculture Organization's 2018 Future Policy Award, beating 51 other nominated policies from 25 countries, and a later independent field study confirmed the ban had actually held, no farmer surveyed was found using chemical inputs even after roughly two decades. What the same body of research also documents, and this entry reports directly rather than only the award-winning framing: challenges accompanied the transition, including farmers' dependence on middlemen from a lack of organized organic marketing infrastructure, high certification costs, documented food-security concerns tied to declining productivity in some crops during the shift, and inadequate storage and processing infrastructure to support the new organic supply chain. Sikkim is a verified case that a full synthetic-input ban is achievable and enforceable at state scale, and an honest one that the transition carried measurable economic costs alongside its environmental and policy success, not a clean, uncomplicated win.",
+    citations: [
+      { source: 'Sikkim: Making of the First 100% Organic State of the World, ResearchGate', url: 'https://www.researchgate.net/publication/374157521_Sikkim_Making_of_the_First_100_Organic_State_of_the_World' },
+      { source: 'World Future Council: Press release, 2018 Future Policy Award winners announced (Sikkim, Gold Prize)', url: 'https://www.worldfuturecouncil.org/press-release-2018-fpa2018-winners/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A verified state-level policy transition with an independently confirmed compliance outcome, tiered moderate rather than strong specifically because its own documented economic tradeoffs (market access, certification cost, food-security concerns) are unresolved, not because the transition itself is in doubt.',
+    relatedIds: ['foodhistory-regen-india-zbnf-case-study', 'foodhistory-regen-organic-yield-gap-meta-analysis'],
+  },
   {
     id: 'foodhistory-regen-tying-together',
     category: 'earthMatters',
@@ -2396,6 +2483,9 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       'foodhistory-regen-institutional-purchasing-power',
       'foodhistory-regen-buycott-versus-boycott',
       'foodhistory-regen-how-to-get-involved',
+      'foodhistory-regen-organic-yield-gap-meta-analysis',
+      'foodhistory-regen-india-zbnf-case-study',
+      'foodhistory-regen-sikkim-organic-state',
     ],
   },
 

@@ -795,6 +795,29 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       'gut-scfa-treg',
     ],
   },
+  // Added 2026-08-24, fact-checking a shared Google AI Mode conversation on
+  // the science behind organic farming and how to feed a garden without
+  // synthetic fertilizer. Compost (garden-composting-at-home) and cover
+  // crops (garden-cover-crops-home) already had their own dedicated
+  // entries in this category, so this covers what wasn't yet there: aged
+  // manure, bone meal, blood meal, and kelp/seaweed extract, the other
+  // three natural amendments the source conversation named.
+  {
+    id: 'garden-organic-fertility-amendments',
+    category: 'homeGardening',
+    title: 'Manure, Bone Meal, Blood Meal, and Kelp Extract: What Each One Actually Does, and the One Real Safety Rule',
+    teaser: 'Blood meal is nearly pure nitrogen, bone meal is a slow-release phosphorus source, and kelp extract measurably raises a plant\'s own growth-hormone levels, not just its mineral content, and fresh manure has one documented way to go wrong.',
+    summary:
+      "Beyond compost and cover crops, already covered elsewhere in this category, several other natural amendments feed a garden without a synthetic fertilizer bag, each doing a distinctly different job rather than being interchangeable versions of the same thing. Animal manure supplies a broad nutrient mix, but the one documented safety rule matters more than anything else about it: fresh manure needs to age, ideally 6 to 12 months, or be fully composted first, since it releases ammonia and carries a nitrogen concentration high enough to scorch roots and burn plant tissue when applied fresh, aged or composted manure applied at roughly 20 to 30 pounds per 100 square feet avoids that risk entirely. Bone meal and blood meal are not the same thing despite often sitting side by side on a shelf: bone meal is roughly 15% to 22% phosphorus (with meaningful calcium too), releasing slowly over 4 to 6 months to support root development, while blood meal is 12% to 14% nitrogen with comparatively little else, acting fast to green up leafy growth, a gardener feeding root vegetables and a gardener greening up leafy crops actually want two different products. Kelp and seaweed extract work through a different mechanism entirely, not primarily as an NPK fertilizer at all: peer-reviewed research finds seaweed extract measurably raises a treated plant's own endogenous cytokinin levels (a plant growth hormone, not just a mineral input), with controlled trials finding foliar seaweed spray increased tomato fruit weight by roughly 30% over untreated plants, evidence for a measurable biostimulant effect on top of whatever trace minerals the seaweed itself contributes.",
+    citations: [
+      { source: 'University of New Hampshire Extension: Guidelines for Using Animal Manures and Manure-Based Composts in the Garden', url: 'https://extension.unh.edu/resource/guidelines-using-animal-manures-and-manure-based-composts-garden-fact-sheet' },
+      { source: 'Ask Extension: Bone meal versus blood meal', url: 'https://ask.extension.org/kb/faq.php?id=866925' },
+      { source: 'Seaweed Extracts as Biostimulants of Plant Growth and Development, ResearchGate', url: 'https://www.researchgate.net/publication/225338767_Seaweed_Extracts_as_Biostimulants_of_Plant_Growth_and_Development' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Extension-sourced practical guidance for the manure and bone/blood meal figures, peer-reviewed trial data for the seaweed-cytokinin and tomato-yield findings specifically.',
+    relatedIds: ['garden-composting-at-home', 'garden-cover-crops-home', 'foodhistory-regen-organic-yield-gap-meta-analysis'],
+  },
   {
     id: 'garden-tying-together',
     category: 'homeGardening',
@@ -816,6 +839,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       'garden-grow-what-you-can-however-small',
       'garden-indoor-growing-methods-overview',
       'garden-symbiosis-mission',
+      'garden-organic-fertility-amendments',
     ],
   },
 ];
