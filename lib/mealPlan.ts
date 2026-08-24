@@ -53,6 +53,39 @@
 // side), all 4 Soups (days 6/7/8/10), all 4 Handhelds (days 2/4/6/7), and
 // all 5 Sides (paired as dinner sides, days 1-5) are now used exactly
 // once each. Every recipe referenced below appears on exactly one day.
+//
+// CHRONONUTRITION PASS, 2026-08-24, direct follow-up: "It seems like you
+// used a smoothie for breakfast more often than not... we need to follow a
+// very chrononutrition style of eating." An audit found the real gap
+// wasn't just the 6 Smoothies (all clustered at the very start of the
+// plan, days 1-6, which is what made it feel more frequent than its true
+// 6-of-42 rate) -- 13 more breakfasts (every overnight-oats, warm
+// porridge, and chia-pudding recipe) used almond or coconut milk as their
+// own liquid base too, carrying almost no protein and no fermented
+// element either. All 19 were fixed the same way, at the recipe level
+// (see recipes.ts's own per-recipe edits and
+// scripts/chrononutrition_breakfast_protein_boost.py): swapped to a real
+// Greek yogurt base, adding real protein and making the breakfast itself
+// a fermented food, matching this app's own new Basic Health research on
+// why a protein-and-fermented-food breakfast measurably helps same-day
+// blood sugar and gut health. Every recipe id below still resolves to the
+// exact same dish; only that dish's own ingredients changed.
+//
+// Separately, 6 days (9, 10, 17, 34, 36, 42) had their lunch and dinner
+// SWAPPED: each one's dinner slot held a dedicated grain (brown rice,
+// wild rice, or couscous) while its own lunch was a lighter, grain-free
+// salad or soup. Real cohort and trial evidence (a 103,000-person cohort,
+// Nature Communications 2023; early-time-restricted-feeding RCTs) points
+// the other way: insulin sensitivity is highest earlier in the day, and a
+// lighter, lower-starch dinner eaten well before bed is associated with
+// better cardiometabolic outcomes. Moving the grain-based dish to lunch
+// and the lighter dish to dinner on those 6 days needed no new recipes at
+// all, just reassigning which existing dish fills which slot. Whole-food
+// starchy VEGETABLES at dinner (potato, sweet potato, parsnip, turnip)
+// were deliberately left alone rather than swapped -- treated as a real,
+// fiber-rich food, not the same concern as a dedicated refined-grain side,
+// a distinction this app's own new chrononutrition research names
+// directly rather than treating every carbohydrate source as equivalent.
 
 import type { MealPlanDay, MealPlanComponentRef } from './db';
 
@@ -130,14 +163,18 @@ export const MEAL_PLAN: MealPlanDay[] = [
   {
     day: 9,
     breakfast: { main: ref('snack', 'curated_snack_overnight_oats_chia_berries') },
-    lunch: { main: ref('salad', 'curated_salad_beet_walnut_arugula') },
-    dinner: { main: ref('side', 'curated_side_one_pan_shrimp_asparagus_rice') },
+    // Chrononutrition swap, 2026-08-24: the brown-rice dish moved to
+    // midday (insulin sensitivity is highest then) and the lighter,
+    // starch-free salad moved to evening -- see this file's own header
+    // comment for the full reasoning.
+    lunch: { main: ref('side', 'curated_side_one_pan_shrimp_asparagus_rice') },
+    dinner: { main: ref('salad', 'curated_salad_beet_walnut_arugula') },
   },
   {
     day: 10,
     breakfast: { main: ref('snack', 'curated_snack_soft_boiled_eggs_avocado_tomato') },
-    lunch: { main: ref('soup', 'curated_soup_tomato_basil') },
-    dinner: { main: ref('side', 'curated_side_beef_mushroom_stir_fry_rice') },
+    lunch: { main: ref('side', 'curated_side_beef_mushroom_stir_fry_rice') },
+    dinner: { main: ref('soup', 'curated_soup_tomato_basil') },
   },
   {
     day: 11,
@@ -181,8 +218,8 @@ export const MEAL_PLAN: MealPlanDay[] = [
   {
     day: 17,
     breakfast: { main: ref('snack', 'curated_snack_papaya_cottage_cheese_bowl') },
-    lunch: { main: ref('salad', 'curated_salad_spelt_roasted_vegetable_salad') },
-    dinner: { main: ref('side', 'curated_side_lamb_skewers_couscous') },
+    lunch: { main: ref('side', 'curated_side_lamb_skewers_couscous') },
+    dinner: { main: ref('salad', 'curated_salad_spelt_roasted_vegetable_salad') },
   },
   {
     day: 18,
@@ -283,8 +320,8 @@ export const MEAL_PLAN: MealPlanDay[] = [
   {
     day: 34,
     breakfast: { main: ref('snack', 'curated_snack_pear_almond_yogurt_bowl') },
-    lunch: { main: ref('handheld', 'curated_handheld_bison_roasted_vegetable_wrap') },
-    dinner: { main: ref('side', 'curated_side_duck_cherry_wild_rice') },
+    lunch: { main: ref('side', 'curated_side_duck_cherry_wild_rice') },
+    dinner: { main: ref('handheld', 'curated_handheld_bison_roasted_vegetable_wrap') },
   },
   {
     day: 35,
@@ -295,8 +332,8 @@ export const MEAL_PLAN: MealPlanDay[] = [
   {
     day: 36,
     breakfast: { main: ref('snack', 'curated_snack_papaya_lime_yogurt_bowl') },
-    lunch: { main: ref('salad', 'curated_salad_tuna_artichoke_salad') },
-    dinner: { main: ref('side', 'curated_side_turkey_wild_rice_cranberries') },
+    lunch: { main: ref('side', 'curated_side_turkey_wild_rice_cranberries') },
+    dinner: { main: ref('salad', 'curated_salad_tuna_artichoke_salad') },
   },
   {
     day: 37,
@@ -331,7 +368,7 @@ export const MEAL_PLAN: MealPlanDay[] = [
   {
     day: 42,
     breakfast: { main: ref('snack', 'curated_snack_grapefruit_pistachio_yogurt_bowl') },
-    lunch: { main: ref('salad', 'curated_salad_crab_mango_salad') },
-    dinner: { main: ref('side', 'curated_side_salmon_wild_rice_asparagus') },
+    lunch: { main: ref('side', 'curated_side_salmon_wild_rice_asparagus') },
+    dinner: { main: ref('salad', 'curated_salad_crab_mango_salad') },
   },
 ];
