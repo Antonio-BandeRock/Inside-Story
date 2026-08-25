@@ -584,11 +584,39 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // Nutrients above (which already carries deep, nutrient-centered
   // deficiency/toxicity coverage this new topic cross-links to rather than
   // repeats). See lib/digest/bodySystems.ts's own header comment.
+  // 2026-08-25, direct report: "There should be groups of information that
+  // is specific to one diet or eating style or another, rather than one
+  // continuous scrolling left to right list of them. This needs to be
+  // followed throughout the digest." This topic's own 20 entries (every
+  // organ/system at once, no further division) were exactly that same
+  // problem in miniature -- given real subtopics here, one per organ or
+  // body system, the same way Essential Nutrients already subdivides by
+  // nutrient. body-systems-overview and body-tying-together don't belong
+  // to any one organ, so they get their own small "Overview & Big Picture"
+  // subtopic rather than being force-fit into one, or silently falling
+  // through to Basic Health's "More" catch-all (a topic with real
+  // subtopics has no undifferentiated top-level bucket of its own -- see
+  // basicHealthTopicPathForEntryId above).
   {
     label: 'How Your Body Works: Organs & Systems',
     description:
       "How your organs and body systems work, and how food and nutrient levels affect each one, independent of any specific condition. The foundation every condition-specific finding in this Digest builds on.",
-    prefixes: ['body-'],
+    subtopics: [
+      { label: 'Overview & Big Picture', prefixes: ['body-systems-overview', 'body-tying-together'] },
+      { label: 'Endocrine System', prefixes: ['body-adrenal-glands-structure-function', 'body-endocrine-crosstalk'] },
+      { label: 'Bones, Teeth & Skeleton', prefixes: ['body-bones-teeth-skeleton'] },
+      { label: 'Brain & Nervous System', prefixes: ['body-brain-nervous-system', 'body-brain-processed-meat-dementia-uk-biobank'] },
+      { label: 'Cardiovascular System', prefixes: ['body-cardiovascular-electrolytes'] },
+      { label: 'Digestive System', prefixes: ['body-digestive-organs'] },
+      { label: 'Skin & Hair', prefixes: ['body-skin-integumentary', 'body-hair-growth-cycle'] },
+      { label: 'Eyes & Vision', prefixes: ['body-eyes-vision'] },
+      { label: 'Immune System', prefixes: ['body-immune-system-nutrition'] },
+      { label: 'Kidneys & Liver', prefixes: ['body-kidneys-liver-filtration'] },
+      { label: 'Lymphatic System', prefixes: ['body-lymphatic-system'] },
+      { label: 'Muscular System', prefixes: ['body-muscular-system'] },
+      { label: 'Reproductive System', prefixes: ['body-reproductive-egg-supply-vs-sperm-production', 'body-reproductive-zinc-fertility'] },
+      { label: 'Respiratory System', prefixes: ['body-respiratory-gas-exchange', 'body-respiratory-magnesium-asthma'] },
+    ],
   },
   // 2026-08-13, direct request: "Neurogenesis needs to be represented in
   // the Basic Health section." A real, general, condition-agnostic
@@ -676,15 +704,52 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // A real, general Mental Health deep-dive, the same "scattered across
   // conditions, never its own topic" gap as Sleep above. See
   // lib/digest/mentalHealth.ts's own header comment.
+  // 2026-08-25: real subtopics, part of the same-day sweep named at "How
+  // Your Body Works: Organs & Systems," above.
   {
     label: 'Mental Health & Food',
     description: 'How diet and specific nutrients affect mood, cognition, and mental health.',
-    prefixes: ['mentalhealth-'],
+    subtopics: [
+      { label: 'Overview & Framing', prefixes: ['mentalhealth-overview', 'mentalhealth-adhd-ocd-diet-does-not-cause', 'mentalhealth-tying-together'] },
+      { label: 'ADHD & OCD', prefixes: ['mentalhealth-adhd-dietary-triggers', 'mentalhealth-adhd-micronutrients-glycemic', 'mentalhealth-ocd-gut-brain-inflammation', 'mentalhealth-ocd-ketogenic-diet'] },
+      { label: 'Gut-Brain Mechanisms', prefixes: ['mentalhealth-gut-scfa-mood-mechanism', 'mentalhealth-inflammation-link', 'mentalhealth-glycemic-instability-mood'] },
+      { label: 'Nutrients & Mood', prefixes: ['mentalhealth-b12-folate-mood', 'mentalhealth-magnesium-zinc-mood', 'mentalhealth-omega3-epa-dha', 'mentalhealth-vitamin-d-mixed-evidence'] },
+      { label: 'Diet Pattern & Lifestyle Evidence', prefixes: ['mentalhealth-smiles-trial', 'mentalhealth-ultraprocessed-food-risk', 'mentalhealth-exercise-honest-evidence'] },
+      { label: 'When to Seek Help', prefixes: ['mentalhealth-when-to-seek-help'] },
+    ],
   },
+  // 2026-08-25: this topic's own description already said "organized by
+  // condition," but nothing actually enforced that -- all 38 entries
+  // (prevention- and apphelps-, one pair per tracked condition) rendered
+  // as one flat 38-wide shelf. Real subtopics now match what the
+  // description always claimed, one per condition, each holding that
+  // condition's own prevention- and apphelps- pair. See the same-day
+  // report at "How Your Body Works: Organs & Systems," above, for the
+  // standing rule this applies throughout the Digest, not just here.
   {
     label: 'Prevention & Lifestyle by Condition',
     description: 'What to eat and which lifestyle habits help prevent or manage each of the 19 conditions this app tracks, organized by condition.',
-    prefixes: ['prevention-', 'apphelps-'],
+    subtopics: [
+      { label: "Hashimoto's Disease", prefixes: ['prevention-hashimotos', 'apphelps-hashimotos'] },
+      { label: "Graves' Disease", prefixes: ['prevention-graves', 'apphelps-graves'] },
+      { label: 'Rheumatoid Arthritis', prefixes: ['prevention-ra', 'apphelps-ra'] },
+      { label: 'Psoriasis', prefixes: ['prevention-psoriasis', 'apphelps-psoriasis'] },
+      { label: 'Celiac Disease', prefixes: ['prevention-celiac', 'apphelps-celiac'] },
+      { label: 'Inflammatory Bowel Disease', prefixes: ['prevention-ibd', 'apphelps-ibd'] },
+      { label: 'Multiple Sclerosis', prefixes: ['prevention-ms', 'apphelps-ms'] },
+      { label: 'Lupus (SLE)', prefixes: ['prevention-lupus', 'apphelps-lupus'] },
+      { label: "Sjögren's Syndrome", prefixes: ['prevention-sjogrens', 'apphelps-sjogrens'] },
+      { label: 'Type 1 Diabetes', prefixes: ['prevention-type1', 'apphelps-type1'] },
+      { label: 'Type 2 Diabetes', prefixes: ['prevention-type2', 'apphelps-type2'] },
+      { label: 'PCOS', prefixes: ['prevention-pcos', 'apphelps-pcos'] },
+      { label: 'Chronic Kidney Disease', prefixes: ['prevention-ckd', 'apphelps-ckd'] },
+      { label: 'Fatty Liver Disease', prefixes: ['prevention-masld', 'apphelps-masld'] },
+      { label: 'Irritable Bowel Syndrome', prefixes: ['prevention-ibs', 'apphelps-ibs'] },
+      { label: 'Migraine', prefixes: ['prevention-migraine', 'apphelps-migraine'] },
+      { label: 'Cardiovascular Disease', prefixes: ['prevention-cvd', 'apphelps-cvd'] },
+      { label: 'Gout', prefixes: ['prevention-gout', 'apphelps-gout'] },
+      { label: 'Prostate Health', prefixes: ['prevention-prostate', 'apphelps-prostate'] },
+    ],
   },
   // 2026-08-09, direct request: "an honest medical science evidence based
   // perspective on the popular types of diets out there." A real, distinct
@@ -700,30 +765,72 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // got a prefix of their own and fell through to the dynamic "More"
   // catch-all. Found via a direct audit request: "In Basic Health there
   // are 8 entries in the More section... how about now?"
+  // 2026-08-25, direct report after asking where diets are compared: "please
+  // separate them into their own sections... groups of information that is
+  // specific to one diet or eating style or another, rather than one
+  // continuous scrolling left to right list of them." All 19 entries here
+  // (17 diet- plus 2 pbn-, the Ornish/Esselstyn plant-based heart-disease
+  // trials) used to render as one flat shelf. Grouped by what actually
+  // distinguishes them nutritionally, not alphabetically: how much animal
+  // food is included, a traditional whole-food pattern, what's eliminated,
+  // when you eat rather than what, a specific macronutrient ratio, food
+  // quality independent of macros, and this app's own tracking philosophy.
+  // The two pbn- trial entries join the animal-food-spectrum group, since
+  // both are evidence specifically for the plant-based end of it.
   {
     label: 'Popular Diets & Eating Styles',
     description: 'An evidence-based look at popular diets, keto, paleo, intermittent fasting, and more, organized by philosophy rather than by condition.',
-    prefixes: ['diet-', 'pbn-'],
+    subtopics: [
+      {
+        label: 'How Much Animal Food: Vegan to Carnivore',
+        prefixes: ['diet-vegan', 'diet-vegetarian', 'diet-plant-based-flexitarian', 'diet-omnivore', 'diet-carnivore', 'pbn-'],
+      },
+      { label: 'Traditional & Whole-Food Patterns', prefixes: ['diet-mediterranean', 'diet-paleo', 'diet-aip'] },
+      { label: 'Free-From & Elimination Diets', prefixes: ['diet-gluten-free', 'diet-dairy-free'] },
+      { label: 'Timing, Not Composition', prefixes: ['diet-intermittent-fasting'] },
+      { label: 'Macronutrient-Ratio Focused', prefixes: ['diet-keto', 'diet-high-protein', 'diet-fibermaxxing'] },
+      { label: 'Food Quality, Not Macros', prefixes: ['diet-anti-processed', 'diet-gut-friendly'] },
+      { label: 'How This App Tracks Any of Them', prefixes: ['diet-app-agnostic-tracking'] },
+    ],
   },
   {
     label: 'Problem Foods & Swaps',
     description: 'Foods worth watching for common problems, and practical swaps for each one.',
     prefixes: ['problem-'],
   },
+  // 2026-08-25: real subtopics, part of the same-day sweep named at "How
+  // Your Body Works: Organs & Systems," above.
   {
     label: 'Food Additives',
     description: 'What common food additives and preservatives actually do, and what the evidence says about their effects.',
-    prefixes: ['additive-'],
+    subtopics: [
+      { label: 'Sweeteners', prefixes: ['additive-aspartame', 'additive-sucralose', 'additive-hfcs', 'additive-sugar-umbrella-review-45-outcomes'] },
+      { label: 'Preservatives', prefixes: ['additive-bha-bht', 'additive-nitrates-nitrites', 'additive-potassium-bromate', 'additive-sulfites', 'additive-phosphates'] },
+      { label: 'Emulsifiers, Gums & Texture', prefixes: ['additive-carrageenan', 'additive-emulsifiers-cmc-polysorbate80', 'additive-xanthan-guar-gum'] },
+      { label: 'Flavor, Color & Dough Agents', prefixes: ['additive-msg', 'additive-synthetic-dyes', 'additive-azodicarbonamide'] },
+      { label: 'Ultra-Processing as a Whole', prefixes: ['additive-upf-convincing-evidence-class-i', 'additive-processed-meat-colorectal-cancer-uk-biobank', 'additive-trans-fats', 'additive-tying-together'] },
+    ],
   },
   {
     label: 'Nutrient Interactions',
     description: "Which nutrients help or block each other's absorption, and how to time meals and supplements to work with your body instead of against it.",
     prefixes: ['interaction-'],
   },
+  // 2026-08-25: real subtopics, matching this topic's own description
+  // ("organized by the specific bacterial strains and cultures") for real
+  // rather than only in name -- part of the same-day sweep named at "How
+  // Your Body Works: Organs & Systems," above.
   {
     label: 'Fermented Foods',
     description: 'The health benefits of fermented foods, organized by the specific bacterial strains and cultures behind them.',
-    prefixes: ['fermented-'],
+    subtopics: [
+      { label: 'Lactobacillus Species', prefixes: ['fermented-lactobacillus-acidophilus', 'fermented-lactobacillus-plantarum'] },
+      { label: 'Bifidobacterium & Streptococcus', prefixes: ['fermented-bifidobacterium', 'fermented-streptococcus-thermophilus'] },
+      { label: 'Yeasts & Wild Cultures', prefixes: ['fermented-saccharomyces-boulardii', 'fermented-leuconostoc-mesenteroides', 'fermented-sauerkraut-succession'] },
+      { label: 'Kefir & Kombucha', prefixes: ['fermented-milk-kefir', 'fermented-water-kefir', 'fermented-kombucha'] },
+      { label: 'Other Ferments', prefixes: ['fermented-beet-kvass', 'fermented-fruit-brine'] },
+      { label: 'Practical Basics', prefixes: ['fermented-cfu-dosing', 'fermented-sourcing-starters', 'fermented-tying-together'] },
+    ],
   },
   // 2026-08-09, direct request: "talk about the different ways of making
   // fermentations for drinks and foods... how they are generally made and
@@ -742,10 +849,31 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // lib/digest/produceProfiles.ts's own header comment, including the real,
   // new hide-sync mechanism this topic's own entries use (see
   // basicHealthEntriesForPrefixes below for where that filter is applied).
+  // 2026-08-25: real subtopics, part of the same-day sweep named at "How
+  // Your Body Works: Organs & Systems," above. produce-chickpeas (a legume,
+  // not a fruit, vegetable, nut, or seed on its own) joins the vegetables
+  // group rather than getting a one-entry subtopic of its own, matching how
+  // this topic's own everyday grocery-aisle framing already treats legumes.
   {
     label: 'Fruits, Vegetables, Nuts & Seeds',
     description: 'The health benefits, and things worth knowing, about specific fruits, vegetables, nuts, and seeds.',
-    prefixes: ['produce-'],
+    subtopics: [
+      { label: 'Overview', prefixes: ['produce-overview', 'produce-closing'] },
+      { label: 'Fruits', prefixes: ['produce-apple', 'produce-avocado', 'produce-blueberry', 'produce-citrus', 'produce-tomato'] },
+      {
+        label: 'Vegetables & Legumes',
+        prefixes: [
+          'produce-cruciferous',
+          'produce-broccoli-sprouts-sulforaphane',
+          'produce-garlic-onion',
+          'produce-leafy-greens',
+          'produce-sweet-potato',
+          'produce-mustard-powder-myrosinase-restoration',
+          'produce-chickpeas',
+        ],
+      },
+      { label: 'Nuts & Seeds', prefixes: ['produce-almonds', 'produce-chia-seeds', 'produce-flaxseed', 'produce-walnut'] },
+    ],
   },
   {
     label: 'Lifestyle & Environment',
