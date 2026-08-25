@@ -1272,6 +1272,64 @@ function hasStageNote(entry: AnyDigestEntry, conditionCode: string, stageCode: s
   return key !== null && entry.recipeCard.conditionNotes.some((note) => note.condition === key);
 }
 
+// 2026-08-25, direct report: "If there is a warning, it absolutely must
+// ONLY be for that conditions. There shouldn't be random warnings on
+// Hashimoto's (or any other condition) for other conditions." Correct --
+// recipeCard.conditionNotes' own "Worth knowing if you have..." box (see
+// RecipeCardDetail below) was rendering every hand-written and computed
+// note on a recipe at once, unconditionally, regardless of which
+// condition's own page the recipe was opened from -- a Hashimoto's
+// recipe would show its own real Gout/CVD/RA notes too, not because they
+// were relevant to Hashimoto's, just because nothing scoped the list.
+//
+// A plain condition-code -> keyword map, built from a direct audit of
+// every real condition.condition string this app's own hand-written
+// notes actually use (not guessed): several are compound, prose-style
+// labels ("Type 2 Diabetes / PCOS", "Inflammatory Bowel Disease /
+// Irritable Bowel Syndrome / Celiac") rather than one clean tag per
+// note, and some use a shorter form than this Digest's own canonical
+// DIGEST_CATEGORY_META label ("Hashimoto's" alone, not "Hashimoto's
+// Disease"). Each keyword here is the shortest real substring confirmed
+// to appear in every variant actually in use, so a substring check
+// against it catches all of them without needing an exact match.
+const CONDITION_NOTE_KEYWORDS: Record<string, string> = {
+  hashimotos: 'Hashimoto',
+  graves: 'Graves',
+  celiac: 'Celiac',
+  chronic_kidney_disease: 'Chronic Kidney Disease',
+  gout: 'Gout',
+  ibd: 'Inflammatory Bowel Disease',
+  ibs: 'Irritable Bowel Syndrome',
+  migraine: 'Migraine',
+  type_1_diabetes: 'Type 1 Diabetes',
+  type_2_diabetes: 'Type 2 Diabetes',
+  pcos: 'PCOS',
+  rheumatoid_arthritis: 'Rheumatoid Arthritis',
+  psoriasis: 'Psoriasis',
+  multiple_sclerosis: 'Multiple Sclerosis',
+  lupus: 'Lupus',
+  sjogrens: 'Sjögren',
+  fatty_liver_disease: 'Fatty Liver',
+  cardiovascular_disease: 'Cardiovascular',
+  prostate_health: 'Prostate',
+};
+
+// Whether one real conditionNotes entry belongs on the active condition's
+// own page. No active condition (plain Recipes browsing, or any other
+// non-condition-scoped context) shows everything, unchanged from before
+// this fix. Once scoped: a note that doesn't mention ANY of the 19
+// tracked conditions by name at all ("Pregnancy," "Anyone taking
+// levothyroxine," "Any autoimmune condition") is a genuinely general
+// caution, not a warning for some OTHER specific condition, so it still
+// shows everywhere -- only a note that DOES name one or more specific
+// conditions gets scoped to just those.
+function conditionNoteAppliesTo(noteConditionText: string, activeConditionCode?: string): boolean {
+  if (!activeConditionCode) return true;
+  const mentioned = Object.entries(CONDITION_NOTE_KEYWORDS).filter(([, keyword]) => noteConditionText.includes(keyword));
+  if (mentioned.length === 0) return true;
+  return mentioned.some(([code]) => code === activeConditionCode);
+}
+
 // The one caution actually shown in a recipe's own "A note for this
 // condition" box once opened from a specific condition's own page --
 // 2026-08-24 direct follow-up: prefers a real, computed stage-specific
@@ -5012,6 +5070,7 @@ function DigestCard({
               card={entry.recipeCard}
               activeConditionCaution={resolveActiveConditionCaution(entry, activeConditionCode, activeStageCode)}
               activeConditionSeverity={resolveActiveConditionSeverity(entry, activeConditionCode)}
+              activeConditionCode={activeConditionCode}
             />
           ) : null}
           <EntryPhotoSection entry={entry} tabColor={TAB_COLOR} />
@@ -5043,23 +5102,65 @@ function DigestCard({
 // behind every tag. The base tier (Vegan/Vegetarian/Omnivore) always
 // leads the row since it's the one distinction every recipe carries;
 // the rest are unordered, whichever apply.
-function RecipeDietTagRow({ tags }: { tags: RecipeDietTag[] }) {
+//
+// 2026-08-25, direct report: "haphazardly placed there as if poured out
+// onto the table instead of being aligned and orderly... they are linked
+// somehow but not to what they should be linked to." Two real fixes:
+// (1) tags is now always re-sorted against RECIPE_DIET_TAGS' own single
+// canonical order before rendering, rather than trusting whatever order
+// happened to already be stored per recipe -- guarantees the same
+// left-to-right order on every single card, not just most of them.
+// (2) each pill is now a real, correctly wired tap target (it carried no
+// onPress at all before this pass, despite reading as tappable), opening
+// that specific diet's own real Digest explanation via the same
+// showInfoAlert overlay this app already uses for tap-to-explain
+// content elsewhere (DimensionFlags' own onExplain, CuratedRecipeShareButton's
+// own status alerts) -- deliberately an overlay rather than a full
+// jumpToRelated navigation, so "a way to get back to the recipe" is
+// simply closing it, guaranteed, rather than a new navigation-history
+// feature layered onto this screen's own already-intricate lens/topic
+// state.
+function RecipeDietTagRow({ tags, onExplainDiet }: { tags: RecipeDietTag[]; onExplainDiet: (tag: RecipeDietTag) => void }) {
   if (tags.length === 0) return null;
+  const ordered = [...tags].sort((a, b) => RECIPE_DIET_TAGS.indexOf(a) - RECIPE_DIET_TAGS.indexOf(b));
   return (
     <View style={styles.dietTagRow}>
-      {tags.map((tag) => (
-        <View key={tag} style={styles.dietTagPill}>
+      {ordered.map((tag) => (
+        <TouchableOpacity key={tag} style={styles.dietTagPill} onPress={() => onExplainDiet(tag)} activeOpacity={0.75}>
           <Text style={styles.dietTagPillText}>{tag}</Text>
-        </View>
+        </TouchableOpacity>
       ))}
     </View>
   );
 }
 
+// The one real Digest entry each diet tag explains -- 2026-08-25, built
+// alongside the same fix, so every one of the 10 real RecipeDietTag
+// values has a genuine destination, not five working links and five
+// dead ends. Five of the ten (Vegan, Plant-Based/Flexitarian,
+// Mediterranean, AIP, High-Protein) already had a real entry in this
+// Digest's own Popular Diets & Eating Styles topic; the other five
+// (Vegetarian, Omnivore, Gluten-Free, Dairy-Free, Paleo) were written
+// fresh for this pass (lib/digest/popularDiets.ts), matching that
+// topic's own citation and evidence-tiering discipline.
+const DIET_TAG_ENTRY_ID: Record<RecipeDietTag, string> = {
+  Vegan: 'diet-vegan',
+  Vegetarian: 'diet-vegetarian',
+  Omnivore: 'diet-omnivore',
+  'Plant-Based/Flexitarian': 'diet-plant-based-flexitarian',
+  Mediterranean: 'diet-mediterranean',
+  'Gluten-Free': 'diet-gluten-free',
+  'Dairy-Free': 'diet-dairy-free',
+  Paleo: 'diet-paleo',
+  AIP: 'diet-aip',
+  'High-Protein': 'diet-high-protein',
+};
+
 function RecipeCardDetail({
   card,
   activeConditionCaution,
   activeConditionSeverity,
+  activeConditionCode,
 }: {
   card: RecipeCard;
   // 2026-08-24, direct correction: "Meals You Can Eat" now shows every
@@ -5082,10 +5183,37 @@ function RecipeCardDetail({
   // never-safe gluten hit. 'green' never reaches here (a genuinely clean
   // recipe has no activeConditionCaution to show in the first place).
   activeConditionSeverity?: 'green' | 'yellow' | 'red';
+  // 2026-08-25, direct report: "There shouldn't be random warnings on
+  // Hashimoto's (or any other condition) for other conditions." Scopes
+  // the "Worth knowing if you have..." box below via
+  // conditionNoteAppliesTo, same prop every other condition-context
+  // consumer on this card already receives.
+  activeConditionCode?: string;
 }) {
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+
+  // 2026-08-25, direct report: the diet-tag pills "are linked somehow
+  // but not to what they should be linked to." Opens the real Digest
+  // entry (DIET_TAG_ENTRY_ID) for the tapped diet right here, in the
+  // same overlay this app already uses for tap-to-explain content
+  // elsewhere -- "a way to get back to the recipe" is just closing it.
+  function explainDietTag(tag: RecipeDietTag) {
+    const entry = findDigestEntryById(DIET_TAG_ENTRY_ID[tag]);
+    if (!entry || isProblemFoodEntry(entry)) {
+      showInfoAlert(tag, 'No further explanation is available for this diet type yet.');
+      return;
+    }
+    const parts = [entry.summary];
+    if (entry.citations.length > 0) {
+      parts.push(`Source${entry.citations.length > 1 ? 's' : ''}:\n${entry.citations.map((c) => c.source).join('\n')}`);
+    }
+    showInfoAlert(entry.title, parts.join('\n\n'));
+  }
+
   return (
     <View>
-      {card.dietTags ? <RecipeDietTagRow tags={card.dietTags} /> : null}
+      {infoAlertElement}
+      {card.dietTags ? <RecipeDietTagRow tags={card.dietTags} onExplainDiet={explainDietTag} /> : null}
 
       {activeConditionCaution ? (
         <View style={activeConditionSeverity === 'red' ? styles.recipeConditionBoxRed : styles.recipeConditionBoxYellow}>
@@ -5126,17 +5254,26 @@ function RecipeCardDetail({
         ))}
       </View>
 
-      {card.conditionNotes.length > 0 ? (
-        <View style={styles.recipeConditionBox}>
-          <Text style={styles.recipeConditionLabel}>Worth knowing if you have...</Text>
-          {card.conditionNotes.map((note, index) => (
-            <View key={index} style={index > 0 ? styles.recipeConditionItemSpaced : undefined}>
-              <Text style={styles.recipeConditionCondition}>{note.condition}</Text>
-              <Text style={styles.recipeNutritionText}>{note.note}</Text>
-            </View>
-          ))}
-        </View>
-      ) : null}
+      {(() => {
+        // 2026-08-25, direct report: "If there is a warning, it
+        // absolutely must ONLY be for that conditions." Filtered through
+        // conditionNoteAppliesTo before rendering, rather than showing
+        // every note on the recipe regardless of which condition's own
+        // page it was opened from.
+        const scopedNotes = card.conditionNotes.filter((note) => conditionNoteAppliesTo(note.condition, activeConditionCode));
+        if (scopedNotes.length === 0) return null;
+        return (
+          <View style={styles.recipeConditionBox}>
+            <Text style={styles.recipeConditionLabel}>Worth knowing if you have...</Text>
+            {scopedNotes.map((note, index) => (
+              <View key={index} style={index > 0 ? styles.recipeConditionItemSpaced : undefined}>
+                <Text style={styles.recipeConditionCondition}>{note.condition}</Text>
+                <Text style={styles.recipeNutritionText}>{note.note}</Text>
+              </View>
+            ))}
+          </View>
+        );
+      })()}
 
       {card.flavorNotes ? (
         <>
@@ -5995,14 +6132,29 @@ const styles = StyleSheet.create({
   // matchTermPillTitle above, sitting right at the top of a recipe's own
   // detail view since "which diets this fits" is meant to be identifiable
   // at a glance, not buried under the ingredient list.
-  dietTagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 },
+  // 2026-08-25, direct report: "haphazardly placed there as if poured
+  // out onto the table instead of being aligned and orderly." alignItems
+  // 'flex-start' keeps a wrapped second row starting flush at the row's
+  // own left edge rather than stretching to match the tallest pill on
+  // the line above it, the real cause of the uneven look -- RecipeDietTagRow
+  // itself now also always re-sorts tags into one fixed, canonical order
+  // (see that component's own comment) before rendering, so the same
+  // recipe never shows its own pills in a different order than last time.
+  dietTagRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', gap: 6, marginBottom: 8 },
   dietTagPill: {
     backgroundColor: TAB_COLOR,
     borderRadius: 10,
     paddingVertical: 3,
     paddingHorizontal: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  dietTagPillText: { ...typography.caption, ...menuLabelShadow, color: colors.background, fontSize: 11, fontWeight: '700' },
+  // No menuLabelShadow here, direct report: "drop shadowed is fine only
+  // if the font is not already bolded" -- this text is already
+  // fontWeight '700' against a solid, opaque TAB_COLOR fill (not a photo
+  // background needing a shadow for contrast the way this app's other
+  // shadowed labels do), so bold alone already carries full legibility.
+  dietTagPillText: { ...typography.caption, color: colors.background, fontSize: 11, fontWeight: '700' },
   detailLabel: { ...typography.eyebrow, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
   detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19 },
   detailTextBold: { fontWeight: '700' },

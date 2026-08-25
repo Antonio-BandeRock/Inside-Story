@@ -110,7 +110,7 @@ export const PREVENTION_LIFESTYLE_ENTRIES: DigestEntry[] = [
       WHO_EXERCISE_CITATION,
     ],
     overallTier: 'strong',
-    relatedIds: ['celiac-cross-contamination', 'celiac-gf-diet-nutritional-pitfalls', 'celiac-bone-density'],
+    relatedIds: ['celiac-cross-contamination', 'celiac-gf-diet-nutritional-pitfalls', 'celiac-bone-density', 'diet-gluten-free'],
   },
   {
     id: 'prevention-ibd',

@@ -88,7 +88,82 @@ export const POPULAR_DIETS_ENTRIES: DigestEntry[] = [
       { source: 'Vitamin B12 and D status in long-term vegetarians: Impact of diet duration and subtypes, PMID 41565239', url: 'https://pubmed.ncbi.nlm.nih.gov/41565239/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['b12-overview', 'diet-plant-based-flexitarian'],
+    relatedIds: ['b12-overview', 'diet-plant-based-flexitarian', 'diet-vegetarian'],
+  },
+  {
+    // 2026-08-25, direct request: every diet-tag pill under a recipe's own
+    // "Build This Recipe" button needed a genuine tap destination ("they
+    // should link to an explanation about that diet type"). Five of the
+    // ten real RecipeDietTag values (lib/digest/types.ts) had no matching
+    // entry anywhere in this Digest before this pass: Vegetarian,
+    // Omnivore, Gluten-Free, Dairy-Free, Paleo. Each written fresh here,
+    // matching this category's own citation and evidence-tiering
+    // discipline, so every one of the ten tags has a real place to land,
+    // not five working links and five dead ends.
+    id: 'diet-vegetarian',
+    category: 'basicHealth',
+    title: 'Vegetarian: the Same Cardiovascular Signal, a Smaller Deficiency Risk Than Full Veganism',
+    teaser: "The same meta-analysis backing this category's vegan entry covers vegetarian eating too, and a direct comparison found lacto-ovo vegetarians far less likely to be B12 deficient than vegans in the same study.",
+    summary:
+      "Vegetarian eating, plant-based with dairy and eggs still included, carries much of the same cardiovascular evidence already covered in this category's vegan entry: the same systematic review and meta-analysis of prospective cohort studies found vegetarian and vegan diets both associated with reduced risk of ischemic heart disease specifically, with the overall cardiovascular disease and stroke picture reported honestly as less clear either way. Where vegetarian eating meaningfully diverges from full veganism: the same direct comparative study cited in the vegan entry found B12 deficiency in only 15.0% of lacto-ovo vegetarians, against 44.1% of vegans in the same study population, a nearly threefold gap explained by dairy and eggs remaining reliable B12 sources vegetarians still eat. The practical takeaway: vegetarian eating captures much of veganism's documented cardiovascular benefit while carrying a meaningfully smaller version of its best-documented nutrient risk. Iron and zinc are still worth watching, since the plant-source forms of both absorb less efficiently than the animal-source versions a vegetarian diet still cuts out.",
+    citations: [
+      { source: 'Vegetarian and vegan diets and the risk of cardiovascular disease, ischemic heart disease and stroke: a systematic review and meta-analysis, PMID 36030329', url: 'https://pubmed.ncbi.nlm.nih.gov/36030329/' },
+      { source: 'Vitamin B12 and D status in long-term vegetarians: Impact of diet duration and subtypes, PMID 41565239', url: 'https://pubmed.ncbi.nlm.nih.gov/41565239/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['diet-vegan', 'b12-overview'],
+  },
+  {
+    id: 'diet-omnivore',
+    category: 'basicHealth',
+    title: 'Omnivore: the Default Every Other Diet in This Category Gets Measured Against',
+    teaser: "Omnivorous eating isn't a clinical trial arm, it's the comparison group nearly every other diet here gets tested against, meaning its real-world outcome depends entirely on which foods actually make up the pattern.",
+    summary:
+      "Eating both plant and animal foods without a defined restriction, omnivorous eating, differs from every other entry in this category in one specific way: it's rarely the thing a randomized trial tests directly, it's the comparison group other diets (vegetarian, vegan, Mediterranean, keto) get measured against instead. That means omnivorous eating carries no single outcome by itself; its documented health effect depends entirely on which foods actually make up the pattern, not the category label. The most consistent finding that applies specifically within omnivorous eating: the International Agency for Research on Cancer classifies processed meat as a confirmed human carcinogen and red meat as a probable one, both tied to colorectal cancer risk, a food-specific finding an omnivorous diet is the only one in this category actually able to trigger, since every other entry here already limits or eliminates these foods outright. The throughline this category keeps returning to: an omnivorous diet built around whole foods, and the already-covered Mediterranean entry is itself one well-evidenced version of exactly that, captures much of the same benefit documented elsewhere here, while an omnivorous diet built around ultra-processed and processed-meat-heavy eating carries the specific risks this category's anti-processed-focus entry already covers.",
+    citations: [
+      { source: 'IARC Monographs evaluate consumption of red meat and processed meat, International Agency for Research on Cancer', url: 'https://www.iarc.who.int/wp-content/uploads/2018/07/pr240_E.pdf' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['diet-mediterranean', 'diet-anti-processed', 'diet-carnivore'],
+  },
+  {
+    id: 'diet-gluten-free',
+    category: 'basicHealth',
+    title: 'Gluten-Free Without a Diagnosis: No Measured Benefit, and a Documented Cost',
+    teaser: 'For celiac disease, gluten-free is the only treatment that works, already covered in full elsewhere in this Digest. For anyone without celiac disease or a diagnosed sensitivity, a systematic review found no proven benefit to cutting gluten at all.',
+    summary:
+      "Gluten-free eating splits cleanly into two different situations this category treats honestly as separate. For celiac disease, already covered in depth elsewhere in this Digest, strict, lifelong gluten avoidance is the only treatment that stops ongoing intestinal damage, not a lifestyle preference. For anyone without celiac disease or a physician-diagnosed gluten sensitivity, the evidence points a different direction: a systematic review and meta-analysis of re-challenge studies, deliberately reintroducing gluten under blinded conditions, found many people who believe they react to gluten specifically don't, once the test is actually controlled, a pattern consistent with a placebo or nocebo effect rather than an actual reaction to gluten itself. What going gluten-free without a medical reason actually costs, already established in this Digest's celiac research: commercial gluten-free products often run lower in protein and fiber and higher in sugar and price than their gluten-containing equivalents, an avoidable downside for anyone cutting gluten without a diagnosed reason to.",
+    citations: [
+      { source: 'Re-challenge Studies in Non-celiac Gluten Sensitivity: A Systematic Review and Meta-Analysis, PMID 28928668', url: 'https://pubmed.ncbi.nlm.nih.gov/28928668/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['prevention-celiac', 'diet-aip'],
+  },
+  {
+    id: 'diet-dairy-free',
+    category: 'basicHealth',
+    title: 'Dairy-Free: Usually Lactose Intolerance, Not an Allergy, With a Real Calcium Gap to Plan Around',
+    teaser: 'The federal NIDDK names lactose intolerance, a well-documented digestive condition, not a milk allergy, as the reason most people actually go dairy-free.',
+    summary:
+      "Most dairy-free eating traces back to lactose intolerance specifically, a well-documented digestive condition (the small intestine making too little lactase to fully digest lactose) rather than a milk protein allergy, a distinct, separate immune condition. The National Institute of Diabetes and Digestive and Kidney Diseases reports roughly 30 million American adults have some degree of lactose intolerance by age 20, with prevalence varying widely by ethnicity, notably higher among people of Asian, African, or Native American heritage. The same federal source names the practical concern directly: lactose intolerance can affect health specifically by crowding out calcium and vitamin D, both already covered in this Digest's Essential Nutrients research, once dairy gets cut without deliberately replacing what it was providing. The practical takeaway: dairy-free eating is a reasonable, often medically necessary response to a well-documented digestive condition, not a wellness trend to second-guess, but calcium, vitamin D, and B12, all three concentrated in dairy, are worth actively planning for through fortified alternatives or other food sources rather than assumed to take care of themselves.",
+    citations: [
+      { source: 'Lactose Intolerance, National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK)', url: 'https://www.niddk.nih.gov/health-information/digestive-diseases/lactose-intolerance' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['calcium-overview', 'vitamind-overview', 'b12-overview'],
+  },
+  {
+    id: 'diet-paleo',
+    category: 'basicHealth',
+    title: 'Paleo: Trial-Backed Cardiometabolic Gains, With an Honest Robustness Caveat',
+    teaser: "A meta-analysis of randomized trials found measurable weight, blood pressure, and cholesterol improvements on a Paleo diet, but the same researchers' sensitivity analysis found some of those effects weren't fully robust.",
+    summary:
+      "The Paleolithic diet, built around lean meat, fish, vegetables, fruit, and nuts while excluding grains, legumes, dairy, and added sugar or salt, has direct randomized-trial evidence behind it. A systematic review and meta-analysis of 8 randomized controlled trials found the diet produced measurable reductions in body weight, waist circumference, body fat percentage, and both systolic and diastolic blood pressure, alongside improved cholesterol markers and reduced inflammation as measured by C-reactive protein, compared against other diets used as controls. The honest complication, stated directly in the same research rather than glossed over: the study's sensitivity analysis found the effects on lipid profile, blood pressure, and C-reactive protein specifically weren't fully robust once individual trials were removed one at a time, a signal the overall picture is measurably positive but not yet as settled as the headline numbers alone suggest. A structural point worth planning around regardless of that debate: Paleo eliminates dairy and legumes entirely, the same two food groups this category's dairy-free and vegetarian entries already name as significant calcium, fiber, and protein sources, worth replacing deliberately rather than assumed unnecessary.",
+    citations: [
+      { source: 'Effects of a Paleolithic Diet on Cardiovascular Risk Factors: A Systematic Review and Meta-Analysis of Randomized Controlled Trials, PMID 32666106', url: 'https://pubmed.ncbi.nlm.nih.gov/32666106/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['diet-aip', 'diet-dairy-free', 'diet-vegetarian'],
   },
   {
     id: 'diet-plant-based-flexitarian',
@@ -126,7 +201,7 @@ export const POPULAR_DIETS_ENTRIES: DigestEntry[] = [
       { source: 'Controlled trial of fasting and one-year vegetarian diet in rheumatoid arthritis, The Lancet, 1991', url: 'https://www.thelancet.com/journals/lancet/article/PII0140-6736(91)91770-U/fulltext' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['healing-stage-map', 'ra-elimination-fasting', 'migraine-aip-elimination-diet-inflammation'],
+    relatedIds: ['healing-stage-map', 'ra-elimination-fasting', 'migraine-aip-elimination-diet-inflammation', 'diet-paleo'],
   },
   {
     id: 'diet-fibermaxxing',
