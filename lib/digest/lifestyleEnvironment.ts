@@ -123,7 +123,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     id: 'lifestyle-juice-advisory',
     category: 'basicHealth',
     title: 'Straight Fruit Juice: A Carefully-Qualified Set of Concerns',
-    teaser: 'Population-level risk is. The "guaranteed acute blood sugar spike" version of this claim is not.',
+    teaser: 'Population-level risk is supported by the data. The "guaranteed acute blood sugar spike" version of this claim is not.',
     summary:
       "Fruit juice occupies an odd space in nutrition advice, treated as healthy by some, as concentrated sugar by others. The research supports pieces of both views, in a more specific way than either side usually states. Three large prospective cohorts found daily juice intake tracks with up to 21% higher type 2 diabetes risk while whole fruit tracks with lower risk, but a 2025 randomized crossover trial in adults with type 2 diabetes found no difference in glucose/insulin response between orange juice and whole orange pieces at matched sugar content eaten with a meal, meaning portion size (juice makes it easier to drink more sugar at once) is likely the more consistent driver than a fundamentally different absorption curve every time. A separate, physiological chain: a glucose crash after a spike triggers cortisol, and cortisol suppresses the enzymes that activate thyroid hormone, a mechanism with specific relevance covered in more depth elsewhere in this Digest, though it hasn't been directly tested as one continuous chain starting from juice specifically. A carefully-qualified concern rather than a guaranteed acute effect every time a glass of juice is poured.",
     citations: [

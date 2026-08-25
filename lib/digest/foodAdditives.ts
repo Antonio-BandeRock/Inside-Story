@@ -304,7 +304,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
     id: 'additive-azodicarbonamide',
     category: 'basicHealth',
     title: 'Azodicarbonamide: Nicknamed "the Yoga Mat Chemical," and a Regulatory Gap, Not an Urban Legend',
-    teaser: 'The nickname sounds like exaggeration. The actual overlap between bread dough and yoga mats is.',
+    teaser: 'The nickname sounds like exaggeration. The same chemical serves as a dough conditioner in one and a foaming agent in the other.',
     summary:
       '"The yoga mat chemical" sounds like the kind of alarmist nickname that turns out to be an exaggeration on closer inspection. This one isn\'t. Azodicarbonamide is used both as a bleaching and dough-conditioning agent in bread and as a foaming agent in yoga mats and shoe soles, a true, if attention-grabbing, coincidence. It\'s banned in the EU, UK, and Australia. It breaks down during baking into semicarbazide, a compound animal studies link to tumor formation at high doses. U.S. Regulators haven\'t found the levels used in bread baking to pose a comparable risk, which is the crux of the international disagreement. Not a settled safety verdict in either direction, just two different regulatory judgment calls applied to the same chemistry.',
     citations: [

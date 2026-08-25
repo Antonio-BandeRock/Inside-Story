@@ -71,7 +71,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     id: 'problem-gluten-grains',
     category: 'hashimotos',
     foodName: 'Gluten-Containing Grains',
-    teaser: "The single most-cited elimination in Hashimoto's food advice, and the link to autoimmunity behind it is.",
+    teaser: "The single most-cited elimination in Hashimoto's food advice, and the link to autoimmunity behind it runs through a specific gut-lining mechanism, not just tradition.",
     problem:
       "Wheat, barley, and rye all contain gluten. A subset of people, not just those with celiac disease, react to it with gut symptoms, and in celiac disease specifically, the connection to autoimmune disease is well documented and shares biology with thyroid autoimmunity.",
     mechanism: "Gliadin, a piece of the gluten protein, can trigger your gut lining to release a substance called zonulin, which loosens the tight seals between your intestinal cells. That \"leakier\" gut lining is the same mechanism the gut-repair research keeps coming back to as a contributor to autoimmune risk in general, not something unique to celiac disease.",
