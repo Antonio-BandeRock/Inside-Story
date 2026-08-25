@@ -2916,6 +2916,20 @@ export default function PurpleDigestScreen() {
       .filter((group) => group.entries.length > 0);
   }, [entries, categorySearchMatchInfo, lens, basicHealthGroups, selectedTopicGroup, selectedBasicHealthSubgroup]);
   const categorySearchTotalMatches = categorySearchGroups.reduce((sum, group) => sum + group.entries.length, 0);
+  // 2026-08-25, direct bug report: a recipe found via category-scoped search
+  // (searching "salmon" from inside Hashimoto's, say) rendered through the
+  // BasicHealthShelves call below the search branch, which never computed or
+  // passed activeConditionCode/activeStageCode at all -- only the separate,
+  // non-search topic-drilldown branch further down did (see its own local
+  // const of the same name). conditionNoteAppliesTo defaults to "show
+  // everything" when activeConditionCode is undefined, exactly reproducing
+  // the cross-condition note leak this same screen was already fixed for
+  // once, just reachable through a second, un-fixed path. Hoisted here so
+  // both real BasicHealthShelves call sites (search results, and the
+  // ordinary drilled-in topic view) share one source of truth instead of
+  // one of them silently having none.
+  const activeConditionCode = DIGEST_KEY_TO_CONDITION_CODE[lens as DigestCategoryKey];
+  const activeStageCode = activeConditionCode ? declaredStages[activeConditionCode] : undefined;
   // Basic Health's own topic MENU rows, 2026-08-23, direct follow-up
   // request: folds every leaf group in basicHealthGroups back under its own
   // top-level topic (the part of a '::'-joined label before the first
@@ -3665,6 +3679,13 @@ export default function PurpleDigestScreen() {
                       // their own topic labels contain '::' for this to
                       // match against.
                       hideTopLevelLabel={selectedTopicGroup ?? undefined}
+                      // 2026-08-25: this call site never passed these before,
+                      // the real gap behind the "CKD note shows on a
+                      // Hashimoto's search result" bug report -- see the
+                      // hoisted activeConditionCode/activeStageCode comment
+                      // above for the full explanation.
+                      activeConditionCode={activeConditionCode}
+                      activeStageCode={activeStageCode}
                     />
                   </>
                 )
@@ -3805,7 +3826,8 @@ export default function PurpleDigestScreen() {
                 (() => {
                   const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries, declaredStages);
                   if (selectedTopicGroup !== null) {
-                    const activeConditionCode = DIGEST_KEY_TO_CONDITION_CODE[lens as DigestCategoryKey];
+                    // activeConditionCode/activeStageCode are the hoisted
+                    // consts above (search results share the same two).
                     return (
                       <BasicHealthShelves
                         // 2026-08-25: split(::)[0] rather than an exact
@@ -3825,7 +3847,7 @@ export default function PurpleDigestScreen() {
                         onDynamicEntriesChanged={refreshDynamicEntries}
                         hideTopLevelLabel={selectedTopicGroup}
                         activeConditionCode={activeConditionCode}
-                        activeStageCode={activeConditionCode ? declaredStages[activeConditionCode] : undefined}
+                        activeStageCode={activeStageCode}
                       />
                     );
                   }
