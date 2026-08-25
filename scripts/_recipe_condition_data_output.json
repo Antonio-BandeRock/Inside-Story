@@ -60,11 +60,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -103,11 +103,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -150,11 +150,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -193,11 +193,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -302,11 +302,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -411,7 +411,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -484,11 +484,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -930,11 +930,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -1033,11 +1033,11 @@
     "conditionCautions": {},
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -1075,11 +1075,11 @@
     "conditionCautions": {},
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -1147,11 +1147,11 @@
     "conditionCautions": {},
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -1343,11 +1343,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -1382,7 +1382,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -1452,7 +1452,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -1490,11 +1490,11 @@
     "conditionCautions": {},
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -1935,11 +1935,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -1982,7 +1982,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2025,15 +2025,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2111,11 +2111,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2154,11 +2154,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2201,11 +2201,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2244,11 +2244,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2287,15 +2287,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2342,11 +2342,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2420,11 +2420,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2463,11 +2463,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2506,11 +2506,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2549,15 +2549,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2600,15 +2600,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2651,11 +2651,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2694,15 +2694,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2749,15 +2749,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2800,15 +2800,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2855,11 +2855,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2898,15 +2898,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2949,11 +2949,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -2992,15 +2992,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3043,11 +3043,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3086,7 +3086,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3164,11 +3164,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3207,15 +3207,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3258,11 +3258,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3301,7 +3301,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3340,11 +3340,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3418,11 +3418,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3496,11 +3496,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3609,11 +3609,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3652,11 +3652,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3699,11 +3699,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3742,11 +3742,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3785,11 +3785,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3898,11 +3898,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -3941,11 +3941,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4081,11 +4081,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4128,11 +4128,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4175,11 +4175,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4214,11 +4214,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4331,11 +4331,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4370,11 +4370,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4448,11 +4448,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4495,11 +4495,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4534,11 +4534,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4608,11 +4608,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4651,11 +4651,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4694,11 +4694,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4737,11 +4737,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -4889,15 +4889,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5002,11 +5002,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5045,11 +5045,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5092,11 +5092,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5139,11 +5139,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5182,11 +5182,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5264,11 +5264,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5342,15 +5342,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5397,11 +5397,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5444,11 +5444,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5491,11 +5491,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5534,11 +5534,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5581,11 +5581,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5624,11 +5624,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5702,11 +5702,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5749,11 +5749,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5796,11 +5796,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5839,11 +5839,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5886,11 +5886,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -5964,11 +5964,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6011,11 +6011,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6124,11 +6124,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6171,11 +6171,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6218,11 +6218,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6265,11 +6265,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6312,11 +6312,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6359,11 +6359,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6406,11 +6406,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6449,11 +6449,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6496,11 +6496,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6543,11 +6543,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6590,11 +6590,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6637,11 +6637,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6680,11 +6680,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6727,11 +6727,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6809,11 +6809,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6852,11 +6852,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6899,11 +6899,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6946,11 +6946,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -6993,11 +6993,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7040,11 +7040,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7083,11 +7083,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7122,11 +7122,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7196,11 +7196,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7243,11 +7243,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7391,11 +7391,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7434,11 +7434,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7477,11 +7477,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7516,11 +7516,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7594,11 +7594,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7637,15 +7637,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7688,7 +7688,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7731,15 +7731,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7782,7 +7782,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -7930,7 +7930,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -8008,15 +8008,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -8129,7 +8129,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -8483,7 +8483,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -8522,11 +8522,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -8600,11 +8600,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -8643,11 +8643,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -8690,11 +8690,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9184,15 +9184,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9235,15 +9235,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9286,11 +9286,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9360,11 +9360,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9434,11 +9434,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9477,7 +9477,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9520,11 +9520,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9563,11 +9563,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9645,15 +9645,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9696,15 +9696,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9747,11 +9747,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9790,11 +9790,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9837,11 +9837,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -9985,11 +9985,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10063,11 +10063,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10110,11 +10110,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10153,11 +10153,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10196,11 +10196,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10243,11 +10243,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10321,11 +10321,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10434,11 +10434,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10477,11 +10477,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10621,11 +10621,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10668,11 +10668,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10715,11 +10715,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10797,11 +10797,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10840,11 +10840,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10883,11 +10883,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -10926,11 +10926,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11004,11 +11004,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11082,11 +11082,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11199,11 +11199,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11246,11 +11246,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11328,15 +11328,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11379,15 +11379,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11659,15 +11659,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11710,7 +11710,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11753,15 +11753,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11804,15 +11804,15 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11855,7 +11855,7 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Irritable Bowel Syndrome: Elimination Phase",
+        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
         "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11898,11 +11898,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
@@ -11941,11 +11941,11 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Digging (Removing Triggers)",
+        "condition": "Hashimoto's Disease: Stage 2: Digging",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Hashimoto's Disease: Gut Repair (Reintroduction)",
+        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {

@@ -438,20 +438,41 @@ function goutStageReasons(scores, stage) {
   ];
 }
 
+// 2026-08-24, direct correction: these stage labels were hand-typed
+// against a rough memory of each condition's own real stage names rather
+// than copied from the actual canonical source (lib/conditionStages.ts's
+// own CONDITION_STAGING_MODELS, and each stage's own real *_STAGE_INFO/
+// *_PHASE_INFO object), and 3 of the 6 drifted from what Profile's own
+// stage picker actually shows: Hashimoto's 'Digging (Removing Triggers)'
+// / 'Gut Repair (Reintroduction)' should have been 'Stage 2: Digging' /
+// 'Stage 3: Gut Repair' (lib/healingStage.ts), Gout's 'Acute Flare' /
+// 'Intercritical (Between Flares)' should have been 'Stage 2: Acute
+// Flare' / 'Stage 3: Intercritical (Between Flares)' (lib/goutStageAdvisory.ts),
+// and IBS's 'Elimination Phase' should have been 'Phase 1: Elimination'
+// (lib/ibsPhaseAdvisory.ts) -- found only once a real caller
+// (app/(tabs)/purple-digest.tsx's own stageNoteKeyFor, built against the
+// real canonical labels) needed the exact stored note.condition string
+// to match and silently didn't for these three. Corrected here to the
+// real, verified label text (confirmed via direct grep against each
+// source file, not re-guessed); the already-applied text in recipes.ts
+// itself was corrected separately, by a targeted string replace, not by
+// re-running this script's own apply step (see CLAUDE.md's own note on
+// why that step isn't safe to re-run). Celiac/IBD/CKD were already
+// correct, confirmed the same way.
 const STAGED_CONDITIONS = [
   {
     code: 'hashimotos',
     label: "Hashimoto's Disease",
     stages: [
-      { code: 'digging', label: 'Digging (Removing Triggers)' },
-      { code: 'gut_repair', label: 'Gut Repair (Reintroduction)' },
+      { code: 'digging', label: 'Stage 2: Digging' },
+      { code: 'gut_repair', label: 'Stage 3: Gut Repair' },
     ],
     reasonsFor: healingStageReasons,
   },
   {
     code: 'ibs',
     label: 'Irritable Bowel Syndrome',
-    stages: [{ code: 'elimination', label: 'Elimination Phase' }],
+    stages: [{ code: 'elimination', label: 'Phase 1: Elimination' }],
     reasonsFor: ibsPhaseReasons,
   },
   {
@@ -482,8 +503,8 @@ const STAGED_CONDITIONS = [
     code: 'gout',
     label: 'Gout',
     stages: [
-      { code: 'acute_flare', label: 'Acute Flare' },
-      { code: 'intercritical', label: 'Intercritical (Between Flares)' },
+      { code: 'acute_flare', label: 'Stage 2: Acute Flare' },
+      { code: 'intercritical', label: 'Stage 3: Intercritical (Between Flares)' },
     ],
     reasonsFor: goutStageReasons,
   },

@@ -27,8 +27,10 @@ import { menuLabelShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { CONDITION_CODE_TO_DIGEST_KEY, DIGEST_KEY_TO_CONDITION_CODE } from '../../lib/conditionCodeMap';
+import { CONDITION_STAGING_MODELS } from '../../lib/conditionStages';
 import {
   deleteFavorite,
+  getConditionStages,
   getCuratedRecipe,
   getDietPreferences,
   getUserConditions,
@@ -1230,6 +1232,55 @@ function recipesByConditionCode(): Map<string, { safe: AnyDigestEntry[]; caution
   return recipesByConditionCodeCache;
 }
 
+// 2026-08-24, direct follow-up: "Now factor in their declared healing
+// stage too." Builds the exact RecipeConditionNote.condition string a
+// stage-specific hit is stored under (see compute_recipe_condition_
+// data.js's own stageAdvisoryNotes -- `${conditionLabel}: ${stageLabel}`),
+// from the one real, canonical source for both halves
+// (CONDITION_STAGING_MODELS, lib/conditionStages.ts) rather than a second
+// hand-copied label table. Returns null for a condition with no real
+// staging model, or a stage code that model doesn't recognize -- either
+// way, nothing to look up, not an error.
+function stageNoteKeyFor(conditionCode: string, stageCode: string): string | null {
+  const model = CONDITION_STAGING_MODELS.find((m) => m.conditionCode === conditionCode);
+  const stage = model?.stages.find((s) => s.code === stageCode);
+  return model && stage ? `${model.conditionLabel}: ${stage.label}` : null;
+}
+
+// Whether this recipe carries a real, computed stage-specific advisory
+// note for exactly the condition/stage pair given -- reuses the note
+// entries already computed into recipeCard.conditionNotes by
+// compute_recipe_condition_data.js, not a second parallel check.
+function hasStageNote(entry: AnyDigestEntry, conditionCode: string, stageCode: string): boolean {
+  if (isProblemFoodEntry(entry) || !entry.recipeCard) return false;
+  const key = stageNoteKeyFor(conditionCode, stageCode);
+  return key !== null && entry.recipeCard.conditionNotes.some((note) => note.condition === key);
+}
+
+// The one caution actually shown in a recipe's own "A note for this
+// condition" box once opened from a specific condition's own page --
+// 2026-08-24 direct follow-up: prefers a real, computed stage-specific
+// note (richer, tied to exactly the person's own currently-declared
+// stage) over the plain per-condition caution, falling back to the plain
+// one whenever no stage is declared, the condition has no real staging
+// model, or this particular recipe has no stage-specific hit even though
+// it does have a generic one. Returns undefined outright when there's no
+// active condition context at all (plain Recipes browsing, or any
+// non-recipe entry).
+function resolveActiveConditionCaution(
+  entry: AnyDigestEntry,
+  activeConditionCode?: string,
+  activeStageCode?: string,
+): string | undefined {
+  if (!activeConditionCode || isProblemFoodEntry(entry) || !entry.recipeCard) return undefined;
+  if (activeStageCode) {
+    const stageKey = stageNoteKeyFor(activeConditionCode, activeStageCode);
+    const stageNote = stageKey ? entry.recipeCard.conditionNotes.find((note) => note.condition === stageKey) : undefined;
+    if (stageNote) return stageNote.note;
+  }
+  return entry.recipeCard.conditionCautions?.[activeConditionCode];
+}
+
 // The real, full "Meals You Can Eat" list for a condition: every recipe
 // with real per-condition data, genuinely clean ones first (so the
 // least-cautioned options still lead), then every flagged recipe, each
@@ -1237,15 +1288,34 @@ function recipesByConditionCode(): Map<string, { safe: AnyDigestEntry[]; caution
 // the activeConditionCode prop threaded through BasicHealthShelves/
 // DigestCard/RecipeCardDetail, which surfaces the right one once a
 // recipe is opened from this specific condition's own page).
-function mealsYouCanEatForCondition(conditionCode: string): AnyDigestEntry[] {
+//
+// 2026-08-24, direct follow-up: declaredStageCode (the person's own
+// Profile-declared stage for this condition, when they have one) further
+// splits the flagged/cautioned group in two -- flagged recipes with no
+// real advisory hit for their CURRENT stage specifically still lead over
+// ones that do, so "further along, less currently relevant" concerns sort
+// behind "worth a look right now" ones. A recipe already can't be both
+// genuinely clean AND carry a stage note (every stage-advisory check is
+// itself one of that condition's own relevant sub-criteria, so tripping
+// one always trips the generic flag too, confirmed by reading both rule
+// sets side by side) -- this split only ever matters within the flagged
+// group, never against the clean one. No declared stage (the common
+// case, and every non-staged condition) leaves the flagged group in its
+// original single, alphabetical order.
+function mealsYouCanEatForCondition(conditionCode: string, declaredStageCode?: string): AnyDigestEntry[] {
   const bucket = recipesByConditionCode().get(conditionCode);
   if (!bucket) return [];
-  return [...sortDigestEntriesLogically(bucket.safe), ...sortDigestEntriesLogically(bucket.cautioned)];
+  const clean = sortDigestEntriesLogically(bucket.safe);
+  if (!declaredStageCode) return [...clean, ...sortDigestEntriesLogically(bucket.cautioned)];
+  const lessUrgent = bucket.cautioned.filter((entry) => !hasStageNote(entry, conditionCode, declaredStageCode));
+  const stageFlagged = bucket.cautioned.filter((entry) => hasStageNote(entry, conditionCode, declaredStageCode));
+  return [...clean, ...sortDigestEntriesLogically(lessUrgent), ...sortDigestEntriesLogically(stageFlagged)];
 }
 
 function groupConditionEntries(
   entries: AnyDigestEntry[],
   conditionCode?: string,
+  declaredStageCode?: string,
 ): {
   topics: { label: string; entries: AnyDigestEntry[] }[];
   tyingTogether: AnyDigestEntry | null;
@@ -1259,7 +1329,7 @@ function groupConditionEntries(
     buckets.get(topic)!.push(entry);
   }
   if (conditionCode) {
-    const mealsYouCanEat = mealsYouCanEatForCondition(conditionCode);
+    const mealsYouCanEat = mealsYouCanEatForCondition(conditionCode, declaredStageCode);
     // Pre-sorted (clean-first, then cautioned) by mealsYouCanEatForCondition
     // itself -- left as-is below, the same way this bucket's own order was
     // already exempted from the generic re-sort before this change.
@@ -1757,6 +1827,11 @@ function classifyTopicForCategory(entry: AnyDigestEntry, category: DigestCategor
 function groupEntriesForLens(
   category: DigestCategoryKey,
   entries: AnyDigestEntry[],
+  // 2026-08-24, direct follow-up: "Now factor in their declared healing
+  // stage too." A plain conditionCode -> stageCode map (getConditionStages'
+  // own real shape), read once by the caller and passed straight through --
+  // only groupConditionEntries below has any use for it.
+  declaredStages?: Record<string, string>,
 ): {
   topics: { label: string; entries: AnyDigestEntry[] }[];
   tyingTogether: AnyDigestEntry | null;
@@ -1765,7 +1840,8 @@ function groupEntriesForLens(
   if (category === 'homeGardening') return groupHomeGardeningEntries(entries);
   if (category === 'recipes') return groupRecipesEntries(entries);
   if (category === 'myKitchen' || category === 'myFavorites') return groupDynamicEntries(entries);
-  return groupConditionEntries(entries, DIGEST_KEY_TO_CONDITION_CODE[category]);
+  const conditionCode = DIGEST_KEY_TO_CONDITION_CODE[category];
+  return groupConditionEntries(entries, conditionCode, conditionCode ? declaredStages?.[conditionCode] : undefined);
 }
 
 // A fixed, internal-only ref key for a condition's own standalone "tying
@@ -1979,6 +2055,31 @@ export default function PurpleDigestScreen() {
           // Best-effort only -- a failure here just means the filter falls
           // back to its own original "All Diets" default, never a broken
           // screen.
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
+  // 2026-08-24, direct follow-up to "Meals You Can Eat": "Now factor in
+  // their declared healing stage too." Same refetch-on-focus pattern as
+  // userConditionCodes/dietPreferences just above, so a stage change made
+  // on Profile shows up here without an app restart. A plain conditionCode
+  // -> stageCode map (getConditionStages' own real shape); passed straight
+  // through to groupEntriesForLens, which only reads the one key relevant
+  // to whichever condition's own page is currently open.
+  const [declaredStages, setDeclaredStages] = useState<Record<string, string>>({});
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      getConditionStages()
+        .then((stages) => {
+          if (!cancelled) setDeclaredStages(stages);
+        })
+        .catch(() => {
+          // Best-effort only -- a failure here just means "Meals You Can
+          // Eat" falls back to its own original, stage-agnostic sort,
+          // never a broken screen.
         });
       return () => {
         cancelled = true;
@@ -3540,8 +3641,9 @@ export default function PurpleDigestScreen() {
                 // (selectedTopicGroup null) before scrolling to it if
                 // something was drilled in when a Related chip pointed here.
                 (() => {
-                  const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries);
+                  const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries, declaredStages);
                   if (selectedTopicGroup !== null) {
+                    const activeConditionCode = DIGEST_KEY_TO_CONDITION_CODE[lens as DigestCategoryKey];
                     return (
                       <BasicHealthShelves
                         groups={topics.filter((topic) => topic.label === selectedTopicGroup)}
@@ -3551,7 +3653,8 @@ export default function PurpleDigestScreen() {
                         onJumpToRelated={jumpToRelated}
                         onDynamicEntriesChanged={refreshDynamicEntries}
                         hideTopLevelLabel={selectedTopicGroup}
-                        activeConditionCode={DIGEST_KEY_TO_CONDITION_CODE[lens as DigestCategoryKey]}
+                        activeConditionCode={activeConditionCode}
+                        activeStageCode={activeConditionCode ? declaredStages[activeConditionCode] : undefined}
                       />
                     );
                   }
@@ -4190,6 +4293,7 @@ function BasicHealthShelves({
   onDynamicEntriesChanged,
   hideTopLevelLabel,
   activeConditionCode,
+  activeStageCode,
 }: {
   groups: { label: string; entries: AnyDigestEntry[] }[];
   expandedId: string | null;
@@ -4227,6 +4331,14 @@ function BasicHealthShelves({
   // caller), harmless everywhere else since RecipeCardDetail only reads
   // a caution when both this and the card's own conditionCautions agree.
   activeConditionCode?: string;
+  // 2026-08-24, direct follow-up: "Now factor in their declared healing
+  // stage too." The person's own Profile-declared stage code for
+  // activeConditionCode, when that condition has a real staging model and
+  // they've actually declared one -- undefined otherwise, in which case
+  // DigestCard falls back to the plain, stage-agnostic caution exactly as
+  // before. See stageNoteKeyFor's own comment for how this resolves to an
+  // actual note.
+  activeStageCode?: string;
 }) {
   // 2026-08-21, a real, repeatedly-reported bug: "the title box was
   // scrolled way to the right of the data card that is supposed to be
@@ -4348,6 +4460,7 @@ function BasicHealthShelves({
                   onJumpToRelated={onJumpToRelated}
                   onDynamicEntriesChanged={onDynamicEntriesChanged}
                   activeConditionCode={activeConditionCode}
+                  activeStageCode={activeStageCode}
                 />
               </Animated.View>
             ) : null}
@@ -4645,6 +4758,7 @@ function DigestCard({
   onJumpToRelated,
   onDynamicEntriesChanged,
   activeConditionCode,
+  activeStageCode,
 }: {
   entry: AnyDigestEntry;
   expanded: boolean;
@@ -4655,6 +4769,8 @@ function DigestCard({
   onDynamicEntriesChanged?: () => void;
   // 2026-08-24, see BasicHealthShelves' own comment on the identical prop.
   activeConditionCode?: string;
+  // 2026-08-24, see BasicHealthShelves' own comment on the identical prop.
+  activeStageCode?: string;
 }) {
   const router = useRouter();
   if (isProblemFoodEntry(entry)) {
@@ -4721,9 +4837,7 @@ function DigestCard({
           {entry.recipeCard ? (
             <RecipeCardDetail
               card={entry.recipeCard}
-              activeConditionCaution={
-                activeConditionCode ? entry.recipeCard.conditionCautions?.[activeConditionCode] : undefined
-              }
+              activeConditionCaution={resolveActiveConditionCaution(entry, activeConditionCode, activeStageCode)}
             />
           ) : null}
           <EntryPhotoSection entry={entry} tabColor={TAB_COLOR} />
