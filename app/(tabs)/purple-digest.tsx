@@ -1875,6 +1875,57 @@ function orderCautionTier(entries: AnyDigestEntry[], conditionCode: string, decl
   return [...sortDigestEntriesLogically(lessUrgent), ...sortDigestEntriesLogically(stageFlagged)];
 }
 
+// 2026-08-25, direct request: "if I select vegan from Profile, and I
+// select that my condition is Hashimoto's, and then I go into Digest >
+// Hashimoto's Disease > Meals You Can Eat, I should only see recipes
+// that comply with both vegan and Hashimoto's. The same applies for
+// every other dietary preference and condition." "Meals You Can Eat"
+// already silently applies a declared healing stage (see
+// declaredStageCode below); it never applied a declared diet preference
+// at all, despite RecipeCard.dietTags already existing for every one of
+// the 300 curated recipes and Profile's own "Diet Preferences" card
+// already collecting exactly this.
+//
+// The base tier (Vegan/Vegetarian/Omnivore) is the one place in the real
+// RecipeDietTag vocabulary with an actual implied-looser-tag
+// relationship (compute_recipe_diet_tags.js's own header comment: "vegan
+// implying vegetarian-safe so only the strictest applies" -- a recipe
+// gets exactly one of the three, never more than one). A person who
+// declared Vegetarian can still eat a Vegan-tagged recipe (it never
+// contains meat, dairy, or eggs either), so a plain equality check would
+// wrongly hide it; a person who declared Omnivore has no real
+// restriction on this axis at all and should see every recipe regardless
+// of which of the three it happens to carry. BASE_DIET_TIER_RANK encodes
+// that real ordering (0 = most restrictive) so a recipe qualifies
+// whenever its own base tag is at least as restrictive as the declared
+// preference. Every other tag (Mediterranean, Gluten-Free, Paleo, AIP,
+// and so on) is computed independently with no implied looser tag, a
+// direct match is correct there.
+const BASE_DIET_TIER_RANK: Partial<Record<RecipeDietTag, number>> = { Vegan: 0, Vegetarian: 1, Omnivore: 2 };
+
+function recipeMatchesDietPreference(dietTags: RecipeDietTag[] | undefined, preference: RecipeDietTag): boolean {
+  const preferenceRank = BASE_DIET_TIER_RANK[preference];
+  if (preferenceRank !== undefined) {
+    const recipeBaseTag = dietTags?.find((tag) => BASE_DIET_TIER_RANK[tag] !== undefined);
+    // No base tag at all shouldn't happen (every curated recipe gets
+    // exactly one), but fails closed rather than silently passing.
+    if (recipeBaseTag === undefined) return false;
+    return BASE_DIET_TIER_RANK[recipeBaseTag]! <= preferenceRank;
+  }
+  return dietTags?.includes(preference) ?? false;
+}
+
+// A recipe is only actually eatable under EVERY declared preference at
+// once (AND, not OR) -- someone who is both vegan and dairy-free needs
+// both satisfied, not either one. An empty preference list is a no-op
+// (matches everything), the same "absence means no restriction" contract
+// the rest of this app's own preference systems already follow.
+function recipeMatchesAllDietPreferences(entry: AnyDigestEntry, dietPreferences: RecipeDietTag[]): boolean {
+  if (dietPreferences.length === 0) return true;
+  if (isProblemFoodEntry(entry) || !entry.recipeCard) return false;
+  return dietPreferences.every((preference) => recipeMatchesDietPreference(entry.recipeCard!.dietTags, preference));
+}
+
 // The real, full "Meals You Can Eat" list for a condition: every recipe
 // with real per-condition data, genuinely clean ones first (so the
 // least-cautioned options still lead), then every yellow-severity
@@ -1897,13 +1948,20 @@ function orderCautionTier(entries: AnyDigestEntry[], conditionCode: string, decl
 // the generic flag too, confirmed by reading both rule sets side by
 // side) -- this ordering only ever matters within the yellow/red tiers,
 // never against the clean one.
-function mealsYouCanEatForCondition(conditionCode: string, declaredStageCode?: string): AnyDigestEntry[] {
+//
+// 2026-08-25, direct follow-up: dietPreferences (Profile's own "Diet
+// Preferences" card) filters all three tiers down to only what's
+// actually eatable under every declared preference at once, applied
+// before sorting so the tier ordering above is computed against the
+// same, already-narrowed set a person will actually see.
+function mealsYouCanEatForCondition(conditionCode: string, declaredStageCode?: string, dietPreferences: RecipeDietTag[] = []): AnyDigestEntry[] {
   const bucket = recipesByConditionCode().get(conditionCode);
   if (!bucket) return [];
+  const matchesDiet = (entry: AnyDigestEntry) => recipeMatchesAllDietPreferences(entry, dietPreferences);
   return [
-    ...sortDigestEntriesLogically(bucket.safe),
-    ...orderCautionTier(bucket.yellow, conditionCode, declaredStageCode),
-    ...orderCautionTier(bucket.red, conditionCode, declaredStageCode),
+    ...sortDigestEntriesLogically(bucket.safe.filter(matchesDiet)),
+    ...orderCautionTier(bucket.yellow.filter(matchesDiet), conditionCode, declaredStageCode),
+    ...orderCautionTier(bucket.red.filter(matchesDiet), conditionCode, declaredStageCode),
   ];
 }
 
@@ -1911,6 +1969,7 @@ function groupConditionEntries(
   entries: AnyDigestEntry[],
   conditionCode?: string,
   declaredStageCode?: string,
+  dietPreferences: RecipeDietTag[] = [],
 ): {
   topics: { label: string; entries: AnyDigestEntry[] }[];
   tyingTogether: AnyDigestEntry | null;
@@ -1938,7 +1997,7 @@ function groupConditionEntries(
   // re-sorted.
   const mealsYouCanEatSubTopics: { label: string; entries: AnyDigestEntry[] }[] = [];
   if (conditionCode) {
-    const mealsYouCanEat = mealsYouCanEatForCondition(conditionCode, declaredStageCode);
+    const mealsYouCanEat = mealsYouCanEatForCondition(conditionCode, declaredStageCode, dietPreferences);
     const byBuilderType = new Map<RecipeTopic, AnyDigestEntry[]>();
     for (const entry of mealsYouCanEat) {
       const subTopic = classifyRecipesTopic(entry);
@@ -2457,6 +2516,12 @@ function groupEntriesForLens(
   // own real shape), read once by the caller and passed straight through --
   // only groupConditionEntries below has any use for it.
   declaredStages?: Record<string, string>,
+  // 2026-08-25, direct follow-up: "Meals You Can Eat should only show
+  // recipes that comply with both [the declared diet] and [the
+  // condition]." Same pass-through shape as declaredStages -- only
+  // groupConditionEntries's own "Meals You Can Eat" sub-shelf has any use
+  // for it.
+  dietPreferences?: RecipeDietTag[],
 ): {
   topics: { label: string; entries: AnyDigestEntry[] }[];
   tyingTogether: AnyDigestEntry | null;
@@ -2466,7 +2531,7 @@ function groupEntriesForLens(
   if (category === 'recipes') return groupRecipesEntries(entries);
   if (category === 'myKitchen' || category === 'myFavorites') return groupDynamicEntries(entries);
   const conditionCode = DIGEST_KEY_TO_CONDITION_CODE[category];
-  return groupConditionEntries(entries, conditionCode, conditionCode ? declaredStages?.[conditionCode] : undefined);
+  return groupConditionEntries(entries, conditionCode, conditionCode ? declaredStages?.[conditionCode] : undefined, dietPreferences);
 }
 
 // A fixed, internal-only ref key for a condition's own standalone "tying
@@ -3355,7 +3420,7 @@ export default function PurpleDigestScreen() {
       }
       return scoped;
     }
-    const { topics } = groupEntriesForLens(lens as DigestCategoryKey, entries);
+    const { topics } = groupEntriesForLens(lens as DigestCategoryKey, entries, undefined, dietPreferences);
     // 2026-08-25: split(::)[0] rather than an exact match, matching
     // BasicHealthShelves' own drill-in filter -- "Meals You Can Eat" now
     // resolves to several '::'-joined sub-topics of its own (see
@@ -3367,7 +3432,7 @@ export default function PurpleDigestScreen() {
     // are" scope every other topic already gets.
     const matching = topics.filter((topic) => topic.label.split('::')[0] === selectedTopicGroup);
     return matching.length > 0 ? matching.flatMap((topic) => topic.entries) : entries;
-  }, [entries, lens, selectedTopicGroup, selectedBasicHealthSubgroup, basicHealthGroups]);
+  }, [entries, lens, selectedTopicGroup, selectedBasicHealthSubgroup, basicHealthGroups, dietPreferences]);
   // 2026-08-09, keyed by id to a real SearchMatchInfo now, not just a plain
   // Set -- the same "which terms actually matched, title or just body"
   // detail Search All's own results already carry, threaded through to
@@ -3393,7 +3458,7 @@ export default function PurpleDigestScreen() {
                 : group.label.split('::')[0] === selectedTopicGroup,
             )
         : (() => {
-            const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries);
+            const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries, undefined, dietPreferences);
             const allTopics = tyingTogether ? [...topics, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }] : topics;
             // 2026-08-25: split(::)[0] rather than an exact match, same
             // reasoning as categorySearchScopeEntries above -- keeps every
@@ -3409,7 +3474,7 @@ export default function PurpleDigestScreen() {
         entries: group.entries.filter((entry) => categorySearchMatchInfo.has(entry.id)),
       }))
       .filter((group) => group.entries.length > 0);
-  }, [entries, categorySearchMatchInfo, lens, basicHealthGroups, selectedTopicGroup, selectedBasicHealthSubgroup]);
+  }, [entries, categorySearchMatchInfo, lens, basicHealthGroups, selectedTopicGroup, selectedBasicHealthSubgroup, dietPreferences]);
   const categorySearchTotalMatches = categorySearchGroups.reduce((sum, group) => sum + group.entries.length, 0);
   // 2026-08-25, direct bug report: a recipe found via category-scoped search
   // (searching "salmon" from inside Hashimoto's, say) rendered through the
@@ -4319,7 +4384,7 @@ export default function PurpleDigestScreen() {
                 // (selectedTopicGroup null) before scrolling to it if
                 // something was drilled in when a Related chip pointed here.
                 (() => {
-                  const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries, declaredStages);
+                  const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries, declaredStages, dietPreferences);
                   if (selectedTopicGroup !== null) {
                     // activeConditionCode/activeStageCode are the hoisted
                     // consts above (search results share the same two).
