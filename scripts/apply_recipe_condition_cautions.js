@@ -78,10 +78,21 @@ for (let i = 0; i < lines.length; i++) {
 
   const safeForMatch = line.match(safeForLineRe);
   if (safeForMatch && pendingId) {
-    out.push(line);
     const data = dataById[pendingId];
     if (!data) throw new Error(`No computed condition data for recipe id "${pendingId}" (line ${i + 1})`);
     const indent = safeForMatch[1];
+    // 2026-08-25: rewrite this line from fresh data too, not just pass
+    // the old one through -- a real bug caught before shipping. This
+    // script's first version assumed safeForConditions never changes
+    // once written, true when it only ever added conditionCautions
+    // alongside an unchanged safeForConditions. That stopped being true
+    // once the same compute pass started also correcting
+    // safeForConditions itself (real per-recipe prep-method overrides,
+    // and absolute exclusions moving a recipe out of safeForConditions
+    // entirely) -- passing the old line through unchanged would have
+    // silently kept every one of those fixes out of recipes.ts.
+    const safeList = data.safeForConditions.map((c) => `'${c}'`).join(', ');
+    out.push(`${indent}safeForConditions: [${safeList}],`);
 
     // Look ahead: is a conditionCautions field already present right
     // after this line (from a prior run of this script)? If so, replace

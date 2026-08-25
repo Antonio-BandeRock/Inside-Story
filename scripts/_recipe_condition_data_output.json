@@ -73,10 +73,6 @@
         "severity": "red",
         "note": "Whole-Grain Wheat Flour: rated High Risk for gluten. A significant, well-documented concern."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Whole-Grain Wheat Flour: rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Whole-Grain Wheat Flour: rated High Risk for gluten. A significant, well-documented concern."
@@ -196,10 +192,6 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
@@ -262,10 +254,6 @@
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "celiac": {
-        "severity": "red",
-        "note": "Whole-Grain Wheat Flour: rated High Risk for gluten. A significant, well-documented concern."
       },
       "psoriasis": {
         "severity": "red",
@@ -1502,6 +1490,7 @@
       "fatty_liver_disease",
       "gout",
       "graves",
+      "hashimotos",
       "ibd",
       "ibs",
       "lupus",
@@ -1515,21 +1504,8 @@
       "type_1_diabetes",
       "type_2_diabetes"
     ],
-    "conditionCautions": {
-      "hashimotos": {
-        "severity": "red",
-        "note": "Cabbage: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
-      }
-    },
+    "conditionCautions": {},
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -2167,10 +2143,6 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
@@ -2214,10 +2186,13 @@
   "curated_handheld_black_bean_sweet_potato_tacos": {
     "safeForConditions": [
       "cardiovascular_disease",
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "lupus",
       "migraine",
       "multiple_sclerosis",
@@ -2232,34 +2207,10 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Black Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
-      },
-      "celiac": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
+        "note": "Sweet potato: rated High for oxalate level. A meaningfully high level for this measure."
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -2272,6 +2223,8 @@
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -2291,17 +2244,9 @@
         "severity": "yellow",
         "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -2314,10 +2259,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -2330,16 +2271,8 @@
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
         "note": "Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
@@ -2494,10 +2427,6 @@
         "severity": "red",
         "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
@@ -2515,10 +2444,6 @@
       {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
         "note": "Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -3047,10 +2972,13 @@
   },
   "curated_salad_kidney_bean_roasted_vegetable_salad": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -3059,8 +2987,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Kidney Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "severity": "yellow",
+        "note": "Kidney Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -3070,17 +2998,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "Kidney Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "Kidney Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -3093,10 +3013,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "Kidney Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -3107,18 +3023,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -3358,10 +3262,13 @@
   },
   "curated_salad_pinto_bean_roasted_vegetable_bowl": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -3370,8 +3277,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Pinto Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "severity": "yellow",
+        "note": "Pinto Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -3381,17 +3288,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "Pinto Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "Pinto Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -3404,10 +3303,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "Pinto Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -3420,18 +3315,6 @@
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       }
@@ -3439,10 +3322,13 @@
   },
   "curated_salad_roasted_artichoke_white_bean_salad": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -3451,8 +3337,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "severity": "yellow",
+        "note": "Artichoke: rated Disruptive for fermentability. This may work against or interfere with the process being measured."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -3462,17 +3348,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -3485,10 +3363,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -3501,20 +3375,8 @@
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
         "note": "Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -3727,10 +3589,13 @@
   },
   "curated_salad_southwest_quinoa_black_bean": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -3740,7 +3605,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Black Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Cumin (cummin) seed, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -3750,17 +3615,9 @@
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -3773,10 +3630,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -3787,14 +3640,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
@@ -3832,10 +3677,6 @@
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "celiac": {
-        "severity": "red",
-        "note": "Spelt Grains: rated High Risk for gluten. A significant, well-documented concern."
       },
       "psoriasis": {
         "severity": "red",
@@ -4062,10 +3903,13 @@
   },
   "curated_salad_tuna_white_bean_salad": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -4075,7 +3919,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -4085,17 +3929,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -4108,10 +3944,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -4122,14 +3954,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
@@ -4388,7 +4212,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Brussels sprout: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "note": "Sweet potato: rated High for oxalate level. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -4416,14 +4240,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -4757,10 +4573,6 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
@@ -4883,7 +4695,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Turnip: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "note": "Fresh Thyme: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -4911,14 +4723,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -4946,8 +4750,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Kohlrabi: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "severity": "yellow",
+        "note": "Onion: rated Disruptive for fermentability. This may work against or interfere with the process being measured."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -4975,14 +4779,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -5186,8 +4982,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Kohlrabi: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -5215,14 +5011,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -5251,7 +5039,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chickpeas (garbanzo beans, bengal gram): rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -5279,10 +5067,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -5420,10 +5204,6 @@
         "severity": "yellow",
         "note": "Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
@@ -5491,10 +5271,6 @@
         "severity": "yellow",
         "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
@@ -5552,8 +5328,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Cauliflower: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "severity": "yellow",
+        "note": "Cauliflower: rated Disruptive for fermentability. This may work against or interfere with the process being measured."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -5581,14 +5357,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -5621,10 +5389,6 @@
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
       "psoriasis": {
         "severity": "red",
@@ -5985,10 +5749,6 @@
         "severity": "yellow",
         "note": "Couscous (durum wheat): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Couscous (durum wheat): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Couscous (durum wheat): rated High Risk for gluten. A significant, well-documented concern."
@@ -6046,8 +5806,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Broccoli: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -6077,11 +5837,11 @@
     "stageAdvisoryNotes": [
       {
         "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -6222,8 +5982,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Brussels sprout: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "severity": "yellow",
+        "note": "Pork Chop (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -6251,14 +6011,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -6286,8 +6038,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Radish: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -6315,14 +6067,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -6350,8 +6094,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Turnip: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -6379,14 +6123,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -6414,7 +6150,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Broccoli: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
       "rheumatoid_arthritis": {
         "severity": "red",
@@ -6423,10 +6159,6 @@
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
       "psoriasis": {
         "severity": "red",
@@ -6448,11 +6180,11 @@
     "stageAdvisoryNotes": [
       {
         "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
@@ -6638,10 +6370,13 @@
   },
   "curated_side_sardine_white_bean_bowl": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -6651,7 +6386,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Parsley Spices: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -6661,17 +6396,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -6684,10 +6411,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -6698,14 +6421,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
@@ -6848,10 +6563,6 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
@@ -6905,7 +6616,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Bok choy: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
       "rheumatoid_arthritis": {
         "severity": "red",
@@ -6914,10 +6625,6 @@
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
       "psoriasis": {
         "severity": "red",
@@ -6939,11 +6646,11 @@
     "stageAdvisoryNotes": [
       {
         "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
@@ -6985,10 +6692,6 @@
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
       "psoriasis": {
         "severity": "red",
@@ -7047,8 +6750,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Radish: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -7076,14 +6779,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -7236,7 +6931,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Turnip: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "note": "Rosemary: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -7264,14 +6959,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -7340,10 +7027,13 @@
   },
   "curated_side_white_bean_roasted_vegetable_bowl": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -7353,7 +7043,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Oregano: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -7363,17 +7053,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -7386,10 +7068,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -7402,20 +7080,8 @@
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
         "note": "Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -9546,7 +9212,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chickpeas (garbanzo beans, bengal gram): rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Paprika: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -9581,10 +9247,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -10182,14 +9844,6 @@
     },
     "stageAdvisoryNotes": [
       {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
@@ -10445,10 +10099,13 @@
   },
   "curated_soup_turkey_black_bean_chili": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -10458,7 +10115,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Black Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Cumin (cummin) seed, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -10468,17 +10125,9 @@
         "severity": "yellow",
         "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -10491,10 +10140,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -10505,14 +10150,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
@@ -10526,10 +10163,13 @@
   },
   "curated_soup_turkey_white_bean_soup": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -10538,8 +10178,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "severity": "yellow",
+        "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -10549,17 +10189,9 @@
         "severity": "yellow",
         "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -10572,21 +10204,9 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -10599,10 +10219,13 @@
   },
   "curated_soup_white_bean_kale_soup": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -10611,8 +10234,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "severity": "yellow",
+        "note": "White Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -10622,17 +10245,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -10645,33 +10260,9 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -10680,10 +10271,13 @@
   },
   "curated_soup_white_bean_swiss_chard_soup": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -10693,7 +10287,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Swiss Chard: rated Very High for oxalate level. The highest tier used for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -10703,17 +10297,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -10726,25 +10312,9 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -10986,6 +10556,8 @@
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "lupus",
       "migraine",
       "multiple_sclerosis",
@@ -11007,21 +10579,9 @@
         "severity": "yellow",
         "note": "Yeast flakes/nutritional yeast: rated Use Carefully for zinc. This may need portion awareness or a doctor’s guidance."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -11034,16 +10594,8 @@
         "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
         "note": "Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
@@ -11717,8 +11269,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Chickpeas (garbanzo beans, bengal gram): rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "severity": "yellow",
+        "note": "Chickpeas (garbanzo beans, bengal gram): rated Mild Risk for lectins (legumes). A modest, generally minor concern."
       }
     },
     "stageAdvisoryNotes": [
@@ -11729,10 +11281,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -11764,14 +11312,10 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chickpeas (garbanzo beans, bengal gram): rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -11850,10 +11394,6 @@
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "celiac": {
-        "severity": "red",
-        "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
       },
       "psoriasis": {
         "severity": "red",
@@ -12670,10 +12210,13 @@
   },
   "curated_vegan_salad_chickpea_white_bean_salad": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -12683,7 +12226,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chickpeas (garbanzo beans, bengal gram): rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -12693,17 +12236,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -12716,10 +12251,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -12730,18 +12261,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -12999,7 +12518,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chickpeas (garbanzo beans, bengal gram): rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Tofu: rated High Risk for soy. A significant, well-documented concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -13047,10 +12566,13 @@
   },
   "curated_vegan_salad_roasted_artichoke_white_bean_tofu": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -13060,7 +12582,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Tofu: rated High Risk for soy. A significant, well-documented concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -13070,17 +12592,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -13093,21 +12607,9 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -13209,10 +12711,6 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Spelt Grains: rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Spelt Grains: rated High Risk for gluten. A significant, well-documented concern."
@@ -13311,10 +12809,13 @@
   },
   "curated_vegan_salad_white_bean_artichoke_salad": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -13324,7 +12825,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -13334,17 +12835,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -13357,10 +12850,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -13371,18 +12860,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -13392,10 +12869,13 @@
   },
   "curated_vegan_salad_white_bean_roasted_pepper_salad": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -13405,7 +12885,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -13415,17 +12895,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -13438,10 +12910,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -13452,18 +12920,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -13562,10 +13018,6 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
@@ -13624,7 +13076,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Brussels sprout: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "note": "Sweet potato: rated High for oxalate level. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -13652,14 +13104,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -13919,8 +13363,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Chickpeas (garbanzo beans, bengal gram): rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "severity": "yellow",
+        "note": "Chickpeas (garbanzo beans, bengal gram): rated Mild Risk for lectins (legumes). A modest, generally minor concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -13948,10 +13392,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -13985,10 +13425,6 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
@@ -14009,11 +13445,11 @@
     "stageAdvisoryNotes": [
       {
         "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "Contains gluten, one of the first things this stage typically removes. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
@@ -14047,7 +13483,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chickpeas (garbanzo beans, bengal gram): rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Okra: rated High for oxalate level. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -14084,10 +13520,6 @@
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       }
@@ -14110,7 +13542,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chickpeas (garbanzo beans, bengal gram): rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Walnut: rated High for oxalate level. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -14187,10 +13619,6 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
@@ -14257,10 +13685,6 @@
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "celiac": {
-        "severity": "red",
-        "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
       },
       "psoriasis": {
         "severity": "red",
@@ -14380,10 +13804,6 @@
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
       "psoriasis": {
         "severity": "red",
@@ -14624,10 +14044,6 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
@@ -14855,10 +14271,6 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
@@ -14879,11 +14291,11 @@
     "stageAdvisoryNotes": [
       {
         "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "Contains gluten, one of the first things this stage typically removes. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
@@ -14925,10 +14337,6 @@
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "celiac": {
-        "severity": "red",
-        "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
       },
       "psoriasis": {
         "severity": "red",
@@ -14997,10 +14405,6 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
@@ -15021,11 +14425,11 @@
     "stageAdvisoryNotes": [
       {
         "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "Contains gluten, one of the first things this stage typically removes. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
@@ -15114,8 +14518,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Kohlrabi: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "severity": "yellow",
+        "note": "Tempeh: rated Mild Risk for soy. A modest, generally minor concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -15143,14 +14547,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -15178,8 +14574,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Radish: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "severity": "yellow",
+        "note": "Tempeh: rated Mild Risk for soy. A modest, generally minor concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -15207,14 +14603,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -15242,8 +14630,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Radish: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "severity": "yellow",
+        "note": "Tempeh: rated Mild Risk for soy. A modest, generally minor concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -15271,14 +14659,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -15307,7 +14687,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Turnip: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "note": "Fresh Thyme: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -15335,14 +14715,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -15427,7 +14799,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Turnip: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "note": "Rosemary: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -15455,14 +14827,6 @@
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -15556,10 +14920,6 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
@@ -15580,11 +14940,11 @@
     "stageAdvisoryNotes": [
       {
         "condition": "Hashimoto's Disease: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
@@ -15739,10 +15099,6 @@
         "severity": "yellow",
         "note": "Couscous (durum wheat): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "red",
-        "note": "Couscous (durum wheat): rated High Risk for gluten. A significant, well-documented concern."
-      },
       "psoriasis": {
         "severity": "red",
         "note": "Couscous (durum wheat): rated High Risk for gluten. A significant, well-documented concern."
@@ -15809,10 +15165,6 @@
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "celiac": {
-        "severity": "red",
-        "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
       "psoriasis": {
         "severity": "red",
@@ -15912,10 +15264,13 @@
   },
   "curated_vegan_side_white_bean_roasted_vegetable_tofu_bowl": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -15925,7 +15280,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Tofu: rated High Risk for soy. A significant, well-documented concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -15935,17 +15290,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -15958,10 +15305,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -15972,14 +15315,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
@@ -15993,10 +15328,13 @@
   },
   "curated_vegan_side_white_bean_tomato_bowl": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -16006,7 +15344,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Parsley Spices: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -16016,17 +15354,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -16039,10 +15369,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -16053,14 +15379,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
@@ -16378,10 +15696,13 @@
   },
   "curated_vegan_soup_lentil_black_bean_chili": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -16401,17 +15722,9 @@
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -16424,10 +15737,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "Black Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -16438,14 +15747,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
@@ -16460,10 +15761,13 @@
   "curated_vegan_soup_mushroom_white_bean_soup": {
     "safeForConditions": [
       "cardiovascular_disease",
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "lupus",
       "migraine",
       "multiple_sclerosis",
@@ -16477,35 +15781,11 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
-      },
-      "celiac": {
         "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
+        "note": "Mushroom, common, fresh: rated Disruptive for fermentability. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -16514,10 +15794,13 @@
   },
   "curated_vegan_soup_white_bean_tomato_fennel_broth": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -16526,8 +15809,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "severity": "yellow",
+        "note": "White Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -16537,17 +15820,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -16560,10 +15835,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -16574,18 +15845,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -16595,10 +15854,13 @@
   },
   "curated_vegan_soup_white_bean_tomato_garlic_broth": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -16608,7 +15870,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Parsley Spices: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -16618,17 +15880,9 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -16641,10 +15895,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -16655,14 +15905,6 @@
       {
         "condition": "Hashimoto's Disease: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
@@ -16677,10 +15919,13 @@
   "curated_vegan_soup_white_bean_vegetable_soup": {
     "safeForConditions": [
       "cardiovascular_disease",
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "lupus",
       "migraine",
       "multiple_sclerosis",
@@ -16694,35 +15939,11 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "White Beans: rated High Risk for lectins (legumes). A significant, well-documented concern."
-      },
-      "celiac": {
         "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "White Beans: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
+        "note": "White Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern."
       }
     },
     "stageAdvisoryNotes": [
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."

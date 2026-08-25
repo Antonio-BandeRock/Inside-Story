@@ -273,6 +273,42 @@ function pickCautionHit(hits) {
 }
 
 // ---------------------------------------------------------------------
+// Absolute exclusions -- 2026-08-25, direct correction: "If they cannot
+// eat it at all, it should not be listed in the safe zone for them at
+// all." Correct, and a real, distinct category the yellow/red severity
+// split above doesn't cover: "yellow" and "red" both still describe a
+// real recipe under "Meals You Can Eat," just with more or less caution
+// attached, which is honest for the overwhelming majority of this app's
+// own flags (a matter of degree, timing, or individual trial, e.g.
+// sodium, additives, most elimination-diet triggers). Celiac disease's
+// own relationship to gluten is categorically different: gluten triggers
+// a real, ongoing autoimmune reaction that damages the gut lining at ANY
+// amount, with no dose, portion, or preparation that makes it safe --
+// this is established medical consensus, not a matter of degree the way
+// almost every other flag in this app is. Listing a gluten-containing
+// recipe under "Meals You Can Eat" for Celiac at all, however it's
+// captioned, contradicts what the topic's own name says.
+//
+// This list is deliberately short and named, not a blanket policy --
+// checked directly against this app's own real, already-published
+// Digest research for every other condition before writing it, and no
+// other (condition, sub-criterion, tier) combination in this whole
+// scoring system represents a genuinely absolute, zero-tolerance rule
+// the way this one does. Hashimoto's own gluten/dairy flags, for
+// example, are explicitly framed throughout this app's own content as a
+// real, individually-reintroducible elimination-diet trial, not a
+// permanent, no-exceptions ban -- so gluten does NOT get excluded there,
+// only for Celiac specifically. A recipe matching an entry here is
+// skipped entirely for that one condition below: no safeForConditions
+// entry, no conditionCautions entry, genuinely invisible under that
+// condition's own "Meals You Can Eat," not merely captioned.
+const ABSOLUTE_EXCLUSIONS = [{ conditionCode: 'celiac', subCriterion: 'Gluten', tier: 'High Risk' }];
+
+function isAbsoluteExclusion(conditionCode, subCriterion, tier) {
+  return ABSOLUTE_EXCLUSIONS.some((e) => e.conditionCode === conditionCode && e.subCriterion === subCriterion && e.tier === tier);
+}
+
+// ---------------------------------------------------------------------
 // Ingredient resolution -- faithful port of resolveCuratedRecipeIngredient/
 // resolveFoodChoice/buildScopeClause (lib/db.ts).
 // ---------------------------------------------------------------------
@@ -312,6 +348,145 @@ function resolveCuratedRecipeIngredient(category, baseName) {
     [category, baseName],
   );
   return rows[0] ?? null;
+}
+
+// ---------------------------------------------------------------------
+// Real per-recipe prep-method overrides -- 2026-08-25, direct
+// instruction: "You said 'fixing it for real would mean going through
+// roughly 2,000 ingredient rows across 300 recipes and tagging each one
+// against what the recipe's own instructions actually do.' Fix it."
+//
+// resolveCuratedRecipeIngredient above always tries the 'Raw' prep-method
+// row first, the same real, already-shipped behavior lib/db.ts's own
+// getCuratedRecipe uses (curated_recipe_ingredients stores only a
+// category and base_name, never a real per-recipe prep method) -- for
+// most ingredients this doesn't matter at all (no other prep-method row
+// exists, or every real variant scores identically), but for a real,
+// checkable subset it does: a recipe that actually cooks a goitrogenic
+// vegetable, or cooks/cans a legume (raw dried legumes are genuinely
+// high in lectins; cooking is what makes them edible at all), was being
+// scored against its RAW profile regardless of what the recipe's own
+// instructions say.
+//
+// Scope, found by direct query before writing a single override, not
+// guessed: of the 210 distinct (category, base_name) ingredient pairs
+// actually used across all 300 curated recipes, only 39 have a real,
+// flag-crossing difference between their Raw row and any other real
+// prep-method row (checked against every sub-criterion, excluding the
+// two already-documented near-universal ones) -- everything else is
+// either raw-only, has no cooked variant in this database at all, or
+// scores identically either way. Of those 39, only the ones actually
+// used in a recipe that demonstrably cooks them needed a real override;
+// every recipe below was individually read (its own real ingredients
+// list and its own real instructions, both in this file's sibling
+// lib/digest/recipes.ts) to confirm what it actually does, not assumed
+// from the recipe's own name. A recipe using a sensitive ingredient
+// genuinely raw (a kale salad that only massages the kale, a smoothie
+// that blends spinach raw, a collard leaf used as an uncooked wrap) is
+// correctly left OUT of this map -- the existing Raw-first resolution is
+// already right for those.
+//
+// Each entry names the real prep method that recipe's own instructions
+// describe (Baked/Boiled/Steamed/Pickled, matching this database's own
+// real prep_method vocabulary) purely for auditability -- functionally,
+// resolveWithPrepOverride below falls back to ANY available non-Raw
+// variant if the named one doesn't resolve, since every one of these 39
+// ingredients was individually confirmed (see this script's own
+// investigation) to score identically across every one of its own real
+// non-Raw variants for the specific sub-criteria that actually differ
+// from Raw.
+const RECIPE_PREP_OVERRIDES = {
+  curated_salad_southwest_quinoa_black_bean: { 'Legume|Black Beans': 'Boiled' },
+  curated_side_lemon_garlic_broccoli: { 'Veg|Broccoli': 'Baked' },
+  curated_side_garlic_mashed_cauliflower: { 'Veg|Cauliflower': 'Boiled' },
+  curated_side_sauteed_spinach_garlic: { 'Veg|Spinach': 'Boiled' },
+  curated_ferment_sauerkraut: { 'Veg|Cabbage': 'Pickled' },
+  curated_snack_roasted_chickpeas: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
+  curated_handheld_black_bean_sweet_potato_tacos: { 'Legume|Black Beans': 'Boiled' },
+  curated_side_rainbow_stir_fry: { 'Veg|Broccoli': 'Fried Without Fat (Pan)', 'Veg|Snap Beans (Green Beans)': 'Boiled' },
+  curated_snack_savory_quinoa_bowl_fried_egg: { 'Veg|Spinach': 'Boiled' },
+  curated_handheld_breakfast_burrito_eggs_black_beans: { 'Legume|Black Beans': 'Boiled' },
+  curated_side_white_bean_roasted_vegetable_bowl: { 'Legume|White Beans': 'Boiled' },
+  curated_side_baked_chicken_thighs_brussels_sweet_potato: { 'Veg|Brussels sprout': 'Baked' },
+  curated_handheld_hummus_roasted_vegetable_wrap: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
+  curated_soup_turkey_black_bean_chili: { 'Legume|Black Beans': 'Boiled' },
+  curated_handheld_turkey_hummus_collard_wrap: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
+  curated_salad_tuna_white_bean_salad: { 'Legume|White Beans': 'Boiled' },
+  curated_side_pork_chop_brussels_apple: { 'Veg|Brussels sprout': 'Baked' },
+  curated_side_chickpea_spinach_curry_bowl: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled', 'Veg|Spinach': 'Boiled' },
+  curated_side_turkey_thigh_turnip_carrot: { 'Veg|Turnip': 'Baked' },
+  curated_side_sardine_white_bean_bowl: { 'Legume|White Beans': 'Boiled' },
+  curated_side_braised_beef_kohlrabi_carrot: { 'Veg|Kohlrabi': 'Boiled' },
+  curated_salad_roasted_artichoke_white_bean_salad: { 'Legume|White Beans': 'Boiled' },
+  curated_side_sole_bok_choy_ginger: { 'Veg|Bok choy': 'Steamed' },
+  curated_side_bison_root_vegetable_bowl: { 'Veg|Turnip': 'Baked' },
+  curated_salad_pinto_bean_roasted_vegetable_bowl: { 'Legume|Pinto Beans': 'Boiled' },
+  curated_side_pork_loin_turnip_kale: { 'Veg|Turnip': 'Baked', 'Veg|Kale': 'Boiled' },
+  curated_soup_white_bean_kale_soup: { 'Legume|White Beans': 'Boiled', 'Veg|Kale': 'Boiled' },
+  curated_soup_lentil_kale_soup: { 'Veg|Kale': 'Boiled' },
+  curated_side_chicken_thighs_kohlrabi_apple: { 'Veg|Kohlrabi': 'Baked' },
+  curated_soup_white_bean_swiss_chard_soup: { 'Legume|White Beans': 'Boiled' },
+  curated_side_pork_loin_radish_carrot: { 'Veg|Radish': 'Baked' },
+  curated_salad_kidney_bean_roasted_vegetable_salad: { 'Legume|Kidney Beans': 'Boiled' },
+  curated_side_trout_radish_dill: { 'Veg|Radish': 'Baked' },
+  curated_soup_turkey_white_bean_soup: { 'Legume|White Beans': 'Boiled' },
+  curated_vegan_savory_quinoa_bowl_tofu_scramble: { 'Veg|Spinach': 'Boiled' },
+  curated_vegan_breakfast_burrito_tofu_black_beans: { 'Legume|Black Beans': 'Boiled' },
+  curated_vegan_handheld_chickpea_avocado_wrap: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
+  curated_vegan_handheld_tempeh_hummus_collard_wrap: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
+  curated_vegan_handheld_chickpea_egg_salad_lettuce_wraps: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
+  curated_vegan_salad_white_bean_roasted_pepper_salad: { 'Legume|White Beans': 'Boiled' },
+  curated_vegan_salad_white_bean_artichoke_salad: { 'Legume|White Beans': 'Boiled' },
+  curated_vegan_salad_chickpea_white_bean_salad: {
+    'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled',
+    'Legume|White Beans': 'Boiled',
+  },
+  curated_vegan_salad_mediterranean_chickpea_tofu: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
+  curated_vegan_salad_roasted_artichoke_white_bean_tofu: { 'Legume|White Beans': 'Boiled' },
+  curated_vegan_side_baked_tempeh_brussels_sweet_potato: { 'Veg|Brussels sprout': 'Baked' },
+  curated_vegan_side_tempeh_root_vegetable_bowl: { 'Veg|Turnip': 'Baked' },
+  curated_vegan_side_braised_seitan_kohlrabi_carrot: { 'Veg|Kohlrabi': 'Boiled' },
+  curated_vegan_side_chickpea_okra_tomato_skillet: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
+  curated_vegan_side_tempeh_kohlrabi_apple: { 'Veg|Kohlrabi': 'Baked' },
+  curated_vegan_side_braised_chickpea_fennel_orange: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
+  curated_vegan_side_seitan_chop_brussels_apple: { 'Veg|Brussels sprout': 'Baked' },
+  curated_vegan_side_tempeh_radish_carrot: { 'Veg|Radish': 'Baked' },
+  curated_vegan_side_seitan_turnip_kale: { 'Veg|Turnip': 'Baked', 'Veg|Kale': 'Boiled' },
+  curated_vegan_side_white_bean_tomato_bowl: { 'Legume|White Beans': 'Boiled' },
+  curated_vegan_side_tofu_bok_choy_ginger: { 'Veg|Bok choy': 'Steamed' },
+  curated_vegan_side_tempeh_radish_dill: { 'Veg|Radish': 'Baked' },
+  curated_vegan_side_chickpea_walnut_meatballs_tomato_sauce: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
+  curated_vegan_side_tempeh_turnip_carrot: { 'Veg|Turnip': 'Baked' },
+  curated_vegan_side_white_bean_roasted_vegetable_tofu_bowl: { 'Legume|White Beans': 'Boiled' },
+  curated_vegan_soup_white_bean_vegetable_soup: { 'Legume|White Beans': 'Boiled' },
+  curated_vegan_soup_white_bean_tomato_fennel_broth: { 'Legume|White Beans': 'Boiled' },
+  curated_vegan_soup_white_bean_tomato_garlic_broth: { 'Legume|White Beans': 'Boiled' },
+  curated_vegan_soup_lentil_black_bean_chili: { 'Legume|Black Beans': 'Boiled' },
+  curated_vegan_soup_mushroom_white_bean_soup: { 'Legume|White Beans': 'Boiled' },
+};
+
+// Resolves one recipe's own ingredient with its real prep method applied
+// when one exists in RECIPE_PREP_OVERRIDES above -- tries the named prep
+// method first, falls back to ANY available non-Raw variant (every one
+// of the 39 sensitive ingredients was individually confirmed to score
+// identically across its own real non-Raw variants, see this script's
+// own investigation above), and only falls back to the ordinary
+// Raw-first resolver if truly no non-Raw row exists at all.
+function resolveWithPrepOverride(recipeId, category, baseName) {
+  const preferredPrep = RECIPE_PREP_OVERRIDES[recipeId]?.[`${category}|${baseName}`];
+  if (!preferredPrep) return resolveCuratedRecipeIngredient(category, baseName);
+  const named = resolveViaPrep(category, baseName, preferredPrep);
+  if (named) return named;
+  const anyNonRaw = runSql(
+    `SELECT food_id, source, name FROM foods
+     WHERE category = ? AND base_name = ? AND hidden = 0
+       AND prep_method IS NOT NULL AND prep_method != 'Raw'
+     ORDER BY CASE WHEN source IN ('USDA', 'Derived') THEN 0 ELSE 1 END, food_id
+     LIMIT 1`,
+    [category, baseName],
+  );
+  if (anyNonRaw[0]) return anyNonRaw[0];
+  return resolveCuratedRecipeIngredient(category, baseName);
 }
 
 // ---------------------------------------------------------------------
@@ -579,9 +754,35 @@ for (const [key, { category, baseName }] of distinctPairs) {
 }
 console.log(`Resolved ${resolvedByKey.size} of ${distinctPairs.size} distinct ingredients (${unresolved} unresolved).`);
 
+// Real per-recipe prep-method overrides -- see RECIPE_PREP_OVERRIDES' own
+// header comment above. Resolved separately from the shared resolvedByKey
+// cache above, since the whole point is that the SAME (category,
+// baseName) pair needs to resolve DIFFERENTLY in a recipe that cooks it
+// versus one that doesn't -- a single global cache keyed only by
+// ingredient pair can't represent that at all.
+console.log('Resolving per-recipe prep-method overrides...');
+const resolvedByRecipeAndKey = new Map(); // "recipeId|category|baseName" -> resolved row
+let overridesResolved = 0;
+for (const [recipeId, overrides] of Object.entries(RECIPE_PREP_OVERRIDES)) {
+  for (const key of Object.keys(overrides)) {
+    const [category, baseName] = key.split('|');
+    const resolved = resolveWithPrepOverride(recipeId, category, baseName);
+    if (resolved) {
+      resolvedByRecipeAndKey.set(`${recipeId}|${key}`, resolved);
+      overridesResolved++;
+    } else {
+      console.warn(`  UNRESOLVED OVERRIDE: ${recipeId} / ${key}`);
+    }
+  }
+}
+console.log(`Resolved ${overridesResolved} per-recipe prep-method overrides.`);
+
 console.log('Loading food_scores for every resolved ingredient...');
 const scoresByFoodKey = new Map(); // "foodId|source" -> [{dimension, subCriterion, tier, subCriterionId}]
-const neededFoodKeys = new Set(Array.from(resolvedByKey.values()).map((r) => `${r.food_id}|${r.source}`));
+const neededFoodKeys = new Set([
+  ...Array.from(resolvedByKey.values()).map((r) => `${r.food_id}|${r.source}`),
+  ...Array.from(resolvedByRecipeAndKey.values()).map((r) => `${r.food_id}|${r.source}`),
+]);
 for (const foodKey of neededFoodKeys) {
   const [foodId, source] = foodKey.split('|');
   const rows = runSql(
@@ -600,6 +801,7 @@ for (const row of ingredientRows) {
 
 console.log('Computing per-recipe condition safety, cautions, and stage advisories...');
 const output = {};
+let totalAbsoluteExclusions = 0;
 for (const [recipeId, ingredients] of ingredientsByRecipe.entries()) {
   const resolvedIngredientScores = [];
   // Parallel array to resolvedIngredientScores -- each ingredient's own
@@ -608,7 +810,12 @@ for (const [recipeId, ingredients] of ingredientsByRecipe.entries()) {
   const resolvedIngredientNames = [];
   for (const ing of ingredients) {
     const key = `${ing.category}|${ing.baseName}`;
-    const resolved = resolvedByKey.get(key);
+    // A real per-recipe prep-method override (RECIPE_PREP_OVERRIDES)
+    // takes priority over the shared, ingredient-pair-wide resolution --
+    // see resolvedByRecipeAndKey's own comment above for why the same
+    // ingredient pair needs to resolve differently depending on which
+    // recipe it's in.
+    const resolved = resolvedByRecipeAndKey.get(`${recipeId}|${key}`) ?? resolvedByKey.get(key);
     if (!resolved) continue;
     const foodKey = `${resolved.food_id}|${resolved.source}`;
     resolvedIngredientScores.push(scoresByFoodKey.get(foodKey) ?? []);
@@ -618,16 +825,31 @@ for (const [recipeId, ingredients] of ingredientsByRecipe.entries()) {
   // --- safeForConditions + conditionCautions ---
   const safeForConditions = [];
   const conditionCautions = {};
+  const excludedForConditions = [];
   for (const conditionCode of coveredConditions) {
     const hits = [];
+    let absoluteExclusion = false;
     for (let i = 0; i < resolvedIngredientScores.length; i++) {
       const scores = resolvedIngredientScores[i];
       const baseName = resolvedIngredientNames[i];
       for (const row of scores) {
         if (isRelevantToCondition(row.subCriterionId, conditionCode) && isFlaggedTier(row.tier, row.subCriterion)) {
           hits.push({ baseName, subCriterion: row.subCriterion, tier: row.tier });
+          if (isAbsoluteExclusion(conditionCode, row.subCriterion, row.tier)) absoluteExclusion = true;
         }
       }
+    }
+    // See ABSOLUTE_EXCLUSIONS' own comment above -- a genuinely
+    // never-safe trigger means this recipe is skipped entirely for this
+    // one condition: no safeForConditions entry, no conditionCautions
+    // entry, correctly invisible under "Meals You Can Eat" for it,
+    // exactly like a condition this recipe has no real coverage for at
+    // all. Checked FIRST, before either of the two ordinary outcomes
+    // below, so it always wins regardless of what else this recipe's
+    // ingredients also happen to trip.
+    if (absoluteExclusion) {
+      excludedForConditions.push(conditionCode);
+      continue;
     }
     if (hits.length === 0) {
       safeForConditions.push(conditionCode);
@@ -671,6 +893,7 @@ for (const [recipeId, ingredients] of ingredientsByRecipe.entries()) {
   }
 
   output[recipeId] = { safeForConditions, conditionCautions, stageAdvisoryNotes };
+  if (excludedForConditions.length > 0) totalAbsoluteExclusions += excludedForConditions.length;
 }
 
 const outPath = path.join(__dirname, '_recipe_condition_data_output.json');
@@ -694,3 +917,4 @@ console.log('Recipes safe (zero flags) per condition:', conditionCounts);
 console.log('Recipes with a yellow (moderate) caution per condition:', yellowCautionCounts);
 console.log('Recipes with a red (serious) caution per condition:', redCautionCounts);
 console.log('Total real stage-advisory notes generated:', totalStageNotes);
+console.log('Total absolute-exclusion (never-safe) recipe/condition pairs:', totalAbsoluteExclusions);
