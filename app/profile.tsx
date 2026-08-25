@@ -54,6 +54,7 @@ import {
   type FoodTrialRecord,
   getConditionStages,
   getCuriousAboutConditions,
+  getDietPreferences,
   getFoodTrialsForCondition,
   getStoredMeasurementSystem,
   getUserConditions,
@@ -68,12 +69,14 @@ import {
   reopenFoodTrial,
   setConditionStage,
   setCuriousAboutConditionSelected,
+  setDietPreferenceSelected,
   setStoredMeasurementSystem,
   setUserConditionSelected,
   setUserProfile,
   SymptomAssessmentRecord,
   UserProfile,
 } from '../lib/db';
+import { RECIPE_DIET_TAGS, type RecipeDietTag } from '../lib/digest/types';
 import { getConditionFoodConcerns, type ConditionFoodConcern } from '../lib/conditionFoodConcerns';
 import { ageFromBirthDate } from '../lib/profile';
 import {
@@ -199,6 +202,7 @@ const ICON_GRID_PILL_SIZE = 52;
 const ALL_CARD_SECTION_KEYS = [
   'personal-info',
   'conditions',
+  'diet-preferences',
   'general-health',
   'home-screen',
   'header-growth',
@@ -540,6 +544,14 @@ export default function ProfileScreen() {
   // or read from anywhere condition scoring, medication rules, or the
   // healing-stage system look.
   const [curiousAboutConditions, setCuriousAboutConditions] = useState<string[]>([]);
+  // 2026-08-24, direct request: "the type of diet a person is trying to
+  // follow or is interested in trying should be in the Profile." Backed by
+  // its own diet_preferences table (lib/db.ts), storing real RecipeDietTag
+  // values -- the same vocabulary already computed per-recipe (2026-08-24
+  // diet-tagging work) and already used by Recipes' own "Filter by diet"
+  // picker, so a person's own stated preference lines up directly against
+  // real, existing data rather than a second, disconnected list.
+  const [dietPreferences, setDietPreferences] = useState<RecipeDietTag[]>([]);
   // Live, app-wide (lib/visualPreferences.ts): reading it via the same
   // hook every consumer uses means this screen's pills always reflect
   // whatever's really stored, and every edit here reaches the shared
@@ -743,6 +755,7 @@ export default function ProfileScreen() {
       listAllConditions(),
       getUserConditions(),
       getCuriousAboutConditions(),
+      getDietPreferences(),
       listBodyMeasurements('weight', 1),
       listFoodAllergies(),
       getConditionStages(),
@@ -754,6 +767,7 @@ export default function ProfileScreen() {
         conditionRoster,
         storedConditions,
         storedCuriousAbout,
+        storedDietPreferences,
         weightReadings,
         storedAllergies,
         storedConditionStages,
@@ -765,6 +779,7 @@ export default function ProfileScreen() {
       setAllConditions(conditionRoster);
       setSelectedConditions(storedConditions);
       setCuriousAboutConditions(storedCuriousAbout);
+      setDietPreferences(storedDietPreferences as RecipeDietTag[]);
       setFoodAllergies(storedAllergies);
       setConditionStageMap(storedConditionStages);
       setFirstNameInput(storedProfile.firstName ?? '');
@@ -920,6 +935,16 @@ export default function ProfileScreen() {
       nowSelected ? [...current, code] : current.filter((c) => c !== code),
     );
     await setCuriousAboutConditionSelected(code, nowSelected);
+    flashSaved();
+  }
+
+  // See dietPreferences' own comment near this screen's state
+  // declarations. Same toggle-and-persist shape as
+  // toggleCuriousAboutCondition just above.
+  async function toggleDietPreference(tag: RecipeDietTag) {
+    const nowSelected = !dietPreferences.includes(tag);
+    setDietPreferences((current) => (nowSelected ? [...current, tag] : current.filter((t) => t !== tag)));
+    await setDietPreferenceSelected(tag, nowSelected);
     flashSaved();
   }
 
@@ -2541,6 +2566,48 @@ export default function ProfileScreen() {
                   </View>
                 );
               })}
+          </View>
+        ) : null}
+      </View>
+
+      {/* Diet Preferences, 2026-08-24, direct request: "the type of diet a
+          person is trying to follow or is interested in trying should be
+          in the Profile." A separate card from Conditions above rather
+          than folded in: a diet is a chosen way of eating, not a tracked
+          health condition, and this list draws from RecipeDietTag
+          (lib/digest/types.ts), a completely different vocabulary than
+          allConditions. Same conditionGrid/conditionPill layout reused
+          directly (a fixed-width grid reads just as well for diet names
+          of different lengths as it does for condition names), and the
+          same "following or curious about" framing as conditions:
+          selecting a diet here doesn't restrict anything by itself, it
+          just tells the app what to lead with. */}
+      <View style={styles.card}>
+        {renderCardHeader('diet-preferences', 'Diet Preferences')}
+        {!collapsedSections.has('diet-preferences') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Select any diet you&apos;re following, or are just curious about trying. This drives the default
+              in Recipes&apos; own &quot;Filter by diet&quot; picker and the 6-Week Meal Plan&apos;s own diet
+              track, both still freely changeable in the moment. Selecting more than one is fully supported.
+            </Text>
+            <View style={styles.conditionGrid}>
+              {RECIPE_DIET_TAGS.map((tag) => {
+                const active = dietPreferences.includes(tag);
+                return (
+                  <View key={tag} style={styles.conditionGridItem}>
+                    <TouchableOpacity
+                      style={[styles.pill, styles.conditionPill, active && styles.pillActive]}
+                      onPress={() => toggleDietPreference(tag)}
+                    >
+                      <Text style={[styles.pillText, styles.conditionPillText, active && styles.pillTextActive]}>
+                        {tag}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
+            </View>
           </View>
         ) : null}
       </View>

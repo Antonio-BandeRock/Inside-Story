@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -20,6 +20,7 @@ import {
   deleteTreatment,
   ensureScheduleSeriesGenerated,
   getDailyNutrientAnalysis,
+  getDietPreferences,
   getNutrientTiming,
   getSupplementForms,
   getTreatmentNutrients,
@@ -1660,6 +1661,34 @@ function MealPlanLens() {
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [dietTrack, setDietTrack] = useState<DietTrack>('Omnivore');
   const activePlan = MEAL_PLAN_BY_TRACK[dietTrack];
+  // 2026-08-24, direct request: "the type of diet a person is trying to
+  // follow... should be in the Profile." Defaults this picker from
+  // Profile's own new "Diet Preferences" card, still freely changeable
+  // right here -- dietTrackTouched (not persisted, a plain ref) stops a
+  // later background refetch from silently overwriting a manual pick made
+  // earlier in the same visit. Vegan wins over Vegetarian if both are
+  // selected on Profile, matching RecipeDietTag's own "vegan implies
+  // vegetarian-safe" convention; Omnivore stays the default when neither is
+  // selected, unchanged from before this.
+  const dietTrackTouched = useRef(false);
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      getDietPreferences()
+        .then((tags) => {
+          if (cancelled || dietTrackTouched.current) return;
+          if (tags.includes('Vegan')) setDietTrack('Vegan');
+          else if (tags.includes('Vegetarian')) setDietTrack('Vegetarian');
+        })
+        .catch(() => {
+          // Best-effort only -- a failure here just means the picker falls
+          // back to its own original Omnivore default, never a broken screen.
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
   const [startDate, setStartDate] = useState(todayDateString());
   const [settingUp, setSettingUp] = useState(false);
   const [addingDay, setAddingDay] = useState<number | null>(null);
@@ -1717,7 +1746,10 @@ function MealPlanLens() {
         <PopoverSelect
           selected={dietTrack}
           options={[...DIET_TRACK_OPTIONS]}
-          onSelect={(value) => setDietTrack(value as DietTrack)}
+          onSelect={(value) => {
+            dietTrackTouched.current = true;
+            setDietTrack(value as DietTrack);
+          }}
           placeholder="Diet track"
           tabColor={TAB_COLOR}
           width={220}

@@ -355,6 +355,24 @@ export type RecipeDietTag =
   | 'AIP'
   | 'High-Protein';
 
+// The one ordered list of every RecipeDietTag value, single source of
+// truth for anywhere the full vocabulary needs to be shown or iterated
+// (Recipes' own "Filter by diet" picker, Profile's own diet-preference
+// picker, 2026-08-24). The base tier leads, then every philosophy tag in
+// the same order RecipeDietTagRow already displays them in.
+export const RECIPE_DIET_TAGS: RecipeDietTag[] = [
+  'Vegan',
+  'Vegetarian',
+  'Omnivore',
+  'Plant-Based/Flexitarian',
+  'Mediterranean',
+  'Gluten-Free',
+  'Dairy-Free',
+  'Paleo',
+  'AIP',
+  'High-Protein',
+];
+
 export type RecipeCard = {
   // e.g. "Makes about 4 cups, serves 2 generous bowls."
   yield: string;

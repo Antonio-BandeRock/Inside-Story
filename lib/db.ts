@@ -3796,6 +3796,23 @@ async function runDatabaseInitialization() {
         selected_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- 2026-08-24, direct request: "the type of diet a person is trying
+      -- to follow or is interested in trying should be in the Profile."
+      -- One row per diet a person is following or curious about; diet_tag
+      -- stores the same string values as RecipeDietTag (lib/digest/types.ts,
+      -- 'Vegan', 'Mediterranean', 'AIP', and so on), the vocabulary
+      -- already computed per-recipe, so this list lines up directly
+      -- against real, existing recipe data rather than inventing a second
+      -- one. Same shape as curious_about_conditions just above, and the
+      -- same "trying vs. curious" distinction doesn't apply here the way
+      -- it does for conditions: following a diet and being curious about
+      -- it both just mean "show me more of this," so one table covers
+      -- both rather than splitting into two.
+      CREATE TABLE IF NOT EXISTS diet_preferences (
+        diet_tag TEXT PRIMARY KEY,
+        selected_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- The person's own real, individually-declared food allergies,
       -- 2026-08-09, explicitly requested inside Profile's own "conditions
       -- area." allergen_name IS the primary key (the same natural-key
@@ -12148,6 +12165,28 @@ export async function setCuriousAboutConditionSelected(code: string, selected: b
     await db.runAsync('INSERT OR IGNORE INTO curious_about_conditions (condition_code) VALUES (?)', code);
   } else {
     await db.runAsync('DELETE FROM curious_about_conditions WHERE condition_code = ?', code);
+  }
+}
+
+// The person's own real diet preferences -- see diet_preferences' own
+// schema comment above. dietTag matches RecipeDietTag (lib/digest/types.ts)
+// exactly, stored as plain text rather than a foreign key since this table
+// lives in the local, on-device database while the tag vocabulary lives in
+// app code, not the bundled reference database.
+export async function getDietPreferences(): Promise<string[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ diet_tag: string }>(
+    'SELECT diet_tag FROM diet_preferences ORDER BY selected_at',
+  );
+  return rows.map((row) => row.diet_tag);
+}
+
+export async function setDietPreferenceSelected(dietTag: string, selected: boolean): Promise<void> {
+  const db = await getDatabase();
+  if (selected) {
+    await db.runAsync('INSERT OR IGNORE INTO diet_preferences (diet_tag) VALUES (?)', dietTag);
+  } else {
+    await db.runAsync('DELETE FROM diet_preferences WHERE diet_tag = ?', dietTag);
   }
 }
 

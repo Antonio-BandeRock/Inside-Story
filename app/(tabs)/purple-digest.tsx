@@ -30,6 +30,7 @@ import { CONDITION_CODE_TO_DIGEST_KEY, DIGEST_KEY_TO_CONDITION_CODE } from '../.
 import {
   deleteFavorite,
   getCuratedRecipe,
+  getDietPreferences,
   getUserConditions,
   getUserProfile,
   getVisibleFoodBaseNames,
@@ -67,6 +68,7 @@ import {
   type DigestCategoryKey,
   type DigestEntry,
   type EvidenceTier,
+  RECIPE_DIET_TAGS,
   type RecipeCard,
   type RecipeDietTag,
   type SearchMatchInfo,
@@ -1563,22 +1565,11 @@ type RecipeTopic =
 // identified" by real diet compatibility, not just badged individually --
 // this is the actual grouping/filter control, sitting above the Recipes
 // topic menu and every shelf underneath it. 'All Diets' is the plain
-// "no filter" option, not a real RecipeDietTag itself. The base tier
-// leads (matching RecipeDietTagRow's own ordering), then every
-// philosophy tag in the same order RecipeDietTag itself declares them.
-const RECIPE_DIET_FILTER_OPTIONS: string[] = [
-  'All Diets',
-  'Vegan',
-  'Vegetarian',
-  'Omnivore',
-  'Plant-Based/Flexitarian',
-  'Mediterranean',
-  'Gluten-Free',
-  'Dairy-Free',
-  'Paleo',
-  'AIP',
-  'High-Protein',
-];
+// "no filter" option, not a real RecipeDietTag itself. Derived from the
+// shared RECIPE_DIET_TAGS list (lib/digest/types.ts) rather than a second
+// hand-maintained copy of the same vocabulary -- Profile's own diet
+// preference picker draws from the same list.
+const RECIPE_DIET_FILTER_OPTIONS: string[] = ['All Diets', ...RECIPE_DIET_TAGS];
 
 const RECIPES_TOPIC_ORDER: RecipeTopic[] = [
   'Sides',
@@ -1933,6 +1924,31 @@ export default function PurpleDigestScreen() {
         .catch(() => {
           // Best-effort only -- a failure here just means the picker falls
           // back to its own original, unpinned order, never a broken screen.
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
+  // 2026-08-24, direct request: "the type of diet a person is trying to
+  // follow or is interested in trying should be in the Profile." Same
+  // refetch-on-focus pattern as userConditionCodes just above, so a change
+  // made on Profile is reflected here without an app restart. Used only to
+  // seed the "Filter by diet" default below (the LensHub onSelect handler,
+  // where a fresh arrival on Recipes reads this synchronously) -- never
+  // gates anything, the picker itself is still always freely changeable.
+  const [dietPreferences, setDietPreferences] = useState<RecipeDietTag[]>([]);
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      getDietPreferences()
+        .then((tags) => {
+          if (!cancelled) setDietPreferences(tags as RecipeDietTag[]);
+        })
+        .catch(() => {
+          // Best-effort only -- a failure here just means the filter falls
+          // back to its own original "All Diets" default, never a broken
+          // screen.
         });
       return () => {
         cancelled = true;
@@ -3625,7 +3641,14 @@ export default function PurpleDigestScreen() {
           // a previous visit happened to leave selected.
           setSelectedTopicGroup(null);
           setSelectedBasicHealthSubgroup(null);
-          setRecipeDietFilter(null);
+          // 2026-08-24, direct request: a fresh arrival on Recipes defaults
+          // this filter to the person's own single stated diet preference
+          // (Profile's own new "Diet Preferences" card), still freely
+          // changeable right here. Left at "All Diets" (null) when nothing
+          // is set, or when more than one diet is selected on Profile --
+          // picking one of several to lead with would be an arbitrary
+          // guess, so the person's own tap decides instead.
+          setRecipeDietFilter(key === 'recipes' && dietPreferences.length === 1 ? dietPreferences[0] : null);
           setExpandedId(null);
           // 2026-08-12, direct report: picking a different lens from this
           // popup left the ScrollView sitting at whatever offset the
