@@ -1196,15 +1196,33 @@ function classifyConditionTopic(entry: AnyDigestEntry): ConditionTopic {
 // page (groupEntriesForLens is called inline in JSX, not memoized),
 // exactly the class of bug already found and fixed for
 // basicHealthAllGroups/categorySearchGroups on 2026-08-23.
-let recipesByConditionCodeCache: Map<string, AnyDigestEntry[]> | null = null;
-function recipesByConditionCode(): Map<string, AnyDigestEntry[]> {
+// 2026-08-24, direct correction: "What they can eat is exactly that,
+// everything they can eat, at the levels of healing that they need to
+// start from and achieve along the way." The original version of this
+// bucketed only recipeCard.safeForConditions -- a hard include/exclude
+// gate that meant a wide-criteria condition like Hashimoto's (25 real
+// relevant sub-criteria) could only ever show near-single-ingredient
+// recipes, confirmed directly: 18 of 300, every one a fermented drink,
+// zero actual meals. Now buckets BOTH halves separately (genuinely
+// clean, and flagged-with-a-real-caution), so a flagged recipe is never
+// excluded, matching this app's own standing healing-stage rule
+// (advisory and reordering only, never gating) instead of contradicting
+// it. See mealsYouCanEatForCondition below for how the two are combined.
+let recipesByConditionCodeCache: Map<string, { safe: AnyDigestEntry[]; cautioned: AnyDigestEntry[] }> | null = null;
+function recipesByConditionCode(): Map<string, { safe: AnyDigestEntry[]; cautioned: AnyDigestEntry[] }> {
   if (!recipesByConditionCodeCache) {
-    const map = new Map<string, AnyDigestEntry[]>();
+    const map = new Map<string, { safe: AnyDigestEntry[]; cautioned: AnyDigestEntry[] }>();
     for (const entry of getEntriesForCategory('recipes')) {
       if (isProblemFoodEntry(entry)) continue;
-      for (const code of entry.recipeCard?.safeForConditions ?? []) {
-        if (!map.has(code)) map.set(code, []);
-        map.get(code)!.push(entry);
+      const card = entry.recipeCard;
+      if (!card) continue;
+      for (const code of card.safeForConditions ?? []) {
+        if (!map.has(code)) map.set(code, { safe: [], cautioned: [] });
+        map.get(code)!.safe.push(entry);
+      }
+      for (const code of Object.keys(card.conditionCautions ?? {})) {
+        if (!map.has(code)) map.set(code, { safe: [], cautioned: [] });
+        map.get(code)!.cautioned.push(entry);
       }
     }
     recipesByConditionCodeCache = map;
@@ -1212,8 +1230,17 @@ function recipesByConditionCode(): Map<string, AnyDigestEntry[]> {
   return recipesByConditionCodeCache;
 }
 
-function safeRecipesForCondition(conditionCode: string): AnyDigestEntry[] {
-  return recipesByConditionCode().get(conditionCode) ?? [];
+// The real, full "Meals You Can Eat" list for a condition: every recipe
+// with real per-condition data, genuinely clean ones first (so the
+// least-cautioned options still lead), then every flagged recipe, each
+// carrying its own real caution (see RecipeCard.conditionCautions and
+// the activeConditionCode prop threaded through BasicHealthShelves/
+// DigestCard/RecipeCardDetail, which surfaces the right one once a
+// recipe is opened from this specific condition's own page).
+function mealsYouCanEatForCondition(conditionCode: string): AnyDigestEntry[] {
+  const bucket = recipesByConditionCode().get(conditionCode);
+  if (!bucket) return [];
+  return [...sortDigestEntriesLogically(bucket.safe), ...sortDigestEntriesLogically(bucket.cautioned)];
 }
 
 function groupConditionEntries(
@@ -1232,8 +1259,11 @@ function groupConditionEntries(
     buckets.get(topic)!.push(entry);
   }
   if (conditionCode) {
-    const safeRecipes = safeRecipesForCondition(conditionCode);
-    if (safeRecipes.length > 0) buckets.set('Meals You Can Eat', sortDigestEntriesLogically(safeRecipes));
+    const mealsYouCanEat = mealsYouCanEatForCondition(conditionCode);
+    // Pre-sorted (clean-first, then cautioned) by mealsYouCanEatForCondition
+    // itself -- left as-is below, the same way this bucket's own order was
+    // already exempted from the generic re-sort before this change.
+    if (mealsYouCanEat.length > 0) buckets.set('Meals You Can Eat', mealsYouCanEat);
   }
   const topics = CONDITION_TOPIC_ORDER.map((topic) => ({
     label: topic as string,
@@ -3521,6 +3551,7 @@ export default function PurpleDigestScreen() {
                         onJumpToRelated={jumpToRelated}
                         onDynamicEntriesChanged={refreshDynamicEntries}
                         hideTopLevelLabel={selectedTopicGroup}
+                        activeConditionCode={DIGEST_KEY_TO_CONDITION_CODE[lens as DigestCategoryKey]}
                       />
                     );
                   }
@@ -4158,6 +4189,7 @@ function BasicHealthShelves({
   matchInfoById,
   onDynamicEntriesChanged,
   hideTopLevelLabel,
+  activeConditionCode,
 }: {
   groups: { label: string; entries: AnyDigestEntry[] }[];
   expandedId: string | null;
@@ -4187,6 +4219,14 @@ function BasicHealthShelves({
   // itself) hides its own heading entirely rather than repeating the page
   // header word for word.
   hideTopLevelLabel?: string;
+  // 2026-08-24, direct correction: "Meals You Can Eat" now shows every
+  // recipe for a condition, not just the genuinely clean ones, so a
+  // flagged recipe needs to show ITS OWN caution for THIS specific
+  // condition once opened here -- undefined on every call site except
+  // a condition's own page (see DIGEST_KEY_TO_CONDITION_CODE at the
+  // caller), harmless everywhere else since RecipeCardDetail only reads
+  // a caution when both this and the card's own conditionCautions agree.
+  activeConditionCode?: string;
 }) {
   // 2026-08-21, a real, repeatedly-reported bug: "the title box was
   // scrolled way to the right of the data card that is supposed to be
@@ -4307,6 +4347,7 @@ function BasicHealthShelves({
                   onToggle={() => onToggleEntry(expandedEntry.id)}
                   onJumpToRelated={onJumpToRelated}
                   onDynamicEntriesChanged={onDynamicEntriesChanged}
+                  activeConditionCode={activeConditionCode}
                 />
               </Animated.View>
             ) : null}
@@ -4603,6 +4644,7 @@ function DigestCard({
   onToggle,
   onJumpToRelated,
   onDynamicEntriesChanged,
+  activeConditionCode,
 }: {
   entry: AnyDigestEntry;
   expanded: boolean;
@@ -4611,6 +4653,8 @@ function DigestCard({
   // 2026-08-15 -- real, in-place refresh for My Kitchen/My Favorites, see
   // BasicHealthShelves' own comment on the identical prop.
   onDynamicEntriesChanged?: () => void;
+  // 2026-08-24, see BasicHealthShelves' own comment on the identical prop.
+  activeConditionCode?: string;
 }) {
   const router = useRouter();
   if (isProblemFoodEntry(entry)) {
@@ -4674,7 +4718,14 @@ function DigestCard({
               <CuratedRecipeShareButton recipeId={entry.linkedCuratedRecipeId} builderType={entry.linkedBuilderType} />
             </View>
           ) : null}
-          {entry.recipeCard ? <RecipeCardDetail card={entry.recipeCard} /> : null}
+          {entry.recipeCard ? (
+            <RecipeCardDetail
+              card={entry.recipeCard}
+              activeConditionCaution={
+                activeConditionCode ? entry.recipeCard.conditionCautions?.[activeConditionCode] : undefined
+              }
+            />
+          ) : null}
           <EntryPhotoSection entry={entry} tabColor={TAB_COLOR} />
           {entry.dynamicAction ? <DynamicEntryActions entry={entry} onDynamicEntriesChanged={onDynamicEntriesChanged} /> : null}
           {entry.chart ? <DigestBarChart chart={entry.chart} color={tierColor(entry.overallTier)} /> : null}
@@ -4717,10 +4768,34 @@ function RecipeDietTagRow({ tags }: { tags: RecipeDietTag[] }) {
   );
 }
 
-function RecipeCardDetail({ card }: { card: RecipeCard }) {
+function RecipeCardDetail({
+  card,
+  activeConditionCaution,
+}: {
+  card: RecipeCard;
+  // 2026-08-24, direct correction: "Meals You Can Eat" now shows every
+  // recipe for a condition, clean ones first, flagged ones after -- this
+  // is the one, specific caution for whichever condition's own page this
+  // recipe was opened from (undefined everywhere else, including plain
+  // Recipes browsing, where no single condition context exists). Kept
+  // deliberately separate from the "Worth knowing if you have..." box
+  // below (card.conditionNotes, which lists every condition's own note
+  // at once regardless of context) rather than folded into it -- stuffing
+  // a mechanically generated caution for all 19 conditions into that
+  // always-visible box on every recipe would have buried the real,
+  // hand-written notes already there under a wall of near-duplicate text.
+  activeConditionCaution?: string;
+}) {
   return (
     <View>
       {card.dietTags ? <RecipeDietTagRow tags={card.dietTags} /> : null}
+
+      {activeConditionCaution ? (
+        <View style={styles.recipeConditionBox}>
+          <Text style={styles.recipeConditionLabel}>A note for this condition</Text>
+          <Text style={styles.recipeNutritionText}>{activeConditionCaution}</Text>
+        </View>
+      ) : null}
 
       <Text style={styles.detailLabel}>Makes</Text>
       <Text style={styles.detailText}>{card.yield}</Text>

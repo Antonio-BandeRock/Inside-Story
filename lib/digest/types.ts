@@ -408,6 +408,24 @@ export type RecipeCard = {
   // Drives the "Meals You Can Eat" topic on each condition's own Digest
   // page (app/(tabs)/purple-digest.tsx).
   safeForConditions?: string[];
+  // 2026-08-24, direct correction to safeForConditions' original role:
+  // "What they can eat is exactly that, everything they can eat, at the
+  // levels of healing that they need to start from and achieve along the
+  // way." The original build used safeForConditions as a hard include/
+  // exclude gate on "Meals You Can Eat," which meant a condition with a
+  // wide relevant-criteria net (Hashimoto's own 25) could only ever show
+  // near-single-ingredient recipes, confirmed directly: its own "safe"
+  // list was 18 of 300, every one a fermented drink, zero actual meals --
+  // and directly contradicted this app's own standing healing-stage rule
+  // (advisory and reordering only, never gating). A recipe flagged for a
+  // condition is no longer excluded from that condition's own "Meals You
+  // Can Eat" list; it carries a real, computed one-sentence caution here
+  // instead, keyed by condition code, naming the specific flagged
+  // ingredient and what the flag means. A condition code absent here for
+  // a given recipe means that recipe is genuinely clean for it (also
+  // reflected in safeForConditions above). Computed alongside
+  // safeForConditions by the same script; see its own header comment.
+  conditionCautions?: Record<string, string>;
   ingredients: RecipeIngredientLine[];
   // One real step per entry, numbered by the UI. Optional, 2026-08-15 --
   // My Kitchen/My Favorites (lib/digestDynamicEntries.ts) build a real

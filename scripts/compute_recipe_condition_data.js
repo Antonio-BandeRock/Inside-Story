@@ -17,7 +17,7 @@
 // tagged "safe" here means the exact same thing "no flag" already means
 // everywhere else in this app.
 //
-// Two real, separate outputs per recipe:
+// Three real, separate outputs per recipe:
 //
 //   safeForConditions: string[] -- condition codes (the live
 //     `conditions` table's own snake_case codes) this recipe has ZERO
@@ -35,6 +35,24 @@
 //     Additives/Processing relevance mapping (see
 //     scripts/add_migraine_condition_relevance.js), so Migraine now has
 //     real coverage too -- all 19 tracked conditions do.
+//
+//   conditionCautions: {[conditionCode]: string} -- 2026-08-24, direct
+//     correction: the original version of this script used
+//     safeForConditions as a hard include/exclude gate on "Meals You Can
+//     Eat," which directly contradicted this app's own standing
+//     healing-stage rule ("advisory and reordering only, never gating")
+//     and, combined with a wide criteria net, meant only near-single-
+//     ingredient recipes could ever pass for a condition like
+//     Hashimoto's (confirmed directly: its own "safe" list was 18 of
+//     300, every one a fermented drink, zero actual meals). A recipe
+//     that trips a flag for a condition is no longer excluded -- it gets
+//     a real, computed one-sentence caution here instead, naming the
+//     specific flagged ingredient (the single most severe hit, red
+//     before yellow) and what the flag means, built from the same tier
+//     vocabulary the rest of this app already uses. One entry per
+//     flagged condition; a condition absent here for a given recipe
+//     means that recipe is genuinely clean for it (already reflected in
+//     safeForConditions too).
 //
 //   stageAdvisoryNotes: {condition, note}[] -- real, computed
 //     RecipeConditionNote-shaped entries, one per (staged condition x
@@ -163,6 +181,83 @@ function isFlaggedTier(tier, subCriterion) {
   if (subCriterion && NEAR_UNIVERSAL_SUB_CRITERIA.has(subCriterion)) return false;
   const s = tierSeverity(tier);
   return s === 'yellow' || s === 'red';
+}
+
+// ---------------------------------------------------------------------
+// Condition caution notes -- 2026-08-24, direct correction to the
+// original "Meals You Can Eat" build: "What they can eat is exactly
+// that, everything they can eat, at the levels of healing that they
+// need to start from and achieve along the way." The original binary
+// safeForConditions gate (a recipe is either fully included or fully
+// excluded the moment ANY one ingredient trips ANY one relevant flag)
+// directly contradicted this app's own standing healing-stage rule
+// ("advisory and reordering only, never gating" -- CLAUDE.md), and
+// combined badly with a wide criteria net (Hashimoto's own 25 relevant
+// sub-criteria): more ingredients means more chances to trip one single
+// flag somewhere, so only near-single-ingredient recipes (fermented
+// drinks) could ever pass, exactly the reported symptom. Confirmed by
+// direct count before writing any code: Hashimoto's own "safe" list was
+// 18 of 300, every one of them a fermented drink, zero actual meals.
+//
+// Fix: safeForConditions is kept (a recipe with zero relevant flags is
+// still worth marking as genuinely clean, for sorting), but a flagged
+// recipe is no longer excluded -- it gets a real, computed caution
+// sentence instead, naming the specific flagged ingredient and what the
+// flag means, built from the exact same tier vocabulary and definitions
+// already shown everywhere else in this app (a faithful port of
+// lib/sixDimensionsReference.ts's own TIER_DEFINITIONS, phrased as a
+// template so it reads naturally combined with a real ingredient name
+// rather than the generic "this food"/"this factor" pronouns that
+// module's own UI-context version uses).
+// Deliberately structured as "Ingredient: rated Tier for factor. <plain
+// explanation>" rather than making the ingredient name the grammatical
+// subject of a verb -- a first version tried that ("Flax seeds skews
+// unfavorably...") and broke on subject-verb agreement for any plural
+// ingredient name, since there's no reliable way to detect an arbitrary
+// base_name's grammatical number. The colon-plus-explanation form needs
+// no agreement at all, and the explanation sentence uses "This," never
+// the ingredient name, as its own subject for the same reason.
+const TIER_CAUTION_EXPLANATIONS = {
+  Goitrogenic: 'Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.',
+  'Use Carefully': 'This may need portion awareness or a doctor’s guidance.',
+  'Excess Risk': 'Eating a lot of this could push the level above a healthy range.',
+  'Mild Risk': 'A modest, generally minor concern.',
+  'High Risk': 'A significant, well-documented concern.',
+  Disruptive: 'This may work against or interfere with the process being measured.',
+  High: 'A meaningfully high level for this measure.',
+  'Very High': 'The highest tier used for this measure.',
+  Inhibiting: 'This may reduce or block the process being measured.',
+  Imbalanced: 'The ratio being measured skews unfavorably here.',
+  Present: 'A measurable amount is present.',
+  Moderate: 'A moderate level for this measure.',
+  Natural: 'A naturally occurring form, treated differently from an industrially produced one.',
+};
+const TIER_CAUTION_QUALIFIERS = [
+  { pattern: /\(Raw\)/i, phrase: ' in its raw form' },
+  { pattern: /\(Cooked\)/i, phrase: ' after cooking' },
+];
+
+function buildCautionSentence(baseName, subCriterion, tier) {
+  const baseWord = tier.replace(/\s*\([^)]*\)\s*$/, '').trim();
+  const explanation = TIER_CAUTION_EXPLANATIONS[baseWord] ?? `Rated ${tier} for this factor.`;
+  // Skip the qualifier suffix when the ingredient's own base_name already
+  // names the form directly (e.g. "Chicken Egg (Raw)" is a real, distinct
+  // curated_recipe_ingredients.base_name in this database, not something
+  // this script adds) -- otherwise it would read as a redundant "(Raw)...
+  // in its raw form."
+  const alreadyNamesForm = /\((raw|cooked)\)/i.test(baseName);
+  const qualifier = alreadyNamesForm ? '' : (TIER_CAUTION_QUALIFIERS.find(({ pattern }) => pattern.test(tier))?.phrase ?? '');
+  return `${baseName}: rated ${tier} for ${subCriterion.toLowerCase()}${qualifier}. ${explanation}`;
+}
+
+// Picks the single most useful hit to caption a flagged recipe with: red
+// severity first (the more significant real concern), then the first one
+// encountered in the recipe's own ingredient order -- one clear sentence
+// reads better as a caption than a stacked list, and this is advisory
+// text pointing at a real flag, not an exhaustive audit.
+function pickCautionHit(hits) {
+  const red = hits.find((h) => tierSeverity(h.tier) === 'red');
+  return red ?? hits[0];
 }
 
 // ---------------------------------------------------------------------
@@ -470,32 +565,43 @@ for (const row of ingredientRows) {
   ingredientsByRecipe.get(row.recipeId).push(row);
 }
 
-console.log('Computing per-recipe condition safety and stage advisories...');
+console.log('Computing per-recipe condition safety, cautions, and stage advisories...');
 const output = {};
 for (const [recipeId, ingredients] of ingredientsByRecipe.entries()) {
   const resolvedIngredientScores = [];
+  // Parallel array to resolvedIngredientScores -- each ingredient's own
+  // real base_name, so a flagged hit can be captioned with the actual
+  // ingredient responsible, not just "something in this recipe."
+  const resolvedIngredientNames = [];
   for (const ing of ingredients) {
     const key = `${ing.category}|${ing.baseName}`;
     const resolved = resolvedByKey.get(key);
     if (!resolved) continue;
     const foodKey = `${resolved.food_id}|${resolved.source}`;
     resolvedIngredientScores.push(scoresByFoodKey.get(foodKey) ?? []);
+    resolvedIngredientNames.push(ing.baseName);
   }
 
-  // --- safeForConditions ---
+  // --- safeForConditions + conditionCautions ---
   const safeForConditions = [];
+  const conditionCautions = {};
   for (const conditionCode of coveredConditions) {
-    let flagged = false;
-    for (const scores of resolvedIngredientScores) {
+    const hits = [];
+    for (let i = 0; i < resolvedIngredientScores.length; i++) {
+      const scores = resolvedIngredientScores[i];
+      const baseName = resolvedIngredientNames[i];
       for (const row of scores) {
         if (isRelevantToCondition(row.subCriterionId, conditionCode) && isFlaggedTier(row.tier, row.subCriterion)) {
-          flagged = true;
-          break;
+          hits.push({ baseName, subCriterion: row.subCriterion, tier: row.tier });
         }
       }
-      if (flagged) break;
     }
-    if (!flagged) safeForConditions.push(conditionCode);
+    if (hits.length === 0) {
+      safeForConditions.push(conditionCode);
+    } else {
+      const hit = pickCautionHit(hits);
+      conditionCautions[conditionCode] = buildCautionSentence(hit.baseName, hit.subCriterion, hit.tier);
+    }
   }
   safeForConditions.sort();
 
@@ -519,7 +625,7 @@ for (const [recipeId, ingredients] of ingredientsByRecipe.entries()) {
     }
   }
 
-  output[recipeId] = { safeForConditions, stageAdvisoryNotes };
+  output[recipeId] = { safeForConditions, conditionCautions, stageAdvisoryNotes };
 }
 
 const outPath = path.join(__dirname, '_recipe_condition_data_output.json');
@@ -528,10 +634,13 @@ console.log(`Wrote ${Object.keys(output).length} recipes -> ${outPath}`);
 
 // Summary counts.
 const conditionCounts = {};
+const cautionCounts = {};
 let totalStageNotes = 0;
-for (const { safeForConditions, stageAdvisoryNotes } of Object.values(output)) {
+for (const { safeForConditions, conditionCautions, stageAdvisoryNotes } of Object.values(output)) {
   for (const c of safeForConditions) conditionCounts[c] = (conditionCounts[c] || 0) + 1;
+  for (const c of Object.keys(conditionCautions)) cautionCounts[c] = (cautionCounts[c] || 0) + 1;
   totalStageNotes += stageAdvisoryNotes.length;
 }
-console.log('Recipes safe per condition:', conditionCounts);
+console.log('Recipes safe (zero flags) per condition:', conditionCounts);
+console.log('Recipes with a computed caution per condition:', cautionCounts);
 console.log('Total real stage-advisory notes generated:', totalStageNotes);
