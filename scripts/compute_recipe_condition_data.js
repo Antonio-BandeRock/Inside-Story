@@ -26,12 +26,15 @@
 //     OR sub_criterion_condition_relevance), exactly matching
 //     getFoodScoresForCondition's own real scoping. Only computed for
 //     conditions with real, non-empty scoring coverage in this
-//     database -- Migraine has ZERO home-owned or relevance-mapped
-//     sub-criteria at all (confirmed by direct query before writing
-//     this), so it is deliberately excluded rather than trivially
-//     marking every recipe "safe" for it, which would be a fabricated
-//     signal, not real data. 18 of the 19 tracked conditions get real
-//     coverage.
+//     database. Migraine had ZERO home-owned or relevance-mapped
+//     sub-criteria when this script was first written (2026-08-24),
+//     excluded rather than trivially marked "safe" for everything --
+//     later the same day, direct follow-up research (see
+//     migraine-aip-elimination-diet-inflammation/-histamine-dao-
+//     deficiency in lib/digest/migraine.ts) justified a real
+//     Additives/Processing relevance mapping (see
+//     scripts/add_migraine_condition_relevance.js), so Migraine now has
+//     real coverage too -- all 19 tracked conditions do.
 //
 //   stageAdvisoryNotes: {condition, note}[] -- real, computed
 //     RecipeConditionNote-shaped entries, one per (staged condition x
@@ -406,7 +409,10 @@ for (const row of relevanceRows) {
 }
 
 // Real conditions with at least one real, relevant sub-criterion --
-// Migraine deliberately excluded (confirmed zero coverage).
+// dynamic, not a hardcoded 18-of-19 list, so a later real coverage
+// addition (Migraine's own Additives/Processing mapping, added
+// 2026-08-24, see add_migraine_condition_relevance.js) is picked up
+// automatically on the next run without touching this script.
 const coveredConditions = new Set();
 for (const row of subCriteriaRows) {
   if (row.homeConditionCode) coveredConditions.add(row.homeConditionCode);

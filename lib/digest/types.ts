@@ -382,11 +382,13 @@ export type RecipeCard = {
   // same way lib/db.ts's own getFoodScoresForCondition already scopes
   // it. Computed once, offline, via
   // scripts/compute_recipe_condition_data.js -- see that script's own
-  // header comment for the full, auditable methodology, including why
-  // Migraine (zero real condition-specific scoring data in this
-  // database) is honestly excluded rather than trivially marked safe
-  // for. Drives the real "Meals You Can Eat" topic on each covered
-  // condition's own Digest page (app/(tabs)/purple-digest.tsx).
+  // header comment for the full, auditable methodology. All 19 tracked
+  // conditions get real coverage as of 2026-08-24 (Migraine's own real
+  // Additives/Processing relevance mapping, added the same day as a
+  // direct follow-up to real AIP/migraine research, closed what had
+  // been the one gap -- see scripts/add_migraine_condition_relevance.js).
+  // Drives the "Meals You Can Eat" topic on each condition's own Digest
+  // page (app/(tabs)/purple-digest.tsx).
   safeForConditions?: string[];
   ingredients: RecipeIngredientLine[];
   // One real step per entry, numbered by the UI. Optional, 2026-08-15 --

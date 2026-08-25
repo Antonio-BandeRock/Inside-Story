@@ -1175,12 +1175,16 @@ function classifyConditionTopic(entry: AnyDigestEntry): ConditionTopic {
 // entry already uses (an entry's own real `category` field still reads
 // 'recipes', which is honest, not a bug -- a Related-entry chip or any
 // other place that reads `entry.category` sees exactly what this really
-// is). Only 18 of the 19 tracked conditions get real coverage; Migraine
-// has zero real condition-specific scoring data in this database
-// (confirmed by direct query before building this), so it contributes
-// nothing here, silently and correctly, the same "no real data, no
-// guessed placeholder" precedent lib/conditionStageAdvisory.ts's own
-// dispatcher already established.
+// is). All 19 tracked conditions get real coverage as of 2026-08-24 --
+// Migraine, the one real gap when this topic first shipped the same
+// day, was closed a few hours later by a direct follow-up request,
+// adding a real Additives/Processing relevance mapping grounded in the
+// AIP/migraine research also shipped that day (see
+// scripts/add_migraine_condition_relevance.js). A condition with truly
+// no relevant sub-criteria at all still contributes nothing here,
+// silently and correctly, the same "no real data, no guessed
+// placeholder" precedent lib/conditionStageAdvisory.ts's own dispatcher
+// already established -- there just isn't one anymore.
 // Computed once and cached at module scope, not per-render -- 2026-08-24,
 // the same "static bundled content never changes at runtime, so a
 // one-time bulk pass beats recomputing it" reasoning lib/db.ts's own
