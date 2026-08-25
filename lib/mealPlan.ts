@@ -37,7 +37,7 @@
 // every eligible Smoothie/Salad/Soup/Handheld/Side had already been used
 // exactly once by day 14. Weeks 3-6 deliberately reach for whole foods the
 // first two weeks never touched -- halibut, trout, tuna, sardine,
-// mackerel, scallop, mussel, crab, lamb, duck, bison, pork chop, pork
+// mackerel, scallop, mussel, crab, lamb, duck, pork chop, pork
 // loin, turkey thigh, kiwi, papaya, peach, apricot, plum, nectarine,
 // clementine, grapefruit, fig, date, watermelon, cantaloupe, fennel,
 // parsnip, leek, radish, turnip, collards, kohlrabi, bok choy, okra,
