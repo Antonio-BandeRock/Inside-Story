@@ -66,7 +66,16 @@ export type ConditionStagingModel = {
 export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
   {
     conditionCode: 'hashimotos',
-    conditionLabel: "Hashimoto's Disease",
+    // 2026-08-25, direct request: rename to "Hashimoto's Thyroiditis," the
+    // most common clinical name, throughout the app. Every real stage-note
+    // string already stored in lib/digest/recipes.ts (built from this
+    // exact label via stageNoteKeyFor) was renamed to match in the same
+    // pass, verified by count (312 occurrences, all condition: field
+    // values, zero left over) rather than assumed safe from this one line
+    // alone -- changing this label without also updating those stored
+    // strings would have silently broken every stage-specific advisory
+    // note's own lookup.
+    conditionLabel: "Hashimoto's Thyroiditis",
     frameworkName: 'The Healing/Regression Stages (Dr. Izabella Wentz)',
     frameworkNote: 'A real, named practitioner framework -- not mainstream endocrinology consensus. See Digest\'s own Healing Stages category for the full, cited guide.',
     stages: HEALING_STAGES.map((code) => ({

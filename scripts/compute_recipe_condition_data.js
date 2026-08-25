@@ -110,7 +110,7 @@ function runSql(sql, params = []) {
 // and CONDITION_CODE_TO_DIGEST_KEY's own known 19 codes).
 // ---------------------------------------------------------------------
 const CONDITION_LABELS = {
-  hashimotos: "Hashimoto's Disease",
+  hashimotos: "Hashimoto's Thyroiditis", // 2026-08-25: renamed from "Hashimoto's Disease" to match lib/conditionStages.ts
   rheumatoid_arthritis: 'Rheumatoid Arthritis',
   psoriasis: 'Psoriasis',
   graves: "Graves' Disease",
@@ -649,7 +649,7 @@ function goutStageReasons(scores, stage) {
 const STAGED_CONDITIONS = [
   {
     code: 'hashimotos',
-    label: "Hashimoto's Disease",
+    label: "Hashimoto's Thyroiditis", // 2026-08-25: renamed from "Hashimoto's Disease"
     stages: [
       { code: 'digging', label: 'Stage 2: Digging' },
       { code: 'gut_repair', label: 'Stage 3: Gut Repair' },

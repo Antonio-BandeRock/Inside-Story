@@ -69,7 +69,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260825120000';
+export const PURPLE_DIGEST_VERSION = '20260825130000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -180,7 +180,10 @@ export const DIGEST_CATEGORY_META: {
   },
   {
     key: 'hashimotos',
-    label: "Hashimoto's Disease",
+    // 2026-08-25, direct request: "Hashimoto's Thyroiditis" throughout,
+    // the name most commonly used clinically, rather than "Hashimoto's
+    // Disease."
+    label: "Hashimoto's Thyroiditis",
     icon: 'medkit-outline',
     description: "Every Hashimoto's-specific finding in this Digest, in one place: nutrients, labs and medication timing, healing stages, organ systems, history, pregnancy, corroborating cross-disease evidence, and Hashimoto's self-advocacy guidance.",
   },

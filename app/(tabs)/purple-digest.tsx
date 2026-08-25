@@ -345,7 +345,7 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
     body: "How the body itself works, independent of any diagnosis: a growing \"Essential Nutrients\" deep-dive series covering most major vitamins, minerals, and macronutrients, food additive dose-and-mechanism detail, food-and-swap entries for common everyday reactions (garlic, dairy, refined oils, commercial products), verified fermented-food bacterial strains, nutrient interactions (what helps or competes with what absorption), a food-industry and scapegoat history, general lifestyle and environmental exposures with no disease-specific claim, general exercise/autophagy biology, a full glossary, and general patient-advocacy skills like how to ask a doctor for a fuller lab panel. Deliberately excludes autoimmune-disease mechanisms and anything condition-specific, even when studied in a disease other than Hashimoto's, and excludes planet/agriculture-system content like soil, pollinators, and pesticides, that content lives in each condition's own area, or in Earth Matters, instead. This is what the Free tier shows in full. Organized as related groups, each its own horizontally-scrolling row, scroll a row sideways to browse its own tabs, or scroll the screen down to move to the next group. Tap a tab to open its full entry directly below that same row; tap a different tab in the same row to switch, without leaving the group. A search bar above the groups searches only within Basic Health.",
   },
   hashimotos: {
-    heading: "Hashimoto's Disease",
+    heading: "Hashimoto's Thyroiditis",
     body: "Every Hashimoto's-specific and autoimmune-mechanism finding in this Digest, gathered into one area, the same way each other condition already has its own: thyroid-specific nutrients (selenium, iodine, and newer candidates), labs and medication timing (levothyroxine, biotin interference, TSH's own diurnal rhythm), what to eat at each healing stage, how the disease reaches past the thyroid into other organs, the dated history behind Hashimoto's own diagnosis and treatment, pregnancy-specific guidance, gut-barrier and microbiome science (SCFAs, zonulin, what actually repairs a leaky gut), complementary therapies evaluated against thyroid/autoimmune outcomes specifically, corroborating cross-disease evidence, a Hashimoto's-specific problem-foods list, and Hashimoto's own self-advocacy section: which lab tests to ask for, why, and how often.",
   },
   rheumatoidArthritis: {
@@ -471,7 +471,7 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
 // Empty as of the 2026-08-08 restructure to real per-condition names --
 // checked again 2026-08-21 against the grid's real column width at the
 // 3-column layout above, and every current label (Basic Health,
-// Hashimoto's Disease, Rheumatoid Arthritis, Psoriasis, and all 15 other
+// Hashimoto's Thyroiditis, Rheumatoid Arthritis, Psoriasis, and all 15 other
 // real conditions) still wraps cleanly to 2 lines on its own via plain
 // word-wrap, with no ugly mid-phrase break to correct. Kept as a real,
 // live mechanism (not deleted) since a future, longer condition name may
@@ -731,7 +731,7 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
     label: 'Prevention & Lifestyle by Condition',
     description: 'What to eat and which lifestyle habits help prevent or manage each of the 19 conditions this app tracks, organized by condition.',
     subtopics: [
-      { label: "Hashimoto's Disease", prefixes: ['prevention-hashimotos', 'apphelps-hashimotos'] },
+      { label: "Hashimoto's Thyroiditis", prefixes: ['prevention-hashimotos', 'apphelps-hashimotos'] },
       { label: "Graves' Disease", prefixes: ['prevention-graves', 'apphelps-graves'] },
       { label: 'Rheumatoid Arthritis', prefixes: ['prevention-ra', 'apphelps-ra'] },
       { label: 'Psoriasis', prefixes: ['prevention-psoriasis', 'apphelps-psoriasis'] },
@@ -3926,7 +3926,7 @@ export default function PurpleDigestScreen() {
                   // Basic Health" specifically to "‹ Back to {activeLensLabel}"
                   // once every category (not just Basic Health) gained the
                   // same menu-first drill-down, so a Hashimoto's topic reads
-                  // "‹ Back to Hashimoto's Disease," a Recipes topic reads
+                  // "‹ Back to Hashimoto's Thyroiditis," a Recipes topic reads
                   // "‹ Back to Recipes," and so on.
                   //
                   // 2026-08-24, direct follow-up: a real third depth exists
