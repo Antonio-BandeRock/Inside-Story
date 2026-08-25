@@ -1328,17 +1328,39 @@ function groupConditionEntries(
     if (!buckets.has(topic)) buckets.set(topic, []);
     buckets.get(topic)!.push(entry);
   }
+  // 2026-08-25, direct report: "The meals you can eat should be separated
+  // into groups specific to what they are... related to the Food builders
+  // that they would open into." Sub-grouped by the exact same
+  // classifyRecipesTopic/RECIPES_TOPIC_ORDER the plain Recipes category
+  // already uses (Sides, Salads & Bowls, Soups, and so on), '::'-joined
+  // under the "Meals You Can Eat" label the same way Essential Nutrients'
+  // own subtopics already are -- shelfHeadingLabel and the topic-menu
+  // collapsing logic at this screen's own render call site already handle
+  // that prefix generically, no changes needed to either. Order within
+  // each sub-shelf is preserved exactly as mealsYouCanEatForCondition
+  // already computed it (clean-first, then cautioned), since entries are
+  // bucketed here in the same order they arrive in, not independently
+  // re-sorted.
+  const mealsYouCanEatSubTopics: { label: string; entries: AnyDigestEntry[] }[] = [];
   if (conditionCode) {
     const mealsYouCanEat = mealsYouCanEatForCondition(conditionCode, declaredStageCode);
-    // Pre-sorted (clean-first, then cautioned) by mealsYouCanEatForCondition
-    // itself -- left as-is below, the same way this bucket's own order was
-    // already exempted from the generic re-sort before this change.
-    if (mealsYouCanEat.length > 0) buckets.set('Meals You Can Eat', mealsYouCanEat);
+    const byBuilderType = new Map<RecipeTopic, AnyDigestEntry[]>();
+    for (const entry of mealsYouCanEat) {
+      const subTopic = classifyRecipesTopic(entry);
+      if (!byBuilderType.has(subTopic)) byBuilderType.set(subTopic, []);
+      byBuilderType.get(subTopic)!.push(entry);
+    }
+    for (const subTopic of RECIPES_TOPIC_ORDER) {
+      const subEntries = byBuilderType.get(subTopic);
+      if (subEntries && subEntries.length > 0) {
+        mealsYouCanEatSubTopics.push({ label: `Meals You Can Eat::${subTopic}`, entries: subEntries });
+      }
+    }
   }
-  const topics = CONDITION_TOPIC_ORDER.map((topic) => ({
-    label: topic as string,
-    entries: topic === 'Meals You Can Eat' ? (buckets.get(topic) ?? []) : sortDigestEntriesLogically(buckets.get(topic) ?? []),
-  })).filter((group) => group.entries.length > 0);
+  const topics = CONDITION_TOPIC_ORDER.flatMap((topic) => {
+    if (topic === 'Meals You Can Eat') return mealsYouCanEatSubTopics;
+    return [{ label: topic as string, entries: sortDigestEntriesLogically(buckets.get(topic) ?? []) }];
+  }).filter((group) => group.entries.length > 0);
   return { topics, tyingTogether };
 }
 
@@ -2715,7 +2737,17 @@ export default function PurpleDigestScreen() {
       return scoped;
     }
     const { topics } = groupEntriesForLens(lens as DigestCategoryKey, entries);
-    return topics.find((topic) => topic.label === selectedTopicGroup)?.entries ?? entries;
+    // 2026-08-25: split(::)[0] rather than an exact match, matching
+    // BasicHealthShelves' own drill-in filter -- "Meals You Can Eat" now
+    // resolves to several '::'-joined sub-topics of its own (see
+    // groupConditionEntries), so an exact match here would silently find
+    // nothing and fall all the way back to searching the WHOLE category
+    // instead of just this one topic. Combines every matching sub-topic's
+    // own entries, since search should cover all of Meals You Can Eat's
+    // own sub-shelves at once here, the same "search the area where you
+    // are" scope every other topic already gets.
+    const matching = topics.filter((topic) => topic.label.split('::')[0] === selectedTopicGroup);
+    return matching.length > 0 ? matching.flatMap((topic) => topic.entries) : entries;
   }, [entries, lens, selectedTopicGroup, selectedBasicHealthSubgroup, basicHealthGroups]);
   // 2026-08-09, keyed by id to a real SearchMatchInfo now, not just a plain
   // Set -- the same "which terms actually matched, title or just body"
@@ -2744,7 +2776,13 @@ export default function PurpleDigestScreen() {
         : (() => {
             const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries);
             const allTopics = tyingTogether ? [...topics, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }] : topics;
-            return selectedTopicGroup === null ? allTopics : allTopics.filter((topic) => topic.label === selectedTopicGroup);
+            // 2026-08-25: split(::)[0] rather than an exact match, same
+            // reasoning as categorySearchScopeEntries above -- keeps every
+            // one of "Meals You Can Eat"'s own sub-shelves in the scoped
+            // search results instead of matching none of them.
+            return selectedTopicGroup === null
+              ? allTopics
+              : allTopics.filter((topic) => topic.label.split('::')[0] === selectedTopicGroup);
           })();
     return baseGroups
       .map((group) => ({
@@ -3646,7 +3684,16 @@ export default function PurpleDigestScreen() {
                     const activeConditionCode = DIGEST_KEY_TO_CONDITION_CODE[lens as DigestCategoryKey];
                     return (
                       <BasicHealthShelves
-                        groups={topics.filter((topic) => topic.label === selectedTopicGroup)}
+                        // 2026-08-25: split(::)[0] rather than an exact
+                        // match, so "Meals You Can Eat" -- the one topic in
+                        // this generic path with real sub-groups of its own
+                        // (Sides, Salads & Bowls, and so on, see
+                        // groupConditionEntries' own comment) -- resolves to
+                        // every one of its own sub-shelves shown together,
+                        // not just a single exact-label match. A no-op for
+                        // every other topic here, none of which ever carry a
+                        // '::' in their own label.
+                        groups={topics.filter((topic) => topic.label.split('::')[0] === selectedTopicGroup)}
                         expandedId={expandedId}
                         groupRefs={groupRefs}
                         onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
@@ -3661,12 +3708,12 @@ export default function PurpleDigestScreen() {
                   return (
                     <>
                       <DigestTopicMenu
-                        groups={topics.map((topic) => ({ label: topic.label, entryCount: topic.entries.length }))}
+                        groups={collapseTopicsForMenu(topics)}
                         onSelectGroup={setSelectedTopicGroup}
                       />
                       {tyingTogether ? (
                         <View
-                          style={styles.shelfSection}
+                          style={styles.tyingTogetherAfterMenu}
                           ref={(r) => {
                             groupRefs.current[TYING_TOGETHER_GROUP_KEY] = r as unknown as Measurable | null;
                           }}
@@ -3679,6 +3726,21 @@ export default function PurpleDigestScreen() {
                               above it just repeated the card's own point with
                               nothing else in the section to justify a label
                               at all. Removed outright rather than reworded. */}
+                          {/* 2026-08-25, direct report: removing that heading
+                              also removed the only thing providing visual
+                              separation from DigestTopicMenu above -- plain
+                              styles.shelfSection only ever carried a
+                              marginBottom (the gap BasicHealthShelves' own
+                              multiple shelves rely on to space themselves from
+                              EACH OTHER), never a marginTop, so this card
+                              ended up sitting flush against the topic menu's
+                              own last row instead of the same distance every
+                              other section keeps from its neighbor. A new,
+                              scoped tyingTogetherAfterMenu style (below) adds
+                              that missing top gap without touching
+                              shelfSection itself, which would have doubled up
+                              the (already-correct) space between two ordinary
+                              shelves inside BasicHealthShelves. */}
                           <Animated.View layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}>
                             <DigestCard
                               entry={tyingTogether}
@@ -4205,6 +4267,30 @@ function SearchResultCard({
 function shelfGroupDisplayLabel(label: string): string {
   if (label === TYING_TOGETHER_GROUP_KEY) return 'Putting It Together';
   return label.split('::').join(' › ');
+}
+
+// A category's own top-level topic menu needs exactly one row per real
+// topic, never one per sub-shelf -- 2026-08-25, the same real "fold
+// leaf groups back under one shared row" collapsing already built for
+// Basic Health's own Essential Nutrients (basicHealthMenuGroups), now
+// needed generically here too once "Meals You Can Eat" (see
+// groupConditionEntries' own comment) started producing several
+// '::'-joined sub-topics of its own instead of one flat group. A no-op
+// for every other topic passed through this screen, none of which ever
+// carry a '::' in their own label -- order is preserved as given (the
+// position its first sub-topic occupies in topics), not alphabetized,
+// matching this generic path's own standing "keep each category's
+// curated narrative order" rule (unlike Basic Health's own menu, which
+// is alphabetized by direct, separate request).
+function collapseTopicsForMenu(topics: { label: string; entries: AnyDigestEntry[] }[]): { label: string; entryCount: number }[] {
+  const menu: { label: string; entryCount: number }[] = [];
+  for (const topic of topics) {
+    const topLabel = topic.label.split('::')[0];
+    const existing = menu.find((row) => row.label === topLabel);
+    if (existing) existing.entryCount += topic.entries.length;
+    else menu.push({ label: topLabel, entryCount: topic.entries.length });
+  }
+  return menu;
 }
 
 // A shelf's own heading, with its leading top-level segment dropped when
@@ -5622,6 +5708,18 @@ const styles = StyleSheet.create({
   // 2026-08-14 alongside BasicHealthTree/TopicCard -- see that removal's
   // own comment, above this file's grouping functions.
   shelfSection: { marginBottom: 18 },
+  // 2026-08-25, direct report: the closing "tying together" card, shown
+  // directly under a category's own top-level DigestTopicMenu, needs the
+  // same 18px this screen already uses everywhere else to separate one
+  // section from its neighbor -- shelfSection itself only ever carries
+  // marginBottom (correct for BasicHealthShelves' own multiple shelves,
+  // which only ever need space AFTER each other, never before the first
+  // one), so reusing it here left this card flush against the menu above
+  // once the standalone "Putting It Together" heading that used to sit
+  // between them was removed. A separate style rather than adding
+  // marginTop to shelfSection itself, which would have doubled the gap
+  // between two ordinary shelves elsewhere.
+  tyingTogetherAfterMenu: { marginTop: 18, marginBottom: 18 },
   // 2026-08-23, every category's own topic menu (DigestTopicMenu, above),
   // first built for Basic Health, then extended to every other category
   // the same day -- the same card look (colors.surface fill, TAB_COLOR
