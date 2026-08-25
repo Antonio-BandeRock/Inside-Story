@@ -3,4 +3,4 @@
 // scripts/add_vegan_meal_plan_mains.py, which patch the compiled .db
 // directly, and by scripts/add_migraine_condition_relevance.js) -- do
 // not edit by hand.
-export const REFERENCE_DB_VERSION = "20260825140000";
+export const REFERENCE_DB_VERSION = "20260825160000";
