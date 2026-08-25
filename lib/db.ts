@@ -1765,6 +1765,35 @@ export async function curatedRecipeContainsSweetenerIngredient(curatedRecipeId: 
   return (row?.count ?? 0) > 0;
 }
 
+// 2026-08-25, built for the Daily Meal Plan generator's own new frequency
+// rules (fish at least twice a week, red meat capped -- lib/
+// dailyMealPlan.ts). Deliberately checks an explicit, verified base_name
+// list rather than the reference database's own real `foods.subcategory`
+// column -- checked directly first, and rejected: real salmon rows (both
+// 'Salmon Fillet (Raw)' variants, the only salmon this app's own curated
+// recipes actually use) carry subcategory 'Meat & Poultry', not 'Fish &
+// Seafood', a real, confirmed data-quality inconsistency in the
+// reference database that would have silently missed this app's own
+// most commonly used fish. curatedRecipeContainsAnyIngredient below
+// checks a plain base_name allowlist instead, built the same way
+// BREAKFAST_ELIGIBLE_RECIPE_IDS was: every one of the 24 real, distinct
+// 'Meat'-category base_names actually used anywhere across all 300
+// curated recipes was pulled by direct query and individually
+// classified by hand (lib/dailyMealPlan.ts's own FISH_SEAFOOD_BASE_NAMES/
+// RED_MEAT_BASE_NAMES), not guessed or trusted from this one column.
+export async function curatedRecipeContainsAnyIngredient(curatedRecipeId: string, category: string, baseNames: string[]): Promise<boolean> {
+  if (baseNames.length === 0) return false;
+  const db = await getReferenceDatabase();
+  const placeholders = baseNames.map(() => '?').join(', ');
+  const row = await db.getFirstAsync<{ count: number }>(
+    `SELECT COUNT(*) AS count FROM curated_recipe_ingredients WHERE recipe_id = ? AND category = ? AND base_name IN (${placeholders})`,
+    curatedRecipeId,
+    category,
+    ...baseNames,
+  );
+  return (row?.count ?? 0) > 0;
+}
+
 // Fetches the curated recipe strains a real curated fermentation recipe
 // declares it uses (see curated_recipe_strains just below) -- a real,
 // separate lookup from getCuratedRecipe's own ingredient resolution, since
