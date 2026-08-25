@@ -6108,7 +6108,12 @@ const styles = StyleSheet.create({
   matchTermPillBody: { backgroundColor: 'transparent', borderColor: TAB_COLOR },
   matchTermPillMiss: { backgroundColor: 'transparent', borderColor: colors.border },
   matchTermPillText: { ...typography.caption, ...menuLabelShadow, color: TAB_TEXT_COLOR, fontSize: 11 },
-  matchTermPillTextTitle: { color: colors.background, fontWeight: '700' },
+  // 2026-08-25, direct report: "drop shadowed is fine only if the font is
+  // not already bolded," the same rule dietTagPillText was already fixed
+  // under -- matchTermPillText (below) already carries menuLabelShadow, so
+  // this filled/title-matched variant loses its own fontWeight: '700'
+  // rather than stacking bold on top of an already-shadowed pill.
+  matchTermPillTextTitle: { color: colors.background },
   matchTermPillTextMiss: { color: colors.textMuted },
   // SearchMatchDemo's own worked-example block, inside the "About Search
   // Matching" sheet -- 2026-08-09, direct request for real, visual dot/
