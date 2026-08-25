@@ -64,6 +64,7 @@ import {
   findDigestEntryById,
   getEntriesForCategory,
   isProblemFoodEntry,
+  recipeMatchesAllDietPreferences,
   searchDigestEntriesScored,
   searchEntriesScored,
   type AnyDigestEntry,
@@ -1886,45 +1887,11 @@ function orderCautionTier(entries: AnyDigestEntry[], conditionCode: string, decl
 // the 300 curated recipes and Profile's own "Diet Preferences" card
 // already collecting exactly this.
 //
-// The base tier (Vegan/Vegetarian/Omnivore) is the one place in the real
-// RecipeDietTag vocabulary with an actual implied-looser-tag
-// relationship (compute_recipe_diet_tags.js's own header comment: "vegan
-// implying vegetarian-safe so only the strictest applies" -- a recipe
-// gets exactly one of the three, never more than one). A person who
-// declared Vegetarian can still eat a Vegan-tagged recipe (it never
-// contains meat, dairy, or eggs either), so a plain equality check would
-// wrongly hide it; a person who declared Omnivore has no real
-// restriction on this axis at all and should see every recipe regardless
-// of which of the three it happens to carry. BASE_DIET_TIER_RANK encodes
-// that real ordering (0 = most restrictive) so a recipe qualifies
-// whenever its own base tag is at least as restrictive as the declared
-// preference. Every other tag (Mediterranean, Gluten-Free, Paleo, AIP,
-// and so on) is computed independently with no implied looser tag, a
-// direct match is correct there.
-const BASE_DIET_TIER_RANK: Partial<Record<RecipeDietTag, number>> = { Vegan: 0, Vegetarian: 1, Omnivore: 2 };
-
-function recipeMatchesDietPreference(dietTags: RecipeDietTag[] | undefined, preference: RecipeDietTag): boolean {
-  const preferenceRank = BASE_DIET_TIER_RANK[preference];
-  if (preferenceRank !== undefined) {
-    const recipeBaseTag = dietTags?.find((tag) => BASE_DIET_TIER_RANK[tag] !== undefined);
-    // No base tag at all shouldn't happen (every curated recipe gets
-    // exactly one), but fails closed rather than silently passing.
-    if (recipeBaseTag === undefined) return false;
-    return BASE_DIET_TIER_RANK[recipeBaseTag]! <= preferenceRank;
-  }
-  return dietTags?.includes(preference) ?? false;
-}
-
-// A recipe is only actually eatable under EVERY declared preference at
-// once (AND, not OR) -- someone who is both vegan and dairy-free needs
-// both satisfied, not either one. An empty preference list is a no-op
-// (matches everything), the same "absence means no restriction" contract
-// the rest of this app's own preference systems already follow.
-function recipeMatchesAllDietPreferences(entry: AnyDigestEntry, dietPreferences: RecipeDietTag[]): boolean {
-  if (dietPreferences.length === 0) return true;
-  if (isProblemFoodEntry(entry) || !entry.recipeCard) return false;
-  return dietPreferences.every((preference) => recipeMatchesDietPreference(entry.recipeCard!.dietTags, preference));
-}
+// recipeMatchesDietPreference/recipeMatchesAllDietPreferences moved to
+// lib/digest/types.ts, 2026-08-25, once the new Daily Meal Plan
+// generator (lib/dailyMealPlan.ts) needed the exact same logic -- one
+// shared home for this vocabulary's own matching rules instead of a
+// second, duplicated copy.
 
 // The real, full "Meals You Can Eat" list for a condition: every recipe
 // with real per-condition data, genuinely clean ones first (so the

@@ -1700,6 +1700,71 @@ export async function getCuratedRecipe(
   };
 }
 
+// 2026-08-25, built for the new Daily Meal Plan generator (lib/
+// dailyMealPlan.ts): real, live nutrient totals for one curated recipe as
+// prepared, reusing resolveIngredientNutrientTotals/addNutrientTotalsInto
+// (below, in the nutrient-totals section of this file) exactly as-is --
+// the same pipeline Trends already uses for a logged or scheduled meal's
+// real totals, not a separate, newly-written computation that could
+// silently disagree with what those screens already show. Computed live
+// against the reference database every time, never pre-baked into
+// recipes.ts, so it can never drift from what getCuratedRecipe itself
+// would resolve if the reference data changes later.
+//
+// Every one of the 300 curated recipes was already rescaled to a single
+// person's own one serving (2026-08-24 status entry), so recipe.servings
+// is 1 for virtually all of them -- dishServings/yourSharePercent are
+// still passed through for real correctness on the rare recipe where
+// that isn't true, rather than assuming it always is.
+export async function getCuratedRecipeNutrientTotals(curatedRecipeId: string): Promise<Record<string, number> | null> {
+  const recipe = await getCuratedRecipe(curatedRecipeId);
+  if (!recipe || recipe.ingredients.length === 0) return null;
+  const caches = createIngredientResolutionCaches();
+  const totals: Record<string, number> = {};
+  let resolvedAny = false;
+  for (const ingredient of recipe.ingredients) {
+    const itemTotals = await resolveIngredientNutrientTotals(
+      {
+        foodId: `${ingredient.foodId}|${ingredient.source}`,
+        category: ingredient.category,
+        rawAmount: ingredient.quantity,
+        rawUnit: ingredient.unit,
+        quantityMultiplier: 1,
+        dishServings: recipe.servings,
+      },
+      caches,
+    );
+    if (itemTotals) {
+      addNutrientTotalsInto(totals, itemTotals);
+      resolvedAny = true;
+    }
+  }
+  return resolvedAny ? totals : null;
+}
+
+// 2026-08-25, direct request: "without sugars being used in breakfast."
+// A real, structural check rather than a total-sugar-gram threshold --
+// every curated recipe that adds honey, maple syrup, or granulated sugar
+// as an actual ingredient uses the reference database's own real
+// 'Sweets' category for it (confirmed by direct query against every
+// curated_recipe_ingredients row already using it: "Maple syrup",
+// "Standard Honey (Blossom Honey)", "Sugar (Cane / Granulated)", and so
+// on), so this asks the one question that actually matters -- was a
+// sweetener deliberately added -- without also penalizing a recipe whose
+// only sugar is what naturally comes from real fruit already in it
+// (already this app's own standing distinction, see the chrononutrition
+// 6-Week Meal Plan work: "a small amount of real honey next to a large
+// amount of whole fruit isn't the processed 'hidden sugar' the research
+// is actually warning against").
+export async function curatedRecipeContainsSweetenerIngredient(curatedRecipeId: string): Promise<boolean> {
+  const db = await getReferenceDatabase();
+  const row = await db.getFirstAsync<{ count: number }>(
+    "SELECT COUNT(*) AS count FROM curated_recipe_ingredients WHERE recipe_id = ? AND category = 'Sweets'",
+    curatedRecipeId,
+  );
+  return (row?.count ?? 0) > 0;
+}
+
 // Fetches the curated recipe strains a real curated fermentation recipe
 // declares it uses (see curated_recipe_strains just below) -- a real,
 // separate lookup from getCuratedRecipe's own ingredient resolution, since

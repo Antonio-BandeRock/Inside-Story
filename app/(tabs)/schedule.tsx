@@ -25,6 +25,7 @@ import {
   getSupplementForms,
   getTreatmentNutrients,
   getUpcomingShoppingList,
+  getUserConditions,
   getUserProfile,
   linkScheduleItemToDeviceCalendarEvent,
   listAllActiveTreatments,
@@ -77,7 +78,17 @@ import {
   type TreatmentRecord,
   type UserProfile,
 } from '../../lib/db';
+import type { RecipeDietTag } from '../../lib/digest';
 import { RECIPES_ENTRIES } from '../../lib/digest/recipes';
+import {
+  dailyMealPlanToMealPlanDay,
+  generateDailyMealPlan,
+  LOW_CARB_MAX_GRAMS_PER_DAY,
+  NO_CARB_MAX_GRAMS_PER_DAY,
+  type CarbLevel,
+  type DailyMealPlanPick,
+  type DailyMealPlanResult,
+} from '../../lib/dailyMealPlan';
 import { MEAL_PLAN } from '../../lib/mealPlan';
 import { VEGAN_MEAL_PLAN } from '../../lib/mealPlanVegan';
 import { VEGETARIAN_MEAL_PLAN } from '../../lib/mealPlanVegetarian';
@@ -134,6 +145,7 @@ type Lens =
   | 'meals'
   | 'pastMeals'
   | 'mealPlan'
+  | 'dailyMealPlan'
   | 'shoppingList'
   | 'hydration'
   | 'myMeds'
@@ -222,6 +234,33 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Still growing',
         body: 'The first 2 weeks are built now; more weeks are on the way in a future update. Nothing here ever repeats a day\'s own combination of meals.',
+      },
+    ],
+  },
+  {
+    key: 'dailyMealPlan',
+    label: 'Daily Meal Plan',
+    icon: 'sparkles-outline',
+    help: [
+      {
+        heading: 'What this is',
+        body: 'A fresh day, generated on demand: breakfast, lunch, and dinner, picked live from the same recipes "Meals You Can Eat" already knows are safe for every condition you\'ve selected and match every diet preference you\'ve set on Profile, both at once. Different from the Meal Plan lens: that one is a fixed, hand-written 6-week rotation; this one is built new each time from whatever you\'ve currently declared.',
+      },
+      {
+        heading: 'Breakfast rules',
+        body: 'Breakfast never includes a smoothie, and never includes a recipe with an actual added sweetener (honey, maple syrup, sugar) as an ingredient. Fruit\'s own natural sugar is never treated as the same thing. Smoothies are offered at lunch instead, alongside a side when the meal alone reads light.',
+      },
+      {
+        heading: 'Carb level',
+        body: `"No Carbs" keeps the whole day under ${NO_CARB_MAX_GRAMS_PER_DAY}g of carbohydrate, the same very-low-carb range clinical sources use for ketosis. "Low Carb" keeps it under ${LOW_CARB_MAX_GRAMS_PER_DAY}g, the commonly-cited low-carbohydrate-diet threshold. "Any" applies no ceiling at all.`,
+      },
+      {
+        heading: 'The health rating',
+        body: 'The same green/yellow/red system "Meals You Can Eat" already uses, not a new, separate scale: green means every pick is genuinely clean for every condition selected; yellow means at least one carries a real, milder caution. A recipe with a serious, well-documented concern for any selected condition is never picked here at all.',
+      },
+      {
+        heading: 'Nutrient coverage',
+        body: "A real comparison against your own age/sex-based RDA targets, shown for what it is: informational, not the day's rating. Regenerate as many times as you'd like before adding a day to your actual schedule.",
       },
     ],
   },
@@ -338,7 +377,10 @@ const LENSES: LensOption<Lens>[] = [
   },
 ];
 
-const COMING_SOON_COPY: Record<Exclude<Lens, 'meals' | 'pastMeals' | 'mealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>, string> = {
+const COMING_SOON_COPY: Record<
+  Exclude<Lens, 'meals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>,
+  string
+> = {
   exercise: 'Schedule planned workouts and activity. Not built yet.',
 };
 
@@ -1613,6 +1655,201 @@ function PastMealsLens() {
           })}
         </View>
       )}
+    </ScrollView>
+  );
+}
+
+const CARB_LEVEL_OPTIONS: { value: CarbLevel; label: string }[] = [
+  { value: 'any', label: 'Any' },
+  { value: 'low', label: `Low Carb (under ${LOW_CARB_MAX_GRAMS_PER_DAY}g/day)` },
+  { value: 'noCarb', label: `No Carbs (under ${NO_CARB_MAX_GRAMS_PER_DAY}g/day)` },
+];
+
+function healthRatingLabel(rating: DailyMealPlanResult['healthRating']): string {
+  if (rating === 'green') return 'Genuinely clean for everything you selected';
+  if (rating === 'yellow') return 'Worth knowing: at least one pick carries a real, milder caution';
+  return 'Not enough compliant recipes were found to generate a full day';
+}
+
+function healthRatingColors(rating: DailyMealPlanResult['healthRating']): { bg: string; text: string; border: string } {
+  if (rating === 'green') return { bg: colors.surface, text: colors.statusGood, border: colors.statusGood };
+  if (rating === 'yellow') return { bg: colors.statusYellowBg, text: colors.statusYellowStandalone, border: colors.statusYellowStandalone };
+  return { bg: colors.statusRedBg, text: colors.danger, border: colors.danger };
+}
+
+function DailyMealPlanPickRow({ pick }: { pick: DailyMealPlanPick }) {
+  return (
+    <View style={styles.dailyPlanPickRow}>
+      <Text style={styles.rowTitle}>
+        {pick.role === 'side' ? 'Side: ' : ''}
+        {pick.entry.title}
+      </Text>
+      <Text style={styles.helperText}>{Math.round(pick.carbGrams)}g carbohydrate</Text>
+    </View>
+  );
+}
+
+function DailyMealPlanLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [carbLevel, setCarbLevel] = useState<CarbLevel>('any');
+  const [conditionCodes, setConditionCodes] = useState<string[]>([]);
+  const [dietPreferences, setDietPreferences] = useState<RecipeDietTag[]>([]);
+  const [generating, setGenerating] = useState(false);
+  const [plan, setPlan] = useState<DailyMealPlanResult | null>(null);
+  const [scheduleDate, setScheduleDate] = useState(todayDateString());
+  const [scheduling, setScheduling] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      Promise.all([getUserConditions(), getDietPreferences()])
+        .then(([codes, tags]) => {
+          if (cancelled) return;
+          setConditionCodes(codes);
+          setDietPreferences(tags as RecipeDietTag[]);
+        })
+        .catch(() => {
+          // Best-effort only -- a failure here just means generation runs
+          // with no declared condition/diet narrowing, the same as
+          // someone who genuinely hasn't set either on Profile yet.
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
+
+  async function handleGenerate() {
+    setGenerating(true);
+    try {
+      const result = await generateDailyMealPlan({ conditionCodes, dietPreferences, carbLevel });
+      setPlan(result);
+    } catch (error) {
+      showInfoAlert('Could not generate a day', error instanceof Error ? error.message : String(error));
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  async function handleAddToSchedule() {
+    if (!plan) return;
+    if (!isValidDateString(scheduleDate)) {
+      showInfoAlert('Almost there', 'Enter a valid date (YYYY-MM-DD).');
+      return;
+    }
+    const mealPlanDay = dailyMealPlanToMealPlanDay(plan, 1);
+    if (!mealPlanDay) {
+      showInfoAlert('Not a full day yet', "This generated day is missing a breakfast, lunch, or dinner pick, so there's nothing complete to schedule. Try regenerating.");
+      return;
+    }
+    setScheduling(true);
+    try {
+      await addMealPlanDayToSchedule(mealPlanDay, scheduleDate);
+      showInfoAlert('Added', `This day was added to your schedule for ${scheduleDate}.`);
+    } catch (error) {
+      showInfoAlert('Could not add this day', error instanceof Error ? error.message : String(error));
+    } finally {
+      setScheduling(false);
+    }
+  }
+
+  const ratingColors = healthRatingColors(plan?.healthRating ?? null);
+
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
+      <View style={styles.formCard}>
+        <Text style={styles.label}>Carb level</Text>
+        <Text style={styles.helperText}>Applies to the whole day's own total, not any one meal alone.</Text>
+        <PopoverSelect
+          selected={CARB_LEVEL_OPTIONS.find((option) => option.value === carbLevel)?.label ?? 'Any'}
+          options={CARB_LEVEL_OPTIONS.map((option) => option.label)}
+          onSelect={(value) => setCarbLevel(CARB_LEVEL_OPTIONS.find((option) => option.label === value)?.value ?? 'any')}
+          placeholder="Carb level"
+          tabColor={TAB_COLOR}
+          width={260}
+        />
+        <TouchableOpacity
+          style={[styles.primaryButton, { marginTop: 12 }, generating && styles.primaryButtonDisabled]}
+          activeOpacity={0.85}
+          disabled={generating}
+          onPress={handleGenerate}
+        >
+          <Text style={styles.primaryButtonText}>{generating ? 'Generating…' : plan ? 'Regenerate' : 'Generate My Day'}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {plan ? (
+        <>
+          <View style={[styles.formCard, { backgroundColor: ratingColors.bg, borderColor: ratingColors.border }]}>
+            <Text style={[styles.label, { color: ratingColors.text }]}>
+              {plan.healthRating === 'green' ? 'Green' : plan.healthRating === 'yellow' ? 'Yellow' : 'Incomplete'}
+            </Text>
+            <Text style={[styles.helperText, { color: ratingColors.text }]}>{healthRatingLabel(plan.healthRating)}</Text>
+            <Text style={styles.helperText}>
+              Total carbohydrate: {Math.round(plan.totalCarbGrams)}g{plan.carbCeiling ? ` (target: under ${plan.carbCeiling}g)` : ''}
+            </Text>
+            {plan.warnings.map((warning, index) => (
+              <Text key={index} style={styles.helperText}>
+                ⚠ {warning}
+              </Text>
+            ))}
+          </View>
+
+          <View style={styles.sourceList}>
+            <View style={styles.mealPlanDayRow}>
+              <Text style={styles.rowTitle}>Breakfast</Text>
+              {plan.breakfast ? <DailyMealPlanPickRow pick={plan.breakfast} /> : <Text style={styles.helperText}>No compliant option found.</Text>}
+            </View>
+            <View style={styles.mealPlanDayRow}>
+              <Text style={styles.rowTitle}>Lunch</Text>
+              {plan.lunch.length > 0 ? (
+                plan.lunch.map((pick) => <DailyMealPlanPickRow key={pick.entry.id} pick={pick} />)
+              ) : (
+                <Text style={styles.helperText}>No compliant option found.</Text>
+              )}
+            </View>
+            <View style={styles.mealPlanDayRow}>
+              <Text style={styles.rowTitle}>Dinner</Text>
+              {plan.dinner.length > 0 ? (
+                plan.dinner.map((pick) => <DailyMealPlanPickRow key={pick.entry.id} pick={pick} />)
+              ) : (
+                <Text style={styles.helperText}>No compliant option found.</Text>
+              )}
+            </View>
+          </View>
+
+          <View style={styles.formCard}>
+            <Text style={styles.label}>Nutrient coverage</Text>
+            <Text style={styles.helperText}>Against your own age/sex-based RDA targets -- informational, not the rating above.</Text>
+            {plan.nutrientCoverage.map((row, index) => (
+              <View key={`${row.nutrientCode}-${index}`} style={styles.dailyPlanNutrientRow}>
+                <Text style={styles.helperText}>{row.displayName}</Text>
+                <Text style={styles.helperText}>
+                  {Math.round(row.amount * 10) / 10}
+                  {row.unit} of {row.targetAmount}
+                  {row.unit}
+                  {row.percentOfTarget !== null ? ` (${row.percentOfTarget}%)` : ''}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.formCard}>
+            <Text style={styles.label}>Add to your schedule</Text>
+            <AppTextInput style={styles.input} placeholder="YYYY-MM-DD" value={scheduleDate} onChangeText={setScheduleDate} />
+            <TouchableOpacity
+              style={[styles.primaryButton, { marginTop: 12 }, scheduling && styles.primaryButtonDisabled]}
+              activeOpacity={0.85}
+              disabled={scheduling}
+              onPress={handleAddToSchedule}
+            >
+              <Text style={styles.primaryButtonText}>{scheduling ? 'Adding…' : 'Add This Day to Schedule'}</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      ) : null}
     </ScrollView>
   );
 }
@@ -4730,7 +4967,11 @@ function AppointmentsLens() {
 // A short, honest placeholder for the remaining schedule type not built
 // yet -- same "coming soon" pattern already used for the Trends/Reports
 // bottom tabs, one level deeper inside Schedule.
-function ComingSoonLens({ lens }: { lens: Exclude<Lens, 'meals' | 'pastMeals' | 'mealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'> }) {
+function ComingSoonLens({
+  lens,
+}: {
+  lens: Exclude<Lens, 'meals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>;
+}) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
@@ -4776,6 +5017,8 @@ export default function ScheduleScreen() {
             <PastMealsLens />
           ) : lens === 'mealPlan' ? (
             <MealPlanLens />
+          ) : lens === 'dailyMealPlan' ? (
+            <DailyMealPlanLens />
           ) : lens === 'shoppingList' ? (
             <ShoppingListLens />
           ) : lens === 'hydration' ? (
@@ -5019,6 +5262,9 @@ const styles = StyleSheet.create({
   mealPlanSlotText: { ...typography.body, color: TAB_COLOR },
   mealPlanDayFooter: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
   mealPlanDayDateInput: { flex: 1 },
+  // Daily Meal Plan lens, 2026-08-25.
+  dailyPlanPickRow: { marginTop: 4, marginBottom: 4, gap: 1 },
+  dailyPlanNutrientRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4, borderTopWidth: 1, borderTopColor: colors.border },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
   // 2026-07-27.
   table: {
