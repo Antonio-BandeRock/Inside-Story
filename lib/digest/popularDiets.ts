@@ -25,6 +25,96 @@
 import type { DigestEntry } from './types';
 
 export const POPULAR_DIETS_ENTRIES: DigestEntry[] = [
+  // 2026-08-25, direct request: "build the side by side comparison of the
+  // different eating styles based on evidence and without assumptions
+  // being made. Trace everything back to published peer reviewed data,"
+  // following a direct question asking where this category actually
+  // compares diets against each other nutritionally rather than covering
+  // each one alone. Two new entries, deliberately kept separate rather
+  // than merged into one: the first is a single, major piece of primary
+  // evidence (a real trial directly comparing 14 named diets against each
+  // other, not each one separately against no intervention); the second
+  // synthesizes what already exists across this whole category's own 17
+  // individual entries into one real side-by-side read, reusing their
+  // already-verified citations rather than re-deriving anything.
+  //
+  // The one real trial that directly pits multiple named diets against
+  // each other head-to-head, not each one alone against a control group,
+  // is Ge et al., BMJ 2020;369:m696 (PMID 32238384), a network
+  // meta-analysis of 121 randomized trials and 21,942 participants across
+  // 14 named diet programmes. Verified via two independent sources (the
+  // paper's own full text and a contemporaneous BMJ-sourced press
+  // summary) that agree on the topline structure: roughly 4 to 5 kg
+  // weight loss at 6 months for low-carbohydrate and low-fat patterns
+  // alike, Atkins/DASH/Zone the strongest individually-named diets
+  // (roughly 3.5 to 5.5 kg), no diet significantly improving HDL or CRP,
+  // Mediterranean alone keeping its LDL benefit past 6 months, and the
+  // authors' own direct quote that differences between individual named
+  // diets were "generally trivial to small." A real correction to this
+  // paper was later published (BMJ 2020;370:m3095, PMID 32759278);
+  // multiple searches could not surface its exact content, named directly
+  // in the entry itself rather than silently omitted, and the entry
+  // deliberately avoids restating any single-sourced, unverified
+  // secondary number (specific mmHg or mg/dL figures) that only turned up
+  // in one fetch and couldn't be independently cross-checked.
+  {
+    id: 'diet-headtohead-network-metaanalysis',
+    category: 'basicHealth',
+    title: 'The One Trial That Pits 14 Named Diets Against Each Other Directly',
+    teaser: 'Nearly every study in this category tests one diet against no diet at all. A 2020 network meta-analysis of 121 trials and 21,942 people did something rarer: it compared the diets against each other.',
+    summary:
+      "Almost every individual entry in this category cites a trial testing one diet against a non-dieting control group, evidence for that one diet, but not a direct answer to \"which of these actually works better than the others.\" One exception exists: a 2020 network meta-analysis pooled 121 randomized trials covering 21,942 participants across 14 popular named diet programmes, sorted into three macronutrient groups: low-carbohydrate (Atkins, South Beach, Zone), moderate-macronutrient (Biggest Loser, DASH, Jenny Craig, Mediterranean, Portfolio, Slimming World, Volumetrics, Weight Watchers), and low-fat (Ornish, Rosemary Conley). At 6 months, low-carbohydrate and low-fat patterns produced a similar, modest weight loss, roughly 4 to 5kg more than no diet at all, with moderate-macronutrient patterns trailing slightly behind both. Among the individually named diets, Atkins, DASH, and Zone showed the largest effect, roughly 3.5 to 5.5kg. No diet significantly improved HDL cholesterol or C-reactive protein at 6 months. The Mediterranean diet stood out as the one pattern that kept a measurable LDL cholesterol improvement past the 6-month mark; every other pattern's cardiovascular gains, and most of its weight loss, had faded substantially by 12 months. The authors' stated conclusion, directly quoted rather than paraphrased into something stronger: differences between individual named diets were \"generally trivial to small,\" and someone can reasonably choose whichever one they can actually sustain without much concern over which specific named diet wins on paper. A correction to this paper was later published in BMJ (2020;370:m3095); its exact content could not be confirmed after multiple searches, named directly here rather than treated as settled, though nothing found in the process contradicted the topline structure reported above.",
+    citations: [
+      {
+        source:
+          'Comparison of dietary macronutrient patterns of 14 popular named dietary programmes for weight and cardiovascular risk factor reduction in adults: systematic review and network meta-analysis of randomised trials, Ge L et al., BMJ 2020;369:m696, PMID 32238384',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/32238384/',
+      },
+      { source: 'Correction notice, BMJ 2020;370:m3095, PMID 32759278', url: 'https://pubmed.ncbi.nlm.nih.gov/32759278/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['diet-sidebyside-comparison', 'diet-mediterranean', 'diet-keto'],
+  },
+  // The synthesis entry: every macronutrient-composition figure below
+  // traces to a specific, checkable source (StatPearls for keto's own
+  // three real clinical variants, a 2023 PubMed-indexed cross-cultural
+  // analysis for Paleo's own published range), not an estimate. Diets
+  // defined by which foods are included or excluded rather than by a
+  // fixed macronutrient ratio (vegan, vegetarian, omnivore, carnivore,
+  // Mediterranean, plant-based/flexitarian) are reported as exactly
+  // that, not forced into a percentage they were never actually
+  // designed around. Every deficiency-risk and evidence-tier claim
+  // reuses the citation already verified for that diet's own entry
+  // elsewhere in this category, rather than re-deriving it.
+  {
+    id: 'diet-sidebyside-comparison',
+    category: 'basicHealth',
+    title: 'Side by Side: What Actually Differs Between Them',
+    teaser: "Pulling every diet in this category into one direct comparison: what each is actually built from, what evidence backs it, and what it risks leaving out.",
+    summary:
+      "Composition first, since it's the most concrete, checkable difference. Only a handful of these are actually defined by a fixed macronutrient ratio rather than by which foods are included or excluded. The ketogenic diet has no single standard number, StatPearls names three distinct clinical variants: a traditional version (roughly 55-60% fat, 30-35% protein, 5-10% carbohydrate), a modified Atkins approach (60-70% fat, 25-30% protein, under 20g carbohydrate daily), and a very-low-carbohydrate version (20-50g carbohydrate daily, 60-75% fat), all converging on the same underlying trigger for ketosis: carbohydrate intake kept below roughly 20-50g a day, not one fixed ratio. Paleo's published range is wider than its popular reputation suggests, a cross-cultural analysis of Paleolithic-era diets found 19-35% protein, 22-40% carbohydrate, and 28-58% fat, a spread wide enough that \"Paleo\" describes a food list (no grains, legumes, dairy, refined sugar) more than a fixed macronutrient target. High-protein eating is typically framed against the RDA of 0.8g of protein per kg of body weight per day, a floor set to prevent deficiency, not to optimize muscle retention, expert consensus for muscle-preservation goals runs closer to 1.2g/kg/day and higher for anyone exercising regularly. AIP inherits Paleo's composition, then narrows the food list further (also removing eggs, nuts, seeds, and nightshades). Vegan, vegetarian, plant-based/flexitarian, omnivore, carnivore, and Mediterranean eating are each defined by which foods are included or excluded, not by hitting a specific percentage of calories from any macronutrient.\n\nEvidence strength, reusing each diet's already-assigned tier rather than a fresh judgment call: Mediterranean, plant-based/flexitarian, dairy-free, high-protein, fibermaxxing, gut-friendly eating, and cutting ultra-processed food are all already tiered strong, each backed by a randomized trial or a large systematic review, not a single small or uncontrolled study. Keto, vegan, vegetarian, omnivore, gluten-free avoidance without celiac disease, Paleo, and AIP are tiered moderate, credible evidence exists for each, with an honest complication named directly in that diet's entry (keto's emerging LDL question in lean adults, veganism's B12 deficiency risk, AIP's protocol carrying thinner direct trial support than several of the individual pieces it's built from). Carnivore is the one entry in this whole category tiered weak, not because it's been tested and found wanting, but because a direct literature search found almost no dedicated human research on it at all, an absence reported honestly rather than mistaken for either safety or danger.\n\nDocumented risk if followed without planning, the most actionable comparison for anyone actually choosing between these: a direct comparative study found vitamin B12 deficiency in 44.1% of vegans against 15.0% of lacto-ovo vegetarians in the same population, a nearly threefold gap that closes considerably once dairy and eggs stay in the diet. Paleo and AIP both eliminate dairy entirely, the same calcium, vitamin D, and B12 source dedicated dairy-free eating already has to plan around; a strictly gluten-free diet without a diagnosed reason carries a documented cost too, commercial gluten-free products running lower in protein and fiber and higher in sugar and price than their gluten-containing equivalents, with no measured benefit for anyone without celiac disease or a diagnosed sensitivity to offset it. Carnivore's zero-plant-food structure directly forfeits dietary fiber entirely, the one nutrient this Digest's gut-microbiome research names as the single most food-controllable lever for training immune tolerance. High-protein eating carries one clear, well-documented exception rather than a general risk: anyone with already-reduced kidney function, where a lower, not higher, protein target shows a documented benefit instead.\n\nWhat holds across nearly every one of these entries, not just the strongly-tiered ones: the diets built around whole, minimally processed food, Mediterranean, plant-based/flexitarian, and whole-food versions of vegetarian, vegan, Paleo, and omnivorous eating alike, keep showing up with credible evidence behind them, while the specific label attached matters less than the direct network meta-analysis above already found. The diets that differ most sharply from each other aren't necessarily the ones with the most opposite-sounding names, they're the ones built around fundamentally different structures: a fixed macronutrient ratio (keto), a defined elimination-then-reintroduction protocol (AIP), a food list built from an assumed ancestral diet (Paleo), or simply which foods are included or excluded (nearly everything else).",
+    citations: [
+      { source: 'The Ketogenic Diet: Clinical Applications, Evidence-based Indications, and Implementation, StatPearls (NCBI Bookshelf)', url: 'https://www.ncbi.nlm.nih.gov/books/NBK499830/' },
+      { source: 'An assessment of the impact of cross-cultural variation in plant macronutrients on the recommendations of the Paleo Diet, PMID 36828769', url: 'https://pubmed.ncbi.nlm.nih.gov/36828769/' },
+      { source: 'Vitamin B12 and D status in long-term vegetarians: Impact of diet duration and subtypes, PMID 41565239', url: 'https://pubmed.ncbi.nlm.nih.gov/41565239/' },
+      { source: 'Re-challenge Studies in Non-celiac Gluten Sensitivity: A Systematic Review and Meta-Analysis, PMID 28928668', url: 'https://pubmed.ncbi.nlm.nih.gov/28928668/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: [
+      'diet-headtohead-network-metaanalysis',
+      'diet-mediterranean',
+      'diet-keto',
+      'diet-vegan',
+      'diet-vegetarian',
+      'diet-paleo',
+      'diet-aip',
+      'diet-carnivore',
+      'diet-high-protein',
+      'diet-gluten-free',
+      'diet-dairy-free',
+      'protein-overview',
+    ],
+  },
   {
     id: 'diet-mediterranean',
     category: 'basicHealth',
@@ -36,7 +126,7 @@ export const POPULAR_DIETS_ENTRIES: DigestEntry[] = [
       { source: 'How the Seven Countries Study contributed to the definition and development of the Mediterranean diet concept: A 50-year journey, Nutrition, Metabolism and Cardiovascular Diseases', url: 'https://www.nmcd-journal.com/article/S0939-4753(14)00347-0/abstract' },
     ],
     overallTier: 'strong',
-    relatedIds: ['cvd-global-seven-countries-mediterranean', 'ra-mediterranean-diet', 'psoriasis-mediterranean-diet'],
+    relatedIds: ['cvd-global-seven-countries-mediterranean', 'ra-mediterranean-diet', 'psoriasis-mediterranean-diet', 'diet-sidebyside-comparison', 'diet-headtohead-network-metaanalysis'],
   },
   {
     id: 'diet-keto',
@@ -49,7 +139,7 @@ export const POPULAR_DIETS_ENTRIES: DigestEntry[] = [
       { source: 'Ketogenic Diets and Low-Density Lipoprotein Cholesterol in Adults With Normal Weight: An Emerging Clinical Challenge, PMID 42047192', url: 'https://pubmed.ncbi.nlm.nih.gov/42047192/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['carbfiber-intake-gap', 'cvd-lipid-panel-self-advocacy'],
+    relatedIds: ['carbfiber-intake-gap', 'cvd-lipid-panel-self-advocacy', 'diet-sidebyside-comparison'],
   },
   {
     id: 'diet-intermittent-fasting',
@@ -74,7 +164,7 @@ export const POPULAR_DIETS_ENTRIES: DigestEntry[] = [
       { source: 'IARC Monographs evaluate consumption of red meat and processed meat, International Agency for Research on Cancer', url: 'https://www.iarc.who.int/wp-content/uploads/2018/07/pr240_E.pdf' },
     ],
     overallTier: 'weak',
-    relatedIds: ['gut-scfa-treg', 'carbfiber-intake-gap'],
+    relatedIds: ['gut-scfa-treg', 'carbfiber-intake-gap', 'diet-sidebyside-comparison'],
   },
   {
     id: 'diet-vegan',
@@ -88,7 +178,7 @@ export const POPULAR_DIETS_ENTRIES: DigestEntry[] = [
       { source: 'Vitamin B12 and D status in long-term vegetarians: Impact of diet duration and subtypes, PMID 41565239', url: 'https://pubmed.ncbi.nlm.nih.gov/41565239/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['b12-overview', 'diet-plant-based-flexitarian', 'diet-vegetarian'],
+    relatedIds: ['b12-overview', 'diet-plant-based-flexitarian', 'diet-vegetarian', 'diet-sidebyside-comparison'],
   },
   {
     // 2026-08-25, direct request: every diet-tag pill under a recipe's own
@@ -163,7 +253,7 @@ export const POPULAR_DIETS_ENTRIES: DigestEntry[] = [
       { source: 'Effects of a Paleolithic Diet on Cardiovascular Risk Factors: A Systematic Review and Meta-Analysis of Randomized Controlled Trials, PMID 32666106', url: 'https://pubmed.ncbi.nlm.nih.gov/32666106/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['diet-aip', 'diet-dairy-free', 'diet-vegetarian'],
+    relatedIds: ['diet-aip', 'diet-dairy-free', 'diet-vegetarian', 'diet-sidebyside-comparison'],
   },
   {
     id: 'diet-plant-based-flexitarian',
@@ -188,7 +278,7 @@ export const POPULAR_DIETS_ENTRIES: DigestEntry[] = [
       { source: 'Phillips SM 2017: Current Concepts and Unresolved Questions in Dietary Protein Requirements and Supplements in Adults, PMID 28534027', url: 'https://pubmed.ncbi.nlm.nih.gov/28534027/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ckd-protein-restriction-plant-based', 'protein-overview'],
+    relatedIds: ['ckd-protein-restriction-plant-based', 'protein-overview', 'diet-sidebyside-comparison'],
   },
   {
     id: 'diet-aip',
@@ -201,7 +291,7 @@ export const POPULAR_DIETS_ENTRIES: DigestEntry[] = [
       { source: 'Controlled trial of fasting and one-year vegetarian diet in rheumatoid arthritis, The Lancet, 1991', url: 'https://www.thelancet.com/journals/lancet/article/PII0140-6736(91)91770-U/fulltext' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['healing-stage-map', 'ra-elimination-fasting', 'migraine-aip-elimination-diet-inflammation', 'diet-paleo'],
+    relatedIds: ['healing-stage-map', 'ra-elimination-fasting', 'migraine-aip-elimination-diet-inflammation', 'diet-paleo', 'diet-sidebyside-comparison'],
   },
   {
     id: 'diet-fibermaxxing',

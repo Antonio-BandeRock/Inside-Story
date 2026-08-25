@@ -781,6 +781,13 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
     label: 'Popular Diets & Eating Styles',
     description: 'An evidence-based look at popular diets, keto, paleo, intermittent fasting, and more, organized by philosophy rather than by condition.',
     subtopics: [
+      // 2026-08-25, direct follow-up after asking where diets are compared
+      // nutritionally: "build the side by side comparison of the
+      // different eating styles based on evidence and without assumptions
+      // being made." Its own subgroup, alphabetizing to lead the menu
+      // (subtopic order is sorted by display label at render time, not
+      // declared array order, see basicHealthMenuGroups' own comment).
+      { label: 'Comparing Them Side by Side', prefixes: ['diet-headtohead-network-metaanalysis', 'diet-sidebyside-comparison'] },
       {
         label: 'How Much Animal Food: Vegan to Carnivore',
         prefixes: ['diet-vegan', 'diet-vegetarian', 'diet-plant-based-flexitarian', 'diet-omnivore', 'diet-carnivore', 'pbn-'],
@@ -1287,6 +1294,358 @@ function classifyConditionTopic(entry: AnyDigestEntry): ConditionTopic {
   return 'Core Science';
 }
 
+// 2026-08-25, direct follow-up after Basic Health's own oversized topics
+// were split into real subtopics: "Yes, throughout the Digest. Everything
+// must have continuity throughout the Digest." A real per-(condition,
+// topic) count (a throwaway Node script reimplementing classifyConditionTopic
+// above against every real entry, not guessed) found this exact same
+// "one continuous scrolling shelf" problem inside 18 separate (condition,
+// topic) shelves across 11 different conditions, several worse than
+// anything Basic Health had (prostateHealth's own Core Science bucket
+// alone held 30 entries in one shelf). Every one of these 18 groupings
+// was designed by reading every real title in that shelf, the same
+// discipline as Basic Health's own subtopics, not guessed from the topic
+// name alone.
+//
+// Keyed by the entries' own real `category` field (a DigestCategoryKey,
+// confirmed identical to what classifyConditionTopic's caller already
+// has on hand) rather than by conditionCode -- groupConditionEntries
+// below is handed a mixed conditionCode/entries pairing whose exact
+// casing convention isn't worth re-deriving here when entry.category is
+// already the one reliable, already-present source of truth.
+//
+// A topic/condition pair with no entry here is untouched, rendering
+// exactly as one flat shelf as before -- most (condition, topic) pairs
+// are genuinely small enough (2-10 entries) that further subdivision
+// would only fragment them for no real benefit, matching the same
+// judgment call Basic Health's own smaller topics (Neurogenesis,
+// Depletion, Mitochondria & Metabolism, and so on) were left alone under.
+const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partial<Record<ConditionTopic, { label: string; ids: string[] }[]>>>> = {
+  prostateHealth: {
+    'Core Science': [
+      { label: 'Overview & Glossary', ids: ['prostate-overview', 'glossary-bph', 'glossary-brca2', 'glossary-psa', 'glossary-psma'] },
+      { label: 'Gut Microbiome Connections', ids: ['prostate-gut-microbiome-bph', 'prostate-gut-microbiome-cancer-androgens'] },
+      {
+        label: 'Nutrients & Compounds',
+        ids: [
+          'prostate-lycopene-bph-clinical-trial',
+          'prostate-cruciferous-sulforaphane',
+          'prostate-choline-tmao',
+          'prostate-zinc-citrate-truncated-krebs-cycle',
+          'prostate-seminal-citrate-cancer-marker',
+          'prostate-zinc-testosterone-deficiency',
+          'prostate-saw-palmetto-mixed',
+          'prostate-beta-sitosterol-bph-evidence',
+          'prostate-beta-sitosterol-testosterone-dht',
+          'prostate-testosterone-nutrients-comparison',
+          'prostate-ornish-lifestyle-trial',
+        ],
+      },
+      {
+        label: 'BPH & Prostatitis',
+        ids: [
+          'prostate-metabolic-syndrome-bph-link',
+          'prostate-prostatitis-distinct-condition',
+          'prostate-hif-vegf-angiogenesis-shared-pathway',
+          'prostate-pae-mechanism-paradox',
+          'prostate-tadalafil-dual-bph-ed',
+          'prostate-nocturia-circadian-vasopressin',
+          'prostate-finasteride-vs-dutasteride-comparison',
+        ],
+      },
+      {
+        label: 'PSA, Cancer & Surveillance',
+        ids: ['prostate-age-specific-psa-ranges', 'prostate-active-surveillance', 'prostate-active-surveillance-real-longterm-data', 'prostate-vasectomy-no-link', 'prostate-ejaculation-frequency'],
+      },
+    ],
+  },
+  hashimotos: {
+    'Diet & Food': [
+      {
+        label: 'Nutrients & Supplements',
+        ids: [
+          'nutrient-selenium',
+          'nutrient-myo-inositol',
+          'nutrient-iodine',
+          'nutrient-vitamin-d',
+          'nutrient-zinc-iron-b12',
+          'nutrient-folate-antioxidants',
+          'nutrient-nigella-sativa',
+          'nutrient-ashwagandha',
+          'nutrient-iodine-supplement-caution',
+          'interaction-selenium-iodine',
+          'glossary-d1-d6',
+        ],
+      },
+      { label: 'Fermented & Everyday Foods', ids: ['nutrients-fermented-drinks-hashimotos', 'additive-nitrates-nitrites'] },
+      {
+        label: 'Foods to Watch',
+        ids: [
+          'problem-gluten-grains',
+          'problem-raw-cruciferous',
+          'problem-nightshades',
+          'problem-high-histamine',
+          'problem-sugar-sweetened-beverages',
+          'problem-soy',
+          'problem-coffee-timing',
+          'problem-excess-iodine-kelp',
+          'problem-gluten-free-without-celiac',
+        ],
+      },
+      { label: 'Labs Tied to Diet', ids: ['advocacy-vitamin-d', 'advocacy-b12-folate', 'advocacy-lipid-panel', 'advocacy-a1c-glucose'] },
+    ],
+    'Self-Advocacy & Testing': [
+      { label: 'Antibody & Thyroid Panel Basics', ids: ['glossary-tg-antitg', 'glossary-tpo', 'advocacy-core-thyroid-panel', 'advocacy-thyroid-antibodies', 'advocacy-seronegative-hashimotos'] },
+      {
+        label: 'Levothyroxine Timing & Absorption',
+        ids: [
+          'labs-biotin-interference',
+          'labs-calcium-iron-absorption',
+          'labs-grapefruit-juice',
+          'labs-tsh-diurnal-timing',
+          'labs-bedtime-dosing',
+          'labs-breakfast-higher-dose',
+          'labs-absorption-interferers-beyond-food',
+          'labs-timing-master-rule',
+        ],
+      },
+      {
+        label: 'Beyond Standard Dosing',
+        ids: [
+          'labs-combination-t3-ndt',
+          'labs-drug-induced-thyroid-dysfunction',
+          'labs-checkpoint-inhibitor-thyroiditis',
+          'labs-age-adjusted-tsh-target-older-adults',
+          'advocacy-reverse-t3',
+          'advocacy-tsh-optimal-range-debate',
+        ],
+      },
+      {
+        label: 'Related Labs Worth Asking For',
+        ids: ['advocacy-iron-ferritin', 'advocacy-selenium-testing', 'advocacy-cmp', 'advocacy-cortisol-testing', 'advocacy-elimination-protocol-exception', 'advocacy-fibromyalgia-thyroid-overlap'],
+      },
+    ],
+    'Gut & Microbiome': [
+      { label: 'Core Mechanisms', ids: ['gut-scfa-treg', 'gut-zonulin-gliadin', 'gut-th17-treg-imbalance', 'gut-molecular-mimicry', 'gut-leaky-gut-contested'] },
+      {
+        label: 'Specific Compounds & Repair',
+        ids: ['gut-glutamine-null-result', 'gut-vitamin-d-cldn2', 'gut-zinc-carnosine', 'gut-strain-specific-mechanisms', 'gut-larazotide', 'gut-zonulin-timeline', 'gut-4r-protocol'],
+      },
+      { label: 'Research From Other Diseases', ids: ['gut-blautia-lupus-zonulin', 'gut-aip-ibd-rct', 'gut-probiotic-yogurt-lupus-rct'] },
+      { label: "Hashimoto's-Specific Studies", ids: ['gut-fiber-hashimotos-microbiota'] },
+    ],
+    'History & Milestones': [
+      { label: 'The Original Discovery & Mechanism', ids: ['history-1912-first-description', 'history-1956-autoimmune-mechanism', 'history-1985-tpo-identified', 'history-genetic-era', 'history-heritability-family-risk'] },
+      {
+        label: 'Public Health & Treatment Evolution',
+        ids: ['history-1924-iodized-salt', 'history-1960s-tsh-testing', 'history-desiccated-to-levothyroxine', 'history-desiccated-thyroid-standardization', 'history-whickham-progression-rate'],
+      },
+      { label: 'The Modern Surge & Mechanism Links', ids: ['foodhistory-timeline-modern-surge', 'foodhistory-mechanism-gut-barrier', 'foodhistory-mechanism-soil-nutrients-bridge'] },
+      { label: 'Healing-Stage Milestones', ids: ['healing-stage1-milestones', 'healing-stage2-milestones'] },
+    ],
+    'Whole-Body Effects': [
+      { label: 'The Liver Connection', ids: ['organ-liver-t4t3-conversion', 'organ-liver-hashimotos-damage', 'organ-liver-nafld-link', 'organ-liver-fixing-helps-thyroid', 'organ-liver-autoimmune-overlap', 'glossary-alt-ast'] },
+      { label: 'Heart, Brain & Kidneys', ids: ['organ-cardiovascular', 'organ-brain-cognitive', 'organ-brain-neurogenesis-thyroid-mechanism', 'organ-kidney'] },
+      { label: 'Other Organ Systems', ids: ['organ-adrenal-aps2', 'organ-musculoskeletal', 'organ-skin-hair', 'organ-primary-thyroid-lymphoma'] },
+    ],
+    'Lifestyle & Environment': [
+      { label: 'Stress, Sleep & Hormones', ids: ['lifestyle-chronic-stress-hpa', 'lifestyle-il6-deiodinase', 'lifestyle-sleep-circadian', 'lifestyle-sleep-apnea'] },
+      { label: 'Environmental Exposures', ids: ['lifestyle-edc-bpa-phthalates', 'lifestyle-environmental-goitrogens-water', 'lifestyle-air-pollution', 'lifestyle-nsaids-gut'] },
+      { label: 'Infections & Triggers', ids: ['lifestyle-ebv-viral-trigger', 'lifestyle-covid19-thyroid-trigger'] },
+      { label: 'Alcohol, Smoking & Diet-Adjacent Habits', ids: ['lifestyle-alcohol-advisory', 'lifestyle-smoking-paradox', 'lifestyle-synbiotic-il6-vijay-2025'] },
+    ],
+  },
+  migraine: {
+    'Core Science': [
+      { label: 'Overview & Mechanisms', ids: ['migraine-overview', 'glossary-cgrp', 'migraine-episodic-chronic-real-debate', 'migraine-transformation-real-risk-factors', 'migraine-circadian-clock-genes'] },
+      { label: 'Types & Red Flags', ids: ['migraine-red-flags', 'migraine-vestibular-underrecognized', 'migraine-hemiplegic-genetic-subtype', 'migraine-menopause-new-onset-redflag'] },
+      {
+        label: 'Hormonal & Lifestyle Triggers',
+        ids: [
+          'migraine-menstrual-estrogen-withdrawal',
+          'migraine-aura-hormonal-contraceptives',
+          'migraine-sleep-bidirectional',
+          'migraine-obesity-chronification-risk',
+          'migraine-weather-barometric-pressure-mixed',
+          'migraine-histamine-dao-deficiency',
+        ],
+      },
+      { label: 'Nutrients & Gut', ids: ['migraine-magnesium-riboflavin-coq10', 'migraine-iv-magnesium-acute-er', 'migraine-gut-microbiome-real-association'] },
+      { label: 'Treatment Evidence & Living With It', ids: ['migraine-acupuncture-real-evidence-honest', 'migraine-botox-realworld-longterm-data', 'migraine-stigma-workplace-real-survey-data'] },
+    ],
+  },
+  ibd: {
+    'Core Science': [
+      { label: 'Overview & Terminology', ids: ['ibd-overview', 'glossary-uc-crohns', 'glossary-psc', 'glossary-tpmt'] },
+      {
+        label: 'Complications Beyond the Gut',
+        ids: [
+          'ibd-extraintestinal-manifestations',
+          'ibd-extraintestinal-real-prevalence-split',
+          'ibd-creeping-fat-crohns',
+          'ibd-perianal-fistula-real-data',
+          'ibd-iron-deficiency-anemia',
+          'ibd-venous-thromboembolism-real-risk',
+          'ibd-cdiff-elevated-risk-real-data',
+        ],
+      },
+      { label: 'Monitoring & Risk', ids: ['ibd-calprotectin', 'ibd-colonoscopy-surveillance'] },
+      { label: 'Triggers & Mechanisms', ids: ['ibd-smoking-paradox', 'ibd-smoking-cessation-real-benefit', 'ibd-hygiene-hypothesis-early-life', 'ibd-circadian-clock-disruption'] },
+      { label: 'Living With IBD', ids: ['ibd-fodmap-remission-symptoms'] },
+    ],
+  },
+  ibs: {
+    'Core Science': [
+      {
+        label: 'Overview & Mechanism',
+        ids: ['ibs-overview', 'ibs-vs-ibd-distinction', 'ibs-visceral-hypersensitivity-mechanism', 'ibs-gut-serotonin-mechanism', 'ibs-post-infectious-mechanism', 'ibs-circadian-motility-disruption'],
+      },
+      { label: 'Symptoms & Diagnosis', ids: ['ibs-red-flags-workup', 'ibs-bloating-distension-real-mechanism', 'ibs-functional-dyspepsia-overlap', 'ibs-post-covid-real-data'] },
+      {
+        label: 'Treatment Evidence',
+        ids: ['ibs-peppermint-oil', 'ibs-gut-directed-hypnotherapy', 'ibs-kiwifruit-prunes-psyllium-constipation-trial', 'ibs-exercise-real-trial-evidence', 'ibs-linaclotide-real-quantified-response-rates'],
+      },
+      { label: 'Who It Affects & Its Cost', ids: ['ibs-sex-hormones-women-real-data', 'ibs-economic-work-productivity-burden'] },
+    ],
+  },
+  multipleSclerosis: {
+    'Core Science': [
+      { label: 'Overview & Cause', ids: ['ms-overview', 'ms-ebv-trigger', 'ms-ebna1-glialcam-mimicry', 'ms-smoking-risk'] },
+      {
+        label: 'Disease Course & Symptoms',
+        ids: ['ms-disease-course-types', 'ms-uhthoffs-phenomenon-heat', 'ms-optic-neuritis-real-data', 'ms-pediatric-onset-real-differences', 'ms-fracture-risk-real-meta-analysis'],
+      },
+      { label: 'Diet Trials & Treatment', ids: ['ms-waves-trial', 'ms-sodium-th17-contested', 'ms-dmf-flushing-management', 'ms-nabiximols-spasticity-real-trials', 'ms-exercise-fatigue-real-evidence'] },
+      { label: 'Emerging Markers', ids: ['ms-leptin-activity-marker-conflicting', 'ms-melatonin-circadian-relapse'] },
+    ],
+  },
+  graves: {
+    'Medications & Treatment': [
+      {
+        label: 'Antithyroid Drug Treatment',
+        ids: [
+          'graves-remission-real-rates',
+          'graves-block-replace-vs-titration',
+          'graves-pediatric-lower-remission-real-data',
+          'graves-recurrence-after-drug-withdrawal',
+          'graves-longterm-low-dose-atd-maintenance',
+          'graves-methimazole-embryopathy-real-data',
+        ],
+      },
+      { label: 'Surgery & Radioactive Iodine', ids: ['graves-treatment-comparison-real-outcomes', 'graves-thyroidectomy-real-complication-rates', 'graves-iodine'] },
+      {
+        label: 'Thyroid Eye Disease Treatment',
+        ids: ['graves-teprotumumab-thyroid-eye-disease', 'graves-teprotumumab-hearing-real-data', 'graves-orbital-decompression-real-outcomes', 'graves-eye-disease-quality-of-life-real-data'],
+      },
+      { label: 'Cardiac & Other Complications', ids: ['graves-persistent-cardiac-symptoms-post-treatment', 'graves-atrial-fibrillation-real-risk'] },
+    ],
+  },
+  pcos: {
+    'Core Science': [
+      { label: 'Overview & Diagnosis', ids: ['pcos-overview', 'pcos-rotterdam-phenotypes', 'pcos-lean-phenotype-real-data', 'glossary-ivf'] },
+      { label: 'Metabolic & Gut Mechanisms', ids: ['pcos-gut-microbiome-hyperandrogenism', 'pcos-adiponectin-leptin-imbalance', 'pcos-hypertension-real-data', 'pcos-endometrial-cancer-risk'] },
+      { label: 'Nutrients & Diet Trials', ids: ['pcos-myo-dchiro-inositol', 'pcos-spearmint-tea', 'pcos-time-restricted-eating-trial'] },
+      { label: 'Fertility & Quality of Life', ids: ['pcos-ivf-real-outcomes', 'pcos-eating-disorder-risk-real-data', 'pcos-hirsutism-quality-of-life-real-data'] },
+    ],
+  },
+  psoriasis: {
+    'Diet & Food': [
+      { label: 'Weight & Diet Pattern Evidence', ids: ['psoriasis-weight-loss', 'psoriasis-mediterranean-diet', 'psoriasis-bariatric-surgery', 'psoriasis-intermittent-fasting-real-trial'] },
+      {
+        label: 'Foods & Triggers',
+        ids: ['psoriasis-gluten-mechanism', 'psoriasis-nightshades', 'psoriasis-alcohol', 'psoriasis-alcohol-treatment-response-real-data', 'psoriasis-fermented-drinks'],
+      },
+      { label: 'Nutrients', ids: ['psoriasis-vitamin-d-oral', 'psoriasis-omega3-mixed', 'psoriasis-advocacy-topical-vitamin-d-calcium'] },
+      { label: 'Medication Interactions', ids: ['psoriasis-cyclosporine-grapefruit', 'psoriasis-acitretin-alcohol'] },
+    ],
+  },
+  cardiovascularDisease: {
+    'Whole-Body Effects': [
+      { label: 'Heart Attack & Symptoms', ids: ['cvd-heart-attack-red-flags', 'cvd-elderly-atypical-mi-presentation'] },
+      { label: 'Beyond the Heart', ids: ['cvd-kidney-brain-pad-real-data', 'cvd-myocardial-ischemia-neurogenesis-impairment'] },
+      { label: 'Risk Markers', ids: ['cvd-lipoprotein-a-underrecognized', 'cvd-tmao-gut-microbiome-real-data', 'cvd-air-pollution-pm25-real-data', 'cvd-late-eating-nutrinet-sante'] },
+      {
+        label: 'Treatment & Prevention Evidence',
+        ids: [
+          'cvd-cantos-inflammation-hypothesis',
+          'cvd-cardiac-rehabilitation-underused',
+          'cvd-cardiac-rehab-real-barriers-completion',
+          'cvd-polypill-primary-prevention',
+          'cvd-afib-catheter-ablation-real-trial',
+        ],
+      },
+    ],
+  },
+  fattyLiverDisease: {
+    'Diet & Food': [
+      {
+        label: 'Diet Pattern Evidence',
+        ids: ['masld-mediterranean-diet', 'masld-mediterranean-diet-2year-real-biomarkers', 'masld-vegetarian-diet-rct-weight-loss-mechanism', 'masld-fermented-drinks'],
+      },
+      { label: 'Weight, Exercise & Alcohol', ids: ['masld-weight-loss-thresholds', 'masld-exercise-independent-weight-loss', 'masld-metald-alcohol-threshold'] },
+      {
+        label: 'Nutrients & Supplements',
+        ids: ['masld-coffee-protective', 'masld-vitamin-e-pivens-trial', 'masld-fiber-intake-real-data', 'masld-probiotics-real-trial-mixed', 'masld-vitamin-d-mixed-evidence'],
+      },
+      { label: 'Genetics', ids: ['masld-pnpla3-genetic-risk'] },
+    ],
+  },
+  type2Diabetes: {
+    'Core Science': [
+      { label: 'Overview & Diagnosis', ids: ['type2-overview', 'type2-vs-type1-distinction', 'type2-prediabetes-real-progression', 'glossary-glp1'] },
+      { label: 'Remission Evidence', ids: ['type2-direct-remission-trial', 'type2-remission-ada-consensus-definition', 'type2-individualized-hba1c-targets'] },
+      { label: 'Related Conditions', ids: ['type2-metabolic-syndrome-cluster', 'type2-periodontal-disease-bidirectional', 'type2-sleep-apnea-glycemic-control'] },
+      { label: 'Complications', ids: ['type2-diabetic-foot-ulcer-amputation-risk', 'type2-hearing-loss-real-prevalence', 'type2-pancreatic-cancer-risk-real-data'] },
+    ],
+  },
+  sjogrens: {
+    'Core Science': [
+      { label: 'Overview & Distinctions', ids: ['sjogrens-overview', 'sjogrens-primary-secondary-real-distinction', 'sjogrens-secondary-ra-lupus-overlap'] },
+      {
+        label: 'Symptoms & Daily Impact',
+        ids: ['sjogrens-fatigue-most-disabling', 'sjogrens-dental-caries-risk', 'sjogrens-oral-candidiasis-risk', 'sjogrens-exercise-fatigue-real-trials', 'sjogrens-fluoride-varnish-real-trial-honest-null'],
+      },
+      { label: 'Lymphoma Risk', ids: ['sjogrens-lymphoma-risk', 'sjogrens-parotid-swelling-lymphoma-predictor', 'sjogrens-lymphoma-specific-risk-factors-checkable'] },
+      { label: 'Emerging Markers', ids: ['sjogrens-leptin-mixed-inconclusive', 'sjogrens-salivary-gland-clock-genes'] },
+    ],
+  },
+};
+
+// Splits one topic's own entries into real '::'-joined sub-shelves when
+// CONDITION_TOPIC_SUBGROUPS above defines them for this exact (category,
+// topic) pair, the same generic mechanism "Meals You Can Eat" already
+// proved out for a condition page (BasicHealthShelves' own drill-in
+// filter, collapseTopicsForMenu, and shelfHeadingLabel all already key
+// off a label's own '::'-split first segment, with no changes needed
+// here). An entry whose id isn't named in any of this topic's own
+// subgroups still shows, under a plain "Other" sub-shelf, rather than
+// silently vanishing -- unlike Basic Health's own subtopics (which fall
+// through to a shared "More" catch-all elsewhere in the category), a
+// condition page has no equivalent safety net, so a missed id here would
+// otherwise just disappear.
+function applyConditionTopicSubgroups(
+  categoryKey: string | undefined,
+  topic: ConditionTopic,
+  topicEntries: AnyDigestEntry[],
+): { label: string; entries: AnyDigestEntry[] }[] {
+  const subgroups = categoryKey ? CONDITION_TOPIC_SUBGROUPS[categoryKey as DigestCategoryKey]?.[topic] : undefined;
+  if (!subgroups) return [{ label: topic as string, entries: sortDigestEntriesLogically(topicEntries) }];
+  const idToLabel = new Map<string, string>();
+  for (const sub of subgroups) {
+    for (const id of sub.ids) idToLabel.set(id, sub.label);
+  }
+  const byLabel = new Map<string, AnyDigestEntry[]>();
+  for (const entry of topicEntries) {
+    const label = idToLabel.get(entry.id) ?? 'Other';
+    if (!byLabel.has(label)) byLabel.set(label, []);
+    byLabel.get(label)!.push(entry);
+  }
+  const order = [...subgroups.map((sub) => sub.label), 'Other'];
+  return order
+    .filter((label) => byLabel.has(label))
+    .map((label) => ({ label: `${topic}::${label}`, entries: sortDigestEntriesLogically(byLabel.get(label)!) }));
+}
+
 // Buckets a condition's own entry list into the real topics above, with
 // the "tying together" synthesis entry (if the condition has one) pulled
 // out separately rather than folded into any of them -- shaped
@@ -1593,9 +1952,17 @@ function groupConditionEntries(
       }
     }
   }
+  // 2026-08-25: entries[0]?.category (not the conditionCode parameter,
+  // whose own casing convention differs, snake_case DB codes versus the
+  // camelCase DigestCategoryKey CONDITION_TOPIC_SUBGROUPS is keyed by) is
+  // the one reliable source for which condition this whole entries array
+  // actually belongs to, already the same value on every entry passed in.
+  const categoryKey = entries[0]?.category;
   const topics = CONDITION_TOPIC_ORDER.flatMap((topic) => {
     if (topic === 'Meals You Can Eat') return mealsYouCanEatSubTopics;
-    return [{ label: topic as string, entries: sortDigestEntriesLogically(buckets.get(topic) ?? []) }];
+    const topicEntries = buckets.get(topic) ?? [];
+    if (topicEntries.length === 0) return [];
+    return applyConditionTopicSubgroups(categoryKey, topic, topicEntries);
   }).filter((group) => group.entries.length > 0);
   return { topics, tyingTogether };
 }
