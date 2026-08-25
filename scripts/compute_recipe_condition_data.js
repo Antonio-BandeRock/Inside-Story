@@ -36,8 +36,8 @@
 //     scripts/add_migraine_condition_relevance.js), so Migraine now has
 //     real coverage too -- all 19 tracked conditions do.
 //
-//   conditionCautions: {[conditionCode]: string} -- 2026-08-24, direct
-//     correction: the original version of this script used
+//   conditionCautions: {[conditionCode]: {severity, note}} -- 2026-08-24,
+//     direct correction: the original version of this script used
 //     safeForConditions as a hard include/exclude gate on "Meals You Can
 //     Eat," which directly contradicted this app's own standing
 //     healing-stage rule ("advisory and reordering only, never gating")
@@ -53,6 +53,18 @@
 //     flagged condition; a condition absent here for a given recipe
 //     means that recipe is genuinely clean for it (already reflected in
 //     safeForConditions too).
+//
+//     2026-08-25, direct correction to the correction: "All of the
+//     conditions list all 300 meals saying they can eat all of them.
+//     That cannot be." Correct -- treating every caution as
+//     interchangeable made a serious, well-documented concern (Gluten:
+//     High Risk for Celiac, never safe in any amount) read the same as a
+//     mild, portion-aware one (Sodium: Moderate). `severity` ('yellow' |
+//     'red') is now recorded alongside `note`, the worse of the two
+//     outcomes across every real hit for that condition (matching
+//     pickCautionHit's own red-first rule), so the UI can group and
+//     color genuinely differently instead of flattening every flag into
+//     one undifferentiated "caution."
 //
 //   stageAdvisoryNotes: {condition, note}[] -- real, computed
 //     RecipeConditionNote-shaped entries, one per (staged condition x
@@ -621,7 +633,19 @@ for (const [recipeId, ingredients] of ingredientsByRecipe.entries()) {
       safeForConditions.push(conditionCode);
     } else {
       const hit = pickCautionHit(hits);
-      conditionCautions[conditionCode] = buildCautionSentence(hit.baseName, hit.subCriterion, hit.tier);
+      // 2026-08-25, direct correction: "All of the conditions list all
+      // 300 meals saying they can eat all of them. That cannot be."
+      // Correct -- a caption alone doesn't say how serious the flag is,
+      // and a plain "here's every recipe" list reads the same whether
+      // the one hit is a mild, portion-aware note or an absolute,
+      // well-documented concern (Gluten: High Risk for Celiac is never
+      // "fine in moderation" the way Sodium: Moderate might be). severity
+      // records the real, worse of the two possible outcomes across every
+      // hit for this condition (matching pickCautionHit's own red-first
+      // rule), so the UI can group and color genuinely differently rather
+      // than treating every caution as interchangeable.
+      const severity = hits.some((h) => tierSeverity(h.tier) === 'red') ? 'red' : 'yellow';
+      conditionCautions[conditionCode] = { severity, note: buildCautionSentence(hit.baseName, hit.subCriterion, hit.tier) };
     }
   }
   safeForConditions.sort();
@@ -655,13 +679,18 @@ console.log(`Wrote ${Object.keys(output).length} recipes -> ${outPath}`);
 
 // Summary counts.
 const conditionCounts = {};
-const cautionCounts = {};
+const yellowCautionCounts = {};
+const redCautionCounts = {};
 let totalStageNotes = 0;
 for (const { safeForConditions, conditionCautions, stageAdvisoryNotes } of Object.values(output)) {
   for (const c of safeForConditions) conditionCounts[c] = (conditionCounts[c] || 0) + 1;
-  for (const c of Object.keys(conditionCautions)) cautionCounts[c] = (cautionCounts[c] || 0) + 1;
+  for (const [c, caution] of Object.entries(conditionCautions)) {
+    const counts = caution.severity === 'red' ? redCautionCounts : yellowCautionCounts;
+    counts[c] = (counts[c] || 0) + 1;
+  }
   totalStageNotes += stageAdvisoryNotes.length;
 }
 console.log('Recipes safe (zero flags) per condition:', conditionCounts);
-console.log('Recipes with a computed caution per condition:', cautionCounts);
+console.log('Recipes with a yellow (moderate) caution per condition:', yellowCautionCounts);
+console.log('Recipes with a red (serious) caution per condition:', redCautionCounts);
 console.log('Total real stage-advisory notes generated:', totalStageNotes);

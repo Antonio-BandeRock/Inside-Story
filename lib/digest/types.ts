@@ -425,7 +425,20 @@ export type RecipeCard = {
   // a given recipe means that recipe is genuinely clean for it (also
   // reflected in safeForConditions above). Computed alongside
   // safeForConditions by the same script; see its own header comment.
-  conditionCautions?: Record<string, string>;
+  //
+  // 2026-08-25, direct correction: "All of the conditions list all 300
+  // meals saying they can eat all of them. That cannot be." Correct --
+  // a plain string here treated every caution as interchangeable, so a
+  // serious, well-documented, never-safe-in-any-amount concern (Gluten:
+  // High Risk for Celiac) read the same as a mild, portion-aware one
+  // (Sodium: Moderate). `severity` now records the real, worse outcome
+  // across every flagged hit for that condition -- 'red' means at least
+  // one genuinely serious flag fired (this app's own RED_TIERS, see
+  // lib/sixDimensionsReference.ts), 'yellow' means every flag that fired
+  // was the milder, "worth knowing" tier. Drives real, separately
+  // labeled and colored groups in "Meals You Can Eat" now, not one
+  // undifferentiated list.
+  conditionCautions?: Record<string, { severity: 'yellow' | 'red'; note: string }>;
   ingredients: RecipeIngredientLine[];
   // One real step per entry, numbered by the UI. Optional, 2026-08-15 --
   // My Kitchen/My Favorites (lib/digestDynamicEntries.ts) build a real

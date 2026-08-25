@@ -17,6 +17,14 @@
 // this script detects and replaces in place if already present, so it is
 // safe to re-run as many times as this feature needs tuning.
 //
+// 2026-08-25, direct correction: each caution now carries a real
+// severity ('yellow' | 'red'), not just a plain sentence -- "All of the
+// conditions list all 300 meals saying they can eat all of them. That
+// cannot be." See compute_recipe_condition_data.js's own header comment
+// for the full reasoning. The idempotent replace-in-place logic below
+// needed no changes for this -- it already treats the whole
+// conditionCautions object as one opaque block to detect and swap.
+//
 // Usage: node scripts/apply_recipe_condition_cautions.js
 
 const fs = require('fs');
@@ -32,10 +40,19 @@ function jsStringLiteral(s) {
   return `'${s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 }
 
+// 2026-08-25, direct correction: each caution is now {severity, note},
+// not a plain string -- see compute_recipe_condition_data.js's own
+// header comment and RecipeCard.conditionCautions' own comment
+// (lib/digest/types.ts) for why. severity is one of exactly two real
+// string literals ('yellow' | 'red'), safe to write unquoted-key/
+// quoted-value the same way every other field in this file already is.
 function buildCautionsObjectLiteral(indent, cautions) {
   const codes = Object.keys(cautions);
   if (codes.length === 0) return `${indent}conditionCautions: {},`;
-  const entries = codes.map((code) => `${indent}  ${code}: ${jsStringLiteral(cautions[code])},`);
+  const entries = codes.map(
+    (code) =>
+      `${indent}  ${code}: { severity: ${jsStringLiteral(cautions[code].severity)}, note: ${jsStringLiteral(cautions[code].note)} },`,
+  );
   return [`${indent}conditionCautions: {`, ...entries, `${indent}},`].join('\n');
 }
 

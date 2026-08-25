@@ -1205,26 +1205,41 @@ function classifyConditionTopic(entry: AnyDigestEntry): ConditionTopic {
 // gate that meant a wide-criteria condition like Hashimoto's (25 real
 // relevant sub-criteria) could only ever show near-single-ingredient
 // recipes, confirmed directly: 18 of 300, every one a fermented drink,
-// zero actual meals. Now buckets BOTH halves separately (genuinely
-// clean, and flagged-with-a-real-caution), so a flagged recipe is never
+// zero actual meals. Buckets BOTH halves separately (genuinely clean,
+// and flagged-with-a-real-caution), so a flagged recipe is never
 // excluded, matching this app's own standing healing-stage rule
 // (advisory and reordering only, never gating) instead of contradicting
-// it. See mealsYouCanEatForCondition below for how the two are combined.
-let recipesByConditionCodeCache: Map<string, { safe: AnyDigestEntry[]; cautioned: AnyDigestEntry[] }> | null = null;
-function recipesByConditionCode(): Map<string, { safe: AnyDigestEntry[]; cautioned: AnyDigestEntry[] }> {
+// it.
+//
+// 2026-08-25, direct correction to THAT correction: "All of the
+// conditions list all 300 meals saying they can eat all of them. That
+// cannot be." Correct -- a single flat "cautioned" bucket treated a
+// mild, portion-aware flag (Sodium: Moderate) the same as a serious,
+// well-documented, never-safe-in-any-amount one (Gluten: High Risk for
+// Celiac), which reads exactly like "everything here is fine to eat"
+// even for a genuinely dangerous trigger. "cautioned" is now split into
+// "yellow" and "red" -- see RecipeCard.conditionCautions' own comment
+// (lib/digest/types.ts) for what each severity actually means. See
+// mealsYouCanEatForCondition below for how the three are combined and
+// labeled.
+let recipesByConditionCodeCache: Map<
+  string,
+  { safe: AnyDigestEntry[]; yellow: AnyDigestEntry[]; red: AnyDigestEntry[] }
+> | null = null;
+function recipesByConditionCode(): Map<string, { safe: AnyDigestEntry[]; yellow: AnyDigestEntry[]; red: AnyDigestEntry[] }> {
   if (!recipesByConditionCodeCache) {
-    const map = new Map<string, { safe: AnyDigestEntry[]; cautioned: AnyDigestEntry[] }>();
+    const map = new Map<string, { safe: AnyDigestEntry[]; yellow: AnyDigestEntry[]; red: AnyDigestEntry[] }>();
     for (const entry of getEntriesForCategory('recipes')) {
       if (isProblemFoodEntry(entry)) continue;
       const card = entry.recipeCard;
       if (!card) continue;
       for (const code of card.safeForConditions ?? []) {
-        if (!map.has(code)) map.set(code, { safe: [], cautioned: [] });
+        if (!map.has(code)) map.set(code, { safe: [], yellow: [], red: [] });
         map.get(code)!.safe.push(entry);
       }
-      for (const code of Object.keys(card.conditionCautions ?? {})) {
-        if (!map.has(code)) map.set(code, { safe: [], cautioned: [] });
-        map.get(code)!.cautioned.push(entry);
+      for (const [code, caution] of Object.entries(card.conditionCautions ?? {})) {
+        if (!map.has(code)) map.set(code, { safe: [], yellow: [], red: [] });
+        map.get(code)![caution.severity].push(entry);
       }
     }
     recipesByConditionCodeCache = map;
@@ -1278,38 +1293,73 @@ function resolveActiveConditionCaution(
     const stageNote = stageKey ? entry.recipeCard.conditionNotes.find((note) => note.condition === stageKey) : undefined;
     if (stageNote) return stageNote.note;
   }
-  return entry.recipeCard.conditionCautions?.[activeConditionCode];
+  return entry.recipeCard.conditionCautions?.[activeConditionCode]?.note;
+}
+
+// 2026-08-25, direct correction: "All of the conditions list all 300
+// meals saying they can eat all of them. That cannot be." The one real
+// signal that actually answers "can I eat this" for a specific
+// condition -- 'green' (genuinely clean), 'yellow' (a milder, worth-
+// knowing flag), 'red' (a serious, well-documented concern), or
+// undefined when there's no active condition context at all (plain
+// Recipes browsing). Drives both the shelf card's own color dot and the
+// detail view's own severity-labeled caution box, so the difference
+// between "fine" and "approach with real caution" is visible before a
+// person even taps a card open, not just buried in the caption text.
+function resolveActiveConditionSeverity(
+  entry: AnyDigestEntry,
+  activeConditionCode?: string,
+): 'green' | 'yellow' | 'red' | undefined {
+  if (!activeConditionCode || isProblemFoodEntry(entry) || !entry.recipeCard) return undefined;
+  if (entry.recipeCard.safeForConditions?.includes(activeConditionCode)) return 'green';
+  return entry.recipeCard.conditionCautions?.[activeConditionCode]?.severity;
+}
+
+// Orders one severity tier (yellow or red) the same way regardless of
+// which tier it is: no declared stage leaves it in plain logical order;
+// a declared stage pushes any recipe with a real, stage-specific
+// advisory hit for the CURRENT stage to the end of the tier, so
+// "further along, less currently relevant" concerns sort behind "worth
+// a look right now" ones -- see hasStageNote's own comment. Shared by
+// mealsYouCanEatForCondition below so the yellow and red tiers don't
+// each carry their own copy of this same ordering rule.
+function orderCautionTier(entries: AnyDigestEntry[], conditionCode: string, declaredStageCode?: string): AnyDigestEntry[] {
+  if (!declaredStageCode) return sortDigestEntriesLogically(entries);
+  const lessUrgent = entries.filter((entry) => !hasStageNote(entry, conditionCode, declaredStageCode));
+  const stageFlagged = entries.filter((entry) => hasStageNote(entry, conditionCode, declaredStageCode));
+  return [...sortDigestEntriesLogically(lessUrgent), ...sortDigestEntriesLogically(stageFlagged)];
 }
 
 // The real, full "Meals You Can Eat" list for a condition: every recipe
 // with real per-condition data, genuinely clean ones first (so the
-// least-cautioned options still lead), then every flagged recipe, each
-// carrying its own real caution (see RecipeCard.conditionCautions and
-// the activeConditionCode prop threaded through BasicHealthShelves/
-// DigestCard/RecipeCardDetail, which surfaces the right one once a
-// recipe is opened from this specific condition's own page).
+// least-cautioned options still lead), then every yellow-severity
+// (milder, worth-knowing) recipe, then every red-severity (serious,
+// well-documented concern) recipe last -- 2026-08-25, direct correction:
+// "All of the conditions list all 300 meals saying they can eat all of
+// them. That cannot be." A flat, undifferentiated "cautioned" group
+// used to treat a mild sodium note and an absolute, never-safe gluten
+// hit for Celiac as interchangeable; keeping them as two real, separate,
+// distinctly labeled and colored groups (see groupConditionEntries and
+// RecipeCardDetail) is what actually answers "can I eat this," not just
+// reordering within one bucket.
 //
 // 2026-08-24, direct follow-up: declaredStageCode (the person's own
 // Profile-declared stage for this condition, when they have one) further
-// splits the flagged/cautioned group in two -- flagged recipes with no
-// real advisory hit for their CURRENT stage specifically still lead over
-// ones that do, so "further along, less currently relevant" concerns sort
-// behind "worth a look right now" ones. A recipe already can't be both
-// genuinely clean AND carry a stage note (every stage-advisory check is
-// itself one of that condition's own relevant sub-criteria, so tripping
-// one always trips the generic flag too, confirmed by reading both rule
-// sets side by side) -- this split only ever matters within the flagged
-// group, never against the clean one. No declared stage (the common
-// case, and every non-staged condition) leaves the flagged group in its
-// original single, alphabetical order.
+// orders EACH of the yellow/red tiers the same way (see
+// orderCautionTier). A recipe already can't be both genuinely clean AND
+// carry a stage note (every stage-advisory check is itself one of that
+// condition's own relevant sub-criteria, so tripping one always trips
+// the generic flag too, confirmed by reading both rule sets side by
+// side) -- this ordering only ever matters within the yellow/red tiers,
+// never against the clean one.
 function mealsYouCanEatForCondition(conditionCode: string, declaredStageCode?: string): AnyDigestEntry[] {
   const bucket = recipesByConditionCode().get(conditionCode);
   if (!bucket) return [];
-  const clean = sortDigestEntriesLogically(bucket.safe);
-  if (!declaredStageCode) return [...clean, ...sortDigestEntriesLogically(bucket.cautioned)];
-  const lessUrgent = bucket.cautioned.filter((entry) => !hasStageNote(entry, conditionCode, declaredStageCode));
-  const stageFlagged = bucket.cautioned.filter((entry) => hasStageNote(entry, conditionCode, declaredStageCode));
-  return [...clean, ...sortDigestEntriesLogically(lessUrgent), ...sortDigestEntriesLogically(stageFlagged)];
+  return [
+    ...sortDigestEntriesLogically(bucket.safe),
+    ...orderCautionTier(bucket.yellow, conditionCode, declaredStageCode),
+    ...orderCautionTier(bucket.red, conditionCode, declaredStageCode),
+  ];
 }
 
 function groupConditionEntries(
@@ -1917,6 +1967,22 @@ function tierLabel(tier: EvidenceTier): string {
   if (tier === 'strong') return 'Strong evidence';
   if (tier === 'moderate') return 'Moderate evidence';
   return 'Weak / early evidence';
+}
+
+// 2026-08-25, direct correction: "All of the conditions list all 300
+// meals saying they can eat all of them. That cannot be." A genuinely
+// different color family from tierColor above -- that one measures
+// EVIDENCE confidence (strong/moderate/weak), an entirely different axis
+// from whether a specific recipe is actually safe for a specific
+// condition, and reusing it here would have conflated the two. Reuses
+// this app's own already-established, already-contrast-verified
+// green/yellow/red safety palette (colors.statusGood/statusYellow/
+// danger -- the same one DimensionFlags already uses for the identical
+// yellow/red severity concept), not a new one invented for this.
+function severityDotColor(severity: 'green' | 'yellow' | 'red'): string {
+  if (severity === 'red') return colors.danger;
+  if (severity === 'yellow') return colors.statusYellow;
+  return colors.statusGood;
 }
 
 export default function PurpleDigestScreen() {
@@ -4534,6 +4600,7 @@ function BasicHealthShelves({
                   selected={expandedId === entry.id}
                   onPress={() => onToggleEntry(entry.id)}
                   match={matchInfoById?.get(entry.id)}
+                  activeConditionCode={activeConditionCode}
                 />
               )}
             />
@@ -4577,13 +4644,29 @@ function ShelfTabCard({
   selected,
   onPress,
   match,
+  activeConditionCode,
 }: {
   entry: AnyDigestEntry;
   selected: boolean;
   onPress: () => void;
   match?: SearchMatchInfo;
+  // 2026-08-25, direct correction: "All of the conditions list all 300
+  // meals saying they can eat all of them. That cannot be." When set
+  // (a condition's own "Meals You Can Eat" browsing, see
+  // BasicHealthShelves' own comment on the identical prop), this card's
+  // own dot switches from the generic evidence-tier color every other
+  // context still shows to a real green/yellow/red safety-severity color
+  // for THIS specific condition -- visible on the shelf itself, before a
+  // person even taps a card open, not just inside the detail view.
+  activeConditionCode?: string;
 }) {
   const title = isProblemFoodEntry(entry) ? entry.foodName : entry.title;
+  const severity = resolveActiveConditionSeverity(entry, activeConditionCode);
+  const dotColor = severity
+    ? severityDotColor(severity)
+    : !isProblemFoodEntry(entry)
+      ? tierColor(entry.overallTier)
+      : undefined;
   return (
     <TouchableOpacity
       style={[styles.shelfCard, selected ? styles.shelfCardSelected : null]}
@@ -4591,9 +4674,7 @@ function ShelfTabCard({
       activeOpacity={0.85}
     >
       <View style={styles.cardHeaderRow}>
-        {!isProblemFoodEntry(entry) ? (
-          <View style={[styles.tierDot, { backgroundColor: tierColor(entry.overallTier) }]} />
-        ) : null}
+        {!isProblemFoodEntry(entry) ? <View style={[styles.tierDot, { backgroundColor: dotColor }]} /> : null}
         <Text style={styles.shelfCardTitle} numberOfLines={3}>
           {title}
         </Text>
@@ -4890,10 +4971,16 @@ function DigestCard({
     );
   }
 
+  // 2026-08-25: same severity-aware dot ShelfTabCard already shows for
+  // this exact entry on the shelf row above -- keeping the two in sync
+  // rather than reverting to the generic evidence-tier color the moment
+  // the same card expands into its own detail view.
+  const activeSeverity = resolveActiveConditionSeverity(entry, activeConditionCode);
+  const headerDotColor = activeSeverity ? severityDotColor(activeSeverity) : tierColor(entry.overallTier);
   return (
     <TouchableOpacity style={styles.card} onPress={onToggle} activeOpacity={0.85}>
       <View style={styles.cardHeaderRow}>
-        <View style={[styles.tierDot, { backgroundColor: tierColor(entry.overallTier) }]} />
+        <View style={[styles.tierDot, { backgroundColor: headerDotColor }]} />
         <Text style={styles.cardTitle}>{entry.title}</Text>
       </View>
       <Text style={styles.cardTeaser}>{entry.teaser}</Text>
@@ -4924,6 +5011,7 @@ function DigestCard({
             <RecipeCardDetail
               card={entry.recipeCard}
               activeConditionCaution={resolveActiveConditionCaution(entry, activeConditionCode, activeStageCode)}
+              activeConditionSeverity={resolveActiveConditionSeverity(entry, activeConditionCode)}
             />
           ) : null}
           <EntryPhotoSection entry={entry} tabColor={TAB_COLOR} />
@@ -4971,6 +5059,7 @@ function RecipeDietTagRow({ tags }: { tags: RecipeDietTag[] }) {
 function RecipeCardDetail({
   card,
   activeConditionCaution,
+  activeConditionSeverity,
 }: {
   card: RecipeCard;
   // 2026-08-24, direct correction: "Meals You Can Eat" now shows every
@@ -4985,14 +5074,24 @@ function RecipeCardDetail({
   // always-visible box on every recipe would have buried the real,
   // hand-written notes already there under a wall of near-duplicate text.
   activeConditionCaution?: string;
+  // 2026-08-25, direct correction: "All of the conditions list all 300
+  // meals saying they can eat all of them. That cannot be." Colors and
+  // labels this box genuinely differently depending on how serious the
+  // real flag actually is, rather than one undifferentiated "caution"
+  // treatment for everything from a mild sodium note to an absolute,
+  // never-safe gluten hit. 'green' never reaches here (a genuinely clean
+  // recipe has no activeConditionCaution to show in the first place).
+  activeConditionSeverity?: 'green' | 'yellow' | 'red';
 }) {
   return (
     <View>
       {card.dietTags ? <RecipeDietTagRow tags={card.dietTags} /> : null}
 
       {activeConditionCaution ? (
-        <View style={styles.recipeConditionBox}>
-          <Text style={styles.recipeConditionLabel}>A note for this condition</Text>
+        <View style={activeConditionSeverity === 'red' ? styles.recipeConditionBoxRed : styles.recipeConditionBoxYellow}>
+          <Text style={activeConditionSeverity === 'red' ? styles.recipeConditionLabelRed : styles.recipeConditionLabelYellow}>
+            {activeConditionSeverity === 'red' ? 'Approach with caution' : 'Worth knowing'}
+          </Text>
           <Text style={styles.recipeNutritionText}>{activeConditionCaution}</Text>
         </View>
       ) : null}
@@ -6011,6 +6110,42 @@ const styles = StyleSheet.create({
   recipeConditionLabel: { ...typography.eyebrow, color: colors.accent, marginBottom: 4 },
   recipeConditionCondition: { ...typography.bodyEmphasis, color: colors.accent, marginTop: 4 },
   recipeConditionItemSpaced: { marginTop: 6 },
+  // 2026-08-25, direct correction: "That cannot be" -- a flagged recipe's
+  // own per-condition caution box needs to read as genuinely different
+  // from a mild highlight once the flag itself is serious, not the same
+  // warm-accent tint every other callout on this card already uses.
+  // Reuses the exact same statusYellow/statusRedBg palette this app's
+  // own DimensionFlags component already established for the identical
+  // yellow/red severity concept (see that component's own comment on
+  // why a muted, dark-tinted fill plus a solid border reads correctly
+  // on this app's dark surface, rather than a solid fill).
+  recipeConditionBoxYellow: {
+    backgroundColor: colors.statusYellowBg,
+    borderWidth: 1,
+    borderColor: colors.statusYellow,
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+  },
+  recipeConditionBoxRed: {
+    backgroundColor: colors.statusRedBg,
+    borderWidth: 1,
+    borderColor: colors.danger,
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+  },
+  // colors.statusYellowStandalone, not the darker statusYellow -- checked
+  // by real contrast math before picking, not assumed from DimensionFlags'
+  // own pairing: that component only ever uses statusYellow as a BORDER
+  // (an empty colored square, no text inside it at all), and statusYellow
+  // directly on statusYellowBg measures a genuinely illegible 1.59:1 for
+  // actual label text. statusYellowStandalone (the brighter amber added
+  // 2026-08-18 specifically because the darker one read poorly as text)
+  // measures 5.67:1 here, comfortably past the 4.5:1 floor.
+  recipeConditionLabelYellow: { ...typography.eyebrow, color: colors.statusYellowStandalone, marginBottom: 4 },
+  // colors.danger on statusRedBg measures 5.17:1, verified the same way.
+  recipeConditionLabelRed: { ...typography.eyebrow, color: colors.danger, marginBottom: 4 },
   feedbackRow: {
     flexDirection: 'row',
     alignItems: 'center',
