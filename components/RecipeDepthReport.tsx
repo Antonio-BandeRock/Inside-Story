@@ -67,7 +67,11 @@ export type RecipeDepthReportProps = {
   saving?: boolean;
 };
 
-function verdictFor(
+// Exported, 2026-08-26 -- components/FoodLookup.tsx's own new personalize
+// block reuses this exact same verdict logic for one food at a time,
+// rather than a second, drifting copy of the same Clean/Mild Caution/
+// Caution/Not Recommended rule.
+export function verdictFor(
   conditionCode: string,
   safeForConditions: string[],
   conditionCautions: RecipeDepthReportProps['conditionCautions'],

@@ -64,6 +64,12 @@ import {
   perMealShare,
   type MacroTargets,
 } from '../../lib/energyNeeds';
+import {
+  foodMatchesAllergy,
+  foodMatchesDietPreferences,
+  getPersonalizationProfile,
+  type PersonalizationProfile,
+} from '../../lib/foodPersonalization';
 import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../../lib/interactionRules';
 import { JUICE_ADVISORY_MESSAGE, JUICE_ADVISORY_TITLE } from '../../lib/juiceAdvisory';
 import { lbToKg } from '../../lib/measurement';
@@ -553,6 +559,23 @@ export default function InsightsScreen() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  // 2026-08-26, direct report: "we associated and wired up all of the
+  // conditions, food alergies, and general health specific tracking
+  // numbers. Those things didn't get wired through to the Insights
+  // tools." Confirmed true by reading this file directly first: nothing
+  // here had ever called getUserConditions/getDietPreferences/
+  // listFoodAllergies at all. Loaded once, on mount -- the same "reference
+  // data about the person, not today's log" cadence trackedNutrients/
+  // rankingDriRows below already use, since a person's own declared
+  // profile rarely changes mid-visit and every lens below reads it, not
+  // just one. Reused by Food Lookup (via the personalize prop), Safe
+  // Foods (condition-scoped safety, plus a diet/allergy filter on top),
+  // and Nutrient Ranking (a diet/allergy filter on the ranked list).
+  const [personalizationProfile, setPersonalizationProfile] = useState<PersonalizationProfile | null>(null);
+  useEffect(() => {
+    getPersonalizationProfile().then(setPersonalizationProfile);
+  }, []);
+
   const [nutrientBreakdown, setNutrientBreakdown] = useState<DailyNutrientBreakdown | null>(null);
   const [dimensionsBreakdown, setDimensionsBreakdown] = useState<DailySixDimensionsBreakdown | null>(null);
 
@@ -646,15 +669,29 @@ export default function InsightsScreen() {
     let isCurrent = true;
     setRankingLoading(true);
     rankFoodsByNutrient(rankingNutrient, 100, rankingPrepGroup).then((rows) => {
-      if (isCurrent) {
-        setRankedFoods(rows);
-        setRankingLoading(false);
-      }
+      if (!isCurrent) return;
+      // 2026-08-26 -- same real gap as Safe Foods: a declared diet
+      // preference or food allergy had never been checked here either,
+      // so someone vegan could see beef leading their own protein
+      // ranking. Both checks are pure/DB-free (lib/foodPersonalization.ts),
+      // cheap enough to run over this already-fetched, capped (100-row)
+      // list. personalizationProfile is null only for the brief instant
+      // before its own first, fast load resolves; unfiltered in the
+      // meantime rather than blocking the whole ranking on it.
+      const filtered = personalizationProfile
+        ? rows.filter(
+            (food) =>
+              foodMatchesDietPreferences(food.category, food.baseName, personalizationProfile.dietPreferences) &&
+              !foodMatchesAllergy(food.baseName, personalizationProfile.foodAllergies),
+          )
+        : rows;
+      setRankedFoods(filtered);
+      setRankingLoading(false);
     });
     return () => {
       isCurrent = false;
     };
-  }, [rankingNutrient, rankingPrepGroup, rankingPrepGroupTouched]);
+  }, [rankingNutrient, rankingPrepGroup, rankingPrepGroupTouched, personalizationProfile]);
   useEffect(() => {
     if (!rankingFood) {
       setFoodRankings([]);
@@ -712,31 +749,49 @@ export default function InsightsScreen() {
   const [safeFoodsLoading, setSafeFoodsLoading] = useState(false);
   const safeFoodCategoriesRequested = useRef(false);
   useEffect(() => {
-    if (lens !== 'safeFoods' || safeFoodCategoriesRequested.current) return;
+    // 2026-08-26 -- also waits for personalizationProfile so the very
+    // first fetch already uses the person's real tracked conditions
+    // (getPersonalizedSafeFoodIds, lib/db.ts), rather than firing once
+    // unpersonalized and never again -- safeFoodCategoriesRequested only
+    // ever flips true once, matching the freeze-avoiding "one real fetch
+    // per session" contract this effect's own comment above documents.
+    if (lens !== 'safeFoods' || safeFoodCategoriesRequested.current || !personalizationProfile) return;
     safeFoodCategoriesRequested.current = true;
     setSafeFoodCategoriesLoading(true);
-    listSafeFoodCategories().then((categories) => {
+    listSafeFoodCategories(personalizationProfile.trackedConditions.map((condition) => condition.code)).then((categories) => {
       setSafeFoodCategories(categories);
       setSafeFoodCategoriesLoading(false);
     });
-  }, [lens]);
+  }, [lens, personalizationProfile]);
   useEffect(() => {
-    if (!safeFoodCategory) {
+    if (!safeFoodCategory || !personalizationProfile) {
       setSafeFoods([]);
       return;
     }
     let isCurrent = true;
     setSafeFoodsLoading(true);
-    listSafeFoods(safeFoodCategory, 200).then((rows) => {
-      if (isCurrent) {
-        setSafeFoods(rows);
-        setSafeFoodsLoading(false);
-      }
+    const conditionCodes = personalizationProfile.trackedConditions.map((condition) => condition.code);
+    listSafeFoods(safeFoodCategory, 200, conditionCodes).then((rows) => {
+      if (!isCurrent) return;
+      // "Safe" from the condition-scoped query above still says nothing
+      // about a declared diet preference or a food allergy -- both real,
+      // separate axes this lens had also never checked at all. Filtered
+      // here rather than inside listSafeFoods itself: diet-tag
+      // classification and allergy matching are both pure, DB-free
+      // functions (lib/foodPersonalization.ts), so there's no reason to
+      // push them into the SQL layer.
+      const filtered = rows.filter(
+        (food) =>
+          foodMatchesDietPreferences(food.category, food.baseName, personalizationProfile.dietPreferences) &&
+          !foodMatchesAllergy(food.baseName, personalizationProfile.foodAllergies),
+      );
+      setSafeFoods(filtered);
+      setSafeFoodsLoading(false);
     });
     return () => {
       isCurrent = false;
     };
-  }, [safeFoodCategory]);
+  }, [safeFoodCategory, personalizationProfile]);
 
   // Healing Stage Food Finder lens, 2026-08-08 -- same "independent of
   // today's log, load once" nature as the two lenses just above. Both
@@ -936,7 +991,7 @@ export default function InsightsScreen() {
             // not this page-level wrapper -- that varies per caller (see
             // FoodLookup's own closing comment), so it's supplied here.
             <View style={styles.foodLookupActiveListContainer}>
-              <FoodLookup tabColor={TAB_COLOR} />
+              <FoodLookup tabColor={TAB_COLOR} personalize={personalizationProfile ?? undefined} />
             </View>
           ) : lens === 'nutrientRanking' ? (
             // Also deliberately NOT inside the shared ScrollView below --
@@ -1014,6 +1069,7 @@ export default function InsightsScreen() {
                 foods={safeFoods}
                 loading={safeFoodsLoading}
                 tabColor={TAB_COLOR}
+                personalizationProfile={personalizationProfile}
               />
             ) : lens === 'healingStage' ? (
               // Also independent of today's log -- same reasoning as
@@ -2642,6 +2698,7 @@ function SafeFoodsView({
   foods,
   loading,
   tabColor,
+  personalizationProfile,
 }: {
   categories: string[];
   categoriesLoading: boolean;
@@ -2650,7 +2707,18 @@ function SafeFoodsView({
   foods: SafeFood[];
   loading: boolean;
   tabColor: string;
+  // 2026-08-26 -- names what "safe" actually means here now: every one of
+  // the person's own tracked conditions at once, filtered further by their
+  // declared diet preference and food allergies (see InsightsScreen's own
+  // listSafeFoods call). Nullable only for the brief instant before the
+  // profile itself finishes its first, fast load.
+  personalizationProfile: PersonalizationProfile | null;
 }) {
+  const conditionNames = personalizationProfile?.trackedConditions.map((condition) => condition.name) ?? [];
+  const scopeDescription =
+    conditionNames.length > 0
+      ? `zero flagged concerns for ${conditionNames.join(', ')}`
+      : 'zero flagged 6 Dimensions concerns';
   // See NutrientRankingView's own identical comment.
   const categoryOptions = useMemo(
     () => categories.map((category) => ({ label: categoryLabel(category), value: category })),
@@ -2665,8 +2733,8 @@ function SafeFoodsView({
   if (categoriesLoading) {
     return (
       <Text style={[styles.emptyText, styles.rankSpaced]}>
-        Checking every food against the full 6 Dimensions scorecard, once for this session -- this can take up to
-        20 seconds the first time.
+        Checking every food against {conditionNames.length > 0 ? conditionNames.join(', ') : 'the full 6 Dimensions scorecard'}, once
+        for this session -- this can take a while the first time.
       </Text>
     );
   }
@@ -2684,13 +2752,13 @@ function SafeFoodsView({
         minWidth={220}
       />
       {!selected ? (
-        <Text style={[styles.emptyText, styles.rankSpaced]}>
-          Pick a category above to see which of its foods have zero flagged 6 Dimensions concerns.
-        </Text>
+        <Text style={[styles.emptyText, styles.rankSpaced]}>Pick a category above to see which of its foods have {scopeDescription}.</Text>
       ) : loading ? (
         <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
       ) : foods.length === 0 ? (
-        <Text style={[styles.emptyText, styles.rankSpaced]}>No fully unflagged foods found in this category.</Text>
+        <Text style={[styles.emptyText, styles.rankSpaced]}>
+          No foods in this category are both fully unflagged and free of a diet-preference or allergy conflict.
+        </Text>
       ) : (
         <View style={[styles.table, styles.rankSpaced]}>
           {foods.map((food) => (

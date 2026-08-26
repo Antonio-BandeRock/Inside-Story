@@ -335,7 +335,12 @@ function hasRedMeat(ingredients: MealIngredientInput[]): boolean {
   return ingredients.some((ingredient) => ingredient.category === 'Meat' && RED_MEATS.has(ingredient.foodName));
 }
 
-function computeDietTags(ingredients: MealIngredientInput[]): RecipeDietTag[] {
+// Exported, 2026-08-26 -- lib/foodPersonalization.ts reuses this exact
+// rule set for a single food at a time (a real, correct degenerate case of
+// the same computation: a one-ingredient "dish"), rather than a second,
+// drifting copy of the same category/base-name classification rules for
+// Insights' own tools.
+export function computeDietTags(ingredients: MealIngredientInput[]): RecipeDietTag[] {
   const tags: RecipeDietTag[] = [];
 
   const hasMeat = hasCategory(ingredients, 'Meat');

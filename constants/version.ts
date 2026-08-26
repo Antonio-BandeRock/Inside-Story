@@ -43,4 +43,4 @@
 // String. Irrelevant today (no App Store submission exists yet, iPhone
 // is still a planned platform, not a shipped one), worth revisiting only
 // once that actually applies.
-export const APP_VERSION = '1.0.26.25';
+export const APP_VERSION = '1.0.27.1';

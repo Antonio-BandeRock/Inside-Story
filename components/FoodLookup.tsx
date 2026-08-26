@@ -28,7 +28,9 @@ import {
   type ScannedProductRecord,
 } from '../lib/db';
 import { buildFoodNameGroups } from '../lib/foodNameGrouping';
+import { evaluateFoodForPerson, type PersonalFoodEvaluation, type PersonalizationProfile } from '../lib/foodPersonalization';
 import { getStageDeprioritizedNames } from '../lib/foodStageReordering';
+import { verdictFor } from './RecipeDepthReport';
 import { analyzeNutrientIntake, formatAmount } from '../lib/nutrientAnalysis';
 import { useActiveField } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -525,6 +527,7 @@ export function FoodLookup({
   allowedSubcategories,
   allowHarvestPick = true,
   restrictToSource,
+  personalize,
 }: {
   tabColor: string;
   // An optional page-level heading above the Category step (e.g. Food's
@@ -646,6 +649,19 @@ export function FoodLookup({
   // the middle of recording one). Defaults true, so every existing caller
   // (all 11 Food builders) is unaffected.
   allowHarvestPick?: boolean;
+  // 2026-08-26 -- the person's own tracked conditions, declared diet
+  // preferences, and food allergies, so a resolved food can show what it
+  // actually means FOR THEM, not just its plain nutrient table. Optional
+  // and additive only: undefined (every existing caller -- all 11 Food
+  // builders, Garden's harvest log, log.tsx's food-trial picker) renders
+  // exactly as before. Only Insights' own Food Lookup lens passes this,
+  // since that's the tool area actually reported as never having been
+  // wired up -- the builders already have their own, separate live
+  // per-ingredient advisory (conditionNotes/getConditionStageAdvisory) and
+  // full pre-save depth report, so adding a second, differently-shaped
+  // personalization block to the shared picker they embed would be a real,
+  // unrequested duplication, not a fix.
+  personalize?: PersonalizationProfile;
 }) {
   const [categories, setCategories] = useState<string[]>([]);
   // Which real "food group" tile (see FOOD_CATEGORY_GROUPS above) is
@@ -709,6 +725,35 @@ export function FoodLookup({
   // tiebreaker (lib/db.ts) falls back to a non-USDA source for a food
   // that USDA genuinely doesn't have -- see isFromFallbackSource below.
   const [resolvedSource, setResolvedSource] = useState<string | null>(null);
+  // The resolved food's own numeric id, alongside resolvedSource above --
+  // 2026-08-26, needed by the new personalize prop below (evaluateFoodForPerson
+  // needs a real foodId/source pair, not just the source half this file
+  // already tracked for its own fallback-source note).
+  const [resolvedFoodId, setResolvedFoodId] = useState<number | null>(null);
+  // The personalize prop's own real, per-food result -- see that prop's
+  // comment above. Recomputed whenever the resolved food itself changes;
+  // deliberately NOT reset by every downstream Change/reset function the
+  // way nutrients/unitWeight are, since resolvedFoodId already becoming
+  // null the moment any upstream step changes (see its own reset sites
+  // above) is what actually drives this effect back to null too.
+  const [personalEvaluation, setPersonalEvaluation] = useState<PersonalFoodEvaluation | null>(null);
+  const [personalEvaluationLoading, setPersonalEvaluationLoading] = useState(false);
+  useEffect(() => {
+    if (!personalize || resolvedFoodId === null || !resolvedSource) {
+      setPersonalEvaluation(null);
+      return;
+    }
+    let cancelled = false;
+    setPersonalEvaluationLoading(true);
+    evaluateFoodForPerson({ foodId: resolvedFoodId, source: resolvedSource, category, baseName }, personalize).then((result) => {
+      if (cancelled) return;
+      setPersonalEvaluation(result);
+      setPersonalEvaluationLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [personalize, resolvedFoodId, resolvedSource, category, baseName]);
   // What the person actually plans to eat, by weight -- the whole reason
   // this exists: amounts/DRI% below should reflect THIS, not a fixed
   // reference amount the person has no say over. Reset to a sensible
@@ -1141,6 +1186,7 @@ export function FoodLookup({
       setNutrients(null);
       setUnitWeight(null);
       setResolvedSource(null);
+      setResolvedFoodId(null);
       return;
     }
     let cancelled = false;
@@ -1172,6 +1218,7 @@ export function FoodLookup({
           return null;
         }
         setResolvedSource(resolved.source);
+        setResolvedFoodId(resolved.foodId);
         return Promise.all([
           getFoodNutrients(resolved.foodId, resolved.source),
           getFoodUnitWeight(resolved.foodId, resolved.source),
@@ -1749,6 +1796,55 @@ export function FoodLookup({
         </View>
       ) : null}
 
+      {/* 2026-08-26 -- what this exact food means against the person's own
+          profile: their tracked conditions, declared diet preference, and
+          food allergies. See the personalize prop's own comment above for
+          why this is additive-only and Insights-scoped. Shown once a food
+          is fully resolved, hidden while loading/still resolving so it
+          never flashes stale data from the PREVIOUS food while a new one
+          is still being evaluated. */}
+      {personalize && resolvedFoodId !== null && !loading ? (
+        personalEvaluationLoading || !personalEvaluation ? (
+          <Text style={styles.emptyText}>Checking against your profile…</Text>
+        ) : personalEvaluation.allergyMatch ||
+          personalEvaluation.dietViolations.length > 0 ||
+          personalize.trackedConditions.length > 0 ? (
+          <View style={[styles.personalCard, { borderColor: tabColor }]}>
+            <Text style={[styles.personalCardLabel, { color: tabColor }]}>For You</Text>
+            {personalEvaluation.allergyMatch ? (
+              <View style={[styles.personalWarningRow, { backgroundColor: colors.statusRedBg }]}>
+                <Text style={[styles.personalWarningText, { color: colors.danger }]}>
+                  Contains {personalEvaluation.allergyMatch} -- listed as one of your food allergies.
+                </Text>
+              </View>
+            ) : null}
+            {personalEvaluation.dietViolations.length > 0 ? (
+              <View style={[styles.personalWarningRow, { backgroundColor: colors.statusYellowBg }]}>
+                <Text style={[styles.personalWarningText, { color: colors.statusYellowStandalone }]}>
+                  Doesn&apos;t fit your declared {personalEvaluation.dietViolations.join(', ')} preference
+                  {personalEvaluation.dietViolations.length === 1 ? '' : 's'}.
+                </Text>
+              </View>
+            ) : null}
+            {personalize.trackedConditions.map((condition) => {
+              const verdict = verdictFor(condition.code, personalEvaluation.safeForConditions, personalEvaluation.conditionCautions);
+              const caution = personalEvaluation.conditionCautions[condition.code];
+              return (
+                <View key={condition.code} style={styles.personalConditionRow}>
+                  <Text style={styles.personalConditionName} numberOfLines={1}>
+                    {condition.name}
+                  </Text>
+                  <View style={[styles.personalVerdictPill, { backgroundColor: verdict.color }]}>
+                    <Text style={styles.personalVerdictPillText}>{verdict.label}</Text>
+                  </View>
+                  {caution ? <Text style={styles.personalCautionNote}>{caution.note}</Text> : null}
+                </View>
+              );
+            })}
+          </View>
+        ) : null
+      ) : null}
+
       {loading ? (
         <Text style={styles.emptyText}>Loading…</Text>
       ) : errorMessage ? (
@@ -2027,6 +2123,60 @@ const styles = StyleSheet.create({
   sourceFallbackText: {
     ...typography.caption,
     color: colors.textSecondary,
+  },
+  // The "For You" personalized card, 2026-08-26 -- same colors.surface +
+  // tab-colored border recipe every other opaque card on this screen
+  // already uses (matching RecipeDepthReport.tsx's own `card` style), so
+  // this reads as belonging to the same visual family, not a bolted-on
+  // extra.
+  personalCard: {
+    borderWidth: 2,
+    borderRadius: 10,
+    backgroundColor: colors.surface,
+    padding: 10,
+    marginTop: 8,
+    marginBottom: 4,
+    gap: 6,
+  },
+  personalCardLabel: {
+    ...typography.captionEmphasis,
+  },
+  personalWarningRow: {
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  personalWarningText: {
+    ...typography.caption,
+  },
+  personalConditionRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 6,
+  },
+  personalConditionName: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    flexShrink: 1,
+  },
+  personalVerdictPill: {
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  personalVerdictPillText: {
+    ...typography.captionEmphasis,
+    color: colors.textOnPrimary,
+    fontSize: 11,
+  },
+  // The caution's own real note (e.g. "Whole-Grain Wheat Flour: rated High
+  // Risk for gluten...") takes the full row width below the name/pill --
+  // same pattern RecipeDepthReport.tsx already uses for the same content.
+  personalCautionNote: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    flexBasis: '100%',
   },
   // The Portion column's own header cell -- label, the editable gram input,
   // and (when known) the "use the typical serving" reset link all stack

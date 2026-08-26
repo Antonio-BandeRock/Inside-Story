@@ -2874,19 +2874,36 @@ export function classifyProteinSource(category: string): 'animal' | 'plant' | nu
 // hasUsdaCoverage's own per-category cache already uses above.
 let safeFoodIdsCache: Promise<Set<string>> | null = null;
 
+// Two sub-criteria that fire on roughly half of all foods in this database
+// (Selenium & Zn synergy alone hits ~50%, Iron Presence ~5.5%) -- a
+// near-universal background signal, not a real per-food concern. Excluded
+// here 2026-08-26 the same way lib/recipeDepth.ts's own
+// NEAR_UNIVERSAL_SUB_CRITERIA already excludes them from a recipe's real
+// cautions; this plain, condition-agnostic "safe" set had never picked up
+// that same fix, so roughly half of all foods were silently marked "not
+// safe" for a signal that isn't a real concern at all. A second, faithful
+// copy of the same 2-entry set rather than an import, matching this
+// project's own accepted duplication between recipeDepth.ts and the
+// compute scripts it faithfully ports.
+const NEAR_UNIVERSAL_SUB_CRITERIA = new Set(['Selenium & Zn synergy', 'Iron Presence']);
+
 async function getSafeFoodIds(): Promise<Set<string>> {
   if (!safeFoodIdsCache) {
     safeFoodIdsCache = (async () => {
       const db = await getReferenceDatabase();
-      const rows = await db.getAllAsync<{ foodId: number; source: string; tier: string }>(
-        'SELECT food_id AS foodId, source, tier FROM food_scores',
+      const rows = await db.getAllAsync<{ foodId: number; source: string; tier: string; subCriterion: string }>(
+        `
+          SELECT fs.food_id AS foodId, fs.source AS source, fs.tier AS tier, sc.sub_criterion AS subCriterion
+          FROM food_scores fs
+          JOIN sub_criteria sc ON sc.id = fs.sub_criterion_id
+        `,
       );
       const flagged = new Set<string>();
       const allKeys = new Set<string>();
       for (const row of rows) {
         const key = `${row.foodId}|${row.source}`;
         allKeys.add(key);
-        if (isFlaggedTier(row.tier)) flagged.add(key);
+        if (!NEAR_UNIVERSAL_SUB_CRITERIA.has(row.subCriterion) && isFlaggedTier(row.tier)) flagged.add(key);
       }
       const safe = new Set<string>();
       for (const key of allKeys) {
@@ -2898,6 +2915,133 @@ async function getSafeFoodIds(): Promise<Set<string>> {
   return safeFoodIdsCache;
 }
 
+// 2026-08-26 -- condition-scoped "safe," reusing the exact same real
+// per-condition relevance rules getFoodScoresForCondition already applies
+// one food at a time (see that function's own comment), but as one bulk
+// fetch rather than a per-food/per-condition query loop: Safe Foods'
+// existing performance history (see getSafeFoodIds' own gating in
+// app/(tabs)/insights.tsx -- a naive unindexed full-table scan there once
+// froze the JS thread for 18.6 real seconds) makes a query-per-food
+// approach a real, named risk to avoid here, not a hypothetical one.
+//
+// allScoreRowsWithSubCriteria fetches the whole food_scores table joined to
+// sub_criteria ONCE (cached forever, the same "reference data never
+// changes at runtime" reasoning getSafeFoodIds already relies on) --
+// reusable for computing ANY condition's own flagged set afterward with no
+// second SQL round-trip, only a JS filter pass. subCriterionRelevanceRows
+// is the second, much smaller table (sub_criterion_condition_relevance)
+// that maps a sub-criterion onto every OTHER condition that reuses it,
+// also fetched once and cached.
+//
+// Named honestly: this single fetch now joins sub_criteria and returns two
+// more columns per row than the plain, ungated query that produced the
+// original 18.6-second freeze, so it is very likely at least as slow, not
+// faster -- gated behind the same "only when Safe Foods is actually
+// opened, once per session, real loading text while it runs" discipline
+// that made the original cost acceptable, but not yet re-measured
+// on-device against this new shape.
+type ScoreRowWithSubCriterion = {
+  foodId: number;
+  source: string;
+  tier: string;
+  subCriterion: string;
+  subCriterionId: number;
+  homeConditionCode: string;
+};
+let allScoreRowsWithSubCriteriaCache: Promise<ScoreRowWithSubCriterion[]> | null = null;
+async function getAllScoreRowsWithSubCriteria(): Promise<ScoreRowWithSubCriterion[]> {
+  if (!allScoreRowsWithSubCriteriaCache) {
+    allScoreRowsWithSubCriteriaCache = (async () => {
+      const db = await getReferenceDatabase();
+      return db.getAllAsync<ScoreRowWithSubCriterion>(
+        `
+          SELECT fs.food_id AS foodId, fs.source AS source, fs.tier AS tier,
+                 sc.sub_criterion AS subCriterion, sc.id AS subCriterionId, sc.home_condition_code AS homeConditionCode
+          FROM food_scores fs
+          JOIN sub_criteria sc ON sc.id = fs.sub_criterion_id
+        `,
+      );
+    })();
+  }
+  return allScoreRowsWithSubCriteriaCache;
+}
+
+type RelevanceRow = { subCriterionId: number; conditionCode: string };
+let subCriterionRelevanceRowsCache: Promise<RelevanceRow[]> | null = null;
+async function getSubCriterionRelevanceRows(): Promise<RelevanceRow[]> {
+  if (!subCriterionRelevanceRowsCache) {
+    subCriterionRelevanceRowsCache = (async () => {
+      const db = await getReferenceDatabase();
+      return db.getAllAsync<RelevanceRow>(
+        'SELECT sub_criterion_id AS subCriterionId, condition_code AS conditionCode FROM sub_criterion_condition_relevance',
+      );
+    })();
+  }
+  return subCriterionRelevanceRowsCache;
+}
+
+// One condition's own flagged (food_id|source) set -- everything that
+// would show a real caution for THIS condition specifically, the same
+// "owns the sub-criterion natively, or reuses another condition's via
+// sub_criterion_condition_relevance" real matching getFoodScoresForCondition
+// already does per food. Cached per condition code for the session, same
+// "compute once per app session" shape getSafeFoodIds already established.
+const flaggedFoodIdsByConditionCache = new Map<string, Promise<Set<string>>>();
+async function getFlaggedFoodIdsForCondition(conditionCode: string): Promise<Set<string>> {
+  let cached = flaggedFoodIdsByConditionCache.get(conditionCode);
+  if (!cached) {
+    cached = (async () => {
+      const [allRows, relevanceRows] = await Promise.all([getAllScoreRowsWithSubCriteria(), getSubCriterionRelevanceRows()]);
+      const relevantSubCriterionIds = new Set(
+        relevanceRows.filter((row) => row.conditionCode === conditionCode).map((row) => row.subCriterionId),
+      );
+      const flagged = new Set<string>();
+      for (const row of allRows) {
+        if (row.homeConditionCode !== conditionCode && !relevantSubCriterionIds.has(row.subCriterionId)) continue;
+        if (NEAR_UNIVERSAL_SUB_CRITERIA.has(row.subCriterion)) continue;
+        if (!isFlaggedTier(row.tier)) continue;
+        flagged.add(`${row.foodId}|${row.source}`);
+      }
+      return flagged;
+    })();
+    flaggedFoodIdsByConditionCache.set(conditionCode, cached);
+  }
+  return cached;
+}
+
+// "Safe" across every one of the person's own tracked conditions at once --
+// a food flagged for even one tracked condition isn't honestly "safe" to
+// show here, matching the same standard "Meals You Can Eat" already
+// applies per curated recipe (2026-08-24/25). An empty conditionCodes list
+// (nothing tracked yet) falls back to the old, plain, condition-agnostic
+// getSafeFoodIds() -- the same "absence means no restriction, fall back to
+// the general case" contract this app's other personalization features
+// (diet preferences, curious-about conditions) already follow.
+const personalizedSafeFoodIdsCache = new Map<string, Promise<Set<string>>>();
+export async function getPersonalizedSafeFoodIds(conditionCodes: string[]): Promise<Set<string>> {
+  if (conditionCodes.length === 0) return getSafeFoodIds();
+  const cacheKey = [...conditionCodes].sort().join(',');
+  let cached = personalizedSafeFoodIdsCache.get(cacheKey);
+  if (!cached) {
+    cached = (async () => {
+      const db = await getReferenceDatabase();
+      const allRows = await db.getAllAsync<{ foodId: number; source: string }>('SELECT food_id AS foodId, source FROM foods WHERE hidden = 0');
+      const flaggedSets = await Promise.all(conditionCodes.map((code) => getFlaggedFoodIdsForCondition(code)));
+      const safe = new Set<string>();
+      outer: for (const row of allRows) {
+        const key = `${row.foodId}|${row.source}`;
+        for (const flagged of flaggedSets) {
+          if (flagged.has(key)) continue outer;
+        }
+        safe.add(key);
+      }
+      return safe;
+    })();
+    personalizedSafeFoodIdsCache.set(cacheKey, cached);
+  }
+  return cached;
+}
+
 // Which real categories currently have at least one safe food -- the Safe
 // Foods lens's own first picker step. Deliberately queries every category
 // (not CATEGORIES_HIDDEN_FROM_BROWSING-filtered like getReferenceCategories
@@ -2905,8 +3049,15 @@ async function getSafeFoodIds(): Promise<Set<string>> {
 // (hidden = 0 is enforced inside listSafeFoods below); a category that's
 // fully hidden from ordinary browsing simply never contributes any safe
 // foods and drops out of this list naturally.
-export async function listSafeFoodCategories(): Promise<string[]> {
-  const safeIds = await getSafeFoodIds();
+//
+// conditionCodes, 2026-08-26 -- optional, defaults to [] (the old,
+// condition-agnostic behavior) so every existing caller stays unaffected;
+// Insights' own Safe Foods lens now passes the person's real tracked
+// conditions, so "safe" here means the same real, condition-scoped thing
+// "Meals You Can Eat" already means in the Digest, not a generic,
+// unpersonalized flag.
+export async function listSafeFoodCategories(conditionCodes: string[] = []): Promise<string[]> {
+  const safeIds = await getPersonalizedSafeFoodIds(conditionCodes);
   const db = await getReferenceDatabase();
   const rows = await db.getAllAsync<{ foodId: number; source: string; category: string }>(
     'SELECT food_id AS foodId, source, category FROM foods WHERE hidden = 0',
@@ -2926,8 +3077,11 @@ export type SafeFood = { foodId: number; source: string; baseName: string; categ
 // beyond `limit` -- a category with more real safe foods than that just
 // shows its first `limit` alphabetically, matching the same cap shape
 // rankFoodsByNutrient above already uses.
-export async function listSafeFoods(category: string, limit = 200): Promise<SafeFood[]> {
-  const safeIds = await getSafeFoodIds();
+//
+// conditionCodes, 2026-08-26 -- see listSafeFoodCategories' own comment
+// directly above; same optional, defaults-to-old-behavior contract.
+export async function listSafeFoods(category: string, limit = 200, conditionCodes: string[] = []): Promise<SafeFood[]> {
+  const safeIds = await getPersonalizedSafeFoodIds(conditionCodes);
   const db = await getReferenceDatabase();
   const rows = await db.getAllAsync<SafeFood>(
     'SELECT food_id AS foodId, source, base_name AS baseName, category, subcategory FROM foods WHERE category = ? AND hidden = 0',
