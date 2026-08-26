@@ -1788,7 +1788,34 @@ export function SideBuilder({
               own ready screen further down is. */}
           <View style={[styles.formCard, { borderColor: tabColor }]}>{renderStepsSection()}</View>
 
-          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]} onPress={() => void finishSide(ingredients)}>
+          {/* 2026-08-25, direct correction: "Preview Full Report" only ever
+              existed on create mode's own review screen -- reopening an
+              already-saved side to check it (which is exactly how someone
+              would look at a side they'd already built, rather than
+              rebuilding it from scratch each time) had no way to reach the
+              Nutrition & Health Report at all, healing-stage information
+              included. Wired identically to the create-mode button: same
+              handlePreviewReport, same finishStep === 'report' branch
+              above (which doesn't care whether editSideId is set), "Go
+              Back and Adjust" returning here correctly since this branch's
+              own condition never depended on finishStep in the first
+              place. */}
+          <TouchableOpacity
+            style={[styles.secondaryButton, styles.reportPreviewButton, { borderColor: tabColor }]}
+            onPress={() => void handlePreviewReport()}
+            disabled={computingReport}
+          >
+            {computingReport ? (
+              <ActivityIndicator color={tabColor} />
+            ) : (
+              <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Preview Full Report</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
+            onPress={() => void finishSide(ingredients)}
+            disabled={computingReport}
+          >
             <Text style={styles.primaryButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -2442,8 +2469,14 @@ export function SideBuilder({
                   to saving it": this doesn't save anything by itself, it
                   computes the same real depth data Complete & Save would
                   and shows it first (see the finishStep === 'report' branch
-                  above). Create mode only, matching this pilot's scoping
-                  (editSideId keeps its existing, unconfirmed-modal save). */}
+                  above). The `!editSideId` check here is defensive, not a
+                  real scoping decision -- this whole branch is create-mode
+                  only in practice (see its own header comment further up);
+                  edit mode's own overview screen carries the identical
+                  button, added the same day after "the entire Stage
+                  information for the report is missing" turned out to
+                  mean the report was never reachable from edit mode at
+                  all, not a real regression in the report itself. */}
               {!editSideId ? (
                 <TouchableOpacity
                   style={[styles.secondaryButton, styles.reportPreviewButton, { borderColor: tabColor }]}
