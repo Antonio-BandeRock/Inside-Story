@@ -673,7 +673,13 @@ export default function HomeScreen() {
       // dimensionsBreakdown.day (never any meal-by-meal/side-by-side
       // detail from either), so both are safe, like-for-like swaps.
       getNutrientTotalsByDateRange(date, date),
-      getSixDimensionsFlagCountsByDateRange(date, date),
+      // 2026-08-26 -- condition-scoped, using the same userConditionCodes
+      // state loadDigestConditionScope already fetches for the Digest
+      // flip cards, not a second fetch. See lib/db.ts's own comment on
+      // why this now means something different (and more correct) than
+      // before: a flag genuinely relevant to a tracked condition, not any
+      // of the ~29 currently-scored sub-criteria regardless of relevance.
+      getSixDimensionsFlagCountsByDateRange(date, date, userConditionCodes),
       listCheckins({ checkinType: 'flare', limit: 60 }),
       listCheckins({ checkinType: 'post_meal', limit: 60 }),
       getUserProfile(),
@@ -727,7 +733,7 @@ export default function HomeScreen() {
         });
       },
     );
-  }, []);
+  }, [userConditionCodes]);
 
   // Both loaded together, on every focus (so returning from Food/Bio-
   // Compass with something new logged still shows up) -- but the loading

@@ -14066,28 +14066,83 @@ export async function getProjectedNutrientTotalsByDateRange(startDate: string, e
   return { dayTotals, driRows, supplementTotals: supplementResult.totals };
 }
 
-// Same real fix as getNutrientTotalsByDateRange just above, applied to the
-// 6-DFF flag count instead of nutrient amounts -- one query for every real
-// item in range, one cross-range score cache, then reuses
-// aggregateBySubCriterion verbatim per day (the exact same real grouping
-// getDailySixDimensionsBreakdown's own "day" field already computes for one
-// date) so the flag-count semantics can't drift from the single-date
-// version.
-export async function getSixDimensionsFlagCountsByDateRange(startLocal: string, endLocal: string): Promise<Record<string, number>> {
-  const items = await getMealItemsInWindow(startLocal, endOfLocalDay(endLocal));
-  const scoreCache = new Map<string, FoodScore[]>();
+type FlagCountFood = { foodName: string; foodId: number; source: string };
 
-  async function getCachedScores(foodId: number, source: string) {
-    const key = `${foodId}|${source}`;
-    let scores = scoreCache.get(key);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(key, scores);
+// The shared counting step behind both real functions below -- 2026-08-26,
+// rebuilt to be condition-scoped instead of one generic count across
+// every currently-scored sub-criterion regardless of relevance (the exact
+// gap phases 1-3 of this same rebuild already closed for Insights/
+// food-item-detail.tsx: this was the one remaining place still asking the
+// old, unpersonalized question). conditionCodes empty (nobody tracks
+// anything yet) falls back to the old generic behavior, the same
+// "absence means no restriction" contract this app's other
+// personalization features already follow; conditionCodes non-empty
+// counts DISTINCT sub-criteria flagged for ANY of those conditions (a
+// sub-criterion relevant to two tracked conditions at once still counts
+// once, not twice), excluding the same near-universal background signal
+// (NEAR_UNIVERSAL_SUB_CRITERIA) the condition-scoped dimension engine
+// already excludes everywhere else, so a Hashimoto's tracker doesn't see
+// this number inflated by a sub-criterion that fires on half the
+// database. One bulk fetch for every distinct food across the WHOLE
+// range, not one query per food per day.
+async function countFlaggedSubCriteriaByDate(
+  dayFoods: Map<string, Map<string, FlagCountFood>>,
+  conditionCodes: string[],
+): Promise<Record<string, number>> {
+  const counts: Record<string, number> = {};
+  const allPairs = Array.from(dayFoods.values()).flatMap((foods) =>
+    Array.from(foods.values()).map((food) => ({ foodId: food.foodId, source: food.source })),
+  );
+
+  if (conditionCodes.length === 0) {
+    const scoresByFood = await getFoodScoresBulk(allPairs);
+    for (const [date, foods] of dayFoods.entries()) {
+      const foodEntries = Array.from(foods.values()).map((food) => ({
+        foodName: food.foodName,
+        scores: scoresByFood.get(`${food.foodId}|${food.source}`) ?? [],
+      }));
+      const bySubCriterion = aggregateBySubCriterion(foodEntries);
+      counts[date] = bySubCriterion.filter((score) => score.entries.some((entry) => isFlaggedTier(entry.tier))).length;
     }
-    return scores;
+    return counts;
   }
 
-  const dayFoods = new Map<string, Map<string, { foodName: string; scores: FoodScore[] }>>();
+  const conditionScoresByFood = await getConditionScoresForFoodsBulk(allPairs, conditionCodes);
+  for (const [date, foods] of dayFoods.entries()) {
+    const flaggedSubCriteria = new Set<string>();
+    for (const food of foods.values()) {
+      const byCondition = conditionScoresByFood.get(`${food.foodId}|${food.source}`);
+      if (!byCondition) continue;
+      for (const conditionCode of conditionCodes) {
+        for (const score of byCondition.get(conditionCode) ?? []) {
+          if (NEAR_UNIVERSAL_SUB_CRITERIA.has(score.subCriterion)) continue;
+          if (isFlaggedTier(score.tier)) flaggedSubCriteria.add(score.subCriterion);
+        }
+      }
+    }
+    counts[date] = flaggedSubCriteria.size;
+  }
+  return counts;
+}
+
+// Same real fix as getNutrientTotalsByDateRange just above, applied to the
+// flag count instead of nutrient amounts -- one query for every real item
+// in range, then countFlaggedSubCriteriaByDate above for the actual
+// per-day counting, so the semantics can't drift from the single-date
+// version (getDailySixDimensionsBreakdown) or from each other.
+//
+// conditionCodes, 2026-08-26 -- optional, defaults to [] so every existing
+// caller not yet updated keeps its old, generic behavior; Home's own
+// "Worth a Look" badge and Trends' own trend line (via
+// lib/trendAnalysis.ts) are the real callers passing the person's actual
+// tracked conditions.
+export async function getSixDimensionsFlagCountsByDateRange(
+  startLocal: string,
+  endLocal: string,
+  conditionCodes: string[] = [],
+): Promise<Record<string, number>> {
+  const items = await getMealItemsInWindow(startLocal, endOfLocalDay(endLocal));
+  const dayFoods = new Map<string, Map<string, FlagCountFood>>();
 
   for (const item of items) {
     if (!item.foodId) continue;
@@ -14099,56 +14154,42 @@ export async function getSixDimensionsFlagCountsByDateRange(startLocal: string, 
     if (!dayFoods.has(date)) dayFoods.set(date, new Map());
     const dayMap = dayFoods.get(date)!;
     const foodKey = `${foodId}|${source}`;
-    if (!dayMap.has(foodKey)) {
-      dayMap.set(foodKey, { foodName: item.foodName, scores: await getCachedScores(foodId, source) });
-    }
+    if (!dayMap.has(foodKey)) dayMap.set(foodKey, { foodName: item.foodName, foodId, source });
   }
 
-  const counts: Record<string, number> = {};
-  for (const [date, foods] of dayFoods.entries()) {
-    const bySubCriterion = aggregateBySubCriterion(Array.from(foods.values()));
-    counts[date] = bySubCriterion.filter((score) => score.entries.some((entry) => isFlaggedTier(entry.tier))).length;
-  }
-  return counts;
+  return countFlaggedSubCriteriaByDate(dayFoods, conditionCodes);
 }
 
-// The future half of the 6-DFF flag count, mirroring
+// The future half of the flag count, mirroring
 // getProjectedNutrientTotalsByDateRange -- reuses the identical real
 // schedule-resolution chain via getProjectedIngredientsByDateRange, then
-// runs the same real aggregateBySubCriterion/isFlaggedTier logic
-// getSixDimensionsFlagCountsByDateRange itself already uses, so a projected
-// day's flag count means exactly the same thing a real logged day's does.
-export async function getProjectedSixDimensionsFlagCountsByDateRange(startDate: string, endDate: string): Promise<Record<string, number>> {
+// the same countFlaggedSubCriteriaByDate above, so a projected day's flag
+// count means exactly the same thing a real logged day's does.
+//
+// conditionCodes, 2026-08-26 -- same optional, defaults-to-old-behavior
+// contract as getSixDimensionsFlagCountsByDateRange above.
+export async function getProjectedSixDimensionsFlagCountsByDateRange(
+  startDate: string,
+  endDate: string,
+  conditionCodes: string[] = [],
+): Promise<Record<string, number>> {
   const byDate = await getProjectedIngredientsByDateRange(startDate, endDate);
-  const scoreCache = new Map<string, FoodScore[]>();
+  const dayFoods = new Map<string, Map<string, FlagCountFood>>();
 
-  async function getCachedScores(foodId: number, source: string) {
-    const key = `${foodId}|${source}`;
-    let scores = scoreCache.get(key);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(key, scores);
-    }
-    return scores;
-  }
-
-  const counts: Record<string, number> = {};
   for (const [date, ingredients] of Object.entries(byDate)) {
-    const foods = new Map<string, { foodName: string; scores: FoodScore[] }>();
+    const foods = new Map<string, FlagCountFood>();
     for (const ingredient of ingredients) {
       if (!ingredient.foodId) continue;
       const [foodIdStr, source] = ingredient.foodId.split('|');
       const foodId = Number(foodIdStr);
       if (!source || Number.isNaN(foodId)) continue;
       const foodKey = `${foodId}|${source}`;
-      if (!foods.has(foodKey)) {
-        foods.set(foodKey, { foodName: ingredient.foodName ?? '', scores: await getCachedScores(foodId, source) });
-      }
+      if (!foods.has(foodKey)) foods.set(foodKey, { foodName: ingredient.foodName ?? '', foodId, source });
     }
-    const bySubCriterion = aggregateBySubCriterion(Array.from(foods.values()));
-    counts[date] = bySubCriterion.filter((score) => score.entries.some((entry) => isFlaggedTier(entry.tier))).length;
+    dayFoods.set(date, foods);
   }
-  return counts;
+
+  return countFlaggedSubCriteriaByDate(dayFoods, conditionCodes);
 }
 
 export type LabResultRecord = {

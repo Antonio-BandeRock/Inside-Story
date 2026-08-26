@@ -26,7 +26,7 @@ type ReportsLens = 'overview';
 const REPORTS_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page does',
-    body: "Pulls together everything logged over a date range: nutrient intake, 6 Dimensions flags, symptoms/flares, active meds and supplements, and your most recent lab results, into one plain, readable summary. Built for handing to a doctor, nutritionist, or trainer, or just for your own records.",
+    body: "Pulls together everything logged over a date range: nutrient intake, condition score flags, symptoms/flares, active meds and supplements, and your most recent lab results, into one plain, readable summary. Built for handing to a doctor, nutritionist, or trainer, or just for your own records.",
   },
   {
     heading: 'Privacy',

@@ -28,9 +28,9 @@ const CORE_NUTRIENT_CODES = ['iodine', 'selenium', 'zinc', 'iron', 'vitamin_d', 
 // already-existing, already-proven functions rather than new aggregation
 // logic wherever one exists (getNutrientTrendSeries/
 // getSixDimensionsFlagTrendSeries -- the same per-day loops Trends' own
-// Nutrients/6 Dimensions lenses already run, Phase 1/2 of this same pass),
-// matching this app's own standing "computation stays in lib/, don't
-// re-derive it twice" discipline.
+// Nutrients/Condition Scores lenses already run, Phase 1/2 of this same
+// pass), matching this app's own standing "computation stays in lib/,
+// don't re-derive it twice" discipline.
 
 function formatDateRange(days: number): string {
   const end = new Date();
@@ -79,11 +79,17 @@ export async function generateReport(days: number): Promise<string> {
   lines.push(nutrientLines.length > 0 ? nutrientLines.join('\n') : 'No meals logged in this range yet.');
   lines.push('');
 
-  // 6 Dimensions flag summary -- reuses the exact same real daily series
-  // the 6 Dimensions trend lens already computes.
-  const sixDsSeries = await getSixDimensionsFlagTrendSeries(days);
+  // Condition-scoped flag summary -- reuses the exact same real daily
+  // series the Trends Condition Scores lens already computes, and the
+  // same userConditionCodes already fetched above for the tracked-
+  // conditions section, rather than a second fetch. 2026-08-26: this used
+  // to count every currently-scored sub-criterion regardless of
+  // relevance; now it's scoped to what's actually relevant to the
+  // conditions named directly above it, so the two sections agree with
+  // each other.
+  const sixDsSeries = await getSixDimensionsFlagTrendSeries(days, userConditionCodes);
   const totalFlaggedItemDays = sixDsSeries.reduce((sum, point) => sum + point.value, 0);
-  lines.push('6 DIMENSIONS FLAGS');
+  lines.push('CONDITION SCORE FLAGS');
   lines.push(
     sixDsSeries.length > 0
       ? `${totalFlaggedItemDays} flagged item${totalFlaggedItemDays === 1 ? '' : 's'} logged across ${sixDsSeries.length} day${sixDsSeries.length === 1 ? '' : 's'} with meals.`

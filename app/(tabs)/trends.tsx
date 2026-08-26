@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -25,6 +25,7 @@ import {
   type LabResultRecord,
   type LabTest,
 } from '../../lib/db';
+import { getPersonalizationProfile, type PersonalizationProfile } from '../../lib/foodPersonalization';
 import { kgToLb } from '../../lib/measurement';
 import { nutrientStatusSeverity, type NutrientStatus } from '../../lib/nutrientAnalysis';
 import {
@@ -81,12 +82,17 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
   },
   {
     key: 'sixDs',
-    label: '6 Dimensions',
+    label: 'Condition Scores',
     icon: 'analytics-outline',
     help: [
       {
-        heading: '6 Dimensions',
-        body: 'How many 6-DFF flags (goitrogenic, high-risk, etc.) got logged per day, across the date range.',
+        heading: 'Condition Scores',
+        // 2026-08-26 -- condition-scoped, matching the rename/rebuild
+        // already applied to Insights' own lens of the same underlying
+        // data: counts distinct sub-criteria flagged for one of your own
+        // tracked conditions, not any of the app's currently-scored
+        // sub-criteria regardless of relevance.
+        body: 'How many distinct scoring factors relevant to your tracked conditions got flagged per day, across the date range.',
       },
       TRENDS_PATTERN_CAVEAT_HELP,
     ],
@@ -156,7 +162,7 @@ const DAY_RANGE_OPTIONS = [
   { value: 90, label: 'Last 90d' },
 ] as const;
 
-// The real, symmetric past/future picker for Nutrients and 6 Dimensions,
+// The real, symmetric past/future picker for Nutrients and Condition Scores,
 // 2026-08-15 -- direct, specific spec: "90d, 60d, 30d, 7d, Yesterday,
 // Today, Tomorrow, 7d, 30d, 60d, 90d." Both meal-based lenses can genuinely
 // answer a future question (via lib/db.ts's own real projected-totals
@@ -250,10 +256,10 @@ function checkinColor(checkinType: CheckinSeverityPoint['checkinType']): string 
 const TRENDS_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page shows',
-    body: "Nutrient intake, 6 Dimensions flags, and symptom/flare severity charted over a date range you pick, so slow changes that are invisible day-to-day become visible trends. Today's snapshot lives on Insights; this is the same kind of information, over time instead of just today.",
+    body: "Nutrient intake, Condition Scores flags, and symptom/flare severity charted over a date range you pick, so slow changes that are invisible day-to-day become visible trends. Today's snapshot lives on Insights; this is the same kind of information, over time instead of just today.",
   },
   {
-    heading: 'Nutrients & 6 Dimensions: past AND future',
+    heading: 'Nutrients & Condition Scores: past AND future',
     body: "These two can look ahead as well as back, reading what's genuinely scheduled rather than only what's already been logged -- a range that reaches past today shows a real projection for the scheduled days, never a guess for a day nothing's actually planned on.",
   },
   {
@@ -297,7 +303,7 @@ export default function TrendsScreen() {
   );
   // Still used by the four lenses whose own picker didn't change.
   const [days, setDays] = useState<7 | 30 | 90>(30);
-  // The new picker, Nutrients/6 Dimensions only.
+  // The new picker, Nutrients/Condition Scores only.
   const [dateRangeSelection, setDateRangeSelection] = useState<DateRangeSelection>({ kind: 'past', days: 30 });
   const [showCustomPicker, setShowCustomPicker] = useState(false);
   const [customIsRange, setCustomIsRange] = useState(false);
@@ -320,6 +326,16 @@ export default function TrendsScreen() {
   const [patternResult, setPatternResult] = useState<PatternFinderResult | null>(null);
   const [startingTrialKey, setStartingTrialKey] = useState<string | null>(null);
   const router = useRouter();
+
+  // 2026-08-26 -- the same real tracked-conditions list Insights/
+  // food-item-detail.tsx already load, needed here so the Condition Scores
+  // trend line means the same condition-scoped thing everywhere in the
+  // app rather than one flat count across every currently-scored
+  // sub-criterion regardless of relevance.
+  const [personalizationProfile, setPersonalizationProfile] = useState<PersonalizationProfile | null>(null);
+  useEffect(() => {
+    getPersonalizationProfile().then(setPersonalizationProfile);
+  }, []);
 
   // Nutrient display names, fetched once (one profile + one DRI table
   // query -- cheap, unlike the per-day trend loop below) so the nutrient
@@ -372,7 +388,7 @@ export default function TrendsScreen() {
   }, [dateRangeSelection]);
 
   // Only the active lens's series is computed -- each of the three lenses'
-  // data (especially Nutrients/6 Dimensions, which loop one DB call per
+  // data (especially Nutrients/Condition Scores, which loop one DB call per
   // day in the range) is real work, so there's no reason to pay for all
   // three every time the range or lens changes.
   const load = useCallback(() => {
@@ -383,7 +399,8 @@ export default function TrendsScreen() {
         setLoading(false);
       });
     } else if (lens === 'sixDs') {
-      getSixDimensionsFlagTrendSeriesForRange(resolvedRange.startDate, resolvedRange.endDate).then((points) => {
+      const conditionCodes = personalizationProfile?.trackedConditions.map((condition) => condition.code) ?? [];
+      getSixDimensionsFlagTrendSeriesForRange(resolvedRange.startDate, resolvedRange.endDate, conditionCodes).then((points) => {
         setSixDsSeries(points);
         setLoading(false);
       });
@@ -417,7 +434,7 @@ export default function TrendsScreen() {
         setLoading(false);
       });
     }
-  }, [lens, days, resolvedRange, selectedNutrient, selectedTestCode, patternWindow]);
+  }, [lens, days, resolvedRange, selectedNutrient, selectedTestCode, patternWindow, personalizationProfile]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 

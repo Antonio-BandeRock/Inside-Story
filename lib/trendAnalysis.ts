@@ -139,19 +139,29 @@ export async function getNutrientTrendSeries(nutrientCode: string, days: number)
   return getNutrientTrendSeriesForRange(nutrientCode, dateStringDaysAgo(days - 1), todayDateString());
 }
 
-// Same real shape as getNutrientTrendSeriesForRange, for the 6-DFF flag
-// count instead of a specific nutrient's percent-of-target.
-export async function getSixDimensionsFlagTrendSeriesForRange(startDate: string, endDate: string): Promise<TrendPoint[]> {
+// Same real shape as getNutrientTrendSeriesForRange, for the flag count
+// instead of a specific nutrient's percent-of-target.
+//
+// conditionCodes, 2026-08-26 -- optional, defaults to [] so an existing
+// caller not yet updated keeps the old, generic-across-every-scored-
+// sub-criterion behavior; passed straight through to both real/projected
+// halves so a trend line never mixes a condition-scoped day with a
+// generic one.
+export async function getSixDimensionsFlagTrendSeriesForRange(
+  startDate: string,
+  endDate: string,
+  conditionCodes: string[] = [],
+): Promise<TrendPoint[]> {
   const today = todayDateString();
   let counts: Record<string, number> = {};
 
   if (startDate <= today) {
-    const actual = await getSixDimensionsFlagCountsByDateRange(startDate, endDate <= today ? endDate : today);
+    const actual = await getSixDimensionsFlagCountsByDateRange(startDate, endDate <= today ? endDate : today, conditionCodes);
     counts = { ...counts, ...actual };
   }
   if (endDate > today) {
     const projectedStart = startDate > today ? startDate : dateStringOffsetFrom(today, 1);
-    const projected = await getProjectedSixDimensionsFlagCountsByDateRange(projectedStart, endDate);
+    const projected = await getProjectedSixDimensionsFlagCountsByDateRange(projectedStart, endDate, conditionCodes);
     counts = { ...counts, ...projected };
   }
 
@@ -163,8 +173,8 @@ export async function getSixDimensionsFlagTrendSeriesForRange(startDate: string,
   return points;
 }
 
-export async function getSixDimensionsFlagTrendSeries(days: number): Promise<TrendPoint[]> {
-  return getSixDimensionsFlagTrendSeriesForRange(dateStringDaysAgo(days - 1), todayDateString());
+export async function getSixDimensionsFlagTrendSeries(days: number, conditionCodes: string[] = []): Promise<TrendPoint[]> {
+  return getSixDimensionsFlagTrendSeriesForRange(dateStringDaysAgo(days - 1), todayDateString(), conditionCodes);
 }
 
 // Weight's own trend series -- getBodyMeasurementTrend('weight') already
