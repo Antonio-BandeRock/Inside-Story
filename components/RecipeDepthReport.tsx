@@ -87,7 +87,7 @@ export function RecipeDepthReport({
   });
 
   return (
-    <View style={styles.wrap}>
+    <View style={[styles.wrap, { borderColor: tabColor }]}>
       <Text style={[styles.eyebrow, { color: tabColor }]}>Nutrition &amp; Safety Report</Text>
       <Text style={styles.title}>{dishName}</Text>
       <Text style={styles.yield}>{yieldLabel}</Text>
@@ -179,7 +179,20 @@ export function RecipeDepthReport({
 }
 
 const styles = StyleSheet.create({
-  wrap: { paddingBottom: 24 },
+  // 2026-08-25, direct report: nothing here had a real backing behind it
+  // at all, so the Food tab's own background photo showed straight
+  // through every line of text. Fixed the same way every other Food
+  // builder card already is (see SideBuilder.tsx's own formCard): one
+  // solid, opaque colors.surface card wrapping the whole report, so
+  // every nested box below sits on a real backdrop instead of the photo
+  // behind it -- matching how those nested boxes were already built,
+  // relying on an opaque parent rather than carrying their own fill.
+  wrap: {
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderRadius: 10,
+    padding: 16,
+  },
   eyebrow: { ...typography.eyebrow, marginBottom: 4 },
   title: { ...typography.sectionTitle, color: colors.textPrimary },
   yield: { ...typography.caption, color: colors.textMuted, marginBottom: 8 },

@@ -281,6 +281,26 @@ function formatFinalIngredientText(ingredient: SideIngredient): string {
   return details.length > 0 ? `${base} (${details.join(', ')})` : base;
 }
 
+// A stable snapshot of an ingredient list, ignoring `scores` (derived,
+// computed data, never something a person actually typed) -- used to tell
+// whether a side loaded from a curated recipe has genuinely changed
+// (loadedFromCuratedRecipe's own comment further down). Order-sensitive on
+// purpose: reordering ingredients is still a real, visible change to the
+// dish, not just a serving-size adjustment.
+function snapshotIngredients(ingredients: SideIngredient[]): string {
+  return JSON.stringify(
+    ingredients.map((ingredient) => ({
+      foodId: ingredient.resolved.foodId,
+      source: ingredient.resolved.source,
+      quantity: ingredient.quantity,
+      unit: ingredient.unit,
+      cutPrep: ingredient.cutPrep,
+      cookingMethod: ingredient.cookingMethod,
+      prepNote: ingredient.prepNote,
+    })),
+  );
+}
+
 type LabeledPickerField = {
   label: string;
   options: string[];
@@ -773,6 +793,11 @@ export function SideBuilder({
       // empty rather than risk carrying over stale steps typed for
       // whatever was being built before this recipe was picked.
       setSteps([]);
+      // See loadedFromCuratedRecipe's own comment near the top of this
+      // component -- captured against the just-loaded `loaded` list, not
+      // the `ingredients` state (which hasn't picked this up yet on this
+      // same render pass).
+      setLoadedFromCuratedRecipe({ name: recipe.name, ingredientsSnapshot: snapshotIngredients(loaded) });
     } finally {
       setLoadingCuratedRecipeId(null);
     }
@@ -848,6 +873,16 @@ export function SideBuilder({
   const [reportData, setReportData] = useState<RecipeDepthResult | null>(null);
   const [computingReport, setComputingReport] = useState(false);
   const [savingFromReport, setSavingFromReport] = useState(false);
+  // 2026-08-25, direct instruction: "If they made a change to the system
+  // recipe, they need to save it as something else. Other than changing
+  // the number of servings for the meal, they need to not save over the
+  // system recipe." Set only by handlePickCuratedRecipe below (never by
+  // fromFavoriteId's own prefill, which already has no "system" identity
+  // to protect -- see that prop's own comment). Captures the exact
+  // ingredient shape loaded in, so finishSide can tell a genuine
+  // ingredient-level edit apart from a person only changing how many
+  // servings this makes.
+  const [loadedFromCuratedRecipe, setLoadedFromCuratedRecipe] = useState<{ name: string; ingredientsSnapshot: string } | null>(null);
   // Edit mode only (see editSideId's own comment) -- whether the person has
   // actively tapped "+ Add Ingredient" on the overview screen below.
   // Create mode never reads this: its own connected picker still shows
@@ -1087,6 +1122,32 @@ export function SideBuilder({
     // validation path a person should ever actually hit.
     if (!servings || !servingSizeAmount || !servingSizeUnit) return;
 
+    // 2026-08-25, direct instruction: "If they made a change to the system
+    // recipe, they need to save it as something else. Other than changing
+    // the number of servings for the meal, they need to not save over the
+    // system recipe." This never gates an actual database overwrite (see
+    // openRecipeId's own comment -- handlePickCuratedRecipe never sets
+    // editSideId, so a save here has always created a genuinely new side
+    // row, not a curated_recipes update the app has no write path to
+    // anyway). What it does protect against: a modified side quietly
+    // keeping the exact same name as the curated recipe it started from,
+    // which would look, in My Kitchen or a share, like the system recipe
+    // itself rather than a personal variant of it. Comparing ingredients
+    // (not servings/servingSizeAmount/servingSizeUnit) is deliberate --
+    // changing how many servings this makes is still recognizably the same
+    // dish, only scaled.
+    if (
+      loadedFromCuratedRecipe &&
+      dishName.trim().toLowerCase() === loadedFromCuratedRecipe.name.trim().toLowerCase() &&
+      snapshotIngredients(finalIngredients) !== loadedFromCuratedRecipe.ingredientsSnapshot
+    ) {
+      showInfoAlert(
+        'Give this a new name',
+        `This is no longer the same as "${loadedFromCuratedRecipe.name}" -- give your version its own name before saving, so it doesn't get confused with the original recipe.`,
+      );
+      return;
+    }
+
     const ingredientInputs: SideIngredientInput[] = finalIngredients.map((ingredient) => ({
       foodId: ingredient.resolved.foodId,
       source: ingredient.resolved.source,
@@ -1174,6 +1235,7 @@ export function SideBuilder({
     setNutritionHighlights([]);
     setConditionNotes([]);
     setReportData(null);
+    setLoadedFromCuratedRecipe(null);
     showInfoAlert('Side saved', `${finishedName} is saved. Starting a fresh side dish now.`);
   }
 
