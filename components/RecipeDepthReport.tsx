@@ -48,6 +48,18 @@ export type RecipeDepthReportProps = {
   // real staging model or no declared stage yet (see
   // lib/conditionStages.ts's own resolveDeclaredStage).
   declaredStages: Record<string, DeclaredConditionStage>;
+  // 2026-08-25, direct follow-up: "If the user doesn't have a stage
+  // chosen, there needs to be a way to tell them here, and give them a way
+  // to set it." Which conditions have a real staging model at all (most
+  // don't) -- lets a condition with no model stay silent (correct) while
+  // a condition with a real model but nothing declared yet gets a real
+  // prompt instead of just missing information.
+  conditionsWithStagingModel: Set<string>;
+  // Opens a real, in-place stage picker (see SideBuilder.tsx's own
+  // stagePickerFor) rather than sending the person to Profile -- this
+  // screen has no way to know whether a real navigation away and back
+  // would still find this in-progress side intact.
+  onSetStage: (conditionCode: string, conditionName: string) => void;
   stageNotes: ConditionStageAdvisory[];
   tabColor: string;
   onSave: () => void;
@@ -83,6 +95,8 @@ export function RecipeDepthReport({
   conditionCautions,
   dimensionBreakdown,
   declaredStages,
+  conditionsWithStagingModel,
+  onSetStage,
   stageNotes,
   tabColor,
   onSave,
@@ -126,6 +140,13 @@ export function RecipeDepthReport({
                       {stage.stageLabel}
                     </Text>
                     <Text style={styles.stageDescription}>{stage.stageShortDescription}</Text>
+                  </View>
+                ) : conditionsWithStagingModel.has(condition.code) ? (
+                  <View style={styles.stageContextRow}>
+                    <Text style={styles.bodyText}>No healing stage set for {condition.name} yet.</Text>
+                    <TouchableOpacity onPress={() => onSetStage(condition.code, condition.name)}>
+                      <Text style={[styles.setStageLink, { color: tabColor }]}>Set My Stage</Text>
+                    </TouchableOpacity>
                   </View>
                 ) : null}
                 {data.length > 0 ? (
@@ -198,6 +219,7 @@ const styles = StyleSheet.create({
   verdictPillText: { ...typography.caption, fontWeight: '700', color: colors.textOnButton },
   stageContextRow: { marginTop: 4, marginBottom: 4 },
   stageDescription: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
+  setStageLink: { ...typography.captionEmphasis, marginTop: 4, textDecorationLine: 'underline' },
   stageNoteSpacing: { marginTop: 8 },
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
   buttonHalf: { flex: 1 },

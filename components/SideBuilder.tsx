@@ -17,6 +17,7 @@ import {
   getFoodScores,
   getNutrientChartDataForIngredients,
   getNutritionHighlightsForIngredients,
+  setConditionStage,
   getSide,
   getSideIngredients,
   getStoredMeasurementSystem,
@@ -32,7 +33,7 @@ import {
   type SideIngredientInput,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
-import { resolveDeclaredStage, type DeclaredConditionStage } from '../lib/conditionStages';
+import { getConditionStagingModel, resolveDeclaredStage, type DeclaredConditionStage } from '../lib/conditionStages';
 import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
 import { computeRecipeDepth, type RecipeDepthResult } from '../lib/recipeDepth';
 import { isFlaggedTier } from '../lib/sixDimensionsReference';
@@ -989,6 +990,27 @@ export function SideBuilder({
     return stages;
   }, [trackedConditions, conditionStages]);
 
+  // 2026-08-25, direct follow-up after "I don't see it" turned out to mean
+  // no stage was actually declared yet: "If the user doesn't have a stage
+  // chosen, there needs to be a way to tell them here, and give them a way
+  // to set it without losing their work." Distinct from declaredStages
+  // above -- this is which conditions have a real staging model AT ALL
+  // (most don't), so the report can tell "nothing to show, correctly" (no
+  // model) apart from "a real model exists, but nothing's declared yet"
+  // (worth a real prompt).
+  const conditionsWithStagingModel = useMemo(
+    () => new Set(trackedConditions.filter((condition) => getConditionStagingModel(condition.code)).map((condition) => condition.code)),
+    [trackedConditions],
+  );
+  // Setting a stage right from the report itself, rather than sending the
+  // person to Profile and hoping this in-progress side survives the trip
+  // -- SideBuilder's own state lives in this one component instance, with
+  // no route/param mechanism to restore it if a real navigation away ever
+  // unmounted it. Reuses the exact same real AppActionSheet/stage-list
+  // shape Profile's own picker already uses (see CONDITION_STAGING_MODELS'
+  // own real stage.label values), just presented here instead.
+  const [stagePickerFor, setStagePickerFor] = useState<{ code: string; name: string } | null>(null);
+
   // Only actually computes once the final review screen is reached -- both
   // real functions do a genuine per-ingredient database query, so there's
   // no reason to pay that cost while still mid-build, only once there's
@@ -1262,6 +1284,7 @@ export function SideBuilder({
     setConditionNotes([]);
     setReportData(null);
     setReportNutrientData([]);
+    setStagePickerFor(null);
     setLoadedFromCuratedRecipe(null);
     showInfoAlert('Side saved', `${finishedName} is saved. Starting a fresh side dish now.`);
   }
@@ -1627,6 +1650,8 @@ export function SideBuilder({
             conditionCautions={reportData.conditionCautions}
             dimensionBreakdown={reportData.dimensionBreakdown}
             declaredStages={declaredStages}
+            conditionsWithStagingModel={conditionsWithStagingModel}
+            onSetStage={(code, name) => setStagePickerFor({ code, name })}
             stageNotes={reportData.stageNotes}
             tabColor={tabColor}
             saving={savingFromReport}
@@ -1637,6 +1662,25 @@ export function SideBuilder({
             }}
           />
         </ScrollView>
+        <AppActionSheet
+          visible={!!stagePickerFor}
+          onClose={() => setStagePickerFor(null)}
+          title={stagePickerFor ? `Your ${stagePickerFor.name} Stage` : undefined}
+          message="Purely advisory -- this changes nothing about what you can build or save, it only makes the report above reflect where you actually are."
+          actions={[
+            ...(stagePickerFor ? getConditionStagingModel(stagePickerFor.code)?.stages ?? [] : []).map((stage) => ({
+              label: stage.label,
+              onPress: () => {
+                const code = stagePickerFor?.code;
+                if (!code) return;
+                void setConditionStage(code, stage.code);
+                setConditionStages((current) => ({ ...current, [code]: stage.code }));
+                setStagePickerFor(null);
+              },
+            })),
+            { label: 'Cancel', onPress: () => {} },
+          ]}
+        />
       </>
     );
   }
