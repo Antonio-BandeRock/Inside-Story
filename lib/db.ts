@@ -10,6 +10,12 @@ import { analyzeNutrientIntake, NutrientGapEntry, sumFoodNutrientTotals } from '
 import { ACTIVITY_LEVELS, ActivityLevel } from './energyNeeds';
 import { isFlaggedTier } from './sixDimensionsReference';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
+// Type-only -- lib/recipeDepth.ts imports several real functions FROM this
+// file (getFoodScores, getFoodScoresForCondition, getConditionStages), so
+// this stays a type-only import specifically to avoid a real circular
+// runtime dependency; TypeScript erases a type-only import before Metro
+// ever sees it, so there's nothing left at runtime to actually cycle.
+import type { RecipeDepthResult } from './recipeDepth';
 
 // Exported as of 2026-08-19 -- lib/visualPreferences.ts's own
 // getGroundThemeSync() needs to open this exact same file (by name, via
@@ -207,6 +213,12 @@ export type BuilderFavoritePayload = {
   // own "absent means nobody wrote steps" contract, and every builder but
   // Side Builder still never sets this at all.
   instructions?: string[];
+  // 2026-08-25 -- the same real depth (safeForConditions/conditionCautions/
+  // dietTags/stageNotes) a saved record's own depth_data_json column
+  // carries, snapshotted the same way instructions above already is.
+  // Undefined until a builder actually computes it (Side Builder is the
+  // pilot; every other builder still never sets this).
+  depthData?: RecipeDepthResult;
 };
 
 export type BuilderFavoriteItemType =
@@ -5186,6 +5198,29 @@ async function runDatabaseInitialization() {
       }
     }
 
+    // depth_data_json -- 2026-08-25, real condition-safety/diet-tag/stage-
+    // advisory depth for a person's own saved creation, the same shape
+    // (safeForConditions/conditionCautions/dietTags/stageNotes,
+    // lib/recipeDepth.ts's own RecipeDepthResult) every curated recipe
+    // already carries, computed live rather than bundled since there's no
+    // way to know ahead of time what anyone will actually build. Direct
+    // instruction: "The builders all absolutely must match the depth as is
+    // provided to the recipes, and it should happen every time the user
+    // creates anything." Nullable TEXT, one JSON.stringify(RecipeDepthResult)
+    // per saved record, computed once at save time (not recomputed on every
+    // My Kitchen view, matching how a curated recipe's own data is frozen
+    // until something explicitly re-runs it). Added to all 11 real saved-
+    // record tables at once, the same instructions_json precedent just
+    // above -- only Side Builder actually computes/reads it so far (the
+    // pilot), every other builder gets the column ready for its own later
+    // rollout without repeating this migration.
+    for (const table of Object.values(COMPONENT_TABLE_BY_TYPE)) {
+      const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
+      if (!columns.some((column) => column.name === 'depth_data_json')) {
+        await db.execAsync(`ALTER TABLE ${table} ADD COLUMN depth_data_json TEXT;`);
+      }
+    }
+
     // shared_recipes.sender_public_key_base64 -- step 5 of the real
     // device-pairing prerequisite list, 2026-08-15 (see this table's own
     // CREATE TABLE comment above for the real reasoning). A device that
@@ -5325,6 +5360,13 @@ export async function saveSide(input: {
   servingSizeUnit: string;
   ingredients: SideIngredientInput[];
   instructions: string[];
+  // 2026-08-25 -- see depth_data_json's own migration comment above.
+  // Optional only in the type-system sense (a caller could theoretically
+  // skip it), never in practice: SideBuilder.tsx's own finishSide always
+  // computes this via lib/recipeDepth.ts's computeRecipeDepth before
+  // calling here, matching the direct instruction that this must happen
+  // every time, not just when a report is actually viewed.
+  depthData?: RecipeDepthResult;
 }) {
   const db = await getDatabase();
   const id = `side_${Date.now()}`;
@@ -5332,8 +5374,8 @@ export async function saveSide(input: {
 
   await db.runAsync(
     `
-      INSERT INTO sides (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO sides (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, depth_data_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -5341,6 +5383,7 @@ export async function saveSide(input: {
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     now,
   );
@@ -5388,6 +5431,8 @@ export async function updateSide(
     servingSizeUnit: string;
     ingredients: SideIngredientInput[];
     instructions: string[];
+    // See saveSide's own comment on depthData just above.
+    depthData?: RecipeDepthResult;
   },
 ) {
   const db = await getDatabase();
@@ -5396,7 +5441,7 @@ export async function updateSide(
   await db.runAsync(
     `
       UPDATE sides
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, depth_data_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
@@ -5404,6 +5449,7 @@ export async function updateSide(
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     sideId,
   );
@@ -5534,6 +5580,13 @@ export type SideDetail = {
   // builders' own XDetail too, none of which carry this field yet).
   // Callers should still read it as `side.instructions ?? []`.
   instructions?: string[];
+  // Real depth (safeForConditions/conditionCautions/dietTags/stageNotes),
+  // 2026-08-25 -- see depth_data_json's own migration comment above. Left
+  // undefined for a side saved before this shipped (an honest, real gap,
+  // not silently backfilled with a guess) rather than always set the way
+  // instructions is, since there's no live ingredient list to recompute
+  // from at read time the way there is at save time.
+  depthData?: RecipeDepthResult;
 };
 
 export async function getSide(sideId: string): Promise<SideDetail | null> {
@@ -5546,18 +5599,23 @@ export async function getSide(sideId: string): Promise<SideDetail | null> {
     servingSizeUnit: string;
     createdAt: string;
     instructionsJson: string | null;
+    depthDataJson: string | null;
   }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt, instructions_json AS instructionsJson
+             created_at AS createdAt, instructions_json AS instructionsJson, depth_data_json AS depthDataJson
       FROM sides
       WHERE id = ?
     `,
     sideId,
   );
   if (!row) return null;
-  const { instructionsJson, ...rest } = row;
-  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
+  const { instructionsJson, depthDataJson, ...rest } = row;
+  return {
+    ...rest,
+    instructions: parseInstructionsJson(instructionsJson),
+    depthData: depthDataJson ? (JSON.parse(depthDataJson) as RecipeDepthResult) : undefined,
+  };
 }
 
 export type SideIngredientDetail = {
@@ -10301,6 +10359,12 @@ export type ResolvedMealComponent = {
   // steps of its own -- not a gap this app is trying to hide, just not
   // built out for the other 10 builders yet.
   instructions?: string[];
+  // 2026-08-25 -- same real depth (safeForConditions/conditionCautions/
+  // dietTags/stageNotes) a curated recipe already carries, only ever
+  // populated for a 'side' component so far (see SideDetail.depthData);
+  // same "not built out for the other 10 builders yet" scope as
+  // instructions above, not a gap silently hidden.
+  depthData?: RecipeDepthResult;
 };
 
 // Turns one selected component into the MealIngredientInput[] slice
@@ -10319,6 +10383,7 @@ export async function resolveMealComponent(selection: MealComponentSelection): P
   // work for whenever those builders get their own Steps section (see
   // SideDetail's own comment) -- not done blind here.
   const detailInstructions = selection.componentType === 'side' ? (detail as SideDetail).instructions : undefined;
+  const detailDepthData = selection.componentType === 'side' ? (detail as SideDetail).depthData : undefined;
 
   const ingredients = await getComponentIngredients(selection.componentType, selection.componentId);
   const mealIngredients: MealIngredientInput[] = ingredients
@@ -10349,6 +10414,7 @@ export async function resolveMealComponent(selection: MealComponentSelection): P
     yourSharePercent: selection.yourSharePercent,
     ingredients: mealIngredients,
     instructions: detailInstructions && detailInstructions.length > 0 ? detailInstructions : undefined,
+    depthData: detailDepthData,
   };
 }
 

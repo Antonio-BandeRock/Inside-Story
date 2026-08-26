@@ -32,8 +32,10 @@ import {
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
 import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
+import { computeRecipeDepth, type RecipeDepthResult } from '../lib/recipeDepth';
 import { isFlaggedTier } from '../lib/sixDimensionsReference';
 import { GeneralHealthAdvisories } from './GeneralHealthAdvisories';
+import { RecipeDepthReport } from './RecipeDepthReport';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppActionSheet } from './AppActionSheet';
@@ -836,7 +838,16 @@ export function SideBuilder({
   // separate transition. Cooking method is no longer a separate step here
   // at all, 2026-07-29 -- it's asked per ingredient now, at "Add to Side"
   // time (see SideIngredient's own comment).
-  const [finishStep, setFinishStep] = useState<'building' | 'reviewing'>('building');
+  // 'report' -- 2026-08-25, the optional Nutrition & Safety Report step,
+  // direct instruction: "Pilot it on Side Builder first, choice to create
+  // the report or not but both paths route to saving it." Only reachable
+  // from 'reviewing' (create mode); the real depth computation itself
+  // (see computeRecipeDepth below) always runs on save either way, this
+  // just decides whether the person looks at it first.
+  const [finishStep, setFinishStep] = useState<'building' | 'reviewing' | 'report'>('building');
+  const [reportData, setReportData] = useState<RecipeDepthResult | null>(null);
+  const [computingReport, setComputingReport] = useState(false);
+  const [savingFromReport, setSavingFromReport] = useState(false);
   // Edit mode only (see editSideId's own comment) -- whether the person has
   // actively tapped "+ Add Ingredient" on the overview screen below.
   // Create mode never reads this: its own connected picker still shows
@@ -1033,13 +1044,43 @@ export function SideBuilder({
   // keeps their in-progress dish to retry with, rather than it vanishing
   // either way.
   //
+  // The same real ingredient shape lib/recipeDepth.ts's computeRecipeDepth
+  // (and this screen's own live nutritionHighlights/conditionNotes preview
+  // effect above) already expects -- foodName is the raw base_name, not a
+  // display summary, since diet-tag matching needs an exact match against
+  // curated_recipe_ingredients.base_name-style values. Shared by finishSide
+  // and handlePreviewReport below so the two paths can never compute this
+  // two slightly different ways.
+  function buildDepthIngredients(finalIngredients: SideIngredient[]): MealIngredientInput[] {
+    return finalIngredients.map((ingredient) => ({
+      foodId: `${ingredient.resolved.foodId}|${ingredient.resolved.source}`,
+      foodName: ingredient.resolved.baseName,
+      category: ingredient.resolved.category,
+      quantity: parseAmountValue(ingredient.quantity),
+      unit: ingredient.unit,
+      cookingMethod: ingredient.cookingMethod,
+      notes: ingredient.prepNote,
+    }));
+  }
+
   // Takes the final ingredient list as a parameter rather than reading the
   // `ingredients` state variable, 2026-08-01: setIngredients (in
   // saveIngredient below) is an async state update, so `ingredients`
   // itself hasn't picked up the just-added one yet at the point 'finish'
   // needs to save the whole dish -- the caller builds the true final list
   // once and passes it to both setIngredients and here.
-  async function finishSide(finalIngredients: SideIngredient[]) {
+  //
+  // precomputedDepth, 2026-08-25: the real condition-safety/diet-tag/stage
+  // depth (see lib/recipeDepth.ts) is never optional -- it's computed here
+  // every single time this function runs, matching the direct instruction
+  // that this "should happen every time the user creates anything." What's
+  // optional is only whether it was already computed a moment ago for the
+  // Nutrition & Safety Report (handlePreviewReport below) -- passing it in
+  // here avoids a redundant second computation for that one path; the
+  // direct "Complete & Save This Side" button (no report viewed) computes
+  // it fresh right in this call, so both paths genuinely converge on the
+  // same real data, not just the same save function.
+  async function finishSide(finalIngredients: SideIngredient[], precomputedDepth?: RecipeDepthResult) {
     // servingsConfirmed can only become true via handleContinuePress, which
     // already required all three of these -- this is a type-narrowing
     // guard against a state that shouldn't be reachable, not a real
@@ -1057,6 +1098,7 @@ export function SideBuilder({
       cookingMethod: ingredient.cookingMethod,
       prepNote: ingredient.prepNote,
     }));
+    const depthData = precomputedDepth ?? (await computeRecipeDepth(buildDepthIngredients(finalIngredients), trackedConditions));
     const finishedName = dishName.trim() || 'Side Dish';
     const payload = {
       name: finishedName,
@@ -1070,6 +1112,7 @@ export function SideBuilder({
       // what was explicitly saved counts" rule Save & Finish Side already
       // applies to ingredients.
       instructions: steps,
+      depthData,
     };
 
     try {
@@ -1130,7 +1173,27 @@ export function SideBuilder({
     setSummaryExpanded(false);
     setNutritionHighlights([]);
     setConditionNotes([]);
+    setReportData(null);
     showInfoAlert('Side saved', `${finishedName} is saved. Starting a fresh side dish now.`);
+  }
+
+  // The optional half of "choice to create the report or not" -- computes
+  // the exact same real depth finishSide itself would compute on a direct
+  // save (see buildDepthIngredients above), just early, so the report can
+  // actually show it before anything is saved. Passed back into finishSide
+  // once "Save As Is" is tapped, rather than computed a second time.
+  async function handlePreviewReport() {
+    setComputingReport(true);
+    try {
+      const depth = await computeRecipeDepth(buildDepthIngredients(ingredients), trackedConditions);
+      setReportData(depth);
+      setFinishStep('report');
+    } catch (error) {
+      console.error('[SideBuilder] Failed to compute the depth report', error);
+      showInfoAlert('Report failed', 'Something went wrong building the report. You can still save this side directly.');
+    } finally {
+      setComputingReport(false);
+    }
   }
 
   // 2026-08-08 -- shown above whichever "Save & Finish Side"/"Save
@@ -1443,6 +1506,45 @@ export function SideBuilder({
     { label: 'Cut Prep', options: CUT_PREP_METHODS, selected: ingredientCutPrep, onSelect: setIngredientCutPrep },
     { label: 'Cook Prep', options: COOKING_METHODS, selected: ingredientCookingMethod, onSelect: setIngredientCookingMethod },
   ]);
+
+  // The optional Nutrition & Safety Report, 2026-08-25 -- reachable only
+  // from create mode's own final review screen (see the "Preview Full
+  // Report" button there), never from editSideId's own overview above,
+  // matching this pilot's scoping: editing an already-saved side keeps its
+  // existing, unconfirmed-modal save convention (see finishSide's own
+  // comment on that), the report is specifically for deciding whether to
+  // save something new. reportData is only ever null here for an instant
+  // between finishStep flipping to 'report' and handlePreviewReport's own
+  // setReportData resolving -- both happen in the same synchronous
+  // React update, so this guard is a type-narrowing safety net, not a
+  // real gap a person could actually see.
+  if (finishStep === 'report' && reportData) {
+    return (
+      <>
+        {infoAlertElement}
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
+          <RecipeDepthReport
+            dishName={dishName.trim() || 'Side Dish'}
+            yieldLabel={`Makes ${servings || '?'} serving${servings === '1' ? '' : 's'} (${servingSizeAmount || '?'} ${servingSizeUnit ?? '?'} each)`}
+            ingredientLines={ingredients.map((ingredient) => formatFinalIngredientText(ingredient))}
+            nutritionHighlights={nutritionHighlights}
+            dietTags={reportData.dietTags}
+            trackedConditions={trackedConditions}
+            safeForConditions={reportData.safeForConditions}
+            conditionCautions={reportData.conditionCautions}
+            stageNotes={reportData.stageNotes}
+            tabColor={tabColor}
+            saving={savingFromReport}
+            onGoBack={() => setFinishStep('reviewing')}
+            onSave={() => {
+              setSavingFromReport(true);
+              void finishSide(ingredients, reportData).finally(() => setSavingFromReport(false));
+            }}
+          />
+        </ScrollView>
+      </>
+    );
+  }
 
   // Edit mode's own ingredient overview -- 2026-08-01, explicitly
   // requested: reopening an already-saved side to fix something shouldn't
@@ -2176,9 +2278,30 @@ export function SideBuilder({
                   choice belongs at the very end, alongside the final Save
                   action. */}
               {renderFavoriteToggle()}
+              {/* "Preview Full Report" -- 2026-08-25, the optional half of
+                  "choice to create the report or not but both paths route
+                  to saving it": this doesn't save anything by itself, it
+                  computes the same real depth data Complete & Save would
+                  and shows it first (see the finishStep === 'report' branch
+                  above). Create mode only, matching this pilot's scoping
+                  (editSideId keeps its existing, unconfirmed-modal save). */}
+              {!editSideId ? (
+                <TouchableOpacity
+                  style={[styles.secondaryButton, styles.reportPreviewButton, { borderColor: tabColor }]}
+                  onPress={() => void handlePreviewReport()}
+                  disabled={computingReport}
+                >
+                  {computingReport ? (
+                    <ActivityIndicator color={tabColor} />
+                  ) : (
+                    <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Preview Full Report</Text>
+                  )}
+                </TouchableOpacity>
+              ) : null}
               <TouchableOpacity
                 style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
                 onPress={() => void finishSide(ingredients)}
+                disabled={computingReport}
               >
                 <Text style={styles.primaryButtonText}>{editSideId ? 'Save Changes' : 'Complete & Save This Side'}</Text>
               </TouchableOpacity>
@@ -2391,6 +2514,11 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   secondaryButtonText: { ...typography.bodyEmphasis },
+  // "Preview Full Report" needs a real visible outline of its own --
+  // secondaryButton above is also used as a plain borderless text link
+  // elsewhere in this file, so the border lives here instead of changing
+  // that shared style's own default for every other caller.
+  reportPreviewButton: { borderWidth: 2 },
   // marginTop 16 (2026-07-31): the Save buttons sat flush against the Prep
   // Notes box, reading as one attached control group. This separates them
   // so the buttons act on the whole card rather than looking like they

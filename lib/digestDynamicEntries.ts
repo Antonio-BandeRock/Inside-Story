@@ -162,10 +162,21 @@ async function buildMyKitchenEntryForOption(
     getSharedFromName(componentType, option.id),
   ]);
   const ingredients = resolved?.ingredients ?? [];
+  const depthData = resolved?.depthData;
+  // 2026-08-25 -- once a saved record carries real depth data (computed at
+  // save time by lib/recipeDepth.ts, only 'side' so far, see
+  // ResolvedMealComponent.depthData's own comment), that replaces this
+  // older, thinner live check entirely rather than showing both: the two
+  // would otherwise say overlapping things at different levels of detail
+  // (a plain "may be worth a closer look" sentence next to a real,
+  // severity-graded caution for the same ingredient). A record with no
+  // depth data yet (an older side, or any other builder type before its
+  // own rollout) keeps this exact original behavior, unchanged.
   const [highlights, conditionNotes] = await Promise.all([
     getNutritionHighlightsForIngredients(ingredients, resolved?.servings ?? option.servings),
-    getConditionNotesForIngredients(ingredients, conditions),
+    depthData ? Promise.resolve([]) : getConditionNotesForIngredients(ingredients, conditions),
   ]);
+  const stageConditionNotes = (depthData?.stageNotes ?? []).map((note) => ({ condition: note.title, note: note.message }));
 
   const groupLabel = GROUP_LABEL_BY_TYPE[componentType];
   const sharedNote = sharedFromName ? ` Shared with you by ${sharedFromName}.` : '';
@@ -192,7 +203,10 @@ async function buildMyKitchenEntryForOption(
       // function's own comment) -- no second fetch needed.
       instructions: resolved?.instructions,
       nutritionHighlights: highlights,
-      conditionNotes,
+      conditionNotes: [...conditionNotes, ...stageConditionNotes],
+      dietTags: depthData?.dietTags,
+      safeForConditions: depthData?.safeForConditions,
+      conditionCautions: depthData?.conditionCautions,
     },
   };
 }
@@ -225,10 +239,14 @@ async function buildMyFavoritesComponentEntry(
   conditions: { code: string; name: string }[],
 ): Promise<DigestEntry> {
   const mealIngredients = payload.ingredients.map(builderIngredientToMealIngredientInput);
+  const depthData = payload.depthData;
+  // See buildMyKitchenEntryForOption's own comment on why real depth data
+  // replaces this older, thinner check entirely rather than showing both.
   const [highlights, conditionNotes] = await Promise.all([
     getNutritionHighlightsForIngredients(mealIngredients, payload.servings),
-    getConditionNotesForIngredients(mealIngredients, conditions),
+    depthData ? Promise.resolve([]) : getConditionNotesForIngredients(mealIngredients, conditions),
   ]);
+  const stageConditionNotes = (depthData?.stageNotes ?? []).map((note) => ({ condition: note.title, note: note.message }));
 
   const groupLabel = GROUP_LABEL_BY_TYPE[componentType];
   const ingredientNames = payload.ingredients.map((ingredient) => ingredient.foodName).join(', ');
@@ -251,7 +269,10 @@ async function buildMyFavoritesComponentEntry(
       // so far) -- payload IS BuilderFavoritePayload, no extra fetch.
       instructions: payload.instructions,
       nutritionHighlights: highlights,
-      conditionNotes,
+      conditionNotes: [...conditionNotes, ...stageConditionNotes],
+      dietTags: depthData?.dietTags,
+      safeForConditions: depthData?.safeForConditions,
+      conditionCautions: depthData?.conditionCautions,
     },
   };
 }
