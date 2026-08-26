@@ -31,7 +31,6 @@ import {
   recordLabResult,
   setPersonalRuleActive,
   type DailyDimensionItemBreakdown,
-  type DailyDimensionScore,
   type DailyNutrientBreakdown,
   type DailyNutrientScopeTotals,
   type DailySixDimensionsBreakdown,
@@ -87,12 +86,12 @@ import {
   flattenItemScores,
   getSubCriterionSources,
   getTierDefinition,
-  groupDailyScoresByDimension,
-  isFlaggedTier,
   selectPrepTips,
   tierSeverity,
   type TierSeverity,
 } from '../../lib/sixDimensionsReference';
+import { DimensionChart } from '../../components/DimensionChart';
+import type { ConditionDimensionSummary } from '../../lib/conditionDimensions';
 import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useConfirmSheet } from '../../components/ConfirmSheet';
@@ -135,7 +134,7 @@ function capitalize(text: string): string {
 }
 
 // Shared green/yellow/red/unknown -> style lookup for both the Nutrients
-// table (StatusSeverity) and the 6 Dimensions scorecard (TierSeverity) --
+// table (StatusSeverity) and the Condition Scores scorecard (TierSeverity) --
 // same four states, same visual language, just two different sources
 // feeding into it.
 function severityTextStyle(severity: StatusSeverity | TierSeverity) {
@@ -152,21 +151,6 @@ function severityRowStyle(severity: StatusSeverity | TierSeverity) {
   return null;
 }
 
-// "Worst wins" across several tiers at once (e.g. three different foods'
-// worth of Gluten ratings for one sub-criterion row, or every sub-
-// criterion under one dimension) -- red beats yellow beats green beats
-// unknown, so a single real concern anywhere in the group is never masked
-// by everything else being fine or unassessed.
-const SEVERITY_RANK: Record<TierSeverity, number> = { unknown: 0, green: 1, yellow: 2, red: 3 };
-
-function worstTierSeverity(tiers: string[]): TierSeverity {
-  let worst: TierSeverity = 'unknown';
-  for (const tier of tiers) {
-    const severity = tierSeverity(tier);
-    if (SEVERITY_RANK[severity] > SEVERITY_RANK[worst]) worst = severity;
-  }
-  return worst;
-}
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -229,13 +213,20 @@ const LENSES: LensOption<Lens>[] = [
   },
   {
     key: 'sixDs',
-    label: '6 Dimensions',
+    label: 'Condition Scores',
     icon: 'analytics-outline',
     group: 'Today',
     help: [
+      // 2026-08-26 -- rebuilt to be condition-scoped instead of one
+      // generic scorecard: shows one section per condition set in
+      // Profile, each using that condition's own real set of scoring
+      // factors, not a shared, one-size-fits-all list. "Six Dimensions of
+      // Food Friendliness" is its own condition's real, complete 6-factor
+      // framework and appears only in that condition's own section; every
+      // other condition's own section uses its own real factors instead.
       {
-        heading: '6 Dimensions',
-        body: 'Summarizes each of six research-backed factors (micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load) for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see which specific food(s) it was rated against, the tier each was rated, and the citation behind that rating.',
+        heading: 'Condition Scores',
+        body: 'One section per condition set in Profile, each scored against that condition\'s own real set of factors for whatever scope is selected. "Clear" means nothing in that scope was flagged for that factor; a number means that many sub-criteria were. Tap a factor to see its sub-criteria, then tap a sub-criterion to see which specific food(s) it was rated against, the tier each was rated, why it matters for that condition, and the citation behind the rating. Set which conditions to track in Profile; this screen shows whatever is set there.',
       },
       DRILLING_DOWN_HELP,
     ],
@@ -333,11 +324,11 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Safe Foods',
-        body: "Foods with zero flagged concerns across every one of the 6 Dimensions: nothing here should give the D1-D6 scoring any reason to worry, based on what this app has actually assessed. Pick a category to browse what qualifies within it.",
+        body: "Foods with zero flagged concerns across every one of your tracked conditions at once (set in Profile), and free of a declared diet preference or food allergy conflict. Pick a category to browse what qualifies within it.",
       },
       {
         heading: 'What "safe" means here',
-        body: '"Not Assessed" (no data either way) and a green rating both count as safe; only an actual yellow or red flag on any of the 24 sub-criteria disqualifies a food. This is the same tier logic the 6 Dimensions lens itself uses, just applied across the whole reference database instead of one day\'s meals.',
+        body: '"Not Assessed" (no data either way) and a green rating both count as safe; only an actual yellow or red flag on a sub-criterion relevant to one of your tracked conditions disqualifies a food. This is the same tier logic the Condition Scores lens itself uses, just applied across the whole reference database instead of one day\'s meals.',
       },
     ],
   },
@@ -416,7 +407,7 @@ const LENSES: LensOption<Lens>[] = [
 ];
 
 // Where you currently are in the day -> meal -> side -> item drill-down,
-// shared by both the 6 Dimensions and Cooking & Prep lenses since both are views
+// shared by both the Condition Scores and Cooking & Prep lenses since both are views
 // over the same breakdown. Tracked by index within each level's own array
 // (sides/items don't have stable ids), not by id.
 export type Scope =
@@ -430,9 +421,9 @@ export type Scope =
 // totals) satisfy this structurally, so one set of navigation helpers
 // (resolveScopeMeal/resolveScopeSide/scopeBreadcrumbs/ScopeNav) works for
 // both lenses instead of three near-duplicate copies. Each lens's own
-// resolver (resolveScopeScores / resolveScopeNutrientTotals below) stays
-// separately typed, since that's where the two genuinely differ -- what
-// data actually lives at a given scope.
+// resolver (resolveScopePerCondition / resolveScopeNutrientTotals below)
+// stays separately typed, since that's where the two genuinely differ --
+// what data actually lives at a given scope.
 type NavigableItem = { foodName: string };
 type NavigableSide = { sideName: string; items: NavigableItem[] };
 type NavigableMeal = { mealId: string; mealName: string; mealType: string; sides: NavigableSide[] };
@@ -448,17 +439,22 @@ function resolveScopeSide<M extends NavigableMeal>(breakdown: { meals: M[] }, sc
   return meal?.sides[scope.sideIndex] ?? null;
 }
 
-function resolveScopeScores(breakdown: DailySixDimensionsBreakdown, scope: Scope): DailyDimensionScore[] {
-  if (scope.level === 'day') return breakdown.day;
-  if (scope.level === 'meal') return resolveScopeMeal(breakdown, scope)?.bySubCriterion ?? [];
-  if (scope.level === 'side') return resolveScopeSide(breakdown, scope)?.bySubCriterion ?? [];
+// 2026-08-26 -- the condition-scoped replacement for the old
+// resolveScopeScores (removed, see this file's own git history if the
+// generic version is ever needed again): reads whatever the current scope
+// contains, one summary per tracked condition, instead of one flat,
+// condition-agnostic list.
+function resolveScopePerCondition(breakdown: DailySixDimensionsBreakdown, scope: Scope): Record<string, ConditionDimensionSummary> {
+  if (scope.level === 'day') return breakdown.dayPerCondition;
+  if (scope.level === 'meal') return resolveScopeMeal(breakdown, scope)?.perCondition ?? {};
+  if (scope.level === 'side') return resolveScopeSide(breakdown, scope)?.perCondition ?? {};
   const side = resolveScopeSide(breakdown, scope);
-  return side?.items[scope.itemIndex]?.bySubCriterion ?? [];
+  return side?.items[scope.itemIndex]?.perCondition ?? {};
 }
 
-// Same idea as resolveScopeScores, but for raw nutrient totals instead of
-// D1-D6 scores -- what NutrientsTable reads to show a scope's own
-// contribution toward today's targets.
+// Same idea as resolveScopePerCondition, but for raw nutrient totals
+// instead of condition-scored dimensions -- what NutrientsTable reads to
+// show a scope's own contribution toward today's targets.
 function resolveScopeNutrientTotals(breakdown: DailyNutrientBreakdown, scope: Scope): DailyNutrientScopeTotals {
   if (scope.level === 'day') return breakdown.dayTotals;
   if (scope.level === 'meal') return resolveScopeMeal(breakdown, scope)?.totals ?? {};
@@ -503,7 +499,7 @@ const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Three lenses, one day of data',
-    body: 'Nutrients, 6 Dimensions, and Cooking & Prep (tap the button to the left of the main navigation button, bottom of the screen) are three different views over the same set of meals you logged today. Switching views does not reload anything, it just changes how the same data is presented.',
+    body: 'Nutrients, Condition Scores, and Cooking & Prep (tap the button to the left of the main navigation button, bottom of the screen) are three different views over the same set of meals you logged today. Switching views does not reload anything, it just changes how the same data is presented.',
   },
   {
     heading: 'Nutrients: reading the table',
@@ -514,8 +510,8 @@ const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
     body: 'Once you drill into a specific meal, side, or ingredient, the judgment coloring disappears: a single food is not "deficient" in a vitamin just for not being your whole day\'s supply of it. Instead each row shows what percent of today\'s target that one item contributed, sorted highest-contributor first.',
   },
   {
-    heading: '6 Dimensions',
-    body: 'The 6 Dimensions scorecard summarizes each of six research-backed factors (micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load) for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see which specific food(s) it was rated against, the tier each was rated, and the citation behind that rating.',
+    heading: 'Condition Scores',
+    body: 'One section per condition set in Profile, each scored against that condition\'s own real set of factors for whatever scope is selected. "Clear" means nothing in that scope was flagged for that factor; a number means that many sub-criteria were. Tap a factor to see its sub-criteria, then tap a sub-criterion to see which specific food(s) it was rated against, the tier each was rated, why it matters for that condition, and the citation behind the rating.',
   },
   {
     heading: 'Cooking & Prep',
@@ -581,7 +577,7 @@ export default function InsightsScreen() {
   const [dimensionsBreakdown, setDimensionsBreakdown] = useState<DailySixDimensionsBreakdown | null>(null);
 
   // Shared across all three lenses -- drilling into "Breakfast" while
-  // looking at 6 Dimensions and then switching to Nutrients should still be
+  // looking at Condition Scores and then switching to Nutrients should still be
   // showing Breakfast, not silently reset back to the whole day.
   const [scope, setScope] = useState<Scope>({ level: 'day' });
   const [expandedDimension, setExpandedDimension] = useState<string | null>(null);
@@ -965,7 +961,10 @@ export default function InsightsScreen() {
       let cancelled = false;
       const date = todayDateString();
       setLoading(true);
-      Promise.all([getDailyNutrientBreakdown(date), getDailySixDimensionsBreakdown(date)])
+      // 2026-08-26 -- getDailySixDimensionsBreakdown now also computes a
+      // real per-condition breakdown (see lib/conditionDimensions.ts),
+      // scoped to whatever the person has actually tracked in Profile.
+      Promise.all([getDailyNutrientBreakdown(date), getDailySixDimensionsBreakdown(date, personalizationProfile?.trackedConditions ?? [])])
         .then(([nutrients, breakdown]) => {
           if (cancelled) return;
           setNutrientBreakdown(nutrients);
@@ -982,7 +981,7 @@ export default function InsightsScreen() {
       return () => {
         cancelled = true;
       };
-    }, [lens]),
+    }, [lens, personalizationProfile]),
   );
 
   function changeScope(next: Scope) {
@@ -1158,6 +1157,7 @@ export default function InsightsScreen() {
               <SixDsView
                 breakdown={dimensionsBreakdown}
                 scope={scope}
+                trackedConditions={personalizationProfile?.trackedConditions ?? []}
                 expandedDimension={expandedDimension}
                 onToggleDimension={(dimension) => setExpandedDimension((current) => (current === dimension ? null : dimension))}
                 expandedTierKey={expandedTierKey}
@@ -1905,13 +1905,28 @@ function ScopeHub<M extends NavigableMeal>({
   );
 }
 
-// The 6 Dimensions lens -- a compact scorecard (one row per dimension, "N flagged"
-// or "Clear") for whatever scope is currently selected, expanding to a
-// real sub-criterion table on tap. Never shows more than one scope's
-// worth of detail at once.
+// Insights' own condition-scoped scorecard, 2026-08-26, replacing the old
+// generic version outright -- one block per tracked condition (using
+// whatever's set in Profile; this screen adds no picker of its own), each
+// with that condition's own real dimension chart plus a tap-to-expand
+// sub-criterion table, for whatever scope is currently selected. Never
+// shows more than one scope's worth of detail at once.
+//
+// Naming: "Six Dimensions of Food Friendliness" is exclusive to Hashimoto's,
+// the one tracked condition that actually owns all 6 real dimensions with
+// independently-scored data of its own (confirmed directly against the
+// live database, not assumed) -- every other condition's own block is
+// titled with its own plain name instead, never compared to Hashimoto's
+// or described as a smaller version of the same framework.
 export function SixDsView({
   breakdown,
   scope,
+  // Optional, defaults to [] -- app/food-item-detail.tsx's own reuse of
+  // this component (a saved dish's detail view) doesn't pass this yet
+  // (see this rebuild's own phase 3), so it keeps compiling and shows the
+  // same honest "set your tracked conditions" message in the meantime,
+  // rather than a hard break.
+  trackedConditions = [],
   expandedDimension,
   onToggleDimension,
   expandedTierKey,
@@ -1919,115 +1934,143 @@ export function SixDsView({
 }: {
   breakdown: DailySixDimensionsBreakdown;
   scope: Scope;
+  trackedConditions?: { code: string; name: string }[];
   expandedDimension: string | null;
   onToggleDimension: (dimension: string) => void;
   expandedTierKey: string | null;
   onToggleTier: (key: string) => void;
 }) {
-  const scores = resolveScopeScores(breakdown, scope);
-  const groups = groupDailyScoresByDimension(scores);
+  const perCondition = resolveScopePerCondition(breakdown, scope);
+
+  if (trackedConditions.length === 0) {
+    return <Text style={styles.emptyText}>Set your tracked conditions in Profile to see this.</Text>;
+  }
 
   return (
     <>
-      <View style={styles.table}>
-        {groups.map((group) => {
-          const allTiersInDimension = group.items.flatMap((item) => item.entries.map((entry) => entry.tier));
-          const dimensionSeverity = worstTierSeverity(allTiersInDimension);
-          const flaggedCount = group.items.filter((item) =>
-            item.entries.some((entry) => isFlaggedTier(entry.tier)),
-          ).length;
-          const dimensionLabel =
-            dimensionSeverity === 'unknown' ? 'Not assessed' : flaggedCount > 0 ? `${flaggedCount} flagged` : 'Clear';
-          const expanded = expandedDimension === group.dimension;
+      {trackedConditions.map((condition) => {
+        const summary: ConditionDimensionSummary = perCondition[condition.code] ?? { dimensions: [], subCriteria: [] };
+        const conditionTitle = condition.code === 'hashimotos' ? 'Six Dimensions of Food Friendliness' : condition.name;
 
+        if (summary.dimensions.length === 0) {
           return (
-            <View key={group.dimension}>
-              <TouchableOpacity
-                style={[styles.tableRow, severityRowStyle(dimensionSeverity)]}
-                onPress={() => onToggleDimension(group.dimension)}
-                activeOpacity={0.7}
-              >
-                <Text style={[styles.tableCell, styles.tableCellDimension]} numberOfLines={2}>
-                  {group.dimension}
-                </Text>
-                <Text style={[styles.tableCell, styles.tableCellStatus, severityTextStyle(dimensionSeverity)]}>
-                  {dimensionLabel}
-                </Text>
-              </TouchableOpacity>
-
-              {expanded ? (
-                <View style={styles.subTable}>
-                  {group.items.map((item) => {
-                    const key = `${group.dimension}|${item.subCriterion}`;
-                    const tierExpanded = expandedTierKey === key;
-                    const distinctTiers = Array.from(new Set(item.entries.map((entry) => entry.tier)));
-                    // Used to require entries.length > 1 -- which silently
-                    // hid the food name entirely whenever exactly one food
-                    // in scope carried this sub-criterion, precisely the
-                    // single-cause case a person most needs named. Only
-                    // genuinely redundant at 'item' scope, where the food
-                    // is already the breadcrumb above this whole table.
-                    const showFoodBreakdown = scope.level !== 'item';
-                    const rowSeverity = worstTierSeverity(distinctTiers);
-
-                    return (
-                      <View key={item.subCriterion}>
-                        <TouchableOpacity
-                          style={styles.subTableRow}
-                          onPress={() => onToggleTier(key)}
-                          activeOpacity={0.6}
-                        >
-                          <Text style={styles.subTableLabel} numberOfLines={1}>
-                            {item.subCriterion}
-                          </Text>
-                          <Text
-                            style={[
-                              styles.subTableValue,
-                              severityTextStyle(rowSeverity),
-                              tierExpanded && styles.subTableValueActive,
-                            ]}
-                            numberOfLines={1}
-                          >
-                            {distinctTiers.join(', ')}
-                          </Text>
-                        </TouchableOpacity>
-                        {tierExpanded ? (
-                          <View style={styles.detailBlock}>
-                            {showFoodBreakdown
-                              ? item.entries.map((entry, index) => (
-                                  <View key={`${entry.foodName}_${index}`} style={styles.detailFoodRow}>
-                                    <Text style={styles.detailFoodName}>{entry.foodName}</Text>
-                                    <Text style={[styles.detailFoodTier, severityTextStyle(tierSeverity(entry.tier))]}>
-                                      {entry.tier}
-                                    </Text>
-                                  </View>
-                                ))
-                              : null}
-                            {distinctTiers.map((tier) => (
-                              <Text key={tier} style={styles.detailText}>
-                                <Text style={severityTextStyle(tierSeverity(tier))}>{tier}</Text>: {getTierDefinition(tier)}
-                              </Text>
-                            ))}
-                            <Text style={styles.detailSourcesLabel}>Sources</Text>
-                            <Text style={styles.detailSourcesText}>{linkifyText(getSubCriterionSources(item.subCriterion))}</Text>
-                          </View>
-                        ) : null}
-                      </View>
-                    );
-                  })}
-                </View>
-              ) : null}
+            <View key={condition.code} style={styles.conditionScoreSection}>
+              <Text style={styles.conditionScoreHeading}>{conditionTitle}</Text>
+              <Text style={styles.emptyText}>Nothing in this scope is assessed against {condition.name}.</Text>
             </View>
           );
-        })}
-      </View>
+        }
+
+        return (
+          <View key={condition.code} style={styles.conditionScoreSection}>
+            <DimensionChart conditionName={conditionTitle} data={summary.dimensions} color={TAB_COLOR} />
+            <View style={styles.table}>
+              {summary.dimensions.map((dim) => {
+                const subCriteriaInDimension = summary.subCriteria.filter((sc) => sc.dimension === dim.dimension);
+                const flaggedCount = subCriteriaInDimension.filter((sc) => sc.severity === 'yellow' || sc.severity === 'red').length;
+                const dimensionLabel = dim.severity === 'unknown' ? 'Not assessed' : flaggedCount > 0 ? `${flaggedCount} flagged` : 'Clear';
+                const dimensionKey = `${condition.code}::${dim.dimension}`;
+                const expanded = expandedDimension === dimensionKey;
+
+                return (
+                  <View key={dim.dimension}>
+                    <TouchableOpacity
+                      style={[styles.tableRow, severityRowStyle(dim.severity)]}
+                      onPress={() => onToggleDimension(dimensionKey)}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[styles.tableCell, styles.tableCellDimension]} numberOfLines={2}>
+                        {dim.dimension}
+                      </Text>
+                      <Text style={[styles.tableCell, styles.tableCellStatus, severityTextStyle(dim.severity)]}>{dimensionLabel}</Text>
+                    </TouchableOpacity>
+
+                    {expanded ? (
+                      <View style={styles.subTable}>
+                        {subCriteriaInDimension.map((sc) => {
+                          const key = `${condition.code}::${sc.dimension}|${sc.subCriterion}`;
+                          const tierExpanded = expandedTierKey === key;
+                          const distinctTiers = Array.from(new Set(sc.entries.map((entry) => entry.tier)));
+                          // Used to require entries.length > 1 -- which
+                          // silently hid the food name entirely whenever
+                          // exactly one food in scope carried this sub-
+                          // criterion, precisely the single-cause case a
+                          // person most needs named. Only genuinely
+                          // redundant at 'item' scope, where the food is
+                          // already the breadcrumb above this whole table.
+                          const showFoodBreakdown = scope.level !== 'item';
+
+                          return (
+                            <View key={sc.subCriterion}>
+                              <TouchableOpacity style={styles.subTableRow} onPress={() => onToggleTier(key)} activeOpacity={0.6}>
+                                <Text style={styles.subTableLabel} numberOfLines={1}>
+                                  {sc.subCriterion}
+                                </Text>
+                                <Text
+                                  style={[
+                                    styles.subTableValue,
+                                    severityTextStyle(sc.severity),
+                                    tierExpanded && styles.subTableValueActive,
+                                  ]}
+                                  numberOfLines={1}
+                                >
+                                  {distinctTiers.join(', ')}
+                                </Text>
+                              </TouchableOpacity>
+                              {tierExpanded ? (
+                                <View style={styles.detailBlock}>
+                                  {showFoodBreakdown
+                                    ? sc.entries.map((entry, index) => (
+                                        <View key={`${entry.foodName}_${index}`} style={styles.detailFoodRow}>
+                                          <Text style={styles.detailFoodName}>{entry.foodName}</Text>
+                                          <Text style={[styles.detailFoodTier, severityTextStyle(tierSeverity(entry.tier))]}>
+                                            {entry.tier}
+                                          </Text>
+                                        </View>
+                                      ))
+                                    : null}
+                                  {distinctTiers.map((tier) => (
+                                    <Text key={tier} style={styles.detailText}>
+                                      <Text style={severityTextStyle(tierSeverity(tier))}>{tier}</Text>: {getTierDefinition(tier)}
+                                    </Text>
+                                  ))}
+                                  {/* relevanceNote, 2026-08-26 -- new: why THIS
+                                      specific sub-criterion matters for THIS
+                                      specific condition, when it's a shared
+                                      one rather than a natively-owned one.
+                                      Never shown before this rebuild, since
+                                      the old generic view had no per-
+                                      condition concept to attach it to. */}
+                                  {sc.relevanceNote ? (
+                                    <Text style={styles.detailText}>
+                                      Why this matters for {condition.name}: {sc.relevanceNote}
+                                    </Text>
+                                  ) : null}
+                                  <Text style={styles.detailSourcesLabel}>Sources</Text>
+                                  <Text style={styles.detailSourcesText}>
+                                    {linkifyText(sc.citation ?? getSubCriterionSources(sc.subCriterion))}
+                                  </Text>
+                                </View>
+                              ) : null}
+                            </View>
+                          );
+                        })}
+                      </View>
+                    ) : null}
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        );
+      })}
     </>
   );
 }
 
 // Cooking & Prep lens -- a flat "needs attention" summary for the whole
 // day up top (always visible, regardless of scope), then the same scope
-// navigator as 6 Dimensions for browsing tips meal-by-meal/side-by-side/item-by-
+// navigator as Condition Scores for browsing tips meal-by-meal/side-by-side/item-by-
 // item.
 type PrepRow = { foodName: string; mealName: string; sideName: string; tips: ReturnType<typeof selectPrepTips> };
 
@@ -2737,9 +2780,7 @@ function SafeFoodsView({
 }) {
   const conditionNames = personalizationProfile?.trackedConditions.map((condition) => condition.name) ?? [];
   const scopeDescription =
-    conditionNames.length > 0
-      ? `zero flagged concerns for ${conditionNames.join(', ')}`
-      : 'zero flagged 6 Dimensions concerns';
+    conditionNames.length > 0 ? `zero flagged concerns for ${conditionNames.join(', ')}` : 'zero flagged concerns of any kind';
   // See NutrientRankingView's own identical comment.
   const categoryOptions = useMemo(
     () => categories.map((category) => ({ label: categoryLabel(category), value: category })),
@@ -2754,8 +2795,8 @@ function SafeFoodsView({
   if (categoriesLoading) {
     return (
       <Text style={[styles.emptyText, styles.rankSpaced]}>
-        Checking every food against {conditionNames.length > 0 ? conditionNames.join(', ') : 'the full 6 Dimensions scorecard'}, once
-        for this session -- this can take a while the first time.
+        Checking every food against {conditionNames.length > 0 ? conditionNames.join(', ') : 'every scored factor'}, once for this
+        session -- this can take a while the first time.
       </Text>
     );
   }
@@ -3621,6 +3662,18 @@ const styles = StyleSheet.create({
   // the same "this box's border says which tab it belongs to" treatment,
   // just a single fixed color here since every box on this page is
   // Insights' own.
+  // One block per tracked condition, 2026-08-26 -- SixDsView's own real
+  // per-condition sections, stacked top to bottom with the same 18px this
+  // screen already uses to separate one distinct piece of content from
+  // its neighbor.
+  conditionScoreSection: {
+    marginBottom: 18,
+  },
+  conditionScoreHeading: {
+    ...typography.bodyEmphasis,
+    color: TAB_COLOR,
+    marginBottom: 4,
+  },
   table: {
     borderWidth: 2,
     borderColor: TAB_COLOR,
@@ -3670,7 +3723,7 @@ const styles = StyleSheet.create({
   },
   // Signals a nutrient row is tappable to reveal which foods produced it --
   // the same dotted-underline idiom subTableValue already uses for exactly
-  // this "tap for detail" meaning in the 6 Dimensions lens below.
+  // this "tap for detail" meaning in the Condition Scores lens below.
   tableCellNutrientTappable: {
     textDecorationLine: 'underline',
     textDecorationStyle: 'dotted',
