@@ -10219,11 +10219,21 @@ async function saveComponentFromCuratedPayload(
 
 // One breakfast/lunch/dinner slot's real content -- one main component
 // (linkedCuratedRecipeId/linkedBuilderType, matching recipes.ts's own two
-// fields of the same name) plus, for lunch and dinner only, an optional
-// second "side" component, so a real dinner can pair a main dish with a
-// distinct vegetable side the same way an actual plate would, without
-// forcing every single day's dinner to be one monolithic recipe. See
-// lib/mealPlan.ts's own header comment for why this shape was chosen.
+// fields of the same name) plus, 2026-08-26, up to five further optional
+// components spanning the other builder types, so a real dinner can
+// combine a main dish with a distinct side, a salad, a sauce, and a
+// beverage the same way an actual composed plate would -- not just one
+// recipe standing in for the whole meal. Widened from the original
+// main+side-only shape rather than replaced: every existing MealPlanDay
+// literal (lib/mealPlan.ts, lib/mealPlanVegan.ts, lib/mealPlanVegetarian.ts)
+// only ever sets main/side, and adding optional fields here doesn't
+// invalidate any of those, so this is a real, backwards-compatible
+// widening, not a breaking change. Deliberately no `snack`/`bakedGoods`
+// roles -- a composed lunch/dinner plate doesn't call for either the way
+// it calls for a side, a salad, a sauce, or a beverage; a whole-meal
+// snack/baked-good dish already fits through `main` on its own. See
+// lib/mealPlan.ts's own header comment for why this shape was chosen in
+// the first place.
 export type MealPlanComponentRef = {
   builderType: BuilderFavoriteItemType;
   curatedRecipeId: string;
@@ -10232,6 +10242,11 @@ export type MealPlanComponentRef = {
 export type MealPlanSlot = {
   main: MealPlanComponentRef;
   side?: MealPlanComponentRef;
+  salad?: MealPlanComponentRef;
+  soup?: MealPlanComponentRef;
+  sauce?: MealPlanComponentRef;
+  beverage?: MealPlanComponentRef;
+  dessert?: MealPlanComponentRef;
 };
 
 export type MealPlanDay = {
@@ -10241,21 +10256,34 @@ export type MealPlanDay = {
   dinner: MealPlanSlot;
 };
 
+// "X with Y" for exactly two components (the original, already-shipped
+// wording, unchanged for every existing 2-component slot) -- "X, Y, and
+// Z" once a slot actually combines three or more, rather than repeating
+// "with" past the point it reads naturally ("X with Y with Z with W").
+function joinMealTitleParts(parts: string[]): string {
+  if (parts.length <= 1) return parts[0] ?? '';
+  if (parts.length === 2) return `${parts[0]} with ${parts[1]}`;
+  return `${parts.slice(0, -1).join(', ')}, and ${parts[parts.length - 1]}`;
+}
+
 // Builds every real component a slot references, saves each as a real,
-// standalone dish, wraps them into one real meal favorite (a genuine dinner
-// with a side is 2 real components under one favorite, not 2 separate
-// meals), and schedules that favorite for the given date. Returns the new
-// schedule_items id. Shared by both setUpMealPlan (all 42 days at once) and
-// addMealPlanDayToSchedule (one day at a time) below, so the two paths can
-// never drift apart in what they actually build.
+// standalone dish, wraps them into one real meal favorite (a genuine
+// dinner with a side and a salad is 3 real components under one
+// favorite, not 3 separate meals), and schedules that favorite for the
+// given date. Returns the new schedule_items id. Shared by both
+// setUpMealPlan (all days at once) and addMealPlanDayToSchedule (one day
+// at a time) below, so the two paths can never drift apart in what they
+// actually build.
 async function scheduleMealPlanSlot(
   slot: MealPlanSlot,
   mealType: 'breakfast' | 'lunch' | 'dinner',
   scheduledFor: string,
 ): Promise<string> {
-  const refs = slot.side ? [slot.main, slot.side] : [slot.main];
+  const refs = [slot.main, slot.side, slot.salad, slot.soup, slot.sauce, slot.beverage, slot.dessert].filter(
+    (ref): ref is MealPlanComponentRef => ref !== undefined,
+  );
   const components: MealFavoriteComponent[] = [];
-  let title = '';
+  const titleParts: string[] = [];
 
   for (const ref of refs) {
     const recipe = await getCuratedRecipe(ref.curatedRecipeId);
@@ -10264,9 +10292,10 @@ async function scheduleMealPlanSlot(
     }
     const saved = await saveComponentFromCuratedPayload(ref.builderType, recipe);
     components.push({ componentType: ref.builderType, componentId: saved.id, yourSharePercent: 100 });
-    title = title ? `${title} with ${recipe.name}` : recipe.name;
+    titleParts.push(recipe.name);
   }
 
+  const title = joinMealTitleParts(titleParts);
   const favorite = await saveMealFavorite({ name: title, mealType, components });
   return scheduleMeal({ title, mealType, scheduledFor, sourceFavoriteId: favorite.id });
 }

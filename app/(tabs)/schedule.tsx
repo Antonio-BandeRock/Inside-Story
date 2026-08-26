@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
@@ -1694,11 +1694,23 @@ function healthRatingDotColor(rating: DailyMealPlanResult['healthRating']): stri
   return colors.danger;
 }
 
+// side/salad/beverage all get the same "Role: " prefix treatment the
+// side label already established -- 2026-08-26, the two new real
+// "combine across builders" roles (see lib/dailyMealPlan.ts's own
+// considerBonusComponent) needed the identical display, not a special
+// case.
+const DAILY_PLAN_ROLE_LABELS: Partial<Record<DailyMealPlanPick['role'], string>> = {
+  side: 'Side',
+  salad: 'Salad',
+  beverage: 'Beverage',
+};
+
 function DailyMealPlanPickRow({ pick }: { pick: DailyMealPlanPick }) {
+  const roleLabel = DAILY_PLAN_ROLE_LABELS[pick.role];
   return (
     <View style={styles.dailyPlanPickRow}>
       <Text style={styles.rowTitle}>
-        {pick.role === 'side' ? 'Side: ' : ''}
+        {roleLabel ? `${roleLabel}: ` : ''}
         {pick.entry.title}
       </Text>
       <Text style={styles.helperText}>{Math.round(pick.carbGrams)}g carbohydrate</Text>
@@ -5059,6 +5071,11 @@ function ComingSoonLens({
 
 export default function ScheduleScreen() {
   useRegisterScreenHelp('Schedules', SCHEDULE_HELP_SECTIONS, '/schedule');
+  // 2026-08-26 -- the same real deep-link mechanism purple-digest.tsx's
+  // own openDigestLens already established, so Profile can jump straight
+  // into the Daily Meal Plan lens rather than leaving someone to find it
+  // themselves via LensHub afterward.
+  const { openScheduleLens } = useLocalSearchParams<{ openScheduleLens?: string }>();
   const [lens, setLens] = useState<Lens>('meals');
   const activeLensLabel = LENSES.find((option) => option.key === lens)?.label;
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment
@@ -5075,9 +5092,19 @@ export default function ScheduleScreen() {
   const [mySchedulesOpen, setMySchedulesOpen] = useState(false);
   useFocusEffect(
     useCallback(() => {
+      // openScheduleLens overrides the normal "always land on the resting
+      // picker" reset below, the same way purple-digest.tsx's own
+      // openDigestLens does -- without this, a real deep link from
+      // Profile would still show the LensHub picker for a beat instead of
+      // the lens it was actually sent to.
+      if (openScheduleLens === 'dailyMealPlan') {
+        setLens('dailyMealPlan');
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
-    }, []),
+    }, [openScheduleLens]),
   );
   const autoOpenLensHub = useAutoOpenLensHubSignal();
 

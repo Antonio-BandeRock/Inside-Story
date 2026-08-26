@@ -203,6 +203,7 @@ const ALL_CARD_SECTION_KEYS = [
   'personal-info',
   'conditions',
   'diet-preferences',
+  'meal-plan',
   'general-health',
   'home-screen',
   'header-growth',
@@ -2608,6 +2609,35 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Meal Plan shortcut, 2026-08-26, direct request: "we need to
+          create the way for the user, from within their profile area, or
+          from a tool listed in Scheduling, to automatically create 6
+          weeks worth of meals." The Daily Meal Plan generator itself
+          (lib/dailyMealPlan.ts) already lives on Schedule; this is the
+          second real door into that one generator, not a second
+          implementation of it. Reuses the same openScheduleLens deep-link
+          pattern Garden's own openGardenLens already established, and
+          Digest's own openDigestLens before that. */}
+      <View style={styles.card}>
+        {renderCardHeader('meal-plan', 'Meal Plan')}
+        {!collapsedSections.has('meal-plan') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Generate up to 6 weeks of full meals at once, built from your own tracked conditions, diet
+              preference(s), and food allergies above -- real, whole meals combining a main dish with a side,
+              salad, or beverage when doing so genuinely helps round out your nutrient intake, not just one
+              recipe standing in for the whole plate.
+            </Text>
+            <TouchableOpacity
+              style={styles.checkinButton}
+              onPress={() => router.push({ pathname: '/schedule', params: { openScheduleLens: 'dailyMealPlan' } })}
+            >
+              <Text style={styles.checkinButtonText}>Generate My Meal Plan</Text>
+            </TouchableOpacity>
           </View>
         ) : null}
       </View>

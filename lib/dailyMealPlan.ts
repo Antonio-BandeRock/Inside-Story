@@ -49,6 +49,8 @@ import {
   curatedRecipeContainsSweetenerIngredient,
   getCuratedRecipeNutrientTotals,
   getDietaryReferenceIntakesForCurrentUser,
+  type DietaryReferenceIntake,
+  type MealPlanComponentRef,
   type MealPlanDay,
   type MealPlanSlot,
 } from './db';
@@ -254,6 +256,197 @@ export const FREQUENCY_RULES: FrequencyRule[] = [
 ];
 
 // ---------------------------------------------------------------------
+// Nutrient pairing rules -- 2026-08-26, direct request: "taking into
+// consideration the use of synergistic relationships and removing the
+// problems of combining things that should not be combined ever."
+//
+// Deliberately a short, real, cited list, the same discipline
+// FREQUENCY_RULES above already follows, not an invented long one. Every
+// rule here checks real nutrient AMOUNTS already resolved for a
+// candidate (getCuratedRecipeNutrientTotals), never ingredient identity
+// or food type -- a vegan lentil dish rich in iron gets the exact same
+// vitamin-C synergy bonus a lean beef dish would, and a calcium-fortified
+// plant milk gets the exact same iron-antagonism check a dairy glass of
+// milk would. This whole scoring layer is diet-style-agnostic by
+// construction, not just in intent: it never asks what KIND of food a
+// candidate is, only what it actually contains.
+//
+// Distinct from lib/interactionRules.ts's own nutrient-nutrient rows
+// (calcium_iron_timing, calcium_zinc_timing, vitamin_a/d/e/k_dietary_fat)
+// -- that system checks SUPPLEMENT dose timing against a person's actual
+// schedule, a real but different question from whether two curated
+// recipes' own real food-nutrient amounts, combined in the same
+// generated meal, would help or hurt each other. The fat/fat-soluble-
+// vitamin rule below is the same real fact already cited there, reused
+// rather than re-cited a second time; the others are new to this file
+// because they're about food combinations specifically, not supplement
+// timing.
+//
+// "Meaningful source" (MEANINGFUL_SOURCE_THRESHOLD_PERCENT) reuses the
+// FDA's own real nutrient-content-claim threshold (21 CFR 101.54) for
+// when a single food can be labeled a "good source" of something: 10% or
+// more of the daily target in one serving. A real, citable line instead
+// of an invented one.
+const MEANINGFUL_SOURCE_THRESHOLD_PERCENT = 10;
+
+export type NutrientPairRule = {
+  id: string;
+  label: string;
+  kind: 'synergy' | 'antagonism';
+  nutrientA: string;
+  // An array, not a single code -- the fat/fat-soluble-vitamin rule needs
+  // to check dietary fat against any of four real vitamins (A, D, E, K)
+  // at once, not just one.
+  nutrientB: string[];
+  citation: string;
+  mechanism: string;
+};
+
+export const NUTRIENT_SYNERGY_RULES: NutrientPairRule[] = [
+  {
+    id: 'vitamin-c-iron',
+    label: 'Vitamin C with iron',
+    kind: 'synergy',
+    nutrientA: 'vitamin_c',
+    nutrientB: ['iron'],
+    citation:
+      'Effect of ascorbic acid intake on nonheme-iron absorption from a complete diet, Cook & Reddy, Am J Clin Nutr 2001, PMID 11124756 -- iron absorption from a mixed meal rose 1.65x to 9.57x depending on how much vitamin C was added.',
+    mechanism:
+      'Vitamin C reduces iron to the form the body absorbs more easily and keeps it soluble through the small intestine, directly countering the same plant compounds (phytates, polyphenols) that make iron from plant foods harder to absorb on its own -- the reason this matters most for whichever specific meal is actually carrying the iron, not just the day\'s total intake of either.',
+  },
+  {
+    id: 'fat-fat-soluble-vitamins',
+    label: 'Dietary fat with fat-soluble vitamins',
+    kind: 'synergy',
+    nutrientA: 'fat_total',
+    nutrientB: ['vitamin_a', 'vitamin_d', 'vitamin_e', 'vitamin_k'],
+    citation:
+      'The same real fact already cited in this app\'s own interaction_rules table (vitamin_a_dietary_fat/vitamin_d_dietary_fat/vitamin_e_dietary_fat/vitamin_k_dietary_fat), reused here rather than cited a second time.',
+    mechanism:
+      'Vitamins A, D, E, and K are fat-soluble -- the body needs some dietary fat present in the same meal to absorb them well, regardless of the dose.',
+  },
+];
+
+export const NUTRIENT_ANTAGONISM_RULES: NutrientPairRule[] = [
+  {
+    id: 'calcium-iron',
+    label: 'Calcium with iron',
+    kind: 'antagonism',
+    nutrientA: 'calcium',
+    nutrientB: ['iron'],
+    citation:
+      'Inhibition of haem-iron absorption in man by calcium, Hallberg et al., Br J Nutr 1993, PMID 8490006 -- a real, replicated finding (the exact transport-level mechanism is still debated; current thinking points to competition at the DMT1 transporter). The same real competition is already cited in this app\'s own interaction_rules table (calcium_iron_timing) for supplement timing specifically.',
+    mechanism:
+      'Calcium measurably reduces how much iron the body absorbs when both are present in the same meal, whether from food or a supplement.',
+  },
+  {
+    id: 'zinc-copper',
+    label: 'High zinc with copper',
+    kind: 'antagonism',
+    nutrientA: 'zinc',
+    nutrientB: ['copper'],
+    citation:
+      'Copper and zinc absorption in the rat: mechanism of mutual antagonism, PMID 3968585; Linus Pauling Institute\'s own summary names this as clinically relevant mainly at supplement-level zinc intake (50mg/day or more) sustained over weeks, named honestly here rather than overstated for ordinary food-level amounts in one meal.',
+    mechanism:
+      'High zinc intake induces an intestinal protein (metallothionein) that binds copper in preference to zinc, trapping it in gut cells rather than letting it pass into circulation.',
+  },
+];
+
+// Whether a candidate's own real amount of one nutrient clears the
+// "meaningful source" bar above, relative to the person's own actual DRI
+// target for it -- the exact per-food threshold food labeling itself
+// already uses, not a per-day figure.
+function isMeaningfulSource(
+  totals: Record<string, number>,
+  nutrientCode: string,
+  driByCode: Map<string, DietaryReferenceIntake>,
+): boolean {
+  const target = driByCode.get(nutrientCode)?.amount;
+  if (!target || target <= 0) return false;
+  const amount = totals[nutrientCode] ?? 0;
+  return (amount / target) * 100 >= MEANINGFUL_SOURCE_THRESHOLD_PERCENT;
+}
+
+const SYNERGY_BONUS = 15;
+const ANTAGONISM_PENALTY = 15;
+
+// Scores one candidate against whatever's already been picked for the
+// SAME meal so far (not the whole day -- Hallberg's own finding is
+// specifically about same-meal proximity, and the vitamin C/iron
+// mechanism works the same way). A real, symmetric check both
+// directions: the candidate can supply either half of a pair against
+// what's already in the meal, or the meal-so-far can supply either half
+// against what the candidate brings.
+function scoreNutrientPairings(
+  mealTotalsSoFar: Record<string, number>,
+  candidateTotals: Record<string, number>,
+  driByCode: Map<string, DietaryReferenceIntake>,
+): number {
+  let score = 0;
+  for (const rule of [...NUTRIENT_SYNERGY_RULES, ...NUTRIENT_ANTAGONISM_RULES]) {
+    const candidateHasA = isMeaningfulSource(candidateTotals, rule.nutrientA, driByCode);
+    const candidateHasB = rule.nutrientB.some((code) => isMeaningfulSource(candidateTotals, code, driByCode));
+    const mealHasA = isMeaningfulSource(mealTotalsSoFar, rule.nutrientA, driByCode);
+    const mealHasB = rule.nutrientB.some((code) => isMeaningfulSource(mealTotalsSoFar, code, driByCode));
+    const bothPresent = (candidateHasA && mealHasB) || (candidateHasB && mealHasA);
+    if (!bothPresent) continue;
+    score += rule.kind === 'synergy' ? SYNERGY_BONUS : -ANTAGONISM_PENALTY;
+  }
+  return score;
+}
+
+// How much a candidate actually closes the day's own remaining real gaps
+// against RDA/AI targets -- credits only the part of its own amount that
+// still fits under the remaining gap, so a nutrient already fully met
+// gets no further credit for still more of the same (the real mechanism
+// that keeps this from just picking whatever has the single highest
+// amount of one nutrient, over and over, at the expense of everything
+// else).
+function scoreNutrientGapFilling(dayTotalsSoFar: Record<string, number>, candidateTotals: Record<string, number>, driRows: DietaryReferenceIntake[]): number {
+  let score = 0;
+  for (const row of driRows) {
+    if (row.valueType !== 'RDA' && row.valueType !== 'AI') continue;
+    if (!row.amount || row.amount <= 0) continue;
+    const addition = candidateTotals[row.nutrientCode] ?? 0;
+    if (addition <= 0) continue;
+    const remainingGap = Math.max(0, row.amount - (dayTotalsSoFar[row.nutrientCode] ?? 0));
+    const creditedAmount = Math.min(addition, remainingGap);
+    score += (creditedAmount / row.amount) * 100;
+  }
+  return score;
+}
+
+// Whether adding a candidate would push any real nutrient's own running
+// day-total past its own real Tolerable Upper Intake Level -- the
+// upperLimit field getDietaryReferenceIntakesForCurrentUser already
+// returns, unused anywhere in this generator before this pass.
+function wouldExceedUpperLimit(dayTotalsSoFar: Record<string, number>, candidateTotals: Record<string, number>, driRows: DietaryReferenceIntake[]): boolean {
+  return driRows.some((row) => {
+    if (row.upperLimit == null || row.upperLimit <= 0) return false;
+    const projected = (dayTotalsSoFar[row.nutrientCode] ?? 0) + (candidateTotals[row.nutrientCode] ?? 0);
+    return projected > row.upperLimit;
+  });
+}
+
+// The fraction of a real, already-filtered candidate pool that stays in
+// play after nutrient scoring, before the existing carb-bias/rotation
+// pick runs -- a real ranking, not a single forced "best" answer, so
+// day-to-day variety (already a standing requirement) survives layering
+// nutrient awareness on top of it.
+const NUTRIENT_SCORE_TOP_FRACTION = 0.34;
+
+// The real bar an optional salad/beverage addition (see generateOneDay's
+// own considerBonusComponent) has to clear before it's worth adding to a
+// meal at all -- a named, first-pass judgment call, not a precise
+// scientific threshold, the same honest "a real number, not an invented
+// one, but still a call someone had to make" shape PAIR_WITH_SIDE_BELOW_KCAL
+// already is elsewhere in this file. scoreNutrientGapFilling's own scale
+// is percent-of-target-gap-closed summed across every real RDA/AI
+// nutrient, so 20 means "closes real, meaningful ground on multiple
+// nutrients at once," not just a trace amount of one.
+const BONUS_COMPONENT_MIN_SCORE = 20;
+
+// ---------------------------------------------------------------------
 // Condition safety -- the same real severity data "Meals You Can Eat"
 // already computes (RecipeCard.safeForConditions/conditionCautions),
 // read directly here rather than through purple-digest.tsx (a screen
@@ -293,7 +486,10 @@ function recipeSafeAcrossConditions(entry: AnyDigestEntry, conditionCodes: strin
 // ---------------------------------------------------------------------
 export type DailyMealPlanPick = {
   entry: EligibleRecipeEntry;
-  role: 'main' | 'side';
+  // salad/beverage, 2026-08-26 -- the real "combine across builders"
+  // bonus roles (see CandidatePools' own comment); only ever added when
+  // nutrient scoring shows a genuine benefit, never unconditionally.
+  role: 'main' | 'side' | 'salad' | 'beverage';
   carbGrams: number;
 };
 
@@ -357,6 +553,12 @@ type LoadedCandidate = {
   kcal: number;
   hasSweetener: boolean;
   matchedRuleIds: Set<string>;
+  // 2026-08-26 -- the full real per-serving nutrient totals
+  // getCuratedRecipeNutrientTotals already resolves for every candidate;
+  // previously discarded right after carbGrams/kcal were pulled out of
+  // it. Needed now for real nutrient-gap-filling, upper-limit, and
+  // synergy/antagonism scoring -- no new query, this was already fetched.
+  nutrientTotals: Record<string, number>;
 };
 
 async function loadCandidate(entry: EligibleRecipeEntry): Promise<LoadedCandidate | null> {
@@ -372,6 +574,7 @@ async function loadCandidate(entry: EligibleRecipeEntry): Promise<LoadedCandidat
     kcal: totals.energy_kcal ?? 0,
     hasSweetener,
     matchedRuleIds: new Set(ruleMatches.filter((id): id is string => id !== null)),
+    nutrientTotals: totals,
   };
 }
 
@@ -434,16 +637,38 @@ function applyFrequencyRules(candidates: LoadedCandidate[], state: RotationState
   return pool;
 }
 
+// The person's own real DRI rows, keyed for the O(1) per-candidate
+// lookups scoreNutrientPairings/scoreNutrientGapFilling/
+// wouldExceedUpperLimit all need -- built once per generation run
+// (buildCandidatePools below), not once per pick.
+type NutrientContext = {
+  dayTotalsSoFar: Record<string, number>;
+  mealTotalsSoFar: Record<string, number>;
+  driRows: DietaryReferenceIntake[];
+  driByCode: Map<string, DietaryReferenceIntake>;
+};
+
 // The one real selection function every meal slot ultimately goes
 // through: frequency rules narrow the pool first (when rotation state
 // and a days-remaining count are given -- single-day generation passes
 // neither, leaving every candidate eligible, exactly its original
 // behavior), then rotation prefers whatever's been used least so far,
-// then the existing carb bias picks among whatever's left.
+// then nutrient scoring ranks whatever's left (when a nutrientContext is
+// given -- 2026-08-26, the real "obtain the best array of beneficial
+// nutrients... as close to what they need without going too far over"
+// request), then the existing carb bias makes the final pick among
+// whatever survives.
+//
+// Every scoring input here (nutrientTotals, driRows) is real, resolved
+// per-candidate nutrient amounts and the person's own DRI targets --
+// nothing about diet style, ingredient identity, or builder type feeds
+// into this at all, so this ranks identically for a vegan candidate pool
+// and an omnivore one built from the exact same real logic.
 function pickCandidate(
   candidates: LoadedCandidate[],
   carbCeiling: number | null,
   rotation?: { state: RotationState; daysRemainingInWeekIncludingToday: number; applyFrequency: boolean },
+  nutrientContext?: NutrientContext,
 ): LoadedCandidate | undefined {
   if (candidates.length === 0) return undefined;
   let pool = rotation?.applyFrequency ? applyFrequencyRules(candidates, rotation.state, rotation.daysRemainingInWeekIncludingToday) : candidates;
@@ -451,6 +676,28 @@ function pickCandidate(
     const minUsage = Math.min(...pool.map((c) => rotation.state.usageCount.get(c.entry.linkedCuratedRecipeId) ?? 0));
     pool = pool.filter((c) => (rotation.state.usageCount.get(c.entry.linkedCuratedRecipeId) ?? 0) === minUsage);
   }
+
+  if (nutrientContext) {
+    // Fails open, the same "a target is worth nudging toward, not worth
+    // serving nothing over" rule FREQUENCY_RULES already follows -- an
+    // upper-limit concern is real, but every real candidate pushing past
+    // it (a realistic outcome on a day already close to a limit) should
+    // never mean generating nothing at all for that slot.
+    const withinLimits = pool.filter((c) => !wouldExceedUpperLimit(nutrientContext.dayTotalsSoFar, c.nutrientTotals, nutrientContext.driRows));
+    if (withinLimits.length > 0) pool = withinLimits;
+
+    const scored = pool
+      .map((candidate) => ({
+        candidate,
+        score:
+          scoreNutrientGapFilling(nutrientContext.dayTotalsSoFar, candidate.nutrientTotals, nutrientContext.driRows) +
+          scoreNutrientPairings(nutrientContext.mealTotalsSoFar, candidate.nutrientTotals, nutrientContext.driByCode),
+      }))
+      .sort((a, b) => b.score - a.score);
+    const topCount = Math.max(1, Math.ceil(scored.length * NUTRIENT_SCORE_TOP_FRACTION));
+    pool = scored.slice(0, topCount).map((s) => s.candidate);
+  }
+
   return pickWithCarbBias(pool, carbCeiling);
 }
 
@@ -459,6 +706,22 @@ type CandidatePools = {
   lunchMainCandidates: LoadedCandidate[];
   dinnerMainCandidates: LoadedCandidate[];
   sideCandidates: LoadedCandidate[];
+  // 2026-08-26 -- the two real "combine across builders" bonus roles
+  // this pass adds (see generateOneDay's own pickBonusComponent): a
+  // separate salad and a separate beverage, on top of whatever's already
+  // picked as the main/side, added only when doing so genuinely helps
+  // close a real nutrient gap. Deliberately not soup/sauce/dessert yet --
+  // named directly as a real, scoped-down first pass rather than a
+  // silent gap, since salad and beverage are this corpus's two builder
+  // types most likely to carry a meaningfully different micronutrient
+  // profile from whatever the main dish already supplies.
+  saladCandidates: LoadedCandidate[];
+  beverageCandidates: LoadedCandidate[];
+  // The person's own real DRI rows, fetched once per run (not once per
+  // day) since they don't change day to day -- driByCode is the same
+  // rows, keyed for the repeated per-candidate lookups scoring needs.
+  driRows: DietaryReferenceIntake[];
+  driByCode: Map<string, DietaryReferenceIntake>;
 };
 
 // The same real cross-filter "Meals You Can Eat" already applies:
@@ -482,19 +745,26 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
   const lunchMainPoolEntries = pool.filter((entry) => lunchMainTypes.has(entry.linkedBuilderType));
   const dinnerMainPoolEntries = pool.filter((entry) => dinnerMainTypes.has(entry.linkedBuilderType));
   const sidePoolEntries = pool.filter((entry) => entry.linkedBuilderType === 'side');
+  const saladPoolEntries = pool.filter((entry) => entry.linkedBuilderType === 'salad');
+  const beveragePoolEntries = pool.filter((entry) => entry.linkedBuilderType === 'beverage');
 
   async function loadAll(entries: EligibleRecipeEntry[]) {
     const loaded = await Promise.all(entries.map(loadCandidate));
     return loaded.filter((c): c is LoadedCandidate => c !== null);
   }
 
-  const [breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates] = await Promise.all([
-    loadAll(breakfastPoolEntries),
-    loadAll(lunchMainPoolEntries),
-    loadAll(dinnerMainPoolEntries),
-    loadAll(sidePoolEntries),
-  ]);
-  return { breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates };
+  const [breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates, saladCandidates, beverageCandidates, driRows] =
+    await Promise.all([
+      loadAll(breakfastPoolEntries),
+      loadAll(lunchMainPoolEntries),
+      loadAll(dinnerMainPoolEntries),
+      loadAll(sidePoolEntries),
+      loadAll(saladPoolEntries),
+      loadAll(beveragePoolEntries),
+      getDietaryReferenceIntakesForCurrentUser(),
+    ]);
+  const driByCode = new Map(driRows.map((row) => [row.nutrientCode, row]));
+  return { breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates, saladCandidates, beverageCandidates, driRows, driByCode };
 }
 
 // Generates one real day from already-loaded candidate pools. rotation
@@ -511,17 +781,28 @@ async function generateOneDay(
 ): Promise<DailyMealPlanResult> {
   const carbCeiling = carbCeilingForLevel(carbLevel);
   const warnings: string[] = [];
-  const { breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates } = pools;
+  const { breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates, saladCandidates, beverageCandidates, driRows, driByCode } =
+    pools;
 
   let totalCarbGrams = 0;
   const nutrientTotals: Record<string, number> = {};
+  // Reset at the start of each meal's own assembly below -- the
+  // synergy/antagonism rules are specifically about same-MEAL proximity
+  // (Hallberg's own calcium-iron finding is stated that way directly),
+  // not the day's running total, so this has to be a separate, shorter-
+  // lived accumulator from nutrientTotals rather than reusing it.
+  let mealTotals: Record<string, number> = {};
   function addPick(totals: Record<string, number>) {
     for (const [code, amount] of Object.entries(totals)) {
       nutrientTotals[code] = (nutrientTotals[code] ?? 0) + amount;
+      mealTotals[code] = (mealTotals[code] ?? 0) + amount;
     }
   }
   function recordIfRotating(candidate: LoadedCandidate) {
     if (rotation) recordUsage(rotation.state, candidate);
+  }
+  function currentNutrientContext(): NutrientContext {
+    return { dayTotalsSoFar: nutrientTotals, mealTotalsSoFar: mealTotals, driRows, driByCode };
   }
 
   // Breakfast: real candidates only, then the direct "no sugar" rule --
@@ -534,17 +815,17 @@ async function generateOneDay(
   // Rotation applies here too (real day-to-day variety), frequency
   // rules never do (fish/red meat aren't realistic breakfast picks in
   // this corpus).
+  mealTotals = {};
   const noSugarBreakfastCandidates = breakfastCandidates.filter((c) => !c.hasSweetener);
   let breakfast: DailyMealPlanPick | null = null;
   {
     const withinBudget = carbCeiling === null ? noSugarBreakfastCandidates : noSugarBreakfastCandidates.filter((c) => c.carbGrams <= carbCeiling);
     const rotationArg = rotation ? { state: rotation.state, daysRemainingInWeekIncludingToday: rotation.daysRemainingInWeekIncludingToday, applyFrequency: false } : undefined;
-    const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : noSugarBreakfastCandidates, carbCeiling, rotationArg);
+    const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : noSugarBreakfastCandidates, carbCeiling, rotationArg, currentNutrientContext());
     if (chosen) {
       breakfast = { entry: chosen.entry, role: 'main', carbGrams: chosen.carbGrams };
       totalCarbGrams += chosen.carbGrams;
-      const totals = await getCuratedRecipeNutrientTotals(chosen.entry.linkedCuratedRecipeId);
-      if (totals) addPick(totals);
+      addPick(chosen.nutrientTotals);
       recordIfRotating(chosen);
       if (withinBudget.length === 0 && carbCeiling !== null) {
         warnings.push(`No sugar-free breakfast option stayed under the ${carbCeiling}g daily carb ceiling on its own; the closest option was used instead.`);
@@ -555,38 +836,69 @@ async function generateOneDay(
   }
 
   // Lunch/dinner: a main, plus a side when the main alone reads light,
-  // staying under whatever carb budget remains for the day. Rotation
-  // and FREQUENCY_RULES both apply to the main pick only -- sides in
-  // this corpus are overwhelmingly vegetable-based, not realistic fish/
-  // red-meat candidates, and still get real day-to-day rotation of
-  // their own via the same pickCandidate call.
+  // then a real chance at a salad and/or a beverage -- combining across
+  // builders, 2026-08-26, direct request -- staying under whatever carb
+  // budget remains for the day. Rotation and FREQUENCY_RULES both apply
+  // to the main pick only -- sides/salads/beverages in this corpus are
+  // overwhelmingly vegetable- or fruit-based, not realistic fish/red-meat
+  // candidates, and still get real day-to-day rotation of their own via
+  // the same pickCandidate call.
   async function pickMealWithOptionalSide(mainCandidates: LoadedCandidate[], excludeId: string | undefined, applyFrequency: boolean): Promise<DailyMealPlanPick[]> {
+    mealTotals = {};
     const remainingBudget = carbCeiling === null ? null : Math.max(0, carbCeiling - totalCarbGrams);
     const eligible = mainCandidates.filter((c) => c.entry.linkedCuratedRecipeId !== excludeId);
     const withinBudget = remainingBudget === null ? eligible : eligible.filter((c) => c.carbGrams <= remainingBudget);
     const mainRotationArg = rotation ? { state: rotation.state, daysRemainingInWeekIncludingToday: rotation.daysRemainingInWeekIncludingToday, applyFrequency } : undefined;
-    const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : eligible, remainingBudget, mainRotationArg);
+    const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : eligible, remainingBudget, mainRotationArg, currentNutrientContext());
     if (!chosen) return [];
     const picks: DailyMealPlanPick[] = [{ entry: chosen.entry, role: 'main', carbGrams: chosen.carbGrams }];
     totalCarbGrams += chosen.carbGrams;
-    const mainTotals = await getCuratedRecipeNutrientTotals(chosen.entry.linkedCuratedRecipeId);
-    if (mainTotals) addPick(mainTotals);
+    addPick(chosen.nutrientTotals);
     recordIfRotating(chosen);
+    const usedIds = new Set([chosen.entry.linkedCuratedRecipeId]);
 
     if (chosen.kcal < PAIR_WITH_SIDE_BELOW_KCAL) {
       const sideBudget = carbCeiling === null ? null : Math.max(0, carbCeiling - totalCarbGrams);
-      const sideEligible = sideCandidates.filter((c) => c.entry.linkedCuratedRecipeId !== chosen.entry.linkedCuratedRecipeId);
+      const sideEligible = sideCandidates.filter((c) => !usedIds.has(c.entry.linkedCuratedRecipeId));
       const sideWithinBudget = sideBudget === null ? sideEligible : sideEligible.filter((c) => c.carbGrams <= sideBudget);
       const sideRotationArg = rotation ? { state: rotation.state, daysRemainingInWeekIncludingToday: rotation.daysRemainingInWeekIncludingToday, applyFrequency: false } : undefined;
-      const chosenSide = pickCandidate(sideWithinBudget, sideBudget, sideRotationArg);
+      const chosenSide = pickCandidate(sideWithinBudget, sideBudget, sideRotationArg, currentNutrientContext());
       if (chosenSide) {
         picks.push({ entry: chosenSide.entry, role: 'side', carbGrams: chosenSide.carbGrams });
         totalCarbGrams += chosenSide.carbGrams;
-        const sideTotals = await getCuratedRecipeNutrientTotals(chosenSide.entry.linkedCuratedRecipeId);
-        if (sideTotals) addPick(sideTotals);
+        addPick(chosenSide.nutrientTotals);
         recordIfRotating(chosenSide);
+        usedIds.add(chosenSide.entry.linkedCuratedRecipeId);
       }
     }
+
+    // The real "combine across builders" bonus roles -- added only when
+    // nutrient scoring shows a genuine benefit (see
+    // BONUS_COMPONENT_MIN_SCORE's own comment), never unconditionally.
+    // No rotation/frequency narrowing here: these are "only if it helps"
+    // extras, not meal-defining picks that need their own standing
+    // variety guarantee the way a main does.
+    async function considerBonusComponent(role: 'salad' | 'beverage', candidates: LoadedCandidate[]) {
+      const budget = carbCeiling === null ? null : Math.max(0, carbCeiling - totalCarbGrams);
+      const eligibleBonus = candidates.filter((c) => !usedIds.has(c.entry.linkedCuratedRecipeId));
+      const bonusWithinBudget = budget === null ? eligibleBonus : eligibleBonus.filter((c) => c.carbGrams <= budget);
+      const withinLimits = bonusWithinBudget.filter((c) => !wouldExceedUpperLimit(nutrientTotals, c.nutrientTotals, driRows));
+      const scored = withinLimits
+        .map((candidate) => ({
+          candidate,
+          score: scoreNutrientGapFilling(nutrientTotals, candidate.nutrientTotals, driRows) + scoreNutrientPairings(mealTotals, candidate.nutrientTotals, driByCode),
+        }))
+        .sort((a, b) => b.score - a.score);
+      const best = scored[0];
+      if (!best || best.score < BONUS_COMPONENT_MIN_SCORE) return;
+      picks.push({ entry: best.candidate.entry, role, carbGrams: best.candidate.carbGrams });
+      totalCarbGrams += best.candidate.carbGrams;
+      addPick(best.candidate.nutrientTotals);
+      usedIds.add(best.candidate.entry.linkedCuratedRecipeId);
+    }
+    await considerBonusComponent('salad', saladCandidates);
+    await considerBonusComponent('beverage', beverageCandidates);
+
     return picks;
   }
 
@@ -613,12 +925,11 @@ async function generateOneDay(
     allPicks.length === 0 ? null : allPicks.every((p) => recipeSafeAcrossConditions(p.entry, conditionCodes) === 'green') ? 'green' : 'yellow';
 
   // Real nutrient-coverage figures against the person's own actual DRI
-  // targets, informational rather than a second rating -- the confirmed
-  // design keeps the health rating itself to the existing green/yellow/
-  // red condition-safety system, but "using the RDA of nutrients" still
-  // deserves a real, visible answer, not just a silent input to
-  // selection.
-  const driRows = await getDietaryReferenceIntakesForCurrentUser();
+  // targets -- 2026-08-26, no longer purely informational (see
+  // pickCandidate's own use of scoreNutrientGapFilling/
+  // wouldExceedUpperLimit above), but still reported here in full
+  // regardless of how close the day actually landed, an honest account
+  // rather than only ever showing success.
   const nutrientCoverage: DailyMealPlanNutrientCoverage[] = driRows
     .filter((row) => row.valueType === 'RDA' || row.valueType === 'AI')
     .map((row) => {
@@ -708,16 +1019,31 @@ export async function generateMealPlanDays(options: {
 // why, not silently attempt a broken schedule.
 export function dailyMealPlanToMealPlanDay(result: DailyMealPlanResult, dayNumber: number): MealPlanDay | null {
   if (!result.breakfast || result.lunch.length === 0 || result.dinner.length === 0) return null;
-  function toSlot(main: DailyMealPlanPick, side?: DailyMealPlanPick): MealPlanSlot {
+
+  function toRef(pick: DailyMealPlanPick | undefined): MealPlanComponentRef | undefined {
+    return pick ? { builderType: pick.entry.linkedBuilderType, curatedRecipeId: pick.entry.linkedCuratedRecipeId } : undefined;
+  }
+
+  // Matched by role, not array position, 2026-08-26 -- a meal's own
+  // picks array can now hold main+side, main+salad, main+side+beverage,
+  // or any other real combination considerBonusComponent decided on, so
+  // the old "picks[0] is the main, picks[1] is the side" assumption no
+  // longer holds once more than two roles are possible.
+  function toSlot(picks: DailyMealPlanPick[]): MealPlanSlot {
+    const main = toRef(picks.find((p) => p.role === 'main'));
+    if (!main) throw new Error('[dailyMealPlanToMealPlanDay] A meal slot with real picks always includes a main.');
     return {
-      main: { builderType: main.entry.linkedBuilderType, curatedRecipeId: main.entry.linkedCuratedRecipeId },
-      side: side ? { builderType: side.entry.linkedBuilderType, curatedRecipeId: side.entry.linkedCuratedRecipeId } : undefined,
+      main,
+      side: toRef(picks.find((p) => p.role === 'side')),
+      salad: toRef(picks.find((p) => p.role === 'salad')),
+      beverage: toRef(picks.find((p) => p.role === 'beverage')),
     };
   }
+
   return {
     day: dayNumber,
-    breakfast: toSlot(result.breakfast),
-    lunch: toSlot(result.lunch[0], result.lunch[1]),
-    dinner: toSlot(result.dinner[0], result.dinner[1]),
+    breakfast: toSlot([result.breakfast]),
+    lunch: toSlot(result.lunch),
+    dinner: toSlot(result.dinner),
   };
 }
