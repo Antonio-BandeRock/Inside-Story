@@ -63,6 +63,7 @@ import {
   type SideDetail,
   type SideIngredientDetail,
 } from '../lib/db';
+import { getPersonalizationProfile, type PersonalizationProfile } from '../lib/foodPersonalization';
 import { isFlaggedTier } from '../lib/sixDimensionsReference';
 
 // Step 2 of "save a Side, then actually be able to see it" (step 1:
@@ -95,7 +96,7 @@ type DetailLens = 'ingredients' | 'nutrients' | 'sixDs' | 'prep';
 const DETAIL_LENSES: { key: DetailLens; label: string }[] = [
   { key: 'ingredients', label: 'Ingredients' },
   { key: 'nutrients', label: 'Nutrients' },
-  { key: 'sixDs', label: '6 Dimensions' },
+  { key: 'sixDs', label: 'Condition Scores' },
   { key: 'prep', label: 'Cooking & Prep' },
 ];
 
@@ -111,11 +112,20 @@ export default function FoodItemDetailScreen() {
   const [nutrientBreakdown, setNutrientBreakdown] = useState<DailyNutrientBreakdown | null>(null);
   const [dimensionsBreakdown, setDimensionsBreakdown] = useState<DailySixDimensionsBreakdown | null>(null);
   const [loading, setLoading] = useState(true);
+  // 2026-08-26, phase 3 of the Condition Scores rebuild -- see
+  // app/(tabs)/insights.tsx's own identical state for the full reasoning.
+  // This screen reuses that same shared SixDsView, so it needs the same
+  // real tracked-conditions list to hand it, not a second, separate
+  // condition picker.
+  const [personalizationProfile, setPersonalizationProfile] = useState<PersonalizationProfile | null>(null);
+  useEffect(() => {
+    getPersonalizationProfile().then(setPersonalizationProfile);
+  }, []);
 
   // Which ingredient (by index into the BREAKDOWN's own item list, not
   // `ingredients` above -- see this file's own top comment on why those
   // two lists aren't guaranteed to line up index-for-index) the Nutrients/
-  // 6 Dimensions/Cooking & Prep lenses are currently drilled into. null =
+  // Condition Scores/Cooking & Prep lenses are currently drilled into. null =
   // viewing the whole side.
   const [drilledItemIndex, setDrilledItemIndex] = useState<number | null>(null);
   const [expandedDimension, setExpandedDimension] = useState<string | null>(null);
@@ -137,7 +147,7 @@ export default function FoodItemDetailScreen() {
   useEffect(() => {
     let isCurrent = true;
     setLoading(true);
-    loadSide(itemType, id).then((loaded) => {
+    loadSide(itemType, id, personalizationProfile?.trackedConditions ?? []).then((loaded) => {
       if (!isCurrent) return;
       setSide(loaded.side);
       setIngredients(loaded.ingredients);
@@ -148,7 +158,7 @@ export default function FoodItemDetailScreen() {
     return () => {
       isCurrent = false;
     };
-  }, [itemType, id]);
+  }, [itemType, id, personalizationProfile]);
 
   useEffect(() => {
     let isCurrent = true;
@@ -334,6 +344,7 @@ export default function FoodItemDetailScreen() {
               <SixDsView
                 breakdown={dimensionsBreakdown}
                 scope={scope}
+                trackedConditions={personalizationProfile?.trackedConditions ?? []}
                 expandedDimension={expandedDimension}
                 onToggleDimension={(dimension) => setExpandedDimension((current) => (current === dimension ? null : dimension))}
                 expandedTierKey={expandedTierKey}
@@ -416,6 +427,7 @@ function mealNounFor(itemType: string | undefined): string {
 async function loadSide(
   itemType: string | undefined,
   id: string | undefined,
+  trackedConditions: { code: string; name: string }[],
 ): Promise<{
   side: SideDetail | null;
   ingredients: SideIngredientDetail[];
@@ -430,7 +442,7 @@ async function loadSide(
       getSalad(id),
       getSaladIngredients(id),
       getSaladNutrientBreakdown(id),
-      getSaladSixDimensionsBreakdown(id),
+      getSaladSixDimensionsBreakdown(id, trackedConditions),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
@@ -441,7 +453,7 @@ async function loadSide(
       getSmoothie(id),
       getSmoothieIngredients(id),
       getSmoothieNutrientBreakdown(id),
-      getSmoothieSixDimensionsBreakdown(id),
+      getSmoothieSixDimensionsBreakdown(id, trackedConditions),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
@@ -452,7 +464,7 @@ async function loadSide(
       getFermentation(id),
       getFermentationIngredients(id),
       getFermentationNutrientBreakdown(id),
-      getFermentationSixDimensionsBreakdown(id),
+      getFermentationSixDimensionsBreakdown(id, trackedConditions),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
@@ -463,7 +475,7 @@ async function loadSide(
       getBeverage(id),
       getBeverageIngredients(id),
       getBeverageNutrientBreakdown(id),
-      getBeverageSixDimensionsBreakdown(id),
+      getBeverageSixDimensionsBreakdown(id, trackedConditions),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
@@ -474,7 +486,7 @@ async function loadSide(
       getSnack(id),
       getSnackIngredients(id),
       getSnackNutrientBreakdown(id),
-      getSnackSixDimensionsBreakdown(id),
+      getSnackSixDimensionsBreakdown(id, trackedConditions),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
@@ -485,7 +497,7 @@ async function loadSide(
       getBakedGoods(id),
       getBakedGoodsIngredients(id),
       getBakedGoodsNutrientBreakdown(id),
-      getBakedGoodsSixDimensionsBreakdown(id),
+      getBakedGoodsSixDimensionsBreakdown(id, trackedConditions),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
@@ -496,7 +508,7 @@ async function loadSide(
       getSoup(id),
       getSoupIngredients(id),
       getSoupNutrientBreakdown(id),
-      getSoupSixDimensionsBreakdown(id),
+      getSoupSixDimensionsBreakdown(id, trackedConditions),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
@@ -507,7 +519,7 @@ async function loadSide(
       getSauce(id),
       getSauceIngredients(id),
       getSauceNutrientBreakdown(id),
-      getSauceSixDimensionsBreakdown(id),
+      getSauceSixDimensionsBreakdown(id, trackedConditions),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
@@ -518,7 +530,7 @@ async function loadSide(
       getHandheld(id),
       getHandheldIngredients(id),
       getHandheldNutrientBreakdown(id),
-      getHandheldSixDimensionsBreakdown(id),
+      getHandheldSixDimensionsBreakdown(id, trackedConditions),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
@@ -529,7 +541,7 @@ async function loadSide(
       getDessert(id),
       getDessertIngredients(id),
       getDessertNutrientBreakdown(id),
-      getDessertSixDimensionsBreakdown(id),
+      getDessertSixDimensionsBreakdown(id, trackedConditions),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
@@ -541,7 +553,7 @@ async function loadSide(
     getSide(id),
     getSideIngredients(id),
     getSideNutrientBreakdown(id),
-    getSideSixDimensionsBreakdown(id),
+    getSideSixDimensionsBreakdown(id, trackedConditions),
   ]);
   if (!side) return empty;
   return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
