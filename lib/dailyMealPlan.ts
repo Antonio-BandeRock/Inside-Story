@@ -45,11 +45,14 @@
 // single-day request already used, so single- and multi-day generation
 // can never quietly drift apart into two different implementations.
 import {
+  createIngredientResolutionCaches,
   curatedRecipeContainsAnyIngredient,
   curatedRecipeContainsSweetenerIngredient,
   getCuratedRecipeNutrientTotals,
   getDietaryReferenceIntakesForCurrentUser,
+  getUserProfile,
   type DietaryReferenceIntake,
+  type IngredientResolutionCaches,
   type MealPlanComponentRef,
   type MealPlanDay,
   type MealPlanSlot,
@@ -500,6 +503,20 @@ export type DailyMealPlanNutrientCoverage = {
   amount: number;
   targetAmount: number | null;
   percentOfTarget: number | null;
+  // 2026-08-26, direct report: "265% of the RDA for copper... I can't
+  // understand how they could ever be so high." A real, honest
+  // distinction this generic list was missing entirely: several trace
+  // minerals (copper, manganese, potassium among them) carry a tiny real
+  // RDA/AI next to a much larger real upper limit, so a whole-food diet,
+  // vegan ones especially (nuts, seeds, legumes are all real, meaningful
+  // sources of these), can legitimately clear 150-250% of the RDA while
+  // sitting nowhere near the amount actually flagged as a concern.
+  // upperLimit/percentOfUpperLimit (null when this nutrient has no
+  // defined real ceiling, like potassium from food) let the UI show that
+  // distinction honestly instead of treating every percentage past 100 as
+  // equally alarming.
+  upperLimit: number | null;
+  percentOfUpperLimit: number | null;
 };
 
 export type DailyMealPlanResult = {
@@ -561,8 +578,8 @@ type LoadedCandidate = {
   nutrientTotals: Record<string, number>;
 };
 
-async function loadCandidate(entry: EligibleRecipeEntry): Promise<LoadedCandidate | null> {
-  const totals = await getCuratedRecipeNutrientTotals(entry.linkedCuratedRecipeId);
+async function loadCandidate(entry: EligibleRecipeEntry, sharedCaches: IngredientResolutionCaches): Promise<LoadedCandidate | null> {
+  const totals = await getCuratedRecipeNutrientTotals(entry.linkedCuratedRecipeId, sharedCaches);
   if (!totals) return null;
   const [hasSweetener, ruleMatches] = await Promise.all([
     curatedRecipeContainsSweetenerIngredient(entry.linkedCuratedRecipeId),
@@ -722,7 +739,59 @@ type CandidatePools = {
   // rows, keyed for the repeated per-candidate lookups scoring needs.
   driRows: DietaryReferenceIntake[];
   driByCode: Map<string, DietaryReferenceIntake>;
+  // 2026-08-26 -- true whenever Profile is missing sex and/or birth date,
+  // the same real completeness check every other DRI-consuming function
+  // in lib/db.ts already exposes as its own profileComplete flag (see
+  // e.g. the direct-ingredient builders' own SixDimensionsBreakdown
+  // functions). Every nutrient-target number this generator computes is
+  // only as personalized as that data allows -- surfaced as a plain
+  // warning rather than silently guessed at, see driByCode's own comment
+  // in buildCandidatePools for why this matters beyond just labeling.
+  profileIncomplete: boolean;
 };
+
+// getDietaryReferenceIntakesForCurrentUser deliberately returns EVERY row
+// that could apply when sex and/or birth date aren't set in Profile (its
+// own doc comment: "the caller/UI should show side by side, not
+// collapse"), since a nutrient like iron genuinely has different real
+// targets by sex and age. A plain `new Map(driRows.map(row =>
+// [row.nutrientCode, row]))` silently kept whichever row happened to sort
+// last for a given nutrient code -- for iron specifically, that's the
+// MALE row (RDA 8mg) even for a person whose real target is the female
+// 19-50 row (RDA 18mg), a genuine, silent mismatch that would read as
+// "175% of the RDA" for an amount that's actually closer to 80% of the
+// correct one. Root-caused directly against a reported "265% copper/175%
+// iron/180% manganese/178% potassium" result -- confirmed real by reading
+// this exact collapse, not guessed. Fixed by merging every colliding row
+// per nutrient into one conservative row instead of picking one
+// arbitrarily: the HIGHEST real amount (so gap-filling scoring never
+// credits a target as "met" using a lower bar than might actually apply)
+// and the LOWEST real, defined upper limit (so the exceeds-UL guard never
+// lets a genuine overshoot through using a more permissive ceiling than
+// might actually apply). This can't retroactively make the numbers
+// exactly right for someone whose profile is incomplete -- only a real
+// sex and birth date can -- but it can guarantee the generator always
+// errs toward the SAFER, more conservative reading rather than an
+// arbitrary one, and profileIncomplete (above) is what tells the UI to
+// say so honestly rather than presenting an approximate number as exact.
+function buildConservativeDriByCode(driRows: DietaryReferenceIntake[]): Map<string, DietaryReferenceIntake> {
+  const byCode = new Map<string, DietaryReferenceIntake>();
+  for (const row of driRows) {
+    const existing = byCode.get(row.nutrientCode);
+    if (!existing) {
+      byCode.set(row.nutrientCode, row);
+      continue;
+    }
+    const mergedUpperLimit =
+      existing.upperLimit == null ? row.upperLimit : row.upperLimit == null ? existing.upperLimit : Math.min(existing.upperLimit, row.upperLimit);
+    byCode.set(row.nutrientCode, {
+      ...existing,
+      amount: Math.max(existing.amount, row.amount),
+      upperLimit: mergedUpperLimit,
+    });
+  }
+  return byCode;
+}
 
 // The same real cross-filter "Meals You Can Eat" already applies:
 // genuinely safe (green or yellow, never a real red flag) for every
@@ -748,23 +817,67 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
   const saladPoolEntries = pool.filter((entry) => entry.linkedBuilderType === 'salad');
   const beveragePoolEntries = pool.filter((entry) => entry.linkedBuilderType === 'beverage');
 
-  async function loadAll(entries: EligibleRecipeEntry[]) {
-    const loaded = await Promise.all(entries.map(loadCandidate));
-    return loaded.filter((c): c is LoadedCandidate => c !== null);
+  // 2026-08-26 perf fix -- a recipe can legitimately belong to more than
+  // one of the 6 pools above at once (a 'side' is a real lunch/dinner
+  // main candidate AND its own dedicated side candidate; a 'salad' is
+  // both a main candidate and the salad-bonus candidate), and
+  // loadCandidate does real, per-ingredient database resolution, several
+  // actual queries deep, not a cheap in-memory computation. Loading each
+  // pool independently meant a 'side' or 'salad' recipe's own nutrient
+  // totals were being resolved two or three separate times over, once per
+  // pool it happens to belong to -- confirmed as the real cause of a
+  // reported ~5-minute single-day generation time, not guessed: this
+  // corpus's most heavily reused builder type ('side', this app's own
+  // generic single-dish builder) was the single biggest multiplier.
+  // Fixed by resolving every DISTINCT recipe id referenced by any pool
+  // exactly once into a shared map, then building each pool by reading
+  // from that map instead of re-resolving. A second, compounding
+  // inefficiency fixed in the same pass: getCuratedRecipeNutrientTotals
+  // used to build itself a fresh, empty ingredient-resolution cache per
+  // call, so a common ingredient (olive oil, garlic, salt) used across
+  // dozens of different recipes had its own nutrient/category/unit-weight
+  // data re-queried once per recipe that uses it, even within this one
+  // run. One shared IngredientResolutionCaches, built once here and
+  // passed into every loadCandidate call, makes that lookup happen once
+  // per ingredient for the whole run instead.
+  const uniqueEntries = new Map<string, EligibleRecipeEntry>();
+  for (const entry of pool) uniqueEntries.set(entry.linkedCuratedRecipeId, entry);
+  const uniqueEntryList = Array.from(uniqueEntries.values());
+  const sharedCaches = createIngredientResolutionCaches();
+
+  const [loadedCandidates, driRows, profile] = await Promise.all([
+    Promise.all(uniqueEntryList.map((entry) => loadCandidate(entry, sharedCaches))),
+    getDietaryReferenceIntakesForCurrentUser(),
+    getUserProfile(),
+  ]);
+  const candidateById = new Map<string, LoadedCandidate>();
+  uniqueEntryList.forEach((entry, index) => {
+    const candidate = loadedCandidates[index];
+    if (candidate) candidateById.set(entry.linkedCuratedRecipeId, candidate);
+  });
+  function poolFrom(entries: EligibleRecipeEntry[]): LoadedCandidate[] {
+    return entries.map((entry) => candidateById.get(entry.linkedCuratedRecipeId)).filter((c): c is LoadedCandidate => c !== undefined);
   }
 
-  const [breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates, saladCandidates, beverageCandidates, driRows] =
-    await Promise.all([
-      loadAll(breakfastPoolEntries),
-      loadAll(lunchMainPoolEntries),
-      loadAll(dinnerMainPoolEntries),
-      loadAll(sidePoolEntries),
-      loadAll(saladPoolEntries),
-      loadAll(beveragePoolEntries),
-      getDietaryReferenceIntakesForCurrentUser(),
-    ]);
-  const driByCode = new Map(driRows.map((row) => [row.nutrientCode, row]));
-  return { breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates, saladCandidates, beverageCandidates, driRows, driByCode };
+  const breakfastCandidates = poolFrom(breakfastPoolEntries);
+  const lunchMainCandidates = poolFrom(lunchMainPoolEntries);
+  const dinnerMainCandidates = poolFrom(dinnerMainPoolEntries);
+  const sideCandidates = poolFrom(sidePoolEntries);
+  const saladCandidates = poolFrom(saladPoolEntries);
+  const beverageCandidates = poolFrom(beveragePoolEntries);
+  const driByCode = buildConservativeDriByCode(driRows);
+  const profileIncomplete = profile.sex == null || profile.birthDate == null;
+  return {
+    breakfastCandidates,
+    lunchMainCandidates,
+    dinnerMainCandidates,
+    sideCandidates,
+    saladCandidates,
+    beverageCandidates,
+    driRows,
+    driByCode,
+    profileIncomplete,
+  };
 }
 
 // Generates one real day from already-loaded candidate pools. rotation
@@ -777,10 +890,16 @@ async function generateOneDay(
   pools: CandidatePools,
   conditionCodes: string[],
   carbLevel: CarbLevel,
+  limitAddedSugar: boolean,
   rotation?: { state: RotationState; daysRemainingInWeekIncludingToday: number },
 ): Promise<DailyMealPlanResult> {
   const carbCeiling = carbCeilingForLevel(carbLevel);
   const warnings: string[] = [];
+  if (pools.profileIncomplete) {
+    warnings.push(
+      'Your Profile is missing a sex and/or birth date, so the nutrient targets below use the most conservative real DRI value available rather than one built specifically for you. Add both in Profile for a more accurately personalized plan.',
+    );
+  }
   const { breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates, saladCandidates, beverageCandidates, driRows, driByCode } =
     pools;
 
@@ -819,19 +938,44 @@ async function generateOneDay(
   const noSugarBreakfastCandidates = breakfastCandidates.filter((c) => !c.hasSweetener);
   let breakfast: DailyMealPlanPick | null = null;
   {
-    const withinBudget = carbCeiling === null ? noSugarBreakfastCandidates : noSugarBreakfastCandidates.filter((c) => c.carbGrams <= carbCeiling);
+    // 2026-08-26: fall back to a breakfast that DOES carry an added
+    // sweetener rather than failing outright once every genuinely
+    // sugar-free option has already been ruled out -- root-caused
+    // directly against a reported "no compliant option found" for a
+    // vegan Hashimoto's search: this corpus's real breakfast recipes are
+    // almost entirely tofu/soy-based (red-flagged for Hashimoto's) or
+    // fruit-and-oat/porridge/chia-pudding (nearly all carrying at least
+    // an optional sweetener line), so a hard "never show a sweetened
+    // breakfast" rule combined with a narrow diet+condition pool could
+    // genuinely empty out every real option, exactly this app's own
+    // standing "advisory, never a hard gate that produces nothing at
+    // all" rule already applies everywhere else (see Standing rules,
+    // Healing-journey stages). "No sugar by default" stays the FIRST
+    // choice; a real, edible breakfast beats no breakfast at all.
+    const candidatePool = noSugarBreakfastCandidates.length > 0 ? noSugarBreakfastCandidates : breakfastCandidates;
+    const usedSweetenedFallback = noSugarBreakfastCandidates.length === 0 && breakfastCandidates.length > 0;
+    const withinBudget = carbCeiling === null ? candidatePool : candidatePool.filter((c) => c.carbGrams <= carbCeiling);
     const rotationArg = rotation ? { state: rotation.state, daysRemainingInWeekIncludingToday: rotation.daysRemainingInWeekIncludingToday, applyFrequency: false } : undefined;
-    const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : noSugarBreakfastCandidates, carbCeiling, rotationArg, currentNutrientContext());
+    const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : candidatePool, carbCeiling, rotationArg, currentNutrientContext());
     if (chosen) {
       breakfast = { entry: chosen.entry, role: 'main', carbGrams: chosen.carbGrams };
       totalCarbGrams += chosen.carbGrams;
       addPick(chosen.nutrientTotals);
       recordIfRotating(chosen);
+      if (usedSweetenedFallback) {
+        warnings.push('No sugar-free breakfast option matched your declared condition(s) and diet preference(s), so this pick carries an optional sweetener you can simply leave out.');
+      }
       if (withinBudget.length === 0 && carbCeiling !== null) {
-        warnings.push(`No sugar-free breakfast option stayed under the ${carbCeiling}g daily carb ceiling on its own; the closest option was used instead.`);
+        warnings.push(`No breakfast option stayed under the ${carbCeiling}g daily carb ceiling on its own; the closest option was used instead.`);
       }
     } else {
-      warnings.push('No breakfast recipe currently complies with both the declared condition(s) and diet preference(s).');
+      // A genuine, verified content gap, not a generic failure: named
+      // directly rather than left as an unexplained dead end. Confirmed
+      // 2026-08-26 that every one of this corpus's own vegan-tagged
+      // breakfast recipes is red-flagged for Hashimoto's specifically
+      // (soy, mainly tofu and soy milk) -- a real gap in the recipe
+      // library, not a filtering bug, for that one exact combination.
+      warnings.push('No breakfast recipe in this app\'s current recipe library complies with both your declared condition(s) and diet preference(s) at once. This is a real gap in the recipe library itself, not a setting to adjust: a compliant recipe needs to be added.');
     }
   }
 
@@ -846,7 +990,30 @@ async function generateOneDay(
   async function pickMealWithOptionalSide(mainCandidates: LoadedCandidate[], excludeId: string | undefined, applyFrequency: boolean): Promise<DailyMealPlanPick[]> {
     mealTotals = {};
     const remainingBudget = carbCeiling === null ? null : Math.max(0, carbCeiling - totalCarbGrams);
-    const eligible = mainCandidates.filter((c) => c.entry.linkedCuratedRecipeId !== excludeId);
+    let eligible = mainCandidates.filter((c) => c.entry.linkedCuratedRecipeId !== excludeId);
+    // 2026-08-26, direct request: "less than a certain amount of sugar."
+    // This corpus has no real per-recipe added-sugar-gram figure that's
+    // separable from a food's own natural sugar (a whole recipe's total
+    // sugars mixes both together, and this app already has a standing,
+    // named reason not to build a raw gram threshold on that combined
+    // number -- it would equally penalize a recipe whose only sugar is
+    // real fruit already in it, the same reasoning "no sugar at
+    // breakfast" was built around in the first place). What IS real and
+    // structural: whether a recipe adds an actual sweetener ingredient at
+    // all (hasSweetener, the same check breakfast already uses, now
+    // correctly ignoring an optional line someone can just leave out).
+    // limitAddedSugar extends that same structural preference to lunch
+    // and dinner mains too, with the identical graceful fallback: prefer
+    // a sugar-free option, only fall back to a sweetened one if nothing
+    // else in the eligible pool qualifies at all.
+    if (limitAddedSugar) {
+      const withoutSweetener = eligible.filter((c) => !c.hasSweetener);
+      if (withoutSweetener.length > 0) {
+        eligible = withoutSweetener;
+      } else if (eligible.some((c) => c.hasSweetener)) {
+        warnings.push('No added-sugar-free option matched everything else required for this meal, so this pick carries an optional sweetener you can simply leave out.');
+      }
+    }
     const withinBudget = remainingBudget === null ? eligible : eligible.filter((c) => c.carbGrams <= remainingBudget);
     const mainRotationArg = rotation ? { state: rotation.state, daysRemainingInWeekIncludingToday: rotation.daysRemainingInWeekIncludingToday, applyFrequency } : undefined;
     const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : eligible, remainingBudget, mainRotationArg, currentNutrientContext());
@@ -930,7 +1097,14 @@ async function generateOneDay(
   // wouldExceedUpperLimit above), but still reported here in full
   // regardless of how close the day actually landed, an honest account
   // rather than only ever showing success.
-  const nutrientCoverage: DailyMealPlanNutrientCoverage[] = driRows
+  // Reads from driByCode (already deduped to one conservative row per
+  // nutrient, see buildConservativeDriByCode) rather than mapping the raw
+  // driRows array directly -- when Profile is missing a sex/birth date,
+  // driRows genuinely carries more than one real row for a nutrient like
+  // iron, and mapping it directly used to show that same nutrient twice
+  // over, each with a different target, rather than the one conservative
+  // figure this run's own scoring actually used throughout.
+  const nutrientCoverage: DailyMealPlanNutrientCoverage[] = Array.from(driByCode.values())
     .filter((row) => row.valueType === 'RDA' || row.valueType === 'AI')
     .map((row) => {
       const amount = nutrientTotals[row.nutrientCode] ?? 0;
@@ -941,6 +1115,8 @@ async function generateOneDay(
         amount,
         targetAmount: row.amount,
         percentOfTarget: row.amount > 0 ? Math.round((amount / row.amount) * 100) : null,
+        upperLimit: row.upperLimit,
+        percentOfUpperLimit: row.upperLimit != null && row.upperLimit > 0 ? Math.round((amount / row.upperLimit) * 100) : null,
       };
     });
 
@@ -961,9 +1137,12 @@ export async function generateDailyMealPlan(options: {
   conditionCodes: string[];
   dietPreferences: RecipeDietTag[];
   carbLevel: CarbLevel;
+  // Optional and defaulted to false so every pre-existing caller keeps
+  // behaving exactly as before.
+  limitAddedSugar?: boolean;
 }): Promise<DailyMealPlanResult> {
   const pools = await buildCandidatePools(options.conditionCodes, options.dietPreferences);
-  return generateOneDay(pools, options.conditionCodes, options.carbLevel);
+  return generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false);
 }
 
 // 2026-08-25, direct request: "it all needs to be wired to the 6 week,
@@ -990,6 +1169,7 @@ export async function generateMealPlanDays(options: {
   dietPreferences: RecipeDietTag[];
   carbLevel: CarbLevel;
   days: number;
+  limitAddedSugar?: boolean;
 }): Promise<DailyMealPlanResult[]> {
   const days = Math.max(1, Math.min(42, Math.round(options.days)));
   const pools = await buildCandidatePools(options.conditionCodes, options.dietPreferences);
@@ -999,7 +1179,7 @@ export async function generateMealPlanDays(options: {
     const dayOfWeek = dayIndex % 7;
     if (dayOfWeek === 0) rotationState.weekFrequency.clear();
     const daysRemainingInWeekIncludingToday = 7 - dayOfWeek;
-    const result = await generateOneDay(pools, options.conditionCodes, options.carbLevel, {
+    const result = await generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, {
       state: rotationState,
       daysRemainingInWeekIncludingToday,
     });

@@ -1729,10 +1729,21 @@ export async function getCuratedRecipe(
 // is 1 for virtually all of them -- dishServings/yourSharePercent are
 // still passed through for real correctness on the rare recipe where
 // that isn't true, rather than assuming it always is.
-export async function getCuratedRecipeNutrientTotals(curatedRecipeId: string): Promise<Record<string, number> | null> {
+// 2026-08-26: sharedCaches is optional so every other, pre-existing caller
+// keeps behaving exactly as before (a fresh, empty cache per call, correct
+// for resolving one recipe on its own). lib/dailyMealPlan.ts's own
+// buildCandidatePools is the one caller that now passes a single shared
+// cache across every recipe it resolves in one run, so a common ingredient
+// (olive oil, garlic, salt -- used across dozens of curated recipes) has
+// its own nutrient/category/unit-weight data looked up once for the whole
+// run instead of once per recipe that happens to use it.
+export async function getCuratedRecipeNutrientTotals(
+  curatedRecipeId: string,
+  sharedCaches?: IngredientResolutionCaches,
+): Promise<Record<string, number> | null> {
   const recipe = await getCuratedRecipe(curatedRecipeId);
   if (!recipe || recipe.ingredients.length === 0) return null;
-  const caches = createIngredientResolutionCaches();
+  const caches = sharedCaches ?? createIngredientResolutionCaches();
   const totals: Record<string, number> = {};
   let resolvedAny = false;
   for (const ingredient of recipe.ingredients) {
@@ -1769,10 +1780,24 @@ export async function getCuratedRecipeNutrientTotals(curatedRecipeId: string): P
 // 6-Week Meal Plan work: "a small amount of real honey next to a large
 // amount of whole fruit isn't the processed 'hidden sugar' the research
 // is actually warning against").
+//
+// 2026-08-26 fix: excludes any row whose own prep_note is 'optional' --
+// confirmed directly (sqlite3 CLI) that the chrononutrition breakfast
+// pass (2026-08-24) made every added honey/maple-syrup amount optional
+// rather than removing it outright ("making it optional still honors the
+// direct instruction that sugar doesn't belong in breakfast by default"),
+// so a genuinely sugar-free-as-written breakfast (the sweetener line is
+// there to add if wanted, not baked in) was being wrongly excluded here
+// as if the sweetener were mandatory. Root-caused directly against a
+// reported "no compliant option found" for a vegan Hashimoto's breakfast
+// search: most of this corpus's real fruit-and-oat/porridge/chia-pudding
+// breakfasts carry exactly this optional line, so the old, structural-
+// only check was excluding nearly all of them from a "no added sugar"
+// breakfast search regardless of diet or condition.
 export async function curatedRecipeContainsSweetenerIngredient(curatedRecipeId: string): Promise<boolean> {
   const db = await getReferenceDatabase();
   const row = await db.getFirstAsync<{ count: number }>(
-    "SELECT COUNT(*) AS count FROM curated_recipe_ingredients WHERE recipe_id = ? AND category = 'Sweets'",
+    "SELECT COUNT(*) AS count FROM curated_recipe_ingredients WHERE recipe_id = ? AND category = 'Sweets' AND (prep_note IS NULL OR prep_note != 'optional')",
     curatedRecipeId,
   );
   return (row?.count ?? 0) > 0;
@@ -13858,13 +13883,17 @@ type ResolvableIngredient = {
   yourSharePercent?: number | null;
 };
 
-type IngredientResolutionCaches = {
+// Exported 2026-08-26 so lib/dailyMealPlan.ts's own buildCandidatePools can
+// share ONE of these across every curated recipe it resolves in a single
+// run, rather than each recipe getting its own fresh, empty cache -- see
+// getCuratedRecipeNutrientTotals's own sharedCaches parameter just below.
+export type IngredientResolutionCaches = {
   nutrient: Map<string, Pick<FoodNutrient, 'code' | 'amountPer100g'>[]>;
   unitWeight: Map<string, FoodUnitWeight | null>;
   category: Map<string, string | null>;
 };
 
-function createIngredientResolutionCaches(): IngredientResolutionCaches {
+export function createIngredientResolutionCaches(): IngredientResolutionCaches {
   return { nutrient: new Map(), unitWeight: new Map(), category: new Map() };
 }
 

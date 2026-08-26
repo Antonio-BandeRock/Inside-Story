@@ -1735,6 +1735,12 @@ function DailyMealPlanLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [carbLevel, setCarbLevel] = useState<CarbLevel>('any');
+  // 2026-08-26, direct request: "less than a certain amount of sugar."
+  // See lib/dailyMealPlan.ts's own comment on this same flag for why
+  // it's a structural "no added sweetener" preference rather than a raw
+  // gram cap -- this corpus has no way to separate a recipe's added
+  // sugar from its own natural fruit sugar.
+  const [limitAddedSugar, setLimitAddedSugar] = useState(false);
   const [daysToGenerate, setDaysToGenerate] = useState(1);
   const [conditionCodes, setConditionCodes] = useState<string[]>([]);
   const [dietPreferences, setDietPreferences] = useState<RecipeDietTag[]>([]);
@@ -1766,7 +1772,7 @@ function DailyMealPlanLens() {
   async function handleGenerate() {
     setGenerating(true);
     try {
-      const results = await generateMealPlanDays({ conditionCodes, dietPreferences, carbLevel, days: daysToGenerate });
+      const results = await generateMealPlanDays({ conditionCodes, dietPreferences, carbLevel, days: daysToGenerate, limitAddedSugar });
       setPlans(results);
     } catch (error) {
       showInfoAlert('Could not generate a plan', error instanceof Error ? error.message : String(error));
@@ -1832,6 +1838,17 @@ function DailyMealPlanLens() {
           tabColor={TAB_COLOR}
           width={260}
         />
+        <Text style={[styles.label, { marginTop: 12 }]}>Added sugar</Text>
+        <Text style={styles.helperText}>
+          Prefer options with no added sweetener (honey, maple syrup, sugar) at every meal, not just breakfast. A recipe&apos;s natural fruit
+          sugar is never counted against this.
+        </Text>
+        <TouchableOpacity
+          style={[styles.pill, limitAddedSugar && styles.pillActive, { alignSelf: 'flex-start' }]}
+          onPress={() => setLimitAddedSugar((current) => !current)}
+        >
+          <Text style={[styles.pillText, limitAddedSugar && styles.pillTextActive]}>{limitAddedSugar ? 'Limiting added sugar' : 'No limit'}</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[styles.primaryButton, { marginTop: 12 }, generating && styles.primaryButtonDisabled]}
           activeOpacity={0.85}
@@ -1882,20 +1899,58 @@ function DailyMealPlanLens() {
             </View>
           </View>
 
-          <View style={styles.formCard}>
-            <Text style={styles.label}>Nutrient coverage</Text>
-            <Text style={styles.helperText}>Against your own age/sex-based RDA targets -- informational, not the rating above.</Text>
-            {singleDay.nutrientCoverage.map((row, index) => (
-              <View key={`${row.nutrientCode}-${index}`} style={styles.dailyPlanNutrientRow}>
-                <Text style={styles.helperText}>{row.displayName}</Text>
+          {(() => {
+            const waterRow = singleDay.nutrientCoverage.find((row) => row.nutrientCode === 'water');
+            if (!waterRow || waterRow.targetAmount == null) return null;
+            const remainingMl = Math.max(0, Math.round(waterRow.targetAmount - waterRow.amount));
+            return (
+              <View style={styles.formCard}>
+                <Text style={styles.label}>Hydration</Text>
                 <Text style={styles.helperText}>
-                  {Math.round(row.amount * 10) / 10}
-                  {row.unit} of {row.targetAmount}
-                  {row.unit}
-                  {row.percentOfTarget !== null ? ` (${row.percentOfTarget}%)` : ''}
+                  {Math.round(waterRow.amount)}ml of your {Math.round(waterRow.targetAmount)}ml daily target from this plan&apos;s food and drink
+                  {waterRow.percentOfTarget !== null ? ` (${waterRow.percentOfTarget}%)` : ''}.
+                </Text>
+                <Text style={styles.helperText}>
+                  {remainingMl > 0
+                    ? `Drink about ${remainingMl}ml more of plain water today to reach your target, the same combined food-and-drink target the Hydration lens tracks.`
+                    : "This plan's food and drink alone already reaches your daily target."}
                 </Text>
               </View>
-            ))}
+            );
+          })()}
+
+          <View style={styles.formCard}>
+            <Text style={styles.label}>Nutrient coverage</Text>
+            <Text style={styles.helperText}>
+              Against your own age/sex-based RDA targets -- informational, not the rating above. Many whole foods, nuts, seeds, and legumes
+              especially, naturally run well past 100% for a nutrient with a small RDA and a much larger real safety ceiling, so a high
+              percentage here is not automatically a problem. A row is only flagged below when the amount is genuinely close to or over that
+              real ceiling.
+            </Text>
+            {singleDay.nutrientCoverage
+              .filter((row) => row.nutrientCode !== 'water')
+              .map((row, index) => {
+                const nearOrOverLimit = row.percentOfUpperLimit !== null && row.percentOfUpperLimit >= 80;
+                return (
+                  <View key={`${row.nutrientCode}-${index}`} style={styles.dailyPlanNutrientRow}>
+                    <Text style={styles.helperText}>{row.displayName}</Text>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text style={styles.helperText}>
+                        {Math.round(row.amount * 10) / 10}
+                        {row.unit} of {row.targetAmount}
+                        {row.unit}
+                        {row.percentOfTarget !== null ? ` (${row.percentOfTarget}%)` : ''}
+                      </Text>
+                      {nearOrOverLimit ? (
+                        <Text style={[styles.helperText, { color: row.percentOfUpperLimit! >= 100 ? colors.danger : colors.statusYellowStandalone }]}>
+                          {row.percentOfUpperLimit}% of the real {row.upperLimit}
+                          {row.unit} safety ceiling
+                        </Text>
+                      ) : null}
+                    </View>
+                  </View>
+                );
+              })}
           </View>
         </>
       ) : plans.length > 1 ? (
