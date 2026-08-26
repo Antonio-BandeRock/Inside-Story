@@ -15,6 +15,7 @@ import {
   getCuratedRecipe,
   getFoodIdentity,
   getFoodScores,
+  getNutrientChartDataForIngredients,
   getNutritionHighlightsForIngredients,
   getSmoothie,
   getSmoothieIngredients,
@@ -23,6 +24,7 @@ import {
   listAllConditions,
   saveBuilderFavorite,
   saveSmoothie,
+  setConditionStage,
   updateSmoothie,
   type ComponentConditionNote,
   type ComponentNutritionHighlight,
@@ -31,9 +33,12 @@ import {
   type SmoothieIngredientInput,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
+import { getConditionStagingModel, resolveDeclaredStage, type DeclaredConditionStage } from '../lib/conditionStages';
 import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
+import { computeRecipeDepth, type RecipeDepthResult } from '../lib/recipeDepth';
 import { isFlaggedTier } from '../lib/sixDimensionsReference';
 import { GeneralHealthAdvisories } from './GeneralHealthAdvisories';
+import { RecipeDepthReport } from './RecipeDepthReport';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppActionSheet } from './AppActionSheet';
@@ -832,7 +837,12 @@ export function SmoothieBuilder({
   // separate transition. Cooking method is no longer a separate step here
   // at all, 2026-07-29 -- it's asked per ingredient now, at "Add to Smoothie"
   // time (see SmoothieIngredient's own comment).
-  const [finishStep, setFinishStep] = useState<'building' | 'reviewing'>('building');
+  // 'report' -- 2026-08-25, see SideBuilder.tsx's own identical state.
+  const [finishStep, setFinishStep] = useState<'building' | 'reviewing' | 'report'>('building');
+  const [reportData, setReportData] = useState<RecipeDepthResult | null>(null);
+  const [reportNutrientData, setReportNutrientData] = useState<{ nutrient: string; percent: number }[]>([]);
+  const [computingReport, setComputingReport] = useState(false);
+  const [savingFromReport, setSavingFromReport] = useState(false);
   // Edit mode only (see editSmoothieId's own comment) -- whether the person has
   // actively tapped "+ Add Ingredient" on the overview screen below.
   // Create mode never reads this: its own connected picker still shows
@@ -909,6 +919,23 @@ export function SmoothieBuilder({
       isMounted = false;
     };
   }, []);
+
+  // 2026-08-25 -- see SideBuilder.tsx's own identical declaredStages/
+  // conditionsWithStagingModel/stagePickerFor for the full reasoning.
+  const declaredStages = useMemo(() => {
+    const stages: Record<string, DeclaredConditionStage> = {};
+    for (const condition of trackedConditions) {
+      const resolved = resolveDeclaredStage(condition.code, conditionStages[condition.code]);
+      if (resolved) stages[condition.code] = resolved;
+    }
+    return stages;
+  }, [trackedConditions, conditionStages]);
+
+  const conditionsWithStagingModel = useMemo(
+    () => new Set(trackedConditions.filter((condition) => getConditionStagingModel(condition.code)).map((condition) => condition.code)),
+    [trackedConditions],
+  );
+  const [stagePickerFor, setStagePickerFor] = useState<{ code: string; name: string } | null>(null);
 
   // Only actually computes once the final review screen is reached -- both
   // real functions do a genuine per-ingredient database query, so there's
@@ -1048,7 +1075,7 @@ export function SmoothieBuilder({
   // cruciferous vegetables on purpose) -- just a real "are you sure," same
   // Cancel/Continue shape as confirmRemoveIngredient's own Alert above,
   // rather than a silent pass-through.
-  async function confirmAndFinishSmoothie(finalIngredients: SmoothieIngredient[]) {
+  async function confirmAndFinishSmoothie(finalIngredients: SmoothieIngredient[], precomputedDepth?: RecipeDepthResult) {
     const flaggedFoods = findRawGoitrogenicIngredients(finalIngredients);
     if (flaggedFoods.length >= 2) {
       const ok = await confirmSheet({
@@ -1057,10 +1084,24 @@ export function SmoothieBuilder({
         confirmLabel: 'Continue anyway',
         cancelLabel: 'Go back and adjust',
       });
-      if (ok) void finishSmoothie(finalIngredients);
+      if (ok) void finishSmoothie(finalIngredients, precomputedDepth);
       return;
     }
-    void finishSmoothie(finalIngredients);
+    void finishSmoothie(finalIngredients, precomputedDepth);
+  }
+
+  // Shared by finishSmoothie and handlePreviewReport below -- see
+  // SideBuilder.tsx's own identical helper for the full reasoning.
+  function buildDepthIngredients(finalIngredients: SmoothieIngredient[]): MealIngredientInput[] {
+    return finalIngredients.map((ingredient) => ({
+      foodId: `${ingredient.resolved.foodId}|${ingredient.resolved.source}`,
+      foodName: ingredient.resolved.baseName,
+      category: ingredient.resolved.category,
+      quantity: parseAmountValue(ingredient.quantity),
+      unit: ingredient.unit,
+      cookingMethod: ingredient.cookingMethod,
+      notes: ingredient.prepNote,
+    }));
   }
 
   // Persists the finished smoothie (see saveSmoothie/the smoothies/smoothie_ingredients
@@ -1077,7 +1118,10 @@ export function SmoothieBuilder({
   // itself hasn't picked up the just-added one yet at the point 'finish'
   // needs to save the whole smoothie -- the caller builds the true final list
   // once and passes it to both setIngredients and here.
-  async function finishSmoothie(finalIngredients: SmoothieIngredient[]) {
+  //
+  // precomputedDepth, 2026-08-25 -- see SideBuilder.tsx's own identical
+  // finishSide for the full reasoning.
+  async function finishSmoothie(finalIngredients: SmoothieIngredient[], precomputedDepth?: RecipeDepthResult) {
     // servingsConfirmed can only become true via handleContinuePress, which
     // already required all three of these -- this is a type-narrowing
     // guard against a state that shouldn't be reachable, not a real
@@ -1095,6 +1139,7 @@ export function SmoothieBuilder({
       cookingMethod: ingredient.cookingMethod,
       prepNote: ingredient.prepNote,
     }));
+    const depthData = precomputedDepth ?? (await computeRecipeDepth(buildDepthIngredients(finalIngredients), trackedConditions));
     const finishedName = smoothieName.trim() || 'Smoothie';
     const payload = {
       name: finishedName,
@@ -1108,6 +1153,7 @@ export function SmoothieBuilder({
       // what was explicitly saved counts" rule Save & Finish Smoothie already
       // applies to ingredients.
       instructions: steps,
+      depthData,
     };
 
     try {
@@ -1164,7 +1210,32 @@ export function SmoothieBuilder({
     setSummaryExpanded(false);
     setNutritionHighlights([]);
     setConditionNotes([]);
+    setReportData(null);
+    setReportNutrientData([]);
+    setStagePickerFor(null);
     showInfoAlert('Smoothie saved', `${finishedName} is saved. Starting a fresh smoothie now.`);
+  }
+
+  // The optional half of "choice to create the report or not" -- see
+  // SideBuilder.tsx's own identical handlePreviewReport for the full
+  // reasoning.
+  async function handlePreviewReport() {
+    setComputingReport(true);
+    try {
+      const depthIngredients = buildDepthIngredients(ingredients);
+      const [depth, nutrientData] = await Promise.all([
+        computeRecipeDepth(depthIngredients, trackedConditions),
+        getNutrientChartDataForIngredients(depthIngredients, servings ? parseAmountValue(servings) : 1),
+      ]);
+      setReportData(depth);
+      setReportNutrientData(nutrientData);
+      setFinishStep('report');
+    } catch (error) {
+      console.error('[SmoothieBuilder] Failed to compute the depth report', error);
+      showInfoAlert('Report failed', 'Something went wrong building the report. You can still save this smoothie directly.');
+    } finally {
+      setComputingReport(false);
+    }
   }
 
   // 2026-08-08 -- see SideBuilder.tsx's own identical function.
@@ -1453,6 +1524,64 @@ export function SmoothieBuilder({
     { label: 'Cook Prep', options: COOKING_METHODS, selected: ingredientCookingMethod, onSelect: setIngredientCookingMethod },
   ]);
 
+  // The optional Nutrition & Health Report, 2026-08-25 -- see
+  // SideBuilder.tsx's own identical branch for the full reasoning.
+  if (finishStep === 'report' && reportData) {
+    return (
+      <>
+        {infoAlertElement}
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
+          <RecipeDepthReport
+            dishName={smoothieName.trim() || 'Smoothie'}
+            yieldLabel={`Makes ${servings || '?'} serving${servings === '1' ? '' : 's'} (${servingSizeAmount || '?'} ${servingSizeUnit ?? '?'} each)`}
+            ingredientCount={ingredients.length}
+            nutrientChartData={reportNutrientData}
+            trackedConditions={trackedConditions}
+            safeForConditions={reportData.safeForConditions}
+            conditionCautions={reportData.conditionCautions}
+            dimensionBreakdown={reportData.dimensionBreakdown}
+            declaredStages={declaredStages}
+            conditionsWithStagingModel={conditionsWithStagingModel}
+            onSetStage={(code, name) => setStagePickerFor({ code, name })}
+            stageNotes={reportData.stageNotes}
+            tabColor={tabColor}
+            saving={savingFromReport}
+            onGoBack={() => setFinishStep('reviewing')}
+            onSave={() => {
+              setSavingFromReport(true);
+              void confirmAndFinishSmoothie(ingredients, reportData).finally(() => setSavingFromReport(false));
+            }}
+          />
+        </ScrollView>
+        <AppActionSheet
+          visible={!!stagePickerFor}
+          onClose={() => setStagePickerFor(null)}
+          title={stagePickerFor ? `Your ${stagePickerFor.name} Stage` : undefined}
+          message="Purely advisory -- this changes nothing about what you can build or save, it only makes the report above reflect where you actually are."
+          actions={[
+            ...(stagePickerFor ? getConditionStagingModel(stagePickerFor.code)?.stages ?? [] : []).map((stage) => ({
+              label: stage.label,
+              onPress: () => {
+                const code = stagePickerFor?.code;
+                if (!code) return;
+                setStagePickerFor(null);
+                setConditionStage(code, stage.code)
+                  .then(() => {
+                    setConditionStages((current) => ({ ...current, [code]: stage.code }));
+                  })
+                  .catch((error) => {
+                    console.error('[SmoothieBuilder] Failed to save the declared healing stage', error);
+                    showInfoAlert('Stage not saved', 'Something went wrong saving your healing stage. Please try setting it again.');
+                  });
+              },
+            })),
+            { label: 'Cancel', onPress: () => {} },
+          ]}
+        />
+      </>
+    );
+  }
+
   // Edit mode's own ingredient overview -- 2026-08-01, explicitly
   // requested: reopening an already-saved smoothie to fix something shouldn't
   // assume the next thing wanted is picking a whole new Category. Landing
@@ -1536,7 +1665,24 @@ export function SmoothieBuilder({
               mode's own ready screen further down is. */}
           <View style={[styles.formCard, { borderColor: tabColor }]}>{renderStepsSection()}</View>
 
-          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]} onPress={() => confirmAndFinishSmoothie(ingredients)}>
+          {/* "Preview Full Report" -- 2026-08-25, see SideBuilder.tsx's own
+              identical button. */}
+          <TouchableOpacity
+            style={[styles.secondaryButton, styles.reportPreviewButton, { borderColor: tabColor }]}
+            onPress={() => void handlePreviewReport()}
+            disabled={computingReport}
+          >
+            {computingReport ? (
+              <ActivityIndicator color={tabColor} />
+            ) : (
+              <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Preview Full Report</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
+            onPress={() => confirmAndFinishSmoothie(ingredients)}
+            disabled={computingReport}
+          >
             <Text style={styles.primaryButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -2168,9 +2314,23 @@ export function SmoothieBuilder({
                   choice belongs at the very end, alongside the final Save
                   action. */}
               {renderFavoriteToggle()}
+              {!editSmoothieId ? (
+                <TouchableOpacity
+                  style={[styles.secondaryButton, styles.reportPreviewButton, { borderColor: tabColor }]}
+                  onPress={() => void handlePreviewReport()}
+                  disabled={computingReport}
+                >
+                  {computingReport ? (
+                    <ActivityIndicator color={tabColor} />
+                  ) : (
+                    <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Preview Full Report</Text>
+                  )}
+                </TouchableOpacity>
+              ) : null}
               <TouchableOpacity
                 style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
                 onPress={() => confirmAndFinishSmoothie(ingredients)}
+                disabled={computingReport}
               >
                 <Text style={styles.primaryButtonText}>{editSmoothieId ? 'Save Changes' : 'Complete & Save This Smoothie'}</Text>
               </TouchableOpacity>
@@ -2364,6 +2524,7 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   secondaryButtonText: { ...typography.bodyEmphasis },
+  reportPreviewButton: { borderWidth: 2 },
   // marginTop 16 (2026-07-31): the Save buttons sat flush against the Prep
   // Notes box, reading as one attached control group. This separates them
   // so the buttons act on the whole card rather than looking like they

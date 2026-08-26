@@ -14,6 +14,7 @@ import {
   getCuratedRecipe,
   getFoodIdentity,
   getFoodScores,
+  getNutrientChartDataForIngredients,
   getNutritionHighlightsForIngredients,
   getSnack,
   getSnackIngredients,
@@ -23,6 +24,7 @@ import {
   listAllConditions,
   saveBuilderFavorite,
   saveSnack,
+  setConditionStage,
   updateSnack,
   type ComponentConditionNote,
   type ComponentNutritionHighlight,
@@ -31,9 +33,12 @@ import {
   type SnackIngredientInput,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
+import { getConditionStagingModel, resolveDeclaredStage, type DeclaredConditionStage } from '../lib/conditionStages';
 import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
+import { computeRecipeDepth, type RecipeDepthResult } from '../lib/recipeDepth';
 import { isFlaggedTier } from '../lib/sixDimensionsReference';
 import { GeneralHealthAdvisories } from './GeneralHealthAdvisories';
+import { RecipeDepthReport } from './RecipeDepthReport';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppActionSheet } from './AppActionSheet';
@@ -811,7 +816,12 @@ export function SnackBuilder({
   // separate transition. Cooking method is no longer a separate step here
   // at all, 2026-07-29 -- it's asked per ingredient now, at "Add to Snack"
   // time (see SnackIngredient's own comment).
-  const [finishStep, setFinishStep] = useState<'building' | 'reviewing'>('building');
+  // 'report' -- 2026-08-25, see SideBuilder.tsx's own identical state.
+  const [finishStep, setFinishStep] = useState<'building' | 'reviewing' | 'report'>('building');
+  const [reportData, setReportData] = useState<RecipeDepthResult | null>(null);
+  const [reportNutrientData, setReportNutrientData] = useState<{ nutrient: string; percent: number }[]>([]);
+  const [computingReport, setComputingReport] = useState(false);
+  const [savingFromReport, setSavingFromReport] = useState(false);
   // Edit mode only (see editSnackId's own comment) -- whether the person has
   // actively tapped "+ Add Ingredient" on the overview screen below.
   // Create mode never reads this: its own connected picker still shows
@@ -888,6 +898,23 @@ export function SnackBuilder({
       isMounted = false;
     };
   }, []);
+
+  // 2026-08-25 -- see SideBuilder.tsx's own identical declaredStages/
+  // conditionsWithStagingModel/stagePickerFor for the full reasoning.
+  const declaredStages = useMemo(() => {
+    const stages: Record<string, DeclaredConditionStage> = {};
+    for (const condition of trackedConditions) {
+      const resolved = resolveDeclaredStage(condition.code, conditionStages[condition.code]);
+      if (resolved) stages[condition.code] = resolved;
+    }
+    return stages;
+  }, [trackedConditions, conditionStages]);
+
+  const conditionsWithStagingModel = useMemo(
+    () => new Set(trackedConditions.filter((condition) => getConditionStagingModel(condition.code)).map((condition) => condition.code)),
+    [trackedConditions],
+  );
+  const [stagePickerFor, setStagePickerFor] = useState<{ code: string; name: string } | null>(null);
 
   // Only actually computes once the final review screen is reached -- both
   // real functions do a genuine per-ingredient database query, so there's
@@ -1002,13 +1029,30 @@ export function SnackBuilder({
   // keeps their in-progress snack to retry with, rather than it vanishing
   // either way.
   //
+  // Shared by finishSnack and handlePreviewReport below -- see
+  // SideBuilder.tsx's own identical helper for the full reasoning.
+  function buildDepthIngredients(finalIngredients: SnackIngredient[]): MealIngredientInput[] {
+    return finalIngredients.map((ingredient) => ({
+      foodId: `${ingredient.resolved.foodId}|${ingredient.resolved.source}`,
+      foodName: ingredient.resolved.baseName,
+      category: ingredient.resolved.category,
+      quantity: parseAmountValue(ingredient.quantity),
+      unit: ingredient.unit,
+      cookingMethod: ingredient.cookingMethod,
+      notes: ingredient.prepNote,
+    }));
+  }
+
   // Takes the final ingredient list as a parameter rather than reading the
   // `ingredients` state variable, 2026-08-01: setIngredients (in
   // saveIngredient below) is an async state update, so `ingredients`
   // itself hasn't picked up the just-added one yet at the point 'finish'
   // needs to save the whole snack -- the caller builds the true final list
   // once and passes it to both setIngredients and here.
-  async function finishSnack(finalIngredients: SnackIngredient[]) {
+  //
+  // precomputedDepth, 2026-08-25 -- see SideBuilder.tsx's own identical
+  // finishSide for the full reasoning.
+  async function finishSnack(finalIngredients: SnackIngredient[], precomputedDepth?: RecipeDepthResult) {
     // servingsConfirmed can only become true via handleContinuePress, which
     // already required all three of these -- this is a type-narrowing
     // guard against a state that shouldn't be reachable, not a real
@@ -1026,6 +1070,7 @@ export function SnackBuilder({
       cookingMethod: ingredient.cookingMethod,
       prepNote: ingredient.prepNote,
     }));
+    const depthData = precomputedDepth ?? (await computeRecipeDepth(buildDepthIngredients(finalIngredients), trackedConditions));
     const finishedName = snackName.trim() || 'Snack';
     const payload = {
       name: finishedName,
@@ -1034,6 +1079,7 @@ export function SnackBuilder({
       servingSizeUnit,
       ingredients: ingredientInputs,
       instructions: steps,
+      depthData,
     };
 
     try {
@@ -1090,7 +1136,32 @@ export function SnackBuilder({
     setSummaryExpanded(false);
     setNutritionHighlights([]);
     setConditionNotes([]);
+    setReportData(null);
+    setReportNutrientData([]);
+    setStagePickerFor(null);
     showInfoAlert('Snack saved', `${finishedName} is saved. Starting a fresh snack now.`);
+  }
+
+  // The optional half of "choice to create the report or not" -- see
+  // SideBuilder.tsx's own identical handlePreviewReport for the full
+  // reasoning.
+  async function handlePreviewReport() {
+    setComputingReport(true);
+    try {
+      const depthIngredients = buildDepthIngredients(ingredients);
+      const [depth, nutrientData] = await Promise.all([
+        computeRecipeDepth(depthIngredients, trackedConditions),
+        getNutrientChartDataForIngredients(depthIngredients, servings ? parseAmountValue(servings) : 1),
+      ]);
+      setReportData(depth);
+      setReportNutrientData(nutrientData);
+      setFinishStep('report');
+    } catch (error) {
+      console.error('[SnackBuilder] Failed to compute the depth report', error);
+      showInfoAlert('Report failed', 'Something went wrong building the report. You can still save this snack directly.');
+    } finally {
+      setComputingReport(false);
+    }
   }
 
   // 2026-08-08 -- see SideBuilder.tsx's own identical function.
@@ -1382,6 +1453,64 @@ export function SnackBuilder({
     { label: 'Cook Prep', options: COOKING_METHODS, selected: ingredientCookingMethod, onSelect: setIngredientCookingMethod },
   ]);
 
+  // The optional Nutrition & Health Report, 2026-08-25 -- see
+  // SideBuilder.tsx's own identical branch for the full reasoning.
+  if (finishStep === 'report' && reportData) {
+    return (
+      <>
+        {infoAlertElement}
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
+          <RecipeDepthReport
+            dishName={snackName.trim() || 'Snack'}
+            yieldLabel={`Makes ${servings || '?'} serving${servings === '1' ? '' : 's'} (${servingSizeAmount || '?'} ${servingSizeUnit ?? '?'} each)`}
+            ingredientCount={ingredients.length}
+            nutrientChartData={reportNutrientData}
+            trackedConditions={trackedConditions}
+            safeForConditions={reportData.safeForConditions}
+            conditionCautions={reportData.conditionCautions}
+            dimensionBreakdown={reportData.dimensionBreakdown}
+            declaredStages={declaredStages}
+            conditionsWithStagingModel={conditionsWithStagingModel}
+            onSetStage={(code, name) => setStagePickerFor({ code, name })}
+            stageNotes={reportData.stageNotes}
+            tabColor={tabColor}
+            saving={savingFromReport}
+            onGoBack={() => setFinishStep('reviewing')}
+            onSave={() => {
+              setSavingFromReport(true);
+              void finishSnack(ingredients, reportData).finally(() => setSavingFromReport(false));
+            }}
+          />
+        </ScrollView>
+        <AppActionSheet
+          visible={!!stagePickerFor}
+          onClose={() => setStagePickerFor(null)}
+          title={stagePickerFor ? `Your ${stagePickerFor.name} Stage` : undefined}
+          message="Purely advisory -- this changes nothing about what you can build or save, it only makes the report above reflect where you actually are."
+          actions={[
+            ...(stagePickerFor ? getConditionStagingModel(stagePickerFor.code)?.stages ?? [] : []).map((stage) => ({
+              label: stage.label,
+              onPress: () => {
+                const code = stagePickerFor?.code;
+                if (!code) return;
+                setStagePickerFor(null);
+                setConditionStage(code, stage.code)
+                  .then(() => {
+                    setConditionStages((current) => ({ ...current, [code]: stage.code }));
+                  })
+                  .catch((error) => {
+                    console.error('[SnackBuilder] Failed to save the declared healing stage', error);
+                    showInfoAlert('Stage not saved', 'Something went wrong saving your healing stage. Please try setting it again.');
+                  });
+              },
+            })),
+            { label: 'Cancel', onPress: () => {} },
+          ]}
+        />
+      </>
+    );
+  }
+
   // Edit mode's own ingredient overview -- 2026-08-01, explicitly
   // requested: reopening an already-saved snack to fix something shouldn't
   // assume the next thing wanted is picking a whole new Category. Landing
@@ -1465,7 +1594,24 @@ export function SnackBuilder({
               mode's own ready screen further down is. */}
           <View style={[styles.formCard, { borderColor: tabColor }]}>{renderStepsSection()}</View>
 
-          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]} onPress={() => void finishSnack(ingredients)}>
+          {/* "Preview Full Report" -- 2026-08-25, see SideBuilder.tsx's own
+              identical button. */}
+          <TouchableOpacity
+            style={[styles.secondaryButton, styles.reportPreviewButton, { borderColor: tabColor }]}
+            onPress={() => void handlePreviewReport()}
+            disabled={computingReport}
+          >
+            {computingReport ? (
+              <ActivityIndicator color={tabColor} />
+            ) : (
+              <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Preview Full Report</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
+            onPress={() => void finishSnack(ingredients)}
+            disabled={computingReport}
+          >
             <Text style={styles.primaryButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -2103,9 +2249,23 @@ export function SnackBuilder({
                   choice belongs at the very end, alongside the final Save
                   action. */}
               {renderFavoriteToggle()}
+              {!editSnackId ? (
+                <TouchableOpacity
+                  style={[styles.secondaryButton, styles.reportPreviewButton, { borderColor: tabColor }]}
+                  onPress={() => void handlePreviewReport()}
+                  disabled={computingReport}
+                >
+                  {computingReport ? (
+                    <ActivityIndicator color={tabColor} />
+                  ) : (
+                    <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Preview Full Report</Text>
+                  )}
+                </TouchableOpacity>
+              ) : null}
               <TouchableOpacity
                 style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
                 onPress={() => void finishSnack(ingredients)}
+                disabled={computingReport}
               >
                 <Text style={styles.primaryButtonText}>{editSnackId ? 'Save Changes' : 'Complete & Save This Snack'}</Text>
               </TouchableOpacity>
@@ -2317,6 +2477,7 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   secondaryButtonText: { ...typography.bodyEmphasis },
+  reportPreviewButton: { borderWidth: 2 },
   // prepNoteLabelRow lived here until 2026-08-17 -- the per-ingredient Prep
   // Notes field's own label+mic row, now gone along with that free-text
   // field itself (replaced by the shared StepsEditor's own internal Prep

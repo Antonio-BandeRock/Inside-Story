@@ -5838,6 +5838,7 @@ export async function saveSalad(input: {
   servingSizeUnit: string;
   ingredients: SaladIngredientInput[];
   instructions: string[];
+  depthData?: RecipeDepthResult;
 }) {
   const db = await getDatabase();
   const id = `salad_${Date.now()}`;
@@ -5845,8 +5846,8 @@ export async function saveSalad(input: {
 
   await db.runAsync(
     `
-      INSERT INTO salads (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO salads (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, depth_data_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -5854,6 +5855,7 @@ export async function saveSalad(input: {
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     now,
   );
@@ -5893,6 +5895,7 @@ export async function updateSalad(
     servingSizeUnit: string;
     ingredients: SaladIngredientInput[];
     instructions: string[];
+    depthData?: RecipeDepthResult;
   },
 ) {
   const db = await getDatabase();
@@ -5901,7 +5904,7 @@ export async function updateSalad(
   await db.runAsync(
     `
       UPDATE salads
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, depth_data_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
@@ -5909,6 +5912,7 @@ export async function updateSalad(
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     saladId,
   );
@@ -5986,6 +5990,8 @@ export type SaladDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // 2026-08-25, see depth_data_json's own migration comment on sides.
+  depthData?: RecipeDepthResult;
   // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
   // Steps section for the original instance of this exact field. Callers
   // should read it as `salad.instructions ?? []`.
@@ -6002,18 +6008,23 @@ export async function getSalad(saladId: string): Promise<SaladDetail | null> {
     servingSizeUnit: string;
     createdAt: string;
     instructionsJson: string | null;
+    depthDataJson: string | null;
   }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt, instructions_json AS instructionsJson
+             created_at AS createdAt, instructions_json AS instructionsJson, depth_data_json AS depthDataJson
       FROM salads
       WHERE id = ?
     `,
     saladId,
   );
   if (!row) return null;
-  const { instructionsJson, ...rest } = row;
-  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
+  const { instructionsJson, depthDataJson, ...rest } = row;
+  return {
+    ...rest,
+    instructions: parseInstructionsJson(instructionsJson),
+    depthData: depthDataJson ? (JSON.parse(depthDataJson) as RecipeDepthResult) : undefined,
+  };
 }
 
 export type SaladIngredientDetail = {
@@ -6202,6 +6213,7 @@ export async function saveSmoothie(input: {
   servingSizeUnit: string;
   ingredients: SmoothieIngredientInput[];
   instructions: string[];
+  depthData?: RecipeDepthResult;
 }) {
   const db = await getDatabase();
   const id = `smoothie_${Date.now()}`;
@@ -6209,8 +6221,8 @@ export async function saveSmoothie(input: {
 
   await db.runAsync(
     `
-      INSERT INTO smoothies (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO smoothies (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, depth_data_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -6218,6 +6230,7 @@ export async function saveSmoothie(input: {
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     now,
   );
@@ -6257,6 +6270,7 @@ export async function updateSmoothie(
     servingSizeUnit: string;
     ingredients: SmoothieIngredientInput[];
     instructions: string[];
+    depthData?: RecipeDepthResult;
   },
 ) {
   const db = await getDatabase();
@@ -6265,7 +6279,7 @@ export async function updateSmoothie(
   await db.runAsync(
     `
       UPDATE smoothies
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, depth_data_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
@@ -6273,6 +6287,7 @@ export async function updateSmoothie(
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     smoothieId,
   );
@@ -6350,6 +6365,8 @@ export type SmoothieDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // 2026-08-25, see depth_data_json's own migration comment on sides.
+  depthData?: RecipeDepthResult;
   // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
   // Steps section for the original instance of this exact field. Callers
   // should read it as `smoothie.instructions ?? []`.
@@ -6366,18 +6383,23 @@ export async function getSmoothie(smoothieId: string): Promise<SmoothieDetail | 
     servingSizeUnit: string;
     createdAt: string;
     instructionsJson: string | null;
+    depthDataJson: string | null;
   }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt, instructions_json AS instructionsJson
+             created_at AS createdAt, instructions_json AS instructionsJson, depth_data_json AS depthDataJson
       FROM smoothies
       WHERE id = ?
     `,
     smoothieId,
   );
   if (!row) return null;
-  const { instructionsJson, ...rest } = row;
-  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
+  const { instructionsJson, depthDataJson, ...rest } = row;
+  return {
+    ...rest,
+    instructions: parseInstructionsJson(instructionsJson),
+    depthData: depthDataJson ? (JSON.parse(depthDataJson) as RecipeDepthResult) : undefined,
+  };
 }
 
 export type SmoothieIngredientDetail = {
@@ -6569,6 +6591,7 @@ export async function saveFermentation(input: {
   servingSizeUnit: string;
   ingredients: FermentationIngredientInput[];
   instructions: string[];
+  depthData?: RecipeDepthResult;
 }) {
   const db = await getDatabase();
   const id = `fermentation_${Date.now()}`;
@@ -6576,8 +6599,8 @@ export async function saveFermentation(input: {
 
   await db.runAsync(
     `
-      INSERT INTO fermentations (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO fermentations (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, depth_data_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -6585,6 +6608,7 @@ export async function saveFermentation(input: {
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     now,
   );
@@ -6634,6 +6658,7 @@ export async function updateFermentation(
     servingSizeUnit: string;
     ingredients: FermentationIngredientInput[];
     instructions: string[];
+    depthData?: RecipeDepthResult;
   },
 ) {
   const db = await getDatabase();
@@ -6642,7 +6667,7 @@ export async function updateFermentation(
   await db.runAsync(
     `
       UPDATE fermentations
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, depth_data_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
@@ -6650,6 +6675,7 @@ export async function updateFermentation(
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     fermentationId,
   );
@@ -6737,6 +6763,8 @@ export type FermentationDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // 2026-08-25, see depth_data_json's own migration comment on sides.
+  depthData?: RecipeDepthResult;
   // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
   // Steps section for the original instance of this exact field. Callers
   // should read it as `fermentation.instructions ?? []`.
@@ -6753,18 +6781,23 @@ export async function getFermentation(fermentationId: string): Promise<Fermentat
     servingSizeUnit: string;
     createdAt: string;
     instructionsJson: string | null;
+    depthDataJson: string | null;
   }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt, instructions_json AS instructionsJson
+             created_at AS createdAt, instructions_json AS instructionsJson, depth_data_json AS depthDataJson
       FROM fermentations
       WHERE id = ?
     `,
     fermentationId,
   );
   if (!row) return null;
-  const { instructionsJson, ...rest } = row;
-  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
+  const { instructionsJson, depthDataJson, ...rest } = row;
+  return {
+    ...rest,
+    instructions: parseInstructionsJson(instructionsJson),
+    depthData: depthDataJson ? (JSON.parse(depthDataJson) as RecipeDepthResult) : undefined,
+  };
 }
 
 export type FermentationIngredientDetail = {
@@ -6999,6 +7032,7 @@ export async function saveBeverage(input: {
   servingSizeUnit: string;
   ingredients: BeverageIngredientInput[];
   instructions: string[];
+  depthData?: RecipeDepthResult;
 }) {
   const db = await getDatabase();
   const id = `beverage_${Date.now()}`;
@@ -7006,8 +7040,8 @@ export async function saveBeverage(input: {
 
   await db.runAsync(
     `
-      INSERT INTO beverages (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO beverages (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, depth_data_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -7015,6 +7049,7 @@ export async function saveBeverage(input: {
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     now,
   );
@@ -7064,6 +7099,7 @@ export async function updateBeverage(
     servingSizeUnit: string;
     ingredients: BeverageIngredientInput[];
     instructions: string[];
+    depthData?: RecipeDepthResult;
   },
 ) {
   const db = await getDatabase();
@@ -7072,7 +7108,7 @@ export async function updateBeverage(
   await db.runAsync(
     `
       UPDATE beverages
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, depth_data_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
@@ -7080,6 +7116,7 @@ export async function updateBeverage(
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     beverageId,
   );
@@ -7167,6 +7204,8 @@ export type BeverageDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // 2026-08-25, see depth_data_json's own migration comment on sides.
+  depthData?: RecipeDepthResult;
   // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
   // Steps section for the original instance of this exact field. Callers
   // should read it as `beverage.instructions ?? []`.
@@ -7183,18 +7222,23 @@ export async function getBeverage(beverageId: string): Promise<BeverageDetail | 
     servingSizeUnit: string;
     createdAt: string;
     instructionsJson: string | null;
+    depthDataJson: string | null;
   }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt, instructions_json AS instructionsJson
+             created_at AS createdAt, instructions_json AS instructionsJson, depth_data_json AS depthDataJson
       FROM beverages
       WHERE id = ?
     `,
     beverageId,
   );
   if (!row) return null;
-  const { instructionsJson, ...rest } = row;
-  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
+  const { instructionsJson, depthDataJson, ...rest } = row;
+  return {
+    ...rest,
+    instructions: parseInstructionsJson(instructionsJson),
+    depthData: depthDataJson ? (JSON.parse(depthDataJson) as RecipeDepthResult) : undefined,
+  };
 }
 
 export type BeverageIngredientDetail = {
@@ -7425,6 +7469,7 @@ export async function saveSnack(input: {
   servingSizeUnit: string;
   ingredients: SnackIngredientInput[];
   instructions: string[];
+  depthData?: RecipeDepthResult;
 }) {
   const db = await getDatabase();
   const id = `snack_${Date.now()}`;
@@ -7432,8 +7477,8 @@ export async function saveSnack(input: {
 
   await db.runAsync(
     `
-      INSERT INTO snacks (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO snacks (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, depth_data_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -7441,6 +7486,7 @@ export async function saveSnack(input: {
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     now,
   );
@@ -7480,6 +7526,7 @@ export async function updateSnack(
     servingSizeUnit: string;
     ingredients: SnackIngredientInput[];
     instructions: string[];
+    depthData?: RecipeDepthResult;
   },
 ) {
   const db = await getDatabase();
@@ -7488,7 +7535,7 @@ export async function updateSnack(
   await db.runAsync(
     `
       UPDATE snacks
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, depth_data_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
@@ -7496,6 +7543,7 @@ export async function updateSnack(
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     snackId,
   );
@@ -7573,6 +7621,8 @@ export type SnackDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // 2026-08-25, see depth_data_json's own migration comment on sides.
+  depthData?: RecipeDepthResult;
   // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
   // Steps section for the original instance of this exact field. getSnack
   // itself always sets a real array (possibly empty), never leaves this
@@ -7591,18 +7641,23 @@ export async function getSnack(snackId: string): Promise<SnackDetail | null> {
     servingSizeUnit: string;
     createdAt: string;
     instructionsJson: string | null;
+    depthDataJson: string | null;
   }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt, instructions_json AS instructionsJson
+             created_at AS createdAt, instructions_json AS instructionsJson, depth_data_json AS depthDataJson
       FROM snacks
       WHERE id = ?
     `,
     snackId,
   );
   if (!row) return null;
-  const { instructionsJson, ...rest } = row;
-  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
+  const { instructionsJson, depthDataJson, ...rest } = row;
+  return {
+    ...rest,
+    instructions: parseInstructionsJson(instructionsJson),
+    depthData: depthDataJson ? (JSON.parse(depthDataJson) as RecipeDepthResult) : undefined,
+  };
 }
 
 export type SnackIngredientDetail = {
@@ -7797,6 +7852,7 @@ export async function saveBakedGoods(input: {
   servingSizeUnit: string;
   ingredients: BakedGoodsIngredientInput[];
   instructions: string[];
+  depthData?: RecipeDepthResult;
 }) {
   const db = await getDatabase();
   const id = `baked_good_${Date.now()}`;
@@ -7804,8 +7860,8 @@ export async function saveBakedGoods(input: {
 
   await db.runAsync(
     `
-      INSERT INTO baked_goods (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO baked_goods (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, depth_data_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -7813,6 +7869,7 @@ export async function saveBakedGoods(input: {
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     now,
   );
@@ -7852,6 +7909,7 @@ export async function updateBakedGoods(
     servingSizeUnit: string;
     ingredients: BakedGoodsIngredientInput[];
     instructions: string[];
+    depthData?: RecipeDepthResult;
   },
 ) {
   const db = await getDatabase();
@@ -7860,7 +7918,7 @@ export async function updateBakedGoods(
   await db.runAsync(
     `
       UPDATE baked_goods
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, depth_data_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
@@ -7868,6 +7926,7 @@ export async function updateBakedGoods(
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     bakedGoodId,
   );
@@ -7945,6 +8004,8 @@ export type BakedGoodsDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // 2026-08-25, see depth_data_json's own migration comment on sides.
+  depthData?: RecipeDepthResult;
   // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
   // Steps section for the original instance of this exact field. Callers
   // should read it as `bakedGood.instructions ?? []`.
@@ -7961,18 +8022,23 @@ export async function getBakedGoods(bakedGoodId: string): Promise<BakedGoodsDeta
     servingSizeUnit: string;
     createdAt: string;
     instructionsJson: string | null;
+    depthDataJson: string | null;
   }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt, instructions_json AS instructionsJson
+             created_at AS createdAt, instructions_json AS instructionsJson, depth_data_json AS depthDataJson
       FROM baked_goods
       WHERE id = ?
     `,
     bakedGoodId,
   );
   if (!row) return null;
-  const { instructionsJson, ...rest } = row;
-  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
+  const { instructionsJson, depthDataJson, ...rest } = row;
+  return {
+    ...rest,
+    instructions: parseInstructionsJson(instructionsJson),
+    depthData: depthDataJson ? (JSON.parse(depthDataJson) as RecipeDepthResult) : undefined,
+  };
 }
 
 export type BakedGoodsIngredientDetail = {
@@ -8165,6 +8231,7 @@ export async function saveSoup(input: {
   servingSizeUnit: string;
   ingredients: SoupIngredientInput[];
   instructions: string[];
+  depthData?: RecipeDepthResult;
 }) {
   const db = await getDatabase();
   const id = `soup_${Date.now()}`;
@@ -8172,8 +8239,8 @@ export async function saveSoup(input: {
 
   await db.runAsync(
     `
-      INSERT INTO soups (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO soups (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, depth_data_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -8181,6 +8248,7 @@ export async function saveSoup(input: {
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     now,
   );
@@ -8230,6 +8298,7 @@ export async function updateSoup(
     servingSizeUnit: string;
     ingredients: SoupIngredientInput[];
     instructions: string[];
+    depthData?: RecipeDepthResult;
   },
 ) {
   const db = await getDatabase();
@@ -8238,7 +8307,7 @@ export async function updateSoup(
   await db.runAsync(
     `
       UPDATE soups
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, depth_data_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
@@ -8246,6 +8315,7 @@ export async function updateSoup(
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     soupId,
   );
@@ -8333,6 +8403,8 @@ export type SoupDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // 2026-08-25, see depth_data_json's own migration comment on sides.
+  depthData?: RecipeDepthResult;
   // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
   // Steps section for the original instance of this exact field. Callers
   // should read it as `soup.instructions ?? []`.
@@ -8349,18 +8421,23 @@ export async function getSoup(soupId: string): Promise<SoupDetail | null> {
     servingSizeUnit: string;
     createdAt: string;
     instructionsJson: string | null;
+    depthDataJson: string | null;
   }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt, instructions_json AS instructionsJson
+             created_at AS createdAt, instructions_json AS instructionsJson, depth_data_json AS depthDataJson
       FROM soups
       WHERE id = ?
     `,
     soupId,
   );
   if (!row) return null;
-  const { instructionsJson, ...rest } = row;
-  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
+  const { instructionsJson, depthDataJson, ...rest } = row;
+  return {
+    ...rest,
+    instructions: parseInstructionsJson(instructionsJson),
+    depthData: depthDataJson ? (JSON.parse(depthDataJson) as RecipeDepthResult) : undefined,
+  };
 }
 
 export type SoupIngredientDetail = {
@@ -8583,6 +8660,7 @@ export async function saveSauce(input: {
   servingSizeUnit: string;
   ingredients: SauceIngredientInput[];
   instructions: string[];
+  depthData?: RecipeDepthResult;
 }) {
   const db = await getDatabase();
   const id = `sauce_${Date.now()}`;
@@ -8590,8 +8668,8 @@ export async function saveSauce(input: {
 
   await db.runAsync(
     `
-      INSERT INTO sauces (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO sauces (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, depth_data_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -8599,6 +8677,7 @@ export async function saveSauce(input: {
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     now,
   );
@@ -8648,6 +8727,7 @@ export async function updateSauce(
     servingSizeUnit: string;
     ingredients: SauceIngredientInput[];
     instructions: string[];
+    depthData?: RecipeDepthResult;
   },
 ) {
   const db = await getDatabase();
@@ -8656,7 +8736,7 @@ export async function updateSauce(
   await db.runAsync(
     `
       UPDATE sauces
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, depth_data_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
@@ -8664,6 +8744,7 @@ export async function updateSauce(
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     sauceId,
   );
@@ -8751,6 +8832,8 @@ export type SauceDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // 2026-08-25, see depth_data_json's own migration comment on sides.
+  depthData?: RecipeDepthResult;
   // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
   // Steps section for the original instance of this exact field. Callers
   // should read it as `sauce.instructions ?? []`.
@@ -8767,18 +8850,23 @@ export async function getSauce(sauceId: string): Promise<SauceDetail | null> {
     servingSizeUnit: string;
     createdAt: string;
     instructionsJson: string | null;
+    depthDataJson: string | null;
   }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt, instructions_json AS instructionsJson
+             created_at AS createdAt, instructions_json AS instructionsJson, depth_data_json AS depthDataJson
       FROM sauces
       WHERE id = ?
     `,
     sauceId,
   );
   if (!row) return null;
-  const { instructionsJson, ...rest } = row;
-  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
+  const { instructionsJson, depthDataJson, ...rest } = row;
+  return {
+    ...rest,
+    instructions: parseInstructionsJson(instructionsJson),
+    depthData: depthDataJson ? (JSON.parse(depthDataJson) as RecipeDepthResult) : undefined,
+  };
 }
 
 export type SauceIngredientDetail = {
@@ -8999,6 +9087,7 @@ export async function saveHandheld(input: {
   servingSizeUnit: string;
   ingredients: HandheldIngredientInput[];
   instructions: string[];
+  depthData?: RecipeDepthResult;
 }) {
   const db = await getDatabase();
   const id = `handheld_${Date.now()}`;
@@ -9006,8 +9095,8 @@ export async function saveHandheld(input: {
 
   await db.runAsync(
     `
-      INSERT INTO handhelds (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO handhelds (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, depth_data_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -9015,6 +9104,7 @@ export async function saveHandheld(input: {
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     now,
   );
@@ -9054,6 +9144,7 @@ export async function updateHandheld(
     servingSizeUnit: string;
     ingredients: HandheldIngredientInput[];
     instructions: string[];
+    depthData?: RecipeDepthResult;
   },
 ) {
   const db = await getDatabase();
@@ -9062,7 +9153,7 @@ export async function updateHandheld(
   await db.runAsync(
     `
       UPDATE handhelds
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, depth_data_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
@@ -9070,6 +9161,7 @@ export async function updateHandheld(
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     handheldId,
   );
@@ -9147,6 +9239,8 @@ export type HandheldDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // 2026-08-25, see depth_data_json's own migration comment on sides.
+  depthData?: RecipeDepthResult;
   // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
   // Steps section for the original instance of this exact field. Callers
   // should read it as `handheld.instructions ?? []`.
@@ -9163,18 +9257,23 @@ export async function getHandheld(handheldId: string): Promise<HandheldDetail | 
     servingSizeUnit: string;
     createdAt: string;
     instructionsJson: string | null;
+    depthDataJson: string | null;
   }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt, instructions_json AS instructionsJson
+             created_at AS createdAt, instructions_json AS instructionsJson, depth_data_json AS depthDataJson
       FROM handhelds
       WHERE id = ?
     `,
     handheldId,
   );
   if (!row) return null;
-  const { instructionsJson, ...rest } = row;
-  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
+  const { instructionsJson, depthDataJson, ...rest } = row;
+  return {
+    ...rest,
+    instructions: parseInstructionsJson(instructionsJson),
+    depthData: depthDataJson ? (JSON.parse(depthDataJson) as RecipeDepthResult) : undefined,
+  };
 }
 
 export type HandheldIngredientDetail = {
@@ -9372,6 +9471,7 @@ export async function saveDessert(input: {
   servingSizeUnit: string;
   ingredients: DessertIngredientInput[];
   instructions: string[];
+  depthData?: RecipeDepthResult;
 }) {
   const db = await getDatabase();
   const id = `dessert_${Date.now()}`;
@@ -9379,8 +9479,8 @@ export async function saveDessert(input: {
 
   await db.runAsync(
     `
-      INSERT INTO desserts (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO desserts (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, depth_data_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -9388,6 +9488,7 @@ export async function saveDessert(input: {
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     now,
   );
@@ -9437,6 +9538,7 @@ export async function updateDessert(
     servingSizeUnit: string;
     ingredients: DessertIngredientInput[];
     instructions: string[];
+    depthData?: RecipeDepthResult;
   },
 ) {
   const db = await getDatabase();
@@ -9445,7 +9547,7 @@ export async function updateDessert(
   await db.runAsync(
     `
       UPDATE desserts
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, depth_data_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
@@ -9453,6 +9555,7 @@ export async function updateDessert(
     input.servingSizeAmount,
     input.servingSizeUnit,
     serializeInstructions(input.instructions),
+    input.depthData ? JSON.stringify(input.depthData) : null,
     now,
     dessertId,
   );
@@ -9540,6 +9643,8 @@ export type DessertDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // 2026-08-25, see depth_data_json's own migration comment on sides.
+  depthData?: RecipeDepthResult;
   // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
   // Steps section for the original instance of this exact field. Callers
   // should read it as `dessert.instructions ?? []`.
@@ -9556,18 +9661,23 @@ export async function getDessert(dessertId: string): Promise<DessertDetail | nul
     servingSizeUnit: string;
     createdAt: string;
     instructionsJson: string | null;
+    depthDataJson: string | null;
   }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt, instructions_json AS instructionsJson
+             created_at AS createdAt, instructions_json AS instructionsJson, depth_data_json AS depthDataJson
       FROM desserts
       WHERE id = ?
     `,
     dessertId,
   );
   if (!row) return null;
-  const { instructionsJson, ...rest } = row;
-  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
+  const { instructionsJson, depthDataJson, ...rest } = row;
+  return {
+    ...rest,
+    instructions: parseInstructionsJson(instructionsJson),
+    depthData: depthDataJson ? (JSON.parse(depthDataJson) as RecipeDepthResult) : undefined,
+  };
 }
 
 export type DessertIngredientDetail = {
@@ -10360,10 +10470,12 @@ export type ResolvedMealComponent = {
   // built out for the other 10 builders yet.
   instructions?: string[];
   // 2026-08-25 -- same real depth (safeForConditions/conditionCautions/
-  // dietTags/stageNotes) a curated recipe already carries, only ever
-  // populated for a 'side' component so far (see SideDetail.depthData);
-  // same "not built out for the other 10 builders yet" scope as
-  // instructions above, not a gap silently hidden.
+  // dietTags/stageNotes) a curated recipe already carries. Populated for
+  // any of the 10 direct-ingredient builders once their own UI computes and
+  // saves it on finish (see each XBuilder.tsx's own finishX); Meal Builder
+  // itself is out of scope for this (it assembles already-saved components
+  // rather than raw ingredients, a genuinely different shape this same
+  // computation was never designed for -- see lib/recipeDepth.ts).
   depthData?: RecipeDepthResult;
 };
 
@@ -10383,7 +10495,12 @@ export async function resolveMealComponent(selection: MealComponentSelection): P
   // work for whenever those builders get their own Steps section (see
   // SideDetail's own comment) -- not done blind here.
   const detailInstructions = selection.componentType === 'side' ? (detail as SideDetail).instructions : undefined;
-  const detailDepthData = selection.componentType === 'side' ? (detail as SideDetail).depthData : undefined;
+  // 2026-08-25 -- generalized the same day the depth-report rollout gave
+  // all 11 XDetail shapes a real depthData field (see each one's own
+  // "2026-08-25, see depth_data_json's own migration comment on sides"
+  // line): unlike instructions above, every builder now genuinely carries
+  // this, so no per-type branch is needed here, just a shared, generic cast.
+  const detailDepthData = (detail as { depthData?: RecipeDepthResult }).depthData;
 
   const ingredients = await getComponentIngredients(selection.componentType, selection.componentId);
   const mealIngredients: MealIngredientInput[] = ingredients

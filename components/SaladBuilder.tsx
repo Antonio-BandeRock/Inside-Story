@@ -15,6 +15,7 @@ import {
   getCuratedRecipe,
   getFoodIdentity,
   getFoodScores,
+  getNutrientChartDataForIngredients,
   getNutritionHighlightsForIngredients,
   getSalad,
   getSaladIngredients,
@@ -23,6 +24,7 @@ import {
   listAllConditions,
   saveBuilderFavorite,
   saveSalad,
+  setConditionStage,
   updateSalad,
   type ComponentConditionNote,
   type ComponentNutritionHighlight,
@@ -31,9 +33,12 @@ import {
   type SaladIngredientInput,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
+import { getConditionStagingModel, resolveDeclaredStage, type DeclaredConditionStage } from '../lib/conditionStages';
 import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
+import { computeRecipeDepth, type RecipeDepthResult } from '../lib/recipeDepth';
 import { isFlaggedTier } from '../lib/sixDimensionsReference';
 import { GeneralHealthAdvisories } from './GeneralHealthAdvisories';
+import { RecipeDepthReport } from './RecipeDepthReport';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppActionSheet } from './AppActionSheet';
@@ -832,7 +837,14 @@ export function SaladBuilder({
   // separate transition. Cooking method is no longer a separate step here
   // at all, 2026-07-29 -- it's asked per ingredient now, at "Add to Salad"
   // time (see SaladIngredient's own comment).
-  const [finishStep, setFinishStep] = useState<'building' | 'reviewing'>('building');
+  // 'report' -- 2026-08-25, the same optional Nutrition & Health Report
+  // step Side Builder piloted, rolled out here. See SideBuilder.tsx's own
+  // comment on this same state for the full reasoning.
+  const [finishStep, setFinishStep] = useState<'building' | 'reviewing' | 'report'>('building');
+  const [reportData, setReportData] = useState<RecipeDepthResult | null>(null);
+  const [reportNutrientData, setReportNutrientData] = useState<{ nutrient: string; percent: number }[]>([]);
+  const [computingReport, setComputingReport] = useState(false);
+  const [savingFromReport, setSavingFromReport] = useState(false);
   // Edit mode only (see editSaladId's own comment) -- whether the person has
   // actively tapped "+ Add Ingredient" on the overview screen below.
   // Create mode never reads this: its own connected picker still shows
@@ -910,6 +922,23 @@ export function SaladBuilder({
       isMounted = false;
     };
   }, []);
+
+  // 2026-08-25 -- see SideBuilder.tsx's own identical declaredStages/
+  // conditionsWithStagingModel/stagePickerFor for the full reasoning.
+  const declaredStages = useMemo(() => {
+    const stages: Record<string, DeclaredConditionStage> = {};
+    for (const condition of trackedConditions) {
+      const resolved = resolveDeclaredStage(condition.code, conditionStages[condition.code]);
+      if (resolved) stages[condition.code] = resolved;
+    }
+    return stages;
+  }, [trackedConditions, conditionStages]);
+
+  const conditionsWithStagingModel = useMemo(
+    () => new Set(trackedConditions.filter((condition) => getConditionStagingModel(condition.code)).map((condition) => condition.code)),
+    [trackedConditions],
+  );
+  const [stagePickerFor, setStagePickerFor] = useState<{ code: string; name: string } | null>(null);
 
   // Only actually computes once the final review screen is reached -- both
   // real functions do a genuine per-ingredient database query, so there's
@@ -1049,7 +1078,7 @@ export function SaladBuilder({
   // cruciferous vegetables on purpose) -- just a real "are you sure," same
   // Cancel/Continue shape as confirmRemoveIngredient's own Alert above,
   // rather than a silent pass-through.
-  async function confirmAndFinishSalad(finalIngredients: SaladIngredient[]) {
+  async function confirmAndFinishSalad(finalIngredients: SaladIngredient[], precomputedDepth?: RecipeDepthResult) {
     const flaggedFoods = findRawGoitrogenicIngredients(finalIngredients);
     if (flaggedFoods.length >= 2) {
       const ok = await confirmSheet({
@@ -1058,10 +1087,10 @@ export function SaladBuilder({
         confirmLabel: 'Continue anyway',
         cancelLabel: 'Go back and adjust',
       });
-      if (ok) void finishSalad(finalIngredients);
+      if (ok) void finishSalad(finalIngredients, precomputedDepth);
       return;
     }
-    void finishSalad(finalIngredients);
+    void finishSalad(finalIngredients, precomputedDepth);
   }
 
   // Persists the finished salad (see saveSalad/the salads/salad_ingredients
@@ -1072,13 +1101,33 @@ export function SaladBuilder({
   // keeps their in-progress salad to retry with, rather than it vanishing
   // either way.
   //
+  // Shared by finishSalad and handlePreviewReport below, so the two paths
+  // can never compute this two slightly different ways -- see
+  // SideBuilder.tsx's own identical helper for the full reasoning.
+  function buildDepthIngredients(finalIngredients: SaladIngredient[]): MealIngredientInput[] {
+    return finalIngredients.map((ingredient) => ({
+      foodId: `${ingredient.resolved.foodId}|${ingredient.resolved.source}`,
+      foodName: ingredient.resolved.baseName,
+      category: ingredient.resolved.category,
+      quantity: parseAmountValue(ingredient.quantity),
+      unit: ingredient.unit,
+      cookingMethod: ingredient.cookingMethod,
+      notes: ingredient.prepNote,
+    }));
+  }
+
   // Takes the final ingredient list as a parameter rather than reading the
   // `ingredients` state variable, 2026-08-01: setIngredients (in
   // saveIngredient below) is an async state update, so `ingredients`
   // itself hasn't picked up the just-added one yet at the point 'finish'
   // needs to save the whole salad -- the caller builds the true final list
   // once and passes it to both setIngredients and here.
-  async function finishSalad(finalIngredients: SaladIngredient[]) {
+  //
+  // precomputedDepth, 2026-08-25 -- see SideBuilder.tsx's own identical
+  // finishSide for the full reasoning: the real depth is never optional,
+  // computed fresh here unless it was already computed a moment ago for
+  // the Nutrition & Health Report.
+  async function finishSalad(finalIngredients: SaladIngredient[], precomputedDepth?: RecipeDepthResult) {
     // servingsConfirmed can only become true via handleContinuePress, which
     // already required all three of these -- this is a type-narrowing
     // guard against a state that shouldn't be reachable, not a real
@@ -1096,6 +1145,7 @@ export function SaladBuilder({
       cookingMethod: ingredient.cookingMethod,
       prepNote: ingredient.prepNote,
     }));
+    const depthData = precomputedDepth ?? (await computeRecipeDepth(buildDepthIngredients(finalIngredients), trackedConditions));
     const finishedName = saladName.trim() || 'Salad';
     const payload = {
       name: finishedName,
@@ -1109,6 +1159,7 @@ export function SaladBuilder({
       // what was explicitly saved counts" rule Save & Finish Salad already
       // applies to ingredients.
       instructions: steps,
+      depthData,
     };
 
     try {
@@ -1165,7 +1216,32 @@ export function SaladBuilder({
     setSummaryExpanded(false);
     setNutritionHighlights([]);
     setConditionNotes([]);
+    setReportData(null);
+    setReportNutrientData([]);
+    setStagePickerFor(null);
     showInfoAlert('Salad saved', `${finishedName} is saved. Starting a fresh salad now.`);
+  }
+
+  // The optional half of "choice to create the report or not" -- see
+  // SideBuilder.tsx's own identical handlePreviewReport for the full
+  // reasoning.
+  async function handlePreviewReport() {
+    setComputingReport(true);
+    try {
+      const depthIngredients = buildDepthIngredients(ingredients);
+      const [depth, nutrientData] = await Promise.all([
+        computeRecipeDepth(depthIngredients, trackedConditions),
+        getNutrientChartDataForIngredients(depthIngredients, servings ? parseAmountValue(servings) : 1),
+      ]);
+      setReportData(depth);
+      setReportNutrientData(nutrientData);
+      setFinishStep('report');
+    } catch (error) {
+      console.error('[SaladBuilder] Failed to compute the depth report', error);
+      showInfoAlert('Report failed', 'Something went wrong building the report. You can still save this salad directly.');
+    } finally {
+      setComputingReport(false);
+    }
   }
 
   // 2026-08-08 -- see SideBuilder.tsx's own identical function.
@@ -1470,6 +1546,65 @@ export function SaladBuilder({
     { label: 'Cook Prep', options: COOKING_METHODS, selected: ingredientCookingMethod, onSelect: setIngredientCookingMethod },
   ]);
 
+  // The optional Nutrition & Health Report, 2026-08-25 -- see
+  // SideBuilder.tsx's own identical branch for the full reasoning. Reachable
+  // from both create mode's review screen and edit mode's overview below.
+  if (finishStep === 'report' && reportData) {
+    return (
+      <>
+        {infoAlertElement}
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
+          <RecipeDepthReport
+            dishName={saladName.trim() || 'Salad'}
+            yieldLabel={`Makes ${servings || '?'} serving${servings === '1' ? '' : 's'} (${servingSizeAmount || '?'} ${servingSizeUnit ?? '?'} each)`}
+            ingredientCount={ingredients.length}
+            nutrientChartData={reportNutrientData}
+            trackedConditions={trackedConditions}
+            safeForConditions={reportData.safeForConditions}
+            conditionCautions={reportData.conditionCautions}
+            dimensionBreakdown={reportData.dimensionBreakdown}
+            declaredStages={declaredStages}
+            conditionsWithStagingModel={conditionsWithStagingModel}
+            onSetStage={(code, name) => setStagePickerFor({ code, name })}
+            stageNotes={reportData.stageNotes}
+            tabColor={tabColor}
+            saving={savingFromReport}
+            onGoBack={() => setFinishStep('reviewing')}
+            onSave={() => {
+              setSavingFromReport(true);
+              void confirmAndFinishSalad(ingredients, reportData).finally(() => setSavingFromReport(false));
+            }}
+          />
+        </ScrollView>
+        <AppActionSheet
+          visible={!!stagePickerFor}
+          onClose={() => setStagePickerFor(null)}
+          title={stagePickerFor ? `Your ${stagePickerFor.name} Stage` : undefined}
+          message="Purely advisory -- this changes nothing about what you can build or save, it only makes the report above reflect where you actually are."
+          actions={[
+            ...(stagePickerFor ? getConditionStagingModel(stagePickerFor.code)?.stages ?? [] : []).map((stage) => ({
+              label: stage.label,
+              onPress: () => {
+                const code = stagePickerFor?.code;
+                if (!code) return;
+                setStagePickerFor(null);
+                setConditionStage(code, stage.code)
+                  .then(() => {
+                    setConditionStages((current) => ({ ...current, [code]: stage.code }));
+                  })
+                  .catch((error) => {
+                    console.error('[SaladBuilder] Failed to save the declared healing stage', error);
+                    showInfoAlert('Stage not saved', 'Something went wrong saving your healing stage. Please try setting it again.');
+                  });
+              },
+            })),
+            { label: 'Cancel', onPress: () => {} },
+          ]}
+        />
+      </>
+    );
+  }
+
   // Edit mode's own ingredient overview -- 2026-08-01, explicitly
   // requested: reopening an already-saved salad to fix something shouldn't
   // assume the next thing wanted is picking a whole new Category. Landing
@@ -1553,7 +1688,26 @@ export function SaladBuilder({
               own ready screen further down is. */}
           <View style={[styles.formCard, { borderColor: tabColor }]}>{renderStepsSection()}</View>
 
-          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]} onPress={() => confirmAndFinishSalad(ingredients)}>
+          {/* "Preview Full Report" -- 2026-08-25, see SideBuilder.tsx's own
+              identical button (added there the same day after "the entire
+              Stage information for the report is missing" turned out to
+              mean the report was never reachable from edit mode at all). */}
+          <TouchableOpacity
+            style={[styles.secondaryButton, styles.reportPreviewButton, { borderColor: tabColor }]}
+            onPress={() => void handlePreviewReport()}
+            disabled={computingReport}
+          >
+            {computingReport ? (
+              <ActivityIndicator color={tabColor} />
+            ) : (
+              <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Preview Full Report</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
+            onPress={() => confirmAndFinishSalad(ingredients)}
+            disabled={computingReport}
+          >
             <Text style={styles.primaryButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -2195,9 +2349,29 @@ export function SaladBuilder({
                   choice belongs at the very end, alongside the final Save
                   action. */}
               {renderFavoriteToggle()}
+              {/* "Preview Full Report" -- 2026-08-25, see SideBuilder.tsx's
+                  own identical button. The `!editSaladId` check here is
+                  defensive, not a real scoping decision -- this whole
+                  branch is create-mode only in practice (see its own header
+                  comment further up); edit mode's own overview screen
+                  carries the identical button. */}
+              {!editSaladId ? (
+                <TouchableOpacity
+                  style={[styles.secondaryButton, styles.reportPreviewButton, { borderColor: tabColor }]}
+                  onPress={() => void handlePreviewReport()}
+                  disabled={computingReport}
+                >
+                  {computingReport ? (
+                    <ActivityIndicator color={tabColor} />
+                  ) : (
+                    <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Preview Full Report</Text>
+                  )}
+                </TouchableOpacity>
+              ) : null}
               <TouchableOpacity
                 style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
                 onPress={() => confirmAndFinishSalad(ingredients)}
+                disabled={computingReport}
               >
                 <Text style={styles.primaryButtonText}>{editSaladId ? 'Save Changes' : 'Complete & Save This Salad'}</Text>
               </TouchableOpacity>
@@ -2406,6 +2580,9 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   secondaryButtonText: { ...typography.bodyEmphasis },
+  // "Preview Full Report" needs a real visible outline of its own -- see
+  // SideBuilder.tsx's own identical style for the full reasoning.
+  reportPreviewButton: { borderWidth: 2 },
   // marginTop 16 (2026-07-31): the Save buttons sat flush against the Prep
   // Notes box, reading as one attached control group. This separates them
   // so the buttons act on the whole card rather than looking like they
