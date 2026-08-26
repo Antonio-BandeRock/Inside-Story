@@ -1961,6 +1961,11 @@ function DailyMealPlanLens() {
                           {row.unit} safety ceiling
                         </Text>
                       ) : null}
+                      {row.topContributors.length > 0 ? (
+                        <Text style={[styles.helperText, { textAlign: 'right' }]}>
+                          Mostly from: {row.topContributors.slice(0, 3).map((c) => `${c.title} (${c.percentOfDayTotal}%)`).join(', ')}
+                        </Text>
+                      ) : null}
                     </View>
                   </View>
                 );

@@ -1626,7 +1626,25 @@ export async function listCuratedRecipes(builderType: BuilderFavoriteItemType): 
 // own comment), so a separate "broaden past USDA-only" retry is no longer
 // a real, different query. Down to the two genuinely different attempts:
 // try 'Raw' first, then the untagged 'Standard' sentinel.
-async function resolveCuratedRecipeIngredient(category: string, baseName: string) {
+// 2026-08-26: cache is optional so every other, pre-existing caller keeps
+// resolving fresh (correct on its own for a single "Build This Recipe"
+// tap). getCuratedRecipe's own sharedCache parameter is the one caller
+// that now passes a single map shared across a whole run -- see
+// IngredientResolutionCaches.ingredientChoice's own comment for why.
+async function resolveCuratedRecipeIngredient(
+  category: string,
+  baseName: string,
+  sharedCache?: Map<string, FoodOption | null>,
+) {
+  const cacheKey = `${category}|${baseName}`;
+  if (sharedCache?.has(cacheKey)) return sharedCache.get(cacheKey)!;
+
+  const resolved = await resolveCuratedRecipeIngredientUncached(category, baseName);
+  sharedCache?.set(cacheKey, resolved);
+  return resolved;
+}
+
+async function resolveCuratedRecipeIngredientUncached(category: string, baseName: string) {
   const viaKnownPrep =
     (await resolveFoodChoice(category, null, baseName, 'Raw')) ?? (await resolveFoodChoice(category, null, baseName, null));
   if (viaKnownPrep) return viaKnownPrep;
@@ -1654,8 +1672,15 @@ async function resolveCuratedRecipeIngredient(category: string, baseName: string
   return row ? toFoodOption(row) : null;
 }
 
+// sharedIngredientChoiceCache is optional so every other, pre-existing
+// caller (a real "Build This Recipe" tap, resolving exactly one recipe)
+// keeps behaving exactly as before. getCuratedRecipeNutrientTotals's own
+// sharedCaches parameter is the one caller passing a single map shared
+// across a whole run of many recipes -- see IngredientResolutionCaches.
+// ingredientChoice's own comment for the real perf reason.
 export async function getCuratedRecipe(
   id: string,
+  sharedIngredientChoiceCache?: Map<string, FoodOption | null>,
 ): Promise<(BuilderFavoritePayload & { id: string; flavorProfile: string; healthBenefit: string }) | null> {
   const db = await getReferenceDatabase();
   const recipe = await db.getFirstAsync<{
@@ -1686,7 +1711,7 @@ export async function getCuratedRecipe(
 
   const ingredients: BuilderFavoriteIngredient[] = [];
   for (const row of ingredientRows) {
-    const resolved = await resolveCuratedRecipeIngredient(row.category, row.base_name);
+    const resolved = await resolveCuratedRecipeIngredient(row.category, row.base_name, sharedIngredientChoiceCache);
     if (!resolved) continue;
     ingredients.push({
       foodId: resolved.foodId,
@@ -1741,7 +1766,7 @@ export async function getCuratedRecipeNutrientTotals(
   curatedRecipeId: string,
   sharedCaches?: IngredientResolutionCaches,
 ): Promise<Record<string, number> | null> {
-  const recipe = await getCuratedRecipe(curatedRecipeId);
+  const recipe = await getCuratedRecipe(curatedRecipeId, sharedCaches?.ingredientChoice);
   if (!recipe || recipe.ingredients.length === 0) return null;
   const caches = sharedCaches ?? createIngredientResolutionCaches();
   const totals: Record<string, number> = {};
@@ -2454,7 +2479,18 @@ export async function getFoodNutrients(foodId: number, source: string) {
 // ROW_NUMBER() OVER (PARTITION BY nutrient_code ORDER BY food_id)).
 // Verified directly against getFoodNutrients itself before trusting this,
 // not just reasoned about -- see this function's own test coverage.
-async function getPrimaryNutrientAmountsBulk(
+//
+// Exported 2026-08-26 so lib/dailyMealPlan.ts's own buildCandidatePools
+// can pre-populate its shared nutrient cache with one bulk call covering
+// every distinct ingredient in the whole candidate pool, the identical
+// real fix already proven here for getDailyNutrientBreakdown -- the
+// return shape (keyed by `${foodId}|${source}`, valued
+// `{code, amountPer100g}[]`) is confirmed to match
+// IngredientResolutionCaches.nutrient's own shape exactly, and
+// sumFoodNutrientTotals (lib/nutrientAnalysis.ts) is confirmed to read
+// only those two fields from a nutrient row, nothing getFoodNutrients
+// alone would have provided.
+export async function getPrimaryNutrientAmountsBulk(
   pairs: { foodId: number; source: string }[],
 ): Promise<Map<string, { code: string; amountPer100g: number }[]>> {
   const result = new Map<string, { code: string; amountPer100g: number }[]>();
@@ -13994,10 +14030,22 @@ export type IngredientResolutionCaches = {
   nutrient: Map<string, Pick<FoodNutrient, 'code' | 'amountPer100g'>[]>;
   unitWeight: Map<string, FoodUnitWeight | null>;
   category: Map<string, string | null>;
+  // 2026-08-26, a second real perf fix for the same reported "still slow"
+  // meal-generator complaint -- getCuratedRecipe's own per-ingredient
+  // resolveCuratedRecipeIngredient call was never cached at all, even
+  // within one shared run: the identical (category, base_name) pair
+  // (Veg|Garlic, Fats|Olive Oil (Extra Virgin), Herbs|Common salt/table
+  // salt, and so on) repeats across dozens of different recipes in this
+  // corpus, and each repeat was resolving fresh via its own real query
+  // against the foods table, on top of the ingredient-nutrient caching
+  // already fixed. Keyed by `${category}|${baseName}` (prep-method
+  // resolution order is fixed inside resolveCuratedRecipeIngredient
+  // itself, so the pair alone is the real identity here).
+  ingredientChoice: Map<string, FoodOption | null>;
 };
 
 export function createIngredientResolutionCaches(): IngredientResolutionCaches {
-  return { nutrient: new Map(), unitWeight: new Map(), category: new Map() };
+  return { nutrient: new Map(), unitWeight: new Map(), category: new Map(), ingredientChoice: new Map() };
 }
 
 async function resolveIngredientNutrientTotals(

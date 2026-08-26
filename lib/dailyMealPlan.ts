@@ -47,10 +47,12 @@
 import {
   createIngredientResolutionCaches,
   curatedRecipeContainsAnyIngredient,
+  getCuratedRecipe,
   getCuratedRecipeIdsContainingIngredient,
   getCuratedRecipeIdsWithSweetener,
   getCuratedRecipeNutrientTotals,
   getDietaryReferenceIntakesForCurrentUser,
+  getPrimaryNutrientAmountsBulk,
   getUserNutrientTargets,
   getUserProfile,
   type DietaryReferenceIntake,
@@ -485,6 +487,38 @@ const NUTRIENT_SCORE_TOP_FRACTION = 0.34;
 // nutrients at once," not just a trace amount of one.
 const BONUS_COMPONENT_MIN_SCORE = 20;
 
+// 2026-08-26, direct request: "tell the user what it is that is putting
+// something way over on RDA being identified... include the foods in
+// the meal plan that are giving them the high amount." A floor nutrient
+// (protein, iron, copper, and so on) only gets its own contributor
+// breakdown once it's genuinely notable, not for an ordinary 105% that
+// nobody would think to ask about; a ceiling nutrient (sodium) uses the
+// same 80% threshold the report's own near-or-over-limit flag already
+// uses elsewhere, so the two stay consistent with each other.
+const NOTABLE_TARGET_MIN_PERCENT = 150;
+const NOTABLE_CEILING_MIN_PERCENT = 80;
+
+// Ranks this day's own real picks by how much each one actually
+// contributed to one specific nutrient's day total, highest first,
+// dropping anything that contributed nothing measurable. Deliberately
+// per-DISH, not per-ingredient -- the generator only ever tracks a whole
+// dish's own resolved nutrient totals (LoadedCandidate.nutrientTotals),
+// not a per-ingredient breakdown within it, so "Lentil & Spinach Bowl
+// contributed 62% of today's iron" is the real, honest level of detail
+// available, not a fabricated ingredient-level claim.
+function computeTopContributors(
+  nutrientCode: string,
+  picks: DailyMealPlanPick[],
+  dayTotal: number,
+): { title: string; amount: number; percentOfDayTotal: number }[] {
+  if (dayTotal <= 0) return [];
+  return picks
+    .map((pick) => ({ title: pick.entry.title, amount: pick.nutrientTotals[nutrientCode] ?? 0 }))
+    .filter((c) => c.amount > 0)
+    .sort((a, b) => b.amount - a.amount)
+    .map((c) => ({ ...c, percentOfDayTotal: Math.round((c.amount / dayTotal) * 100) }));
+}
+
 // ---------------------------------------------------------------------
 // Condition safety -- the same real severity data "Meals You Can Eat"
 // already computes (RecipeCard.safeForConditions/conditionCautions),
@@ -530,6 +564,15 @@ export type DailyMealPlanPick = {
   // nutrient scoring shows a genuine benefit, never unconditionally.
   role: 'main' | 'side' | 'salad' | 'beverage';
   carbGrams: number;
+  // 2026-08-26, direct request: "tell the user what it is that is
+  // putting something way over on RDA... include the foods in the meal
+  // plan that are giving them the high amount." This pick's own real,
+  // already-resolved per-serving nutrient totals (the same data
+  // LoadedCandidate already carries, no new query) -- kept here so the
+  // finished day's own nutrientCoverage report can attribute a notably
+  // high total back to whichever specific dish actually drove it,
+  // instead of only naming the nutrient in the abstract.
+  nutrientTotals: Record<string, number>;
 };
 
 export type DailyMealPlanNutrientCoverage = {
@@ -558,6 +601,17 @@ export type DailyMealPlanNutrientCoverage = {
   // 100% is the goal, the opposite of every RDA/AI row, so the UI needs
   // to know which framing applies rather than guessing from nutrientCode.
   isCeiling: boolean;
+  // 2026-08-26, direct request: "I think it would be beneficial to tell
+  // the user what it is that is putting something way over on RDA being
+  // identified. Can we include the foods in the meal plan that are
+  // giving them the high amount of whatever?" Populated only when this
+  // nutrient's own percentage is notable (see TOP_CONTRIBUTOR_MIN_PERCENT
+  // below) -- every day's own real picks, ranked by how much each one
+  // actually contributed to this exact nutrient's day total, highest
+  // first. Empty for an ordinary, unremarkable percentage rather than
+  // listed for every single nutrient regardless of whether it means
+  // anything.
+  topContributors: { title: string; amount: number; percentOfDayTotal: number }[];
 };
 
 export type DailyMealPlanResult = {
@@ -953,6 +1007,42 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
   for (const recipeId of fishRecipeIds) ruleMatchesByRecipeId.set(recipeId, (ruleMatchesByRecipeId.get(recipeId) ?? new Set()).add(fishRuleId));
   for (const recipeId of redMeatRecipeIds) ruleMatchesByRecipeId.set(recipeId, (ruleMatchesByRecipeId.get(recipeId) ?? new Set()).add(redMeatRuleId));
 
+  // 2026-08-26 perf fix, a third real contributor to a reported "still
+  // slow" generation time even after the two fixes above: every distinct
+  // ingredient's own nutrient totals were still being resolved through
+  // getFoodNutrients, a genuinely heavy per-call query (a real sibling-
+  // fallback CTE: a CROSS JOIN against the whole foods table, a GROUP BY,
+  // a window function), one call per distinct (foodId, source) pair, all
+  // serialized through this app's one shared SQLite connection --
+  // confirmed as the exact same root cause a 2026-08-16 fix already
+  // solved for getDailyNutrientBreakdown (see getPrimaryNutrientAmountsBulk's
+  // own header comment: "37-41 seconds on top of it" from this same
+  // pattern). Fixed by reusing that already-proven bulk resolver here
+  // too: every unique recipe's own ingredients are resolved once (the
+  // ingredientChoice cache above already makes repeat ingredients across
+  // different recipes free), every distinct (foodId, source) pair across
+  // the WHOLE candidate pool is collected, and their nutrient amounts are
+  // fetched in one real bulk call instead of one call per pair. The
+  // shared nutrient cache is pre-populated with the result, so
+  // loadCandidate's own per-ingredient resolution (still calling
+  // getCuratedRecipeNutrientTotals) finds every food already cached and
+  // never calls getFoodNutrients at all for this run.
+  const recipesById = new Map<string, NonNullable<Awaited<ReturnType<typeof getCuratedRecipe>>>>();
+  await Promise.all(
+    uniqueEntryList.map(async (entry) => {
+      const recipe = await getCuratedRecipe(entry.linkedCuratedRecipeId, sharedCaches.ingredientChoice);
+      if (recipe) recipesById.set(entry.linkedCuratedRecipeId, recipe);
+    }),
+  );
+  const distinctFoodPairs = new Map<string, { foodId: number; source: string }>();
+  for (const recipe of recipesById.values()) {
+    for (const ingredient of recipe.ingredients) {
+      distinctFoodPairs.set(`${ingredient.foodId}|${ingredient.source}`, { foodId: ingredient.foodId, source: ingredient.source });
+    }
+  }
+  const bulkNutrients = await getPrimaryNutrientAmountsBulk(Array.from(distinctFoodPairs.values()));
+  for (const [key, nutrients] of bulkNutrients) sharedCaches.nutrient.set(key, nutrients);
+
   const [loadedCandidates, driRows, profile, nutrientTargetOverrides] = await Promise.all([
     Promise.all(uniqueEntryList.map((entry) => loadCandidate(entry, sharedCaches, sweetenedRecipeIds, ruleMatchesByRecipeId))),
     getDietaryReferenceIntakesForCurrentUser(),
@@ -1143,7 +1233,7 @@ async function generateOneDay(
     const rotationArg = rotation ? { state: rotation.state, daysRemainingInWeekIncludingToday: rotation.daysRemainingInWeekIncludingToday, applyFrequency: false } : undefined;
     const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : candidatePool, carbCeiling, rotationArg, currentNutrientContext());
     if (chosen) {
-      breakfast = { entry: chosen.entry, role: 'main', carbGrams: chosen.carbGrams };
+      breakfast = { entry: chosen.entry, role: 'main', carbGrams: chosen.carbGrams, nutrientTotals: chosen.nutrientTotals };
       totalCarbGrams += chosen.carbGrams;
       addPick(chosen.nutrientTotals);
       recordIfRotating(chosen);
@@ -1203,7 +1293,7 @@ async function generateOneDay(
     const mainRotationArg = rotation ? { state: rotation.state, daysRemainingInWeekIncludingToday: rotation.daysRemainingInWeekIncludingToday, applyFrequency } : undefined;
     const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : eligible, remainingBudget, mainRotationArg, currentNutrientContext());
     if (!chosen) return [];
-    const picks: DailyMealPlanPick[] = [{ entry: chosen.entry, role: 'main', carbGrams: chosen.carbGrams }];
+    const picks: DailyMealPlanPick[] = [{ entry: chosen.entry, role: 'main', carbGrams: chosen.carbGrams, nutrientTotals: chosen.nutrientTotals }];
     totalCarbGrams += chosen.carbGrams;
     addPick(chosen.nutrientTotals);
     recordIfRotating(chosen);
@@ -1216,7 +1306,7 @@ async function generateOneDay(
       const sideRotationArg = rotation ? { state: rotation.state, daysRemainingInWeekIncludingToday: rotation.daysRemainingInWeekIncludingToday, applyFrequency: false } : undefined;
       const chosenSide = pickCandidate(sideWithinBudget, sideBudget, sideRotationArg, currentNutrientContext());
       if (chosenSide) {
-        picks.push({ entry: chosenSide.entry, role: 'side', carbGrams: chosenSide.carbGrams });
+        picks.push({ entry: chosenSide.entry, role: 'side', carbGrams: chosenSide.carbGrams, nutrientTotals: chosenSide.nutrientTotals });
         totalCarbGrams += chosenSide.carbGrams;
         addPick(chosenSide.nutrientTotals);
         recordIfRotating(chosenSide);
@@ -1243,7 +1333,7 @@ async function generateOneDay(
         .sort((a, b) => b.score - a.score);
       const best = scored[0];
       if (!best || best.score < BONUS_COMPONENT_MIN_SCORE) return;
-      picks.push({ entry: best.candidate.entry, role, carbGrams: best.candidate.carbGrams });
+      picks.push({ entry: best.candidate.entry, role, carbGrams: best.candidate.carbGrams, nutrientTotals: best.candidate.nutrientTotals });
       totalCarbGrams += best.candidate.carbGrams;
       addPick(best.candidate.nutrientTotals);
       usedIds.add(best.candidate.entry.linkedCuratedRecipeId);
@@ -1300,16 +1390,21 @@ async function generateOneDay(
     .filter((row) => row.valueType === 'RDA' || row.valueType === 'AI' || row.valueType === 'CDRR')
     .map((row) => {
       const amount = nutrientTotals[row.nutrientCode] ?? 0;
+      const percentOfTarget = row.amount > 0 ? Math.round((amount / row.amount) * 100) : null;
+      const percentOfUpperLimit = row.upperLimit != null && row.upperLimit > 0 ? Math.round((amount / row.upperLimit) * 100) : null;
+      const isCeiling = row.valueType === 'CDRR';
+      const notable = isCeiling ? (percentOfUpperLimit ?? 0) >= NOTABLE_CEILING_MIN_PERCENT : (percentOfTarget ?? 0) >= NOTABLE_TARGET_MIN_PERCENT;
       return {
         nutrientCode: row.nutrientCode,
         displayName: row.displayName,
         unit: row.unit,
         amount,
         targetAmount: row.amount,
-        percentOfTarget: row.amount > 0 ? Math.round((amount / row.amount) * 100) : null,
+        percentOfTarget,
         upperLimit: row.upperLimit,
-        percentOfUpperLimit: row.upperLimit != null && row.upperLimit > 0 ? Math.round((amount / row.upperLimit) * 100) : null,
-        isCeiling: row.valueType === 'CDRR',
+        percentOfUpperLimit,
+        isCeiling,
+        topContributors: notable ? computeTopContributors(row.nutrientCode, allPicks, amount) : [],
       };
     });
 
