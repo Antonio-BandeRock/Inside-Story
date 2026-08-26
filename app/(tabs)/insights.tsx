@@ -30,6 +30,7 @@ import {
   rankFoodsByNutrient,
   recordLabResult,
   setPersonalRuleActive,
+  type DailyDimensionItemBreakdown,
   type DailyDimensionScore,
   type DailyNutrientBreakdown,
   type DailyNutrientScopeTotals,
@@ -2040,7 +2041,7 @@ type PrepRow = { foodName: string; mealName: string; sideName: string; tips: Ret
 // whatever scope was selected below it).
 function itemsInScope(breakdown: DailySixDimensionsBreakdown, scope: Scope): PrepRow[] {
   const rows: PrepRow[] = [];
-  const addItem = (item: { foodName: string; bySubCriterion: DailyDimensionScore[] }, mealName: string, sideName: string) => {
+  const addItem = (item: DailyDimensionItemBreakdown, mealName: string, sideName: string) => {
     rows.push({ foodName: item.foodName, mealName, sideName, tips: selectPrepTips(flattenItemScores(item)) });
   };
 

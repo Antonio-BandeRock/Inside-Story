@@ -9,6 +9,7 @@ import { isJuiceFood } from './juiceAdvisory';
 import { analyzeNutrientIntake, NutrientGapEntry, sumFoodNutrientTotals } from './nutrientAnalysis';
 import { ACTIVITY_LEVELS, ActivityLevel } from './energyNeeds';
 import { isFlaggedTier } from './sixDimensionsReference';
+import { buildPerConditionSummaries, type ConditionDimensionSummary } from './conditionDimensions';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
 // Type-only -- lib/recipeDepth.ts imports several real functions FROM this
 // file (getFoodScores, getFoodScoresForCondition, getConditionStages), so
@@ -2944,6 +2945,7 @@ type ScoreRowWithSubCriterion = {
   foodId: number;
   source: string;
   tier: string;
+  dimension: string;
   subCriterion: string;
   subCriterionId: number;
   homeConditionCode: string;
@@ -2955,7 +2957,7 @@ async function getAllScoreRowsWithSubCriteria(): Promise<ScoreRowWithSubCriterio
       const db = await getReferenceDatabase();
       return db.getAllAsync<ScoreRowWithSubCriterion>(
         `
-          SELECT fs.food_id AS foodId, fs.source AS source, fs.tier AS tier,
+          SELECT fs.food_id AS foodId, fs.source AS source, fs.tier AS tier, sc.dimension AS dimension,
                  sc.sub_criterion AS subCriterion, sc.id AS subCriterionId, sc.home_condition_code AS homeConditionCode
           FROM food_scores fs
           JOIN sub_criteria sc ON sc.id = fs.sub_criterion_id
@@ -2966,14 +2968,28 @@ async function getAllScoreRowsWithSubCriteria(): Promise<ScoreRowWithSubCriterio
   return allScoreRowsWithSubCriteriaCache;
 }
 
-type RelevanceRow = { subCriterionId: number; conditionCode: string };
+// dimensionLabel/relevanceNote/citation added 2026-08-26, so
+// getConditionScoresForFoodsBulk below can build a faithful, complete
+// equivalent of getFoodScoresForCondition's own per-food result -- not
+// just the flagged-id-set lookup this row shape was first built for.
+type RelevanceRow = {
+  subCriterionId: number;
+  conditionCode: string;
+  dimensionLabel: string;
+  relevanceNote: string | null;
+  citation: string | null;
+};
 let subCriterionRelevanceRowsCache: Promise<RelevanceRow[]> | null = null;
 async function getSubCriterionRelevanceRows(): Promise<RelevanceRow[]> {
   if (!subCriterionRelevanceRowsCache) {
     subCriterionRelevanceRowsCache = (async () => {
       const db = await getReferenceDatabase();
       return db.getAllAsync<RelevanceRow>(
-        'SELECT sub_criterion_id AS subCriterionId, condition_code AS conditionCode FROM sub_criterion_condition_relevance',
+        `
+          SELECT sub_criterion_id AS subCriterionId, condition_code AS conditionCode,
+                 dimension_label AS dimensionLabel, relevance_note AS relevanceNote, citation
+          FROM sub_criterion_condition_relevance
+        `,
       );
     })();
   }
@@ -3007,6 +3023,75 @@ async function getFlaggedFoodIdsForCondition(conditionCode: string): Promise<Set
     flaggedFoodIdsByConditionCache.set(conditionCode, cached);
   }
   return cached;
+}
+
+// Bulk, cached-source equivalent of getFoodScoresForCondition -- 2026-08-26,
+// built for the condition-scoped dimension breakdown (lib/conditionDimensions.ts)
+// this app's own Insights "6 Dimensions" lens and every saved-dish detail
+// view need: every distinct food logged across a whole day, or every
+// ingredient in one dish, scored against however many conditions a person
+// tracks, without a query per food per condition. Reuses the exact same
+// cached full-table fetch getFlaggedFoodIdsForCondition already
+// established, so this can't reopen the freeze risk documented there.
+export async function getConditionScoresForFoodsBulk(
+  foodPairs: { foodId: number; source: string }[],
+  conditionCodes: string[],
+): Promise<Map<string, Map<string, ConditionFoodScore[]>>> {
+  const result = new Map<string, Map<string, ConditionFoodScore[]>>();
+  if (foodPairs.length === 0 || conditionCodes.length === 0) return result;
+
+  const wantedFoodKeys = new Set(foodPairs.map((pair) => `${pair.foodId}|${pair.source}`));
+  const [allRows, relevanceRows] = await Promise.all([getAllScoreRowsWithSubCriteria(), getSubCriterionRelevanceRows()]);
+
+  // subCriterionId -> conditionCode -> that pair's own relevance row --
+  // the same lookup getFoodScoresForCondition's own LEFT JOIN resolves one
+  // food at a time, built once here instead.
+  const relevanceBySubCriterion = new Map<number, Map<string, RelevanceRow>>();
+  for (const row of relevanceRows) {
+    if (!relevanceBySubCriterion.has(row.subCriterionId)) relevanceBySubCriterion.set(row.subCriterionId, new Map());
+    relevanceBySubCriterion.get(row.subCriterionId)!.set(row.conditionCode, row);
+  }
+
+  for (const row of allRows) {
+    const foodKey = `${row.foodId}|${row.source}`;
+    if (!wantedFoodKeys.has(foodKey)) continue;
+    const relevanceForSubCriterion = relevanceBySubCriterion.get(row.subCriterionId);
+
+    for (const conditionCode of conditionCodes) {
+      const relevance = relevanceForSubCriterion?.get(conditionCode);
+      const owned = row.homeConditionCode === conditionCode;
+      if (!owned && !relevance) continue;
+
+      if (!result.has(foodKey)) result.set(foodKey, new Map());
+      const byCondition = result.get(foodKey)!;
+      if (!byCondition.has(conditionCode)) byCondition.set(conditionCode, []);
+      byCondition.get(conditionCode)!.push({
+        dimension: relevance?.dimensionLabel ?? row.dimension,
+        subCriterion: row.subCriterion,
+        tier: row.tier,
+        relevanceNote: relevance?.relevanceNote ?? null,
+        citation: relevance?.citation ?? null,
+      });
+    }
+  }
+
+  return result;
+}
+
+// The one-shot version for a single food list with no further scope
+// levels underneath it -- fetches the bulk scores once, then builds every
+// tracked condition's own summary from that same fetch (see
+// lib/conditionDimensions.ts's own buildPerConditionSummaries).
+export async function computeConditionDimensionsForFoods(
+  foods: { foodId: number; source: string; foodName: string }[],
+  trackedConditions: { code: string; name: string }[],
+): Promise<Record<string, ConditionDimensionSummary>> {
+  if (trackedConditions.length === 0) return {};
+  const scoresByFood = await getConditionScoresForFoodsBulk(
+    foods.map((food) => ({ foodId: food.foodId, source: food.source })),
+    trackedConditions.map((condition) => condition.code),
+  );
+  return buildPerConditionSummaries(foods, trackedConditions, scoresByFood);
 }
 
 // "Safe" across every one of the person's own tracked conditions at once --
@@ -5927,19 +6012,28 @@ export async function getSideNutrientBreakdown(sideId: string): Promise<DailyNut
   };
 }
 
-// Side-scoped equivalent of getDailySixDimensionsBreakdown -- same shape,
-// same reasoning as getSideNutrientBreakdown above (one synthetic meal
-// wrapping one synthetic side, both real), reused as-is by
-// app/(tabs)/insights.tsx's own SixDsView and PrepView (PrepView reads the
-// exact same DailySixDimensionsBreakdown shape, no separate data source of
-// its own).
-export async function getSideSixDimensionsBreakdown(sideId: string): Promise<DailySixDimensionsBreakdown> {
-  const side = await getSide(sideId);
-  if (!side) return { day: [], meals: [] };
-
-  const ingredients = await getSideIngredients(sideId);
+// Shared by all 11 direct-ingredient builders' own SixDimensionsBreakdown
+// functions below -- confirmed identical in shape across every one (each
+// was a hand-copied twin of the last, per their own "same shape, same
+// reasoning" comments), so this replaces 11 near-identical bodies with one
+// real implementation plus 11 thin wrappers, the "one shared engine, not a
+// copy" precedent this file already follows elsewhere (aggregateBySubCriterion
+// itself is the same idea, one level up).
+//
+// trackedConditions, 2026-08-26 -- optional, defaults to [] so every
+// existing caller keeps working unchanged (perCondition/dayPerCondition
+// come back as {} at every level); app/food-item-detail.tsx is the real
+// caller that passes the person's actual tracked conditions.
+async function buildDishSixDimensionsBreakdown(
+  dishId: string,
+  dishName: string,
+  ingredients: { foodId: string | null; foodName: string }[],
+  mealType: string,
+  trackedConditions: { code: string; name: string }[],
+): Promise<DailySixDimensionsBreakdown> {
   const scoreCache = new Map<string, FoodScore[]>();
-  const foods: { foodName: string; scores: FoodScore[] }[] = [];
+  type DishFood = { foodName: string; scores: FoodScore[]; foodId: number; source: string };
+  const foods: DishFood[] = [];
 
   for (const ingredient of ingredients) {
     if (!ingredient.foodId) continue;
@@ -5953,23 +6047,50 @@ export async function getSideSixDimensionsBreakdown(sideId: string): Promise<Dai
       scores = await getFoodScores(foodId, source);
       scoreCache.set(cacheKey, scores);
     }
-    foods.push({ foodName: ingredient.foodName, scores });
+    foods.push({ foodName: ingredient.foodName, scores, foodId, source });
   }
 
+  const conditionScoresByFood = await getConditionScoresForFoodsBulk(
+    foods.map((food) => ({ foodId: food.foodId, source: food.source })),
+    trackedConditions.map((condition) => condition.code),
+  );
+
   const sideBreakdown: DailyDimensionSideBreakdown = {
-    sideName: side.name,
+    sideName: dishName,
     bySubCriterion: aggregateBySubCriterion(foods),
-    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
+    items: foods.map((food) => ({
+      foodName: food.foodName,
+      bySubCriterion: aggregateBySubCriterion([food]),
+      perCondition: buildPerConditionSummaries([food], trackedConditions, conditionScoresByFood),
+    })),
+    perCondition: buildPerConditionSummaries(foods, trackedConditions, conditionScoresByFood),
   };
   const mealBreakdown: DailyDimensionMealBreakdown = {
-    mealId: side.id,
-    mealName: side.name,
-    mealType: 'side',
+    mealId: dishId,
+    mealName: dishName,
+    mealType,
     bySubCriterion: sideBreakdown.bySubCriterion,
     sides: [sideBreakdown],
+    perCondition: sideBreakdown.perCondition,
   };
 
-  return { day: sideBreakdown.bySubCriterion, meals: [mealBreakdown] };
+  return { day: sideBreakdown.bySubCriterion, dayPerCondition: sideBreakdown.perCondition, meals: [mealBreakdown] };
+}
+
+// Side-scoped equivalent of getDailySixDimensionsBreakdown -- same shape,
+// same reasoning as getSideNutrientBreakdown above (one synthetic meal
+// wrapping one synthetic side, both real), reused as-is by
+// app/(tabs)/insights.tsx's own SixDsView and PrepView (PrepView reads the
+// exact same DailySixDimensionsBreakdown shape, no separate data source of
+// its own).
+export async function getSideSixDimensionsBreakdown(
+  sideId: string,
+  trackedConditions: { code: string; name: string }[] = [],
+): Promise<DailySixDimensionsBreakdown> {
+  const side = await getSide(sideId);
+  if (!side) return { day: [], dayPerCondition: {}, meals: [] };
+  const ingredients = await getSideIngredients(sideId);
+  return buildDishSixDimensionsBreakdown(side.id, side.name, ingredients, 'side', trackedConditions);
 }
 
 // Salad Builder's own CRUD, 2026-08-02 -- deliberate line-for-line mirror of
@@ -6314,43 +6435,14 @@ export async function getSaladNutrientBreakdown(saladId: string): Promise<DailyN
 
 // Salad-scoped equivalent of getSideSixDimensionsBreakdown -- see that
 // function's own comment for the full reasoning.
-export async function getSaladSixDimensionsBreakdown(saladId: string): Promise<DailySixDimensionsBreakdown> {
+export async function getSaladSixDimensionsBreakdown(
+  saladId: string,
+  trackedConditions: { code: string; name: string }[] = [],
+): Promise<DailySixDimensionsBreakdown> {
   const salad = await getSalad(saladId);
-  if (!salad) return { day: [], meals: [] };
-
+  if (!salad) return { day: [], dayPerCondition: {}, meals: [] };
   const ingredients = await getSaladIngredients(saladId);
-  const scoreCache = new Map<string, FoodScore[]>();
-  const foods: { foodName: string; scores: FoodScore[] }[] = [];
-
-  for (const ingredient of ingredients) {
-    if (!ingredient.foodId) continue;
-    const [foodIdStr, source] = ingredient.foodId.split('|');
-    const foodId = Number(foodIdStr);
-    if (!source || Number.isNaN(foodId)) continue;
-
-    const cacheKey = `${foodId}|${source}`;
-    let scores = scoreCache.get(cacheKey);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(cacheKey, scores);
-    }
-    foods.push({ foodName: ingredient.foodName, scores });
-  }
-
-  const saladBreakdown: DailyDimensionSideBreakdown = {
-    sideName: salad.name,
-    bySubCriterion: aggregateBySubCriterion(foods),
-    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
-  };
-  const mealBreakdown: DailyDimensionMealBreakdown = {
-    mealId: salad.id,
-    mealName: salad.name,
-    mealType: 'salad',
-    bySubCriterion: saladBreakdown.bySubCriterion,
-    sides: [saladBreakdown],
-  };
-
-  return { day: saladBreakdown.bySubCriterion, meals: [mealBreakdown] };
+  return buildDishSixDimensionsBreakdown(salad.id, salad.name, ingredients, 'salad', trackedConditions);
 }
 
 // Smoothie Builder's own CRUD, 2026-08-02 -- deliberate line-for-line mirror
@@ -6687,43 +6779,14 @@ export async function getSmoothieNutrientBreakdown(smoothieId: string): Promise<
 
 // Smoothie-scoped equivalent of getSaladSixDimensionsBreakdown -- see that
 // function's own comment for the full reasoning.
-export async function getSmoothieSixDimensionsBreakdown(smoothieId: string): Promise<DailySixDimensionsBreakdown> {
+export async function getSmoothieSixDimensionsBreakdown(
+  smoothieId: string,
+  trackedConditions: { code: string; name: string }[] = [],
+): Promise<DailySixDimensionsBreakdown> {
   const smoothie = await getSmoothie(smoothieId);
-  if (!smoothie) return { day: [], meals: [] };
-
+  if (!smoothie) return { day: [], dayPerCondition: {}, meals: [] };
   const ingredients = await getSmoothieIngredients(smoothieId);
-  const scoreCache = new Map<string, FoodScore[]>();
-  const foods: { foodName: string; scores: FoodScore[] }[] = [];
-
-  for (const ingredient of ingredients) {
-    if (!ingredient.foodId) continue;
-    const [foodIdStr, source] = ingredient.foodId.split('|');
-    const foodId = Number(foodIdStr);
-    if (!source || Number.isNaN(foodId)) continue;
-
-    const cacheKey = `${foodId}|${source}`;
-    let scores = scoreCache.get(cacheKey);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(cacheKey, scores);
-    }
-    foods.push({ foodName: ingredient.foodName, scores });
-  }
-
-  const smoothieBreakdown: DailyDimensionSideBreakdown = {
-    sideName: smoothie.name,
-    bySubCriterion: aggregateBySubCriterion(foods),
-    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
-  };
-  const mealBreakdown: DailyDimensionMealBreakdown = {
-    mealId: smoothie.id,
-    mealName: smoothie.name,
-    mealType: 'smoothie',
-    bySubCriterion: smoothieBreakdown.bySubCriterion,
-    sides: [smoothieBreakdown],
-  };
-
-  return { day: smoothieBreakdown.bySubCriterion, meals: [mealBreakdown] };
+  return buildDishSixDimensionsBreakdown(smoothie.id, smoothie.name, ingredients, 'smoothie', trackedConditions);
 }
 
 // Fermentation Builder's own CRUD, 2026-08-02 -- deliberate line-for-line
@@ -7116,43 +7179,14 @@ export async function getFermentationNutrientBreakdown(fermentationId: string): 
 
 // Fermentation-scoped equivalent of getSmoothieSixDimensionsBreakdown -- see
 // that function's own comment for the full reasoning.
-export async function getFermentationSixDimensionsBreakdown(fermentationId: string): Promise<DailySixDimensionsBreakdown> {
+export async function getFermentationSixDimensionsBreakdown(
+  fermentationId: string,
+  trackedConditions: { code: string; name: string }[] = [],
+): Promise<DailySixDimensionsBreakdown> {
   const fermentation = await getFermentation(fermentationId);
-  if (!fermentation) return { day: [], meals: [] };
-
+  if (!fermentation) return { day: [], dayPerCondition: {}, meals: [] };
   const ingredients = await getFermentationIngredients(fermentationId);
-  const scoreCache = new Map<string, FoodScore[]>();
-  const foods: { foodName: string; scores: FoodScore[] }[] = [];
-
-  for (const ingredient of ingredients) {
-    if (!ingredient.foodId) continue;
-    const [foodIdStr, source] = ingredient.foodId.split('|');
-    const foodId = Number(foodIdStr);
-    if (!source || Number.isNaN(foodId)) continue;
-
-    const cacheKey = `${foodId}|${source}`;
-    let scores = scoreCache.get(cacheKey);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(cacheKey, scores);
-    }
-    foods.push({ foodName: ingredient.foodName, scores });
-  }
-
-  const fermentationBreakdown: DailyDimensionSideBreakdown = {
-    sideName: fermentation.name,
-    bySubCriterion: aggregateBySubCriterion(foods),
-    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
-  };
-  const mealBreakdown: DailyDimensionMealBreakdown = {
-    mealId: fermentation.id,
-    mealName: fermentation.name,
-    mealType: 'fermentation',
-    bySubCriterion: fermentationBreakdown.bySubCriterion,
-    sides: [fermentationBreakdown],
-  };
-
-  return { day: fermentationBreakdown.bySubCriterion, meals: [mealBreakdown] };
+  return buildDishSixDimensionsBreakdown(fermentation.id, fermentation.name, ingredients, 'fermentation', trackedConditions);
 }
 
 // Beverage Builder's own CRUD, 2026-08-02 -- deliberate line-for-line
@@ -7570,43 +7604,14 @@ export async function getBeverageNutrientBreakdown(beverageId: string): Promise<
 
 // Beverage-scoped equivalent of getFermentationSixDimensionsBreakdown -- see
 // that function's own comment for the full reasoning.
-export async function getBeverageSixDimensionsBreakdown(beverageId: string): Promise<DailySixDimensionsBreakdown> {
+export async function getBeverageSixDimensionsBreakdown(
+  beverageId: string,
+  trackedConditions: { code: string; name: string }[] = [],
+): Promise<DailySixDimensionsBreakdown> {
   const beverage = await getBeverage(beverageId);
-  if (!beverage) return { day: [], meals: [] };
-
+  if (!beverage) return { day: [], dayPerCondition: {}, meals: [] };
   const ingredients = await getBeverageIngredients(beverageId);
-  const scoreCache = new Map<string, FoodScore[]>();
-  const foods: { foodName: string; scores: FoodScore[] }[] = [];
-
-  for (const ingredient of ingredients) {
-    if (!ingredient.foodId) continue;
-    const [foodIdStr, source] = ingredient.foodId.split('|');
-    const foodId = Number(foodIdStr);
-    if (!source || Number.isNaN(foodId)) continue;
-
-    const cacheKey = `${foodId}|${source}`;
-    let scores = scoreCache.get(cacheKey);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(cacheKey, scores);
-    }
-    foods.push({ foodName: ingredient.foodName, scores });
-  }
-
-  const beverageBreakdown: DailyDimensionSideBreakdown = {
-    sideName: beverage.name,
-    bySubCriterion: aggregateBySubCriterion(foods),
-    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
-  };
-  const mealBreakdown: DailyDimensionMealBreakdown = {
-    mealId: beverage.id,
-    mealName: beverage.name,
-    mealType: 'beverage',
-    bySubCriterion: beverageBreakdown.bySubCriterion,
-    sides: [beverageBreakdown],
-  };
-
-  return { day: beverageBreakdown.bySubCriterion, meals: [mealBreakdown] };
+  return buildDishSixDimensionsBreakdown(beverage.id, beverage.name, ingredients, 'beverage', trackedConditions);
 }
 
 // Snack Builder's own CRUD, 2026-08-02 -- deliberate line-for-line mirror of
@@ -7949,43 +7954,14 @@ export async function getSnackNutrientBreakdown(snackId: string): Promise<DailyN
 
 // Snack-scoped equivalent of getBeverageSixDimensionsBreakdown -- see that
 // function's own comment for the full reasoning.
-export async function getSnackSixDimensionsBreakdown(snackId: string): Promise<DailySixDimensionsBreakdown> {
+export async function getSnackSixDimensionsBreakdown(
+  snackId: string,
+  trackedConditions: { code: string; name: string }[] = [],
+): Promise<DailySixDimensionsBreakdown> {
   const snack = await getSnack(snackId);
-  if (!snack) return { day: [], meals: [] };
-
+  if (!snack) return { day: [], dayPerCondition: {}, meals: [] };
   const ingredients = await getSnackIngredients(snackId);
-  const scoreCache = new Map<string, FoodScore[]>();
-  const foods: { foodName: string; scores: FoodScore[] }[] = [];
-
-  for (const ingredient of ingredients) {
-    if (!ingredient.foodId) continue;
-    const [foodIdStr, source] = ingredient.foodId.split('|');
-    const foodId = Number(foodIdStr);
-    if (!source || Number.isNaN(foodId)) continue;
-
-    const cacheKey = `${foodId}|${source}`;
-    let scores = scoreCache.get(cacheKey);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(cacheKey, scores);
-    }
-    foods.push({ foodName: ingredient.foodName, scores });
-  }
-
-  const snackBreakdown: DailyDimensionSideBreakdown = {
-    sideName: snack.name,
-    bySubCriterion: aggregateBySubCriterion(foods),
-    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
-  };
-  const mealBreakdown: DailyDimensionMealBreakdown = {
-    mealId: snack.id,
-    mealName: snack.name,
-    mealType: 'snack',
-    bySubCriterion: snackBreakdown.bySubCriterion,
-    sides: [snackBreakdown],
-  };
-
-  return { day: snackBreakdown.bySubCriterion, meals: [mealBreakdown] };
+  return buildDishSixDimensionsBreakdown(snack.id, snack.name, ingredients, 'snack', trackedConditions);
 }
 
 // Baked Goods Builder's own CRUD, 2026-08-02 -- deliberate line-for-line
@@ -8330,43 +8306,14 @@ export async function getBakedGoodsNutrientBreakdown(bakedGoodId: string): Promi
 
 // Baked-Goods-scoped equivalent of getSnackSixDimensionsBreakdown -- see
 // that function's own comment for the full reasoning.
-export async function getBakedGoodsSixDimensionsBreakdown(bakedGoodId: string): Promise<DailySixDimensionsBreakdown> {
+export async function getBakedGoodsSixDimensionsBreakdown(
+  bakedGoodId: string,
+  trackedConditions: { code: string; name: string }[] = [],
+): Promise<DailySixDimensionsBreakdown> {
   const bakedGood = await getBakedGoods(bakedGoodId);
-  if (!bakedGood) return { day: [], meals: [] };
-
+  if (!bakedGood) return { day: [], dayPerCondition: {}, meals: [] };
   const ingredients = await getBakedGoodsIngredients(bakedGoodId);
-  const scoreCache = new Map<string, FoodScore[]>();
-  const foods: { foodName: string; scores: FoodScore[] }[] = [];
-
-  for (const ingredient of ingredients) {
-    if (!ingredient.foodId) continue;
-    const [foodIdStr, source] = ingredient.foodId.split('|');
-    const foodId = Number(foodIdStr);
-    if (!source || Number.isNaN(foodId)) continue;
-
-    const cacheKey = `${foodId}|${source}`;
-    let scores = scoreCache.get(cacheKey);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(cacheKey, scores);
-    }
-    foods.push({ foodName: ingredient.foodName, scores });
-  }
-
-  const bakedGoodBreakdown: DailyDimensionSideBreakdown = {
-    sideName: bakedGood.name,
-    bySubCriterion: aggregateBySubCriterion(foods),
-    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
-  };
-  const mealBreakdown: DailyDimensionMealBreakdown = {
-    mealId: bakedGood.id,
-    mealName: bakedGood.name,
-    mealType: 'baked_good',
-    bySubCriterion: bakedGoodBreakdown.bySubCriterion,
-    sides: [bakedGoodBreakdown],
-  };
-
-  return { day: bakedGoodBreakdown.bySubCriterion, meals: [mealBreakdown] };
+  return buildDishSixDimensionsBreakdown(bakedGood.id, bakedGood.name, ingredients, 'baked_good', trackedConditions);
 }
 
 // Soup Builder's own CRUD, 2026-08-02 -- deliberate line-for-line mirror of
@@ -8756,43 +8703,14 @@ export async function getSoupNutrientBreakdown(soupId: string): Promise<DailyNut
 
 // Soup-scoped equivalent of getBakedGoodsSixDimensionsBreakdown -- see that
 // function's own comment for the full reasoning.
-export async function getSoupSixDimensionsBreakdown(soupId: string): Promise<DailySixDimensionsBreakdown> {
+export async function getSoupSixDimensionsBreakdown(
+  soupId: string,
+  trackedConditions: { code: string; name: string }[] = [],
+): Promise<DailySixDimensionsBreakdown> {
   const soup = await getSoup(soupId);
-  if (!soup) return { day: [], meals: [] };
-
+  if (!soup) return { day: [], dayPerCondition: {}, meals: [] };
   const ingredients = await getSoupIngredients(soupId);
-  const scoreCache = new Map<string, FoodScore[]>();
-  const foods: { foodName: string; scores: FoodScore[] }[] = [];
-
-  for (const ingredient of ingredients) {
-    if (!ingredient.foodId) continue;
-    const [foodIdStr, source] = ingredient.foodId.split('|');
-    const foodId = Number(foodIdStr);
-    if (!source || Number.isNaN(foodId)) continue;
-
-    const cacheKey = `${foodId}|${source}`;
-    let scores = scoreCache.get(cacheKey);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(cacheKey, scores);
-    }
-    foods.push({ foodName: ingredient.foodName, scores });
-  }
-
-  const soupBreakdown: DailyDimensionSideBreakdown = {
-    sideName: soup.name,
-    bySubCriterion: aggregateBySubCriterion(foods),
-    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
-  };
-  const mealBreakdown: DailyDimensionMealBreakdown = {
-    mealId: soup.id,
-    mealName: soup.name,
-    mealType: 'soup',
-    bySubCriterion: soupBreakdown.bySubCriterion,
-    sides: [soupBreakdown],
-  };
-
-  return { day: soupBreakdown.bySubCriterion, meals: [mealBreakdown] };
+  return buildDishSixDimensionsBreakdown(soup.id, soup.name, ingredients, 'soup', trackedConditions);
 }
 
 // Sauces Builder's own CRUD, 2026-08-02 -- deliberate line-for-line mirror
@@ -9185,43 +9103,14 @@ export async function getSauceNutrientBreakdown(sauceId: string): Promise<DailyN
 
 // Sauce-scoped equivalent of getSoupSixDimensionsBreakdown -- see that
 // function's own comment for the full reasoning.
-export async function getSauceSixDimensionsBreakdown(sauceId: string): Promise<DailySixDimensionsBreakdown> {
+export async function getSauceSixDimensionsBreakdown(
+  sauceId: string,
+  trackedConditions: { code: string; name: string }[] = [],
+): Promise<DailySixDimensionsBreakdown> {
   const sauce = await getSauce(sauceId);
-  if (!sauce) return { day: [], meals: [] };
-
+  if (!sauce) return { day: [], dayPerCondition: {}, meals: [] };
   const ingredients = await getSauceIngredients(sauceId);
-  const scoreCache = new Map<string, FoodScore[]>();
-  const foods: { foodName: string; scores: FoodScore[] }[] = [];
-
-  for (const ingredient of ingredients) {
-    if (!ingredient.foodId) continue;
-    const [foodIdStr, source] = ingredient.foodId.split('|');
-    const foodId = Number(foodIdStr);
-    if (!source || Number.isNaN(foodId)) continue;
-
-    const cacheKey = `${foodId}|${source}`;
-    let scores = scoreCache.get(cacheKey);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(cacheKey, scores);
-    }
-    foods.push({ foodName: ingredient.foodName, scores });
-  }
-
-  const sauceBreakdown: DailyDimensionSideBreakdown = {
-    sideName: sauce.name,
-    bySubCriterion: aggregateBySubCriterion(foods),
-    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
-  };
-  const mealBreakdown: DailyDimensionMealBreakdown = {
-    mealId: sauce.id,
-    mealName: sauce.name,
-    mealType: 'sauce',
-    bySubCriterion: sauceBreakdown.bySubCriterion,
-    sides: [sauceBreakdown],
-  };
-
-  return { day: sauceBreakdown.bySubCriterion, meals: [mealBreakdown] };
+  return buildDishSixDimensionsBreakdown(sauce.id, sauce.name, ingredients, 'sauce', trackedConditions);
 }
 
 // Handhelds Builder's own CRUD, 2026-08-04 -- deliberate line-for-line
@@ -9565,43 +9454,14 @@ export async function getHandheldNutrientBreakdown(handheldId: string): Promise<
 
 // Handheld-scoped equivalent of getSoupSixDimensionsBreakdown -- see that
 // function's own comment for the full reasoning.
-export async function getHandheldSixDimensionsBreakdown(handheldId: string): Promise<DailySixDimensionsBreakdown> {
+export async function getHandheldSixDimensionsBreakdown(
+  handheldId: string,
+  trackedConditions: { code: string; name: string }[] = [],
+): Promise<DailySixDimensionsBreakdown> {
   const handheld = await getHandheld(handheldId);
-  if (!handheld) return { day: [], meals: [] };
-
+  if (!handheld) return { day: [], dayPerCondition: {}, meals: [] };
   const ingredients = await getHandheldIngredients(handheldId);
-  const scoreCache = new Map<string, FoodScore[]>();
-  const foods: { foodName: string; scores: FoodScore[] }[] = [];
-
-  for (const ingredient of ingredients) {
-    if (!ingredient.foodId) continue;
-    const [foodIdStr, source] = ingredient.foodId.split('|');
-    const foodId = Number(foodIdStr);
-    if (!source || Number.isNaN(foodId)) continue;
-
-    const cacheKey = `${foodId}|${source}`;
-    let scores = scoreCache.get(cacheKey);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(cacheKey, scores);
-    }
-    foods.push({ foodName: ingredient.foodName, scores });
-  }
-
-  const handheldBreakdown: DailyDimensionSideBreakdown = {
-    sideName: handheld.name,
-    bySubCriterion: aggregateBySubCriterion(foods),
-    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
-  };
-  const mealBreakdown: DailyDimensionMealBreakdown = {
-    mealId: handheld.id,
-    mealName: handheld.name,
-    mealType: 'handheld',
-    bySubCriterion: handheldBreakdown.bySubCriterion,
-    sides: [handheldBreakdown],
-  };
-
-  return { day: handheldBreakdown.bySubCriterion, meals: [mealBreakdown] };
+  return buildDishSixDimensionsBreakdown(handheld.id, handheld.name, ingredients, 'handheld', trackedConditions);
 }
 
 // Dessert Builder's own CRUD, 2026-08-14 -- deliberate line-for-line mirror
@@ -9996,43 +9856,14 @@ export async function getDessertNutrientBreakdown(dessertId: string): Promise<Da
 
 // Dessert-scoped equivalent of getSoupSixDimensionsBreakdown -- see that
 // function's own comment for the full reasoning.
-export async function getDessertSixDimensionsBreakdown(dessertId: string): Promise<DailySixDimensionsBreakdown> {
+export async function getDessertSixDimensionsBreakdown(
+  dessertId: string,
+  trackedConditions: { code: string; name: string }[] = [],
+): Promise<DailySixDimensionsBreakdown> {
   const dessert = await getDessert(dessertId);
-  if (!dessert) return { day: [], meals: [] };
-
+  if (!dessert) return { day: [], dayPerCondition: {}, meals: [] };
   const ingredients = await getDessertIngredients(dessertId);
-  const scoreCache = new Map<string, FoodScore[]>();
-  const foods: { foodName: string; scores: FoodScore[] }[] = [];
-
-  for (const ingredient of ingredients) {
-    if (!ingredient.foodId) continue;
-    const [foodIdStr, source] = ingredient.foodId.split('|');
-    const foodId = Number(foodIdStr);
-    if (!source || Number.isNaN(foodId)) continue;
-
-    const cacheKey = `${foodId}|${source}`;
-    let scores = scoreCache.get(cacheKey);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(cacheKey, scores);
-    }
-    foods.push({ foodName: ingredient.foodName, scores });
-  }
-
-  const dessertBreakdown: DailyDimensionSideBreakdown = {
-    sideName: dessert.name,
-    bySubCriterion: aggregateBySubCriterion(foods),
-    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
-  };
-  const mealBreakdown: DailyDimensionMealBreakdown = {
-    mealId: dessert.id,
-    mealName: dessert.name,
-    mealType: 'dessert',
-    bySubCriterion: dessertBreakdown.bySubCriterion,
-    sides: [dessertBreakdown],
-  };
-
-  return { day: dessertBreakdown.bySubCriterion, meals: [mealBreakdown] };
+  return buildDishSixDimensionsBreakdown(dessert.id, dessert.name, ingredients, 'dessert', trackedConditions);
 }
 
 // itemType filters to just 'meal' or 'side' favorites; omit it to get both
@@ -13767,15 +13598,25 @@ export type DailyDimensionScore = {
   entries: { foodName: string; tier: string }[];
 };
 
+// perCondition, 2026-08-26 -- one entry per tracked condition, each with
+// its own real dimension set and severity, scoped to whatever foods this
+// level actually covers (see lib/conditionDimensions.ts). Added alongside
+// bySubCriterion rather than replacing it: the Cooking & Prep lens
+// (PrepView, app/(tabs)/insights.tsx) reads bySubCriterion directly for a
+// genuinely different, condition-independent question (does this food
+// change based on how it's prepared), and needs no change at all as long
+// as this field keeps meaning exactly what it always has.
 export type DailyDimensionItemBreakdown = {
   foodName: string;
   bySubCriterion: DailyDimensionScore[];
+  perCondition: Record<string, ConditionDimensionSummary>;
 };
 
 export type DailyDimensionSideBreakdown = {
   sideName: string;
   bySubCriterion: DailyDimensionScore[];
   items: DailyDimensionItemBreakdown[];
+  perCondition: Record<string, ConditionDimensionSummary>;
 };
 
 export type DailyDimensionMealBreakdown = {
@@ -13784,10 +13625,12 @@ export type DailyDimensionMealBreakdown = {
   mealType: string;
   bySubCriterion: DailyDimensionScore[];
   sides: DailyDimensionSideBreakdown[];
+  perCondition: Record<string, ConditionDimensionSummary>;
 };
 
 export type DailySixDimensionsBreakdown = {
   day: DailyDimensionScore[];
+  dayPerCondition: Record<string, ConditionDimensionSummary>;
   meals: DailyDimensionMealBreakdown[];
 };
 
@@ -13822,7 +13665,17 @@ function aggregateBySubCriterion(foods: { foodName: string; scores: FoodScore[] 
 // -- one getMealItemsInWindow call for the whole day instead of one
 // getMealItems call per meal, grouped by mealId afterward. Same real fields
 // either way, same per-meal processing below, completely unchanged.
-export async function getDailySixDimensionsBreakdown(date: string): Promise<DailySixDimensionsBreakdown> {
+// trackedConditions, 2026-08-26 -- optional, defaults to [] so every
+// existing caller (Trends' own past history, anything not yet updated)
+// keeps working unchanged: an empty list means perCondition/
+// dayPerCondition come back as {} at every level, the same "absence means
+// no restriction" contract this app's other personalization features
+// already follow. Insights' own "6 Dimensions" lens is the real caller
+// that passes the person's actual tracked conditions.
+export async function getDailySixDimensionsBreakdown(
+  date: string,
+  trackedConditions: { code: string; name: string }[] = [],
+): Promise<DailySixDimensionsBreakdown> {
   const [meals, dayItems] = await Promise.all([listMealsForDate(date), getMealItemsInWindow(date, endOfLocalDay(date))]);
   const itemsByMeal = new Map<string, typeof dayItems>();
   for (const item of dayItems) {
@@ -13833,7 +13686,9 @@ export async function getDailySixDimensionsBreakdown(date: string): Promise<Dail
   // The same real fix as getDailyNutrientBreakdown just above -- every
   // distinct real (foodId, source) pair for the WHOLE day, resolved in one
   // bulk query via getFoodScoresBulk instead of one getFoodScores call per
-  // distinct food.
+  // distinct food. conditionScoresByFood is the condition-scoped sibling
+  // of that same fix (getConditionScoresForFoodsBulk), fetched once here
+  // too rather than once per tracked condition.
   const distinctFoodPairs = new Map<string, { foodId: number; source: string }>();
   for (const item of dayItems) {
     if (!item.foodId) continue;
@@ -13842,20 +13697,24 @@ export async function getDailySixDimensionsBreakdown(date: string): Promise<Dail
     if (!source || Number.isNaN(foodId)) continue;
     distinctFoodPairs.set(`${foodId}|${source}`, { foodId, source });
   }
-  const scoresByFood = await getFoodScoresBulk(Array.from(distinctFoodPairs.values()));
+  const [scoresByFood, conditionScoresByFood] = await Promise.all([
+    getFoodScoresBulk(Array.from(distinctFoodPairs.values())),
+    getConditionScoresForFoodsBulk(Array.from(distinctFoodPairs.values()), trackedConditions.map((condition) => condition.code)),
+  ]);
 
   function getScores(foodId: number, source: string): FoodScore[] {
     return scoresByFood.get(`${foodId}|${source}`) ?? [];
   }
 
+  type DayFood = { foodName: string; scores: FoodScore[]; foodId: number; source: string };
   const mealBreakdowns: DailyDimensionMealBreakdown[] = [];
-  const dayFoods = new Map<string, { foodName: string; scores: FoodScore[] }>();
+  const dayFoods = new Map<string, DayFood>();
 
   for (const meal of meals) {
     const items = itemsByMeal.get(meal.id) ?? [];
     const sideOrder: string[] = [];
-    const sidesByKey = new Map<string, { sideName: string; foods: Map<string, { foodName: string; scores: FoodScore[] }> }>();
-    const mealFoods = new Map<string, { foodName: string; scores: FoodScore[] }>();
+    const sidesByKey = new Map<string, { sideName: string; foods: Map<string, DayFood> }>();
+    const mealFoods = new Map<string, DayFood>();
 
     for (const item of items) {
       if (!item.foodId) continue;
@@ -13865,7 +13724,7 @@ export async function getDailySixDimensionsBreakdown(date: string): Promise<Dail
 
       const scores = getScores(foodId, source);
       const foodKey = `${foodId}|${source}`;
-      const foodEntry = { foodName: item.foodName, scores };
+      const foodEntry: DayFood = { foodName: item.foodName, scores, foodId, source };
 
       const sideKey = item.dishName || `${meal.id}_ungrouped`;
       if (!sidesByKey.has(sideKey)) {
@@ -13883,21 +13742,30 @@ export async function getDailySixDimensionsBreakdown(date: string): Promise<Dail
       return {
         sideName: side.sideName,
         bySubCriterion: aggregateBySubCriterion(foodEntries),
-        items: foodEntries.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
+        items: foodEntries.map((food) => ({
+          foodName: food.foodName,
+          bySubCriterion: aggregateBySubCriterion([food]),
+          perCondition: buildPerConditionSummaries([food], trackedConditions, conditionScoresByFood),
+        })),
+        perCondition: buildPerConditionSummaries(foodEntries, trackedConditions, conditionScoresByFood),
       };
     });
 
+    const mealFoodEntries = Array.from(mealFoods.values());
     mealBreakdowns.push({
       mealId: meal.id,
       mealName: meal.name,
       mealType: meal.meal_type,
-      bySubCriterion: aggregateBySubCriterion(Array.from(mealFoods.values())),
+      bySubCriterion: aggregateBySubCriterion(mealFoodEntries),
       sides,
+      perCondition: buildPerConditionSummaries(mealFoodEntries, trackedConditions, conditionScoresByFood),
     });
   }
 
+  const dayFoodEntries = Array.from(dayFoods.values());
   return {
-    day: aggregateBySubCriterion(Array.from(dayFoods.values())),
+    day: aggregateBySubCriterion(dayFoodEntries),
+    dayPerCondition: buildPerConditionSummaries(dayFoodEntries, trackedConditions, conditionScoresByFood),
     meals: mealBreakdowns,
   };
 }
