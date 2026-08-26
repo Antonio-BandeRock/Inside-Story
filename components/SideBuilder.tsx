@@ -1670,12 +1670,32 @@ export function SideBuilder({
           actions={[
             ...(stagePickerFor ? getConditionStagingModel(stagePickerFor.code)?.stages ?? [] : []).map((stage) => ({
               label: stage.label,
+              // 2026-08-25, direct report: "the stage of their healing
+              // information is no longer there" -- root-caused to this
+              // exact handler firing the real database write with `void`
+              // (fire-and-forget) while updating the on-screen state
+              // immediately regardless, so the report could show a stage
+              // that hadn't actually finished being written yet. If
+              // anything interrupted the app before that write landed (a
+              // Metro reload mid-session, closing the app), the next real
+              // read of user_condition_stages came back with nothing, and
+              // the declared stage was genuinely gone, not just stale
+              // display. Fixed by awaiting the real write and only
+              // updating local state once it's confirmed to have
+              // succeeded, with a real, visible failure path instead of a
+              // silent one.
               onPress: () => {
                 const code = stagePickerFor?.code;
                 if (!code) return;
-                void setConditionStage(code, stage.code);
-                setConditionStages((current) => ({ ...current, [code]: stage.code }));
                 setStagePickerFor(null);
+                setConditionStage(code, stage.code)
+                  .then(() => {
+                    setConditionStages((current) => ({ ...current, [code]: stage.code }));
+                  })
+                  .catch((error) => {
+                    console.error('[SideBuilder] Failed to save the declared healing stage', error);
+                    showInfoAlert('Stage not saved', 'Something went wrong saving your healing stage. Please try setting it again.');
+                  });
               },
             })),
             { label: 'Cancel', onPress: () => {} },
