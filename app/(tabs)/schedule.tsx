@@ -1930,16 +1930,30 @@ function DailyMealPlanLens() {
             {singleDay.nutrientCoverage
               .filter((row) => row.nutrientCode !== 'water')
               .map((row, index) => {
-                const nearOrOverLimit = row.percentOfUpperLimit !== null && row.percentOfUpperLimit >= 80;
+                // A ceiling row (sodium): the operative number to show
+                // against is the real limit itself, not a separate
+                // floor -- targetAmount stays at this row's own default
+                // population figure even when a personal, stricter
+                // ceiling override is set in Profile, so upperLimit is
+                // what actually reflects that override.
+                const displayTarget = row.isCeiling ? (row.upperLimit ?? row.targetAmount) : row.targetAmount;
+                const displayPercent = row.isCeiling
+                  ? row.percentOfUpperLimit ?? row.percentOfTarget
+                  : row.percentOfTarget;
+                const nearOrOverLimit = !row.isCeiling && row.percentOfUpperLimit !== null && row.percentOfUpperLimit >= 80;
+                const ceilingExceeded = row.isCeiling && displayPercent !== null && displayPercent >= 100;
                 return (
                   <View key={`${row.nutrientCode}-${index}`} style={styles.dailyPlanNutrientRow}>
-                    <Text style={styles.helperText}>{row.displayName}</Text>
+                    <Text style={styles.helperText}>
+                      {row.displayName}
+                      {row.isCeiling ? ' (ceiling)' : ''}
+                    </Text>
                     <View style={{ alignItems: 'flex-end' }}>
-                      <Text style={styles.helperText}>
+                      <Text style={[styles.helperText, ceilingExceeded && { color: colors.danger }]}>
                         {Math.round(row.amount * 10) / 10}
-                        {row.unit} of {row.targetAmount}
+                        {row.unit} of {displayTarget}
                         {row.unit}
-                        {row.percentOfTarget !== null ? ` (${row.percentOfTarget}%)` : ''}
+                        {displayPercent !== null ? ` (${displayPercent}%)` : ''}
                       </Text>
                       {nearOrOverLimit ? (
                         <Text style={[styles.helperText, { color: row.percentOfUpperLimit! >= 100 ? colors.danger : colors.statusYellowStandalone }]}>

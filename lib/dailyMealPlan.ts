@@ -50,12 +50,14 @@ import {
   curatedRecipeContainsSweetenerIngredient,
   getCuratedRecipeNutrientTotals,
   getDietaryReferenceIntakesForCurrentUser,
+  getUserNutrientTargets,
   getUserProfile,
   type DietaryReferenceIntake,
   type IngredientResolutionCaches,
   type MealPlanComponentRef,
   type MealPlanDay,
   type MealPlanSlot,
+  type UserNutrientTargetOverride,
 } from './db';
 import {
   getEntriesForCategory,
@@ -423,6 +425,18 @@ function scoreNutrientGapFilling(dayTotalsSoFar: Record<string, number>, candida
 // day-total past its own real Tolerable Upper Intake Level -- the
 // upperLimit field getDietaryReferenceIntakesForCurrentUser already
 // returns, unused anywhere in this generator before this pass.
+//
+// 2026-08-26 fix: every call site now passes driByCode's own values
+// (Array.from(driByCode.values())), never the raw driRows array directly.
+// Confirmed as a real, separate gap while wiring the new personal
+// nutrient-target overrides: driRows can genuinely carry more than one
+// row per nutrient code (Profile missing a sex/birth date), and passing
+// it straight through here meant this exact guard, the one place that
+// actually blocks an overshoot rather than just reporting one, was never
+// reading the conservative, collision-safe row buildConservativeDriByCode
+// already builds, nor a person's own declared override
+// (applyNutrientTargetOverrides) -- both were only ever reaching the
+// score/report side, not the actual gate.
 function wouldExceedUpperLimit(dayTotalsSoFar: Record<string, number>, candidateTotals: Record<string, number>, driRows: DietaryReferenceIntake[]): boolean {
   return driRows.some((row) => {
     if (row.upperLimit == null || row.upperLimit <= 0) return false;
@@ -517,6 +531,11 @@ export type DailyMealPlanNutrientCoverage = {
   // equally alarming.
   upperLimit: number | null;
   percentOfUpperLimit: number | null;
+  // True for a real CDRR row (currently just sodium): targetAmount there
+  // IS the recommended ceiling, not a floor to reach -- staying UNDER
+  // 100% is the goal, the opposite of every RDA/AI row, so the UI needs
+  // to know which framing applies rather than guessing from nutrientCode.
+  isCeiling: boolean;
 };
 
 export type DailyMealPlanResult = {
@@ -793,6 +812,39 @@ function buildConservativeDriByCode(driRows: DietaryReferenceIntake[]): Map<stri
   return byCode;
 }
 
+// 2026-08-26, direct follow-up to the DRI-collision fix above: "you
+// should complete the adjustable personal protein/fiber/sodium targets
+// with its own small settings feature." A real person can legitimately
+// need more of a nutrient than the population-average DRI figure (a
+// higher protein or fiber floor), or a tighter ceiling than the general
+// population's (a lower sodium limit for CKD/blood-pressure management),
+// and Profile now has a small "Nutrient Targets" card where that gets
+// declared -- see setUserNutrientTargetOverride in lib/db.ts. Applied
+// here, on top of buildConservativeDriByCode's own already-resolved,
+// collision-safe row per nutrient, so every downstream consumer (the
+// gap-filling scorer, the exceeds-UL guard, and the nutrient-coverage
+// report) automatically respects a personal override without needing
+// separate wiring at each site. An override for a nutrient this app
+// doesn't otherwise track a real DRI row for is silently ignored rather
+// than fabricating one -- there is nothing real to override yet.
+function applyNutrientTargetOverrides(
+  driByCode: Map<string, DietaryReferenceIntake>,
+  overrides: UserNutrientTargetOverride[],
+): Map<string, DietaryReferenceIntake> {
+  if (overrides.length === 0) return driByCode;
+  const result = new Map(driByCode);
+  for (const override of overrides) {
+    const existing = result.get(override.nutrientCode);
+    if (!existing) continue;
+    result.set(override.nutrientCode, {
+      ...existing,
+      amount: override.targetAmount ?? existing.amount,
+      upperLimit: override.limitAmount ?? existing.upperLimit,
+    });
+  }
+  return result;
+}
+
 // The same real cross-filter "Meals You Can Eat" already applies:
 // genuinely safe (green or yellow, never a real red flag) for every
 // declared condition at once, compliant with every declared diet
@@ -845,10 +897,11 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
   const uniqueEntryList = Array.from(uniqueEntries.values());
   const sharedCaches = createIngredientResolutionCaches();
 
-  const [loadedCandidates, driRows, profile] = await Promise.all([
+  const [loadedCandidates, driRows, profile, nutrientTargetOverrides] = await Promise.all([
     Promise.all(uniqueEntryList.map((entry) => loadCandidate(entry, sharedCaches))),
     getDietaryReferenceIntakesForCurrentUser(),
     getUserProfile(),
+    getUserNutrientTargets(),
   ]);
   const candidateById = new Map<string, LoadedCandidate>();
   uniqueEntryList.forEach((entry, index) => {
@@ -865,7 +918,7 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
   const sideCandidates = poolFrom(sidePoolEntries);
   const saladCandidates = poolFrom(saladPoolEntries);
   const beverageCandidates = poolFrom(beveragePoolEntries);
-  const driByCode = buildConservativeDriByCode(driRows);
+  const driByCode = applyNutrientTargetOverrides(buildConservativeDriByCode(driRows), nutrientTargetOverrides);
   const profileIncomplete = profile.sex == null || profile.birthDate == null;
   return {
     breakfastCandidates,
@@ -900,8 +953,19 @@ async function generateOneDay(
       'Your Profile is missing a sex and/or birth date, so the nutrient targets below use the most conservative real DRI value available rather than one built specifically for you. Add both in Profile for a more accurately personalized plan.',
     );
   }
-  const { breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates, saladCandidates, beverageCandidates, driRows, driByCode } =
-    pools;
+  const { breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates, saladCandidates, beverageCandidates, driByCode } = pools;
+  // Built once here, from driByCode's own values (already deduped to one
+  // conservative, override-applied row per nutrient -- see
+  // buildConservativeDriByCode/applyNutrientTargetOverrides), and reused
+  // everywhere this function used to reach for pools.driRows directly.
+  // 2026-08-26 fix: the raw pools.driRows array can genuinely carry more
+  // than one row per nutrient code (Profile missing a sex/birth date),
+  // and passing it straight through to wouldExceedUpperLimit/
+  // scoreNutrientGapFilling was a real, separate bug -- a nutrient's own
+  // gap-filling credit could be double-counted once per colliding row,
+  // and a personal target override (applyNutrientTargetOverrides) never
+  // reached the one guard that actually blocks an overshoot.
+  const driRows = Array.from(driByCode.values());
 
   let totalCarbGrams = 0;
   const nutrientTotals: Record<string, number> = {};
@@ -1105,7 +1169,12 @@ async function generateOneDay(
   // over, each with a different target, rather than the one conservative
   // figure this run's own scoring actually used throughout.
   const nutrientCoverage: DailyMealPlanNutrientCoverage[] = Array.from(driByCode.values())
-    .filter((row) => row.valueType === 'RDA' || row.valueType === 'AI')
+    // CDRR (sodium) included alongside the usual RDA/AI floors, 2026-08-26
+    // -- a real ceiling nutrient someone might have personally overridden
+    // (see applyNutrientTargetOverrides) needs to show up here too, not
+    // just when it happens to exceed its own upperLimit and gets caught
+    // by the UL guard during selection.
+    .filter((row) => row.valueType === 'RDA' || row.valueType === 'AI' || row.valueType === 'CDRR')
     .map((row) => {
       const amount = nutrientTotals[row.nutrientCode] ?? 0;
       return {
@@ -1117,6 +1186,7 @@ async function generateOneDay(
         percentOfTarget: row.amount > 0 ? Math.round((amount / row.amount) * 100) : null,
         upperLimit: row.upperLimit,
         percentOfUpperLimit: row.upperLimit != null && row.upperLimit > 0 ? Math.round((amount / row.upperLimit) * 100) : null,
+        isCeiling: row.valueType === 'CDRR',
       };
     });
 

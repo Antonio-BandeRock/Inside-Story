@@ -4192,6 +4192,32 @@ async function runDatabaseInitialization() {
         selected_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- 2026-08-26, direct request following the Daily Meal Plan bug-fix
+      -- pass: "they might need more of something than the normal person
+      -- would need... adjust the amount of protein, or the amount of
+      -- fiber." One row per nutrient someone has deliberately overridden
+      -- away from their standard, computed DRI value -- absence means
+      -- "use the default," the same contract every other personalization
+      -- table in this file already follows, so a nutrient nobody has
+      -- touched needs no row at all. target_amount overrides the
+      -- RDA/AI/CDRR floor-or-recommended figure this app would otherwise
+      -- compute (protein, fiber: a real person can legitimately need
+      -- more than the population-average target); limit_amount overrides
+      -- the real upper limit/ceiling a nutrient carries (sodium: a real
+      -- person managing blood pressure or CKD may need a STRICTER
+      -- ceiling than the general-population 2300mg CDRR value). Both
+      -- columns exist on every row so a single nutrient could, in
+      -- principle, carry both a custom floor and a custom ceiling at
+      -- once, even though the first UI built on this only ever edits one
+      -- side per nutrient (see getUserNutrientTargets/
+      -- setUserNutrientTargetOverride below).
+      CREATE TABLE IF NOT EXISTS user_nutrient_targets (
+        nutrient_code TEXT PRIMARY KEY,
+        target_amount REAL,
+        limit_amount REAL,
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- The person's own real, individually-declared food allergies,
       -- 2026-08-09, explicitly requested inside Profile's own "conditions
       -- area." allergen_name IS the primary key (the same natural-key
@@ -12551,6 +12577,44 @@ export async function setDietPreferenceSelected(dietTag: string, selected: boole
   } else {
     await db.runAsync('DELETE FROM diet_preferences WHERE diet_tag = ?', dietTag);
   }
+}
+
+// The person's own real, per-nutrient target overrides -- see
+// user_nutrient_targets' own schema comment above for the full
+// reasoning. Both fields are null-able independently: a nutrient can
+// carry a custom floor, a custom ceiling, or both, and setting both back
+// to null deletes the row outright rather than leaving a dead, all-null
+// row behind -- "no row" is this table's own real "use the default"
+// state, not a row full of nulls, matching the "absence means default"
+// contract every other personalization table in this file already uses.
+export type UserNutrientTargetOverride = {
+  nutrientCode: string;
+  targetAmount: number | null;
+  limitAmount: number | null;
+};
+
+export async function getUserNutrientTargets(): Promise<UserNutrientTargetOverride[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ nutrient_code: string; target_amount: number | null; limit_amount: number | null }>(
+    'SELECT nutrient_code, target_amount, limit_amount FROM user_nutrient_targets',
+  );
+  return rows.map((row) => ({ nutrientCode: row.nutrient_code, targetAmount: row.target_amount, limitAmount: row.limit_amount }));
+}
+
+export async function setUserNutrientTargetOverride(nutrientCode: string, targetAmount: number | null, limitAmount: number | null): Promise<void> {
+  const db = await getDatabase();
+  if (targetAmount == null && limitAmount == null) {
+    await db.runAsync('DELETE FROM user_nutrient_targets WHERE nutrient_code = ?', nutrientCode);
+    return;
+  }
+  await db.runAsync(
+    `INSERT INTO user_nutrient_targets (nutrient_code, target_amount, limit_amount, updated_at)
+     VALUES (?, ?, ?, datetime('now'))
+     ON CONFLICT(nutrient_code) DO UPDATE SET target_amount = excluded.target_amount, limit_amount = excluded.limit_amount, updated_at = excluded.updated_at`,
+    nutrientCode,
+    targetAmount,
+    limitAmount,
+  );
 }
 
 // Real, individually-declared food allergies -- see user_food_allergies'

@@ -50,14 +50,17 @@ import {
 import {
   addFoodAllergy,
   type ConditionReference,
+  type DietaryReferenceIntake,
   DietarySex,
   type FoodTrialRecord,
   getConditionStages,
   getCuriousAboutConditions,
+  getDietaryReferenceIntakesForCurrentUser,
   getDietPreferences,
   getFoodTrialsForCondition,
   getStoredMeasurementSystem,
   getUserConditions,
+  getUserNutrientTargets,
   getUserProfile,
   listAllConditions,
   listBodyMeasurements,
@@ -72,8 +75,10 @@ import {
   setDietPreferenceSelected,
   setStoredMeasurementSystem,
   setUserConditionSelected,
+  setUserNutrientTargetOverride,
   setUserProfile,
   SymptomAssessmentRecord,
+  type UserNutrientTargetOverride,
   UserProfile,
 } from '../lib/db';
 import { RECIPE_DIET_TAGS, type RecipeDietTag } from '../lib/digest/types';
@@ -199,11 +204,25 @@ const ICON_GRID_PILL_SIZE = 52;
 // a production build, since nothing renders it there: see the actual JSX
 // below, gated on the __DEV__ global directly, not on this key's presence
 // here).
+// The Nutrient Targets card's own curated list, 2026-08-26 -- a short,
+// named first pass (matching the exact 3 nutrients the person asked for)
+// rather than every real DRI-tracked nutrient at once. nutrientCode must
+// match a real code already used in dietary_reference_intakes (see
+// lib/db.ts); isCeiling picks which of user_nutrient_targets' two columns
+// (target_amount for a floor, limit_amount for a ceiling) this field
+// actually edits.
+const NUTRIENT_TARGET_FIELDS: { nutrientCode: string; label: string; unit: string; isCeiling: boolean }[] = [
+  { nutrientCode: 'protein', label: 'Protein', unit: 'g', isCeiling: false },
+  { nutrientCode: 'fiber_total', label: 'Fiber', unit: 'g', isCeiling: false },
+  { nutrientCode: 'sodium', label: 'Sodium', unit: 'mg', isCeiling: true },
+];
+
 const ALL_CARD_SECTION_KEYS = [
   'personal-info',
   'conditions',
   'diet-preferences',
   'meal-plan',
+  'nutrient-targets',
   'general-health',
   'home-screen',
   'header-growth',
@@ -553,6 +572,19 @@ export default function ProfileScreen() {
   // picker, so a person's own stated preference lines up directly against
   // real, existing data rather than a second, disconnected list.
   const [dietPreferences, setDietPreferences] = useState<RecipeDietTag[]>([]);
+  // Nutrient Targets, 2026-08-26, direct follow-up to the Daily Meal Plan
+  // bug-fix pass: "you should complete the adjustable personal protein/
+  // fiber/sodium targets with its own small settings feature." Backed by
+  // its own user_nutrient_targets table (lib/db.ts) -- absence means "use
+  // the standard, computed DRI value," the same contract every other
+  // personalization table on this screen already follows. dietRows holds
+  // the person's own real, sex/age-resolved default figures (fetched once
+  // here, purely to show alongside the override field -- the actual
+  // generator resolves its own DRI rows fresh every run, this is just so
+  // Profile can show "your default is X" without guessing).
+  const [nutrientTargets, setNutrientTargets] = useState<UserNutrientTargetOverride[]>([]);
+  const [nutrientDriRows, setNutrientDriRows] = useState<DietaryReferenceIntake[]>([]);
+  const [nutrientTargetInputs, setNutrientTargetInputs] = useState<Record<string, string>>({});
   // Live, app-wide (lib/visualPreferences.ts): reading it via the same
   // hook every consumer uses means this screen's pills always reflect
   // whatever's really stored, and every edit here reaches the shared
@@ -760,6 +792,8 @@ export default function ProfileScreen() {
       listBodyMeasurements('weight', 1),
       listFoodAllergies(),
       getConditionStages(),
+      getUserNutrientTargets(),
+      getDietaryReferenceIntakesForCurrentUser(),
     ]).then(
       ([
         storedProfile,
@@ -772,6 +806,8 @@ export default function ProfileScreen() {
         weightReadings,
         storedAllergies,
         storedConditionStages,
+        storedNutrientTargets,
+        storedDriRows,
       ]) => {
       if (!isMounted) return;
 
@@ -783,6 +819,8 @@ export default function ProfileScreen() {
       setDietPreferences(storedDietPreferences as RecipeDietTag[]);
       setFoodAllergies(storedAllergies);
       setConditionStageMap(storedConditionStages);
+      setNutrientTargets(storedNutrientTargets);
+      setNutrientDriRows(storedDriRows);
       setFirstNameInput(storedProfile.firstName ?? '');
       setLastNameInput(storedProfile.lastName ?? '');
 
@@ -946,6 +984,29 @@ export default function ProfileScreen() {
     const nowSelected = !dietPreferences.includes(tag);
     setDietPreferences((current) => (nowSelected ? [...current, tag] : current.filter((t) => t !== tag)));
     await setDietPreferenceSelected(tag, nowSelected);
+    flashSaved();
+  }
+
+  // A blank field clears the override back to "use my real default"
+  // rather than being rejected -- the same "absence means default"
+  // contract user_nutrient_targets itself follows (see lib/db.ts). A
+  // non-numeric or non-positive entry is treated the same way rather
+  // than silently accepted, so a mistyped field can't quietly zero out a
+  // real nutrient target.
+  async function saveNutrientTargetOverride(field: (typeof NUTRIENT_TARGET_FIELDS)[number]) {
+    const raw = (nutrientTargetInputs[field.nutrientCode] ?? '').trim();
+    const parsed = raw === '' ? null : Number(raw);
+    const value = parsed != null && Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    const existing = nutrientTargets.find((row) => row.nutrientCode === field.nutrientCode);
+    const targetAmount = field.isCeiling ? existing?.targetAmount ?? null : value;
+    const limitAmount = field.isCeiling ? value : existing?.limitAmount ?? null;
+    await setUserNutrientTargetOverride(field.nutrientCode, targetAmount, limitAmount);
+    setNutrientTargets((current) => {
+      const withoutThis = current.filter((row) => row.nutrientCode !== field.nutrientCode);
+      return targetAmount == null && limitAmount == null
+        ? withoutThis
+        : [...withoutThis, { nutrientCode: field.nutrientCode, targetAmount, limitAmount }];
+    });
     flashSaved();
   }
 
@@ -2638,6 +2699,67 @@ export default function ProfileScreen() {
             >
               <Text style={styles.checkinButtonText}>Generate My Meal Plan</Text>
             </TouchableOpacity>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Nutrient Targets, 2026-08-26, direct follow-up: "you should
+          complete the adjustable personal protein/fiber/sodium targets
+          with its own small settings feature." A real person can
+          legitimately need more of a floor nutrient (protein, fiber)
+          than the population-average DRI, or a tighter cap on a ceiling
+          nutrient (sodium) than the general population's -- this feeds
+          straight into the Daily Meal Plan generator's own gap-filling
+          scorer and upper-limit guard (lib/dailyMealPlan.ts's own
+          applyNutrientTargetOverrides), not a separate, disconnected
+          number. Backed by user_nutrient_targets (lib/db.ts); leaving a
+          field blank and saving clears the override back to "use my
+          default" rather than storing an empty value. */}
+      <View style={styles.card}>
+        {renderCardHeader('nutrient-targets', 'Nutrient Targets')}
+        {!collapsedSections.has('nutrient-targets') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Every nutrient the Daily Meal Plan generator tracks already defaults to a real, published DRI figure
+              for your own age and sex. Set a custom number below only if you genuinely need more of one (protein,
+              fiber) or a stricter ceiling on one (sodium) than the general population. Leave a field blank to go
+              back to your real default at any time.
+            </Text>
+            {NUTRIENT_TARGET_FIELDS.map((field) => {
+              const matchingRows = nutrientDriRows.filter((row) => row.nutrientCode === field.nutrientCode);
+              const distinctDefaults = Array.from(new Set(matchingRows.map((row) => row.amount)));
+              const defaultLabel =
+                distinctDefaults.length === 0
+                  ? 'not available'
+                  : distinctDefaults.length === 1
+                    ? `${distinctDefaults[0]}${field.unit}`
+                    : `${Math.min(...distinctDefaults)}-${Math.max(...distinctDefaults)}${field.unit} depending on sex/age`;
+              const override = nutrientTargets.find((row) => row.nutrientCode === field.nutrientCode);
+              const overrideValue = field.isCeiling ? override?.limitAmount : override?.targetAmount;
+              const inputValue = nutrientTargetInputs[field.nutrientCode] ?? (overrideValue != null ? String(overrideValue) : '');
+              return (
+                <View key={field.nutrientCode} style={[styles.dateRow, { marginTop: 12 }]}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.helpText}>
+                      {field.label} ({field.isCeiling ? 'ceiling' : 'floor'}), your default: {defaultLabel}
+                      {overrideValue != null ? `, your own target: ${overrideValue}${field.unit}` : ''}
+                    </Text>
+                    <AppTextInput
+                      style={[styles.input, styles.nameInput]}
+                      placeholder={`Custom ${field.isCeiling ? 'ceiling' : 'target'} in ${field.unit}`}
+                      value={inputValue}
+                      onChangeText={(text) => setNutrientTargetInputs((current) => ({ ...current, [field.nutrientCode]: text }))}
+                    />
+                  </View>
+                  <TouchableOpacity
+                    style={styles.addAllergyButton}
+                    onPress={() => saveNutrientTargetOverride(field)}
+                  >
+                    <Text style={styles.addAllergyButtonText}>Save</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
           </View>
         ) : null}
       </View>
