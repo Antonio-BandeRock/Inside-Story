@@ -160,15 +160,28 @@ export function RecipeDepthReport({
         </View>
       ) : null}
 
-      {stageNotes.length > 0 ? (
+      {/* 2026-08-25, direct correction: "If there is nothing to advise in
+          line with their current stage of healing then it should say that
+          there is nothing to report about it." Staying silent when
+          stageNotes is empty read as the whole section having vanished,
+          not as an honest "checked, nothing found" -- shown now whenever
+          at least one tracked condition actually has a declared stage
+          (matching declaredStages' own presence, not stageNotes' own),
+          same "always confirm, never just go quiet" rule the verdict
+          pill and dimension chart above already follow. */}
+      {Object.keys(declaredStages).length > 0 ? (
         <View style={[styles.card, { borderColor: colors.statusYellow }]}>
           <Text style={[styles.cardLabel, { color: colors.statusYellowStandalone }]}>Worth Knowing for Your Healing Stage</Text>
-          {stageNotes.map((note, index) => (
-            <View key={index} style={index > 0 ? styles.stageNoteSpacing : undefined}>
-              <Text style={styles.bodyTextBold}>{note.title}</Text>
-              <Text style={styles.bodyText}>{note.message}</Text>
-            </View>
-          ))}
+          {stageNotes.length > 0 ? (
+            stageNotes.map((note, index) => (
+              <View key={index} style={index > 0 ? styles.stageNoteSpacing : undefined}>
+                <Text style={styles.bodyTextBold}>{note.title}</Text>
+                <Text style={styles.bodyText}>{note.message}</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={styles.bodyText}>Nothing in this dish is flagged for your current stage.</Text>
+          )}
         </View>
       ) : null}
 
