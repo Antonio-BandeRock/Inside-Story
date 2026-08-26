@@ -9,23 +9,32 @@ import {
   correctFoodTrialStartDate,
   createMealFromComponents,
   findTrialsAffectedByMealEdit,
+  getConditionStages,
   getMeal,
   getMealComponentDisplayInfo,
   getMealComponents,
   getMealComponentsGoitrogenicFlags,
   getMealFavorite,
+  getNutrientChartDataForIngredients,
+  getUserConditions,
+  listAllConditions,
   listMealComponentOptions,
   markScheduledMealLogged,
+  resolveMealComponent,
   revertFoodTrialToWaiting,
   saveMealFavorite,
   scheduleMeal,
+  setConditionStage,
   updateMealFromComponents,
   type MealComponentOption,
   type MealComponentSelection,
   type MealComponentType,
+  type MealIngredientInput,
   type TrialNeedingReconciliation,
 } from '../lib/db';
+import { getConditionStagingModel, resolveDeclaredStage, type DeclaredConditionStage } from '../lib/conditionStages';
 import { parseAmountValue } from '../lib/measurement';
+import { computeRecipeDepth, type RecipeDepthResult } from '../lib/recipeDepth';
 import { buildTime24, formatTime12, type TimeOfDayInput } from '../lib/timeOfDay';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
@@ -34,6 +43,7 @@ import { useConfirmSheet } from './ConfirmSheet';
 import { HelpButton, type HelpSection } from './HelpButton';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
+import { RecipeDepthReport } from './RecipeDepthReport';
 import { VoiceInputButton } from './VoiceInputButton';
 
 // Deliberately last of the ten Food-tab builders, per this app's own build
@@ -503,6 +513,112 @@ export function MealBuilder({
   // confirmScheduleForLater's own comment).
   const [alsoSaveAsFavorite, setAlsoSaveAsFavorite] = useState(!!favoriteId);
 
+  // Meal Builder's own version of the depth report, 2026-08-25 -- direct
+  // follow-up to rolling the same report out to the other 10 builders.
+  // A real, structural difference from all of them, named directly rather
+  // than glossed over: those 10 build FROM raw ingredients and always
+  // compute and persist a real depthData onto the record they save (see
+  // lib/recipeDepth.ts's own header comment); a meal here is assembled FROM
+  // already-saved components, each of which may already carry its own real
+  // depthData for its own full batch, not for whatever share of it actually
+  // landed in this meal. Recomputing depth fresh, live, across the exact
+  // combined ingredient list this specific meal draws from (via
+  // resolveMealComponent, the same real per-component resolution
+  // getMealComponentsGoitrogenicFlags already uses) is the honest answer for
+  // THIS meal, rather than trying to merge several already-computed,
+  // differently-scoped results. There's also no depth_data_json column on
+  // `meals` the way the other 11 tables have -- a meal is a logged EVENT or
+  // a reusable favorite template, not a browsable saved dish the way My
+  // Kitchen shows sides/salads/etc, so nothing here reads a stored value
+  // back later; this report is computed fresh every time it's opened,
+  // purely a look before finishing, same as every other builder's own.
+  const [trackedConditions, setTrackedConditions] = useState<{ code: string; name: string }[]>([]);
+  const [conditionStages, setConditionStages] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      const [selectedCodes, allConditions, stages] = await Promise.all([getUserConditions(), listAllConditions(), getConditionStages()]);
+      if (!isMounted) return;
+      const selected = new Set(selectedCodes);
+      setTrackedConditions(
+        allConditions
+          .filter((condition) => selected.has(condition.code))
+          .map((condition) => ({ code: condition.code, name: condition.name })),
+      );
+      setConditionStages(stages);
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // See SideBuilder.tsx's own identical declaredStages/
+  // conditionsWithStagingModel/stagePickerFor for the full reasoning.
+  const declaredStages = useMemo(() => {
+    const stages: Record<string, DeclaredConditionStage> = {};
+    for (const condition of trackedConditions) {
+      const resolved = resolveDeclaredStage(condition.code, conditionStages[condition.code]);
+      if (resolved) stages[condition.code] = resolved;
+    }
+    return stages;
+  }, [trackedConditions, conditionStages]);
+
+  const conditionsWithStagingModel = useMemo(
+    () => new Set(trackedConditions.filter((condition) => getConditionStagingModel(condition.code)).map((condition) => condition.code)),
+    [trackedConditions],
+  );
+  const [stagePickerFor, setStagePickerFor] = useState<{ code: string; name: string } | null>(null);
+
+  const [showingReport, setShowingReport] = useState(false);
+  const [reportData, setReportData] = useState<RecipeDepthResult | null>(null);
+  const [reportNutrientData, setReportNutrientData] = useState<{ nutrient: string; percent: number }[]>([]);
+  // The real, resolved ingredient count across every selected component
+  // combined -- distinct from components.length (the number of DISHES this
+  // meal draws from), captured once in handlePreviewReport rather than
+  // recomputed on every render.
+  const [reportIngredientCount, setReportIngredientCount] = useState(0);
+  const [computingReport, setComputingReport] = useState(false);
+  const [savingFromReport, setSavingFromReport] = useState(false);
+
+  // Resolves every currently selected component's own real ingredients
+  // (foodId/foodName/category/quantity/unit/dishServings/yourSharePercent
+  // already resolved by resolveMealComponent, the same function
+  // logMealNow's own createMealFromComponents ultimately reads through) and
+  // flattens them into one real list. computeRecipeDepth never actually
+  // reads quantity/dishServings/yourSharePercent at all (it scores by
+  // foodId/source identity and foodName/category alone -- see that file's
+  // own header comment), so this flattening is correct for safety/diet-tag/
+  // stage purposes regardless of how much of each component was actually
+  // had; the nutrient chart below is the one real place share percentage
+  // still matters, and getNutrientChartDataForIngredients already applies
+  // it correctly per ingredient via the same shareFraction math every other
+  // real meal-nutrition view in this app already uses.
+  async function buildDepthIngredientsForMeal(): Promise<MealIngredientInput[]> {
+    const resolved = await Promise.all(components.map((component) => resolveMealComponent(toSelection(component))));
+    return resolved.filter((component): component is NonNullable<typeof component> => component !== null).flatMap((component) => component.ingredients);
+  }
+
+  async function handlePreviewReport() {
+    setComputingReport(true);
+    try {
+      const depthIngredients = await buildDepthIngredientsForMeal();
+      const [depth, nutrientData] = await Promise.all([
+        computeRecipeDepth(depthIngredients, trackedConditions),
+        getNutrientChartDataForIngredients(depthIngredients, 1),
+      ]);
+      setReportData(depth);
+      setReportNutrientData(nutrientData);
+      setReportIngredientCount(depthIngredients.length);
+      setShowingReport(true);
+    } catch (error) {
+      console.error('[MealBuilder] Failed to compute the depth report', error);
+      showInfoAlert('Report failed', 'Something went wrong building the report. You can still save this meal directly.');
+    } finally {
+      setComputingReport(false);
+    }
+  }
+
   async function logMealNow() {
     setSaving(true);
     const result = await createMealFromComponents({
@@ -538,6 +654,10 @@ export function MealBuilder({
     setMealType(null);
     setIdentityConfirmed(false);
     setAlsoSaveAsFavorite(false);
+    setShowingReport(false);
+    setReportData(null);
+    setReportNutrientData([]);
+    setStagePickerFor(null);
     showInfoAlert('Meal logged', `${finishedName} is logged. Starting a fresh meal now.`);
   }
 
@@ -659,6 +779,10 @@ export function MealBuilder({
     setMealType(null);
     setIdentityConfirmed(false);
     setAlsoSaveAsFavorite(false);
+    setShowingReport(false);
+    setReportData(null);
+    setReportNutrientData([]);
+    setStagePickerFor(null);
     showInfoAlert(
       'Meal scheduled',
       `${finishedName} is scheduled for ${formatTime12(time24)} today. Find it on the Schedule tab's own Meals lens.`,
@@ -1192,6 +1316,70 @@ export function MealBuilder({
     );
   }
 
+  // The optional Nutrition & Health Report, Meal Builder's own version --
+  // see the state block above and this component's own header comment for
+  // the full reasoning behind why this one is computed fresh every time
+  // rather than reusing a stored depthData the way the other 10 builders'
+  // own reports do.
+  if (showingReport && reportData) {
+    return (
+      <>
+        {infoAlertElement}
+        {confirmSheetElement}
+        {reconciliationSheetElement}
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
+          <RecipeDepthReport
+            dishName={mealName.trim() || 'Meal'}
+            yieldLabel={`Assembled from ${components.length} saved item${components.length === 1 ? '' : 's'}`}
+            ingredientCount={reportIngredientCount}
+            nutrientChartData={reportNutrientData}
+            trackedConditions={trackedConditions}
+            safeForConditions={reportData.safeForConditions}
+            conditionCautions={reportData.conditionCautions}
+            dimensionBreakdown={reportData.dimensionBreakdown}
+            declaredStages={declaredStages}
+            conditionsWithStagingModel={conditionsWithStagingModel}
+            onSetStage={(code, name) => setStagePickerFor({ code, name })}
+            stageNotes={reportData.stageNotes}
+            tabColor={tabColor}
+            saving={savingFromReport}
+            onGoBack={() => setShowingReport(false)}
+            onSave={() => {
+              setSavingFromReport(true);
+              const finish = editMealId ? saveEditedMeal() : confirmAndLogMealNow();
+              void finish.finally(() => setSavingFromReport(false));
+            }}
+          />
+        </ScrollView>
+        <AppActionSheet
+          visible={!!stagePickerFor}
+          onClose={() => setStagePickerFor(null)}
+          title={stagePickerFor ? `Your ${stagePickerFor.name} Stage` : undefined}
+          message="Purely advisory -- this changes nothing about what you can build or save, it only makes the report above reflect where you actually are."
+          actions={[
+            ...(stagePickerFor ? getConditionStagingModel(stagePickerFor.code)?.stages ?? [] : []).map((stage) => ({
+              label: stage.label,
+              onPress: () => {
+                const code = stagePickerFor?.code;
+                if (!code) return;
+                setStagePickerFor(null);
+                setConditionStage(code, stage.code)
+                  .then(() => {
+                    setConditionStages((current) => ({ ...current, [code]: stage.code }));
+                  })
+                  .catch((error) => {
+                    console.error('[MealBuilder] Failed to save the declared healing stage', error);
+                    showInfoAlert('Stage not saved', 'Something went wrong saving your healing stage. Please try setting it again.');
+                  });
+              },
+            })),
+            { label: 'Cancel', onPress: () => {} },
+          ]}
+        />
+      </>
+    );
+  }
+
   // Assembling -- the "Your Meal" summary plus the "Add from..." grid.
   return (
     <>
@@ -1251,20 +1439,50 @@ export function MealBuilder({
           // (or already lapsed and auto-materialized) somewhere real on the
           // calendar; this genuinely adjusts that same event, it doesn't
           // create a new one.
-          <TouchableOpacity
-            style={[styles.primaryButton, styles.logButton, { backgroundColor: colors.buttonColor, opacity: savingEdit ? 0.6 : 1 }]}
-            onPress={saveEditedMeal}
-            disabled={savingEdit}
-          >
-            {savingEdit ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Save Changes</Text>}
-          </TouchableOpacity>
+          <>
+            {/* "Preview Full Report" -- Meal Builder's own version, see the
+                state block near the top of this component for the full
+                reasoning. */}
+            <TouchableOpacity
+              style={[styles.secondaryButton, styles.reportPreviewButton, { borderColor: tabColor }]}
+              onPress={() => void handlePreviewReport()}
+              disabled={computingReport}
+            >
+              {computingReport ? (
+                <ActivityIndicator color={tabColor} />
+              ) : (
+                <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Preview Full Report</Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.primaryButton, styles.logButton, { backgroundColor: colors.buttonColor, opacity: savingEdit ? 0.6 : 1 }]}
+              onPress={saveEditedMeal}
+              disabled={savingEdit || computingReport}
+            >
+              {savingEdit ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Save Changes</Text>}
+            </TouchableOpacity>
+          </>
         ) : components.length > 0 ? (
           <>
             {renderFavoriteToggle()}
+            {/* "Preview Full Report" -- Meal Builder's own version, see the
+                state block near the top of this component for the full
+                reasoning. */}
+            <TouchableOpacity
+              style={[styles.secondaryButton, styles.reportPreviewButton, { borderColor: tabColor }]}
+              onPress={() => void handlePreviewReport()}
+              disabled={computingReport}
+            >
+              {computingReport ? (
+                <ActivityIndicator color={tabColor} />
+              ) : (
+                <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Preview Full Report</Text>
+              )}
+            </TouchableOpacity>
             <TouchableOpacity
               style={[styles.primaryButton, styles.logButton, { backgroundColor: colors.buttonColor, opacity: saving ? 0.6 : 1 }]}
               onPress={confirmAndLogMealNow}
-              disabled={saving}
+              disabled={saving || computingReport}
             >
               {saving ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Log This Now</Text>}
             </TouchableOpacity>
@@ -1353,6 +1571,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   secondaryButtonText: { ...typography.bodyEmphasis },
+  reportPreviewButton: { borderWidth: 2 },
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
   // 2026-08-08 -- renderFavoriteToggle's own row, same shape as every
   // sub-builder's identical style (see SideBuilder.tsx's own
