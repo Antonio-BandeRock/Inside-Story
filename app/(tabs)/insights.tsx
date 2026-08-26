@@ -803,12 +803,32 @@ export default function InsightsScreen() {
   const [stage2Rounds, setStage2Rounds] = useState<StageFoodGroupResult[]>([]);
   const [healingStageLoading, setHealingStageLoading] = useState(true);
   useEffect(() => {
+    // 2026-08-26 -- gated on personalizationProfile the same way Safe
+    // Foods is (see that effect's own comment): waiting for the person's
+    // real, fast-loading profile before this lens's own real query fires
+    // means the very first result shown is already filtered, rather than
+    // a brief flash of unfiltered foods immediately re-filtered out from
+    // under the person a moment later.
+    if (!personalizationProfile) return;
     Promise.all([listStage1Foods(), listStage2ReintroductionRounds()]).then(([stage1, stage2]) => {
-      setStage1Groups(stage1);
-      setStage2Rounds(stage2);
+      // Same real diet-preference/allergy filter Safe Foods and Nutrient
+      // Ranking already apply -- the small schema gap that used to block
+      // it here (StageFood rows carried no `category` at all) is fixed
+      // directly above in lib/db.ts's own StageFood/queryStageGroup/
+      // foodsWithSubCriterionTag.
+      const filterGroup = (group: StageFoodGroupResult): StageFoodGroupResult => ({
+        ...group,
+        foods: group.foods.filter(
+          (food) =>
+            foodMatchesDietPreferences(food.category, food.baseName, personalizationProfile.dietPreferences) &&
+            !foodMatchesAllergy(food.baseName, personalizationProfile.foodAllergies),
+        ),
+      });
+      setStage1Groups(stage1.map(filterGroup));
+      setStage2Rounds(stage2.map(filterGroup));
       setHealingStageLoading(false);
     });
-  }, []);
+  }, [personalizationProfile]);
 
   // Labs lens, 2026-08-08 -- unlike the four lenses above, this reads a
   // real, growing personal log (lab_results), not static reference data,

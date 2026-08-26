@@ -3168,7 +3168,16 @@ const STAGE_2_NIGHTSHADE_GROUP: StageFoodGroup = {
 };
 const STAGE_2_GLUTEN_CATEGORIES = ['Grain', 'PastaNoodles', 'PantryStaples'];
 
-export type StageFood = { foodId: number; source: string; baseName: string; subcategory: string | null };
+// category, 2026-08-26 -- added specifically so Insights' own diet-
+// preference/allergy filter (lib/foodPersonalization.ts's
+// foodMatchesDietPreferences, which needs a real category to run
+// computeDietTags at all) can be applied to this lens too, the small,
+// real schema gap named directly when that filter shipped everywhere else
+// in Insights. Both real query functions below (queryStageGroup,
+// foodsWithSubCriterionTag) already know this value -- it's the exact
+// column they filter on -- so this is a plain SELECT addition, not a new
+// join or a new concept.
+export type StageFood = { foodId: number; source: string; baseName: string; category: string; subcategory: string | null };
 export type StageFoodGroupResult = { label: string; foods: StageFood[] };
 
 async function queryStageGroup(group: StageFoodGroup, limit: number): Promise<StageFood[]> {
@@ -3177,7 +3186,7 @@ async function queryStageGroup(group: StageFoodGroup, limit: number): Promise<St
   const excludeClause = (group.exclude ?? []).map(() => 'base_name NOT LIKE ?').join(' AND ');
   const rows = await db.getAllAsync<StageFood>(
     `
-      SELECT food_id AS foodId, source, base_name AS baseName, subcategory
+      SELECT food_id AS foodId, source, base_name AS baseName, category, subcategory
       FROM foods
       WHERE hidden = 0 AND category = ? AND (${keywordClause})
       ${excludeClause ? `AND ${excludeClause}` : ''}
@@ -3224,7 +3233,7 @@ async function foodsWithSubCriterionTag(subCriterion: string, category: string, 
   const db = await getReferenceDatabase();
   const rows = await db.getAllAsync<StageFood>(
     `
-      SELECT DISTINCT f.food_id AS foodId, f.source, f.base_name AS baseName, f.subcategory
+      SELECT DISTINCT f.food_id AS foodId, f.source, f.base_name AS baseName, f.category, f.subcategory
       FROM foods f
       JOIN food_scores fs ON fs.food_id = f.food_id AND fs.source = f.source
       JOIN sub_criteria sc ON sc.id = fs.sub_criterion_id
