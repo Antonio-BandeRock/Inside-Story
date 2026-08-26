@@ -1,44 +1,46 @@
-// The "Nutrition & Safety Report" -- 2026-08-25, direct instruction after
-// being asked whether every Food builder wires into the same real
-// condition-safety/diet-tag depth curated Recipes carry (they didn't):
-// "maybe this is an opportunity to work in a new report that can maybe be
-// created prior to saving, so the user can see things clearly rather than
-// try to build something into the builder view that crowds the screen...
-// laid out very professionally so they could view it easily and decide if
-// they want to save it as is or replace or adjust something." Piloted on
-// Side Builder first, direct follow-up: "Pilot it on Side Builder first,
-// choice to create the report or not but both paths route to saving it" --
-// this component is the optional view; the underlying computation (see
-// lib/recipeDepth.ts) always runs either way.
+// The "Nutrition & Health Report" -- 2026-08-25, rebuilt from a direct
+// correction to the first attempt: "This looks pretty much like another
+// version of the recipe. It needs to be a report about the nutrients. It
+// does need to use some sort of graph instead of just writing it out.
+// Visuals are far more effective... I was looking more for a PDF style of
+// reporting feature, very professional looking, like a real health report
+// as it applies to their conditions, so for Hashimoto's it should show how
+// it does not cause problems or does cause them for the D1-D6." Scoped by
+// direct follow-up: a styled in-app screen, not a real exported PDF file
+// (that stays a named, deferred capability shared with the Reports tab's
+// own long-standing PDF-export goal, not built twice).
+//
+// The recipe already shows the ingredient list and diet-tag badges (see
+// app/(tabs)/purple-digest.tsx's own RecipeCardDetail) -- neither is
+// repeated here. This report is specifically the two things a recipe
+// doesn't already show: a real chart of nutrient content against this
+// person's own daily target, and, per tracked condition, a real chart of
+// how the dish scores across that condition's own real dimensions (its
+// literal "D1-D6" for Hashimoto's specifically -- see
+// lib/recipeDepth.ts's own DimensionSeverity comment for why every other
+// condition has its own, differently-shaped real dimension set instead).
 //
 // A pure presentational component, deliberately -- it takes already-
-// computed data as props and renders it, with no data-fetching of its own,
-// specifically so a future builder's own rollout can render this same
-// component from its own review step without touching this file at all.
-//
-// Reuses this app's own already-established visual language rather than
-// inventing a new one: SideBuilder's own nutrition/condition box shapes
-// (borderWidth 2, tinted per-severity), and the same green/yellow/red
-// severity-dot palette (colors.statusGood/statusYellow/danger) "Meals You
-// Can Eat" already uses for the identical safe/caution/serious concept
-// (see app/(tabs)/purple-digest.tsx's own severityDotColor).
+// computed data as props and renders it, with no data-fetching, so a
+// future builder's rollout can render this same component unchanged.
 
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { typography } from '../constants/typography';
-import type { ComponentNutritionHighlight } from '../lib/db';
+import type { DimensionSeverity } from '../lib/recipeDepth';
 import type { ConditionStageAdvisory } from '../lib/conditionStageAdvisory';
-import type { RecipeDietTag } from '../lib/digest/types';
+import { DimensionChart } from './DimensionChart';
+import { NutrientBarChart, type NutrientChartDatum } from './NutrientBarChart';
 
 export type RecipeDepthReportProps = {
   dishName: string;
   yieldLabel: string;
-  ingredientLines: string[];
-  nutritionHighlights: ComponentNutritionHighlight[];
-  dietTags: RecipeDietTag[];
+  ingredientCount: number;
+  nutrientChartData: NutrientChartDatum[];
   trackedConditions: { code: string; name: string }[];
   safeForConditions: string[];
   conditionCautions: Record<string, { severity: 'yellow' | 'red'; note: string }>;
+  dimensionBreakdown: Record<string, DimensionSeverity[]>;
   stageNotes: ConditionStageAdvisory[];
   tabColor: string;
   onSave: () => void;
@@ -46,107 +48,76 @@ export type RecipeDepthReportProps = {
   saving?: boolean;
 };
 
-function severityDotColor(severity: 'green' | 'yellow' | 'red'): string {
-  if (severity === 'red') return colors.danger;
-  if (severity === 'yellow') return colors.statusYellow;
-  return colors.statusGood;
+function verdictFor(
+  conditionCode: string,
+  safeForConditions: string[],
+  conditionCautions: RecipeDepthReportProps['conditionCautions'],
+): { label: string; color: string } {
+  const caution = conditionCautions[conditionCode];
+  if (caution) {
+    return caution.severity === 'red' ? { label: 'Caution', color: colors.danger } : { label: 'Mild Caution', color: colors.statusYellowStandalone };
+  }
+  if (safeForConditions.includes(conditionCode)) {
+    return { label: 'Clean', color: colors.statusGood };
+  }
+  // Neither safe nor cautioned means an absolute-exclusion rule matched
+  // (see lib/recipeDepth.ts's own ABSOLUTE_EXCLUSIONS) -- genuinely never
+  // safe at any dose, not a matter of degree.
+  return { label: 'Not Recommended', color: colors.danger };
 }
 
 export function RecipeDepthReport({
   dishName,
   yieldLabel,
-  ingredientLines,
-  nutritionHighlights,
-  dietTags,
+  ingredientCount,
+  nutrientChartData,
   trackedConditions,
   safeForConditions,
   conditionCautions,
+  dimensionBreakdown,
   stageNotes,
   tabColor,
   onSave,
   onGoBack,
   saving,
 }: RecipeDepthReportProps) {
-  const safeCodes = new Set(safeForConditions);
-  // Every tracked condition gets a real row, green/yellow/red -- not just
-  // the ones that happen to be flagged -- so "nothing shown" never reads
-  // as "not checked."
-  const conditionRows = trackedConditions.map((condition) => {
-    const caution = conditionCautions[condition.code];
-    if (caution) {
-      return { code: condition.code, name: condition.name, severity: caution.severity as 'yellow' | 'red', note: caution.note };
-    }
-    if (safeCodes.has(condition.code)) {
-      return { code: condition.code, name: condition.name, severity: 'green' as const, note: null };
-    }
-    // Neither safe nor cautioned means this condition's own absolute-
-    // exclusion rule matched (see lib/recipeDepth.ts's own
-    // ABSOLUTE_EXCLUSIONS) -- genuinely never safe at any dose, not a
-    // matter of degree like every other row here.
-    return { code: condition.code, name: condition.name, severity: 'excluded' as const, note: null };
-  });
-
   return (
     <View style={[styles.wrap, { borderColor: tabColor }]}>
-      <Text style={[styles.eyebrow, { color: tabColor }]}>Nutrition &amp; Safety Report</Text>
+      <Text style={[styles.eyebrow, { color: tabColor }]}>Nutrition &amp; Health Report</Text>
       <Text style={styles.title}>{dishName}</Text>
-      <Text style={styles.yield}>{yieldLabel}</Text>
+      <Text style={styles.yield}>
+        {yieldLabel} · {ingredientCount} ingredient{ingredientCount === 1 ? '' : 's'}
+      </Text>
 
-      <View style={[styles.card, { borderColor: tabColor }]}>
-        <Text style={[styles.cardLabel, { color: tabColor }]}>Ingredients</Text>
-        {ingredientLines.map((line, index) => (
-          <Text key={index} style={styles.bodyText}>
-            • {line}
-          </Text>
-        ))}
-      </View>
-
-      {dietTags.length > 0 ? (
-        <View style={styles.dietTagRow}>
-          {dietTags.map((tag) => (
-            <View key={tag} style={[styles.dietTagPill, { backgroundColor: colors.buttonColor }]}>
-              <Text style={styles.dietTagPillText}>{tag}</Text>
-            </View>
-          ))}
-        </View>
-      ) : null}
-
-      {nutritionHighlights.length > 0 ? (
+      {nutrientChartData.length > 0 ? (
         <View style={[styles.card, { borderColor: tabColor }]}>
-          <Text style={[styles.cardLabel, { color: tabColor }]}>What This Dish Gives You</Text>
-          {nutritionHighlights.map((highlight, index) => (
-            <Text key={index} style={styles.bodyText}>
-              • <Text style={styles.bodyTextBold}>{highlight.nutrient}:</Text> {highlight.note}
-            </Text>
-          ))}
+          <Text style={[styles.cardLabel, { color: tabColor }]}>Nutrient Content</Text>
+          <NutrientBarChart data={nutrientChartData} color={tabColor} />
         </View>
       ) : null}
 
       {trackedConditions.length > 0 ? (
         <View style={[styles.card, { borderColor: tabColor }]}>
-          <Text style={[styles.cardLabel, { color: tabColor }]}>Your Tracked Conditions</Text>
-          {conditionRows.map((row) => (
-            <View key={row.code} style={styles.conditionRow}>
-              <View
-                style={[
-                  styles.severityDot,
-                  { backgroundColor: row.severity === 'excluded' ? colors.danger : severityDotColor(row.severity) },
-                ]}
-              />
-              <View style={styles.conditionRowText}>
-                <Text style={styles.bodyTextBold}>{row.name}</Text>
-                {row.severity === 'excluded' ? (
-                  <Text style={[styles.bodyText, { color: colors.danger }]}>
-                    Contains something that isn’t safe at any amount for this condition.
-                  </Text>
-                ) : row.note ? (
-                  <Text style={styles.bodyText}>{row.note}</Text>
+          <Text style={[styles.cardLabel, { color: tabColor }]}>How This Scores for Your Conditions</Text>
+          {trackedConditions.map((condition) => {
+            const verdict = verdictFor(condition.code, safeForConditions, conditionCautions);
+            const data = dimensionBreakdown[condition.code] ?? [];
+            return (
+              <View key={condition.code} style={styles.conditionBlock}>
+                <View style={styles.conditionHeaderRow}>
+                  <Text style={styles.conditionName}>{condition.name}</Text>
+                  <View style={[styles.verdictPill, { backgroundColor: verdict.color }]}>
+                    <Text style={styles.verdictPillText}>{verdict.label}</Text>
+                  </View>
+                </View>
+                {data.length > 0 ? (
+                  <DimensionChart data={data} color={tabColor} />
                 ) : (
-                  <Text style={styles.bodyText}>Nothing flagged for this condition.</Text>
+                  <Text style={styles.bodyText}>No real dimension data scored for this condition.</Text>
                 )}
               </View>
-            </View>
-          ))}
+            );
+          })}
         </View>
       ) : null}
 
@@ -179,14 +150,11 @@ export function RecipeDepthReport({
 }
 
 const styles = StyleSheet.create({
-  // 2026-08-25, direct report: nothing here had a real backing behind it
-  // at all, so the Food tab's own background photo showed straight
-  // through every line of text. Fixed the same way every other Food
-  // builder card already is (see SideBuilder.tsx's own formCard): one
-  // solid, opaque colors.surface card wrapping the whole report, so
-  // every nested box below sits on a real backdrop instead of the photo
-  // behind it -- matching how those nested boxes were already built,
-  // relying on an opaque parent rather than carrying their own fill.
+  // One solid, opaque colors.surface card wrapping the whole report
+  // (2026-08-25, direct report: nothing had a real backing at all, so the
+  // Food tab's own background photo showed straight through) -- matching
+  // SideBuilder.tsx's own formCard, so every nested box below sits on a
+  // real backdrop instead of the photo behind it.
   wrap: {
     backgroundColor: colors.surface,
     borderWidth: 2,
@@ -205,12 +173,11 @@ const styles = StyleSheet.create({
   cardLabel: { ...typography.eyebrow, marginBottom: 6 },
   bodyText: { ...typography.body, color: colors.textPrimary, marginTop: 2 },
   bodyTextBold: { ...typography.bodyEmphasis, color: colors.textPrimary },
-  dietTagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12, alignItems: 'flex-start' },
-  dietTagPill: { borderRadius: 999, paddingVertical: 4, paddingHorizontal: 10 },
-  dietTagPillText: { ...typography.caption, fontWeight: '700', color: colors.textOnButton },
-  conditionRow: { flexDirection: 'row', gap: 8, marginTop: 8, alignItems: 'flex-start' },
-  severityDot: { width: 10, height: 10, borderRadius: 5, marginTop: 4 },
-  conditionRowText: { flex: 1 },
+  conditionBlock: { marginTop: 12 },
+  conditionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  conditionName: { ...typography.bodyEmphasis, color: colors.textPrimary },
+  verdictPill: { borderRadius: 999, paddingVertical: 3, paddingHorizontal: 10 },
+  verdictPillText: { ...typography.caption, fontWeight: '700', color: colors.textOnButton },
   stageNoteSpacing: { marginTop: 8 },
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
   buttonHalf: { flex: 1 },

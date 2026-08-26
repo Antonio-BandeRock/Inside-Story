@@ -10726,6 +10726,44 @@ export async function getNutritionHighlightsForIngredients(
   }));
 }
 
+// The same real %-of-daily-target math as getNutritionHighlightsForIngredients
+// just above, generalized for a real chart rather than a short, pre-worded
+// highlights list -- 2026-08-25, direct correction to the first Nutrition &
+// Safety Report attempt: "It needs to be a report about the nutrients. It
+// does need to use some sort of graph instead of just writing it out."
+// Returns plain {nutrient, percent} pairs (no formatted sentence) so
+// RecipeDepthReport.tsx can actually plot them as bars; the same CDRR
+// (ceiling, not floor -- sodium) exclusion applies for the same reason
+// named there, and the same "too small a share to be meaningful" floor is
+// relaxed from 5% to 2% since a chart with many thin bars still reads
+// fine, unlike a short prose list that would get cluttered fast.
+export async function getNutrientChartDataForIngredients(
+  ingredients: MealIngredientInput[],
+  servings: number,
+  topN = 8,
+): Promise<{ nutrient: string; percent: number }[]> {
+  const [{ totals }, driRows] = await Promise.all([
+    computeIngredientListNutrition(ingredients),
+    getDietaryReferenceIntakesForCurrentUser(),
+  ]);
+  const effectiveServings = servings > 0 ? servings : 1;
+
+  const scored: { nutrient: string; percent: number }[] = [];
+  const seenCodes = new Set<string>();
+  for (const dri of driRows) {
+    if (dri.valueType === 'CDRR') continue;
+    if (seenCodes.has(dri.nutrientCode)) continue;
+    const amount = totals[dri.nutrientCode];
+    if (!amount || amount <= 0 || !dri.amount) continue;
+    const percent = (amount / effectiveServings / dri.amount) * 100;
+    if (percent < 2) continue;
+    seenCodes.add(dri.nutrientCode);
+    scored.push({ nutrient: dri.displayName, percent });
+  }
+  scored.sort((a, b) => b.percent - a.percent);
+  return scored.slice(0, topN);
+}
+
 // Thin wrapper over the real, general core above for a genuine saved
 // record (My Kitchen) -- resolves the whole dish at full (100%) share via
 // the already-proven resolveMealComponent, since there's no "your share"

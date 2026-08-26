@@ -15,6 +15,7 @@ import {
   getCuratedRecipe,
   getFoodIdentity,
   getFoodScores,
+  getNutrientChartDataForIngredients,
   getNutritionHighlightsForIngredients,
   getSide,
   getSideIngredients,
@@ -871,6 +872,12 @@ export function SideBuilder({
   // just decides whether the person looks at it first.
   const [finishStep, setFinishStep] = useState<'building' | 'reviewing' | 'report'>('building');
   const [reportData, setReportData] = useState<RecipeDepthResult | null>(null);
+  // 2026-08-25, direct correction: "It needs to be a report about the
+  // nutrients... use some sort of graph instead of just writing it out."
+  // Kept separate from reportData/RecipeDepthResult (which is the real
+  // condition-safety/diet-tag depth, not nutrient content) since it's
+  // computed via a different real function, getNutrientChartDataForIngredients.
+  const [reportNutrientData, setReportNutrientData] = useState<{ nutrient: string; percent: number }[]>([]);
   const [computingReport, setComputingReport] = useState(false);
   const [savingFromReport, setSavingFromReport] = useState(false);
   // 2026-08-25, direct instruction: "If they made a change to the system
@@ -1235,6 +1242,7 @@ export function SideBuilder({
     setNutritionHighlights([]);
     setConditionNotes([]);
     setReportData(null);
+    setReportNutrientData([]);
     setLoadedFromCuratedRecipe(null);
     showInfoAlert('Side saved', `${finishedName} is saved. Starting a fresh side dish now.`);
   }
@@ -1247,8 +1255,13 @@ export function SideBuilder({
   async function handlePreviewReport() {
     setComputingReport(true);
     try {
-      const depth = await computeRecipeDepth(buildDepthIngredients(ingredients), trackedConditions);
+      const depthIngredients = buildDepthIngredients(ingredients);
+      const [depth, nutrientData] = await Promise.all([
+        computeRecipeDepth(depthIngredients, trackedConditions),
+        getNutrientChartDataForIngredients(depthIngredients, servings ? parseAmountValue(servings) : 1),
+      ]);
       setReportData(depth);
+      setReportNutrientData(nutrientData);
       setFinishStep('report');
     } catch (error) {
       console.error('[SideBuilder] Failed to compute the depth report', error);
@@ -1588,12 +1601,12 @@ export function SideBuilder({
           <RecipeDepthReport
             dishName={dishName.trim() || 'Side Dish'}
             yieldLabel={`Makes ${servings || '?'} serving${servings === '1' ? '' : 's'} (${servingSizeAmount || '?'} ${servingSizeUnit ?? '?'} each)`}
-            ingredientLines={ingredients.map((ingredient) => formatFinalIngredientText(ingredient))}
-            nutritionHighlights={nutritionHighlights}
-            dietTags={reportData.dietTags}
+            ingredientCount={ingredients.length}
+            nutrientChartData={reportNutrientData}
             trackedConditions={trackedConditions}
             safeForConditions={reportData.safeForConditions}
             conditionCautions={reportData.conditionCautions}
+            dimensionBreakdown={reportData.dimensionBreakdown}
             stageNotes={reportData.stageNotes}
             tabColor={tabColor}
             saving={savingFromReport}

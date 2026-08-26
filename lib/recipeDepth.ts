@@ -29,14 +29,31 @@
 
 import { getConditionStages, getFoodScores, getFoodScoresForCondition, type MealIngredientInput } from './db';
 import { getConditionStageAdvisory, type ConditionStageAdvisory } from './conditionStageAdvisory';
-import { isFlaggedTier, tierSeverity } from './sixDimensionsReference';
+import { isFlaggedTier, tierSeverity, type TierSeverity } from './sixDimensionsReference';
 import type { RecipeDietTag } from './digest/types';
+
+// One real dimension's own worst severity for a condition, across this
+// whole dish -- 2026-08-25, direct correction: "for Hashimoto's it should
+// show how it does not cause problems or does cause them for the D1-D6."
+// "D1-D6" is genuinely Hashimoto's own real 6-dimension framework, checked
+// directly against the live database rather than assumed: every other
+// tracked condition has its own, differently-named real dimension set (2
+// to 5 real dimensions, not 6, and never called "D1-D6") -- see
+// computeDimensionBreakdown's own comment for the full reasoning, this
+// type is deliberately generic across whichever real dimension labels a
+// given condition actually owns.
+export type DimensionSeverity = { dimension: string; severity: TierSeverity };
 
 export type RecipeDepthResult = {
   safeForConditions: string[];
   conditionCautions: Record<string, { severity: 'yellow' | 'red'; note: string }>;
   dietTags: RecipeDietTag[];
   stageNotes: ConditionStageAdvisory[];
+  // conditionCode -> that condition's own real dimensions, each with this
+  // dish's worst severity across every ingredient -- the data a per-
+  // condition dimension chart (RecipeDepthReport's own DimensionRadar)
+  // actually plots.
+  dimensionBreakdown: Record<string, DimensionSeverity[]>;
 };
 
 // ---------------------------------------------------------------------
@@ -110,12 +127,24 @@ function splitFoodId(foodId: string | undefined): { foodId: number; source: stri
   return { foodId: parsed, source };
 }
 
+// Same "worst wins" reduction Insights' own 6 Dimensions lens already uses
+// (app/(tabs)/insights.tsx's own worstTierSeverity) -- a faithful, small
+// duplicate rather than importing from a screen file, red beats yellow
+// beats green beats unknown, so one real concern anywhere in a dimension
+// is never masked by everything else in it being fine or unassessed.
+const DIMENSION_SEVERITY_RANK: Record<TierSeverity, number> = { unknown: 0, green: 1, yellow: 2, red: 3 };
+
+function worseSeverity(a: TierSeverity, b: TierSeverity): TierSeverity {
+  return DIMENSION_SEVERITY_RANK[b] > DIMENSION_SEVERITY_RANK[a] ? b : a;
+}
+
 async function computeConditionSafetyAndCautions(
   ingredients: MealIngredientInput[],
   trackedConditions: { code: string; name: string }[],
-): Promise<Pick<RecipeDepthResult, 'safeForConditions' | 'conditionCautions'>> {
+): Promise<Pick<RecipeDepthResult, 'safeForConditions' | 'conditionCautions' | 'dimensionBreakdown'>> {
   const safeForConditions: string[] = [];
   const conditionCautions: RecipeDepthResult['conditionCautions'] = {};
+  const dimensionBreakdown: RecipeDepthResult['dimensionBreakdown'] = {};
 
   const resolved = ingredients
     .map((ingredient) => {
@@ -127,10 +156,26 @@ async function computeConditionSafetyAndCautions(
   for (const condition of trackedConditions) {
     type Hit = { baseName: string; subCriterion: string; tier: string; severity: 'yellow' | 'red'; excluded: boolean };
     const hits: Hit[] = [];
+    // Every real dimension this condition actually scores anything under,
+    // in the order first encountered -- a Map (not a plain object) so that
+    // order is preserved, since a chart reads better with a stable axis
+    // order than one that reshuffles between renders.
+    const dimensionSeverities = new Map<string, TierSeverity>();
 
     for (const ingredient of resolved) {
       const scores = await getFoodScoresForCondition(ingredient.foodId, ingredient.source, condition.code);
       for (const score of scores) {
+        // The dimension chart wants every real severity (green and
+        // unknown included, not just flagged ones) -- excluded here only
+        // for the same near-universal, background-signal sub-criteria
+        // the caution logic below already excludes, so the two views of
+        // this same dish never quietly disagree about what counts.
+        if (!NEAR_UNIVERSAL_SUB_CRITERIA.has(score.subCriterion)) {
+          const severity = tierSeverity(score.tier);
+          const current = dimensionSeverities.get(score.dimension) ?? 'unknown';
+          dimensionSeverities.set(score.dimension, worseSeverity(current, severity));
+        }
+
         if (!isNoteworthyForRecipe(score.subCriterion, score.tier)) continue;
         const severity = tierSeverity(score.tier);
         if (severity !== 'yellow' && severity !== 'red') continue;
@@ -143,6 +188,11 @@ async function computeConditionSafetyAndCautions(
         });
       }
     }
+
+    dimensionBreakdown[condition.code] = Array.from(dimensionSeverities.entries()).map(([dimension, severity]) => ({
+      dimension,
+      severity,
+    }));
 
     // A genuine, never-safe-at-any-dose match: invisible for this
     // condition entirely, no safeForConditions entry and no caution --
@@ -162,7 +212,7 @@ async function computeConditionSafetyAndCautions(
     };
   }
 
-  return { safeForConditions, conditionCautions };
+  return { safeForConditions, conditionCautions, dimensionBreakdown };
 }
 
 // ---------------------------------------------------------------------
@@ -324,10 +374,10 @@ export async function computeRecipeDepth(
   ingredients: MealIngredientInput[],
   trackedConditions: { code: string; name: string }[],
 ): Promise<RecipeDepthResult> {
-  const [{ safeForConditions, conditionCautions }, stageNotes] = await Promise.all([
+  const [{ safeForConditions, conditionCautions, dimensionBreakdown }, stageNotes] = await Promise.all([
     computeConditionSafetyAndCautions(ingredients, trackedConditions),
     computeStageNotes(ingredients, trackedConditions),
   ]);
   const dietTags = computeDietTags(ingredients);
-  return { safeForConditions, conditionCautions, dietTags, stageNotes };
+  return { safeForConditions, conditionCautions, dietTags, stageNotes, dimensionBreakdown };
 }
