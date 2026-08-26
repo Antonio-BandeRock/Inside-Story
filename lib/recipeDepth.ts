@@ -231,16 +231,38 @@ async function computeStageNotes(
   if (Object.keys(relevantStages).length === 0) return [];
 
   const resolved = ingredients
-    .map((ingredient) => splitFoodId(ingredient.foodId))
-    .filter((ingredient): ingredient is { foodId: number; source: string } => ingredient !== null);
+    .map((ingredient) => {
+      const split = splitFoodId(ingredient.foodId);
+      return split ? { ...split, foodName: ingredient.foodName } : null;
+    })
+    .filter((ingredient): ingredient is { foodId: number; source: string; foodName: string } => ingredient !== null);
 
-  const notes: ConditionStageAdvisory[] = [];
+  // 2026-08-25, direct report: "it listed the same warning twice... we
+  // don't want to list it twice, we want to list the ingredients that
+  // each match it." getConditionStageAdvisory produces the identical
+  // {title, message} pair whenever two different ingredients trip the
+  // exact same real advisory (its own wording is generic, never tied to
+  // one specific ingredient) -- deduping by that exact pair and naming
+  // every ingredient that actually matched is the real fix, not just
+  // hiding the repeat.
+  const notesByKey = new Map<string, { title: string; message: string; ingredientNames: string[] }>();
   for (const ingredient of resolved) {
     const scores = await getFoodScores(ingredient.foodId, ingredient.source);
     const advisory = getConditionStageAdvisory(scores, relevantStages);
-    if (advisory) notes.push(advisory);
+    if (!advisory) continue;
+    const key = `${advisory.title}|${advisory.message}`;
+    const existing = notesByKey.get(key);
+    if (existing) {
+      existing.ingredientNames.push(ingredient.foodName);
+    } else {
+      notesByKey.set(key, { title: advisory.title, message: advisory.message, ingredientNames: [ingredient.foodName] });
+    }
   }
-  return notes;
+
+  return Array.from(notesByKey.values()).map(({ title, message, ingredientNames }) => ({
+    title,
+    message: `${message} Matches: ${ingredientNames.join(', ')}.`,
+  }));
 }
 
 // ---------------------------------------------------------------------
