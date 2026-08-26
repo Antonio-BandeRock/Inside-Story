@@ -464,7 +464,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Walnut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Walnut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -507,7 +507,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -691,7 +691,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "yellow",
-        "note": "Millet, puffed: rated Moderate for oxalate level. A moderate level for this measure."
+        "note": "Millet, puffed: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -1374,7 +1374,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "yellow",
-        "note": "Quinoa, uncooked: rated Moderate for oxalate level. A moderate level for this measure."
+        "note": "Quinoa, uncooked: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -1442,7 +1442,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "yellow",
-        "note": "Quinoa, uncooked: rated Moderate for oxalate level. A moderate level for this measure."
+        "note": "Quinoa, uncooked: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -1702,7 +1702,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "yellow",
-        "note": "Blackstrap Molasses (Pure): rated Moderate for oxalate level. A moderate level for this measure."
+        "note": "Blackstrap Molasses (Pure): Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -2207,7 +2207,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Sweet potato: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Sweet potato: rated High for mineral binding risk. A meaningfully high level for this measure."
       }
     },
     "stageAdvisoryNotes": [
@@ -2596,7 +2596,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Walnut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Walnut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -3731,7 +3731,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -4212,7 +4212,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Sweet potato: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Sweet potato: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -4919,7 +4919,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Okra: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Okra: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -5039,7 +5039,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -6458,7 +6458,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -7174,7 +7174,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Brazil nut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Brazil nut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -7291,7 +7291,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -7353,7 +7353,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -7439,7 +7439,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Nuts, almond butter, plain: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Nuts, almond butter, plain: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -7495,7 +7495,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Cashew nut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Cashew nut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -7665,7 +7665,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Almonds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -7709,7 +7709,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Buckwheat: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Buckwheat: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -7817,7 +7817,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Almonds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -7935,7 +7935,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "yellow",
-        "note": "Fig: rated Moderate for oxalate level. A moderate level for this measure."
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -7966,7 +7966,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Walnut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Walnut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -8010,7 +8010,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Cashew nut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Cashew nut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -8081,7 +8081,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Walnut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Walnut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -8137,7 +8137,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Cashew nut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Cashew nut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -8276,7 +8276,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Walnut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Walnut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -8449,7 +8449,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -8576,7 +8576,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -8632,7 +8632,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -8700,7 +8700,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "yellow",
-        "note": "Millet: rated Moderate for oxalate level. A moderate level for this measure."
+        "note": "Millet: Moderate oxalate content, generally fine in normal portions."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -8764,7 +8764,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -8835,7 +8835,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -8996,7 +8996,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -9058,7 +9058,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Almonds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -9105,7 +9105,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Walnut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Walnut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -9164,7 +9164,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Walnut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Walnut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -9280,7 +9280,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -9400,7 +9400,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Almonds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -9456,7 +9456,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "yellow",
-        "note": "Potato: rated Moderate for oxalate level. A moderate level for this measure."
+        "note": "Potato: Moderate oxalate content, generally fine in normal portions."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -10295,7 +10295,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Swiss Chard: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Swiss Chard: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -10571,7 +10571,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Sweet potato: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Sweet potato: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -10731,7 +10731,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Buckwheat: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Buckwheat: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -10787,7 +10787,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Buckwheat: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Buckwheat: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -10968,7 +10968,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -11036,7 +11036,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -11186,7 +11186,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -11946,7 +11946,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -11990,7 +11990,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -12045,7 +12045,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -12089,7 +12089,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -12201,7 +12201,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -12257,7 +12257,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chia seeds: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -12591,7 +12591,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "yellow",
-        "note": "Quinoa: rated Moderate for oxalate level. A moderate level for this measure."
+        "note": "Quinoa: Moderate oxalate content, generally fine in normal portions."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -12651,7 +12651,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -12710,7 +12710,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Walnut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Walnut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -13505,7 +13505,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Grains, amaranth: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Grains, amaranth: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -13565,7 +13565,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Buckwheat: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Buckwheat: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -13617,7 +13617,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "yellow",
-        "note": "Millet: rated Moderate for oxalate level. A moderate level for this measure."
+        "note": "Millet: Moderate oxalate content, generally fine in normal portions."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -13677,7 +13677,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -13733,7 +13733,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -13916,7 +13916,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Sweet potato: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Sweet potato: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -14323,7 +14323,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Okra: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Okra: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -14382,7 +14382,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Walnut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Walnut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -14874,7 +14874,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Walnut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Walnut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "red",
@@ -16295,7 +16295,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Brazil nut: rated High for oxalate level. A meaningfully high level for this measure."
+        "note": "Brazil nut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -16388,7 +16388,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -16438,7 +16438,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Spinach: rated Very High for oxalate level. The highest tier used for this measure."
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -16994,8 +16994,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Kale: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+        "severity": "yellow",
+        "note": "White Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -17025,11 +17025,11 @@
     "stageAdvisoryNotes": [
       {
         "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
-        "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",

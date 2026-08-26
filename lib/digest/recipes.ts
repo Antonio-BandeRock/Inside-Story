@@ -484,7 +484,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Walnut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -531,7 +531,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -856,7 +856,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Sweet potato: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Sweet potato: rated High for mineral binding risk. A meaningfully high level for this measure.' },
       },
       yield: 'Makes 1 taco, for 1 person.',
       ingredients: [
@@ -1129,7 +1129,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Walnut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -1245,7 +1245,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -1657,7 +1657,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -1770,7 +1770,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -1862,7 +1862,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Brazil nut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Brazil nut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -1959,7 +1959,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
       },
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -2103,7 +2103,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Almonds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -2150,7 +2150,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Nuts, almond butter, plain: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Nuts, almond butter, plain: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -3264,7 +3264,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'yellow', note: 'Blackstrap Molasses (Pure): rated Moderate for oxalate level. A moderate level for this measure.' },
+        hashimotos: { severity: 'yellow', note: 'Blackstrap Molasses (Pure): Moderate oxalate content, generally fine in normal portions.' },
       },
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -3574,7 +3574,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'yellow', note: 'Quinoa, uncooked: rated Moderate for oxalate level. A moderate level for this measure.' },
+        hashimotos: { severity: 'yellow', note: 'Quinoa, uncooked: Moderate oxalate content, generally fine in normal portions.' },
       },
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -3822,7 +3822,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'yellow', note: 'Millet, puffed: rated Moderate for oxalate level. A moderate level for this measure.' },
+        hashimotos: { severity: 'yellow', note: 'Millet, puffed: Moderate oxalate content, generally fine in normal portions.' },
       },
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -3904,7 +3904,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'yellow', note: 'Quinoa, uncooked: rated Moderate for oxalate level. A moderate level for this measure.' },
+        hashimotos: { severity: 'yellow', note: 'Quinoa, uncooked: Moderate oxalate content, generally fine in normal portions.' },
       },
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
@@ -4286,7 +4286,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'yellow', note: 'Potato: rated Moderate for oxalate level. A moderate level for this measure.' },
+        hashimotos: { severity: 'yellow', note: 'Potato: Moderate oxalate content, generally fine in normal portions.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -4341,7 +4341,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -4439,7 +4439,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -4491,7 +4491,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Walnut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -5179,7 +5179,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Sweet potato: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Sweet potato: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -5549,7 +5549,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -5853,7 +5853,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Buckwheat: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Buckwheat: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -6013,7 +6013,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'yellow', note: 'Millet: rated Moderate for oxalate level. A moderate level for this measure.' },
+        hashimotos: { severity: 'yellow', note: 'Millet: Moderate oxalate content, generally fine in normal portions.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Almond drink unsweetened: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Almond drink unsweetened: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Almond drink unsweetened: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -6203,7 +6203,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Curry powder: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Curry powder: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Curry powder: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -6307,7 +6307,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Walnut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -6457,7 +6457,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Cashew nut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Cashew nut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -6558,7 +6558,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Okra: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Okra: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -6611,7 +6611,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -6770,7 +6770,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Almonds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
       },
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -6920,7 +6920,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Walnut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -7361,7 +7361,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Walnut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -7667,7 +7667,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Cashew nut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Cashew nut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -7821,7 +7821,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Walnut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -7973,7 +7973,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -8122,7 +8122,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'yellow', note: 'Fig: rated Moderate for oxalate level. A moderate level for this measure.' },
+        hashimotos: { severity: 'yellow', note: 'Fig: Moderate oxalate content, generally fine in normal portions.' },
       },
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -8261,7 +8261,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Almonds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
       },
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -8407,7 +8407,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -8455,7 +8455,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Swiss Chard: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Swiss Chard: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -8701,7 +8701,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Almonds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
       },
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -9144,7 +9144,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Cashew nut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Cashew nut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -9299,7 +9299,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -9677,7 +9677,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -9763,7 +9763,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Brazil nut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Brazil nut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -9854,7 +9854,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
       },
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -10034,7 +10034,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -10475,7 +10475,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Buckwheat: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Buckwheat: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -10701,7 +10701,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -11094,7 +11094,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -11216,7 +11216,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -11471,7 +11471,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -12241,7 +12241,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Walnut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -12442,7 +12442,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Sweet potato: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Sweet potato: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -12728,7 +12728,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Walnut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'red', note: 'Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'red', note: 'Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -13030,7 +13030,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Okra: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Okra: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -14093,7 +14093,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Walnut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         prostate_health: { severity: 'yellow', note: 'Yeast flakes/nutritional yeast: rated Use Carefully for zinc. This may need portion awareness or a doctor’s guidance.' },
@@ -14712,7 +14712,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Grains, amaranth: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Grains, amaranth: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -14761,7 +14761,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -14807,7 +14807,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chickpea flour: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chickpea flour: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         prostate_health: { severity: 'yellow', note: 'Yeast flakes/nutritional yeast: rated Use Carefully for zinc. This may need portion awareness or a doctor’s guidance.' },
@@ -14858,7 +14858,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'yellow', note: 'Millet: rated Moderate for oxalate level. A moderate level for this measure.' },
+        hashimotos: { severity: 'yellow', note: 'Millet: Moderate oxalate content, generally fine in normal portions.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -14904,7 +14904,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Sweet potato: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Sweet potato: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -14952,7 +14952,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -14998,7 +14998,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Buckwheat: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Buckwheat: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -15044,7 +15044,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'yellow', note: 'Quinoa: rated Moderate for oxalate level. A moderate level for this measure.' },
+        hashimotos: { severity: 'yellow', note: 'Quinoa: Moderate oxalate content, generally fine in normal portions.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Hemp seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Hemp seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Hemp seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -15089,7 +15089,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Kale: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
+        hashimotos: { severity: 'yellow', note: 'White Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -15135,7 +15135,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -15182,7 +15182,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -15265,7 +15265,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -15352,7 +15352,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        hashimotos: { severity: 'red', note: 'Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -15396,7 +15396,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Buckwheat: rated High for oxalate level. A meaningfully high level for this measure.' },
+        hashimotos: { severity: 'red', note: 'Buckwheat: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },

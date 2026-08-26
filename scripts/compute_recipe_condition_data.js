@@ -171,6 +171,59 @@ function tierSeverity(tier) {
 // already excluded them, not a new decision.
 const NEAR_UNIVERSAL_SUB_CRITERIA = new Set(['Selenium & Zn synergy', 'Iron Presence']);
 
+// 2026-08-26, direct correction: "high in oxalates doesn't equal they
+// can't eat it. It means treat with care and make sure they are
+// cooked... Aren't they flagged for a rule like that?" Correct, and a
+// real bug, not a difference of opinion: Hashimoto's own D6 dimension
+// carries THREE separate real sub-criteria for the same underlying fact
+// -- Oxalate Level (a raw measurement: "High"/"Very High"), Oxalate Load
+// Rank (the actual calibrated risk verdict: "Use Carefully"/"High
+// Risk"), and Oxalate Tolerance Note (a real, cited, actionable per-food
+// note: "Discard cooking water where applicable; pair with a calcium
+// source"). Oxalate Level's own tier words happen to be the literal
+// strings "High"/"Very High", which tierSeverity's generic RED_TIERS set
+// treats as red for ANY sub-criterion using that vocabulary -- correct
+// for a sub-criterion whose tier IS the verdict (Sodium: High really
+// does mean "a lot of sodium"), wrong here, since Oxalate Level is a
+// plain measurement that Oxalate Load Rank ALREADY translates into the
+// real risk tier. Checking Oxalate Level as an independent hit meant a
+// food rated only "Use Carefully" by the real, calibrated rank (amaranth,
+// buckwheat, sweet potato -- genuinely a "cook it, pair with calcium"
+// caution, not a serious concern) could still get captioned red purely
+// from its own raw measurement label, exactly the "undue emergency
+// status" described directly. Confirmed by direct query before fixing:
+// spinach and chia seeds genuinely agree red across all three real
+// measures (a real, serious caution, correctly still red), while
+// amaranth/buckwheat/sweet potato disagree (Use Carefully on the
+// calibrated rank, High/Very High only on the raw measurement) --
+// exactly the distinction this fix restores. Oxalate Level is excluded
+// from independently driving severity the same way NEAR_UNIVERSAL_
+// SUB_CRITERIA already is, for a different but related reason: not
+// near-universal noise, but a raw measurement duplicating a properly-
+// calibrated sibling sub-criterion for the identical real fact.
+// Oxalate Tolerance Note is excluded here too, for a related but
+// distinct reason: it's a real, useful annotation (see
+// TOLERANCE_NOTE_SUB_CRITERION_BY_RANK below), never meant to
+// independently drive severity or get picked as its own hit -- tier
+// values here are long, cited sentences ("High oxalate load (real cited
+// value...). Boil and discard..."), and tierSeverity's own text-prefix
+// matching for this field would otherwise let it compete on equal
+// footing with Oxalate Load Rank's real short verdict tier for which one
+// gets picked as the caption, occasionally winning and producing a
+// garbled, doubly-nested sentence once run through the generic
+// templated-caption builder, which has no idea this text is already a
+// complete sentence.
+const RAW_MEASUREMENT_SUB_CRITERIA = new Set(['Oxalate Level', 'Oxalate Tolerance Note']);
+
+// The sub-criterion carrying the real, cited, actionable per-food
+// cooking/handling guidance for a given risk-rank sub-criterion, keyed
+// by that rank sub-criterion's own name -- used to prefer this genuinely
+// useful text over the generic templated caution sentence when both
+// exist for the same ingredient (see the caution-note-building code
+// below). Not every risk-rank sub-criterion in this app has a matching
+// note field yet; only real, confirmed pairs are listed here.
+const TOLERANCE_NOTE_SUB_CRITERION_BY_RANK = { 'Oxalate Load Rank': 'Oxalate Tolerance Note' };
+
 // Matches lib/sixDimensionsReference.ts's own isFlaggedTier exactly
 // (yellow OR red) once the near-universal exclusion above is applied --
 // tried red-only first, specifically to investigate why a first run
@@ -191,6 +244,7 @@ const NEAR_UNIVERSAL_SUB_CRITERIA = new Set(['Selenium & Zn synergy', 'Iron Pres
 // to water down for a rounder-looking number.
 function isFlaggedTier(tier, subCriterion) {
   if (subCriterion && NEAR_UNIVERSAL_SUB_CRITERIA.has(subCriterion)) return false;
+  if (subCriterion && RAW_MEASUREMENT_SUB_CRITERIA.has(subCriterion)) return false;
   const s = tierSeverity(tier);
   return s === 'yellow' || s === 'red';
 }
@@ -248,6 +302,22 @@ const TIER_CAUTION_QUALIFIERS = [
   { pattern: /\(Raw\)/i, phrase: ' in its raw form' },
   { pattern: /\(Cooked\)/i, phrase: ' after cooking' },
 ];
+
+// Prefers a hit's own real, cited tolerance-note text (see
+// TOLERANCE_NOTE_SUB_CRITERION_BY_RANK) over the generic templated
+// sentence when one exists -- it already says the actionable, useful
+// thing (cook it, discard the water, pair with calcium) rather than just
+// naming a tier. The internal "(real cited value, see Oxalate Level
+// note)" aside is stripped: it is a real, correct citation-bookkeeping
+// pointer between this database's own sub-criteria, not something a
+// person reading this caption has any way to act on.
+function buildCautionSentenceForHit(hit) {
+  if (hit.toleranceNote && !hit.toleranceNote.startsWith('No real, cited') && hit.toleranceNote !== 'Not Assessed') {
+    const cleaned = hit.toleranceNote.replace(/\s*\(real cited value[^)]*\)/i, '');
+    return `${hit.baseName}: ${cleaned}`;
+  }
+  return buildCautionSentence(hit.baseName, hit.subCriterion, hit.tier);
+}
 
 function buildCautionSentence(baseName, subCriterion, tier) {
   const baseWord = tier.replace(/\s*\([^)]*\)\s*$/, '').trim();
@@ -470,7 +540,13 @@ const RECIPE_PREP_OVERRIDES = {
   // default Raw-first resolution was scoring a real lectin concern that
   // doesn't apply once cooked.
   curated_vegan_lentil_spinach_bowl_lemon_tahini: { 'Legume|Lentils': 'Boiled' },
-  curated_vegan_white_bean_kale_breakfast_hash: { 'Legume|White Beans': 'Boiled' },
+  // 2026-08-26, direct follow-up: this recipe's own instructions saute
+  // the kale (a real cruciferous vegetable), but the default Raw-first
+  // resolution was scoring its real, well-documented raw-goitrogenic
+  // flag as if it were never cooked at all -- the same class of bug
+  // already fixed for legumes above, now confirmed for a goitrogenic
+  // vegetable in this same batch.
+  curated_vegan_white_bean_kale_breakfast_hash: { 'Legume|White Beans': 'Boiled', 'Veg|Kale': 'Boiled' },
   curated_vegan_chickpea_spinach_breakfast_curry: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
   curated_vegan_black_bean_breakfast_bowl_avocado: { 'Legume|Black Beans': 'Boiled' },
   curated_vegan_roasted_vegetable_white_bean_bowl_garlic_herb_oil: { 'Legume|White Beans': 'Boiled' },
@@ -846,7 +922,16 @@ for (const [recipeId, ingredients] of ingredientsByRecipe.entries()) {
       const baseName = resolvedIngredientNames[i];
       for (const row of scores) {
         if (isRelevantToCondition(row.subCriterionId, conditionCode) && isFlaggedTier(row.tier, row.subCriterion)) {
-          hits.push({ baseName, subCriterion: row.subCriterion, tier: row.tier });
+          // A real, cited, actionable per-food note (see
+          // TOLERANCE_NOTE_SUB_CRITERION_BY_RANK's own comment) for this
+          // exact ingredient, when this hit's own sub-criterion has one --
+          // preferred over the generic templated sentence in
+          // buildCautionSentence below, since it already says the real,
+          // useful thing ("cook it, discard the water, pair with
+          // calcium") rather than just naming the tier.
+          const noteSubCriterion = TOLERANCE_NOTE_SUB_CRITERION_BY_RANK[row.subCriterion];
+          const toleranceNoteRow = noteSubCriterion ? scores.find((s) => s.subCriterion === noteSubCriterion) : undefined;
+          hits.push({ baseName, subCriterion: row.subCriterion, tier: row.tier, toleranceNote: toleranceNoteRow?.tier });
           if (isAbsoluteExclusion(conditionCode, row.subCriterion, row.tier)) absoluteExclusion = true;
         }
       }
@@ -879,7 +964,7 @@ for (const [recipeId, ingredients] of ingredientsByRecipe.entries()) {
       // rule), so the UI can group and color genuinely differently rather
       // than treating every caution as interchangeable.
       const severity = hits.some((h) => tierSeverity(h.tier) === 'red') ? 'red' : 'yellow';
-      conditionCautions[conditionCode] = { severity, note: buildCautionSentence(hit.baseName, hit.subCriterion, hit.tier) };
+      conditionCautions[conditionCode] = { severity, note: buildCautionSentenceForHit(hit) };
     }
   }
   safeForConditions.sort();
