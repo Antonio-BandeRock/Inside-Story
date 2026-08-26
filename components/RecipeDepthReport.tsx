@@ -111,6 +111,16 @@ export function RecipeDepthReport({
         {yieldLabel} · {ingredientCount} ingredient{ingredientCount === 1 ? '' : 's'}
       </Text>
 
+      {/* TEMPORARY DEBUG BLOCK -- 2026-08-25, to find why the stage
+          section is reported missing despite the underlying data and
+          render code both checking out on review. Remove once resolved. */}
+      <View style={{ borderWidth: 2, borderColor: 'red', padding: 8, marginTop: 8 }}>
+        <Text style={{ color: 'red', fontWeight: '700' }}>DEBUG</Text>
+        <Text style={{ color: 'red' }}>trackedConditions: {JSON.stringify(trackedConditions)}</Text>
+        <Text style={{ color: 'red' }}>declaredStages: {JSON.stringify(declaredStages)}</Text>
+        <Text style={{ color: 'red' }}>conditionsWithStagingModel: {JSON.stringify(Array.from(conditionsWithStagingModel))}</Text>
+      </View>
+
       {nutrientChartData.length > 0 ? (
         <View style={[styles.card, { borderColor: tabColor }]}>
           <Text style={[styles.cardLabel, { color: tabColor }]}>Nutrient Content</Text>
