@@ -2,5 +2,7 @@
 // scripts/add_vegan_meal_plan_breakfasts.py and
 // scripts/add_vegan_meal_plan_mains.py, which patch the compiled .db
 // directly, and by scripts/add_migraine_condition_relevance.js) -- do
-// not edit by hand.
-export const REFERENCE_DB_VERSION = "20260825160000";
+// not edit by hand. Bumped 2026-08-26 by scripts/add_vegan_savory_
+// breakfasts.py (16 new soy-free vegan breakfast recipes, closing the
+// "at least 30 vegan breakfast choices" gap).
+export const REFERENCE_DB_VERSION = "20260826120000";

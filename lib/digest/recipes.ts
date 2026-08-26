@@ -99,6 +99,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_whole_wheat_bread',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Whole-Grain Wheat Flour: rated High Risk for gluten. A significant, well-documented concern.' },
@@ -109,7 +110,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes one small 4-slice loaf. A loaf this size comfortably keeps one person in bread for several days.',
       ingredients: [
         { text: '250g (about 2 cups) whole-grain wheat flour' },
@@ -156,6 +156,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_wheat_tortillas',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern.' },
@@ -166,7 +167,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 4 tortillas. One person can get through these across a couple of days of wraps and tacos.',
       ingredients: [
         { text: '125g (about 1 cup) white flour tortilla mix (or all-purpose flour)' },
@@ -209,13 +209,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_buttermilk_biscuits',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian'],
       safeForConditions: ['cardiovascular_disease', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Whole-Grain Wheat Flour: rated High Risk for gluten. A significant, well-documented concern.' },
         rheumatoid_arthritis: { severity: 'red', note: 'Whole-Grain Wheat Flour: rated High Risk for gluten. A significant, well-documented concern.' },
         psoriasis: { severity: 'red', note: 'Whole-Grain Wheat Flour: rated High Risk for gluten. A significant, well-documented concern.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian'],
       yield: 'Makes 4 biscuits. One person can eat 1-2 over breakfast and still have a couple left for later.',
       ingredients: [
         { text: '125g (about 1 cup) whole-grain wheat flour' },
@@ -259,6 +259,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_banana_oat_cookies',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Flax seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -266,7 +267,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Flax seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Flax seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 6 cookies. One person can eat a couple and still have breakfast covered for a few more days.',
       ingredients: [
         { text: '75g (about ¾ cup) rolled oats' },
@@ -315,11 +315,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_ginger_turmeric_tonic',
     linkedBuilderType: 'beverage',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups. This is a pitcher-style drink, so brew the whole batch and keep it in the fridge, plenty for 1 person across a couple of days.',
       ingredients: [
         { text: '7.5g (about ½ tablespoon) fresh ginger root, grated' },
@@ -357,11 +357,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_electrolyte_water',
     linkedBuilderType: 'beverage',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Honeydew honey (Forest Honey): rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups (500ml), one glass for one person.',
       ingredients: [
         { text: '500ml water' },
@@ -394,11 +394,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_iced_green_tea_mint',
     linkedBuilderType: 'beverage',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Spices, spearmint, fresh: rated Use Carefully for iron (contextual). This may need portion awareness or a doctor’s guidance.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups. A pitcher-style drink: brew it once, keep it cold, and it\'ll cover 1 person for a couple of days.',
       ingredients: [
         { text: '500ml brewed green tea, cooled' },
@@ -431,11 +431,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_golden_milk',
     linkedBuilderType: 'beverage',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 1¼ cups, one mug for one person.',
       ingredients: [
         { text: '300ml whole milk' },
@@ -481,6 +481,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_dessert_baked_cinnamon_apples',
     linkedBuilderType: 'dessert',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -488,7 +489,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 baked apple\'s worth (about 150g apple total), 1 serving for 1 person.',
       ingredients: [
         { text: '150g (about 1 medium) apple, cored and sliced' },
@@ -528,6 +528,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_dessert_mixed_berry_chia_pudding',
     linkedBuilderType: 'dessert',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -539,7 +540,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Almond drink unsweetened: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         ibs: { severity: 'yellow', note: 'Vanilla extract: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about ½ cup, 1 serving for 1 person.',
       ingredients: [
         { text: '15g (about 1 tablespoon) chia seeds' },
@@ -591,9 +591,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_plain_yogurt',
     linkedBuilderType: 'fermentation',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 4 cups. A batch meant to last 1 person a week or more in the fridge, the way a jar of yogurt would.',
       ingredients: [
         { text: '500ml whole milk, plus 1 tablespoon of a plain live-culture yogurt as your starter' },
@@ -630,9 +630,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_probiotic_yogurt',
     linkedBuilderType: 'fermentation',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 4 cups. A batch meant to last 1 person a week or more in the fridge.',
       ingredients: [
         { text: '500ml whole milk, plus a starter culture blend containing S. thermophilus, L. bulgaricus, L. acidophilus, and Bifidobacterium species (a probiotic-labeled starter yogurt or a powdered starter blend both work, at about half the package\'s stated amount for this smaller batch)' },
@@ -669,9 +669,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_sauerkraut',
     linkedBuilderType: 'fermentation',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups. A fermented batch, kept in the fridge, easily lasts 1 person several weeks as a regular side.',
       ingredients: [
         { text: '500g (about ½ medium head) cabbage, shredded' },
@@ -710,9 +710,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_kombucha',
     linkedBuilderType: 'fermentation',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 4 cups. A batch meant to be brewed once and last 1 person a week or more.',
       ingredients: [
         { text: '1000ml brewed black tea, cooled to room temperature' },
@@ -750,6 +750,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_turkey_avocado_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -760,7 +761,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
         { text: '1 large flour tortilla' },
@@ -801,6 +801,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_grilled_chicken_sandwich',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -811,7 +812,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 sandwich, for 1 person.',
       ingredients: [
         { text: '2 slices whole-grain bread' },
@@ -853,11 +853,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_black_bean_sweet_potato_tacos',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Sweet potato: rated High for oxalate level. A meaningfully high level for this measure.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 taco, for 1 person.',
       ingredients: [
         { text: '1 small flour tortilla' },
@@ -901,6 +901,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_egg_salad_lettuce_wraps',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -911,7 +912,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
         { text: '2 eggs, hard-boiled' },
@@ -955,6 +955,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_mediterranean_chickpea_feta',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chickpea: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -968,7 +969,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         ibs: { severity: 'yellow', note: 'Chickpea: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '½ cup chickpeas, whole' },
@@ -1016,6 +1016,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_kale_citrus_iron',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Kale: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -1026,7 +1027,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pumpkin seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pumpkin seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups kale, chopped' },
@@ -1069,6 +1069,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_sesame_ginger_slaw',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Cabbage: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -1080,7 +1081,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         ibs: { severity: 'yellow', note: 'Vinegar, rice vinegar: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups cabbage, shredded' },
@@ -1126,6 +1126,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_beet_walnut_arugula',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -1137,7 +1138,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         ibs: { severity: 'yellow', note: 'Vinegar, balsamic: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '¾ cup beets, diced and roasted' },
@@ -1184,6 +1184,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_southwest_quinoa_black_bean',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Cumin (cummin) seed, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -1194,7 +1195,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '¾ cup quinoa, cooked' },
@@ -1242,6 +1242,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_spinach_strawberry_almond',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -1253,7 +1254,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         ibs: { severity: 'yellow', note: 'Vinegar, balsamic: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups spinach, whole' },
@@ -1301,6 +1301,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_basic_tomato',
     linkedBuilderType: 'sauce',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Basil: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -1311,7 +1312,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 1½ cups. A batch condiment meant to cover 1 person over multiple meals.',
       ingredients: [
         { text: '300g (about 2 cups) tomatoes, chopped' },
@@ -1353,6 +1353,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_garlic_herb_vinaigrette',
     linkedBuilderType: 'sauce',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -1364,7 +1365,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         ibs: { severity: 'yellow', note: 'Balsamic vinegar: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about ½ cup. A batch dressing meant to cover 1 person\'s salads for a week or more.',
       ingredients: [
         { text: '30ml (about 2 tablespoons) olive oil' },
@@ -1401,6 +1401,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_simple_pesto',
     linkedBuilderType: 'sauce',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Basil: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -1411,7 +1412,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pine nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pine nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about ½ cup. A batch sauce meant to cover 1 person\'s meals for a week or more.',
       ingredients: [
         { text: '20g (about 1 cup packed) fresh basil' },
@@ -1454,11 +1454,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_tahini_lemon',
     linkedBuilderType: 'sauce',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Garlic: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 6 tablespoons. A batch sauce meant to cover 1 person\'s meals for a week or more.',
       ingredients: [
         { text: '30g (about 2 tablespoons) tahini' },
@@ -1499,6 +1499,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_herb_roasted_potatoes',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Rosemary: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -1509,7 +1510,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
         { text: '75g (about ½ medium) potato, diced' },
@@ -1552,6 +1552,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lemon_garlic_broccoli',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -1562,7 +1563,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
         { text: '50g (about ¾ cup) broccoli, chopped' },
@@ -1605,6 +1605,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_garlic_mashed_cauliflower',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Cauliflower: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -1615,7 +1616,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
         { text: '75g (about 1 cup) cauliflower, chopped' },
@@ -1654,6 +1654,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_sauteed_spinach_garlic',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -1664,7 +1665,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about ½ cup, 1 ½-cup serving.',
       ingredients: [
         { text: '50g (about 1¾ cups) fresh spinach, whole' },
@@ -1703,6 +1703,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_rainbow_stir_fry',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -1713,7 +1714,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free'],
       yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
         { text: '37.5g (about ½ cup) broccoli, chopped into florets' },
@@ -1767,6 +1767,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_green_glow',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -1774,7 +1775,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups spinach, whole' },
@@ -1815,11 +1815,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_golden_turmeric',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '½ teaspoon ground turmeric' },
@@ -1859,6 +1859,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_brazil_nut_selenium',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Brazil nut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -1869,7 +1870,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '2 Brazil nuts, whole' },
@@ -1909,6 +1909,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_berry_antioxidant',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -1916,7 +1917,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1 cup blueberries, whole' },
@@ -1956,11 +1956,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_iron_vitamin_c',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1 cup spinach, whole' },
@@ -2000,11 +2000,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_tropical_ginger',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups pineapple, diced' },
@@ -2049,6 +2049,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_roasted_chickpeas',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Paprika: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -2059,7 +2060,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1 cup. A batch snack meant to last 1 person several days.',
       ingredients: [
         { text: '100g (about ¾ cup) chickpeas, drained' },
@@ -2100,6 +2100,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_trail_mix',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Almonds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -2110,7 +2111,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pumpkin seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pumpkin seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about ¾ cup. A batch snack meant to last 1 person several days.',
       ingredients: [
         { text: '20g (about 2 tablespoons) almonds' },
@@ -2147,6 +2147,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_apple_almond_butter',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Nuts, almond butter, plain: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -2157,7 +2158,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 serving, 1 apple\'s worth for 1 person.',
       ingredients: [
         { text: '150g (about 1 medium) apple, sliced' },
@@ -2193,11 +2193,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_berries_yogurt',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '200g (about ¾ cup) Greek yogurt, plain' },
@@ -2240,6 +2240,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_chicken_vegetable',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chicken bouillon/stock/soup (stock cubes, powder): rated Excess Risk for iodine. Eating a lot of this could push the level above a healthy range.' },
@@ -2251,7 +2252,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
         { text: '50g (about ⅓ cup) chicken breast, skinless and boneless, diced' },
@@ -2294,6 +2294,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_butternut_squash',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Onion: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -2304,7 +2305,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
         { text: '125g (about 1 cup) butternut squash, cubed' },
@@ -2346,6 +2346,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_red_lentil',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Lentil, red, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -2356,7 +2357,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
         { text: '50g (about ¼ cup) red lentils' },
@@ -2399,6 +2399,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_tomato_basil',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Basil: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -2409,7 +2410,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
         { text: '150g (about 1 cup) tomatoes, chopped' },
@@ -2488,11 +2488,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       'gout-fermented-drinks',
     ],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic. A jar this size covers one person a 4-6 ounce evening pour for a few nights.',
       ingredients: [
         {
@@ -2540,11 +2540,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'interaction-curcumin-piperine'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1 cup (about 150g) blueberries, fresh or frozen (no need to thaw first)' },
@@ -2588,11 +2588,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'prostate-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '2/3 cup (150ml) unsweetened pure pomegranate juice, or fresh arils pulsed in a food processor and strained' },
@@ -2635,11 +2635,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '7/8 cup (about 125g) cranberries, fresh or frozen, pulsed in a food processor to break the skins' },
@@ -2682,11 +2682,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'pcos-fermented-drinks', 'cvd-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1 cup (about 150g) red or purple grapes, halved' },
@@ -2728,11 +2728,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'cvd-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1/4 cup dried hibiscus flowers (Flor de Jamaica)' },
@@ -2774,11 +2774,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1/2 cup (about 75g) blackberries, fresh or frozen, lightly crushed' },
@@ -2821,11 +2821,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'lupus-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         {
@@ -2869,11 +2869,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Standard Honey (Blossom Honey): rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1 small apple (about 100g), unpeeled, grated' },
@@ -2911,11 +2911,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Standard Honey (Blossom Honey): rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1/2 large lemon (about 75g), unpeeled, sliced' },
@@ -2965,9 +2965,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       'ibs-fermented-drinks',
     ],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups. Traditionally taken as a 1-2 ounce shot rather than a full glass, so this batch lasts a good while for one person.',
       ingredients: [
         { text: '1/2 pound (about 250g) beets, peeled and chopped into chunks' },
@@ -3007,12 +3007,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-lacto-fermented-vegetables', 'fermented-leuconostoc-mesenteroides'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Spices, mustard seed, yellow: rated Excess Risk for selenium. Eating a lot of this could push the level above a healthy range.' },
         graves: { severity: 'red', note: 'Spices, mustard seed, yellow: rated Excess Risk for selenium. Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups. Traditionally taken as a small shot rather than a full glass, so this batch lasts a good while for one person.',
       ingredients: [
         { text: '1/2 pound (about 250g) carrots, peeled and sliced into batons' },
@@ -3058,9 +3058,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       'migraine-fermented-drinks',
     ],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 2 cups, enough for one person. A batch this size restarts easily every 1-2 days once the grains are active.',
       ingredients: [
         { text: '2 tablespoons (about 30g) active water kefir grains' },
@@ -3098,9 +3098,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-water-kefir', 'nutrients-fermented-drinks-hashimotos', 'graves-fermented-drinks', 'sjogrens-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups, enough for one person. Restarts easily every 24-48 hours once the grains are active.',
       ingredients: [
         { text: '2 tablespoons (about 30g) active water kefir grains (dairy-free, the same grains used for water kefir)' },
@@ -3137,9 +3137,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes a reusable starter culture plus about 2 cups of drinkable soda once active, enough for one person.',
       ingredients: [
         { text: '2 tablespoons (about 30g) fresh organic ginger, grated, unpeeled, plus 1 tablespoon more added daily' },
@@ -3176,9 +3176,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 2 cups, enough for one person across a few days.',
       ingredients: [
         { text: '3 tablespoons (about 40g) fresh ginger, grated, unpeeled' },
@@ -3218,11 +3218,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'interaction-curcumin-piperine', 'ra-fermented-drinks', 'psoriasis-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups, enough for one person across a few days.',
       ingredients: [
         { text: '1 tablespoon (about 15g) fresh turmeric, grated, unpeeled' },
@@ -3261,11 +3261,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Blackstrap Molasses (Pure): rated Moderate for oxalate level. A moderate level for this measure.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: 'Rind and core of 1/2 pineapple (about 300g), roughly chopped' },
@@ -3301,12 +3301,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'sjogrens-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Vinegar, cider: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
         ibs: { severity: 'yellow', note: 'Vinegar, cider: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 2 cups of concentrated syrup, enough for many diluted glasses (1-2 tablespoons of syrup per glass of water).',
       ingredients: [
         { text: '2 cups (about 250g) blackberries, crushed' },
@@ -3343,12 +3343,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'sjogrens-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Vinegar, cider: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
         ibs: { severity: 'yellow', note: 'Vinegar, cider: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1 tablespoon (about 15g) fresh ginger, grated, unpeeled' },
@@ -3387,11 +3387,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-kombucha'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Standard Honey (Blossom Honey): rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 4 cups, enough for one person across a week or more.',
       ingredients: [
         { text: '4 cups (1 liter) brewed green tea, cooled to room temperature' },
@@ -3427,11 +3427,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'lupus-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Garlic: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 1 1/2 cups of finished tonic, taken by the spoonful rather than as a drink.',
       ingredients: [
         { text: '1 cup (about 150g) garlic cloves, peeled and left whole' },
@@ -3488,9 +3488,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-milk-kefir-and-yogurt', 'recipe-ferment-coconut-kefir'],
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 2 cups, enough for one person. Restarts easily every 24 hours once the grains are active.',
       ingredients: [
         { text: '2 cups (500ml) whole milk' },
@@ -3531,9 +3531,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'type1-fermented-drinks', 'type2-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 2 cups, enough for one person across several days.',
       ingredients: [
         { text: '1/2 cup (100g) rice, rinsed well' },
@@ -3571,11 +3571,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'celiac-fermented-drinks', 'lupus-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Quinoa, uncooked: rated Moderate for oxalate level. A moderate level for this measure.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1/2 cup (100g) quinoa, sprouted (rinse and soak 8 hours, then drain and rinse twice daily for 2 days until small tails appear)' },
@@ -3610,11 +3610,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Spices, cloves, ground: rated Use Carefully for iron (contextual). This may need portion awareness or a doctor’s guidance.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, enough for one person. Traditionally taken as a small glass rather than a full pitcher serving.',
       ingredients: [
         { text: '1/4 cup (50g) chicory root, sliced' },
@@ -3655,11 +3655,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Standard Honey (Blossom Honey): rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '3 tablespoons (40g) chicory root, sliced' },
@@ -3697,9 +3697,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1 1/4 cups (200g) hominy (nixtamalized corn)' },
@@ -3736,11 +3736,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Spices, cardamom, ground: rated Use Carefully for iron (contextual). This may need portion awareness or a doctor’s guidance.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1/3 cup (75g) rice, soaked several hours then blended smooth with a little water' },
@@ -3779,11 +3779,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Rosemary: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 1 cup of finished syrup, used a spoonful at a time in water or tea.',
       ingredients: [
         { text: '1 cup (100g) fresh rosemary, roughly chopped' },
@@ -3819,11 +3819,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Millet, puffed: rated Moderate for oxalate level. A moderate level for this measure.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1 cup (100g) puffed millet' },
@@ -3860,9 +3860,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1 1/4 cups (200g) hominy, sprouted (soak 24 hours, drain, and let sit covered until small sprouts appear, 2-3 days)' },
@@ -3901,11 +3901,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-beet-kvass', 'celiac-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Quinoa, uncooked: rated Moderate for oxalate level. A moderate level for this measure.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1/2 cup (100g) quinoa, toasted in a dry pan until fragrant and lightly browned' },
@@ -3943,9 +3943,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 4 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
         { text: '1 cup (200g) rice, rinsed well' },
@@ -3981,9 +3981,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 4 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
         { text: '1 cup (200g) rice, rinsed well' },
@@ -4021,11 +4021,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-milk-kefir-and-yogurt'],
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Spearmint: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, enough for one person.',
       ingredients: [
         { text: '2/3 cup (150g) plain yogurt' },
@@ -4068,11 +4068,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-milk-kefir-and-yogurt', 'recipe-ferment-ayran'],
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, enough for one person.',
       ingredients: [
         { text: '2/3 cup (150g) plain yogurt' },
@@ -4115,9 +4115,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-milk-kefir'],
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 2 cups, enough for one person. Restarts easily every 24 hours once active.',
       ingredients: [
         { text: '2 cups (500ml) whole milk' },
@@ -4154,9 +4154,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-kombucha', 'fermentmethod-dairy-free-gluten-free-survey', 'masld-fermented-drinks', 'cvd-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 4 cups, enough for one person across a week or more.',
       ingredients: [
         { text: '4 cups (1 liter) brewed black tea, cooled to room temperature' },
@@ -4192,9 +4192,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-coconut-kefir', 'lifestyle-alcohol-advisory'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
         { text: '3 cups (750ml) unsweetened coconut water' },
@@ -4231,9 +4231,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
         { text: '1/3 cup (75g) pure maple syrup' },
@@ -4283,6 +4283,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_veggie_cheddar_scramble_potatoes',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Potato: rated Moderate for oxalate level. A moderate level for this measure.' },
@@ -4293,7 +4294,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '100g (about ⅔ cup) potato, diced' },
@@ -4338,6 +4338,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_overnight_oats_chia_berries',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -4345,7 +4346,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '40g (about ⅓ cup) rolled oats' },
@@ -4386,6 +4386,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_soft_boiled_eggs_avocado_tomato',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -4396,7 +4397,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '2 eggs' },
@@ -4436,6 +4436,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_savory_quinoa_bowl_fried_egg',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -4446,7 +4447,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '75g (about ½ cup) quinoa, cooked' },
@@ -4488,6 +4488,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_cottage_cheese_pineapple_walnuts',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -4495,7 +4496,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) cottage cheese' },
@@ -4532,6 +4532,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_breakfast_burrito_eggs_black_beans',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern.' },
@@ -4542,7 +4543,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'High-Protein'],
       yield: 'Makes 1 burrito, for 1 person.',
       ingredients: [
         { text: '1 flour tortilla' },
@@ -4591,6 +4591,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_oatmeal_cup_banana_cinnamon',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -4601,7 +4602,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 cup, for 1 person.',
       ingredients: [
         { text: '50g (about ½ cup) rolled oats' },
@@ -4644,6 +4644,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_ginger_soy_chicken_thighs',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -4654,7 +4655,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 thigh) chicken thigh, skinless and boneless' },
@@ -4697,6 +4697,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_white_bean_roasted_vegetable_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Oregano: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -4707,7 +4708,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ½ cup) white beans' },
@@ -4755,6 +4755,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_egg_vegetable_fried_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Pea, green, fresh: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -4765,7 +4766,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ⅔ cup) brown rice, cooked' },
@@ -4810,6 +4810,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_salmon_lemon_dill',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -4820,7 +4821,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 fillet, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) salmon' },
@@ -4859,6 +4859,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_herb_crusted_pork_tenderloin',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Rosemary: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -4869,7 +4870,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 serving, for 1 person.',
       ingredients: [
         { text: '150g pork tenderloin' },
@@ -4910,6 +4910,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_cod_paprika_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Paprika: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -4920,7 +4921,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 fillet, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) cod' },
@@ -4961,6 +4961,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_turkey_meatballs_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Basil: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -4971,7 +4972,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 serving, for 1 person.',
       ingredients: [
         { text: '150g ground turkey' },
@@ -5017,6 +5017,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_teriyaki_baked_tofu',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -5027,7 +5028,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 serving, for 1 person.',
       ingredients: [
         { text: '150g (about ½ block) tofu, cubed' },
@@ -5070,6 +5070,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_one_pan_shrimp_asparagus_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Asparagus: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -5080,7 +5081,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g shrimp, peeled and deveined' },
@@ -5120,6 +5120,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_beef_mushroom_stir_fry_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -5130,7 +5131,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '130g beef top sirloin, sliced thin' },
@@ -5176,6 +5176,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_chicken_thighs_brussels_sweet_potato',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Sweet potato: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -5186,7 +5187,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 thigh) chicken thigh, skinless and boneless' },
@@ -5230,6 +5230,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_green_lentil_vegetable_stew',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -5240,7 +5241,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '75g (about ⅓ cup) green lentils' },
@@ -5286,6 +5286,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_turkey_breast_zucchini_tomatoes',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Oregano: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -5296,7 +5297,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g turkey breast' },
@@ -5339,13 +5339,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_hummus_roasted_vegetable_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern.' },
         rheumatoid_arthritis: { severity: 'red', note: 'Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern.' },
         psoriasis: { severity: 'red', note: 'Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
         { text: '1 flour tortilla' },
@@ -5394,6 +5394,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_kiwi_pistachio_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -5404,7 +5405,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -5443,6 +5443,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_grilled_halibut_greens',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -5453,7 +5454,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) halibut' },
@@ -5496,6 +5496,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_roast_chicken_fennel_leeks',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -5506,7 +5507,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 breast) chicken breast, skinless and boneless' },
@@ -5546,6 +5546,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_peach_almond_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -5553,7 +5554,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '40g (about ⅓ cup) rolled oats' },
@@ -5594,6 +5594,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_turkey_hummus_collard_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Collards: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -5604,7 +5605,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
         { text: '100g (about 3½oz) turkey breast, sliced' },
@@ -5648,6 +5648,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_trout_parsnip_mash',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Garlic: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -5658,7 +5659,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) trout' },
@@ -5698,6 +5698,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_papaya_cottage_cheese_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Pumpkin seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -5708,7 +5709,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pumpkin seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pumpkin seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) cottage cheese' },
@@ -5744,6 +5744,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_spelt_roasted_vegetable_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Spelt Grains: rated High Risk for gluten. A significant, well-documented concern.' },
@@ -5754,7 +5755,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '75g (about ½ cup) spelt grains, cooked' },
@@ -5795,6 +5795,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lamb_skewers_couscous',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Couscous (durum wheat): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -5805,7 +5806,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Couscous (durum wheat): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Couscous (durum wheat): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '130g lamb fillet, cubed' },
@@ -5850,6 +5850,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_buckwheat_porridge_blueberries_walnuts',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Buckwheat: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -5860,7 +5861,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '45g (about ¼ cup) buckwheat groats, cooked' },
@@ -5902,6 +5902,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_tuna_white_bean_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -5912,7 +5913,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g tuna, grilled' },
@@ -5957,6 +5957,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_pork_chop_brussels_apple',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Pork Chop (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -5967,7 +5968,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pork Chop (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pork Chop (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g pork chop' },
@@ -6010,6 +6010,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_millet_porridge_apricots',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Millet: rated Moderate for oxalate level. A moderate level for this measure.' },
@@ -6020,7 +6021,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Almond drink unsweetened: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Almond drink unsweetened: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '45g (about ¼ cup) millet, cooked' },
@@ -6060,6 +6060,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_shrimp_watermelon_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Watermelon: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -6070,7 +6071,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '130g shrimp, peeled and deveined, grilled' },
@@ -6111,6 +6111,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_scallops_asparagus_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Asparagus: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -6121,7 +6122,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g scallops' },
@@ -6159,11 +6159,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_grapefruit_yogurt_honey',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -6200,6 +6200,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chickpea_spinach_curry_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -6210,7 +6211,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Curry powder: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Curry powder: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g (about ⅔ cup) chickpeas' },
@@ -6255,6 +6255,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_duck_beets_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -6265,7 +6266,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g chicken breast, boneless, skinless' },
@@ -6304,6 +6304,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_fig_walnut_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -6311,7 +6312,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -6350,6 +6350,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_bulgur_tabbouleh_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Parsley Spices: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -6360,7 +6361,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '60g (about ⅓ cup) bulgur, cooked' },
@@ -6402,6 +6402,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_turkey_thigh_turnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Rosemary: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -6412,7 +6413,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Turkey Thigh (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Turkey Thigh (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g turkey thigh' },
@@ -6454,6 +6454,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_date_cashew_breakfast_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Cashew nut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -6464,7 +6465,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -6504,6 +6504,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_mackerel_radish_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Radish: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -6514,7 +6515,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '130g mackerel, grilled' },
@@ -6555,6 +6555,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chicken_okra_tomato_skillet',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Okra: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -6565,7 +6566,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g chicken thigh, cubed' },
@@ -6608,6 +6608,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_nectarine_chia_pudding_cashews',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -6618,7 +6619,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '30g (about 2 tablespoons) chia seeds' },
@@ -6659,6 +6659,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_sardine_white_bean_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Parsley Spices: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -6669,7 +6670,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g sardines' },
@@ -6713,6 +6713,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_braised_beef_kohlrabi_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Onion: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -6723,7 +6724,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '150g beef top sirloin, cubed' },
@@ -6767,11 +6767,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_clementine_almond_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Almonds: rated Very High for oxalate level. The highest tier used for this measure.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -6810,6 +6810,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_roasted_artichoke_white_bean_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Artichoke: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -6820,7 +6821,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ⅔ cup) artichoke hearts, quartered' },
@@ -6865,6 +6865,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_sole_bok_choy_ginger',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -6875,7 +6876,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g sole fillet' },
@@ -6917,6 +6917,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_plum_walnut_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -6924,7 +6925,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '40g (about ⅓ cup) rolled oats' },
@@ -6964,6 +6964,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_crab_avocado_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -6974,7 +6975,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g crab meat' },
@@ -7012,6 +7012,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_bison_root_vegetable_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Fresh Thyme: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -7022,7 +7023,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g beef top sirloin, sliced' },
@@ -7063,6 +7063,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_watermelon_feta_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Basil: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -7073,7 +7074,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about 1 cup) watermelon, cubed' },
@@ -7112,6 +7112,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_edamame_brown_rice_sesame_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Edamame: rated High Risk for soy. A significant, well-documented concern.' },
@@ -7122,7 +7123,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ⅔ cup) edamame, shelled' },
@@ -7164,6 +7164,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_mussels_tomato_garlic_broth',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Parsley Spices: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -7174,7 +7175,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '200g mussels, cleaned' },
@@ -7218,11 +7218,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_cantaloupe_cottage_cheese_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Honeydew honey (Forest Honey): rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) cottage cheese' },
@@ -7256,6 +7256,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_pinto_bean_roasted_vegetable_bowl',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Pinto Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern.' },
@@ -7266,7 +7267,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ½ cup) pinto beans' },
@@ -7310,6 +7310,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chicken_breast_snow_peas_carrots',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Fresh Snow Pea: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -7320,7 +7321,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 breast) chicken breast, skinless and boneless' },
@@ -7358,6 +7358,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_pear_walnut_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -7365,7 +7366,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -7404,6 +7404,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_lima_bean_roasted_vegetable_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Lima Bean: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -7417,7 +7418,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         ibs: { severity: 'yellow', note: 'Lima Bean: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ½ cup) lima beans' },
@@ -7461,6 +7461,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_pork_loin_turnip_kale',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -7471,7 +7472,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g pork loin' },
@@ -7513,6 +7513,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_fig_pistachio_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -7523,7 +7524,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '40g (about ⅓ cup) rolled oats' },
@@ -7563,6 +7563,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_trout_cucumber_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -7573,7 +7574,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '130g trout, baked' },
@@ -7613,6 +7613,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_turkey_meatloaf_parsnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -7623,7 +7624,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g ground turkey' },
@@ -7664,6 +7664,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_apricot_cashew_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Cashew nut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -7674,7 +7675,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -7713,6 +7713,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_white_bean_kale_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'White Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern.' },
@@ -7723,7 +7724,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '100g (about ½ cup) white beans' },
@@ -7770,6 +7770,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_salmon_leeks_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -7780,7 +7781,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) salmon' },
@@ -7818,6 +7818,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_date_walnut_breakfast_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -7825,7 +7826,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -7865,6 +7865,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_lentil_kale_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Lentil, red, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -7875,7 +7876,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '75g (about ⅓ cup) red lentils' },
@@ -7919,6 +7919,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lamb_chops_roasted_eggplant',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Rosemary: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -7929,7 +7930,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g lamb chops' },
@@ -7970,6 +7970,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_mango_coconut_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -7977,7 +7978,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '30g (about 2 tablespoons) chia seeds' },
@@ -8018,6 +8018,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_crab_corn_chowder',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -8028,7 +8029,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '120g crab meat' },
@@ -8069,6 +8069,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chicken_thighs_kohlrabi_apple',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -8079,7 +8080,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g chicken thigh' },
@@ -8119,11 +8119,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_cottage_cheese_fig_honey',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Fig: rated Moderate for oxalate level. A moderate level for this measure.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) cottage cheese' },
@@ -8157,6 +8157,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_shrimp_snow_pea_stir_fry_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Fresh Snow Pea: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -8167,7 +8168,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g shrimp, peeled and deveined' },
@@ -8210,6 +8210,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_cod_fennel_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -8220,7 +8221,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) cod' },
@@ -8258,11 +8258,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_pear_almond_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Almonds: rated Very High for oxalate level. The highest tier used for this measure.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -8301,6 +8301,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_bison_roasted_vegetable_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Omnivore', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern.' },
@@ -8311,7 +8312,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
         { text: '120g beef top sirloin, sliced' },
@@ -8355,6 +8355,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_duck_cherry_wild_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -8365,7 +8366,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g chicken breast, boneless, skinless' },
@@ -8404,6 +8404,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_kiwi_coconut_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -8411,7 +8412,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '30g (about 2 tablespoons) chia seeds' },
@@ -8452,6 +8452,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_white_bean_swiss_chard_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Swiss Chard: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -8462,7 +8463,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '100g (about ½ cup) white beans' },
@@ -8508,6 +8508,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_pork_loin_radish_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -8518,7 +8519,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g pork loin' },
@@ -8558,11 +8558,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_papaya_lime_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -8599,6 +8599,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_tuna_artichoke_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -8609,7 +8610,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g tuna, grilled' },
@@ -8650,6 +8650,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_turkey_wild_rice_cranberries',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -8660,7 +8661,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g turkey breast' },
@@ -8698,11 +8698,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_blackberry_almond_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Almonds: rated Very High for oxalate level. The highest tier used for this measure.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -8741,6 +8741,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_mussels_tomato_fennel_broth',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Garlic: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -8751,7 +8752,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '200g mussels, cleaned' },
@@ -8793,6 +8793,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_halibut_leeks_peas',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Pea, green, fresh: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -8803,7 +8804,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) halibut' },
@@ -8841,6 +8841,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_clementine_pistachio_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -8851,7 +8852,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -8890,6 +8890,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lentil_roasted_vegetable_tahini_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -8900,7 +8901,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '75g (about ½ cup) green lentils, cooked' },
@@ -8943,6 +8943,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_bison_meatballs_herb_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Basil: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -8953,7 +8954,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 serving, for 1 person.',
       ingredients: [
         { text: '150g beef' },
@@ -8997,11 +8997,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_apricot_coconut_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Honeydew honey (Forest Honey): rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '40g (about ⅓ cup) rolled oats' },
@@ -9041,6 +9041,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_sardine_roasted_pepper_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -9051,7 +9052,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g sardines' },
@@ -9092,6 +9092,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chicken_breast_artichoke_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -9102,7 +9103,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 breast) chicken breast, skinless and boneless' },
@@ -9141,6 +9141,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_fig_cashew_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Cashew nut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -9151,7 +9152,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '40g (about ⅓ cup) rolled oats' },
@@ -9191,6 +9191,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_kidney_bean_roasted_vegetable_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Kidney Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern.' },
@@ -9201,7 +9202,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ½ cup) kidney beans' },
@@ -9245,6 +9245,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_trout_radish_dill',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -9255,7 +9256,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) trout' },
@@ -9296,6 +9296,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_mango_pistachio_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -9306,7 +9307,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '30g (about 2 tablespoons) chia seeds' },
@@ -9347,6 +9347,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_turkey_white_bean_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -9357,7 +9358,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '120g ground turkey' },
@@ -9402,6 +9402,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lamb_fennel_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -9412,7 +9413,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g lamb fillet' },
@@ -9450,6 +9450,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_grapefruit_pistachio_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -9460,7 +9461,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -9500,6 +9500,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_crab_mango_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -9510,7 +9511,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g crab meat' },
@@ -9550,6 +9550,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_salmon_wild_rice_asparagus',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Asparagus: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -9560,7 +9561,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) salmon' },
@@ -9600,6 +9600,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_turkey_black_bean_chili',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Cumin (cummin) seed, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -9610,7 +9611,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '130g ground turkey' },
@@ -9674,6 +9674,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_green_glow',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -9681,7 +9682,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups spinach, whole' },
@@ -9719,11 +9719,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_golden_turmeric',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '½ teaspoon ground turmeric' },
@@ -9760,6 +9760,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_brazil_nut_selenium',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Brazil nut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -9770,7 +9771,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '2 Brazil nuts, whole' },
@@ -9807,6 +9807,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_berry_antioxidant',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
@@ -9814,7 +9815,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1 cup blueberries, whole' },
@@ -9851,11 +9851,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_iron_vitamin_c',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1 cup spinach, whole' },
@@ -9891,11 +9891,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_tropical_ginger',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups pineapple, diced' },
@@ -9931,12 +9931,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_berries_silken_tofu_cream',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
         ibs: { severity: 'yellow', note: 'Vanilla extract: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, about 1½ cups.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -9976,6 +9976,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_tofu_scramble_potatoes',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -9987,7 +9988,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '100g potato, diced, roasted' },
@@ -10031,6 +10031,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_overnight_oats_chia_berries',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -10041,7 +10042,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '40g rolled oats' },
@@ -10080,6 +10080,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_tofu_avocado_tomato',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10090,7 +10091,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, cubed' },
@@ -10130,6 +10130,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_savory_quinoa_bowl_tofu_scramble',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10140,7 +10141,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '75g quinoa, cooked' },
@@ -10182,6 +10182,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_cashew_cream_pineapple_walnuts',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10190,7 +10191,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         ibs: { severity: 'yellow', note: 'Vanilla extract: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -10229,6 +10229,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_breakfast_burrito_tofu_black_beans',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern.' },
@@ -10236,7 +10237,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         prostate_health: { severity: 'yellow', note: 'Yeast flakes/nutritional yeast: rated Use Carefully for zinc. This may need portion awareness or a doctor’s guidance.' },
         psoriasis: { severity: 'red', note: 'Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 burrito.',
       ingredients: [
         { text: '1 flour tortilla (about 60g)' },
@@ -10285,6 +10285,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_baked_oatmeal_cup_banana_cinnamon',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Soybeans, soy milk, regular: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10292,7 +10293,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 large baked oatmeal cup.',
       ingredients: [
         { text: '50g rolled oats' },
@@ -10332,6 +10332,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_kiwi_almond_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10342,7 +10343,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g silken tofu, blended smooth' },
@@ -10378,6 +10378,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_peach_almond_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Soybeans, soy milk, regular: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10388,7 +10389,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '40g rolled oats' },
@@ -10426,6 +10426,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_papaya_cashew_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10436,7 +10437,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g silken tofu, blended smooth' },
@@ -10472,6 +10472,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_buckwheat_porridge_blueberries_walnuts',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Buckwheat: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -10482,7 +10483,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '45g buckwheat groats, cooked' },
@@ -10521,6 +10521,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_millet_porridge_apricots',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Soybeans, soy milk, regular: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10531,7 +10532,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '45g millet, cooked' },
@@ -10569,12 +10569,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_grapefruit_tofu_maple',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
         ibs: { severity: 'yellow', note: 'Vanilla extract: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -10610,6 +10610,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_fig_walnut_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10617,7 +10618,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -10653,6 +10653,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_date_cashew_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10663,7 +10664,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -10698,6 +10698,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_nectarine_chia_pudding_cashews',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -10708,7 +10709,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '30g chia seeds' },
@@ -10745,11 +10745,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_clementine_almond_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -10785,6 +10785,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_plum_walnut_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Soybeans, soy milk, regular: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10792,7 +10793,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '40g rolled oats' },
@@ -10829,6 +10829,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_watermelon_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10839,7 +10840,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g watermelon, cubed' },
@@ -10877,11 +10877,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_cantaloupe_tofu_maple',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -10915,6 +10915,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_pear_walnut_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10922,7 +10923,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -10957,6 +10957,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_fig_pistachio_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Soybeans, soy milk, regular: rated High Risk for soy. A significant, well-documented concern.' },
@@ -10967,7 +10968,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '40g rolled oats' },
@@ -11004,6 +11004,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_apricot_cashew_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
@@ -11014,7 +11015,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -11049,6 +11049,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_date_walnut_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
@@ -11056,7 +11057,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -11091,6 +11091,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_mango_coconut_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -11098,7 +11099,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '30g chia seeds' },
@@ -11135,11 +11135,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_cashew_ricotta_fig_maple',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -11173,11 +11173,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_pear_almond_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -11213,6 +11213,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_kiwi_coconut_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -11220,7 +11221,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '30g chia seeds' },
@@ -11257,11 +11257,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_papaya_lime_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -11295,11 +11295,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_blackberry_almond_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -11335,6 +11335,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_clementine_pistachio_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
@@ -11345,7 +11346,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -11380,11 +11380,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_apricot_coconut_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Soybeans, soy milk, regular: rated High Risk for soy. A significant, well-documented concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '40g rolled oats' },
@@ -11421,6 +11421,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_fig_cashew_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Soybeans, soy milk, regular: rated High Risk for soy. A significant, well-documented concern.' },
@@ -11431,7 +11432,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '40g rolled oats' },
@@ -11468,6 +11468,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_mango_pistachio_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
@@ -11478,7 +11479,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '30g chia seeds' },
@@ -11516,6 +11516,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_grapefruit_pistachio_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern.' },
@@ -11526,7 +11527,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -11573,6 +11573,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_seitan_roasted_vegetable_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -11583,7 +11584,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 wrap.',
       ingredients: [
         { text: '120g seitan, sliced' },
@@ -11625,11 +11625,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_grilled_tempeh_sandwich',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Tempeh: rated Mild Risk for soy. A modest, generally minor concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 sandwich.',
       ingredients: [
         { text: '2 slices whole-grain bread' },
@@ -11667,11 +11667,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_chickpea_avocado_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Chickpeas (garbanzo beans, bengal gram): rated Mild Risk for lectins (legumes). A modest, generally minor concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap.',
       ingredients: [
         { text: '1 flour tortilla (about 60g)' },
@@ -11709,11 +11709,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_tempeh_hummus_collard_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Collards: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap.',
       ingredients: [
         { text: '100g tempeh, sliced, sauteed' },
@@ -11754,11 +11754,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_chickpea_egg_salad_lettuce_wraps',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap.',
       ingredients: [
         { text: '150g chickpeas, mashed' },
@@ -11795,6 +11795,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_hearts_of_palm_avocado_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -11805,7 +11806,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g hearts of palm, sliced' },
@@ -11841,6 +11841,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_hearts_of_palm_mango_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -11851,7 +11852,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g hearts of palm, sliced' },
@@ -11889,6 +11889,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_grilled_tofu_greens_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -11899,7 +11900,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g tofu, cubed, grilled' },
@@ -11940,6 +11940,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_smoky_tempeh_radish_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Paprika: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -11950,7 +11951,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '130g tempeh, sliced, grilled' },
@@ -11990,6 +11990,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_white_bean_roasted_pepper_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -12000,7 +12001,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g white beans' },
@@ -12041,6 +12041,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_king_oyster_watermelon_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -12051,7 +12052,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '130g king oyster mushroom, sliced, grilled' },
@@ -12088,6 +12088,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_tofu_cucumber_dill_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -12098,7 +12099,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '130g tofu, cubed, baked' },
@@ -12136,6 +12136,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_white_bean_artichoke_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -12146,7 +12147,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g white beans' },
@@ -12187,6 +12187,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_chickpea_white_bean_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Arugula: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
@@ -12197,7 +12198,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g chickpeas' },
@@ -12238,6 +12238,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_beet_walnut_arugula_tofu',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -12249,7 +12250,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         ibs: { severity: 'yellow', note: 'Vinegar, balsamic: rated Disruptive for irritants. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '¾ cup beets, diced, roasted' },
@@ -12289,6 +12289,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_mediterranean_chickpea_tofu',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -12299,7 +12300,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '½ cup chickpeas, whole' },
@@ -12339,6 +12339,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_roasted_artichoke_white_bean_tofu',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -12349,7 +12350,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '100g artichoke, quartered, roasted' },
@@ -12388,6 +12388,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_spelt_roasted_vegetable_tofu',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Spelt Grains: rated High Risk for gluten. A significant, well-documented concern.' },
@@ -12398,7 +12399,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '75g spelt, cooked' },
@@ -12439,6 +12439,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tempeh_brussels_sweet_potato',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Sweet potato: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -12449,7 +12450,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, baked' },
@@ -12489,6 +12489,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tofu_fennel_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -12499,7 +12500,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, baked' },
@@ -12535,6 +12535,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tofu_paprika_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -12545,7 +12546,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, baked' },
@@ -12582,6 +12582,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tofu_lemon_dill',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -12592,7 +12593,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, baked' },
@@ -12626,6 +12626,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tempeh_parsnip_mash',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Tempeh: rated Mild Risk for soy. A modest, generally minor concern.' },
@@ -12636,7 +12637,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, baked' },
@@ -12673,6 +12673,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_seitan_zucchini_tomatoes',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -12683,7 +12684,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g seitan, baked' },
@@ -12725,6 +12725,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_mushroom_walnut_stir_fry_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -12735,7 +12736,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '100g button mushroom, sliced, sauteed' },
@@ -12778,6 +12778,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_lentil_walnut_meatballs_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -12788,7 +12789,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '90g green lentil, cooked and mashed, as the meatball base' },
@@ -12831,6 +12831,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_root_vegetable_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Fresh Thyme: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -12841,7 +12842,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g tempeh, sliced, sauteed' },
@@ -12881,6 +12881,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_braised_seitan_kohlrabi_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -12891,7 +12892,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g seitan, cubed, braised' },
@@ -12934,6 +12934,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_lemon_tofu_artichoke',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -12944,7 +12945,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, roasted' },
@@ -12980,6 +12980,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_snow_peas_carrots',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Fresh Snow Pea: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -12990,7 +12991,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, baked' },
@@ -13027,6 +13027,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_chickpea_okra_tomato_skillet',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Okra: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -13037,7 +13038,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g chickpeas, sauteed' },
@@ -13078,6 +13078,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_kohlrabi_apple',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Tempeh: rated Mild Risk for soy. A modest, generally minor concern.' },
@@ -13088,7 +13089,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, roasted' },
@@ -13126,6 +13126,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_portobello_beets_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Mushroom, portabella (portobello): rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -13136,7 +13137,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g portobello mushroom, baked' },
@@ -13170,6 +13170,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_cherry_wild_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Tempeh: rated Mild Risk for soy. A modest, generally minor concern.' },
@@ -13180,7 +13181,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g tempeh, sauteed' },
@@ -13218,6 +13218,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_ginger_soy_tempeh',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -13228,7 +13229,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, roasted' },
@@ -13267,6 +13267,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_leeks_peas',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -13277,7 +13278,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, baked' },
@@ -13313,6 +13313,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_herb_crusted_seitan_roast',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -13323,7 +13324,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g seitan, roasted' },
@@ -13363,6 +13363,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_seitan_chops_roasted_eggplant',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -13373,7 +13374,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g seitan, grilled' },
@@ -13414,6 +13414,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_braised_chickpea_fennel_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Chickpeas (garbanzo beans, bengal gram): rated Mild Risk for lectins (legumes). A modest, generally minor concern.' },
@@ -13424,7 +13425,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g chickpeas, simmered' },
@@ -13460,6 +13460,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_skewers_couscous',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -13470,7 +13471,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Couscous (durum wheat): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Couscous (durum wheat): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '130g tofu, cubed, grilled' },
@@ -13513,6 +13513,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_one_pan_king_oyster_asparagus_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Mushrooms, king oyster mushrooms: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -13523,7 +13524,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g king oyster mushroom, sliced, sauteed' },
@@ -13560,6 +13560,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_seitan_chop_brussels_apple',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -13570,7 +13571,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g seitan, baked' },
@@ -13610,6 +13610,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_radish_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Tempeh: rated Mild Risk for soy. A modest, generally minor concern.' },
@@ -13620,7 +13621,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, grilled' },
@@ -13658,6 +13658,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_seitan_turnip_kale',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern.' },
@@ -13668,7 +13669,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g seitan, roasted' },
@@ -13709,6 +13709,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_roast_tempeh_fennel_leeks',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Tempeh: rated Mild Risk for soy. A modest, generally minor concern.' },
@@ -13719,7 +13720,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, roasted' },
@@ -13756,6 +13756,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_leeks_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -13766,7 +13767,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, baked' },
@@ -13801,6 +13801,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_wild_rice_asparagus',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -13811,7 +13812,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g tofu, roasted' },
@@ -13847,6 +13847,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_white_bean_tomato_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Parsley Spices: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -13857,7 +13858,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '180g white beans' },
@@ -13897,6 +13897,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_king_oyster_scallops_asparagus_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Mushrooms, king oyster mushrooms: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
@@ -13907,7 +13908,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g king oyster mushroom, sliced into rounds, sauteed' },
@@ -13943,6 +13943,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_king_oyster_snow_pea_stir_fry_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Fresh Snow Pea: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -13953,7 +13954,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g king oyster mushroom, sliced, sauteed' },
@@ -13993,6 +13993,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_bok_choy_ginger',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -14003,7 +14004,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, sauteed' },
@@ -14043,6 +14043,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_radish_dill',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Tempeh: rated Mild Risk for soy. A modest, generally minor concern.' },
@@ -14053,7 +14054,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, baked' },
@@ -14090,6 +14090,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_chickpea_walnut_meatballs_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Walnut: rated High for oxalate level. A meaningfully high level for this measure.' },
@@ -14101,7 +14102,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '100g chickpeas, mashed, as the meatball base' },
@@ -14145,6 +14145,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_lentil_meatloaf_parsnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -14155,7 +14156,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '100g green lentil, cooked and mashed, as the loaf base' },
@@ -14194,6 +14194,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_turnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Rosemary: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -14204,7 +14205,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, roasted' },
@@ -14243,6 +14243,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_wild_rice_cranberries',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Tempeh: rated Mild Risk for soy. A modest, generally minor concern.' },
@@ -14253,7 +14254,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g tempeh, roasted' },
@@ -14288,6 +14288,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_vegetable_fried_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -14298,7 +14299,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '100g brown rice, cooked' },
@@ -14341,6 +14341,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_white_bean_roasted_vegetable_tofu_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Tofu: rated High Risk for soy. A significant, well-documented concern.' },
@@ -14351,7 +14352,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '100g white beans' },
@@ -14394,11 +14394,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_white_bean_vegetable_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'White Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, about 1 cup.',
       ingredients: [
         { text: '60g white beans' },
@@ -14439,6 +14439,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_hearts_of_palm_corn_chowder',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -14449,7 +14450,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g hearts of palm, sliced' },
@@ -14486,6 +14486,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_white_bean_tomato_fennel_broth',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'White Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern.' },
@@ -14496,7 +14497,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g white beans' },
@@ -14538,6 +14538,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_white_bean_tomato_garlic_broth',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Parsley Spices: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
@@ -14548,7 +14549,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g white beans' },
@@ -14591,6 +14591,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_lentil_black_bean_chili',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'red', note: 'Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
@@ -14601,7 +14602,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         lupus: { severity: 'yellow', note: 'Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '100g green lentil, cooked, simmered' },
@@ -14648,11 +14648,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_mushroom_white_bean_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
         hashimotos: { severity: 'yellow', note: 'Mushroom, common, fresh: rated Disruptive for fermentability. This may work against or interfere with the process being measured.' },
       },
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '100g button mushroom, sliced, sauteed' },
@@ -14680,6 +14680,750 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Deeply savory from the sauteed mushroom, the white beans giving the soup real body.',
+    },
+  },
+  // 2026-08-26, direct request after a real on-device report: "Why can't
+  // a user have savory amaranth seed porridge... if they are vegan?...
+  // make sure there are at least 30 total different vegan breakfast
+  // choices." Confirmed directly (scripts/audit_meal_plan_recipe_
+  // coverage.js) before writing any of this: this corpus's own vegan
+  // breakfast pool was 17, and every one of the 16 dedicated "_vegan_"
+  // breakfast recipes in it is soy-based (tofu or soy milk) -- the exact
+  // reason a real, whole-food, soy-free savory breakfast didn't already
+  // exist. 16 new recipes below: 11 savory whole-grain/legume/vegetable
+  // bowls (including the amaranth porridge described directly) and 5
+  // sweet ones built on almond milk instead of soy milk, none of them
+  // soy-based. safeForConditions/conditionCautions/dietTags below are
+  // placeholders, replaced by the same real compute_recipe_diet_tags.js/
+  // compute_recipe_condition_data.js/apply_recipe_condition_cautions.js
+  // pipeline every other recipe batch already goes through, not
+  // hand-guessed.
+  {
+    id: 'recipe-vegan-savory-amaranth-porridge-garlic-avocado',
+    category: 'recipes',
+    title: 'Savory Amaranth Porridge with Garlic, Avocado & Mixed Vegetables',
+    teaser: 'A whole-grain savory porridge, simmered plain and finished with garlic, olive oil, and a real vegetable mix.',
+    summary: 'Amaranth cooks up into a naturally creamy, protein-rich porridge without any dairy or soy at all, and a real vegetable mix keeps this genuinely a full breakfast rather than a plain bowl of grain.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_savory_amaranth_porridge_garlic_avocado',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'red', note: 'Grains, amaranth: rated High for oxalate level. A meaningfully high level for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '45g amaranth grain, simmered' },
+        { text: '60g zucchini, diced, sauteed' },
+        { text: '40g red bell pepper, diced, sauteed' },
+        { text: '30g spinach, chopped, wilted' },
+        { text: '1 clove garlic, minced' },
+        { text: '1 tablespoon olive oil' },
+        { text: '50g avocado, sliced' },
+        { text: '¼ teaspoon salt' },
+        { text: 'A pinch of black pepper' },
+      ],
+      instructions: [
+        'Simmer the amaranth in water according to package directions until creamy and tender, about 20 minutes.',
+        'While the amaranth cooks, heat the olive oil in a skillet over medium heat and saute the garlic for 30 seconds.',
+        'Add the zucchini and bell pepper, cooking for 4-5 minutes until softened, then stir in the spinach just until wilted.',
+        'Spoon the vegetables over the cooked amaranth, top with sliced avocado, and season with salt and pepper.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Protein', note: 'A real, meaningful amount from the amaranth itself, a genuine whole-grain protein source.' },
+        { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper.' },
+        { nutrient: 'Healthy Fats', note: 'A real contribution from the avocado and olive oil.' },
+      ],
+      flavorNotes: 'Earthy and savory from the amaranth and garlic, with a bright, fresh finish from the avocado.',
+    },
+  },
+  {
+    id: 'recipe-vegan-savory-oat-porridge-mushroom-spinach',
+    category: 'recipes',
+    title: 'Savory Steel-Cut Oat Porridge with Mushrooms & Spinach',
+    teaser: 'A savory take on oatmeal, simmered plain and finished with sauteed mushroom and spinach in olive oil and garlic.',
+    summary: 'Oats work just as well as a savory base as a sweet one, and mushroom brings a genuinely meaty depth without any meat at all.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_savory_oat_porridge_mushroom_spinach',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '40g oats, simmered' },
+        { text: '70g mushroom, sliced, sauteed' },
+        { text: '30g spinach, chopped, wilted' },
+        { text: '1 clove garlic, minced' },
+        { text: '1 tablespoon olive oil' },
+        { text: '¼ teaspoon salt' },
+        { text: 'A pinch of black pepper' },
+      ],
+      instructions: [
+        'Simmer the oats in water until thick and creamy, about 5-7 minutes.',
+        'Meanwhile, heat the olive oil in a skillet over medium heat and saute the garlic for 30 seconds.',
+        'Add the mushroom and cook for 5-6 minutes until browned, then stir in the spinach just until wilted.',
+        'Spoon the mushroom and spinach over the cooked oats, and season with salt and pepper.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Fiber', note: 'A real amount from the oats.' },
+        { nutrient: 'Selenium', note: 'A solid amount from the mushroom.' },
+      ],
+      flavorNotes: 'Deeply savory and umami-rich from the sauteed mushroom and garlic.',
+    },
+  },
+  {
+    id: 'recipe-vegan-chickpea-flour-vegetable-scramble',
+    category: 'recipes',
+    title: 'Chickpea Flour Vegetable Scramble',
+    teaser: 'Turmeric turns a simple chickpea-flour batter into a real, egg-like savory scramble, folded with real vegetables.',
+    summary: 'Chickpea flour is a genuine, complete plant protein on its own, and nutritional yeast adds a real vitamin B12 source the same way it already does in this app\'s other savory scrambles.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_chickpea_flour_vegetable_scramble',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Chickpea flour: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Chickpea flour: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        prostate_health: { severity: 'yellow', note: 'Yeast flakes/nutritional yeast: rated Use Carefully for zinc. This may need portion awareness or a doctor’s guidance.' },
+        psoriasis: { severity: 'yellow', note: 'Chickpea flour: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Chickpea flour: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Chickpea flour: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Chickpea flour: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 plate.',
+      ingredients: [
+        { text: '50g chickpea flour, whisked into a batter' },
+        { text: '30g onion, diced, sauteed' },
+        { text: '40g red bell pepper, diced, sauteed' },
+        { text: '30g spinach, chopped, wilted' },
+        { text: '¼ teaspoon ground turmeric' },
+        { text: '1 tablespoon nutritional yeast' },
+        { text: '1 tablespoon olive oil' },
+        { text: '¼ teaspoon salt' },
+        { text: 'A pinch of black pepper' },
+      ],
+      instructions: [
+        'Whisk the chickpea flour with water (about 100ml) until smooth, forming a thin batter.',
+        'Heat the olive oil in a skillet over medium heat, and saute the onion and bell pepper for 3-4 minutes until softened.',
+        'Add the spinach and cook just until wilted, then pour in the chickpea flour batter.',
+        'Stir in the turmeric and nutritional yeast, and cook for 4-5 minutes, stirring occasionally, until set like a scramble.',
+        'Season with salt and pepper and serve.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Protein', note: 'A real, complete plant protein from the chickpea flour.' },
+        { nutrient: 'Vitamin B12', note: 'A meaningful fortified amount from the nutritional yeast, worth checking the specific product\'s own label since fortification levels vary by brand.' },
+        { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper.' },
+      ],
+      flavorNotes: 'Savory and egg-like from the turmeric and nutritional yeast, with tender vegetables folded through.',
+    },
+  },
+  {
+    id: 'recipe-vegan-savory-millet-bowl-roasted-vegetables-tahini',
+    category: 'recipes',
+    title: 'Savory Millet Bowl with Roasted Vegetables & Tahini',
+    teaser: 'Fluffy simmered millet topped with roasted zucchini and bell pepper, finished with a real lemon-tahini drizzle.',
+    summary: 'Millet is a genuinely different whole grain from oats or quinoa, and tahini brings real calcium and healthy fat to what would otherwise be a plain grain bowl.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_savory_millet_bowl_roasted_vegetables_tahini',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'yellow', note: 'Millet: rated Moderate for oxalate level. A moderate level for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '45g millet, simmered' },
+        { text: '60g zucchini, diced, roasted' },
+        { text: '40g red bell pepper, diced, roasted' },
+        { text: '1 tablespoon tahini' },
+        { text: '½ lemon, juiced' },
+        { text: '1 teaspoon olive oil' },
+        { text: '¼ teaspoon salt' },
+      ],
+      instructions: [
+        'Simmer the millet in water until fluffy and tender, about 15-18 minutes.',
+        'Toss the zucchini and bell pepper with the olive oil and roast at 425°F (220°C) for 15-18 minutes, until tender.',
+        'Whisk the tahini with the lemon juice and a splash of water until smooth and pourable.',
+        'Spoon the roasted vegetables over the millet, drizzle with the tahini dressing, and season with salt.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Calcium', note: 'A real, meaningful amount from the tahini.' },
+        { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper.' },
+      ],
+      flavorNotes: 'Nutty and fluffy from the millet, brightened by the lemon-tahini dressing.',
+    },
+  },
+  {
+    id: 'recipe-vegan-black-bean-sweet-potato-breakfast-hash',
+    category: 'recipes',
+    title: 'Black Bean & Sweet Potato Breakfast Hash',
+    teaser: 'A real, hearty savory hash: pan-cooked sweet potato and black beans with peppers, onion, and avocado on top.',
+    summary: 'Black beans and sweet potato together bring real fiber and complex carbohydrate to a savory breakfast, no eggs, dairy, or soy needed at all.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_black_bean_sweet_potato_breakfast_hash',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'red', note: 'Sweet potato: rated High for oxalate level. A meaningfully high level for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 plate.',
+      ingredients: [
+        { text: '100g sweet potato, diced, pan-cooked' },
+        { text: '80g black beans' },
+        { text: '40g red bell pepper, diced, sauteed' },
+        { text: '30g onion, diced, sauteed' },
+        { text: '50g avocado, sliced' },
+        { text: '1 tablespoon olive oil' },
+        { text: '¼ teaspoon ground cumin' },
+        { text: '¼ teaspoon salt' },
+      ],
+      instructions: [
+        'Heat the olive oil in a skillet over medium heat and cook the diced sweet potato for 8-10 minutes, stirring occasionally, until tender and browned.',
+        'Add the onion and bell pepper, cooking for 3-4 minutes until softened.',
+        'Stir in the black beans and cumin, and cook for 2-3 minutes until heated through.',
+        'Season with salt, top with sliced avocado, and serve.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Fiber', note: 'A real, meaningful amount from the black beans and sweet potato together.' },
+        { nutrient: 'Vitamin A', note: 'A solid amount from the sweet potato.' },
+        { nutrient: 'Healthy Fats', note: 'A real contribution from the avocado.' },
+      ],
+      flavorNotes: 'Warm and earthy from the cumin and sweet potato, with a creamy finish from the avocado.',
+    },
+  },
+  {
+    id: 'recipe-vegan-lentil-spinach-bowl-lemon-tahini',
+    category: 'recipes',
+    title: 'Lentil & Spinach Breakfast Bowl with Lemon-Tahini Dressing',
+    teaser: 'Simmered lentils and wilted spinach, finished with a bright, real lemon-tahini dressing.',
+    summary: 'Lentils are a real, whole-food iron and protein source for a savory breakfast, and lemon alongside them helps the body absorb that non-heme iron more effectively.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_lentil_spinach_bowl_lemon_tahini',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '90g lentils, simmered' },
+        { text: '40g spinach, chopped, wilted' },
+        { text: '1 tablespoon tahini' },
+        { text: '½ lemon, juiced' },
+        { text: '1 clove garlic, minced' },
+        { text: '1 teaspoon olive oil' },
+        { text: '¼ teaspoon salt' },
+      ],
+      instructions: [
+        'Simmer the lentils in water until tender, about 20 minutes, then drain.',
+        'Heat the olive oil in a small skillet over medium heat and saute the garlic for 30 seconds, then add the spinach and cook just until wilted.',
+        'Whisk the tahini with the lemon juice and a splash of water until smooth.',
+        'Combine the lentils and spinach, drizzle with the tahini dressing, and season with salt.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Iron', note: 'A real, meaningful amount from the lentils, paired here with vitamin C from the lemon to help the body absorb it.' },
+        { nutrient: 'Protein', note: 'A solid amount from the lentils.' },
+      ],
+      flavorNotes: 'Earthy from the lentils, brightened by the lemon-tahini dressing.',
+    },
+  },
+  {
+    id: 'recipe-vegan-savory-buckwheat-porridge-mushroom-herbs',
+    category: 'recipes',
+    title: 'Savory Buckwheat Porridge with Mushrooms & Herbs',
+    teaser: 'Simmered buckwheat groats finished savory, with sauteed mushroom, garlic, and olive oil rather than fruit and sugar.',
+    summary: 'Buckwheat is a genuine gluten-free whole grain (no relation to wheat despite the name), and this savory version gives it a real second breakfast identity beyond the usual sweet porridge.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_savory_buckwheat_porridge_mushroom_herbs',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'red', note: 'Buckwheat: rated High for oxalate level. A meaningfully high level for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '45g buckwheat, simmered' },
+        { text: '70g mushroom, sliced, sauteed' },
+        { text: '30g spinach, chopped, wilted' },
+        { text: '1 clove garlic, minced' },
+        { text: '1 tablespoon olive oil' },
+        { text: '¼ teaspoon salt' },
+        { text: 'A pinch of black pepper' },
+      ],
+      instructions: [
+        'Simmer the buckwheat groats in water until tender, about 15 minutes.',
+        'Heat the olive oil in a skillet over medium heat and saute the garlic for 30 seconds, then add the mushroom and cook for 5-6 minutes until browned.',
+        'Stir in the spinach just until wilted.',
+        'Spoon the mushroom and spinach over the cooked buckwheat, and season with salt and pepper.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Manganese', note: 'A real, meaningful amount from the buckwheat.' },
+        { nutrient: 'Selenium', note: 'A solid amount from the mushroom.' },
+      ],
+      flavorNotes: 'Nutty and earthy from the buckwheat, deepened by the sauteed mushroom.',
+    },
+  },
+  {
+    id: 'recipe-vegan-quinoa-bowl-roasted-vegetables-hemp-seeds',
+    category: 'recipes',
+    title: 'Quinoa Breakfast Bowl with Roasted Vegetables & Hemp Seeds',
+    teaser: 'Simmered quinoa topped with roasted zucchini and bell pepper, finished with hemp seeds and a squeeze of lemon.',
+    summary: 'Hemp seeds add a real, complete plant protein and omega-3 boost on top of quinoa\'s already-complete amino acid profile, no soy anywhere in this one.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_quinoa_bowl_roasted_vegetables_hemp_seeds',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'yellow', note: 'Quinoa: rated Moderate for oxalate level. A moderate level for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Hemp seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Hemp seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Hemp seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '45g quinoa, simmered' },
+        { text: '60g zucchini, diced, roasted' },
+        { text: '40g red bell pepper, diced, roasted' },
+        { text: '1 tablespoon hemp seeds' },
+        { text: '½ lemon, juiced' },
+        { text: '1 teaspoon olive oil' },
+        { text: '¼ teaspoon salt' },
+      ],
+      instructions: [
+        'Simmer the quinoa in water until fluffy, about 15 minutes.',
+        'Toss the zucchini and bell pepper with the olive oil and roast at 425°F (220°C) for 15-18 minutes, until tender.',
+        'Spoon the roasted vegetables over the quinoa, sprinkle with hemp seeds, and finish with a squeeze of lemon and a pinch of salt.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Protein', note: 'A real, complete plant protein from the quinoa and hemp seeds together.' },
+        { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper.' },
+      ],
+      flavorNotes: 'Light and fresh, with a nutty crunch from the hemp seeds.',
+    },
+  },
+  {
+    id: 'recipe-vegan-white-bean-kale-breakfast-hash',
+    category: 'recipes',
+    title: 'White Bean & Kale Breakfast Hash',
+    teaser: 'A real, garlicky savory hash: pan-cooked white beans and kale with bell pepper in olive oil.',
+    summary: 'White beans bring genuine plant protein and fiber to a savory breakfast, and kale holds up well to a quick saute without turning bitter the way it can raw.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_white_bean_kale_breakfast_hash',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'red', note: 'Kale: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 plate.',
+      ingredients: [
+        { text: '90g white beans' },
+        { text: '50g kale, chopped, sauteed' },
+        { text: '40g red bell pepper, diced, sauteed' },
+        { text: '1 clove garlic, minced' },
+        { text: '1 tablespoon olive oil' },
+        { text: '¼ teaspoon salt' },
+        { text: 'A pinch of black pepper' },
+      ],
+      instructions: [
+        'Heat the olive oil in a skillet over medium heat and saute the garlic for 30 seconds.',
+        'Add the kale and bell pepper, cooking for 4-5 minutes until the kale softens.',
+        'Stir in the white beans and cook for 2-3 minutes until heated through.',
+        'Season with salt and pepper and serve.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Fiber', note: 'A real, meaningful amount from the white beans.' },
+        { nutrient: 'Vitamin K', note: 'A solid amount from the kale.' },
+      ],
+      flavorNotes: 'Savory and garlicky, with a satisfying bite from the kale.',
+    },
+  },
+  {
+    id: 'recipe-vegan-chickpea-spinach-breakfast-curry',
+    category: 'recipes',
+    title: 'Chickpea & Spinach Breakfast Curry',
+    teaser: 'A real, mildly spiced curry built on chickpeas, spinach, and coconut milk, a different way to start the day.',
+    summary: 'Turmeric and cumin together give this a real, warming curry flavor, and coconut milk keeps it creamy without any dairy at all.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_chickpea_spinach_breakfast_curry',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '100g chickpeas' },
+        { text: '40g spinach, chopped, wilted' },
+        { text: '100ml coconut milk' },
+        { text: '30g onion, diced, sauteed' },
+        { text: '1 clove garlic, minced' },
+        { text: '¼ teaspoon ground cumin' },
+        { text: '¼ teaspoon ground turmeric' },
+        { text: '¼ teaspoon salt' },
+      ],
+      instructions: [
+        'Saute the onion and garlic in a splash of water or oil over medium heat for 3-4 minutes, until softened.',
+        'Stir in the cumin and turmeric, then add the chickpeas and coconut milk.',
+        'Simmer for 8-10 minutes, then stir in the spinach until wilted.',
+        'Season with salt and serve warm.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Protein', note: 'A real, meaningful amount from the chickpeas.' },
+        { nutrient: 'Iron', note: 'A solid amount from the spinach and chickpeas together.' },
+      ],
+      flavorNotes: 'Warm and gently spiced, with a creamy coconut finish.',
+    },
+  },
+  {
+    id: 'recipe-vegan-savory-polenta-bowl-mushroom-greens',
+    category: 'recipes',
+    title: 'Savory Polenta Bowl with Sauteed Mushrooms & Greens',
+    teaser: 'Simmered cornmeal polenta topped with sauteed mushroom and wilted spinach in garlic and olive oil.',
+    summary: 'Cornmeal polenta is a real, genuinely different whole-grain base from oats or rice, naturally gluten-free, and mushroom brings a savory depth on top of it.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_savory_polenta_bowl_mushroom_greens',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '40g cornmeal (polenta), simmered' },
+        { text: '70g mushroom, sliced, sauteed' },
+        { text: '30g spinach, chopped, wilted' },
+        { text: '1 clove garlic, minced' },
+        { text: '1 tablespoon olive oil' },
+        { text: '¼ teaspoon salt' },
+        { text: 'A pinch of black pepper' },
+      ],
+      instructions: [
+        'Whisk the cornmeal into simmering water and cook, stirring often, for 5-8 minutes until thick and creamy.',
+        'Meanwhile, heat the olive oil in a skillet over medium heat and saute the garlic for 30 seconds, then add the mushroom and cook for 5-6 minutes until browned.',
+        'Stir in the spinach just until wilted.',
+        'Spoon the mushroom and spinach over the polenta, and season with salt and pepper.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Selenium', note: 'A solid amount from the mushroom.' },
+      ],
+      flavorNotes: 'Creamy and comforting from the polenta, deepened by the savory mushroom.',
+    },
+  },
+  {
+    id: 'recipe-vegan-black-bean-breakfast-bowl-avocado',
+    category: 'recipes',
+    title: 'Savory Black Bean Breakfast Bowl with Avocado & Lime',
+    teaser: 'Warmed black beans with avocado, onion, cilantro, and a real squeeze of lime.',
+    summary: 'Black beans bring genuine plant protein and fiber to a real, quick savory breakfast, no soy or grain needed at all.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_black_bean_breakfast_bowl_avocado',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
+      safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'yellow', note: 'Black Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '120g black beans, simmered' },
+        { text: '50g avocado, sliced' },
+        { text: '20g onion, diced' },
+        { text: '5g cilantro, chopped' },
+        { text: '½ lime, juiced' },
+        { text: '¼ teaspoon salt' },
+      ],
+      instructions: [
+        'Warm the black beans in a small pot over medium heat, then season with salt.',
+        'Spoon into a bowl and top with avocado and onion.',
+        'Finish with cilantro and a squeeze of lime juice.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Fiber', note: 'A real, meaningful amount from the black beans.' },
+        { nutrient: 'Healthy Fats', note: 'A real contribution from the avocado.' },
+      ],
+      flavorNotes: 'Bright and fresh from the lime and cilantro, with a creamy finish from the avocado.',
+    },
+  },
+  {
+    id: 'recipe-vegan-roasted-vegetable-white-bean-bowl-garlic-herb-oil',
+    category: 'recipes',
+    title: 'Roasted Vegetable & White Bean Breakfast Bowl with Garlic-Herb Olive Oil',
+    teaser: 'Roasted zucchini, bell pepper, and white beans over wilted spinach, finished with a real garlic-infused olive oil.',
+    summary: 'This is a genuinely vegetable-forward savory breakfast, closer to a small dinner plate than a bowl of grain, built entirely on real whole foods.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_roasted_vegetable_white_bean_bowl_garlic_herb_oil',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'red', note: 'Spinach: rated Very High for oxalate level. The highest tier used for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '90g white beans' },
+        { text: '60g zucchini, diced, roasted' },
+        { text: '40g red bell pepper, diced, roasted' },
+        { text: '30g spinach, chopped, wilted' },
+        { text: '1 clove garlic, minced' },
+        { text: '1 tablespoon olive oil' },
+        { text: '¼ teaspoon salt' },
+        { text: 'A pinch of black pepper' },
+      ],
+      instructions: [
+        'Toss the zucchini and bell pepper with half the olive oil and roast at 425°F (220°C) for 15-18 minutes, until tender.',
+        'Heat the remaining olive oil in a small skillet over medium heat, saute the garlic for 30 seconds, then add the spinach and cook just until wilted.',
+        'Warm the white beans, then combine everything in a bowl.',
+        'Season with salt and pepper and serve.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Fiber', note: 'A real, meaningful amount from the white beans.' },
+        { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper.' },
+      ],
+      flavorNotes: 'Vegetable-forward and garlicky, with a satisfying, savory heartiness from the white beans.',
+    },
+  },
+  {
+    id: 'recipe-vegan-coconut-milk-overnight-oats-blueberry-flax',
+    category: 'recipes',
+    title: 'Coconut Milk Overnight Oats with Blueberries & Flax',
+    teaser: 'Creamy make-ahead oats built on coconut milk instead of soy milk, blueberries and flaxseed folded in.',
+    summary: 'This is the same real overnight-oats format this app\'s other vegan breakfasts already use, with coconut milk standing in for soy milk for anyone wanting a soy-free option.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_coconut_milk_overnight_oats_blueberry_flax',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '40g oats' },
+        { text: '120ml coconut milk' },
+        { text: '60g blueberries' },
+        { text: '1 tablespoon ground flaxseed' },
+        { text: '1 teaspoon maple syrup (optional)' },
+      ],
+      instructions: [
+        'Combine the oats, coconut milk, and ground flaxseed in a jar or bowl.',
+        'Stir in the blueberries and maple syrup, if using.',
+        'Cover and refrigerate overnight, or for at least 4 hours, before eating.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Fiber', note: 'A real amount from the oats and flaxseed together.' },
+        { nutrient: 'Omega-3 Fatty Acids', note: 'A solid amount from the flaxseed.' },
+      ],
+      flavorNotes: 'Mildly sweet and creamy, with a fresh burst from the blueberries.',
+    },
+  },
+  {
+    id: 'recipe-vegan-coconut-milk-chia-pudding-almond-butter-berries',
+    category: 'recipes',
+    title: 'Coconut Milk Chia Pudding with Almond Butter & Berries',
+    teaser: 'A creamy chia pudding built on coconut milk, almond butter and strawberries stirred in.',
+    summary: 'Coconut milk and almond butter together give this a real, different flavor and a genuinely soy-free alternative to this app\'s other chia puddings.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_coconut_milk_chia_pudding_almond_butter_berries',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'red', note: 'Chia seeds: rated Very High for oxalate level. The highest tier used for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '30g chia seeds' },
+        { text: '120ml coconut milk' },
+        { text: '15g almond butter' },
+        { text: '60g strawberries, sliced' },
+        { text: '1 teaspoon maple syrup (optional)' },
+      ],
+      instructions: [
+        'Whisk the chia seeds into the coconut milk and almond butter until well combined.',
+        'Stir in the maple syrup, if using.',
+        'Cover and refrigerate for at least 4 hours, or overnight, stirring once after 30 minutes to prevent clumping.',
+        'Top with sliced strawberries before serving.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Omega-3 Fatty Acids', note: 'A real, meaningful amount from the chia seeds.' },
+        { nutrient: 'Fiber', note: 'A solid amount from the chia seeds.' },
+      ],
+      flavorNotes: 'Creamy and nutty from the almond butter, brightened by the fresh strawberries.',
+    },
+  },
+  {
+    id: 'recipe-vegan-buckwheat-porridge-coconut-milk-walnut-pear',
+    category: 'recipes',
+    title: 'Buckwheat Porridge with Coconut Milk, Walnuts & Pear',
+    teaser: 'Warm simmered buckwheat porridge finished sweet, built on coconut milk with walnut and diced pear folded in.',
+    summary: 'Buckwheat and coconut milk together give this a real, different texture and flavor from this app\'s other sweet oat- and soy-milk-based porridges.',
+    citations: [],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_vegan_buckwheat_porridge_coconut_milk_walnut_pear',
+    linkedBuilderType: 'snack',
+    recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      conditionCautions: {
+        hashimotos: { severity: 'red', note: 'Buckwheat: rated High for oxalate level. A meaningfully high level for this measure.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+      },
+      conditionNotes: [],
+      yield: 'Makes 1 bowl.',
+      ingredients: [
+        { text: '45g buckwheat, simmered' },
+        { text: '100ml coconut milk' },
+        { text: '70g pear, diced' },
+        { text: '15g walnut, chopped' },
+        { text: '¼ teaspoon ground cinnamon' },
+        { text: '1 teaspoon maple syrup (optional)' },
+      ],
+      instructions: [
+        'Simmer the buckwheat groats in water until tender, about 15 minutes, then stir in the coconut milk.',
+        'Fold in the diced pear and cinnamon, and warm through for 1-2 minutes.',
+        'Top with chopped walnut and a drizzle of maple syrup, if using.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Manganese', note: 'A real, meaningful amount from the buckwheat.' },
+        { nutrient: 'Omega-3 Fatty Acids', note: 'A solid amount from the walnut.' },
+      ],
+      flavorNotes: 'Warm and nutty, with a soft sweetness from the pear and cinnamon.',
     },
   },
 ];

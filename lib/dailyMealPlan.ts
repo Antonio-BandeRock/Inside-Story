@@ -47,7 +47,8 @@
 import {
   createIngredientResolutionCaches,
   curatedRecipeContainsAnyIngredient,
-  curatedRecipeContainsSweetenerIngredient,
+  getCuratedRecipeIdsContainingIngredient,
+  getCuratedRecipeIdsWithSweetener,
   getCuratedRecipeNutrientTotals,
   getDietaryReferenceIntakesForCurrentUser,
   getUserNutrientTargets,
@@ -153,6 +154,27 @@ export const BREAKFAST_ELIGIBLE_RECIPE_IDS = new Set<string>([
   'curated_snack_millet_porridge_apricots',
   'curated_vegan_millet_porridge_apricots',
   'curated_snack_watermelon_feta_bowl',
+  // 2026-08-26, direct follow-up: "Why cannot a user have savory amaranth
+  // seed porridge... if they are vegan?... make sure there are at least
+  // 30 total different vegan breakfast choices." All 16 are real, whole-
+  // food, verified curated recipes (see scripts/add_vegan_savory_
+  // breakfasts.py), not just added here without the matching content.
+  'curated_vegan_savory_amaranth_porridge_garlic_avocado',
+  'curated_vegan_savory_oat_porridge_mushroom_spinach',
+  'curated_vegan_chickpea_flour_vegetable_scramble',
+  'curated_vegan_savory_millet_bowl_roasted_vegetables_tahini',
+  'curated_vegan_black_bean_sweet_potato_breakfast_hash',
+  'curated_vegan_lentil_spinach_bowl_lemon_tahini',
+  'curated_vegan_savory_buckwheat_porridge_mushroom_herbs',
+  'curated_vegan_quinoa_bowl_roasted_vegetables_hemp_seeds',
+  'curated_vegan_white_bean_kale_breakfast_hash',
+  'curated_vegan_chickpea_spinach_breakfast_curry',
+  'curated_vegan_savory_polenta_bowl_mushroom_greens',
+  'curated_vegan_black_bean_breakfast_bowl_avocado',
+  'curated_vegan_roasted_vegetable_white_bean_bowl_garlic_herb_oil',
+  'curated_vegan_coconut_milk_overnight_oats_blueberry_flax',
+  'curated_vegan_coconut_milk_chia_pudding_almond_butter_berries',
+  'curated_vegan_buckwheat_porridge_coconut_milk_walnut_pear',
 ]);
 
 // ---------------------------------------------------------------------
@@ -597,19 +619,28 @@ type LoadedCandidate = {
   nutrientTotals: Record<string, number>;
 };
 
-async function loadCandidate(entry: EligibleRecipeEntry, sharedCaches: IngredientResolutionCaches): Promise<LoadedCandidate | null> {
+// 2026-08-26 perf fix: sweetenedRecipeIds/ruleMatchesByRecipeId are bulk-
+// computed once, up front, for every distinct recipe id in the whole
+// candidate pool (see buildCandidatePools) -- this function no longer
+// runs its own per-recipe sweetener/frequency-rule queries at all, only
+// looks the answer up in a plain Set/Map, real, confirmed contributors to
+// a reported ~1-minute generation time even after the earlier per-recipe-
+// resolution dedup fix.
+async function loadCandidate(
+  entry: EligibleRecipeEntry,
+  sharedCaches: IngredientResolutionCaches,
+  sweetenedRecipeIds: Set<string>,
+  ruleMatchesByRecipeId: Map<string, Set<string>>,
+): Promise<LoadedCandidate | null> {
   const totals = await getCuratedRecipeNutrientTotals(entry.linkedCuratedRecipeId, sharedCaches);
   if (!totals) return null;
-  const [hasSweetener, ruleMatches] = await Promise.all([
-    curatedRecipeContainsSweetenerIngredient(entry.linkedCuratedRecipeId),
-    Promise.all(FREQUENCY_RULES.map((rule) => rule.matches(entry.linkedCuratedRecipeId).then((matched) => (matched ? rule.id : null)))),
-  ]);
+  const hasSweetener = sweetenedRecipeIds.has(entry.linkedCuratedRecipeId);
   return {
     entry,
     carbGrams: totals.carbohydrate ?? 0,
     kcal: totals.energy_kcal ?? 0,
     hasSweetener,
-    matchedRuleIds: new Set(ruleMatches.filter((id): id is string => id !== null)),
+    matchedRuleIds: ruleMatchesByRecipeId.get(entry.linkedCuratedRecipeId) ?? new Set(),
     nutrientTotals: totals,
   };
 }
@@ -895,10 +926,35 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
   const uniqueEntries = new Map<string, EligibleRecipeEntry>();
   for (const entry of pool) uniqueEntries.set(entry.linkedCuratedRecipeId, entry);
   const uniqueEntryList = Array.from(uniqueEntries.values());
+  const uniqueEntryIds = uniqueEntryList.map((entry) => entry.linkedCuratedRecipeId);
   const sharedCaches = createIngredientResolutionCaches();
 
+  // 2026-08-26 perf fix, a second, real contributor to the reported
+  // ~1-minute generation time even after the pool-dedup fix above: the
+  // sweetener check and both FREQUENCY_RULES checks used to run once per
+  // recipe (up to 3 real queries each) inside loadCandidate. All three
+  // are now fetched once, in bulk, for every distinct recipe id at once,
+  // before any candidate is loaded. Deliberately fetched directly by name
+  // (not looped generically over FREQUENCY_RULES) since only these two
+  // real rules exist and each needs its own distinct base-name list --
+  // a generic loop would need to re-derive which list belongs to which
+  // rule id anyway, no simpler than naming both directly.
+  const [sweetenedRecipeIds, fishRecipeIds, redMeatRecipeIds] = await Promise.all([
+    getCuratedRecipeIdsWithSweetener(uniqueEntryIds),
+    getCuratedRecipeIdsContainingIngredient(uniqueEntryIds, 'Meat', FISH_SEAFOOD_BASE_NAMES),
+    getCuratedRecipeIdsContainingIngredient(uniqueEntryIds, 'Meat', RED_MEAT_BASE_NAMES),
+  ]);
+  // Matches FREQUENCY_RULES' own declared order just above (fish first,
+  // red meat second) rather than repeating a second copy of either id as
+  // a bare string literal.
+  const fishRuleId = FREQUENCY_RULES[0].id;
+  const redMeatRuleId = FREQUENCY_RULES[1].id;
+  const ruleMatchesByRecipeId = new Map<string, Set<string>>();
+  for (const recipeId of fishRecipeIds) ruleMatchesByRecipeId.set(recipeId, (ruleMatchesByRecipeId.get(recipeId) ?? new Set()).add(fishRuleId));
+  for (const recipeId of redMeatRecipeIds) ruleMatchesByRecipeId.set(recipeId, (ruleMatchesByRecipeId.get(recipeId) ?? new Set()).add(redMeatRuleId));
+
   const [loadedCandidates, driRows, profile, nutrientTargetOverrides] = await Promise.all([
-    Promise.all(uniqueEntryList.map((entry) => loadCandidate(entry, sharedCaches))),
+    Promise.all(uniqueEntryList.map((entry) => loadCandidate(entry, sharedCaches, sweetenedRecipeIds, ruleMatchesByRecipeId))),
     getDietaryReferenceIntakesForCurrentUser(),
     getUserProfile(),
     getUserNutrientTargets(),

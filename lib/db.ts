@@ -1832,6 +1832,45 @@ export async function curatedRecipeContainsAnyIngredient(curatedRecipeId: string
   return (row?.count ?? 0) > 0;
 }
 
+// 2026-08-26 perf fix -- bulk versions of the two functions just above,
+// built specifically for lib/dailyMealPlan.ts's own buildCandidatePools:
+// calling curatedRecipeContainsSweetenerIngredient/
+// curatedRecipeContainsAnyIngredient once per recipe (up to 3 real
+// queries per recipe: one sweetener check plus one per FREQUENCY_RULES
+// entry) across a candidate pool of 150-250+ distinct recipes was a real,
+// confirmed contributor to the reported ~1-minute generation time, even
+// after the earlier per-recipe-resolution dedup fix. Each function here
+// does the identical check for EVERY recipe id at once, one query
+// instead of N -- the same "cut the number of underlying queries, not
+// just their JS-side scheduling" lesson this app has already applied
+// elsewhere (Safe Foods' own bulk condition-scoring fetch, 2026-08-26).
+export async function getCuratedRecipeIdsWithSweetener(recipeIds: string[]): Promise<Set<string>> {
+  if (recipeIds.length === 0) return new Set();
+  const db = await getReferenceDatabase();
+  const placeholders = recipeIds.map(() => '?').join(', ');
+  const rows = await db.getAllAsync<{ recipe_id: string }>(
+    `SELECT DISTINCT recipe_id FROM curated_recipe_ingredients
+     WHERE recipe_id IN (${placeholders}) AND category = 'Sweets' AND (prep_note IS NULL OR prep_note != 'optional')`,
+    ...recipeIds,
+  );
+  return new Set(rows.map((row) => row.recipe_id));
+}
+
+export async function getCuratedRecipeIdsContainingIngredient(recipeIds: string[], category: string, baseNames: string[]): Promise<Set<string>> {
+  if (recipeIds.length === 0 || baseNames.length === 0) return new Set();
+  const db = await getReferenceDatabase();
+  const recipePlaceholders = recipeIds.map(() => '?').join(', ');
+  const namePlaceholders = baseNames.map(() => '?').join(', ');
+  const rows = await db.getAllAsync<{ recipe_id: string }>(
+    `SELECT DISTINCT recipe_id FROM curated_recipe_ingredients
+     WHERE recipe_id IN (${recipePlaceholders}) AND category = ? AND base_name IN (${namePlaceholders})`,
+    ...recipeIds,
+    category,
+    ...baseNames,
+  );
+  return new Set(rows.map((row) => row.recipe_id));
+}
+
 // Fetches the curated recipe strains a real curated fermentation recipe
 // declares it uses (see curated_recipe_strains just below) -- a real,
 // separate lookup from getCuratedRecipe's own ingredient resolution, since

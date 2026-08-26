@@ -463,6 +463,18 @@ const RECIPE_PREP_OVERRIDES = {
   curated_vegan_soup_white_bean_tomato_garlic_broth: { 'Legume|White Beans': 'Boiled' },
   curated_vegan_soup_lentil_black_bean_chili: { 'Legume|Black Beans': 'Boiled' },
   curated_vegan_soup_mushroom_white_bean_soup: { 'Legume|White Beans': 'Boiled' },
+  // 2026-08-26, the new savory vegan breakfast batch -- every one of
+  // these actually simmers/cooks its own legume (confirmed directly
+  // against each recipe's own real instructions in lib/digest/
+  // recipes.ts, the same discipline as every override above), so the
+  // default Raw-first resolution was scoring a real lectin concern that
+  // doesn't apply once cooked.
+  curated_vegan_lentil_spinach_bowl_lemon_tahini: { 'Legume|Lentils': 'Boiled' },
+  curated_vegan_white_bean_kale_breakfast_hash: { 'Legume|White Beans': 'Boiled' },
+  curated_vegan_chickpea_spinach_breakfast_curry: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
+  curated_vegan_black_bean_breakfast_bowl_avocado: { 'Legume|Black Beans': 'Boiled' },
+  curated_vegan_roasted_vegetable_white_bean_bowl_garlic_herb_oil: { 'Legume|White Beans': 'Boiled' },
+  curated_vegan_black_bean_sweet_potato_breakfast_hash: { 'Legume|Black Beans': 'Boiled' },
 };
 
 // Resolves one recipe's own ingredient with its real prep method applied
