@@ -186,7 +186,7 @@ const DIGEST_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'A growing set of categories, one evidence standard',
-    body: 'Every entry here is tiered Strong/Moderate/Weak by its own actual evidence, the same discipline as this app\'s own 6 Dimensions scoring. A gold dot means trial-level support, not just "this app trusts it." This tab is meant to keep growing; if the picker below runs past what fits on screen at once, it scrolls.',
+    body: 'Every entry here is tiered Strong/Moderate/Weak by its own actual evidence. A gold dot means trial-level support, not just "this app trusts it." This tab is meant to keep growing; if the picker below runs past what fits on screen at once, it scrolls.',
   },
   {
     heading: 'Search the whole Digest, or just one category',
