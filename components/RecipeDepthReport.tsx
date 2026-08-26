@@ -29,6 +29,7 @@ import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import type { DimensionSeverity } from '../lib/recipeDepth';
 import type { ConditionStageAdvisory } from '../lib/conditionStageAdvisory';
+import type { DeclaredConditionStage } from '../lib/conditionStages';
 import { DimensionChart } from './DimensionChart';
 import { NutrientBarChart, type NutrientChartDatum } from './NutrientBarChart';
 
@@ -41,6 +42,12 @@ export type RecipeDepthReportProps = {
   safeForConditions: string[];
   conditionCautions: Record<string, { severity: 'yellow' | 'red'; note: string }>;
   dimensionBreakdown: Record<string, DimensionSeverity[]>;
+  // 2026-08-25, direct request: "There should be something about the
+  // stage they are in of their healing, such as for Hashimoto's stages of
+  // healing." Keyed by condition code, absent for a condition with no
+  // real staging model or no declared stage yet (see
+  // lib/conditionStages.ts's own resolveDeclaredStage).
+  declaredStages: Record<string, DeclaredConditionStage>;
   stageNotes: ConditionStageAdvisory[];
   tabColor: string;
   onSave: () => void;
@@ -75,6 +82,7 @@ export function RecipeDepthReport({
   safeForConditions,
   conditionCautions,
   dimensionBreakdown,
+  declaredStages,
   stageNotes,
   tabColor,
   onSave,
@@ -102,6 +110,7 @@ export function RecipeDepthReport({
           {trackedConditions.map((condition) => {
             const verdict = verdictFor(condition.code, safeForConditions, conditionCautions);
             const data = dimensionBreakdown[condition.code] ?? [];
+            const stage = declaredStages[condition.code];
             return (
               <View key={condition.code} style={styles.conditionBlock}>
                 <View style={styles.conditionHeaderRow}>
@@ -110,10 +119,19 @@ export function RecipeDepthReport({
                     <Text style={styles.verdictPillText}>{verdict.label}</Text>
                   </View>
                 </View>
+                {stage ? (
+                  <View style={styles.stageContextRow}>
+                    <Text style={styles.bodyText}>
+                      <Text style={styles.bodyTextBold}>Your stage: </Text>
+                      {stage.stageLabel}
+                    </Text>
+                    <Text style={styles.stageDescription}>{stage.stageShortDescription}</Text>
+                  </View>
+                ) : null}
                 {data.length > 0 ? (
                   <DimensionChart data={data} color={tabColor} />
                 ) : (
-                  <Text style={styles.bodyText}>No real dimension data scored for this condition.</Text>
+                  <Text style={styles.bodyText}>No dimension data scored for this condition.</Text>
                 )}
               </View>
             );
@@ -178,6 +196,8 @@ const styles = StyleSheet.create({
   conditionName: { ...typography.bodyEmphasis, color: colors.textPrimary },
   verdictPill: { borderRadius: 999, paddingVertical: 3, paddingHorizontal: 10 },
   verdictPillText: { ...typography.caption, fontWeight: '700', color: colors.textOnButton },
+  stageContextRow: { marginTop: 4, marginBottom: 4 },
+  stageDescription: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
   stageNoteSpacing: { marginTop: 8 },
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
   buttonHalf: { flex: 1 },

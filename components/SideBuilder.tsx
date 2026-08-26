@@ -32,6 +32,7 @@ import {
   type SideIngredientInput,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
+import { resolveDeclaredStage, type DeclaredConditionStage } from '../lib/conditionStages';
 import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
 import { computeRecipeDepth, type RecipeDepthResult } from '../lib/recipeDepth';
 import { isFlaggedTier } from '../lib/sixDimensionsReference';
@@ -970,6 +971,24 @@ export function SideBuilder({
     };
   }, []);
 
+  // 2026-08-25, direct request: "There should be something about the stage
+  // they are in of their healing, such as for Hashimoto's stages of
+  // healing." A plain profile fact, not derived from this dish's own
+  // ingredients at all (unlike stageNotes below, which only ever appear
+  // when a real, specific trigger for the current stage actually fires) --
+  // reuses the same conditionStages state the live per-ingredient advisory
+  // above already fetches, rather than a second getConditionStages() call.
+  // Absent for a tracked condition with no real staging model (most of
+  // them) or no declared stage yet.
+  const declaredStages = useMemo(() => {
+    const stages: Record<string, DeclaredConditionStage> = {};
+    for (const condition of trackedConditions) {
+      const resolved = resolveDeclaredStage(condition.code, conditionStages[condition.code]);
+      if (resolved) stages[condition.code] = resolved;
+    }
+    return stages;
+  }, [trackedConditions, conditionStages]);
+
   // Only actually computes once the final review screen is reached -- both
   // real functions do a genuine per-ingredient database query, so there's
   // no reason to pay that cost while still mid-build, only once there's
@@ -1607,6 +1626,7 @@ export function SideBuilder({
             safeForConditions={reportData.safeForConditions}
             conditionCautions={reportData.conditionCautions}
             dimensionBreakdown={reportData.dimensionBreakdown}
+            declaredStages={declaredStages}
             stageNotes={reportData.stageNotes}
             tabColor={tabColor}
             saving={savingFromReport}

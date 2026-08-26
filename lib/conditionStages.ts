@@ -156,3 +156,25 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
 export function getConditionStagingModel(conditionCode: string): ConditionStagingModel | null {
   return CONDITION_STAGING_MODELS.find((model) => model.conditionCode === conditionCode) ?? null;
 }
+
+// The declared stage itself, resolved to its real label/description --
+// 2026-08-25, direct request: a health report showing a real per-
+// condition chart genuinely needs the person's own declared healing
+// stage as context (the same dish reads differently in Stage 2: Digging,
+// removing triggers, than in Stage 3: Gut Repair, reintroducing them),
+// not just the already-existing flagged advisory notes that only appear
+// when a real, specific trigger fires. Returns null for a condition with
+// no real staging model at all, or one with no declared stage yet.
+export type DeclaredConditionStage = {
+  frameworkName: string;
+  stageLabel: string;
+  stageShortDescription: string;
+};
+
+export function resolveDeclaredStage(conditionCode: string, stageCode: string | undefined): DeclaredConditionStage | null {
+  if (!stageCode) return null;
+  const model = getConditionStagingModel(conditionCode);
+  const stage = model?.stages.find((candidate) => candidate.code === stageCode);
+  if (!model || !stage) return null;
+  return { frameworkName: model.frameworkName, stageLabel: stage.label, stageShortDescription: stage.shortDescription };
+}
