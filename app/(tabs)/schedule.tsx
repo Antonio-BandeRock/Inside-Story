@@ -422,7 +422,7 @@ const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: '"Rotate" (smoothies, mixed vegetables, mixed fruit)',
-    body: 'Shows up on a planned meal only when it was scheduled from a favorite that has at least one ingredient marked Rotating (set on the Food tab: tap "Rotate?" next to an ingredient in a side). Tap any alternate to make it current for this specific scheduled meal, or randomize one or all of them, then Save. This choice belongs to this one occurrence only; rotating a Tuesday smoothie never changes what a Wednesday one shows, even if both were scheduled from the same favorite, so you can plan variety across several upcoming days ahead of time. Whatever\'s chosen is exactly what "Log now" prefills and what actually gets logged, so nutrients, 6 Dimensions, and Trends always reflect the ingredient actually used that day.',
+    body: 'Shows up on a planned meal only when it was scheduled from a favorite that has at least one ingredient marked Rotating (set on the Food tab: tap "Rotate?" next to an ingredient in a side). Tap any alternate to make it current for this specific scheduled meal, or randomize one or all of them, then Save. This choice belongs to this one occurrence only; rotating a Tuesday smoothie never changes what a Wednesday one shows, even if both were scheduled from the same favorite, so you can plan variety across several upcoming days ahead of time. Whatever\'s chosen is exactly what "Log now" prefills and what actually gets logged, so nutrients, condition scores, and Trends always reflect the ingredient actually used that day.',
   },
   {
     heading: 'Planned, Logged, Skipped',
@@ -1066,7 +1066,7 @@ function MealsLens() {
   // must never change what Wednesday's shows too, even though both point
   // at the same favorite. Whatever's chosen is exactly what "Log now"
   // prefills for that occurrence and therefore exactly what ends up in
-  // that day's real meal_items, so nutrients/6 Dimensions/Trends automatically
+  // that day's real meal_items, so nutrients/condition scores/Trends automatically
   // reflect it with no separate recalculation step -- and, later, an
   // automatic shopping list can read each upcoming occurrence's own
   // resolved ingredients the same way.

@@ -153,7 +153,7 @@ const GROUND_THEME_SWATCH_KEYS = ['background', 'border', 'textMuted', 'keySurfa
 const PROFILE_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page is for',
-    body: "So the rest of the app can actually be personal, not one-size-fits-all. What's set here (your conditions, sex, birth date, weight, activity level, food allergies, healing/management stage) shapes numbers elsewhere: which nutrient targets and 6 Dimensions scoring apply to you, which foods get flagged, and what a doctor report actually says about you.",
+    body: "So the rest of the app can actually be personal, not one-size-fits-all. What's set here (your conditions, sex, birth date, weight, activity level, food allergies, healing/management stage) shapes numbers elsewhere: which nutrient targets and condition scoring apply to you, which foods get flagged, and what a doctor report actually says about you.",
   },
   {
     heading: 'Nothing here is required',

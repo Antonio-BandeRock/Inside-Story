@@ -55,7 +55,7 @@ import { useInfoAlert } from '../components/InfoAlert';
 //
 // Tapping a real SAVED item (not yet a favorite -- see the tap handler's
 // own comment below) opens app/food-item-detail.tsx, 2026-08-01: a
-// side-scoped entry point into Insights' own Nutrients/6 Dimensions/
+// side-scoped entry point into Insights' own Nutrients/Condition Scores/
 // Cooking & Prep lenses, reusing that already-built rendering rather than
 // a parallel viewer here. Favorites (and any future itemType this
 // screen's own loadItems doesn't handle yet) still show an honest "coming
@@ -225,7 +225,7 @@ export default function FoodItemsScreen() {
                   }
                   showInfoAlert(
                     item.title,
-                    'Full detail view (Nutrients, 6 Dimensions, and Cooking & Prep for this item) is coming soon.',
+                    'Full detail view (Nutrients, Condition Scores, and Cooking & Prep for this item) is coming soon.',
                   );
                 }}
               >

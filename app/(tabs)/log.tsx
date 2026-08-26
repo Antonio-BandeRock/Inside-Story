@@ -172,7 +172,7 @@ const LOG_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'What this tab is for',
-    body: "A place to write down what's actually happening to you, separate from what you planned (Schedules) or what the cited 6-DFF (6 Dimensions of Food Friendliness)/nutrient scoring says (Insights). This is your own observations: flares, reactions, and anything else worth remembering.",
+    body: "A place to write down what's actually happening to you, separate from what you planned (Schedules) or what the cited condition/nutrient scoring says (Insights). This is your own observations: flares, reactions, and anything else worth remembering.",
   },
   {
     heading: 'Flares',

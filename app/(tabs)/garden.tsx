@@ -108,7 +108,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Harvest Log',
-        body: 'Log what you actually picked, and how much, from something you already tracked as planted in Plots & Plantings. If nothing shows up here to pick from, add a planting there first. Anything still showing an unused amount here shows up as a selectable "From Your Harvest" ingredient in every Food builder, with the same nutrition/6-DFF scoring as any other reference food, since it’s tied to the same food identity.',
+        body: 'Log what you actually picked, and how much, from something you already tracked as planted in Plots & Plantings. If nothing shows up here to pick from, add a planting there first. Anything still showing an unused amount here shows up as a selectable "From Your Harvest" ingredient in every Food builder, with the same nutrition/condition scoring as any other reference food, since it’s tied to the same food identity.',
       },
     ],
   },

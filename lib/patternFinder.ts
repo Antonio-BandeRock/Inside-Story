@@ -1,4 +1,4 @@
-import { getFoodScores, getMealItemsInWindow, listCheckins, type FoodScore } from './db';
+import { getConditionScoresForFoodsBulk, getMealItemsInWindow, listCheckins } from './db';
 import { isFlaggedTier } from './sixDimensionsReference';
 
 // The app's own core-mission gap, named directly in Trends' own in-app
@@ -18,6 +18,15 @@ export type PatternWindowHours = (typeof PATTERN_WINDOW_HOURS)[number];
 
 const MIN_OCCURRENCES = 2;
 
+// Kept in sync by hand with lib/conditionDimensions.ts's own identical
+// set -- see that file's own comment for why this small, 2-entry
+// duplication is accepted rather than imported. Without this, Selenium &
+// Zn synergy alone (a background signal on roughly half the reference
+// database) would trivially clear MIN_OCCURRENCES for almost any tracked
+// condition that owns it, burying every genuinely rare, worth-noticing
+// candidate under one meaningless one.
+const NEAR_UNIVERSAL_SUB_CRITERIA = new Set(['Selenium & Zn synergy', 'Iron Presence']);
+
 export type FoodPatternCandidate = {
   kind: 'food';
   foodId: number;
@@ -27,9 +36,22 @@ export type FoodPatternCandidate = {
   occurrenceCount: number;
 };
 
+// 2026-08-26, rebuilt to be condition-scoped -- see this file's own
+// findFoodPatterns comment for the full reasoning. conditionCode/
+// conditionName name which of the person's own tracked conditions this
+// candidate is actually relevant to (a shared sub-criterion can be
+// relevant to more than one tracked condition at once, and now surfaces
+// as a distinct candidate under each). Keyed by subCriterion, not just
+// dimension+tier -- the pre-2026-08-26 version keyed on dimension+tier
+// alone, which could silently merge two genuinely different sub-criteria
+// that happened to share both, a real bug fixed in the same pass as the
+// condition-scoping itself.
 export type DimensionPatternCandidate = {
   kind: 'dimension';
+  conditionCode: string;
+  conditionName: string;
   dimension: string;
+  subCriterion: string;
   tier: string;
   occurrenceCount: number;
 };
@@ -72,7 +94,27 @@ function toLocalDateTimeString(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-export async function findFoodPatterns(days: number, windowHours: PatternWindowHours): Promise<PatternFinderResult> {
+// trackedConditions, 2026-08-26 -- the person's own conditions, set in
+// Profile, no separate picker here. Direct instruction carried over from
+// the rest of this same rebuild: "use the condition picked from the
+// profile for all of these." A real, named trade-off, not a free
+// improvement: dimension candidates now only ever surface a concern
+// relevant to a tracked condition, narrower than the old version, which
+// checked every sub-criterion this app currently scores at all regardless
+// of relevance. Tracking nothing yet means no dimension candidates at
+// all (an honest empty state), not a fallback to the old, noisier,
+// generic behavior -- unlike the flag-count fix (phase 4 of this same
+// rebuild), there's no real "your own condition" concept left to check
+// once nothing is tracked, and falling back to the generic list would
+// just reintroduce the near-universal noise this rebuild exists to
+// remove. Food and category candidates are untouched: "you logged this
+// before N flares" is a real correlation independent of any condition's
+// own scoring, not something that needs this same scoping.
+export async function findFoodPatterns(
+  days: number,
+  windowHours: PatternWindowHours,
+  trackedConditions: { code: string; name: string }[],
+): Promise<PatternFinderResult> {
   const rangeStart = dateStringDaysAgo(days - 1);
 
   // Flares and reactions are the two real checkin types Trends' own
@@ -91,16 +133,23 @@ export async function findFoodPatterns(days: number, windowHours: PatternWindowH
     string,
     { count: number; foodName: string; category: string | null; foodId: number; source: string }
   >();
-  const dimensionCounts = new Map<string, { count: number; dimension: string; tier: string }>();
   const categoryCounts = new Map<string, { count: number; category: string }>();
-  // One real lookup per distinct food across the WHOLE run, not per
-  // checkin -- the same food can legitimately show up before several
-  // different flares, and its own 6-DFF scores never change mid-run.
-  const scoreCache = new Map<string, FoodScore[]>();
+
+  // Every checkin's own window, resolved to its own distinct foods once
+  // here and kept for the condition-scoped second pass below -- dimension
+  // candidates need the bulk-fetched condition scores, only available
+  // once every distinct food across the WHOLE run is known, so this can't
+  // be folded into one single pass the way it could when scores were
+  // fetched generically, one food at a time.
+  const windowFoodsByCheckin: { foodId: number; source: string }[][] = [];
+  const distinctFoodPairs = new Map<string, { foodId: number; source: string }>();
 
   for (const checkin of symptomCheckins) {
     const windowEnd = new Date(checkin.loggedAt);
-    if (Number.isNaN(windowEnd.getTime())) continue;
+    if (Number.isNaN(windowEnd.getTime())) {
+      windowFoodsByCheckin.push([]);
+      continue;
+    }
     const windowStart = new Date(windowEnd.getTime() - windowHours * 60 * 60 * 1000);
     const items = await getMealItemsInWindow(toLocalDateTimeString(windowStart), toLocalDateTimeString(windowEnd));
 
@@ -110,8 +159,8 @@ export async function findFoodPatterns(days: number, windowHours: PatternWindowH
     // instead would double-count a single day's own repeated eating as if
     // it were repeated real-world evidence.
     const foodKeysSeen = new Set<string>();
-    const dimensionKeysSeen = new Set<string>();
     const categoryKeysSeen = new Set<string>();
+    const windowFoods: { foodId: number; source: string }[] = [];
 
     for (const item of items) {
       if (!item.foodId) continue;
@@ -119,9 +168,11 @@ export async function findFoodPatterns(days: number, windowHours: PatternWindowH
       const foodId = Number(foodIdStr);
       if (!Number.isFinite(foodId) || !source) continue;
       const foodKey = `${foodId}|${source}`;
+      distinctFoodPairs.set(foodKey, { foodId, source });
 
       if (!foodKeysSeen.has(foodKey)) {
         foodKeysSeen.add(foodKey);
+        windowFoods.push({ foodId, source });
         const existing = foodCounts.get(foodKey);
         if (existing) existing.count += 1;
         else foodCounts.set(foodKey, { count: 1, foodName: item.foodName, category: item.category, foodId, source });
@@ -133,20 +184,51 @@ export async function findFoodPatterns(days: number, windowHours: PatternWindowH
         if (existing) existing.count += 1;
         else categoryCounts.set(item.category, { count: 1, category: item.category });
       }
+    }
+    windowFoodsByCheckin.push(windowFoods);
+  }
 
-      let scores = scoreCache.get(foodKey);
-      if (!scores) {
-        scores = await getFoodScores(foodId, source);
-        scoreCache.set(foodKey, scores);
-      }
-      for (const score of scores) {
-        if (!isFlaggedTier(score.tier)) continue;
-        const dimensionKey = `${score.dimension}::${score.tier}`;
-        if (dimensionKeysSeen.has(dimensionKey)) continue;
-        dimensionKeysSeen.add(dimensionKey);
-        const existing = dimensionCounts.get(dimensionKey);
-        if (existing) existing.count += 1;
-        else dimensionCounts.set(dimensionKey, { count: 1, dimension: score.dimension, tier: score.tier });
+  const dimensionCounts = new Map<
+    string,
+    { count: number; conditionCode: string; conditionName: string; dimension: string; subCriterion: string; tier: string }
+  >();
+
+  if (trackedConditions.length > 0) {
+    const conditionScoresByFood = await getConditionScoresForFoodsBulk(
+      Array.from(distinctFoodPairs.values()),
+      trackedConditions.map((condition) => condition.code),
+    );
+
+    for (const windowFoods of windowFoodsByCheckin) {
+      // Same "one real occurrence per checkin window" dedup as the
+      // food/category counts above, scoped per (condition, sub-criterion,
+      // tier) so eating three flagged foods before one flare still counts
+      // as one real occurrence of that specific concern, not three.
+      const seenKeys = new Set<string>();
+      for (const food of windowFoods) {
+        const byCondition = conditionScoresByFood.get(`${food.foodId}|${food.source}`);
+        if (!byCondition) continue;
+        for (const condition of trackedConditions) {
+          for (const score of byCondition.get(condition.code) ?? []) {
+            if (NEAR_UNIVERSAL_SUB_CRITERIA.has(score.subCriterion)) continue;
+            if (!isFlaggedTier(score.tier)) continue;
+            const key = `${condition.code}::${score.subCriterion}::${score.tier}`;
+            if (seenKeys.has(key)) continue;
+            seenKeys.add(key);
+            const existing = dimensionCounts.get(key);
+            if (existing) existing.count += 1;
+            else {
+              dimensionCounts.set(key, {
+                count: 1,
+                conditionCode: condition.code,
+                conditionName: condition.name,
+                dimension: score.dimension,
+                subCriterion: score.subCriterion,
+                tier: score.tier,
+              });
+            }
+          }
+        }
       }
     }
   }
@@ -165,8 +247,16 @@ export async function findFoodPatterns(days: number, windowHours: PatternWindowH
 
   const dimensionCandidates: DimensionPatternCandidate[] = [...dimensionCounts.values()]
     .filter((entry) => entry.count >= MIN_OCCURRENCES)
-    .map((entry) => ({ kind: 'dimension' as const, dimension: entry.dimension, tier: entry.tier, occurrenceCount: entry.count }))
-    .sort((a, b) => b.occurrenceCount - a.occurrenceCount || a.dimension.localeCompare(b.dimension));
+    .map((entry) => ({
+      kind: 'dimension' as const,
+      conditionCode: entry.conditionCode,
+      conditionName: entry.conditionName,
+      dimension: entry.dimension,
+      subCriterion: entry.subCriterion,
+      tier: entry.tier,
+      occurrenceCount: entry.count,
+    }))
+    .sort((a, b) => b.occurrenceCount - a.occurrenceCount || a.subCriterion.localeCompare(b.subCriterion));
 
   const categoryCandidates: CategoryPatternCandidate[] = [...categoryCounts.values()]
     .filter((entry) => entry.count >= MIN_OCCURRENCES)

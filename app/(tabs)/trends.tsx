@@ -141,6 +141,10 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
         body: "Looks at what you actually ate before each flare or reaction you've logged, and shows what shows up more than once. This is a count of what's already in your own data, not a diagnosis -- something showing up before 2 flares is worth a look; it's not proof of anything on its own.",
       },
       {
+        heading: 'Condition scoring factors',
+        body: 'This section only ever checks factors relevant to the conditions set in Profile, so a candidate here is always something one of your own tracked conditions actually cares about, not any factor this app happens to score.',
+      },
+      {
         heading: 'The lookback window',
         body: "How far back before a symptom counts as 'before it' varies by person and condition -- pick whichever window feels closest to how your own body actually reacts.",
       },
@@ -415,7 +419,10 @@ export default function TrendsScreen() {
         setLoading(false);
       });
     } else if (lens === 'patterns') {
-      findFoodPatterns(days, patternWindow).then((result) => {
+      // 2026-08-26 -- condition-scoped, same trackedConditions list every
+      // other lens on this screen now uses; dimension candidates only
+      // ever surface a concern relevant to one of these.
+      findFoodPatterns(days, patternWindow, personalizationProfile?.trackedConditions ?? []).then((result) => {
         setPatternResult(result);
         setLoading(false);
       });
@@ -913,19 +920,34 @@ export default function TrendsScreen() {
 
                     {patternResult.dimensionCandidates.length > 0 ? (
                       <View style={[styles.chartCard, styles.spaced]}>
-                        <Text style={styles.patternSectionHeading}>6 Dimensions flags</Text>
+                        <Text style={styles.patternSectionHeading}>Condition scoring factors</Text>
                         {patternResult.dimensionCandidates.map((candidate) => (
-                          <View key={`${candidate.dimension}::${candidate.tier}`} style={styles.patternRow}>
+                          <View
+                            key={`${candidate.conditionCode}::${candidate.subCriterion}::${candidate.tier}`}
+                            style={styles.patternRow}
+                          >
                             <View style={styles.patternRowText}>
                               <Text style={styles.patternRowTitle}>
-                                {candidate.dimension} · {candidate.tier}
+                                {candidate.subCriterion} · {candidate.tier}
                               </Text>
                               <Text style={styles.patternRowCaption}>
-                                Logged before {candidate.occurrenceCount} of your {patternResult.totalSymptomInstances} flares/reactions
+                                Relevant to {candidate.conditionName} · logged before {candidate.occurrenceCount} of your{' '}
+                                {patternResult.totalSymptomInstances} flares/reactions
                               </Text>
                             </View>
                           </View>
                         ))}
+                      </View>
+                    ) : (personalizationProfile?.trackedConditions.length ?? 0) === 0 ? (
+                      // 2026-08-26 -- an honest reason for an empty section,
+                      // not a silent gap: dimension candidates only ever
+                      // check sub-criteria relevant to a tracked condition
+                      // now, so tracking nothing means there's genuinely
+                      // nothing this section could ever check, regardless
+                      // of what's actually been logged.
+                      <View style={[styles.chartCard, styles.spaced]}>
+                        <Text style={styles.patternSectionHeading}>Condition scoring factors</Text>
+                        <Text style={styles.loadingText}>Set your tracked conditions in Profile to check for this.</Text>
                       </View>
                     ) : null}
 
