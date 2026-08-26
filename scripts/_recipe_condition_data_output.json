@@ -446,11 +446,9 @@
   "curated_dessert_baked_cinnamon_apples": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -470,6 +468,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -477,6 +479,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       }
     },
     "stageAdvisoryNotes": [
@@ -493,11 +499,9 @@
   "curated_dessert_mixed_berry_chia_pudding": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "migraine",
       "pcos",
       "prostate_health",
@@ -513,6 +517,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -520,6 +528,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -671,11 +683,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -690,6 +700,14 @@
     ],
     "conditionCautions": {
       "hashimotos": {
+        "severity": "yellow",
+        "note": "Millet, puffed: Moderate oxalate content, generally fine in normal portions."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Millet, puffed: Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
         "severity": "yellow",
         "note": "Millet, puffed: Moderate oxalate content, generally fine in normal portions."
       }
@@ -1354,11 +1372,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -1373,6 +1389,14 @@
     ],
     "conditionCautions": {
       "hashimotos": {
+        "severity": "yellow",
+        "note": "Quinoa, uncooked: Moderate oxalate content, generally fine in normal portions."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Quinoa, uncooked: Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
         "severity": "yellow",
         "note": "Quinoa, uncooked: Moderate oxalate content, generally fine in normal portions."
       }
@@ -1422,11 +1446,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -1441,6 +1463,14 @@
     ],
     "conditionCautions": {
       "hashimotos": {
+        "severity": "yellow",
+        "note": "Quinoa, uncooked: Moderate oxalate content, generally fine in normal portions."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Quinoa, uncooked: Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
         "severity": "yellow",
         "note": "Quinoa, uncooked: Moderate oxalate content, generally fine in normal portions."
       }
@@ -1595,11 +1625,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "lupus",
       "migraine",
       "multiple_sclerosis",
@@ -1615,6 +1643,14 @@
       "hashimotos": {
         "severity": "yellow",
         "note": "Vinegar, cider: rated Disruptive for irritants. This may work against or interfere with the process being measured."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Blackstrap Molasses (Pure): Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Blackstrap Molasses (Pure): Moderate oxalate content, generally fine in normal portions."
       },
       "ibs": {
         "severity": "yellow",
@@ -1682,11 +1718,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -1701,6 +1735,14 @@
     ],
     "conditionCautions": {
       "hashimotos": {
+        "severity": "yellow",
+        "note": "Blackstrap Molasses (Pure): Moderate oxalate content, generally fine in normal portions."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Blackstrap Molasses (Pure): Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
         "severity": "yellow",
         "note": "Blackstrap Molasses (Pure): Moderate oxalate content, generally fine in normal portions."
       }
@@ -2187,11 +2229,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -2208,6 +2248,14 @@
       "hashimotos": {
         "severity": "red",
         "note": "Sweet potato: rated High for mineral binding risk. A meaningfully high level for this measure."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Black Beans: Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Black Beans: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -2219,11 +2267,9 @@
   },
   "curated_handheld_breakfast_burrito_eggs_black_beans": {
     "safeForConditions": [
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -2240,6 +2286,10 @@
         "severity": "red",
         "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Black Beans: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -2247,6 +2297,10 @@
       "psoriasis": {
         "severity": "red",
         "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Black Beans: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -2287,11 +2341,9 @@
   "curated_handheld_egg_salad_lettuce_wraps": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -2308,6 +2360,10 @@
         "severity": "yellow",
         "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -2315,6 +2371,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -2403,11 +2463,9 @@
   "curated_handheld_hummus_roasted_vegetable_wrap": {
     "safeForConditions": [
       "cardiovascular_disease",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -2427,9 +2485,17 @@
         "severity": "red",
         "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "psoriasis": {
         "severity": "red",
         "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -2582,11 +2648,9 @@
   "curated_salad_beet_walnut_arugula": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "migraine",
       "pcos",
       "prostate_health",
@@ -2602,6 +2666,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Beets: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -2609,6 +2677,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Beets: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -3032,7 +3104,6 @@
   },
   "curated_salad_lima_bean_roasted_vegetable_salad": {
     "safeForConditions": [
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
@@ -3050,6 +3121,10 @@
       "rheumatoid_arthritis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Eggplant: Moderate oxalate content, generally fine in normal portions."
       },
       "cardiovascular_disease": {
         "severity": "yellow",
@@ -3263,11 +3338,9 @@
   "curated_salad_pinto_bean_roasted_vegetable_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -3284,6 +3357,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Pinto Beans: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -3291,6 +3368,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Pinto Beans: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -3451,11 +3532,9 @@
   "curated_salad_sesame_ginger_slaw": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "migraine",
       "pcos",
       "prostate_health",
@@ -3471,6 +3550,10 @@
         "severity": "yellow",
         "note": "Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Sesame seed: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -3478,6 +3561,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Sesame seed: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -3590,11 +3677,9 @@
   "curated_salad_southwest_quinoa_black_bean": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -3611,6 +3696,10 @@
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Quinoa: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -3618,6 +3707,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Quinoa: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -3717,11 +3810,9 @@
   "curated_salad_spinach_strawberry_almond": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "migraine",
       "pcos",
       "prostate_health",
@@ -3737,6 +3828,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -3744,6 +3839,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -4095,11 +4194,9 @@
   "curated_sauce_simple_pesto": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -4116,6 +4213,10 @@
         "severity": "yellow",
         "note": "Pine nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Pine nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Pine nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -4123,6 +4224,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Pine nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Pine nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -4197,11 +4302,9 @@
   "curated_side_baked_chicken_thighs_brussels_sweet_potato": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -4218,6 +4321,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Sweet potato: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -4225,6 +4332,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Sweet potato: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -4904,11 +5015,9 @@
   "curated_side_chicken_okra_tomato_skillet": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -4925,6 +5034,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Okra: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -4932,6 +5045,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Okra: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -5024,11 +5141,9 @@
   "curated_side_chickpea_spinach_curry_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -5045,6 +5160,10 @@
         "severity": "yellow",
         "note": "Curry powder: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Curry powder: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -5052,6 +5171,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Curry powder: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -5076,11 +5199,9 @@
   "curated_side_duck_beets_orange": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -5097,6 +5218,10 @@
         "severity": "yellow",
         "note": "Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Beets: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -5104,6 +5229,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Beets: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -5187,11 +5316,9 @@
   },
   "curated_side_edamame_brown_rice_sesame_bowl": {
     "safeForConditions": [
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -5208,6 +5335,10 @@
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Sesame seed: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -5215,6 +5346,10 @@
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Sesame seed: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -5254,11 +5389,9 @@
   },
   "curated_side_egg_vegetable_fried_rice": {
     "safeForConditions": [
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -5275,6 +5408,10 @@
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Sesame seed: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -5282,6 +5419,10 @@
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Sesame seed: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -5553,11 +5694,9 @@
   "curated_side_herb_roasted_potatoes": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -5574,6 +5713,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Potato: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -5581,6 +5724,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Potato: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -5613,11 +5760,9 @@
   "curated_side_lamb_chops_roasted_eggplant": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -5634,6 +5779,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Eggplant: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -5641,6 +5790,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Eggplant: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -6143,11 +6296,9 @@
   },
   "curated_side_rainbow_stir_fry": {
     "safeForConditions": [
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -6164,6 +6315,10 @@
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Sesame seed: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -6171,6 +6326,10 @@
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Sesame seed: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -6443,11 +6602,9 @@
   "curated_side_sauteed_spinach_garlic": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -6464,6 +6621,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -6471,6 +6632,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -6676,11 +6841,9 @@
   },
   "curated_side_teriyaki_baked_tofu": {
     "safeForConditions": [
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -6697,6 +6860,10 @@
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Sesame seed: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -6704,6 +6871,10 @@
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Sesame seed: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -7036,11 +7207,9 @@
   "curated_side_white_bean_roasted_vegetable_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -7057,6 +7226,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Eggplant: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -7064,6 +7237,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Eggplant: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -7159,11 +7336,9 @@
   "curated_smoothie_brazil_nut_selenium": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -7180,6 +7355,10 @@
         "severity": "yellow",
         "note": "Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Brazil nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -7187,6 +7366,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Brazil nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -7273,11 +7456,9 @@
   "curated_smoothie_green_glow": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -7297,6 +7478,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -7304,6 +7489,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -7333,11 +7522,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -7352,6 +7539,14 @@
     ],
     "conditionCautions": {
       "hashimotos": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "ibd": {
         "severity": "red",
         "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
@@ -7424,11 +7619,9 @@
   "curated_snack_apple_almond_butter": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -7445,6 +7638,10 @@
         "severity": "yellow",
         "note": "Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Nuts, almond butter, plain: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -7452,6 +7649,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Nuts, almond butter, plain: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -7480,11 +7681,9 @@
   "curated_snack_apricot_cashew_yogurt_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -7501,6 +7700,10 @@
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Cashew nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -7508,6 +7711,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Cashew nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -7645,11 +7852,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -7664,6 +7869,14 @@
     ],
     "conditionCautions": {
       "hashimotos": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "ibd": {
         "severity": "red",
         "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
@@ -7694,11 +7907,9 @@
   "curated_snack_buckwheat_porridge_blueberries_walnuts": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -7715,6 +7926,10 @@
         "severity": "yellow",
         "note": "Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Buckwheat: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -7722,6 +7937,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Buckwheat: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -7797,11 +8016,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -7816,6 +8033,14 @@
     ],
     "conditionCautions": {
       "hashimotos": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "ibd": {
         "severity": "red",
         "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
@@ -7846,11 +8071,9 @@
   "curated_snack_clementine_pistachio_yogurt_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -7867,6 +8090,10 @@
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Pistachio nut: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -7874,6 +8101,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Pistachio nut: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -7915,11 +8146,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -7936,6 +8165,14 @@
       "hashimotos": {
         "severity": "yellow",
         "note": "Fig: Moderate oxalate content, generally fine in normal portions."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -7948,11 +8185,9 @@
   "curated_snack_cottage_cheese_pineapple_walnuts": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -7972,6 +8207,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -7979,6 +8218,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       }
     },
     "stageAdvisoryNotes": [
@@ -7995,11 +8238,9 @@
   "curated_snack_date_cashew_breakfast_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -8016,6 +8257,10 @@
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Cashew nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -8023,6 +8268,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Cashew nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -8063,11 +8312,9 @@
   "curated_snack_date_walnut_breakfast_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -8087,6 +8334,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -8094,6 +8345,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       }
     },
     "stageAdvisoryNotes": [
@@ -8122,11 +8377,9 @@
   "curated_snack_fig_cashew_overnight_oats": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -8143,6 +8396,10 @@
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -8150,6 +8407,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -8190,11 +8451,9 @@
   "curated_snack_fig_pistachio_overnight_oats": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -8211,6 +8470,10 @@
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -8218,6 +8481,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -8258,11 +8525,9 @@
   "curated_snack_fig_walnut_yogurt_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -8282,6 +8547,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -8289,6 +8558,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -8317,11 +8590,9 @@
   "curated_snack_grapefruit_pistachio_yogurt_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -8338,6 +8609,10 @@
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Pistachio nut: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -8345,6 +8620,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Pistachio nut: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -8431,11 +8710,9 @@
   "curated_snack_kiwi_coconut_chia_pudding": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -8455,6 +8732,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -8462,6 +8743,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -8490,11 +8775,9 @@
   "curated_snack_kiwi_pistachio_yogurt_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -8511,6 +8794,10 @@
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Kiwi fruit: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -8518,6 +8805,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Kiwi fruit: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -8558,11 +8849,9 @@
   "curated_snack_mango_coconut_chia_pudding": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -8582,6 +8871,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -8589,6 +8882,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -8617,11 +8914,9 @@
   "curated_snack_mango_pistachio_chia_pudding": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -8638,6 +8933,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -8645,6 +8944,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -8685,11 +8988,9 @@
   "curated_snack_millet_porridge_apricots": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -8706,6 +9007,10 @@
         "severity": "yellow",
         "note": "Almond drink unsweetened: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Millet: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Almond drink unsweetened: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -8713,6 +9018,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Almond drink unsweetened: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Millet: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -8749,11 +9058,9 @@
   "curated_snack_nectarine_chia_pudding_cashews": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -8770,6 +9077,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -8777,6 +9088,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -8817,11 +9132,9 @@
   "curated_snack_overnight_oats_chia_berries": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -8841,6 +9154,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -8848,6 +9165,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -8978,11 +9299,9 @@
   "curated_snack_peach_almond_overnight_oats": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -9002,6 +9321,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -9009,6 +9332,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -9038,11 +9365,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -9057,6 +9382,14 @@
     ],
     "conditionCautions": {
       "hashimotos": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "ibd": {
         "severity": "red",
         "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
@@ -9087,11 +9420,9 @@
   "curated_snack_pear_walnut_yogurt_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -9111,6 +9442,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -9118,6 +9453,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       }
     },
     "stageAdvisoryNotes": [
@@ -9146,11 +9485,9 @@
   "curated_snack_plum_walnut_overnight_oats": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -9170,6 +9507,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -9177,6 +9518,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       }
     },
     "stageAdvisoryNotes": [
@@ -9265,11 +9610,9 @@
   "curated_snack_savory_quinoa_bowl_fried_egg": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -9286,6 +9629,10 @@
         "severity": "yellow",
         "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Quinoa: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -9293,6 +9640,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Quinoa: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -9385,11 +9736,9 @@
   "curated_snack_trail_mix": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -9406,6 +9755,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -9413,6 +9766,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -9441,11 +9798,9 @@
   "curated_snack_veggie_cheddar_scramble_potatoes": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -9462,6 +9817,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Potato: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -9469,6 +9828,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Potato: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -9629,10 +9992,8 @@
   "curated_soup_chicken_vegetable": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -9649,6 +10010,10 @@
         "severity": "yellow",
         "note": "Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -9660,6 +10025,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chicken, broiler, breast, skinless, boneless, meat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -9688,11 +10057,9 @@
   "curated_soup_crab_corn_chowder": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -9709,6 +10076,10 @@
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -9716,6 +10087,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -9744,11 +10119,9 @@
   "curated_soup_green_lentil_vegetable_stew": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -9765,6 +10138,10 @@
         "severity": "yellow",
         "note": "Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -9772,6 +10149,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -9988,11 +10369,9 @@
   "curated_soup_red_lentil": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -10009,6 +10388,10 @@
         "severity": "yellow",
         "note": "Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -10016,6 +10399,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -10108,11 +10495,9 @@
   "curated_soup_turkey_black_bean_chili": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -10129,6 +10514,10 @@
         "severity": "yellow",
         "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Black Beans: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -10136,6 +10525,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Black Beans: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -10172,11 +10565,9 @@
   "curated_soup_turkey_white_bean_soup": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -10193,6 +10584,10 @@
         "severity": "yellow",
         "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -10200,6 +10595,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Ground Turkey (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -10280,11 +10679,9 @@
   "curated_soup_white_bean_swiss_chard_soup": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -10301,6 +10698,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Swiss Chard: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -10308,6 +10709,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Swiss Chard: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -10332,11 +10737,9 @@
   "curated_vegan_apricot_cashew_tofu_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -10353,6 +10756,10 @@
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Cashew nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -10360,6 +10767,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Cashew nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -10474,11 +10885,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "lupus",
       "migraine",
       "multiple_sclerosis",
@@ -10494,6 +10903,14 @@
       "hashimotos": {
         "severity": "red",
         "note": "MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern."
+      },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "ibs": {
         "severity": "yellow",
@@ -10523,11 +10940,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -10544,6 +10959,14 @@
       "hashimotos": {
         "severity": "yellow",
         "note": "Black Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Black Beans: Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Black Beans: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -10556,11 +10979,9 @@
   "curated_vegan_black_bean_sweet_potato_breakfast_hash": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -10577,6 +10998,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Sweet potato: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -10584,6 +11009,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Sweet potato: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -10621,11 +11050,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -10642,6 +11069,14 @@
       "hashimotos": {
         "severity": "red",
         "note": "MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern."
+      },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -10658,11 +11093,9 @@
   "curated_vegan_breakfast_burrito_tofu_black_beans": {
     "safeForConditions": [
       "cardiovascular_disease",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -10681,6 +11114,10 @@
         "severity": "red",
         "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Black Beans: Moderate oxalate content, generally fine in normal portions."
+      },
       "prostate_health": {
         "severity": "yellow",
         "note": "Yeast flakes/nutritional yeast: rated Use Carefully for zinc. This may need portion awareness or a doctor’s guidance."
@@ -10688,6 +11125,10 @@
       "psoriasis": {
         "severity": "red",
         "note": "Wheat flour, white, tortilla mix, enriched: rated High Risk for gluten. A significant, well-documented concern."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Black Beans: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -10716,11 +11157,9 @@
   "curated_vegan_buckwheat_porridge_blueberries_walnuts": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -10737,6 +11176,10 @@
         "severity": "yellow",
         "note": "Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Nuts, almond butter, plain: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -10744,6 +11187,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Nuts, almond butter, plain: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -10772,11 +11219,9 @@
   "curated_vegan_buckwheat_porridge_coconut_milk_walnut_pear": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -10793,6 +11238,10 @@
         "severity": "yellow",
         "note": "Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Buckwheat: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -10800,6 +11249,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Buckwheat: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -10862,11 +11315,9 @@
   "curated_vegan_cashew_cream_pineapple_walnuts": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "lupus",
       "migraine",
       "multiple_sclerosis",
@@ -10885,6 +11336,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -10892,6 +11347,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "ibs": {
         "severity": "yellow",
@@ -10921,11 +11380,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -10942,6 +11399,14 @@
       "hashimotos": {
         "severity": "red",
         "note": "MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -10954,11 +11419,9 @@
   "curated_vegan_chickpea_flour_vegetable_scramble": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -10974,6 +11437,10 @@
         "severity": "yellow",
         "note": "Chickpea flour: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chickpea flour: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -10985,6 +11452,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chickpea flour: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -11021,11 +11492,9 @@
   "curated_vegan_chickpea_spinach_breakfast_curry": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -11042,6 +11511,10 @@
         "severity": "yellow",
         "note": "Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -11049,6 +11522,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -11078,11 +11555,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -11099,6 +11574,14 @@
       "hashimotos": {
         "severity": "red",
         "note": "MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern."
+      },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -11115,11 +11598,9 @@
   "curated_vegan_clementine_pistachio_tofu_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -11136,6 +11617,10 @@
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Pistachio nut: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -11143,6 +11628,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Pistachio nut: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -11171,11 +11660,9 @@
   "curated_vegan_coconut_milk_chia_pudding_almond_butter_berries": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -11192,6 +11679,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -11199,6 +11690,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -11274,11 +11769,9 @@
   "curated_vegan_date_cashew_tofu_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -11295,6 +11788,10 @@
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Cashew nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -11302,6 +11799,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Cashew nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -11330,11 +11831,9 @@
   "curated_vegan_date_walnut_tofu_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -11354,6 +11853,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -11361,6 +11864,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       }
     },
     "stageAdvisoryNotes": [
@@ -11377,11 +11884,9 @@
   "curated_vegan_fig_cashew_overnight_oats": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -11398,6 +11903,10 @@
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -11405,6 +11914,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -11433,11 +11946,9 @@
   "curated_vegan_fig_pistachio_overnight_oats": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -11454,6 +11965,10 @@
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -11461,6 +11976,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -11489,11 +12008,9 @@
   "curated_vegan_fig_walnut_tofu_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -11513,6 +12030,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -11520,6 +12041,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Fig: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -11536,11 +12061,9 @@
   "curated_vegan_grapefruit_pistachio_tofu_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -11557,6 +12080,10 @@
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Pistachio nut: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -11564,6 +12091,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Pistachio nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Pistachio nut: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -11680,11 +12211,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -11701,6 +12230,14 @@
       "hashimotos": {
         "severity": "red",
         "note": "Turmeric, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -11714,11 +12251,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -11735,6 +12270,14 @@
       "hashimotos": {
         "severity": "yellow",
         "note": "Tempeh: rated Mild Risk for soy. A modest, generally minor concern."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -11827,11 +12370,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -11848,6 +12389,14 @@
       "hashimotos": {
         "severity": "red",
         "note": "Collards: rated Goitrogenic (Raw) for goitrogenic load in its raw form. Goitrogens can interfere with thyroid iodine uptake; cooking substantially reduces this for most foods."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -11872,11 +12421,9 @@
   "curated_vegan_kiwi_almond_tofu_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -11893,6 +12440,10 @@
         "severity": "yellow",
         "note": "Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Nuts, almond butter, plain: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -11900,6 +12451,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Nuts, almond butter, plain: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -11928,11 +12483,9 @@
   "curated_vegan_kiwi_coconut_chia_pudding": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -11952,6 +12505,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -11959,6 +12516,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -11975,11 +12536,9 @@
   "curated_vegan_lentil_spinach_bowl_lemon_tahini": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -11996,6 +12555,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -12003,6 +12566,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -12027,11 +12594,9 @@
   "curated_vegan_mango_coconut_chia_pudding": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -12051,6 +12616,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -12058,6 +12627,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -12074,11 +12647,9 @@
   "curated_vegan_mango_pistachio_chia_pudding": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -12095,6 +12666,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -12102,6 +12677,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -12130,11 +12709,9 @@
   "curated_vegan_millet_porridge_apricots": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -12151,6 +12728,10 @@
         "severity": "yellow",
         "note": "Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Nuts, almond butter, plain: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -12158,6 +12739,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Nuts, almond butter, plain: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Nuts, almond butter, plain: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -12186,11 +12771,9 @@
   "curated_vegan_nectarine_chia_pudding_cashews": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -12207,6 +12790,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -12214,6 +12801,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -12242,11 +12833,9 @@
   "curated_vegan_overnight_oats_chia_berries": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -12263,6 +12852,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -12270,6 +12863,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -12298,11 +12895,9 @@
   "curated_vegan_papaya_cashew_tofu_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -12319,6 +12914,10 @@
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Cashew nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -12326,6 +12925,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Cashew nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Cashew nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -12388,11 +12991,9 @@
   "curated_vegan_peach_almond_overnight_oats": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -12409,6 +13010,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -12416,6 +13021,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Chia seeds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -12445,11 +13054,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -12466,6 +13073,14 @@
       "hashimotos": {
         "severity": "red",
         "note": "MORI-NU, Tofu, silken, firm: rated High Risk for soy. A significant, well-documented concern."
+      },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Almonds: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -12482,11 +13097,9 @@
   "curated_vegan_pear_walnut_tofu_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -12506,6 +13119,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -12513,6 +13130,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       }
     },
     "stageAdvisoryNotes": [
@@ -12529,11 +13150,9 @@
   "curated_vegan_plum_walnut_overnight_oats": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -12553,6 +13172,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -12560,6 +13183,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       }
     },
     "stageAdvisoryNotes": [
@@ -12576,11 +13203,9 @@
   "curated_vegan_quinoa_bowl_roasted_vegetables_hemp_seeds": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -12597,6 +13222,10 @@
         "severity": "yellow",
         "note": "Hemp seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Quinoa: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Hemp seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -12604,6 +13233,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Hemp seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Quinoa: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -12636,11 +13269,9 @@
   "curated_vegan_roasted_vegetable_white_bean_bowl_garlic_herb_oil": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -12657,6 +13288,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -12664,6 +13299,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -12696,11 +13335,9 @@
   "curated_vegan_salad_beet_walnut_arugula_tofu": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "migraine",
       "pcos",
       "prostate_health",
@@ -12716,6 +13353,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Beets: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -12723,6 +13364,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Beets: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -13183,11 +13828,9 @@
   "curated_vegan_salad_smoky_tempeh_radish_salad": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -13204,6 +13847,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -13211,6 +13858,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -13490,11 +14141,9 @@
   "curated_vegan_savory_amaranth_porridge_garlic_avocado": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -13511,6 +14160,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -13518,6 +14171,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -13550,11 +14207,9 @@
   "curated_vegan_savory_buckwheat_porridge_mushroom_herbs": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -13571,6 +14226,10 @@
         "severity": "yellow",
         "note": "Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -13578,6 +14237,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Buckwheat: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -13602,11 +14265,9 @@
   "curated_vegan_savory_millet_bowl_roasted_vegetables_tahini": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -13623,6 +14284,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Millet: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -13630,6 +14295,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Millet: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -13662,11 +14331,9 @@
   "curated_vegan_savory_oat_porridge_mushroom_spinach": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -13683,6 +14350,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -13690,6 +14361,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -13718,11 +14393,9 @@
   "curated_vegan_savory_polenta_bowl_mushroom_greens": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -13739,6 +14412,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -13746,6 +14423,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -13770,11 +14451,9 @@
   "curated_vegan_savory_quinoa_bowl_tofu_scramble": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -13791,6 +14470,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Quinoa: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -13798,6 +14481,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Quinoa: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -13901,11 +14588,9 @@
   "curated_vegan_side_baked_tempeh_brussels_sweet_potato": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -13922,6 +14607,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -13929,6 +14618,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -13957,11 +14650,9 @@
   "curated_vegan_side_baked_tempeh_parsnip_mash": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -13978,6 +14669,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -13985,6 +14680,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -14308,11 +15007,9 @@
   "curated_vegan_side_chickpea_okra_tomato_skillet": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -14329,6 +15026,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Okra: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -14336,6 +15037,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Okra: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -14368,11 +15073,9 @@
   "curated_vegan_side_chickpea_walnut_meatballs_tomato_sauce": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -14388,6 +15091,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -14399,6 +15106,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -14434,11 +15145,9 @@
   },
   "curated_vegan_side_ginger_soy_tempeh": {
     "safeForConditions": [
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -14455,6 +15164,10 @@
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -14462,6 +15175,10 @@
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -14796,11 +15513,9 @@
   "curated_vegan_side_lentil_walnut_meatballs_tomato_sauce": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -14817,6 +15532,10 @@
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -14824,6 +15543,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -14859,11 +15582,9 @@
   },
   "curated_vegan_side_mushroom_walnut_stir_fry_rice": {
     "safeForConditions": [
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -14880,6 +15601,10 @@
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -14887,6 +15612,10 @@
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -14979,11 +15708,9 @@
   "curated_vegan_side_portobello_beets_orange": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -15000,6 +15727,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Beets: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -15007,6 +15738,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Beets: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -15031,11 +15766,9 @@
   "curated_vegan_side_roast_tempeh_fennel_leeks": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -15052,6 +15785,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -15059,6 +15796,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -15153,11 +15894,9 @@
   },
   "curated_vegan_side_seitan_chops_roasted_eggplant": {
     "safeForConditions": [
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -15174,6 +15913,10 @@
         "severity": "red",
         "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Eggplant: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -15181,6 +15924,10 @@
       "psoriasis": {
         "severity": "red",
         "note": "Meat substitute containing gluten (seitan): rated High Risk for gluten. A significant, well-documented concern."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Eggplant: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -15288,11 +16035,9 @@
   "curated_vegan_side_tempeh_cherry_wild_rice": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -15309,6 +16054,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -15316,6 +16065,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -15344,11 +16097,9 @@
   "curated_vegan_side_tempeh_kohlrabi_apple": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -15365,6 +16116,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -15372,6 +16127,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -15400,11 +16159,9 @@
   "curated_vegan_side_tempeh_radish_carrot": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -15421,6 +16178,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -15428,6 +16189,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -15456,11 +16221,9 @@
   "curated_vegan_side_tempeh_radish_dill": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -15477,6 +16240,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -15484,6 +16251,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -15512,11 +16283,9 @@
   "curated_vegan_side_tempeh_root_vegetable_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -15533,6 +16302,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -15540,6 +16313,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -15568,11 +16345,9 @@
   "curated_vegan_side_tempeh_snow_peas_carrots": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -15589,6 +16364,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -15596,6 +16375,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -15624,11 +16407,9 @@
   "curated_vegan_side_tempeh_turnip_carrot": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -15645,6 +16426,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -15652,6 +16437,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -15680,11 +16469,9 @@
   "curated_vegan_side_tempeh_wild_rice_cranberries": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -15701,6 +16488,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -15708,6 +16499,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Tempeh: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -15981,11 +16776,9 @@
   },
   "curated_vegan_side_tofu_vegetable_fried_rice": {
     "safeForConditions": [
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -16002,6 +16795,10 @@
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Sesame seed: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Sesame seed: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -16009,6 +16806,10 @@
       "psoriasis": {
         "severity": "red",
         "note": "Soy sauce made from soy and wheat (shoyu): rated High Risk for gluten. A significant, well-documented concern."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Sesame seed: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -16105,11 +16906,9 @@
   "curated_vegan_side_white_bean_roasted_vegetable_tofu_bowl": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -16126,6 +16925,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Eggplant: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -16133,6 +16936,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Eggplant: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -16280,11 +17087,9 @@
   "curated_vegan_smoothie_brazil_nut_selenium": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -16301,6 +17106,10 @@
         "severity": "yellow",
         "note": "Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Brazil nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -16308,6 +17117,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Brazil nut: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Brazil nut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -16370,11 +17183,9 @@
   "curated_vegan_smoothie_green_glow": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -16394,6 +17205,10 @@
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
@@ -16401,6 +17216,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Chia seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
     },
     "stageAdvisoryNotes": [
@@ -16418,11 +17237,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -16437,6 +17254,14 @@
     ],
     "conditionCautions": {
       "hashimotos": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "chronic_kidney_disease": {
+        "severity": "red",
+        "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
+      },
+      "ibd": {
         "severity": "red",
         "note": "Spinach: High oxalate load. Boil and discard the cooking water where applicable; pair with a calcium source at the same meal."
       }
@@ -16485,11 +17310,9 @@
   "curated_vegan_soup_hearts_of_palm_corn_chowder": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -16506,6 +17329,10 @@
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -16513,6 +17340,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -16537,11 +17368,9 @@
   "curated_vegan_soup_lentil_black_bean_chili": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -16558,6 +17387,10 @@
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Black Beans: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -16565,6 +17398,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Black Beans: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -16602,11 +17439,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -16623,6 +17458,14 @@
       "hashimotos": {
         "severity": "yellow",
         "note": "Mushroom, common, fresh: rated Disruptive for fermentability. This may work against or interfere with the process being measured."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -16760,11 +17603,9 @@
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "lupus",
       "migraine",
@@ -16781,6 +17622,14 @@
       "hashimotos": {
         "severity": "yellow",
         "note": "White Beans: rated Mild Risk for lectins (legumes). A modest, generally minor concern."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Celery: Moderate oxalate content, generally fine in normal portions."
       }
     },
     "stageAdvisoryNotes": [
@@ -16857,11 +17706,9 @@
   "curated_vegan_tofu_scramble_potatoes": {
     "safeForConditions": [
       "celiac",
-      "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
-      "ibd",
       "ibs",
       "migraine",
       "pcos",
@@ -16877,6 +17724,10 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Potato: Moderate oxalate content, generally fine in normal portions."
+      },
       "cardiovascular_disease": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
@@ -16888,6 +17739,10 @@
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Potato: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",

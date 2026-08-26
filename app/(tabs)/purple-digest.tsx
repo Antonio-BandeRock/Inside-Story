@@ -612,7 +612,7 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
       { label: 'Skin & Hair', prefixes: ['body-skin-integumentary', 'body-hair-growth-cycle'] },
       { label: 'Eyes & Vision', prefixes: ['body-eyes-vision'] },
       { label: 'Immune System', prefixes: ['body-immune-system-nutrition'] },
-      { label: 'Kidneys & Liver', prefixes: ['body-kidneys-liver-filtration'] },
+      { label: 'Kidneys & Liver', prefixes: ['body-kidneys-liver-filtration', 'body-kidney-stones-'] },
       { label: 'Lymphatic System', prefixes: ['body-lymphatic-system'] },
       { label: 'Muscular System', prefixes: ['body-muscular-system'] },
       { label: 'Reproductive System', prefixes: ['body-reproductive-egg-supply-vs-sperm-production', 'body-reproductive-zinc-fertility'] },

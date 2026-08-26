@@ -990,6 +990,71 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
 }
 
 // Generates one real day from already-loaded candidate pools. rotation
+// 2026-08-26, direct request: "if we are telling them to pair something
+// with a calcium source, it should trigger a look for a source of
+// calcium in the meal, and if there is no source, the app should say so
+// and suggest something else... The same would need to apply to any
+// other thing that is like that." A real, generalized checker, not a
+// one-off for calcium specifically: every rule here names a real
+// recipe-caution phrase to watch for (matched against the SAME
+// conditionCautions notes the compute pipeline already writes, no new
+// data needed) and the real nutrient that phrase is actually asking the
+// person to add. When a picked dish for the day carries a matching
+// caution and the day's own running total for that nutrient falls short
+// of a real, meaningful share of the person's own target, this surfaces
+// an honest, specific warning naming the shortfall and a real suggestion
+// -- never silently assumed handled just because the caution text
+// mentioned it. See "The Rule Engine" in this file's own standing rules
+// (CLAUDE.md) for why this is meant to generalize, not stay a one-off.
+type PairingRequirementRule = {
+  id: string;
+  notePattern: RegExp;
+  requiredNutrientCode: string;
+  // Below this share of the day's own real target, the pairing is
+  // genuinely missing, not just modest -- a first-pass, named judgment
+  // call (half the daily target), not an invented precise threshold.
+  minPercentOfTargetToCountAsPaired: number;
+  requirementLabel: string;
+  suggestion: string;
+};
+
+const PAIRING_REQUIREMENT_RULES: PairingRequirementRule[] = [
+  {
+    id: 'oxalate-calcium-pairing',
+    notePattern: /pair with a calcium source/i,
+    requiredNutrientCode: 'calcium',
+    minPercentOfTargetToCountAsPaired: 50,
+    requirementLabel: 'pairing with a calcium source',
+    suggestion: 'a calcium source such as fortified plant milk, tahini, or (if dairy fits your diet) yogurt or cheese',
+  },
+];
+
+function checkPairingRequirements(
+  picks: DailyMealPlanPick[],
+  nutrientTotals: Record<string, number>,
+  driByCode: Map<string, DietaryReferenceIntake>,
+): string[] {
+  const warnings: string[] = [];
+  for (const rule of PAIRING_REQUIREMENT_RULES) {
+    const triggeringPick = picks.find((pick) => {
+      const cautions = pick.entry.recipeCard?.conditionCautions;
+      if (!cautions) return false;
+      return Object.values(cautions).some((caution) => rule.notePattern.test(caution.note));
+    });
+    if (!triggeringPick) continue;
+    const target = driByCode.get(rule.requiredNutrientCode);
+    if (!target || target.amount <= 0) continue;
+    const amount = nutrientTotals[rule.requiredNutrientCode] ?? 0;
+    const percent = (amount / target.amount) * 100;
+    if (percent < rule.minPercentOfTargetToCountAsPaired) {
+      warnings.push(
+        `${triggeringPick.entry.title} carries a real caution advising ${rule.requirementLabel}, but today's plan is only at ${Math.round(percent)}% of your ${target.displayName.toLowerCase()} target. Consider adding ${rule.suggestion}.`,
+      );
+    }
+  }
+  return warnings;
+}
+
 // is undefined for a plain single-day request (every candidate stays
 // eligible, no frequency-rule narrowing, no cross-day memory -- the
 // exact original single-day behavior); a multi-day run passes real
@@ -1210,6 +1275,8 @@ async function generateOneDay(
   const allPicks = [breakfast, ...lunch, ...dinner].filter((p): p is DailyMealPlanPick => p !== null);
   const healthRating: 'green' | 'yellow' | 'red' | null =
     allPicks.length === 0 ? null : allPicks.every((p) => recipeSafeAcrossConditions(p.entry, conditionCodes) === 'green') ? 'green' : 'yellow';
+
+  warnings.push(...checkPairingRequirements(allPicks, nutrientTotals, driByCode));
 
   // Real nutrient-coverage figures against the person's own actual DRI
   // targets -- 2026-08-26, no longer purely informational (see

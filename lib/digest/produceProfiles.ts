@@ -128,7 +128,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedFoodNames: ['Spinach', 'Kale'],
-    relatedIds: ['vitamink-overview'],
+    relatedIds: ['vitamink-overview', 'body-kidney-stones-real-causes', 'body-kidney-stones-cooking-reduces-oxalate', 'calcium-oxalate-binding-kidney-stones'],
   },
   {
     id: 'produce-cruciferous',

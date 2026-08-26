@@ -1013,7 +1013,23 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'NIH Office of Dietary Supplements, Calcium Health Professional Fact Sheet', url: 'https://ods.od.nih.gov/factsheets/Calcium-HealthProfessional/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['interaction-calcium-iron', 'labs-calcium-iron-absorption', 'interaction-vitamind-k2-magnesium', 'vitaminc-absorption-dose-dependent'],
+    relatedIds: ['interaction-calcium-iron', 'labs-calcium-iron-absorption', 'interaction-vitamind-k2-magnesium', 'vitaminc-absorption-dose-dependent', 'calcium-oxalate-binding-kidney-stones'],
+  },
+  {
+    id: 'calcium-oxalate-binding-kidney-stones',
+    category: 'basicHealth',
+    title: 'Eating Too Little Calcium Can Raise Kidney Stone Risk, Not Just Too Much',
+    teaser: 'A landmark cohort study found men eating the most dietary calcium had 44 percent lower kidney stone risk than men eating the least, and calcium supplements do not show the same benefit.',
+    summary:
+      "Calcium binds oxalate together in the gut before either one is absorbed, so eating enough calcium at the same meal as an oxalate-containing food keeps that oxalate from ever reaching the bloodstream or the kidneys. Restrict dietary calcium instead, and the opposite happens: unbound oxalate gets absorbed more efficiently, raising urinary oxalate by a documented 16 to 56 percent. A prospective cohort of over 45,000 men with no prior stone history confirmed this plays out as measured risk: those in the highest quintile of dietary calcium intake had roughly 44 percent lower kidney stone risk than those in the lowest quintile over four years of follow-up. An important nuance the same body of research draws out clearly: this protective effect is specific to dietary calcium, calcium eaten as food, alongside the meal that also contains the oxalate. Calcium supplements do not show the same benefit, and several studies found the opposite: women taking calcium supplements, especially between meals rather than with food, showed a measurably higher kidney stone risk in some trials. The practical takeaway is a food-timing one, not a supplement recommendation: pairing a high-oxalate food with a calcium-containing food at the same meal, tahini, a dairy product, or a calcium-fortified plant milk, is the actionable version of this finding.",
+    citations: [
+      {
+        source: 'Curhan GC, Willett WC, Rimm EB, Stampfer MJ. A Prospective Study of Dietary Calcium and Other Nutrients and the Risk of Symptomatic Kidney Stones. New England Journal of Medicine, 1993, PMID 8441427.',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/8441427/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['calcium-absorption-mechanism', 'body-kidney-stones-real-causes', 'body-kidney-stones-cooking-reduces-oxalate', 'ckd-overview', 'ibd-overview'],
   },
   {
     id: 'calcium-supplement-forms-compared',

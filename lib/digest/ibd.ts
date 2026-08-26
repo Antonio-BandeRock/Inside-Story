@@ -591,4 +591,17 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['chrono-circadian-clock-biology', 'chrono-gut-microbiome-diurnal-rhythm', 'celiac-circadian-clock-disruption', 'ibs-circadian-motility-disruption'],
   },
+  {
+    id: 'ibd-enteric-hyperoxaluria-kidney-stones',
+    category: 'ibd',
+    title: 'Fat Malabsorption in Crohn\'s and Ulcerative Colitis Can Send Oxalate Straight to the Kidneys',
+    teaser: 'Calcium normally binds oxalate in the gut before either is absorbed. When IBD or a bowel resection disrupts fat absorption, calcium binds the fat instead, leaving oxalate free to reach the kidneys.',
+    summary:
+      "Enteric hyperoxaluria is a documented complication specific to Crohn's disease and ulcerative colitis, more pronounced after a bowel resection: fat malabsorption, already a feature of active or extensive IBD, lets dietary fat bind the calcium that would otherwise bind oxalate in the gut. With calcium tied up elsewhere, oxalate is absorbed instead of staying bound and excreted, raising the amount reaching the kidneys and, with it, a kidney-stone risk beyond what the general population faces. The same actionable steps this app's Basic Health and Chronic Kidney Disease research already cover apply directly here: cooking a high-oxalate food by boiling and discarding the water (steaming, roasting, and baking do not meaningfully reduce oxalate content), and pairing a high-oxalate food with a calcium source at the same meal so the binding happens in the gut the way it should. Neither is a reason to avoid high-oxalate whole foods outright.",
+    citations: [
+      { source: 'Metabolic Profile of Calcium Oxalate Stone Patients with Enteric Hyperoxaluria and Impact of Dietary Intervention', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11357492/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-overview', 'body-kidney-stones-real-causes', 'body-kidney-stones-cooking-reduces-oxalate', 'calcium-oxalate-binding-kidney-stones', 'ckd-oxalate-kidney-stone-risk'],
+  },
 ];

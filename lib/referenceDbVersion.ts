@@ -4,7 +4,10 @@
 // directly, and by scripts/add_migraine_condition_relevance.js) -- do
 // not edit by hand. Bumped 2026-08-26 by scripts/add_vegan_savory_
 // breakfasts.py (16 new soy-free vegan breakfast recipes, closing the
-// "at least 30 vegan breakfast choices" gap), and again the same day by
-// a direct SQL fix to two Oxalate Tolerance Note strings (removing a
-// stray " -- " now that this text is actually shown to people).
-export const REFERENCE_DB_VERSION = "20260826140000";
+// "at least 30 vegan breakfast choices" gap), again the same day by a
+// direct SQL fix to two Oxalate Tolerance Note strings (removing a
+// stray " -- " now that this text is actually shown to people), and
+// again by scripts/add_kidney_stone_condition_relevance.js (real
+// Oxalate Level/Load Rank/Tolerance Note relevance added for Chronic
+// Kidney Disease and IBD).
+export const REFERENCE_DB_VERSION = "20260826160000";

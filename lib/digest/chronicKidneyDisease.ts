@@ -625,4 +625,17 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['chrono-circadian-clock-biology', 'ckd-overview'],
   },
+  {
+    id: 'ckd-oxalate-kidney-stone-risk',
+    category: 'chronicKidneyDisease',
+    title: 'Calcium Oxalate Is the Most Common Kidney Stone Type, and Stones Themselves Can Worsen CKD',
+    teaser: 'A recurring kidney stone is a documented contributor to progressive kidney damage through repeated obstruction, not just a painful, separate event.',
+    summary:
+      "Calcium oxalate is the single most common kidney stone type in the general population, and recurrent stones are a documented contributor to progressive kidney damage through repeated obstruction and infection risk, not an unrelated event that happens to occur in the same organ. This app's food-scoring already tracks a cited oxalate rank per food (Use Carefully versus High Risk, distinct from a food's raw oxalate measurement) and an actionable cooking note, covered in full in this app's Basic Health kidney-stone research: boiling a high-oxalate food and discarding the water reduces its oxalate load by 30 to 87 percent, while steaming, roasting, and baking do not meaningfully help. Pairing a high-oxalate food with a calcium source at the same meal is the other half of the same mechanism, calcium binds oxalate together in the gut before either reaches the kidneys, also covered in full in this app's Calcium research. Neither of these is a reason to avoid oxalate-containing whole foods outright; both are citable ways to manage the risk while still eating them.",
+    citations: [
+      { source: 'Curhan GC, Willett WC, Rimm EB, Stampfer MJ. A Prospective Study of Dietary Calcium and Other Nutrients and the Risk of Symptomatic Kidney Stones. New England Journal of Medicine, 1993, PMID 8441427.', url: 'https://pubmed.ncbi.nlm.nih.gov/8441427/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-overview', 'body-kidney-stones-real-causes', 'body-kidney-stones-cooking-reduces-oxalate', 'calcium-oxalate-binding-kidney-stones'],
+  },
 ];

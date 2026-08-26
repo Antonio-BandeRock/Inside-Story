@@ -322,7 +322,44 @@ export const BODY_SYSTEMS_ENTRIES: DigestEntry[] = [
       "The kidneys and liver together do the essential work of clearing out what the body doesn't need, but they divide that labor in a specific, way worth actually knowing. The kidneys filter blood continuously, a water-soluble system by nature, which is exactly why water-soluble nutrients like vitamin C and most B vitamins carry a low toxicity risk in a person with normal kidney function: any excess is simply filtered out in the urine, already covered honestly in this app's Vitamin C and B-Vitamins deep-dives. The liver, by contrast, is the body's primary processing site for fat-soluble compounds, including fat-soluble vitamins A, D, E, and K, which the kidneys can't efficiently clear the same way, this is the direct, physiological reason vitamin A toxicity is a documented risk in a way vitamin C toxicity essentially isn't, already covered in this app's Vitamin A deep-dive. Both organs depend on adequate hydration and blood flow to do this filtering work correctly, and both are vulnerable to the same chronic strain from a diet high in ultra-processed food and added sugar, already covered in this app's Fatty Liver Disease and Chronic Kidney Disease research for what happens when that strain becomes a diagnosed condition. Even in someone without either disease, though, the basic division of labor holds: know whether a nutrient is water-soluble or fat-soluble, and you know, in broad strokes, which of these two organs is actually doing the work of clearing it.",
     citations: [],
     overallTier: 'moderate',
-    relatedIds: ['vitamina-toxicity-teratogenicity', 'vitaminc-toxicity-honest', 'masld-overview', 'ckd-overview', 'body-tying-together'],
+    relatedIds: ['vitamina-toxicity-teratogenicity', 'vitaminc-toxicity-honest', 'masld-overview', 'ckd-overview', 'body-tying-together', 'body-kidney-stones-real-causes'],
+  },
+  {
+    id: 'body-kidney-stones-real-causes',
+    category: 'basicHealth',
+    title: 'What Actually Raises Kidney Stone Risk',
+    teaser: 'Genetics, dehydration, too much sodium and animal protein, and eating too little calcium all play a documented role, not just one single food.',
+    summary:
+      "Kidney stones form when stone-forming minerals in the urine, mainly calcium, oxalate, and uric acid, become too concentrated relative to the fluid carrying them, and crystallize. Four documented categories drive who this happens to. Genetics and metabolism: a family history roughly doubles risk; hypercalciuria (the kidneys excreting abnormally high calcium regardless of diet) and hypocitraturia (too little citrate, a natural inhibitor that binds calcium before it can crystallize) are the two most common identifiable metabolic risk factors. Dehydration: concentrated urine gives minerals far more opportunity to bind together, the single most controllable factor. Diet: high sodium intake forces the kidneys to excrete more calcium into the urine; excess animal protein raises uric acid production and lowers urinary citrate; and, counterintuitively, eating too little calcium raises risk rather than lowering it, covered directly in this app's Calcium research. Medical conditions: Crohn's disease, ulcerative colitis, and gastric bypass surgery all alter fat absorption in a way that frees up oxalate to reach the kidneys instead of being bound in the gut, and this app's Chronic Kidney Disease and Inflammatory Bowel Disease research each cover this risk directly. Gout carries a distinct, separate stone risk through uric acid rather than calcium oxalate, already covered in this app's Gout research.",
+    citations: [
+      { source: 'Hypocitraturia and Renal Calculi, StatPearls', url: 'https://www.ncbi.nlm.nih.gov/books/NBK564392/' },
+      { source: 'Hypercalciuria, StatPearls', url: 'https://www.ncbi.nlm.nih.gov/books/NBK448183/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: [
+      'body-kidneys-liver-filtration',
+      'body-kidney-stones-cooking-reduces-oxalate',
+      'calcium-oxalate-binding-kidney-stones',
+      'produce-leafy-greens',
+      'ckd-overview',
+      'ibd-overview',
+    ],
+  },
+  {
+    id: 'body-kidney-stones-cooking-reduces-oxalate',
+    category: 'basicHealth',
+    title: 'Boiling, Not Baking or Steaming, Is What Actually Lowers a Food\'s Oxalate Load',
+    teaser: 'A controlled study found boiling cuts soluble oxalate by 30 to 87 percent depending on the vegetable. Steaming barely helps, and baking does not help at all.',
+    summary:
+      "Oxalates dissolve in water, so submerging a high-oxalate food in a large volume of boiling water and then discarding that water, not the food, is what actually removes them, confirmed directly: a study measuring the oxalate content of the cooking water itself found close to a full recovery of what left the vegetable, direct proof the mechanism is leaching, not destruction. A controlled comparison across nine vegetables found boiling reduced soluble oxalate by 30 to 87 percent, steaming by only 5 to 53 percent, and baking (tested on potatoes) produced no measurable reduction at all. Spinach specifically lost roughly half to two-thirds of its soluble oxalate when boiled. This matters directly for anyone managing oxalate intake, whether for a personal kidney-stone history or a condition this app already flags oxalate for: sauteing, roasting, or steaming a high-oxalate vegetable does not meaningfully lower its oxalate content the way many people assume cooking automatically does, only true boiling with the water discarded does. Even after boiling, a food that started very high in oxalate (spinach, beet greens, Swiss chard) can still count as high-oxalate overall, worth portion awareness for anyone highly sensitive, not a reason to avoid it outright for everyone else.",
+    citations: [
+      {
+        source: 'Chai W, Liebman M. Effect of Different Cooking Methods on Vegetable Oxalate Content. Journal of Agricultural and Food Chemistry, 2005, DOI 10.1021/jf048128d.',
+        url: 'https://pubs.acs.org/doi/10.1021/jf048128d',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['body-kidney-stones-real-causes', 'calcium-oxalate-binding-kidney-stones', 'produce-leafy-greens', 'ckd-overview', 'ibd-overview'],
   },
   {
     id: 'body-immune-system-nutrition',
