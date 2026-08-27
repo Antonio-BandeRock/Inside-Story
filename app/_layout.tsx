@@ -142,6 +142,15 @@ export default function RootLayout() {
   // the background and, if it does eventually succeed, still correctly
   // becomes the memoized result every other real caller uses from that
   // point on.
+  //
+  // Generous on purpose -- a real ~130MB one-time copy can legitimately
+  // take a while on a slow device, well past the loading screen's own
+  // ~30-60 second estimate. This is a last resort, not a normal path.
+  // Hoisted out of the effect below, 2026-08-27, so the second, longer
+  // safety-net effect further down can measure its own wait relative to
+  // this same number rather than a second, separately hand-typed one.
+  const REFERENCE_DB_STARTUP_TIMEOUT_MS = 120_000;
+
   useEffect(() => {
     let settled = false;
     const markResolved = () => {
@@ -155,10 +164,6 @@ export default function RootLayout() {
       .catch((error) => console.error('getReferenceDatabase failed', error))
       .finally(markResolved);
 
-    // Generous on purpose -- a real ~130MB one-time copy can legitimately
-    // take a while on a slow device, well past the loading screen's own
-    // ~30-60 second estimate. This is a last resort, not a normal path.
-    const REFERENCE_DB_STARTUP_TIMEOUT_MS = 120_000;
     const timeoutId = setTimeout(() => {
       if (!settled) {
         console.error(
@@ -171,6 +176,46 @@ export default function RootLayout() {
     }, REFERENCE_DB_STARTUP_TIMEOUT_MS);
 
     return () => clearTimeout(timeoutId);
+  }, []);
+
+  // 2026-08-27, direct on-device report: "It loads to 95% and stalls
+  // forever without moving." Root cause: the 120s gate just above only
+  // ever forces referenceImportResolved true, which lets the real app
+  // tree (including Home) START mounting below -- it does NOT free
+  // Home's own first load from the SAME underlying getReferenceDatabase()
+  // promise if the real import genuinely never finishes, only stalls (a
+  // real, one-time asset copy this size has no native timeout of its own
+  // -- see getReferenceDatabase's own comment in lib/db.ts). isComplete
+  // below is referenceImportResolved && homeDataReady, so if Home's own
+  // load stays blocked on that same still-pending import,
+  // DatabaseSetupScreen's own overlay never clears no matter how long
+  // someone waits -- the "fails open" promise this whole gate exists for
+  // was never actually kept end to end, only half of it. This second,
+  // longer safety net closes that real gap directly: if the WHOLE
+  // combined wait still isn't done a full 60 seconds after the
+  // reference-db gate above already gave up, force the loading overlay
+  // closed regardless of whether Home's own first load ever reports
+  // success -- Home may show its own honest empty/still-loading state
+  // underneath rather than real data yet, but that is a genuinely usable
+  // app someone can back out of and retry, not a screen with no way
+  // forward at all.
+  useEffect(() => {
+    let settled = false;
+    const HARD_STARTUP_TIMEOUT_MS = REFERENCE_DB_STARTUP_TIMEOUT_MS + 60_000;
+    const timeoutId = setTimeout(() => {
+      if (!settled) {
+        console.error(
+          'DatabaseSetupScreen: hard startup timeout fired after ' +
+            HARD_STARTUP_TIMEOUT_MS +
+            'ms; forcing the loading overlay closed regardless of Home’s own load state.',
+        );
+        setReferenceDbReady(true);
+      }
+    }, HARD_STARTUP_TIMEOUT_MS);
+    return () => {
+      settled = true;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   // Step 6 of the real device-pairing prerequisite list, 2026-08-15 -- a
