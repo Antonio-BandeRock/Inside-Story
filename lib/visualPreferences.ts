@@ -30,10 +30,10 @@
 // mounted once, permanently, above every tab, so a toggle flipped on the
 // Profile screen has to reach it without a full app restart.
 
-import * as SQLite from 'expo-sqlite';
+import { File, Paths } from 'expo-file-system';
 import type { GroundTheme } from '../constants/colors';
 import type { DigestCategoryKey } from './digest';
-import { DB_NAME, getDatabase } from './db';
+import { getDatabase } from './db';
 
 // 2026-08-09: gained 'custom' -- a real, user-uploaded image, added
 // explicitly alongside the existing three. See customBackgroundImages
@@ -403,7 +403,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';
 
-// A real, synchronous read, 2026-08-19 -- deliberately NOT going through
+// A synchronous read, 2026-08-19 -- deliberately NOT going through
 // getVisualPreferences()/the cache above. First shipped version of the
 // ground-theme picker used that normal async path from app/_layout.tsx's
 // own startup effect, and it didn't work: reported directly ("It only
@@ -421,50 +421,92 @@ const VISUAL_PREFERENCES_KEY = 'visual_preferences';
 // The only ordering that's actually early enough is inside
 // constants/colors.ts's own module-top-level code, before it exports
 // `colors` at all -- and since ES module evaluation is synchronous, that
-// has to be a synchronous read. expo-sqlite's sync API (openDatabaseSync/
-// getFirstSync, backed by JSI, not the async bridge) exists for exactly
-// this "need a real persisted value before first render" case. Opening a
-// second, synchronous connection to the same file getDatabase() already
-// holds asynchronously is safe -- SQLite supports multiple connections to
-// one file by design. The one real edge case is a brand-new install, where
-// this runs before initializeDatabase() has ever created app_meta at all;
-// that throws a plain "no such table" error, caught below, same fallback
-// (Deep Teal) as every other not-yet-loaded case in this file.
+// has to be a synchronous read.
+//
+// 2026-08-27, rebuilt from scratch, not patched a third time: the
+// original version of this function opened a second, synchronous SQLite
+// connection to the same file getDatabase() already holds asynchronously
+// (assumed safe -- "SQLite supports multiple connections to one file by
+// design"), and that assumption turned out wrong in practice, twice.
+// 2026-08-19's own version left the sync connection open, which broke
+// getDatabase()'s own async open moments later ("NativeDatabase.
+// prepareAsync... NullPointerException"); fixed by closing the sync
+// connection immediately. 2026-08-27 morning, closing immediately turned
+// out to only narrow the same race, not close it -- a slow reference-db
+// reimport shifted timing enough to reopen it, this time surfacing as
+// "NativeStatement.finalizeAsync... Cannot use shared object that was
+// already released," an unhandled promise rejection from deep inside
+// expo-sqlite's own native bridge, with no app code anywhere in its own
+// call stack to retry from. Direct follow-up the same day, right after
+// that first patch shipped: the exact same symptom, still happening.
+// Two SQLite connections (sync and async) to the same file evidently
+// share more native state under the hood than expo-sqlite's own public
+// API promises -- not something fixable from this app's JS layer by
+// reordering opens and closes a third time.
+//
+// The real fix: stop opening a second SQLite connection here at all.
+// groundTheme is mirrored into a small plain text file (writeGround
+// ThemeMirror, called from both getVisualPreferences()'s own load and
+// setVisualPreferences()'s own save below) every time it's genuinely
+// known, and this function reads that file instead -- expo-file-system's
+// own synchronous File.textSync() touches no SQLite state at all, so
+// there is no second connection left to race against getDatabase()'s.
+// The one real, accepted tradeoff: a device upgrading INTO this fix, or
+// a fresh install before the mirror file has ever been written, reads
+// this file before it exists and falls back to the same Deep Teal
+// default every other not-yet-loaded case in this file already uses --
+// a single launch showing the default ground color rather than the
+// person's own already-saved one, self-correcting the moment
+// getVisualPreferences() runs its own real load a few moments later and
+// writes the mirror for every launch after. A real, visible, but minor
+// and temporary cost, not a repeat of the native crash this replaces.
 export function getGroundThemeSync(): GroundTheme {
-  let db: SQLite.SQLiteDatabase | null = null;
   try {
-    db = SQLite.openDatabaseSync(DB_NAME);
-    const row = db.getFirstSync<{ value: string }>(
-      'SELECT value FROM app_meta WHERE key = ?',
-      VISUAL_PREFERENCES_KEY,
-    );
-    if (row?.value) {
-      const parsed = JSON.parse(row.value) as Partial<VisualPreferences>;
-      if (parsed.groundTheme) return parsed.groundTheme;
+    const file = groundThemeMirrorFile();
+    if (file.exists) {
+      const value = file.textSync().trim();
+      if (isGroundTheme(value)) return value;
     }
   } catch {
-    // No app_meta table yet (first-ever launch, before initializeDatabase()
-    // has run) or a corrupted blob -- fall back below, same as the async
-    // path already does.
-  } finally {
-    // Real, reported bug, 2026-08-19: leaving this connection open caused
-    // getDatabase()'s own async connection (opened moments later, same
-    // file, from lib/db.ts) to fail with "Call to function
-    // 'NativeDatabase.prepareAsync' has been rejected... NullPointerException"
-    // the instant Profile ran its first real query -- two live connections
-    // to the same file, one sync and one async, tripped up expo-sqlite's
-    // native layer. This function only ever needs the one value, so close
-    // immediately rather than holding the connection for the app's whole
-    // lifetime.
-    try {
-      db?.closeSync();
-    } catch {
-      // Closing is real cleanup, not part of the actual result -- a close
-      // failure here must never propagate and take down this function's
-      // caller, since colors.ts calls this uncaught at module-load time.
-    }
+    // A missing/unreadable/corrupted mirror file falls back below, same
+    // as every other not-yet-loaded case in this file.
   }
   return DEFAULT_VISUAL_PREFERENCES.groundTheme;
+}
+
+// The 5 real GroundTheme keys, duplicated by hand from constants/
+// colors.ts's own literal union rather than imported as a value -- that
+// file imports getGroundThemeSync FROM this one (its own module-top-level
+// `GROUND_THEMES[getGroundThemeSync()]` call), so importing GROUND_THEMES
+// back here would be a real circular value dependency, not just a type
+// one (the existing `import type { GroundTheme }` above is already
+// erased at compile time and carries no such risk). Flagged directly
+// rather than silently duplicated: keep this list in sync by hand if a
+// new ground theme is ever added.
+const GROUND_THEME_KEYS: readonly GroundTheme[] = ['navy', 'teal', 'purple', 'charcoal', 'burgundy'];
+function isGroundTheme(value: string): value is GroundTheme {
+  return (GROUND_THEME_KEYS as readonly string[]).includes(value);
+}
+
+const GROUND_THEME_MIRROR_FILE_NAME = 'ground_theme_mirror.txt';
+function groundThemeMirrorFile(): File {
+  return new File(Paths.document, GROUND_THEME_MIRROR_FILE_NAME);
+}
+
+// Best-effort only, called from both getVisualPreferences()'s own load
+// and setVisualPreferences()'s own save below -- a failure to write this
+// mirror must never take down either of those, since the mirror is a
+// synchronous-read convenience for getGroundThemeSync() above, not the
+// real, authoritative value (app_meta's own groundTheme, read/written
+// normally through getDatabase(), stays that).
+function writeGroundThemeMirror(theme: GroundTheme) {
+  try {
+    groundThemeMirrorFile().write(theme);
+  } catch {
+    // Next cold launch's getGroundThemeSync() just falls back to the
+    // default again -- no different from the mirror file never having
+    // existed yet.
+  }
 }
 
 let cached: VisualPreferences | null = null;
@@ -516,6 +558,12 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
     }
 
     cached = loaded;
+    // 2026-08-27 -- see getGroundThemeSync's own header comment. Keeps
+    // the sync-read mirror file current every time real preferences are
+    // actually loaded, not just when they're changed, so a device that
+    // already had a groundTheme saved before this mirror existed picks
+    // it up the first time this async load runs, not just from then on.
+    writeGroundThemeMirror(loaded.groundTheme);
     return loaded;
   })();
 
@@ -547,6 +595,8 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
   };
 
   cached = merged;
+  // 2026-08-27 -- see getGroundThemeSync's own header comment.
+  writeGroundThemeMirror(merged.groundTheme);
   const db = await getDatabase();
   const now = new Date().toISOString();
   await db.runAsync(
