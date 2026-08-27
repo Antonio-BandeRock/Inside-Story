@@ -64,41 +64,66 @@ function findTier(scores: FoodScore[], subCriterion: string): string | null {
   return scores.find((score) => score.subCriterion === subCriterion)?.tier ?? null;
 }
 
+const STAGE_LABELS: Record<HealingStage, string> = {
+  triage: 'Stage 1: Triage',
+  digging: 'Stage 2: Digging (removing triggers)',
+  gut_repair: 'Stage 3: Gut Repair (reintroduction)',
+  rebalancing: 'Stage 4: Rebalancing',
+  maintenance: 'Stage 5: Maintenance',
+};
+
 export function getHealingStageAdvisory(
   scores: FoodScore[],
   stage: HealingStage | null,
 ): HealingStageAdvisory | null {
   if (!stage || !FOOD_RELEVANT_HEALING_STAGES.includes(stage)) return null;
 
-  const stageLabel = stage === 'digging' ? 'Digging (removing triggers)' : 'Gut Repair (reintroduction)';
+  const stageLabel = STAGE_LABELS[stage];
+  const laterStage = stage === 'rebalancing' || stage === 'maintenance';
   const reasons: string[] = [];
 
   if (findTier(scores, 'Gluten') === 'High Risk') {
-    reasons.push(
-      stage === 'digging'
-        ? 'Contains gluten -- one of the first things this stage typically removes.'
-        : "Contains gluten -- if you haven't reintroduced it yet, this is one to watch closely when you do.",
-    );
+    if (stage === 'digging') {
+      reasons.push('Contains gluten. One of the first things this stage typically removes.');
+    } else if (stage === 'gut_repair') {
+      reasons.push("Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do.");
+    } else {
+      reasons.push(
+        'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. ' +
+          'If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. ' +
+          'If it was never tested, or did cause a reaction, it still belongs on the avoid list.',
+      );
+    }
   }
 
   if (findTier(scores, 'Goitrogenic Load') === 'Goitrogenic (Raw)') {
-    reasons.push(
-      "Raw goitrogenic (cruciferous) food -- the staged food guide flags these specifically raw; cooking largely resolves the concern.",
-    );
+    reasons.push('Raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern.');
   }
 
   const eliminationTier = findTier(scores, 'Common Elimination-Diet Trigger Food');
   if (eliminationTier === 'Dairy') {
-    reasons.push(
-      stage === 'digging'
-        ? 'Dairy -- the other food typically removed alongside gluten at this stage.'
-        : "Dairy -- if you haven't reintroduced it yet, this is a real one to test carefully, one food at a time.",
-    );
+    if (stage === 'digging') {
+      reasons.push('Dairy. The other food typically removed alongside gluten at this stage.');
+    } else if (stage === 'gut_repair') {
+      reasons.push("Dairy. If you haven't reintroduced it yet, this is a real one to test carefully, one food at a time.");
+    } else {
+      reasons.push(
+        'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair ' +
+          'does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction.',
+      );
+    }
   }
   if (eliminationTier === 'Nightshade') {
-    reasons.push(
-      "A nightshade -- the staged food guide is honest that this one is genuinely unresolved (real anti-inflammatory evidence exists alongside real patient-reported worsening, with no controlled trial either way). Worth testing for yourself, not a firm rule.",
-    );
+    if (laterStage) {
+      reasons.push(
+        "A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn't " +
+          "bothered you through reintroduction, this stage's own broader focus means it's reasonable to stop treating it as a concern.",
+      );
+    } else {
+      reasons.push(
+        'A nightshade. The staged food guide is honest that this one is genuinely unresolved (real anti-inflammatory evidence exists alongside real patient-reported worsening, with no controlled trial either way). Worth testing for yourself, not a firm rule.',
+      );
+    }
   }
 
   if (findTier(scores, 'Additives') === 'High Risk') {

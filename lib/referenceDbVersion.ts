@@ -54,4 +54,13 @@
 // olive-oil/no-red-meat ingredient palette. Sweet potato was checked and
 // deliberately excluded: a real "Mineral Binding Risk: High" flag for
 // Hashimoto's across every prep method, confirmed by direct query.
-export const REFERENCE_DB_VERSION = "20260827040000";
+// Bumped again the same day by scripts/add_mediterranean_breakfast_
+// batch.py: 15 new Mediterranean-compliant breakfast recipes, Open Next
+// Steps item 20 phase 2, closing part of the remaining Mediterranean
+// breakfast shortage. Mediterranean breakfast cleared 30+ for 16 of 19
+// conditions outright; Hashimoto's/IBD/CKD (the widest real criteria
+// sets) improved to 19-24, still short. Walnut and dried basil/oregano
+// were checked and excluded (a real "Mineral Binding Risk: High" or
+// "Iron, contextual: Excess Risk" flag respectively, confirmed by direct
+// query, the same still-open data question as sweet potato).
+export const REFERENCE_DB_VERSION = "20260827050000";

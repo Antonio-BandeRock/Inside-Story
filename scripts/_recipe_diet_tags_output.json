@@ -1293,6 +1293,55 @@
     "Gluten-Free",
     "High-Protein"
   ],
+  "curated_snack_greek_yogurt_apple_cinnamon_olive_oil_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_greek_yogurt_banana_pistachio_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_greek_yogurt_berry_olive_oil_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_greek_yogurt_cantaloupe_pistachio_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_greek_yogurt_citrus_pistachio_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_greek_yogurt_olive_oil_pistachio_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_greek_yogurt_tropical_olive_oil_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
   "curated_snack_halibut_cabbage_breakfast_skillet": [
     "Omnivore",
     "Plant-Based/Flexitarian",
@@ -1332,6 +1381,62 @@
   "curated_snack_mango_pistachio_chia_pudding": [
     "Vegetarian",
     "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_mediterranean_carrot_zucchini_egg_skillet": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_mediterranean_egg_tomato_zucchini_skillet": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_mediterranean_fennel_tomato_egg_skillet": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_mediterranean_feta_tomato_egg_scramble": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_mediterranean_leek_tomato_egg_skillet": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_mediterranean_pepper_feta_egg_skillet": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_mediterranean_tomato_pepper_egg_skillet": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_mediterranean_zucchini_feta_egg_skillet": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
     "Gluten-Free",
     "High-Protein"
   ],

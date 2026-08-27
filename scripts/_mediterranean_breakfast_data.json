@@ -1,0 +1,924 @@
+[
+  {
+    "id": "curated_snack_greek_yogurt_olive_oil_pistachio_bowl",
+    "builderType": "snack",
+    "name": "Greek Yogurt with Olive Oil, Maple Syrup & Pistachio",
+    "flavorProfile": "Plain Greek yogurt drizzled with real olive oil and maple syrup, topped with pistachio, an authentic Mediterranean pairing.",
+    "healthBenefit": "Greek yogurt, olive oil, and pistachio all check safe for Hashimoto's, olive oil itself carries the same real Omega-3-vs-6 flag every Mediterranean recipe in this app shares.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 170,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Pistachio nut",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Spoon the Greek yogurt into a bowl.",
+      "Drizzle with the olive oil and maple syrup, and top with the chopped pistachio."
+    ]
+  },
+  {
+    "id": "curated_snack_mediterranean_egg_tomato_zucchini_skillet",
+    "builderType": "snack",
+    "name": "Mediterranean Egg, Tomato & Zucchini Skillet",
+    "flavorProfile": "Eggs cooked in real olive oil with tomato and zucchini, a real savory Mediterranean breakfast.",
+    "healthBenefit": "Egg, tomato, and zucchini all check safe for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Chicken Egg (Raw)",
+        "quantity": 2,
+        "unit": "each",
+        "cutPrep": null,
+        "cookingMethod": "fried",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Heat the olive oil in a pan over medium heat and add the tomato and zucchini.",
+      "Saute for 4-5 minutes, until softened.",
+      "Crack the eggs into the pan and cook to your liking, seasoning with the salt."
+    ]
+  },
+  {
+    "id": "curated_snack_mediterranean_feta_tomato_egg_scramble",
+    "builderType": "snack",
+    "name": "Mediterranean Feta, Tomato & Egg Scramble",
+    "flavorProfile": "Scrambled eggs with feta and tomato, cooked in real olive oil.",
+    "healthBenefit": "Egg, feta, and tomato all check safe for Hashimoto's, feta itself checks completely clean.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Chicken Egg (Raw)",
+        "quantity": 2,
+        "unit": "each",
+        "cutPrep": "beaten",
+        "cookingMethod": "scrambled",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Dairy",
+        "baseName": "Feta",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "crumbled",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Heat the olive oil in a pan over medium heat.",
+      "Add the beaten eggs and diced tomato, and scramble gently.",
+      "Fold in the crumbled feta just before the eggs finish setting, and season with the salt."
+    ]
+  },
+  {
+    "id": "curated_snack_greek_yogurt_berry_olive_oil_bowl",
+    "builderType": "snack",
+    "name": "Greek Yogurt with Berries & Olive Oil",
+    "flavorProfile": "Plain Greek yogurt with blueberry and strawberry, finished with olive oil and maple syrup.",
+    "healthBenefit": "Greek yogurt, blueberry, and strawberry all check safe for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 170,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Blueberry",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Strawberry",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "halved",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Spoon the Greek yogurt into a bowl and top with the blueberries and halved strawberries.",
+      "Finish with a drizzle of olive oil and the maple syrup."
+    ]
+  },
+  {
+    "id": "curated_snack_mediterranean_tomato_pepper_egg_skillet",
+    "builderType": "snack",
+    "name": "Mediterranean Tomato, Pepper & Egg Skillet",
+    "flavorProfile": "Eggs cooked into a real tomato and red bell pepper skillet with olive oil, a Mediterranean-style shakshuka.",
+    "healthBenefit": "Egg, tomato, and red bell pepper all check safe for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Chicken Egg (Raw)",
+        "quantity": 2,
+        "unit": "each",
+        "cutPrep": null,
+        "cookingMethod": "poached",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Red Bell Pepper",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Heat the olive oil in a pan over medium heat and add the tomato and red bell pepper.",
+      "Simmer for 8-10 minutes, until the tomato breaks down into a real sauce.",
+      "Make two wells in the sauce, crack in the eggs, cover, and cook for 4-5 minutes, until the whites set.",
+      "Season with the salt."
+    ]
+  },
+  {
+    "id": "curated_snack_greek_yogurt_citrus_pistachio_bowl",
+    "builderType": "snack",
+    "name": "Greek Yogurt with Citrus & Pistachio",
+    "flavorProfile": "Plain Greek yogurt with orange and grapefruit segments, olive oil, and pistachio.",
+    "healthBenefit": "Greek yogurt, orange, grapefruit, and pistachio all check safe for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 170,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Grapefruit",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Pistachio nut",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Spoon the Greek yogurt into a bowl and top with the orange and grapefruit segments.",
+      "Finish with a drizzle of olive oil, the chopped pistachio, and the maple syrup."
+    ]
+  },
+  {
+    "id": "curated_snack_mediterranean_zucchini_feta_egg_skillet",
+    "builderType": "snack",
+    "name": "Mediterranean Zucchini, Feta & Egg Skillet",
+    "flavorProfile": "Eggs cooked with zucchini and feta in real olive oil.",
+    "healthBenefit": "Egg, zucchini, and feta all check safe for Hashimoto's, feta itself checks completely clean.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Chicken Egg (Raw)",
+        "quantity": 2,
+        "unit": "each",
+        "cutPrep": null,
+        "cookingMethod": "fried",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Dairy",
+        "baseName": "Feta",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "crumbled",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Heat the olive oil in a pan over medium heat and saute the zucchini for 4-5 minutes, until softened.",
+      "Crack in the eggs and cook to your liking.",
+      "Top with the crumbled feta and season with the salt."
+    ]
+  },
+  {
+    "id": "curated_snack_greek_yogurt_banana_pistachio_bowl",
+    "builderType": "snack",
+    "name": "Greek Yogurt with Banana & Pistachio",
+    "flavorProfile": "Plain Greek yogurt with sliced banana, olive oil, pistachio, and maple syrup.",
+    "healthBenefit": "Greek yogurt, banana, and pistachio all check safe for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 170,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Banana",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Pistachio nut",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Spoon the Greek yogurt into a bowl and top with the sliced banana.",
+      "Finish with a drizzle of olive oil, the chopped pistachio, and the maple syrup."
+    ]
+  },
+  {
+    "id": "curated_snack_mediterranean_fennel_tomato_egg_skillet",
+    "builderType": "snack",
+    "name": "Mediterranean Fennel, Tomato & Egg Skillet",
+    "flavorProfile": "Eggs cooked with fennel and tomato in real olive oil.",
+    "healthBenefit": "Egg, fennel, and tomato all check safe for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Chicken Egg (Raw)",
+        "quantity": 2,
+        "unit": "each",
+        "cutPrep": null,
+        "cookingMethod": "fried",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Heat the olive oil in a pan over medium heat and saute the fennel and tomato for 5-6 minutes, until softened.",
+      "Crack in the eggs and cook to your liking, seasoning with the salt."
+    ]
+  },
+  {
+    "id": "curated_snack_greek_yogurt_apple_cinnamon_olive_oil_bowl",
+    "builderType": "snack",
+    "name": "Greek Yogurt with Apple, Cinnamon & Olive Oil",
+    "flavorProfile": "Plain Greek yogurt with diced apple, cinnamon, olive oil, and maple syrup.",
+    "healthBenefit": "Greek yogurt and apple both check safe for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 170,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Apple",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Spoon the Greek yogurt into a bowl and top with the diced apple and cinnamon.",
+      "Finish with a drizzle of olive oil and the maple syrup."
+    ]
+  },
+  {
+    "id": "curated_snack_mediterranean_leek_tomato_egg_skillet",
+    "builderType": "snack",
+    "name": "Mediterranean Leek, Tomato & Egg Skillet",
+    "flavorProfile": "Eggs cooked with leek and tomato in real olive oil.",
+    "healthBenefit": "Egg, leek, and tomato all check safe for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Chicken Egg (Raw)",
+        "quantity": 2,
+        "unit": "each",
+        "cutPrep": null,
+        "cookingMethod": "fried",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Leek",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Heat the olive oil in a pan over medium heat and saute the leek and tomato for 5-6 minutes, until softened.",
+      "Crack in the eggs and cook to your liking, seasoning with the salt."
+    ]
+  },
+  {
+    "id": "curated_snack_greek_yogurt_cantaloupe_pistachio_bowl",
+    "builderType": "snack",
+    "name": "Greek Yogurt with Cantaloupe & Pistachio",
+    "flavorProfile": "Plain Greek yogurt with diced cantaloupe, olive oil, and pistachio.",
+    "healthBenefit": "Greek yogurt, cantaloupe, and pistachio all check safe for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 170,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Cantaloupe Melon",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Pistachio nut",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Spoon the Greek yogurt into a bowl and top with the diced cantaloupe.",
+      "Finish with a drizzle of olive oil and the chopped pistachio."
+    ]
+  },
+  {
+    "id": "curated_snack_mediterranean_pepper_feta_egg_skillet",
+    "builderType": "snack",
+    "name": "Mediterranean Pepper, Feta & Egg Skillet",
+    "flavorProfile": "Eggs cooked with red bell pepper and feta in real olive oil.",
+    "healthBenefit": "Egg, red bell pepper, and feta all check safe for Hashimoto's, feta itself checks completely clean.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Chicken Egg (Raw)",
+        "quantity": 2,
+        "unit": "each",
+        "cutPrep": null,
+        "cookingMethod": "fried",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Red Bell Pepper",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Dairy",
+        "baseName": "Feta",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "crumbled",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Heat the olive oil in a pan over medium heat and saute the red bell pepper for 4-5 minutes, until softened.",
+      "Crack in the eggs and cook to your liking.",
+      "Top with the crumbled feta and season with the salt."
+    ]
+  },
+  {
+    "id": "curated_snack_greek_yogurt_tropical_olive_oil_bowl",
+    "builderType": "snack",
+    "name": "Greek Yogurt with Orange, Banana & Olive Oil",
+    "flavorProfile": "Plain Greek yogurt with orange and banana, olive oil, and maple syrup.",
+    "healthBenefit": "Greek yogurt, orange, and banana all check safe for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 170,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Banana",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Spoon the Greek yogurt into a bowl and top with the orange segments and sliced banana.",
+      "Finish with a drizzle of olive oil and the maple syrup."
+    ]
+  },
+  {
+    "id": "curated_snack_mediterranean_carrot_zucchini_egg_skillet",
+    "builderType": "snack",
+    "name": "Mediterranean Carrot, Zucchini & Egg Skillet",
+    "flavorProfile": "Eggs cooked with carrot and zucchini in real olive oil, finished with cilantro.",
+    "healthBenefit": "Egg, carrot, and zucchini all check safe for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Chicken Egg (Raw)",
+        "quantity": 2,
+        "unit": "each",
+        "cutPrep": null,
+        "cookingMethod": "fried",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 1,
+        "unit": "tbsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Heat the olive oil in a pan over medium heat and saute the carrot and zucchini for 5-6 minutes, until softened.",
+      "Crack in the eggs and cook to your liking.",
+      "Season with the salt and finish with the fresh cilantro."
+    ]
+  }
+]

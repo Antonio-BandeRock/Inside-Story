@@ -47,8 +47,27 @@ export const HEALING_STAGE_INFO: Record<HealingStage, { label: string; shortDesc
   },
 };
 
-// Only these two stages produce a real food advisory (see
-// lib/healingStageAdvisory.ts) -- matches this app's own standing,
-// already-decided practical-scoping note ("only stages 2 and 3
-// meaningfully drive food decisions").
-export const FOOD_RELEVANT_HEALING_STAGES: HealingStage[] = ['digging', 'gut_repair'];
+// 2026-08-27, direct question: "many [difficulties] are also overcome as
+// the user gets through the different stages of healing. Are we
+// accounting for that throughout the entire stock of system recipes?"
+// Investigated directly, not assumed: the honest answer was no --
+// Rebalancing and Maintenance produced zero food-advisory output at all,
+// so someone who'd fully healed and reintroduced everything saw the
+// exact same red flags as someone just starting Digging. Extended here,
+// reusing Rebalancing's and Maintenance's own already-published
+// descriptions above ("less about strict food rules," "maintaining
+// what's already working") as the real basis: lib/healingStageAdvisory.ts
+// softens the GLUTEN/DAIRY/NIGHTSHADE reasons specifically for these two
+// stages (the genuine elimination-diet reintroduction triggers Digging/
+// Gut Repair exist to test), since those are the real candidates for
+// being "overcome" through the process this app already models. The
+// Goitrogenic(Raw)/Additives/Processing reasons are deliberately left
+// firing with the same message at every stage -- they're not
+// reintroduction-dependent trigger sensitivities, they're an ongoing
+// biochemical mechanism (raw goitrogens/iodine uptake) or a general food-
+// quality concern (additives/processing), neither of which resolves
+// just because someone reached remission. Triage stays excluded, per the
+// model's own real framing: it's about initial symptom relief and
+// hormone stabilization, not diet, matching the pre-existing scoping
+// note this file's own history already established.
+export const FOOD_RELEVANT_HEALING_STAGES: HealingStage[] = ['digging', 'gut_repair', 'rebalancing', 'maintenance'];

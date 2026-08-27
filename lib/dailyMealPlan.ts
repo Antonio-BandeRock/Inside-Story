@@ -237,6 +237,25 @@ export const BREAKFAST_ELIGIBLE_RECIPE_IDS = new Set<string>([
   'curated_snack_citrus_avocado_breakfast_bowl',
   'curated_snack_tropical_breakfast_fruit_bowl',
   'curated_snack_berry_melon_breakfast_bowl',
+  // 2026-08-27, Open Next Steps item 20, phase 2: the real, structural,
+  // condition-agnostic Mediterranean breakfast shortage, closed with its
+  // own genuinely different palette (olive oil present, no red meat) --
+  // see scripts/add_mediterranean_breakfast_batch.py's header comment.
+  'curated_snack_greek_yogurt_olive_oil_pistachio_bowl',
+  'curated_snack_mediterranean_egg_tomato_zucchini_skillet',
+  'curated_snack_mediterranean_feta_tomato_egg_scramble',
+  'curated_snack_greek_yogurt_berry_olive_oil_bowl',
+  'curated_snack_mediterranean_tomato_pepper_egg_skillet',
+  'curated_snack_greek_yogurt_citrus_pistachio_bowl',
+  'curated_snack_mediterranean_zucchini_feta_egg_skillet',
+  'curated_snack_greek_yogurt_banana_pistachio_bowl',
+  'curated_snack_mediterranean_fennel_tomato_egg_skillet',
+  'curated_snack_greek_yogurt_apple_cinnamon_olive_oil_bowl',
+  'curated_snack_mediterranean_leek_tomato_egg_skillet',
+  'curated_snack_greek_yogurt_cantaloupe_pistachio_bowl',
+  'curated_snack_mediterranean_pepper_feta_egg_skillet',
+  'curated_snack_greek_yogurt_tropical_olive_oil_bowl',
+  'curated_snack_mediterranean_carrot_zucchini_egg_skillet',
 ]);
 
 // ---------------------------------------------------------------------

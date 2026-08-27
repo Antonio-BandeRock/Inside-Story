@@ -641,30 +641,59 @@ function findTier(scores, subCriterion) {
 // separate cleanup this pass found but didn't fix, since it's outside
 // today's own scope); the underlying factual claim in each reason is
 // unchanged from that file's own real logic, just reworded.
-const FOOD_RELEVANT_HEALING_STAGES = ['digging', 'gut_repair'];
+// 2026-08-27, direct question: "many [difficulties] are also overcome as
+// the user gets through the different stages of healing. Are we
+// accounting for that throughout the entire stock of system recipes?"
+// Investigated directly: no, Rebalancing/Maintenance produced zero food
+// advisory output at all. Extended to mirror lib/healingStage.ts's own
+// real fix (see that file's own comment for the full reasoning): Gluten/
+// Dairy/Nightshade (the genuine elimination-diet reintroduction triggers)
+// get a softened, stage-appropriate message for these two later stages;
+// Goitrogenic(Raw)/Additives/Processing keep firing with the same message
+// at every stage, since they're not reintroduction-dependent sensitivities.
+const FOOD_RELEVANT_HEALING_STAGES = ['digging', 'gut_repair', 'rebalancing', 'maintenance'];
 function healingStageReasons(scores, stage) {
   if (!FOOD_RELEVANT_HEALING_STAGES.includes(stage)) return [];
+  const laterStage = stage === 'rebalancing' || stage === 'maintenance';
   const reasons = [];
   if (findTier(scores, 'Gluten') === 'High Risk') {
-    reasons.push(
-      stage === 'digging'
-        ? 'Contains gluten, one of the first things this stage typically removes.'
-        : "Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do.",
-    );
+    if (stage === 'digging') {
+      reasons.push('Contains gluten, one of the first things this stage typically removes.');
+    } else if (stage === 'gut_repair') {
+      reasons.push("Contains gluten. If you haven't reintroduced it yet, this is one to watch closely when you do.");
+    } else {
+      reasons.push(
+        'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. ' +
+          'If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. ' +
+          'If it was never tested, or did cause a reaction, it still belongs on the avoid list.',
+      );
+    }
   }
   if (findTier(scores, 'Goitrogenic Load') === 'Goitrogenic (Raw)') {
     reasons.push('A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern.');
   }
   const eliminationTier = findTier(scores, 'Common Elimination-Diet Trigger Food');
   if (eliminationTier === 'Dairy') {
-    reasons.push(
-      stage === 'digging'
-        ? 'Dairy, the other food typically removed alongside gluten at this stage.'
-        : "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time.",
-    );
+    if (stage === 'digging') {
+      reasons.push('Dairy, the other food typically removed alongside gluten at this stage.');
+    } else if (stage === 'gut_repair') {
+      reasons.push("Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time.");
+    } else {
+      reasons.push(
+        'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair ' +
+          'does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction.',
+      );
+    }
   }
   if (eliminationTier === 'Nightshade') {
-    reasons.push('A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule.');
+    if (laterStage) {
+      reasons.push(
+        "A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn't " +
+          "bothered you through reintroduction, this stage's own broader focus means it's reasonable to stop treating it as a concern.",
+      );
+    } else {
+      reasons.push('A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule.');
+    }
   }
   if (findTier(scores, 'Additives') === 'High Risk') {
     reasons.push("Carries a flagged additive; see this app's Food Additives research (Digest) for the specific concern.");
@@ -785,6 +814,11 @@ const STAGED_CONDITIONS = [
     stages: [
       { code: 'digging', label: 'Stage 2: Digging' },
       { code: 'gut_repair', label: 'Stage 3: Gut Repair' },
+      // 2026-08-27: Rebalancing/Maintenance added -- see lib/healingStage.ts's
+      // own comment for the full reasoning (a real, direct answer to
+      // "are we accounting for stages people have already gotten through").
+      { code: 'rebalancing', label: 'Stage 4: Rebalancing' },
+      { code: 'maintenance', label: 'Stage 5: Maintenance' },
     ],
     reasonsFor: healingStageReasons,
   },
