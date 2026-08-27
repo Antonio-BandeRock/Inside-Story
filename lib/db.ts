@@ -10534,6 +10534,26 @@ export async function scheduleHydrationRemindersForDay(date: string, remainingMl
   return scheduled;
 }
 
+// 2026-08-26, direct follow-up: "This should be tied to their full day as
+// well." A person's own standing hydration habits (built via Meal
+// Builder's new "Add to My Hydration Routine" action below, or set up
+// directly on the Hydration lens) already live as ordinary real, daily-
+// repeating 'beverage' schedule_items -- the exact same repeat/rolling-
+// window machinery every other recurring item in this app already uses,
+// nothing new needed to make one "cover every day" rather than just a
+// meal-plan-generated one. This is the one small check the Daily Meal
+// Plan's own generic filler reminders (scheduleHydrationRemindersForDay
+// above) need to defer to a real routine once one exists, rather than
+// piling a second, generic "Drink about Xml of water" on top of drinks
+// the person already scheduled for real, on purpose, by name.
+export async function hasStandingHydrationRoutine(): Promise<boolean> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ id: string }>(
+    `SELECT id FROM schedule_items WHERE item_type = 'meal' AND meal_type = 'beverage' AND repeat_type = 'daily' LIMIT 1`,
+  );
+  return row != null;
+}
+
 // --- Shopping list (2026-08-24) ---------------------------------------------
 //
 // "receive a full shopping list for all ingredients to be purchased fresh

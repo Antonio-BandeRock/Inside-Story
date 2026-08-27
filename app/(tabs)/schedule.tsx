@@ -28,6 +28,7 @@ import {
   getUpcomingShoppingList,
   getUserConditions,
   getUserProfile,
+  hasStandingHydrationRoutine,
   linkScheduleItemToDeviceCalendarEvent,
   listAllActiveTreatments,
   listCommonMedications,
@@ -1960,21 +1961,32 @@ function DailyMealPlanLens() {
     try {
       const result = await setUpMealPlan(scheduleDate, mealPlanDays);
       // 2026-08-26, direct report: "more hydration will have been
-      // scheduled throughout each day than just one helping." Each
-      // generated day's own real water gap (the same figure the report
-      // itself already shows as a sentence) now becomes real, scheduled
-      // reminders spread through that same day, not just meals.
+      // scheduled throughout each day than just one helping... This
+      // should be tied to their full day as well." Each generated day's
+      // own real water gap (the same figure the report itself already
+      // shows as a sentence) becomes real, scheduled reminders spread
+      // through that same day -- but only when the person hasn't already
+      // set up their own real, standing hydration routine (Meal
+      // Builder's "Add to My Hydration Routine," or a repeating drink
+      // added directly on the Hydration lens). A real routine already
+      // covers every day, generated fresh or not, by name, on purpose --
+      // piling generic "Drink about Xml of water" reminders on top of it
+      // would just clutter a day that's already handled.
+      const hasOwnRoutine = await hasStandingHydrationRoutine();
       let hydrationReminders = 0;
-      for (let index = 0; index < plans.length; index += 1) {
-        const date = addDaysToLocalDate(scheduleDate, index);
-        const remainingMl = getDailyMealPlanWaterGapMl(plans[index]);
-        hydrationReminders += await scheduleHydrationRemindersForDay(date, remainingMl);
+      if (!hasOwnRoutine) {
+        for (let index = 0; index < plans.length; index += 1) {
+          const date = addDaysToLocalDate(scheduleDate, index);
+          const remainingMl = getDailyMealPlanWaterGapMl(plans[index]);
+          hydrationReminders += await scheduleHydrationRemindersForDay(date, remainingMl);
+        }
       }
       const skippedIncomplete = plans.length - mealPlanDays.length;
       showInfoAlert(
         'Added',
         `${result.scheduled} meal${result.scheduled === 1 ? '' : 's'} added to your schedule starting ${scheduleDate}` +
           (hydrationReminders > 0 ? `, plus ${hydrationReminders} water reminder${hydrationReminders === 1 ? '' : 's'} to close the gap to your daily target` : '') +
+          (hasOwnRoutine ? ". Your own standing hydration routine already covers water, so nothing extra was added for that." : '') +
           (result.skipped > 0 ? `, ${result.skipped} already had something planned and were left as-is` : '') +
           (skippedIncomplete > 0 ? `. ${skippedIncomplete} generated day${skippedIncomplete === 1 ? '' : 's'} were incomplete and skipped.` : '.'),
       );
@@ -2423,7 +2435,16 @@ function HydrationLens() {
   );
 
   function openAddForm() {
-    setForm({ ...BLANK_FORM, mealType: 'beverage' });
+    // 2026-08-26, direct follow-up: "probably could be on a repeating
+    // daily schedule." A hydration entry is, by its own nature, almost
+    // always something meant to happen every day, not a one-off the way
+    // a specific dinner is -- defaulting a FRESH add here to Daily/
+    // Indefinite (still fully changeable in the RepeatPicker below) makes
+    // building a real standing routine the path of least resistance
+    // instead of something someone has to think to opt into. Editing an
+    // existing occurrence is untouched (openEditForm below still forces
+    // 'none', matching this lens' own established today-only edit rule).
+    setForm({ ...BLANK_FORM, mealType: 'beverage', repeat: { type: 'daily', endType: 'indefinite' } });
     setShowForm(true);
   }
 

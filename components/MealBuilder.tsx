@@ -716,6 +716,23 @@ export function MealBuilder({
   const [scheduleTimeBuffer, setScheduleTimeBuffer] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
   const [scheduling, setScheduling] = useState(false);
 
+  // "Add to My Hydration Routine," 2026-08-26 -- direct request: "it
+  // requires a presence in Food > Meal Builder... attribute it
+  // automatically somehow to their self created scheduled hydration,
+  // which probably could be on a repeating daily schedule." A real,
+  // separate action from "Save & Schedule for Later" above (which is
+  // deliberately a one-off, today-only occurrence): this saves the same
+  // kind of favorite but schedules it as a genuinely indefinite DAILY
+  // repeating series (RepeatConfig {type:'daily', endType:'indefinite'}),
+  // the exact same repeat/rolling-window machinery every other recurring
+  // schedule item in this app already uses, reused rather than a second,
+  // parallel mechanism. Only offered for a beverage-type meal -- a
+  // recurring hydration slot is the one real use case this is built for,
+  // not a general "repeat any meal" feature.
+  const [addingToRoutine, setAddingToRoutine] = useState(false);
+  const [routineTimeBuffer, setRoutineTimeBuffer] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
+  const [savingToRoutine, setSavingToRoutine] = useState(false);
+
   function openScheduleForLater() {
     if (components.length === 0) {
       showInfoAlert('Nothing to schedule yet', 'Add at least one item to this meal first.');
@@ -786,6 +803,64 @@ export function MealBuilder({
     showInfoAlert(
       'Meal scheduled',
       `${finishedName} is scheduled for ${formatTime12(time24)} today. Find it on the Schedule tab's own Meals lens.`,
+    );
+  }
+
+  function openAddToRoutine() {
+    if (components.length === 0) {
+      showInfoAlert('Nothing to add yet', 'Add at least one item to this drink first.');
+      return;
+    }
+    if (mealType !== 'beverage') return;
+    dismissKeyboard();
+    setRoutineTimeBuffer({ hour: '', minute: '', ampm: '' });
+    setAddingToRoutine(true);
+  }
+
+  function cancelAddToRoutine() {
+    setAddingToRoutine(false);
+  }
+
+  async function confirmAddToRoutine() {
+    const time24 = buildTime24(routineTimeBuffer.hour, routineTimeBuffer.minute, routineTimeBuffer.ampm);
+    if (!time24) {
+      showInfoAlert('Almost there', 'Enter a valid time (hour 1-12, minute 0-59, and AM or PM).');
+      return;
+    }
+    dismissKeyboard();
+    setSavingToRoutine(true);
+    const finishedName = mealName.trim() || 'Drink';
+    try {
+      const selections = components.map(toSelection);
+      const favorite = await saveMealFavorite({ name: finishedName, mealType: 'beverage', components: selections });
+      await scheduleMeal({
+        title: finishedName,
+        mealType: 'beverage',
+        scheduledFor: `${todayLocalDateString()}T${time24}`,
+        sourceFavoriteId: favorite.id,
+        components: selections,
+        repeat: { type: 'daily', endType: 'indefinite' },
+      });
+    } catch (error) {
+      console.error('[MealBuilder] Failed to add to hydration routine', error);
+      setSavingToRoutine(false);
+      showInfoAlert('Could not add', "Something went wrong setting this up as a repeating drink. Please try again.");
+      return;
+    }
+    setSavingToRoutine(false);
+    setAddingToRoutine(false);
+    setComponents([]);
+    setMealName('');
+    setMealType(null);
+    setIdentityConfirmed(false);
+    setAlsoSaveAsFavorite(false);
+    setShowingReport(false);
+    setReportData(null);
+    setReportNutrientData([]);
+    setStagePickerFor(null);
+    showInfoAlert(
+      'Added to your Hydration Routine',
+      `${finishedName} is now scheduled every day at ${formatTime12(time24)}, starting today. Manage it anytime from the Schedule tab's own Hydration lens.`,
     );
   }
 
@@ -1147,6 +1222,86 @@ export function MealBuilder({
     );
   }
 
+  // "Add to My Hydration Routine"'s own time-picker step, 2026-08-26 --
+  // the identical Hour/Minute/AM-PM row schedulingTime above already
+  // established, just labeled for a real, indefinitely-repeating slot
+  // rather than a single today-only occurrence.
+  if (addingToRoutine) {
+    return (
+      <>
+        {infoAlertElement}
+        {confirmSheetElement}
+        {reconciliationSheetElement}
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
+          <View style={[styles.formCard, { borderColor: tabColor }]}>
+            <Text style={[styles.mealTitle, { color: tabColor }]} numberOfLines={2}>
+              {mealName.trim() || 'Drink'}
+            </Text>
+            <Text style={styles.pendingSubtitle}>What time each day?</Text>
+            <Text style={styles.hydrationRoutineHelperText}>
+              This repeats every day, indefinitely, starting today -- the same real recurring schedule Supplements and Prescriptions
+              already use. Manage or remove it anytime from the Hydration lens.
+            </Text>
+            <View style={styles.timeRow}>
+              <View style={styles.timeField}>
+                <Text style={[styles.formLabel, { color: tabColor }]}>Hour</Text>
+                <PopoverSelect
+                  options={HOUR_OPTIONS}
+                  selected={routineTimeBuffer.hour || null}
+                  minWidth={48}
+                  tabColor={tabColor}
+                  onSelect={(value) => setRoutineTimeBuffer((current) => ({ ...current, hour: value }))}
+                />
+              </View>
+              <View style={styles.timeField}>
+                <Text style={[styles.formLabel, { color: tabColor }]}>Minute</Text>
+                <PopoverSelect
+                  options={MINUTE_OPTIONS}
+                  selected={routineTimeBuffer.minute || null}
+                  minWidth={52}
+                  tabColor={tabColor}
+                  onSelect={(value) => setRoutineTimeBuffer((current) => ({ ...current, minute: value }))}
+                />
+              </View>
+              <View style={styles.timeField}>
+                <Text style={[styles.formLabel, { color: tabColor }]}>AM/PM</Text>
+                <View style={styles.pillWrap}>
+                  {(['AM', 'PM'] as const).map((option) => {
+                    const active = routineTimeBuffer.ampm === option;
+                    return (
+                      <TouchableOpacity
+                        key={option}
+                        style={[
+                          styles.typePill,
+                          { backgroundColor: active ? tabColor : inputBackground(tabColor), borderColor: active ? tabColor : colors.border },
+                        ]}
+                        onPress={() => setRoutineTimeBuffer((current) => ({ ...current, ampm: option }))}
+                      >
+                        <Text style={[styles.typePillText, active ? { color: colors.textOnPrimary } : null]}>{option}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity style={[styles.secondaryButton, { flex: 1 }]} onPress={cancelAddToRoutine} disabled={savingToRoutine}>
+                <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.primaryButton, { backgroundColor: colors.buttonColor, flex: 1, marginTop: 0, opacity: savingToRoutine ? 0.6 : 1 }]}
+                onPress={confirmAddToRoutine}
+                disabled={savingToRoutine}
+              >
+                {savingToRoutine ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Add to Routine</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </>
+    );
+  }
+
   // Part 5's own "Fix the date" step, 2026-08-14 -- same Hour/Minute/AM-PM
   // PopoverSelect row schedulingTime above already established, plus a
   // Today/Yesterday/Custom date choice ahead of it (a trial correction can
@@ -1498,6 +1653,16 @@ export function MealBuilder({
             <TouchableOpacity style={[styles.secondaryButton, styles.scheduleButton]} onPress={openScheduleForLater}>
               <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Save &amp; Schedule for Later</Text>
             </TouchableOpacity>
+            {/* "Add to My Hydration Routine," 2026-08-26 -- see the state
+                block above for the full reasoning. Beverage-only: this is
+                the one real use case a genuinely indefinite daily repeat
+                is built for, not a general-purpose repeat-any-meal
+                feature. */}
+            {mealType === 'beverage' ? (
+              <TouchableOpacity style={[styles.secondaryButton, styles.scheduleButton]} onPress={openAddToRoutine}>
+                <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Add to My Hydration Routine</Text>
+              </TouchableOpacity>
+            ) : null}
           </>
         ) : null}
       </ScrollView>
@@ -1595,6 +1760,10 @@ const styles = StyleSheet.create({
   // labels/controls, per that file's own comment on pendingHeader).
   pendingName: { ...typography.bodyEmphasis, fontSize: 17, color: colors.textSecondary },
   pendingSubtitle: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
+  // "Add to My Hydration Routine"'s own explanatory line, 2026-08-26 --
+  // pendingSubtitle's own style plus a bit more room below since this one
+  // is a full sentence, not a short label.
+  hydrationRoutineHelperText: { ...typography.caption, color: colors.textSecondary, marginTop: 6, marginBottom: 10 },
   // tabColor applied inline at its one call site -- matches SideBuilder's
   // own overviewDishName, the same "this card's own name is the form's
   // subject" role mealTitle plays here.
