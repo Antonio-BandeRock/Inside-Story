@@ -1690,11 +1690,37 @@ export async function getCuratedRecipe(
     servings: number;
     serving_size_amount: number;
     serving_size_unit: string;
+    // 2026-08-26, direct report: a curated fermentation's own real,
+    // hand-written steps ("None added yet") never actually carried into
+    // StepsEditor when picked -- traced to this function itself, which
+    // never selected or returned instructions at all, so EVERY caller's
+    // own `recipe.instructions ?? []` (Fermentation Builder's "Customize
+    // the ingredients first," and "Start Today"'s own direct save) was
+    // silently getting `[]` every time, not just the one path reported.
+    // Backfilled from lib/digest/recipes.ts's own real RecipeCard.
+    // instructions for all 316 curated recipes (scripts/
+    // backfill_instructions.sql, 2026-08-26), a plain JSON-array string,
+    // parsed back out below. Nullable for a future recipe added without
+    // running that backfill -- ?? [] at every call site already treats
+    // that honestly as "no steps," not an error.
+    instructions: string | null;
   }>(
-    'SELECT name, flavor_profile, health_benefit, servings, serving_size_amount, serving_size_unit FROM curated_recipes WHERE id = ?',
+    'SELECT name, flavor_profile, health_benefit, servings, serving_size_amount, serving_size_unit, instructions FROM curated_recipes WHERE id = ?',
     id,
   );
   if (!recipe) return null;
+
+  let instructions: string[] | undefined;
+  if (recipe.instructions) {
+    try {
+      const parsed = JSON.parse(recipe.instructions);
+      if (Array.isArray(parsed)) instructions = parsed;
+    } catch {
+      // Malformed JSON in this one row -- fall back to "no steps" rather
+      // than throwing and breaking the whole recipe load over it.
+      instructions = undefined;
+    }
+  }
 
   const ingredientRows = await db.getAllAsync<{
     category: string;
@@ -1734,6 +1760,7 @@ export async function getCuratedRecipe(
     servings: recipe.servings,
     servingSizeAmount: recipe.serving_size_amount,
     servingSizeUnit: recipe.serving_size_unit,
+    instructions,
     ingredients,
   };
 }

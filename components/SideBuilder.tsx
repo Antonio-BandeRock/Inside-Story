@@ -791,12 +791,16 @@ export function SideBuilder({
       setServingSizeUnit(recipe.servingSizeUnit);
       setServingsConfirmed(true);
       setIngredients(loaded);
-      // A curated recipe has no real hand-authored steps of its own to
-      // start from (see getCuratedRecipe's own comment -- that prose lives
-      // in lib/digest/recipes.ts instead, not this table) -- reset to
-      // empty rather than risk carrying over stale steps typed for
-      // whatever was being built before this recipe was picked.
-      setSteps([]);
+      // 2026-08-26: getCuratedRecipe() now actually returns a curated
+      // recipe's own real, hand-written instructions (backfilled from
+      // lib/digest/recipes.ts into the database itself -- see that
+      // function's own comment in lib/db.ts for the full fix). This used
+      // to unconditionally reset to [] on the reasoning that no real
+      // steps existed to carry over; that reasoning is now out of date,
+      // and resetting to recipe.instructions here still correctly avoids
+      // carrying over stale steps typed for whatever was being built
+      // before this recipe was picked.
+      setSteps(recipe.instructions ?? []);
       // See loadedFromCuratedRecipe's own comment near the top of this
       // component -- captured against the just-loaded `loaded` list, not
       // the `ingredients` state (which hasn't picked this up yet on this

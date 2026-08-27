@@ -797,6 +797,13 @@ export function SaucesBuilder({
       setServingSizeUnit(recipe.servingSizeUnit);
       setServingsConfirmed(true);
       setIngredients(loaded);
+      // 2026-08-26, direct report: a curated recipe's own real, hand-
+      // written instructions ("None added yet") never carried into
+      // StepsEditor -- getCuratedRecipe() itself never returned them at
+      // all until this same day's fix (lib/db.ts), so this was silently
+      // a no-op everywhere it would have mattered, not just Fermentation
+      // Builder, the one this was originally reported against.
+      setSteps(recipe.instructions ?? []);
     } finally {
       setLoadingCuratedRecipeId(null);
     }

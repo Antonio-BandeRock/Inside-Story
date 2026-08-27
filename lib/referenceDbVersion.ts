@@ -14,5 +14,12 @@
 // soups that were missing their own cooking water entirely, plus 6 of
 // this session's own new savory vegan porridge/bowl breakfasts that
 // simmer a dry grain in plain water -- see CLAUDE.md's own 2026-08-26
-// hydration-tracking entry for the full reasoning.
-export const REFERENCE_DB_VERSION = "20260826180000";
+// hydration-tracking entry for the full reasoning. Bumped again the
+// same day: a real 'instructions' column added to curated_recipes
+// (previously absent entirely) and backfilled for all 316 recipes from
+// lib/digest/recipes.ts's own real, hand-written RecipeCard.instructions
+// -- getCuratedRecipe() had never selected or returned instructions at
+// all, so every "Build This Recipe"/curated-recipe-pick flow across
+// every Food builder was silently carrying an empty step list. See
+// lib/db.ts's own getCuratedRecipe comment for the full reasoning.
+export const REFERENCE_DB_VERSION = "20260826220000";
