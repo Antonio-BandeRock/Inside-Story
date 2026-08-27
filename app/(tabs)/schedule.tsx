@@ -9,6 +9,7 @@ import { useConfirmSheet } from '../../components/ConfirmSheet';
 import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
 import {
+  addDaysToLocalDate,
   addMealPlanDayToSchedule,
   applyRotationSelection,
   applyRotationSelectionsToIngredients,
@@ -45,6 +46,7 @@ import {
   markAppointmentCompleted,
   markScheduledDoseTaken,
   scheduleAppointment,
+  scheduleHydrationRemindersForDay,
   scheduleMeal,
   schedulePrescriptionDose,
   scheduleSupplementDose,
@@ -83,7 +85,9 @@ import { RECIPES_ENTRIES } from '../../lib/digest/recipes';
 import {
   dailyMealPlanToMealPlanDay,
   FREQUENCY_RULES,
+  generateDailyMealPlan,
   generateMealPlanDays,
+  getDailyMealPlanWaterGapMl,
   LOW_CARB_MAX_GRAMS_PER_DAY,
   NO_CARB_MAX_GRAMS_PER_DAY,
   type CarbLevel,
@@ -1718,6 +1722,134 @@ function DailyMealPlanPickRow({ pick }: { pick: DailyMealPlanPick }) {
   );
 }
 
+// 2026-08-26, pulled out of the single-day-only render path so a multi-day
+// plan can show this exact same full report for whichever one day is
+// currently expanded -- "Each week per day needs to be available for
+// viewing so they can go through their whole week." Takes the one day's
+// own result directly rather than reading from a shared "singleDay"
+// variable, so it works identically whether there's genuinely only one
+// day or this is day 4 of a 6-week plan.
+function DailyPlanFullReport({ day }: { day: DailyMealPlanResult }) {
+  const ratingColors = healthRatingColors(day.healthRating);
+  return (
+    <>
+      <View style={[styles.formCard, { backgroundColor: ratingColors.bg, borderColor: ratingColors.border }]}>
+        <Text style={[styles.label, { color: ratingColors.text }]}>
+          {day.healthRating === 'green' ? 'Green' : day.healthRating === 'yellow' ? 'Yellow' : 'Incomplete'}
+        </Text>
+        <Text style={[styles.helperText, { color: ratingColors.text }]}>{healthRatingLabel(day.healthRating)}</Text>
+        <Text style={styles.helperText}>
+          Total carbohydrate: {Math.round(day.totalCarbGrams)}g{day.carbCeiling ? ` (target: under ${day.carbCeiling}g)` : ''}
+        </Text>
+        {day.warnings.map((warning, index) => (
+          <Text key={index} style={styles.helperText}>
+            ⚠ {warning}
+          </Text>
+        ))}
+      </View>
+
+      <View style={styles.sourceList}>
+        <View style={styles.mealPlanDayRow}>
+          <Text style={styles.rowTitle}>Breakfast</Text>
+          {day.breakfast ? <DailyMealPlanPickRow pick={day.breakfast} /> : <Text style={styles.helperText}>No compliant option found.</Text>}
+        </View>
+        <View style={styles.mealPlanDayRow}>
+          <Text style={styles.rowTitle}>Lunch</Text>
+          {day.lunch.length > 0 ? (
+            day.lunch.map((pick) => <DailyMealPlanPickRow key={pick.entry.id} pick={pick} />)
+          ) : (
+            <Text style={styles.helperText}>No compliant option found.</Text>
+          )}
+        </View>
+        <View style={styles.mealPlanDayRow}>
+          <Text style={styles.rowTitle}>Dinner</Text>
+          {day.dinner.length > 0 ? (
+            day.dinner.map((pick) => <DailyMealPlanPickRow key={pick.entry.id} pick={pick} />)
+          ) : (
+            <Text style={styles.helperText}>No compliant option found.</Text>
+          )}
+        </View>
+      </View>
+
+      {(() => {
+        const waterRow = day.nutrientCoverage.find((row) => row.nutrientCode === 'water');
+        if (!waterRow || waterRow.targetAmount == null) return null;
+        const remainingMl = getDailyMealPlanWaterGapMl(day);
+        return (
+          <View style={styles.formCard}>
+            <Text style={styles.label}>Hydration</Text>
+            <Text style={styles.helperText}>
+              {Math.round(waterRow.amount)}ml of your {Math.round(waterRow.targetAmount)}ml daily target from this plan&apos;s food and drink
+              {waterRow.percentOfTarget !== null ? ` (${waterRow.percentOfTarget}%)` : ''}.
+            </Text>
+            <Text style={styles.helperText}>
+              {remainingMl > 0
+                ? `Drink about ${remainingMl}ml more of plain water today to reach your target, the same combined food-and-drink target the Hydration lens tracks. "Add to Schedule" turns this into real, timed reminders through the day, not just a note.`
+                : "This plan's food and drink alone already reaches your daily target."}
+            </Text>
+          </View>
+        );
+      })()}
+
+      <View style={styles.formCard}>
+        <Text style={styles.label}>Nutrient coverage</Text>
+        <Text style={styles.helperText}>
+          Against your own age/sex-based RDA targets -- informational, not the rating above. Many whole foods, nuts, seeds, and legumes
+          especially, naturally run well past 100% for a nutrient with a small RDA and a much larger real safety ceiling, so a high
+          percentage here is not automatically a problem. A row is only flagged below when the amount is genuinely close to or over that
+          real ceiling.
+        </Text>
+        {day.nutrientCoverage
+          .filter((row) => row.nutrientCode !== 'water')
+          .map((row, index) => {
+            // A ceiling row (sodium): the operative number to show
+            // against is the real limit itself, not a separate
+            // floor -- targetAmount stays at this row's own default
+            // population figure even when a personal, stricter
+            // ceiling override is set in Profile, so upperLimit is
+            // what actually reflects that override.
+            const displayTarget = row.isCeiling ? (row.upperLimit ?? row.targetAmount) : row.targetAmount;
+            const displayPercent = row.isCeiling ? row.percentOfUpperLimit ?? row.percentOfTarget : row.percentOfTarget;
+            const nearOrOverLimit = !row.isCeiling && row.percentOfUpperLimit !== null && row.percentOfUpperLimit >= 80;
+            const ceilingExceeded = row.isCeiling && displayPercent !== null && displayPercent >= 100;
+            return (
+              <View key={`${row.nutrientCode}-${index}`} style={styles.dailyPlanNutrientRow}>
+                <Text style={[styles.helperText, styles.dailyPlanNutrientLabel]}>
+                  {row.displayName}
+                  {row.isCeiling ? ' (ceiling)' : ''}
+                </Text>
+                <View style={styles.dailyPlanNutrientValue}>
+                  <Text style={[styles.helperText, { textAlign: 'right' }, ceilingExceeded && { color: colors.danger }]}>
+                    {Math.round(row.amount * 10) / 10}
+                    {row.unit} of {displayTarget}
+                    {row.unit}
+                    {displayPercent !== null ? ` (${displayPercent}%)` : ''}
+                  </Text>
+                  {nearOrOverLimit ? (
+                    <Text
+                      style={[
+                        styles.helperText,
+                        { textAlign: 'right', color: row.percentOfUpperLimit! >= 100 ? colors.danger : colors.statusYellowStandalone },
+                      ]}
+                    >
+                      {row.percentOfUpperLimit}% of the real {row.upperLimit}
+                      {row.unit} safety ceiling
+                    </Text>
+                  ) : null}
+                  {row.topContributors.length > 0 ? (
+                    <Text style={[styles.helperText, { textAlign: 'right' }]}>
+                      Mostly from: {row.topContributors.slice(0, 3).map((c) => `${c.title} (${c.percentOfDayTotal}%)`).join(', ')}
+                    </Text>
+                  ) : null}
+                </View>
+              </View>
+            );
+          })}
+      </View>
+    </>
+  );
+}
+
 // 1 day up to the same real 6-week/42-day ceiling the existing Meal
 // Plan lens already uses -- "however many weeks up to 6" is a real,
 // user-facing choice, not always the full 42.
@@ -1748,6 +1880,17 @@ function DailyMealPlanLens() {
   const [plans, setPlans] = useState<DailyMealPlanResult[]>([]);
   const [scheduleDate, setScheduleDate] = useState(todayDateString());
   const [scheduling, setScheduling] = useState(false);
+  // 2026-08-26, direct request: "Each week per day needs to be available
+  // for viewing so they can go through their whole week and swap things
+  // out if they need to." Multi-day plans used to show only a condensed
+  // row per day with no way to see the full report or change anything --
+  // expandedDayIndex tracks which single day (if any) is currently shown
+  // in full via the same DailyPlanFullReport the single-day case already
+  // uses, and regeneratingDayIndex tracks which day a "Regenerate This
+  // Day" tap is currently in flight for, so only that one day's own row
+  // shows a busy state.
+  const [expandedDayIndex, setExpandedDayIndex] = useState<number | null>(null);
+  const [regeneratingDayIndex, setRegeneratingDayIndex] = useState<number | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -1781,6 +1924,27 @@ function DailyMealPlanLens() {
     }
   }
 
+  // "swap things out if they need to" -- regenerates just this one day in
+  // isolation (the same single-day generator the "1 Day" option already
+  // uses), replacing it in place rather than re-running the whole week.
+  // Named honestly, not silently glossed over: a day regenerated this way
+  // no longer shares the rest of the week's own rotation/frequency state
+  // (fish twice a week, no repeated meal), so it can, in principle,
+  // duplicate a dish already used elsewhere in the same week -- an
+  // accepted, minor limitation of swapping one day on its own rather than
+  // re-running the full multi-day generator.
+  async function regenerateDay(index: number) {
+    setRegeneratingDayIndex(index);
+    try {
+      const result = await generateDailyMealPlan({ conditionCodes, dietPreferences, carbLevel, limitAddedSugar });
+      setPlans((current) => current.map((day, i) => (i === index ? result : day)));
+    } catch (error) {
+      showInfoAlert('Could not regenerate this day', error instanceof Error ? error.message : String(error));
+    } finally {
+      setRegeneratingDayIndex(null);
+    }
+  }
+
   async function handleAddToSchedule() {
     if (plans.length === 0) return;
     if (!isValidDateString(scheduleDate)) {
@@ -1795,10 +1959,22 @@ function DailyMealPlanLens() {
     setScheduling(true);
     try {
       const result = await setUpMealPlan(scheduleDate, mealPlanDays);
+      // 2026-08-26, direct report: "more hydration will have been
+      // scheduled throughout each day than just one helping." Each
+      // generated day's own real water gap (the same figure the report
+      // itself already shows as a sentence) now becomes real, scheduled
+      // reminders spread through that same day, not just meals.
+      let hydrationReminders = 0;
+      for (let index = 0; index < plans.length; index += 1) {
+        const date = addDaysToLocalDate(scheduleDate, index);
+        const remainingMl = getDailyMealPlanWaterGapMl(plans[index]);
+        hydrationReminders += await scheduleHydrationRemindersForDay(date, remainingMl);
+      }
       const skippedIncomplete = plans.length - mealPlanDays.length;
       showInfoAlert(
         'Added',
         `${result.scheduled} meal${result.scheduled === 1 ? '' : 's'} added to your schedule starting ${scheduleDate}` +
+          (hydrationReminders > 0 ? `, plus ${hydrationReminders} water reminder${hydrationReminders === 1 ? '' : 's'} to close the gap to your daily target` : '') +
           (result.skipped > 0 ? `, ${result.skipped} already had something planned and were left as-is` : '') +
           (skippedIncomplete > 0 ? `. ${skippedIncomplete} generated day${skippedIncomplete === 1 ? '' : 's'} were incomplete and skipped.` : '.'),
       );
@@ -1810,7 +1986,6 @@ function DailyMealPlanLens() {
   }
 
   const singleDay = plans.length === 1 ? plans[0] : null;
-  const ratingColors = healthRatingColors(singleDay?.healthRating ?? null);
 
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
@@ -1860,141 +2035,52 @@ function DailyMealPlanLens() {
       </View>
 
       {singleDay ? (
-        <>
-          <View style={[styles.formCard, { backgroundColor: ratingColors.bg, borderColor: ratingColors.border }]}>
-            <Text style={[styles.label, { color: ratingColors.text }]}>
-              {singleDay.healthRating === 'green' ? 'Green' : singleDay.healthRating === 'yellow' ? 'Yellow' : 'Incomplete'}
-            </Text>
-            <Text style={[styles.helperText, { color: ratingColors.text }]}>{healthRatingLabel(singleDay.healthRating)}</Text>
-            <Text style={styles.helperText}>
-              Total carbohydrate: {Math.round(singleDay.totalCarbGrams)}g{singleDay.carbCeiling ? ` (target: under ${singleDay.carbCeiling}g)` : ''}
-            </Text>
-            {singleDay.warnings.map((warning, index) => (
-              <Text key={index} style={styles.helperText}>
-                ⚠ {warning}
-              </Text>
-            ))}
-          </View>
-
-          <View style={styles.sourceList}>
-            <View style={styles.mealPlanDayRow}>
-              <Text style={styles.rowTitle}>Breakfast</Text>
-              {singleDay.breakfast ? <DailyMealPlanPickRow pick={singleDay.breakfast} /> : <Text style={styles.helperText}>No compliant option found.</Text>}
-            </View>
-            <View style={styles.mealPlanDayRow}>
-              <Text style={styles.rowTitle}>Lunch</Text>
-              {singleDay.lunch.length > 0 ? (
-                singleDay.lunch.map((pick) => <DailyMealPlanPickRow key={pick.entry.id} pick={pick} />)
-              ) : (
-                <Text style={styles.helperText}>No compliant option found.</Text>
-              )}
-            </View>
-            <View style={styles.mealPlanDayRow}>
-              <Text style={styles.rowTitle}>Dinner</Text>
-              {singleDay.dinner.length > 0 ? (
-                singleDay.dinner.map((pick) => <DailyMealPlanPickRow key={pick.entry.id} pick={pick} />)
-              ) : (
-                <Text style={styles.helperText}>No compliant option found.</Text>
-              )}
-            </View>
-          </View>
-
-          {(() => {
-            const waterRow = singleDay.nutrientCoverage.find((row) => row.nutrientCode === 'water');
-            if (!waterRow || waterRow.targetAmount == null) return null;
-            const remainingMl = Math.max(0, Math.round(waterRow.targetAmount - waterRow.amount));
+        <DailyPlanFullReport day={singleDay} />
+      ) : plans.length > 1 ? (
+        // Multi-day: a condensed row per day, tappable to expand into the
+        // exact same full report the single-day case uses -- "Each week
+        // per day needs to be available for viewing so they can go
+        // through their whole week and swap things out if they need to."
+        <View style={styles.sourceList}>
+          {plans.map((day, index) => {
+            const isExpanded = expandedDayIndex === index;
+            const isRegenerating = regeneratingDayIndex === index;
             return (
-              <View style={styles.formCard}>
-                <Text style={styles.label}>Hydration</Text>
-                <Text style={styles.helperText}>
-                  {Math.round(waterRow.amount)}ml of your {Math.round(waterRow.targetAmount)}ml daily target from this plan&apos;s food and drink
-                  {waterRow.percentOfTarget !== null ? ` (${waterRow.percentOfTarget}%)` : ''}.
-                </Text>
-                <Text style={styles.helperText}>
-                  {remainingMl > 0
-                    ? `Drink about ${remainingMl}ml more of plain water today to reach your target, the same combined food-and-drink target the Hydration lens tracks.`
-                    : "This plan's food and drink alone already reaches your daily target."}
-                </Text>
+              <View key={index} style={styles.mealPlanDayRow}>
+                <TouchableOpacity onPress={() => setExpandedDayIndex(isExpanded ? null : index)} activeOpacity={0.7}>
+                  <View style={styles.dailyPlanDayHeaderRow}>
+                    <View style={[styles.dailyPlanHealthDot, { backgroundColor: healthRatingDotColor(day.healthRating) }]} />
+                    <Text style={styles.rowTitle}>Day {index + 1}</Text>
+                    <Text style={[styles.helperText, { marginLeft: 8 }]}>{isExpanded ? 'Hide full day' : 'View full day'}</Text>
+                  </View>
+                </TouchableOpacity>
+                {isExpanded ? (
+                  <>
+                    <DailyPlanFullReport day={day} />
+                    <TouchableOpacity
+                      style={[styles.primaryButton, { marginTop: 8 }, isRegenerating && styles.primaryButtonDisabled]}
+                      activeOpacity={0.85}
+                      disabled={isRegenerating}
+                      onPress={() => regenerateDay(index)}
+                    >
+                      <Text style={styles.primaryButtonText}>{isRegenerating ? "Regenerating..." : "Regenerate This Day"}</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.mealPlanSlotText}>Breakfast: {day.breakfast?.entry.title ?? "No compliant option found."}</Text>
+                    <Text style={styles.mealPlanSlotText}>
+                      Lunch: {day.lunch.length > 0 ? day.lunch.map((p) => p.entry.title).join(" with ") : "No compliant option found."}
+                    </Text>
+                    <Text style={styles.mealPlanSlotText}>
+                      Dinner: {day.dinner.length > 0 ? day.dinner.map((p) => p.entry.title).join(" with ") : "No compliant option found."}
+                    </Text>
+                    {day.warnings.length > 0 ? <Text style={styles.helperText}>⚠ {day.warnings.join(" ")}</Text> : null}
+                  </>
+                )}
               </View>
             );
-          })()}
-
-          <View style={styles.formCard}>
-            <Text style={styles.label}>Nutrient coverage</Text>
-            <Text style={styles.helperText}>
-              Against your own age/sex-based RDA targets -- informational, not the rating above. Many whole foods, nuts, seeds, and legumes
-              especially, naturally run well past 100% for a nutrient with a small RDA and a much larger real safety ceiling, so a high
-              percentage here is not automatically a problem. A row is only flagged below when the amount is genuinely close to or over that
-              real ceiling.
-            </Text>
-            {singleDay.nutrientCoverage
-              .filter((row) => row.nutrientCode !== 'water')
-              .map((row, index) => {
-                // A ceiling row (sodium): the operative number to show
-                // against is the real limit itself, not a separate
-                // floor -- targetAmount stays at this row's own default
-                // population figure even when a personal, stricter
-                // ceiling override is set in Profile, so upperLimit is
-                // what actually reflects that override.
-                const displayTarget = row.isCeiling ? (row.upperLimit ?? row.targetAmount) : row.targetAmount;
-                const displayPercent = row.isCeiling
-                  ? row.percentOfUpperLimit ?? row.percentOfTarget
-                  : row.percentOfTarget;
-                const nearOrOverLimit = !row.isCeiling && row.percentOfUpperLimit !== null && row.percentOfUpperLimit >= 80;
-                const ceilingExceeded = row.isCeiling && displayPercent !== null && displayPercent >= 100;
-                return (
-                  <View key={`${row.nutrientCode}-${index}`} style={styles.dailyPlanNutrientRow}>
-                    <Text style={styles.helperText}>
-                      {row.displayName}
-                      {row.isCeiling ? ' (ceiling)' : ''}
-                    </Text>
-                    <View style={{ alignItems: 'flex-end' }}>
-                      <Text style={[styles.helperText, ceilingExceeded && { color: colors.danger }]}>
-                        {Math.round(row.amount * 10) / 10}
-                        {row.unit} of {displayTarget}
-                        {row.unit}
-                        {displayPercent !== null ? ` (${displayPercent}%)` : ''}
-                      </Text>
-                      {nearOrOverLimit ? (
-                        <Text style={[styles.helperText, { color: row.percentOfUpperLimit! >= 100 ? colors.danger : colors.statusYellowStandalone }]}>
-                          {row.percentOfUpperLimit}% of the real {row.upperLimit}
-                          {row.unit} safety ceiling
-                        </Text>
-                      ) : null}
-                      {row.topContributors.length > 0 ? (
-                        <Text style={[styles.helperText, { textAlign: 'right' }]}>
-                          Mostly from: {row.topContributors.slice(0, 3).map((c) => `${c.title} (${c.percentOfDayTotal}%)`).join(', ')}
-                        </Text>
-                      ) : null}
-                    </View>
-                  </View>
-                );
-              })}
-          </View>
-        </>
-      ) : plans.length > 1 ? (
-        // Multi-day: a condensed row per day rather than the full single-
-        // day detail (nutrient coverage per day would be overwhelming
-        // across 42 of them) -- a color-coded health dot plus each real
-        // pick's own title, matching this app's own standing "tool areas
-        // use compact rows" rule.
-        <View style={styles.sourceList}>
-          {plans.map((day, index) => (
-            <View key={index} style={styles.mealPlanDayRow}>
-              <View style={styles.dailyPlanDayHeaderRow}>
-                <View style={[styles.dailyPlanHealthDot, { backgroundColor: healthRatingDotColor(day.healthRating) }]} />
-                <Text style={styles.rowTitle}>Day {index + 1}</Text>
-              </View>
-              <Text style={styles.mealPlanSlotText}>Breakfast: {day.breakfast?.entry.title ?? 'No compliant option found.'}</Text>
-              <Text style={styles.mealPlanSlotText}>
-                Lunch: {day.lunch.length > 0 ? day.lunch.map((p) => p.entry.title).join(' with ') : 'No compliant option found.'}
-              </Text>
-              <Text style={styles.mealPlanSlotText}>
-                Dinner: {day.dinner.length > 0 ? day.dinner.map((p) => p.entry.title).join(' with ') : 'No compliant option found.'}
-              </Text>
-              {day.warnings.length > 0 ? <Text style={styles.helperText}>⚠ {day.warnings.join(' ')}</Text> : null}
-            </View>
-          ))}
+          })}
         </View>
       ) : null}
 
@@ -5442,7 +5528,15 @@ const styles = StyleSheet.create({
   mealPlanDayDateInput: { flex: 1 },
   // Daily Meal Plan lens, 2026-08-25.
   dailyPlanPickRow: { marginTop: 4, marginBottom: 4, gap: 1 },
+  // 2026-08-26 fix: a long "Mostly from: X (Y%), Z (W%)" contributor line
+  // (added the same day) had nothing constraining its own width, so it
+  // pushed straight off the right edge of the screen instead of wrapping
+  // inside the card -- flex: 1 on both real children plus flexShrink on
+  // the value column's own text lets long content wrap within the
+  // available space instead of overflowing it.
   dailyPlanNutrientRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4, borderTopWidth: 1, borderTopColor: colors.border },
+  dailyPlanNutrientLabel: { flex: 1, marginRight: 8 },
+  dailyPlanNutrientValue: { flex: 1, alignItems: 'flex-end' },
   dailyPlanDayHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
   dailyPlanHealthDot: { width: 10, height: 10, borderRadius: 5 },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,

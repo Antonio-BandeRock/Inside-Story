@@ -6,8 +6,13 @@
 // breakfasts.py (16 new soy-free vegan breakfast recipes, closing the
 // "at least 30 vegan breakfast choices" gap), again the same day by a
 // direct SQL fix to two Oxalate Tolerance Note strings (removing a
-// stray " -- " now that this text is actually shown to people), and
-// again by scripts/add_kidney_stone_condition_relevance.js (real
-// Oxalate Level/Load Rank/Tolerance Note relevance added for Chronic
-// Kidney Disease and IBD).
-export const REFERENCE_DB_VERSION = "20260826160000";
+// stray " -- " now that this text is actually shown to people), again
+// by scripts/add_kidney_stone_condition_relevance.js (real Oxalate
+// Level/Load Rank/Tolerance Note relevance added for Chronic Kidney
+// Disease and IBD), and again the same day by a direct SQL fix adding a
+// real 'Water, tap' ingredient row (quantity calibrated per dish) to 14
+// soups that were missing their own cooking water entirely, plus 6 of
+// this session's own new savory vegan porridge/bowl breakfasts that
+// simmer a dry grain in plain water -- see CLAUDE.md's own 2026-08-26
+// hydration-tracking entry for the full reasoning.
+export const REFERENCE_DB_VERSION = "20260826180000";

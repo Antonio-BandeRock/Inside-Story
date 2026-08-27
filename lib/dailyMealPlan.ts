@@ -634,6 +634,20 @@ export type DailyMealPlanResult = {
   warnings: string[];
 };
 
+// 2026-08-26, direct report: "more hydration will have been scheduled
+// throughout each day than just one helping." The report already showed
+// this exact gap as a plain sentence ("Drink about Xml more of plain
+// water today"); this is the one place that number gets computed, pulled
+// out so both the report's own text and the real hydration-reminder
+// scheduling this same report triggered (scheduleHydrationRemindersForDay
+// in lib/db.ts) read it from one shared source rather than two copies
+// that could drift apart.
+export function getDailyMealPlanWaterGapMl(day: DailyMealPlanResult): number {
+  const waterRow = day.nutrientCoverage.find((row) => row.nutrientCode === 'water');
+  if (!waterRow || waterRow.targetAmount == null) return 0;
+  return Math.max(0, Math.round(waterRow.targetAmount - waterRow.amount));
+}
+
 // A modest calorie floor below which a lunch or dinner main is paired
 // with a real Side automatically -- "along with sides if necessary," a
 // judgment call for what "necessary" means, named directly rather than

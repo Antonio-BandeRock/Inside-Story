@@ -5318,8 +5318,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '3g (about 1 clove) garlic, minced' },
         { text: '100g (about ½ cup) tomato, diced' },
         { text: '7.5g (about 1½ teaspoons) vegetable stock' },
-        { text: '400ml water' },
         { text: '2g (about ½ teaspoon) ground cumin' },
+        { text: '200ml water' },
         { text: '1.5g (a pinch) salt' },
       ],
       instructions: [
@@ -7280,6 +7280,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '5g (about 1 teaspoon) vegetable stock' },
         { text: '8ml (about 1½ teaspoons) olive oil' },
         { text: '5g (about 2 tablespoons) fresh parsley, chopped' },
+        { text: '300ml water' },
         { text: '1g (a pinch) salt' },
       ],
       instructions: [
@@ -7838,6 +7839,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '3g (about 1 clove) garlic, minced' },
         { text: '7.5g (about 1½ teaspoons) vegetable stock' },
         { text: '8ml (about 1½ teaspoons) olive oil' },
+        { text: '220ml water' },
         { text: '1.5g (a pinch) salt' },
       ],
       instructions: [
@@ -7992,6 +7994,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '3g (about 1 clove) garlic, minced' },
         { text: '7.5g (about 1½ teaspoons) vegetable stock' },
         { text: '1.5g (about ¼ teaspoon) ground cumin' },
+        { text: '220ml water' },
         { text: '1.5g (a pinch) salt' },
       ],
       instructions: [
@@ -8151,6 +8154,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '150ml coconut milk' },
         { text: '5g (about 1 teaspoon) vegetable stock' },
         { text: '8ml (about 1½ teaspoons) olive oil' },
+        { text: '120ml water' },
         { text: '1g (a pinch) salt' },
       ],
       instructions: [
@@ -8593,6 +8597,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '3g (about 1 clove) garlic, minced' },
         { text: '7.5g (about 1½ teaspoons) vegetable stock' },
         { text: '8ml (about 1½ teaspoons) olive oil' },
+        { text: '220ml water' },
         { text: '1.5g (a pinch) salt' },
       ],
       instructions: [
@@ -8883,6 +8888,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '3g (about 1 clove) garlic, minced' },
         { text: '5g (about 1 teaspoon) vegetable stock' },
         { text: '8ml (about 1½ teaspoons) olive oil' },
+        { text: '300ml water' },
         { text: '1g (a pinch) salt' },
       ],
       instructions: [
@@ -9498,6 +9504,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '40g (about ⅓ small) onion, diced' },
         { text: '3g (about 1 clove) garlic, minced' },
         { text: '7.5g (about 1½ teaspoons) vegetable stock' },
+        { text: '200ml water' },
         { text: '1.5g (a pinch) salt' },
       ],
       instructions: [
@@ -9758,6 +9765,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '2g (about ½ teaspoon) ground cumin' },
         { text: '2g (about 1 teaspoon) paprika' },
         { text: '5g (about 1 teaspoon) vegetable stock' },
+        { text: '150ml water' },
         { text: '1.5g (a pinch) salt' },
       ],
       instructions: [
@@ -14712,6 +14720,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '⅔ cup coconut milk' },
         { text: '1 teaspoon vegetable stock concentrate' },
         { text: '2 teaspoons olive oil' },
+        { text: '120ml water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -14758,6 +14767,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '3g garlic, minced' },
         { text: '1 teaspoon vegetable stock concentrate' },
         { text: '2 teaspoons olive oil' },
+        { text: '250ml water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -14811,6 +14821,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 teaspoon vegetable stock concentrate' },
         { text: '2 teaspoons olive oil' },
         { text: '5g fresh parsley, chopped' },
+        { text: '250ml water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -14869,6 +14880,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: 'A pinch of ground cumin' },
         { text: 'A pinch of paprika' },
         { text: '1 teaspoon vegetable stock concentrate' },
+        { text: '150ml water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -14919,6 +14931,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '40g onion, diced' },
         { text: '3g garlic, minced' },
         { text: '1 teaspoon vegetable stock concentrate' },
+        { text: '200ml water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -14990,6 +15003,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 tablespoon olive oil' },
         { text: '50g avocado, sliced' },
         { text: '¼ teaspoon salt' },
+        { text: '120ml water' },
         { text: 'A pinch of black pepper' },
       ],
       instructions: [
@@ -15039,6 +15053,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 clove garlic, minced' },
         { text: '1 tablespoon olive oil' },
         { text: '¼ teaspoon salt' },
+        { text: '100ml water' },
         { text: 'A pinch of black pepper' },
       ],
       instructions: [
@@ -15140,6 +15155,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 tablespoon tahini' },
         { text: '½ lemon, juiced' },
         { text: '1 teaspoon olive oil' },
+        { text: '110ml water' },
         { text: '¼ teaspoon salt' },
       ],
       instructions: [
@@ -15286,6 +15302,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 clove garlic, minced' },
         { text: '1 tablespoon olive oil' },
         { text: '¼ teaspoon salt' },
+        { text: '100ml water' },
         { text: 'A pinch of black pepper' },
       ],
       instructions: [
@@ -15334,6 +15351,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 tablespoon hemp seeds' },
         { text: '½ lemon, juiced' },
         { text: '1 teaspoon olive oil' },
+        { text: '90ml water' },
         { text: '¼ teaspoon salt' },
       ],
       instructions: [
@@ -15476,6 +15494,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 clove garlic, minced' },
         { text: '1 tablespoon olive oil' },
         { text: '¼ teaspoon salt' },
+        { text: '160ml water' },
         { text: 'A pinch of black pepper' },
       ],
       instructions: [

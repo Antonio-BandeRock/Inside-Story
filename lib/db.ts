@@ -10478,11 +10478,60 @@ export async function addMealPlanDayToSchedule(planDay: MealPlanDay, date: strin
   await scheduleMealPlanSlot(planDay.dinner, 'dinner', `${date}T18:30`);
 }
 
-function addDaysToLocalDate(date: string, days: number): string {
+// Exported (2026-08-26) so the Daily/Weekly Meal Plan lens can compute the
+// exact same per-day date setUpMealPlan already uses internally, for the
+// new hydration-reminder scheduling below, which schedules per-day, not
+// just per-slot.
+export function addDaysToLocalDate(date: string, days: number): string {
   const [year, month, day] = date.split('-').map(Number);
   const utcMidnight = new Date(Date.UTC(year, month - 1, day));
   utcMidnight.setUTCDate(utcMidnight.getUTCDate() + days);
   return utcMidnight.toISOString().slice(0, 10);
+}
+
+// --- Hydration reminders for the Daily Meal Plan (2026-08-26) --------------
+//
+// Direct report: "more hydration will have been scheduled throughout each
+// day than just one helping." The Daily Meal Plan report already computed
+// the real gap between a day's own food-and-drink water content and the
+// person's actual target (getDailyMealPlanWaterGapMl in dailyMealPlan.ts)
+// and showed it as a single plain sentence -- nothing ever turned that
+// number into real scheduled reminders the way "Add to Schedule" turns
+// breakfast/lunch/dinner into real schedule_items. This closes that gap
+// using the exact same mechanism the Hydration lens's own "Something
+// unplanned" form already uses (a plain scheduleMeal call, mealType
+// 'beverage', no source), so these reminders show up on the real
+// Hydration lens like any manually-added drink would.
+//
+// A real, named limitation: these are reminders to drink roughly this
+// much more water, not a live recount of what's actually been drunk --
+// the same honest gap already accepted for the report's own sentence.
+const HYDRATION_REMINDER_ML = 355; // 12oz, the exact figure named in the request
+const HYDRATION_REMINDER_TIMES = ['09:30', '11:00', '14:00', '15:30', '17:00', '20:00'];
+
+export async function scheduleHydrationRemindersForDay(date: string, remainingMl: number): Promise<number> {
+  if (remainingMl <= 0) return 0;
+  const db = await getDatabase();
+  const slots = Math.min(HYDRATION_REMINDER_TIMES.length, Math.max(1, Math.ceil(remainingMl / HYDRATION_REMINDER_ML)));
+  let scheduled = 0;
+  for (let i = 0; i < slots; i += 1) {
+    const time = HYDRATION_REMINDER_TIMES[i];
+    const scheduledFor = `${date}T${time}`;
+    const existing = await db.getFirstAsync<{ id: string }>(
+      `SELECT id FROM schedule_items WHERE item_type = 'meal' AND meal_type = 'beverage' AND scheduled_for = ? AND status = 'planned' LIMIT 1`,
+      scheduledFor,
+    );
+    if (existing) continue;
+    const isLast = i === slots - 1;
+    const amount = isLast ? remainingMl - i * HYDRATION_REMINDER_ML : HYDRATION_REMINDER_ML;
+    await scheduleMeal({
+      title: `Drink about ${Math.round(amount)}ml (~12oz) of water`,
+      mealType: 'beverage',
+      scheduledFor,
+    });
+    scheduled += 1;
+  }
+  return scheduled;
 }
 
 // --- Shopping list (2026-08-24) ---------------------------------------------
