@@ -466,6 +466,15 @@ function resolveCuratedRecipeIngredient(category, baseName) {
 // non-Raw variants for the specific sub-criteria that actually differ
 // from Raw.
 const RECIPE_PREP_OVERRIDES = {
+  // 2026-08-27, the new AIP-target lunch/dinner batch: 4 of the 9 new
+  // recipes were flagging red for a raw-goitrogenic vegetable despite
+  // their own real instructions baking/braising/sauteing it, the exact
+  // same class of bug this override mechanism already exists to fix.
+  curated_side_baked_salmon_broccoli_carrots: { 'Veg|Broccoli': 'Baked' },
+  curated_side_halibut_braised_cabbage_carrots: { 'Veg|Cabbage': 'Boiled' },
+  curated_side_shrimp_cabbage_carrot_stir_fry: { 'Veg|Cabbage': 'Boiled' },
+  curated_side_beef_sirloin_kale_carrots: { 'Veg|Kale': 'Boiled' },
+  curated_side_pork_tenderloin_braised_cabbage_apple: { 'Veg|Cabbage': 'Boiled' },
   curated_salad_southwest_quinoa_black_bean: { 'Legume|Black Beans': 'Boiled' },
   curated_side_lemon_garlic_broccoli: { 'Veg|Broccoli': 'Baked' },
   curated_side_garlic_mashed_cauliflower: { 'Veg|Cauliflower': 'Boiled' },

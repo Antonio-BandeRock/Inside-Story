@@ -1,0 +1,1156 @@
+[
+  {
+    "id": "curated_side_baked_salmon_broccoli_carrots",
+    "builderType": "side",
+    "name": "Baked Salmon with Broccoli & Carrots",
+    "flavorProfile": "A simple baked salmon fillet with roasted broccoli and carrots, finished with lemon and avocado.",
+    "healthBenefit": "Salmon, broccoli, and carrot all check completely clean for Hashimoto's in this app's own reference database, and avocado stands in for any pressed oil, which never does.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Salmon Fillet (Raw)",
+        "quantity": 130,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Broccoli",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "cut into florets",
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 10,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C).",
+      "Toss the broccoli and carrot with a squeeze of the lemon juice and half the salt, and spread on a baking sheet.",
+      "Roast for 15 minutes, then push the vegetables to one side and add the salmon fillet to the sheet, seasoned with the remaining salt.",
+      "Bake for another 12-15 minutes, until the salmon flakes easily and the vegetables are tender.",
+      "Serve with the sliced avocado and any remaining lemon juice."
+    ]
+  },
+  {
+    "id": "curated_side_halibut_braised_cabbage_carrots",
+    "builderType": "side",
+    "name": "Halibut with Braised Cabbage & Carrots",
+    "flavorProfile": "Baked halibut over cabbage and carrots braised soft, finished with lime and avocado.",
+    "healthBenefit": "Halibut, cabbage, and carrot all check completely clean for Hashimoto's, and braising the cabbage (rather than serving it raw) is what keeps its own real goitrogenic flag from applying here.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Halibut Fish (Raw)",
+        "quantity": 130,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cabbage",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "shredded",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the shredded cabbage and sliced carrot in a covered pan with a splash of water, and braise over medium-low heat for 12-15 minutes, until soft.",
+      "Meanwhile, season the halibut with half the salt and bake at 400F (200C) for 12-15 minutes, until it flakes easily.",
+      "Season the braised vegetables with the remaining salt and the lime juice.",
+      "Serve the halibut over the braised cabbage and carrots, topped with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_side_cod_roasted_fennel_zucchini",
+    "builderType": "side",
+    "name": "Cod with Roasted Fennel & Zucchini",
+    "flavorProfile": "Baked cod fillet with roasted fennel and zucchini, finished with lemon and avocado.",
+    "healthBenefit": "Cod, fennel, and zucchini all check completely clean for Hashimoto's, a genuinely light, real whole-food plate.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Cod Fish",
+        "quantity": 130,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 10,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C).",
+      "Toss the fennel and zucchini with half the salt and spread on a baking sheet.",
+      "Roast for 10 minutes, then push the vegetables to one side and add the cod fillet, seasoned with the remaining salt.",
+      "Bake for another 12-15 minutes, until the cod flakes easily and the vegetables are tender.",
+      "Serve with the sliced avocado and a squeeze of lemon."
+    ]
+  },
+  {
+    "id": "curated_side_shrimp_cabbage_carrot_stir_fry",
+    "builderType": "side",
+    "name": "Shrimp & Cabbage Stir-Fry",
+    "flavorProfile": "Shrimp stir-fried with cabbage, carrot, and fresh ginger in a splash of water, finished with lime.",
+    "healthBenefit": "Shrimp, cabbage, and carrot all check completely clean for Hashimoto's, cooked entirely without any pressed oil.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Shrimp Crustaceans",
+        "quantity": 130,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cabbage",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "shredded",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "julienned",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Ginger, peeled, fresh",
+        "quantity": 3,
+        "unit": "g",
+        "cutPrep": "grated",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Heat the water in a wide pan over medium-high heat and add the cabbage, carrot, and ginger.",
+      "Stir-fry for 4-5 minutes, until the vegetables begin to soften, adding a splash more water if the pan gets dry.",
+      "Add the shrimp and cook for 2-3 minutes more, until pink and opaque all the way through.",
+      "Stir in the lime juice and salt just before serving."
+    ]
+  },
+  {
+    "id": "curated_side_beef_sirloin_kale_carrots",
+    "builderType": "side",
+    "name": "Beef Sirloin with Braised Kale & Carrots",
+    "flavorProfile": "Seared beef sirloin with kale and carrots braised soft, finished with avocado.",
+    "healthBenefit": "Beef top sirloin, kale, and carrot all check completely clean for Hashimoto's, braising the kale rather than serving it raw is what keeps its own real goitrogenic flag from applying here.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Beef Top Sirloin (Raw)",
+        "quantity": 130,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Kale",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the kale and carrot in a covered pan with a splash of water, and braise over medium-low heat for 10-12 minutes, until soft.",
+      "Meanwhile, season the beef with the salt and sear in a dry, hot pan for 3-4 minutes per side for medium, then rest for a few minutes before slicing.",
+      "Serve the sliced beef over the braised kale and carrots, topped with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_side_pork_tenderloin_braised_cabbage_apple",
+    "builderType": "side",
+    "name": "Pork Tenderloin with Braised Cabbage & Apple",
+    "flavorProfile": "Baked pork tenderloin with cabbage and apple braised soft together, finished with cinnamon.",
+    "healthBenefit": "Pork tenderloin, cabbage, and apple all check completely clean for Hashimoto's, a real, classic pairing built entirely from whole foods.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Pork Fillet / Tenderloin (Raw)",
+        "quantity": 130,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cabbage",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "shredded",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Apple",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the shredded cabbage, diced apple, and cinnamon in a covered pan with a splash of water, and braise over medium-low heat for 12-15 minutes, until soft.",
+      "Meanwhile, season the pork tenderloin with the salt and bake at 400F (200C) for 20-25 minutes, until cooked through, then rest for a few minutes before slicing.",
+      "Serve the sliced pork over the braised cabbage and apple."
+    ]
+  },
+  {
+    "id": "curated_soup_salmon_fennel_leek_soup",
+    "builderType": "soup",
+    "name": "Salmon, Fennel & Leek Soup",
+    "flavorProfile": "A light soup of salmon simmered with fennel, leek, and carrot in a real vegetable broth.",
+    "healthBenefit": "Salmon, fennel, leek, and carrot all check completely clean for Hashimoto's, a genuinely light whole-food soup.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Salmon Fillet (Raw)",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "cubed",
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Leek",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "PantryStaples",
+        "baseName": "Vegetable stock",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 250,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the fennel, leek, carrot, vegetable stock, and filtered water in a pot and bring to a simmer.",
+      "Cook for 12-15 minutes, until the vegetables are tender.",
+      "Add the cubed salmon and simmer for another 4-5 minutes, until it's just cooked through.",
+      "Stir in the salt, and finish with the fresh cilantro."
+    ]
+  },
+  {
+    "id": "curated_handheld_shrimp_lettuce_wraps_avocado",
+    "builderType": "handheld",
+    "name": "Shrimp Lettuce Wraps with Avocado & Lime",
+    "flavorProfile": "Shrimp cooked in a splash of water, wrapped in lettuce with sliced avocado and a squeeze of lime.",
+    "healthBenefit": "Shrimp, lettuce, and avocado all check completely clean for Hashimoto's, and the lettuce leaf stands in for a wrap without any grain at all.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "wrap",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Shrimp Crustaceans",
+        "quantity": 120,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Lettuce, green leaf",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "leaves separated",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Cook the shrimp in a splash of water in a pan over medium-high heat for 3-4 minutes, until pink and opaque all the way through, then season with the salt.",
+      "Spoon the shrimp into the lettuce leaves along with the sliced avocado and cilantro.",
+      "Finish with a squeeze of lime juice and serve right away."
+    ]
+  },
+  {
+    "id": "curated_salad_beef_carrot_fennel_salad",
+    "builderType": "salad",
+    "name": "Beef, Carrot & Fennel Salad",
+    "flavorProfile": "Seared beef sliced over a raw carrot and fennel salad, finished with lemon and avocado.",
+    "healthBenefit": "Beef top sirloin, carrot, and fennel all check completely clean for Hashimoto's, and neither carrot nor fennel carries any real raw-goitrogenic concern, so this salad genuinely works served raw.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Beef Top Sirloin (Raw)",
+        "quantity": 120,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "shredded",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "shaved",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 10,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Season the beef with the salt and sear in a dry, hot pan for 3-4 minutes per side for medium, then rest for a few minutes before slicing thin.",
+      "Toss the shredded carrot and shaved fennel with the lemon juice in a bowl.",
+      "Top with the sliced beef, avocado, and cilantro."
+    ]
+  },
+  {
+    "id": "curated_vegan_side_coconut_rice_roasted_vegetable_bowl",
+    "builderType": "side",
+    "name": "Coconut Rice Bowl with Roasted Zucchini, Pepper & Tomato",
+    "flavorProfile": "Rice simmered in coconut milk, topped with roasted zucchini, bell pepper, and tomato.",
+    "healthBenefit": "Rice, coconut milk, zucchini, bell pepper, and tomato all check completely clean for Hashimoto's, a genuinely hearty vegan main.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Grains, rice, brown, long-grain, dry",
+        "quantity": 45,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 150,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Red Bell Pepper",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the rice and coconut milk in a saucepan and bring to a gentle simmer.",
+      "Cover and cook for 30-35 minutes, until the rice is tender.",
+      "Meanwhile, roast the zucchini and bell pepper at 400F (200C) for 15-18 minutes, until tender.",
+      "Spoon the roasted vegetables and diced tomato over the rice, finish with the cilantro, lime juice, and salt."
+    ]
+  },
+  {
+    "id": "curated_vegan_soup_coconut_fennel_leek_vegetable_soup",
+    "builderType": "soup",
+    "name": "Coconut Vegetable Soup with Fennel & Leek",
+    "flavorProfile": "A light coconut-milk soup of fennel, leek, zucchini, and carrot, finished with fresh ginger.",
+    "healthBenefit": "Coconut milk, fennel, leek, zucchini, and carrot all check completely clean for Hashimoto's, a genuinely warming vegan soup.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 200,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Leek",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Ginger, peeled, fresh",
+        "quantity": 3,
+        "unit": "g",
+        "cutPrep": "grated",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 100,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the coconut milk, filtered water, fennel, leek, zucchini, carrot, and ginger in a pot.",
+      "Bring to a gentle simmer and cook for 15-18 minutes, until the vegetables are tender.",
+      "Stir in the salt just before serving."
+    ]
+  },
+  {
+    "id": "curated_vegan_salad_avocado_fennel_citrus_salad",
+    "builderType": "salad",
+    "name": "Avocado, Fennel & Citrus Salad",
+    "flavorProfile": "Sliced avocado and shaved fennel with orange and grapefruit segments, finished with lime.",
+    "healthBenefit": "Avocado, fennel, orange, and grapefruit all check completely clean for Hashimoto's, a genuinely bright, no-cook salad.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "shaved",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Grapefruit",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Arrange the sliced avocado and shaved fennel with the orange and grapefruit segments in a bowl.",
+      "Finish with the lime juice, cilantro, and a pinch of salt."
+    ]
+  },
+  {
+    "id": "curated_vegan_side_sorghum_roasted_vegetable_bowl",
+    "builderType": "side",
+    "name": "Sorghum Bowl with Roasted Zucchini & Bell Pepper",
+    "flavorProfile": "Sorghum simmered in coconut milk, topped with roasted zucchini and bell pepper.",
+    "healthBenefit": "Sorghum, coconut milk, zucchini, and bell pepper all check completely clean for Hashimoto's, a genuinely different whole-grain base from rice.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Sorghum grain",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 100,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Red Bell Pepper",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the sorghum and coconut milk in a saucepan and bring to a gentle simmer.",
+      "Cover and cook for 40-45 minutes, stirring occasionally and adding a splash of water if it gets too thick, until the sorghum is tender.",
+      "Meanwhile, roast the zucchini and bell pepper at 400F (200C) for 15-18 minutes, until tender.",
+      "Spoon the roasted vegetables over the sorghum, finish with the cilantro, lime juice, and salt."
+    ]
+  },
+  {
+    "id": "curated_vegan_soup_tomato_fennel_coconut_soup",
+    "builderType": "soup",
+    "name": "Tomato Fennel Coconut Soup",
+    "flavorProfile": "A creamy coconut-milk soup of tomato and fennel, finished with leek and fresh cilantro.",
+    "healthBenefit": "Tomato, fennel, coconut milk, and leek all check completely clean for Hashimoto's, a genuinely rich vegan soup.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 150,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Leek",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the tomato, fennel, and leek in a pot with the coconut milk.",
+      "Bring to a gentle simmer and cook for 15-18 minutes, until the vegetables are soft.",
+      "Stir in the salt and finish with the fresh cilantro."
+    ]
+  },
+  {
+    "id": "curated_vegan_handheld_avocado_rice_lettuce_wraps",
+    "builderType": "handheld",
+    "name": "Avocado & Rice Lettuce Wraps",
+    "flavorProfile": "Simmered rice and sliced avocado wrapped in lettuce with diced tomato and lime.",
+    "healthBenefit": "Rice, avocado, lettuce, and tomato all check completely clean for Hashimoto's, and the lettuce leaf stands in for a wrap without any gluten at all.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "wrap",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Grains, rice, brown, long-grain, dry",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Lettuce, green leaf",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "leaves separated",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the rice with a pinch of the salt in simmering water and cook until tender, about 30-35 minutes.",
+      "Spoon the rice into the lettuce leaves along with the sliced avocado, diced tomato, and cilantro.",
+      "Finish with a squeeze of lime juice and serve right away."
+    ]
+  }
+]

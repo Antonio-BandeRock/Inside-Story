@@ -414,6 +414,15 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_handheld_shrimp_lettuce_wraps_avocado": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
   "curated_handheld_turkey_avocado_wrap": [
     "Omnivore",
     "Plant-Based/Flexitarian",
@@ -425,6 +434,14 @@
     "Plant-Based/Flexitarian",
     "Gluten-Free",
     "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_salad_beef_carrot_fennel_salad": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
     "High-Protein"
   ],
   "curated_salad_beet_walnut_arugula": [
@@ -658,6 +675,15 @@
     "Paleo",
     "High-Protein"
   ],
+  "curated_side_baked_salmon_broccoli_carrots": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
   "curated_side_baked_salmon_lemon_dill": [
     "Omnivore",
     "Plant-Based/Flexitarian",
@@ -690,6 +716,14 @@
   "curated_side_beef_mushroom_stir_fry_rice": [
     "Omnivore",
     "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_beef_sirloin_kale_carrots": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
     "High-Protein"
   ],
   "curated_side_bison_meatballs_herb_tomato_sauce": [
@@ -760,6 +794,15 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_side_cod_roasted_fennel_zucchini": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
   "curated_side_duck_beets_orange": [
     "Omnivore",
     "Plant-Based/Flexitarian",
@@ -805,6 +848,15 @@
     "Plant-Based/Flexitarian",
     "Mediterranean",
     "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_halibut_braised_cabbage_carrots": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
     "High-Protein"
   ],
   "curated_side_halibut_leeks_peas": [
@@ -900,6 +952,14 @@
     "AIP",
     "High-Protein"
   ],
+  "curated_side_pork_tenderloin_braised_cabbage_apple": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
   "curated_side_rainbow_stir_fry": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -954,6 +1014,15 @@
     "Omnivore",
     "Plant-Based/Flexitarian",
     "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_shrimp_cabbage_carrot_stir_fry": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
     "Gluten-Free",
     "Dairy-Free",
     "Paleo",
@@ -1357,6 +1426,15 @@
     "Gluten-Free",
     "Dairy-Free"
   ],
+  "curated_soup_salmon_fennel_leek_soup": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
   "curated_soup_tomato_basil": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -1648,6 +1726,12 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_vegan_handheld_avocado_rice_lettuce_wraps": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_vegan_handheld_chickpea_avocado_wrap": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -1830,6 +1914,14 @@
     "Gluten-Free",
     "Dairy-Free",
     "High-Protein"
+  ],
+  "curated_vegan_salad_avocado_fennel_citrus_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
   ],
   "curated_vegan_salad_beet_walnut_arugula_tofu": [
     "Vegan",
@@ -2073,6 +2165,12 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_vegan_side_coconut_rice_roasted_vegetable_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_vegan_side_ginger_soy_tempeh": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -2169,6 +2267,12 @@
     "Vegan",
     "Plant-Based/Flexitarian",
     "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_vegan_side_sorghum_roasted_vegetable_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
     "Dairy-Free"
   ],
   "curated_vegan_side_tempeh_cherry_wild_rice": [
@@ -2338,6 +2442,13 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_vegan_soup_coconut_fennel_leek_vegetable_soup": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
   "curated_vegan_soup_hearts_of_palm_corn_chowder": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -2359,6 +2470,13 @@
     "Gluten-Free",
     "Dairy-Free",
     "High-Protein"
+  ],
+  "curated_vegan_soup_tomato_fennel_coconut_soup": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
   ],
   "curated_vegan_soup_white_bean_tomato_fennel_broth": [
     "Vegan",

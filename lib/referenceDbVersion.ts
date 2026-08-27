@@ -35,4 +35,13 @@
 // (garbanzo beans, bengal gram)", "Lima beans, large"), which does
 // carry a real Boiled/Canned variant, plus matching RECIPE_PREP_
 // OVERRIDES entries in scripts/compute_recipe_condition_data.js.
-export const REFERENCE_DB_VERSION = "20260827020000";
+// Bumped again the same day by scripts/add_hashimotos_lunch_dinner_
+// batch.py: 15 new curated recipes (9 real animal-protein AIP dishes
+// plus 6 savory vegan mains/soups) closing Hashimoto's own remaining
+// Vegan/Vegetarian/Paleo/AIP lunch-and-dinner gap, verified via
+// scripts/audit_meal_plan_recipe_coverage.js. 5 of the 9 AIP recipes
+// needed a new RECIPE_PREP_OVERRIDES entry each (broccoli/cabbage/kale
+// resolving Raw by default despite being baked/braised/sauteed in the
+// recipe's own real instructions), the same class of bug this
+// mechanism already exists to fix.
+export const REFERENCE_DB_VERSION = "20260827030000";

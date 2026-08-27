@@ -2517,6 +2517,36 @@
       }
     ]
   },
+  "curated_handheld_shrimp_lettuce_wraps_avocado": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_handheld_turkey_avocado_wrap": {
     "safeForConditions": [
       "celiac",
@@ -2635,6 +2665,40 @@
         "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
         "note": "A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_salad_beef_carrot_fennel_salad": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -4442,6 +4506,40 @@
       }
     ]
   },
+  "curated_side_baked_salmon_broccoli_carrots": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_side_baked_salmon_lemon_dill": {
     "safeForConditions": [
       "celiac",
@@ -4675,6 +4773,40 @@
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
         "note": "Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_side_beef_sirloin_kale_carrots": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -5157,6 +5289,40 @@
       }
     ]
   },
+  "curated_side_cod_roasted_fennel_zucchini": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_side_duck_beets_orange": {
     "safeForConditions": [
       "celiac",
@@ -5530,6 +5696,40 @@
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
         "note": "Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_side_halibut_braised_cabbage_carrots": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -6251,6 +6451,40 @@
       }
     ]
   },
+  "curated_side_pork_tenderloin_braised_cabbage_apple": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_side_rainbow_stir_fry": {
     "safeForConditions": [
       "fatty_liver_disease",
@@ -6659,6 +6893,36 @@
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       }
     },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_side_shrimp_cabbage_carrot_stir_fry": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
     "stageAdvisoryNotes": [
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -10385,6 +10649,40 @@
       }
     ]
   },
+  "curated_soup_salmon_fennel_leek_soup": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_soup_tomato_basil": {
     "safeForConditions": [
       "celiac",
@@ -12498,6 +12796,44 @@
       }
     ]
   },
+  "curated_vegan_handheld_avocado_rice_lettuce_wraps": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_vegan_handheld_chickpea_avocado_wrap": {
     "safeForConditions": [
       "cardiovascular_disease",
@@ -13873,6 +14209,36 @@
         "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_vegan_salad_avocado_fennel_citrus_salad": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
@@ -15804,6 +16170,44 @@
       }
     ]
   },
+  "curated_vegan_side_coconut_rice_roasted_vegetable_bowl": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_vegan_side_ginger_soy_tempeh": {
     "safeForConditions": [
       "fatty_liver_disease",
@@ -16686,6 +17090,44 @@
       {
         "condition": "Chronic Kidney Disease: Pre-Dialysis",
         "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_vegan_side_sorghum_roasted_vegetable_bowl": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -17968,6 +18410,36 @@
       }
     ]
   },
+  "curated_vegan_soup_coconut_fennel_leek_vegetable_soup": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_vegan_soup_hearts_of_palm_corn_chowder": {
     "safeForConditions": [
       "celiac",
@@ -18130,6 +18602,44 @@
       }
     },
     "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_vegan_soup_tomato_fennel_coconut_soup": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
