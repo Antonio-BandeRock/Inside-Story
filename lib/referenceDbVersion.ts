@@ -85,4 +85,17 @@
 // added so the picker can be searched by purpose ("ibs", "infant colic",
 // "immune support"), not just browsed by scientific name. See that
 // script's own header comment for the full reasoning and every citation.
-export const REFERENCE_DB_VERSION = "20260827070000";
+// Bumped again 2026-08-27 by scripts/add_fermentation_strains_batch3.py:
+// direct report that picking a probiotic strain blind ("as if a person
+// knows right off the bat what each one is good for, how long it needs
+// to ferment, whether it can be fermented with other probiotics, and at
+// what temp to ferment it") needed real answers, not just a name. 3 new
+// columns (ferment_role, ferment_guidance, time_to_effect) added and
+// populated for all 18 strains -- real yogurt-making temperature/duration
+// for the 2 required starters, an honest general note for every
+// supplement strain (plus two strain-specific exceptions, L. mesenteroides
+// and S. boulardii, named directly rather than forced into guidance that
+// doesn't actually apply to them), and a "how long before effects begin"
+// figure pulled straight from each strain's own already-verified citation
+// where the trial reports one. See that script's own header comment.
+export const REFERENCE_DB_VERSION = "20260827080000";

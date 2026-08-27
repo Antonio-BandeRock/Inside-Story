@@ -1608,6 +1608,34 @@ export async function listCuratedRecipes(builderType: BuilderFavoriteItemType): 
   }));
 }
 
+// 2026-08-27 -- a real efficiency fix for FermentationBuilder.tsx's own
+// "Pick a Premade Recipe" menu, which used to call listCuratedRecipes
+// (every fermentation recipe, ~49 rows) and filter down to the 1-4 a
+// given subtype actually needs on the JS side. Fetches only the rows
+// actually wanted via a real WHERE id IN (...), and returns them in the
+// SAME order as `ids` (SQL's own IN-clause order is unspecified) rather
+// than whatever order `sort_order` happens to put them in -- the caller's
+// own id list is usually already in a deliberate, curated order.
+export async function getCuratedRecipeSummariesByIds(ids: string[]): Promise<CuratedRecipeSummary[]> {
+  if (ids.length === 0) return [];
+  const db = await getReferenceDatabase();
+  const placeholders = ids.map(() => '?').join(', ');
+  const rows = await db.getAllAsync<{ id: string; name: string; flavor_profile: string; health_benefit: string }>(
+    `SELECT id, name, flavor_profile, health_benefit FROM curated_recipes WHERE id IN (${placeholders})`,
+    ids,
+  );
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  return ids
+    .map((id) => byId.get(id))
+    .filter((row): row is NonNullable<typeof row> => row != null)
+    .map((row) => ({
+      id: row.id,
+      name: row.name,
+      flavorProfile: row.flavor_profile,
+      healthBenefit: row.health_benefit,
+    }));
+}
+
 // Resolves one curated-recipe ingredient's (category, base_name) to a real,
 // currently-visible food_id/source -- tries 'Raw' first (the common case
 // for whole produce), falls back to the untagged 'Standard' row (most
@@ -2030,6 +2058,19 @@ export async function getCuratedRecipeStrainIds(recipeId: string): Promise<strin
 // honesty standard as the rest of the app. All 4 are nullable -- every
 // row in the live catalog has them populated, but nothing here assumes
 // that will always be true.
+// 2026-08-27, second same-day widening: direct report that picking a
+// strain from the pill list still meant choosing blind, evidence tier
+// and citation aside -- "how long it needs to ferment, whether it can be
+// fermented with other probiotics, and at what temp to ferment it" were
+// all still missing. 3 more fields (scripts/add_fermentation_strains_
+// batch3.py): fermentRole ('starter' for the 2 real Codex Alimentarius
+// yogurt cultures, 'supplement' for every other strain, none of which
+// reliably set milk into yogurt on its own), fermentGuidance (the real
+// temperature/duration for the 2 starters, an honest general note for
+// supplement strains, and two strain-specific exceptions where the
+// general note doesn't actually apply), and timeToEffect (how long the
+// strain's own cited trial actually ran, nullable where the citation
+// doesn't report one rather than a guessed number).
 export type FermentationStrain = {
   id: string;
   scientificName: string;
@@ -2041,12 +2082,15 @@ export type FermentationStrain = {
   evidenceTier: 'strong' | 'moderate' | 'weak' | null;
   citationSource: string | null;
   citationUrl: string | null;
+  fermentRole: 'starter' | 'supplement' | null;
+  fermentGuidance: string | null;
+  timeToEffect: string | null;
 };
 
 const FERMENTATION_STRAIN_COLUMNS =
-  'id, scientific_name, common_name, category, description, digest_entry_id, use_cases, evidence_tier, citation_source, citation_url';
+  'id, scientific_name, common_name, category, description, digest_entry_id, use_cases, evidence_tier, citation_source, citation_url, ferment_role, ferment_guidance, time_to_effect';
 
-function toFermentationStrain(row: {
+type FermentationStrainRow = {
   id: string;
   scientific_name: string;
   common_name: string | null;
@@ -2057,7 +2101,12 @@ function toFermentationStrain(row: {
   evidence_tier: string | null;
   citation_source: string | null;
   citation_url: string | null;
-}): FermentationStrain {
+  ferment_role: string | null;
+  ferment_guidance: string | null;
+  time_to_effect: string | null;
+};
+
+function toFermentationStrain(row: FermentationStrainRow): FermentationStrain {
   return {
     id: row.id,
     scientificName: row.scientific_name,
@@ -2069,40 +2118,26 @@ function toFermentationStrain(row: {
     evidenceTier: row.evidence_tier === 'strong' || row.evidence_tier === 'moderate' || row.evidence_tier === 'weak' ? row.evidence_tier : null,
     citationSource: row.citation_source,
     citationUrl: row.citation_url,
+    fermentRole: row.ferment_role === 'starter' || row.ferment_role === 'supplement' ? row.ferment_role : null,
+    fermentGuidance: row.ferment_guidance,
+    timeToEffect: row.time_to_effect,
   };
 }
 
 export async function listFermentationStrains(): Promise<FermentationStrain[]> {
   const db = await getReferenceDatabase();
-  const rows = await db.getAllAsync<{
-    id: string;
-    scientific_name: string;
-    common_name: string | null;
-    category: string | null;
-    description: string;
-    digest_entry_id: string | null;
-    use_cases: string | null;
-    evidence_tier: string | null;
-    citation_source: string | null;
-    citation_url: string | null;
-  }>(`SELECT ${FERMENTATION_STRAIN_COLUMNS} FROM fermentation_strains ORDER BY scientific_name`);
+  const rows = await db.getAllAsync<FermentationStrainRow>(
+    `SELECT ${FERMENTATION_STRAIN_COLUMNS} FROM fermentation_strains ORDER BY scientific_name`,
+  );
   return rows.map(toFermentationStrain);
 }
 
 export async function getFermentationStrain(id: string): Promise<FermentationStrain | null> {
   const db = await getReferenceDatabase();
-  const row = await db.getFirstAsync<{
-    id: string;
-    scientific_name: string;
-    common_name: string | null;
-    category: string | null;
-    description: string;
-    digest_entry_id: string | null;
-    use_cases: string | null;
-    evidence_tier: string | null;
-    citation_source: string | null;
-    citation_url: string | null;
-  }>(`SELECT ${FERMENTATION_STRAIN_COLUMNS} FROM fermentation_strains WHERE id = ?`, id);
+  const row = await db.getFirstAsync<FermentationStrainRow>(
+    `SELECT ${FERMENTATION_STRAIN_COLUMNS} FROM fermentation_strains WHERE id = ?`,
+    id,
+  );
   return row ? toFermentationStrain(row) : null;
 }
 

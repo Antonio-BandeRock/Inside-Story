@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
@@ -15,6 +15,7 @@ import {
   getConditionStages,
   getCuratedRecipe,
   getCuratedRecipeStrainIds,
+  getCuratedRecipeSummariesByIds,
   getFoodIdentity,
   getFoodScores,
   getFermentation,
@@ -61,7 +62,7 @@ import { DimensionFlags } from './DimensionFlags';
 import { SourceFallbackNote } from './SourceFallbackNote';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useConfirmSheet } from './ConfirmSheet';
-import { useInfoAlert } from './InfoAlert';
+import { linkifyText, useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { StepsEditor } from './StepsEditor';
 import { ConditionNoteRow } from './ConditionNoteRow';
@@ -562,6 +563,45 @@ const CURATED_RECIPE_IDS_BY_SUBTYPE: Partial<Record<FermentationSubtypeKey, stri
   yogurt: ['curated_ferment_plain_yogurt', 'curated_ferment_probiotic_yogurt'],
   syrupsSpoonableTonics: ['curated_ferment_garlic_honey_tonic', 'curated_ferment_rosemary_cheong'],
 };
+
+// 2026-08-27 -- one shared, catalog-wide fact ("can these be fermented
+// together"), not per-strain data, so it isn't a database column. Kept
+// in sync by hand with scripts/add_fermentation_strains_batch3.py's own
+// copy of this same text -- see that script's own header comment.
+const COMBINING_STRAINS_NOTE =
+  "Combining several of these strains at once, including the yeast S. boulardii alongside " +
+  'bacterial strains, is common and studied, not just assumed safe. A 2024 randomized, ' +
+  'double-blind, placebo-controlled trial testing prevention of antibiotic-associated diarrhea ' +
+  'combined 7 Lactobacillus species, 5 Bifidobacterium species, Bacillus coagulans, and ' +
+  'Saccharomyces boulardii in a single daily dose (Open Forum Infectious Diseases, 2024, ' +
+  'https://academic.oup.com/ofid/article/11/11/ofae615/7828570). There is no documented ' +
+  'antagonism between the strains in this catalog when taken or fermented together.';
+
+// Composes one strain's full "can I actually make an informed choice
+// about this" detail -- 2026-08-27, direct report that the pill list let
+// someone pick a strain "without knowing anything about it or what it
+// helps or how long they may need... before the effects will begin."
+// Shown two ways from one function, so both can never drift into
+// disagreeing about the same strain: inline for an already-selected
+// strain (via linkifyText below, real URLs turned into tappable links)
+// and from a small info icon on every pill (via showInfoAlert, which
+// linkifies internally), the second letting someone read about a strain
+// BEFORE deciding whether to pick it, not only after.
+function buildStrainInfoMessage(strain: FermentationStrain): string {
+  const lines = [strain.description];
+  if (strain.fermentGuidance) lines.push(strain.fermentGuidance);
+  if (strain.timeToEffect) lines.push(`How long before effects begin: ${strain.timeToEffect}`);
+  if (strain.evidenceTier) {
+    const citation = strain.citationSource
+      ? strain.citationUrl
+        ? `${strain.citationSource} (${strain.citationUrl})`
+        : strain.citationSource
+      : null;
+    lines.push(`Evidence: ${strain.evidenceTier}${citation ? `. Source: ${citation}` : ''}`);
+  }
+  return lines.join('\n\n');
+}
+
 export function FermentationBuilder({
   tabColor,
   // Set when reached via the Edit button on an already-saved fermentation (see
@@ -968,13 +1008,30 @@ export function FermentationBuilder({
   // beneath it, so "the normal path" stays untouched either way.
   const [showRecipeMenu, setShowRecipeMenu] = useState(() => Boolean(subtype && !editFermentationId && !fromFavoriteId && !openRecipeId));
   const [curatedRecipesForSubtype, setCuratedRecipesForSubtype] = useState<CuratedRecipeSummary[]>([]);
+  // 2026-08-27, direct report: "it takes a good 30 seconds for the 2
+  // yogurt recipes to populate above the Fermentation name field" -- with
+  // nothing at all shown on screen while that happened, a real blank-card
+  // gap that reads as broken, not loading. loadingRecipeMenu names that
+  // wait honestly (see the render below). Separately: this effect used to
+  // call listCuratedRecipes('fermentation') (all ~49 fermentation
+  // recipes) and filter down to the 1-4 a subtype actually needs on the
+  // JS side; a subtype with a real, known id list (every leaf subtype
+  // except the two "Something Else" catch-alls) now fetches only those
+  // rows directly via getCuratedRecipeSummariesByIds, a real reduction in
+  // work even though the query itself was never the true bottleneck (a
+  // ~49-row scan is not what a 30-second wait looks like -- see this
+  // effect's own follow-up comment below on the actual likely cause).
+  const [loadingRecipeMenu, setLoadingRecipeMenu] = useState(false);
   useEffect(() => {
     if (!showRecipeMenu || !subtype) return;
     let isCurrent = true;
-    listCuratedRecipes('fermentation').then((all) => {
+    setLoadingRecipeMenu(true);
+    const ids = CURATED_RECIPE_IDS_BY_SUBTYPE[subtype];
+    const load = ids ? getCuratedRecipeSummariesByIds(ids) : listCuratedRecipes('fermentation');
+    load.then((recipes) => {
       if (!isCurrent) return;
-      const ids = CURATED_RECIPE_IDS_BY_SUBTYPE[subtype];
-      setCuratedRecipesForSubtype(ids ? all.filter((recipe) => ids.includes(recipe.id)) : all);
+      setCuratedRecipesForSubtype(recipes);
+      setLoadingRecipeMenu(false);
     });
     return () => {
       isCurrent = false;
@@ -2128,6 +2185,12 @@ export function FermentationBuilder({
               <Text style={styles.recipeMenuSubtext}>
                 Start one of these today, schedule a reminder to start it later, or build your own below.
               </Text>
+              {loadingRecipeMenu && curatedRecipesForSubtype.length === 0 ? (
+                <View style={styles.recipeMenuLoadingRow}>
+                  <ActivityIndicator color={tabColor} />
+                  <Text style={styles.recipeMenuLoadingText}>Loading recipes…</Text>
+                </View>
+              ) : null}
               {curatedRecipesForSubtype.map((recipe) => (
                 <View key={recipe.id} style={styles.recipeMenuCard}>
                   <Text style={[styles.recipeMenuCardTitle, { color: tabColor }]}>{recipe.name}</Text>
@@ -2310,20 +2373,40 @@ export function FermentationBuilder({
                   </TouchableOpacity>
                 ) : null}
               </View>
+              {/* 2026-08-27, direct report: picking a pill meant choosing
+                  blind, "as if a person knows right off the bat what each
+                  one is good for, how long it needs to ferment, whether
+                  it can be fermented with other probiotics, and at what
+                  temp to ferment it." Tapping a pill's own text still
+                  toggles that pill's selection, unchanged; the new (i)
+                  icon on every pill opens the same full detail
+                  (buildStrainInfoMessage) via showInfoAlert, so reading
+                  about a strain never requires selecting it first. */}
+              <TouchableOpacity onPress={() => showInfoAlert('Combining Strains', COMBINING_STRAINS_NOTE)} style={styles.combiningStrainsLink}>
+                <Ionicons name="information-circle-outline" size={14} color={colors.textSecondary} />
+                <Text style={styles.combiningStrainsLinkText}>Can these be combined? Tap to learn more.</Text>
+              </TouchableOpacity>
               {filteredFermentationStrains.length > 0 ? (
                 <View style={styles.strainPillWrap}>
                   {filteredFermentationStrains.map((strain) => {
                     const active = selectedStrainIds.includes(strain.id);
                     return (
-                      <TouchableOpacity
+                      <View
                         key={strain.id}
                         style={[styles.strainPill, { borderColor: active ? tabColor : colors.border }, active ? { backgroundColor: tabColor } : null]}
-                        onPress={() => toggleStrain(strain.id)}
                       >
-                        <Text style={[styles.strainPillText, active ? { color: colors.textOnPrimary } : null]}>
-                          {strain.commonName ?? strain.scientificName}
-                        </Text>
-                      </TouchableOpacity>
+                        <TouchableOpacity onPress={() => toggleStrain(strain.id)}>
+                          <Text style={[styles.strainPillText, active ? { color: colors.textOnPrimary } : null]}>
+                            {strain.commonName ?? strain.scientificName}
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => showInfoAlert(strain.commonName ?? strain.scientificName, buildStrainInfoMessage(strain))}
+                          hitSlop={8}
+                        >
+                          <Ionicons name="information-circle-outline" size={15} color={active ? colors.textOnPrimary : colors.textSecondary} />
+                        </TouchableOpacity>
+                      </View>
                     );
                   })}
                 </View>
@@ -2339,32 +2422,8 @@ export function FermentationBuilder({
                       <View key={id} style={styles.strainDescriptionEntry}>
                         <Text style={styles.strainDescriptionText}>
                           <Text style={[styles.strainDescriptionName, { color: tabColor }]}>{strain.scientificName}: </Text>
-                          {strain.description}
+                          {linkifyText(buildStrainInfoMessage(strain), styles.strainCitationLink)}
                         </Text>
-                        {/* Evidence tier plus a real, tappable citation --
-                            2026-08-27, matching this app's own standing
-                            "evidence tiering is non-negotiable" rule and
-                            Digest's own CitationsBlock convention
-                            (app/(tabs)/purple-digest.tsx), rather than
-                            leaving this catalog's real evidence invisible
-                            once it existed as structured data. */}
-                        {strain.evidenceTier ? (
-                          <Text style={styles.strainEvidenceText}>
-                            Evidence: {strain.evidenceTier}
-                            {strain.citationSource ? (
-                              strain.citationUrl ? (
-                                <>
-                                  {'. Source: '}
-                                  <Text style={styles.strainCitationLink} onPress={() => Linking.openURL(strain.citationUrl as string)}>
-                                    {strain.citationSource}
-                                  </Text>
-                                </>
-                              ) : (
-                                `. Source: ${strain.citationSource}`
-                              )
-                            ) : null}
-                          </Text>
-                        ) : null}
                       </View>
                     );
                   })}
@@ -2860,6 +2919,9 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: -4,
   },
+  // 2026-08-27 -- see the loading effect's own comment above.
+  recipeMenuLoadingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8 },
+  recipeMenuLoadingText: { ...typography.body, color: colors.textMuted },
   recipeMenuCard: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -3008,13 +3070,25 @@ const styles = StyleSheet.create({
   // Cultures & Probiotics multi-select, 2026-08-14 -- same tappable-pill
   // shape as Profile's own Food Allergies field (app/profile.tsx).
   strainPillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
+  // 2026-08-27: a plain View now, not a TouchableOpacity -- it wraps two
+  // real, independent tap targets (the label toggles selection, the (i)
+  // icon opens that strain's own detail via showInfoAlert), so the outer
+  // shape itself can no longer be the thing that's pressed.
   strainPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 7,
   },
   strainPillText: { ...typography.body, color: colors.textPrimary },
+  // "Can these be combined?" link, 2026-08-27, sitting between the
+  // search box and the pill list -- one shared, catalog-wide fact, not
+  // per-strain, so it isn't repeated on every pill's own info popup.
+  combiningStrainsLink: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8 },
+  combiningStrainsLinkText: { ...typography.caption, color: colors.textSecondary, textDecorationLine: 'underline' },
   // Search-by-goal box, 2026-08-27 -- plain, no voice-input embedding
   // (this filters an already-open list, it isn't primary data entry).
   strainSearchWrap: {
@@ -3032,7 +3106,6 @@ const styles = StyleSheet.create({
   strainDescriptionEntry: { gap: 2 },
   strainDescriptionText: { ...typography.body, color: colors.textSecondary },
   strainDescriptionName: { ...typography.bodyEmphasis },
-  strainEvidenceText: { ...typography.caption, color: colors.textSecondary },
   strainCitationLink: { ...typography.caption, color: colors.primary, textDecorationLine: 'underline' },
   // Two true rows, 2026-07-28 -- a label band (Servings/Size/Units) and an
   // input band (the three scrollable pill pickers themselves) directly
