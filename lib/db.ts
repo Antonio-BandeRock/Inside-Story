@@ -2015,6 +2015,21 @@ export async function getCuratedRecipeStrainIds(recipeId: string): Promise<strin
 // published, already-cited Digest content, zero new research done
 // here), and fermentation_batch_strains links a real, saved fermentation
 // batch to whichever of those real strains a person actually used.
+// 2026-08-27: widened from a fixed 7-strain catalog to a real, searchable
+// one (18 strains -- see scripts/add_fermentation_strains_batch2.py for
+// the full reasoning and every citation), direct request: "they need to
+// be able to have a full list of the possible choices... and they need
+// to be able to search for the probiotic they need to use for whatever
+// it is they are trying to accomplish." useCases/evidenceTier/citation*
+// are the 4 new fields that made that possible: useCases is a short,
+// plain-language, comma-separated list of what someone might actually
+// type when searching ("infant colic", "ibs"), not just a scientific
+// name; evidenceTier/citationSource/citationUrl mirror lib/digest/
+// types.ts's own EvidenceTier/DigestCitation shape rather than inventing
+// a second one, so this catalog holds itself to the same evidence-
+// honesty standard as the rest of the app. All 4 are nullable -- every
+// row in the live catalog has them populated, but nothing here assumes
+// that will always be true.
 export type FermentationStrain = {
   id: string;
   scientificName: string;
@@ -2022,7 +2037,14 @@ export type FermentationStrain = {
   category: string | null;
   description: string;
   digestEntryId: string | null;
+  useCases: string | null;
+  evidenceTier: 'strong' | 'moderate' | 'weak' | null;
+  citationSource: string | null;
+  citationUrl: string | null;
 };
+
+const FERMENTATION_STRAIN_COLUMNS =
+  'id, scientific_name, common_name, category, description, digest_entry_id, use_cases, evidence_tier, citation_source, citation_url';
 
 function toFermentationStrain(row: {
   id: string;
@@ -2031,6 +2053,10 @@ function toFermentationStrain(row: {
   category: string | null;
   description: string;
   digest_entry_id: string | null;
+  use_cases: string | null;
+  evidence_tier: string | null;
+  citation_source: string | null;
+  citation_url: string | null;
 }): FermentationStrain {
   return {
     id: row.id,
@@ -2039,6 +2065,10 @@ function toFermentationStrain(row: {
     category: row.category,
     description: row.description,
     digestEntryId: row.digest_entry_id,
+    useCases: row.use_cases,
+    evidenceTier: row.evidence_tier === 'strong' || row.evidence_tier === 'moderate' || row.evidence_tier === 'weak' ? row.evidence_tier : null,
+    citationSource: row.citation_source,
+    citationUrl: row.citation_url,
   };
 }
 
@@ -2051,7 +2081,11 @@ export async function listFermentationStrains(): Promise<FermentationStrain[]> {
     category: string | null;
     description: string;
     digest_entry_id: string | null;
-  }>('SELECT id, scientific_name, common_name, category, description, digest_entry_id FROM fermentation_strains ORDER BY scientific_name');
+    use_cases: string | null;
+    evidence_tier: string | null;
+    citation_source: string | null;
+    citation_url: string | null;
+  }>(`SELECT ${FERMENTATION_STRAIN_COLUMNS} FROM fermentation_strains ORDER BY scientific_name`);
   return rows.map(toFermentationStrain);
 }
 
@@ -2064,7 +2098,11 @@ export async function getFermentationStrain(id: string): Promise<FermentationStr
     category: string | null;
     description: string;
     digest_entry_id: string | null;
-  }>('SELECT id, scientific_name, common_name, category, description, digest_entry_id FROM fermentation_strains WHERE id = ?', id);
+    use_cases: string | null;
+    evidence_tier: string | null;
+    citation_source: string | null;
+    citation_url: string | null;
+  }>(`SELECT ${FERMENTATION_STRAIN_COLUMNS} FROM fermentation_strains WHERE id = ?`, id);
   return row ? toFermentationStrain(row) : null;
 }
 

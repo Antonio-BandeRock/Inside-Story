@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
@@ -691,6 +691,32 @@ export function FermentationBuilder({
   function toggleStrain(id: string) {
     setSelectedStrainIds((current) => (current.includes(id) ? current.filter((existing) => existing !== id) : [...current, id]));
   }
+  // 2026-08-27, direct request: "they need to be able to search for the
+  // probiotic they need to use for whatever it is they are trying to
+  // accomplish" -- the catalog grew from 7 strains to 18 the same day
+  // (scripts/add_fermentation_strains_batch2.py) specifically so this
+  // would be worth searching. Matches against commonName/scientificName
+  // (searching by name still works) AND the new useCases field (searching
+  // by GOAL -- "ibs", "infant colic", "immune support" -- now works too,
+  // since that field exists purely to hold the plain-language terms a
+  // person browsing for a purpose would actually type, not just each
+  // strain's own scientific vocabulary). An already-selected strain never
+  // disappears from the list just because a search narrows past it --
+  // otherwise narrowing the search after picking a strain would silently
+  // strand that pick with no visible pill left to un-tap.
+  const [strainSearchQuery, setStrainSearchQuery] = useState('');
+  const filteredFermentationStrains = useMemo(() => {
+    const query = strainSearchQuery.trim().toLowerCase();
+    if (!query) return fermentationStrains;
+    return fermentationStrains.filter((strain) => {
+      if (selectedStrainIds.includes(strain.id)) return true;
+      const haystack = [strain.commonName, strain.scientificName, strain.useCases, strain.description]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [fermentationStrains, strainSearchQuery, selectedStrainIds]);
   // Drives the Continue button's own color (see its own JSX comment
   // below) -- true only once Fermentation Name and all three pickers are actually
   // filled in/chosen.
@@ -2262,32 +2288,84 @@ export function FermentationBuilder({
               <Text style={[styles.formLabel, styles.formLabelSpaced, { color: tabColor }]}>
                 Cultures &amp; Probiotics (optional)
               </Text>
-              <View style={styles.strainPillWrap}>
-                {fermentationStrains.map((strain) => {
-                  const active = selectedStrainIds.includes(strain.id);
-                  return (
-                    <TouchableOpacity
-                      key={strain.id}
-                      style={[styles.strainPill, { borderColor: active ? tabColor : colors.border }, active ? { backgroundColor: tabColor } : null]}
-                      onPress={() => toggleStrain(strain.id)}
-                    >
-                      <Text style={[styles.strainPillText, active ? { color: colors.textOnPrimary } : null]}>
-                        {strain.commonName ?? strain.scientificName}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
+              {/* 2026-08-27 -- search by name OR by what the person is
+                  trying to accomplish ("ibs", "infant colic", "immune
+                  support"), now that the catalog is 18 strains instead of
+                  7. Plain AppTextInput, no voice-input embedding: this is
+                  a filter over an already-open form, not primary data
+                  entry, so it stays visually lighter than the Dish Name
+                  field above. */}
+              <View style={[styles.strainSearchWrap, { backgroundColor: inputBackground(tabColor) }]}>
+                <Ionicons name="search" size={16} color={colors.textSecondary} />
+                <AppTextInput
+                  style={styles.strainSearchInput}
+                  value={strainSearchQuery}
+                  onChangeText={setStrainSearchQuery}
+                  placeholder="Search by name or what you're trying to accomplish (e.g. IBS, immune support)"
+                  placeholderTextColor={colors.textSecondary}
+                />
+                {strainSearchQuery.length > 0 ? (
+                  <TouchableOpacity onPress={() => setStrainSearchQuery('')} hitSlop={8}>
+                    <Ionicons name="close-circle" size={16} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                ) : null}
               </View>
+              {filteredFermentationStrains.length > 0 ? (
+                <View style={styles.strainPillWrap}>
+                  {filteredFermentationStrains.map((strain) => {
+                    const active = selectedStrainIds.includes(strain.id);
+                    return (
+                      <TouchableOpacity
+                        key={strain.id}
+                        style={[styles.strainPill, { borderColor: active ? tabColor : colors.border }, active ? { backgroundColor: tabColor } : null]}
+                        onPress={() => toggleStrain(strain.id)}
+                      >
+                        <Text style={[styles.strainPillText, active ? { color: colors.textOnPrimary } : null]}>
+                          {strain.commonName ?? strain.scientificName}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              ) : (
+                <Text style={styles.strainNoMatchesText}>No cultures match that search.</Text>
+              )}
               {selectedStrainIds.length > 0 ? (
                 <View style={styles.strainDescriptionBlock}>
                   {selectedStrainIds.map((id) => {
                     const strain = fermentationStrains.find((entry) => entry.id === id);
                     if (!strain) return null;
                     return (
-                      <Text key={id} style={styles.strainDescriptionText}>
-                        <Text style={[styles.strainDescriptionName, { color: tabColor }]}>{strain.scientificName}: </Text>
-                        {strain.description}
-                      </Text>
+                      <View key={id} style={styles.strainDescriptionEntry}>
+                        <Text style={styles.strainDescriptionText}>
+                          <Text style={[styles.strainDescriptionName, { color: tabColor }]}>{strain.scientificName}: </Text>
+                          {strain.description}
+                        </Text>
+                        {/* Evidence tier plus a real, tappable citation --
+                            2026-08-27, matching this app's own standing
+                            "evidence tiering is non-negotiable" rule and
+                            Digest's own CitationsBlock convention
+                            (app/(tabs)/purple-digest.tsx), rather than
+                            leaving this catalog's real evidence invisible
+                            once it existed as structured data. */}
+                        {strain.evidenceTier ? (
+                          <Text style={styles.strainEvidenceText}>
+                            Evidence: {strain.evidenceTier}
+                            {strain.citationSource ? (
+                              strain.citationUrl ? (
+                                <>
+                                  {'. Source: '}
+                                  <Text style={styles.strainCitationLink} onPress={() => Linking.openURL(strain.citationUrl as string)}>
+                                    {strain.citationSource}
+                                  </Text>
+                                </>
+                              ) : (
+                                `. Source: ${strain.citationSource}`
+                              )
+                            ) : null}
+                          </Text>
+                        ) : null}
+                      </View>
                     );
                   })}
                 </View>
@@ -2937,9 +3015,25 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
   },
   strainPillText: { ...typography.body, color: colors.textPrimary },
-  strainDescriptionBlock: { marginTop: 10, gap: 4 },
+  // Search-by-goal box, 2026-08-27 -- plain, no voice-input embedding
+  // (this filters an already-open list, it isn't primary data entry).
+  strainSearchWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginTop: 6,
+  },
+  strainSearchInput: { ...typography.body, flex: 1, color: colors.textPrimary, borderWidth: 0, backgroundColor: 'transparent', paddingHorizontal: 0, marginTop: 0 },
+  strainNoMatchesText: { ...typography.caption, color: colors.textSecondary, marginTop: 8 },
+  strainDescriptionBlock: { marginTop: 10, gap: 10 },
+  strainDescriptionEntry: { gap: 2 },
   strainDescriptionText: { ...typography.body, color: colors.textSecondary },
   strainDescriptionName: { ...typography.bodyEmphasis },
+  strainEvidenceText: { ...typography.caption, color: colors.textSecondary },
+  strainCitationLink: { ...typography.caption, color: colors.primary, textDecorationLine: 'underline' },
   // Two true rows, 2026-07-28 -- a label band (Servings/Size/Units) and an
   // input band (the three scrollable pill pickers themselves) directly
   // beneath it, each its own flex row with alignItems: 'flex-end' so every

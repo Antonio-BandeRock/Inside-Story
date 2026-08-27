@@ -78,4 +78,11 @@
 // bug caught before the pipeline ran: "Turkey Breast (without skin)" is
 // entirely hidden in this database (confirmed by direct query), swapped
 // to the visible "Turkey Breast (Raw)" row instead.
-export const REFERENCE_DB_VERSION = "20260827060000";
+// Bumped again 2026-08-27 by scripts/add_fermentation_strains_batch2.py:
+// the fermentation_strains catalog (Cultures & Probiotics in Fermentation
+// Builder) expanded from 7 to 18 real, individually-cited strains, and 4
+// new columns (use_cases, evidence_tier, citation_source, citation_url)
+// added so the picker can be searched by purpose ("ibs", "infant colic",
+// "immune support"), not just browsed by scientific name. See that
+// script's own header comment for the full reasoning and every citation.
+export const REFERENCE_DB_VERSION = "20260827070000";
