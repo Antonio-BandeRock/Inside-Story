@@ -44,4 +44,14 @@
 // resolving Raw by default despite being baked/braised/sauteed in the
 // recipe's own real instructions), the same class of bug this
 // mechanism already exists to fix.
-export const REFERENCE_DB_VERSION = "20260827030000";
+// Bumped again the same day by scripts/add_hashimotos_aip_breakfast_
+// batch.py: 15 new AIP-compliant breakfast recipes, Open Next Steps item
+// 20 phase 1, closing part of the real, structural, condition-agnostic
+// AIP/Mediterranean/Paleo breakfast shortage. AIP breakfast went from 2
+// to 17 uniformly across all 19 tracked conditions (AIP recipes also
+// auto-tag Paleo, pushing Paleo breakfast to 21-25); Mediterranean
+// breakfast is untouched, a real, separate follow-up needing its own
+// olive-oil/no-red-meat ingredient palette. Sweet potato was checked and
+// deliberately excluded: a real "Mineral Binding Risk: High" flag for
+// Hashimoto's across every prep method, confirmed by direct query.
+export const REFERENCE_DB_VERSION = "20260827040000";

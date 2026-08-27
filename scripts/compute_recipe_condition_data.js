@@ -475,6 +475,19 @@ const RECIPE_PREP_OVERRIDES = {
   curated_side_shrimp_cabbage_carrot_stir_fry: { 'Veg|Cabbage': 'Boiled' },
   curated_side_beef_sirloin_kale_carrots: { 'Veg|Kale': 'Boiled' },
   curated_side_pork_tenderloin_braised_cabbage_apple: { 'Veg|Cabbage': 'Boiled' },
+  // 2026-08-27, the new AIP breakfast batch (Open Next Steps item 20,
+  // phase 1): the same class of fix, applied before it could ever ship
+  // wrong, since the offline pipeline was just proven to need it 9 times
+  // out of 9 in the immediately preceding lunch/dinner batch.
+  curated_snack_beef_kale_breakfast_hash: { 'Veg|Kale': 'Boiled' },
+  curated_snack_pork_cabbage_breakfast_skillet: { 'Veg|Cabbage': 'Boiled' },
+  curated_snack_salmon_broccoli_breakfast_bowl: { 'Veg|Broccoli': 'Baked' },
+  curated_snack_cod_cabbage_breakfast_skillet: { 'Veg|Cabbage': 'Boiled' },
+  curated_snack_beef_broccoli_breakfast_bowl: { 'Veg|Broccoli': 'Baked' },
+  curated_snack_pork_kale_breakfast_hash: { 'Veg|Kale': 'Boiled' },
+  curated_snack_halibut_cabbage_breakfast_skillet: { 'Veg|Cabbage': 'Boiled' },
+  curated_snack_cod_broccoli_breakfast_bowl: { 'Veg|Broccoli': 'Baked' },
+  curated_snack_shrimp_cabbage_breakfast_bowl: { 'Veg|Cabbage': 'Boiled' },
   curated_salad_southwest_quinoa_black_bean: { 'Legume|Black Beans': 'Boiled' },
   curated_side_lemon_garlic_broccoli: { 'Veg|Broccoli': 'Baked' },
   curated_side_garlic_mashed_cauliflower: { 'Veg|Cauliflower': 'Boiled' },

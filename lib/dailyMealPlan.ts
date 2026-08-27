@@ -217,6 +217,26 @@ export const BREAKFAST_ELIGIBLE_RECIPE_IDS = new Set<string>([
   'curated_vegan_savory_fennel_tomato_rice_bowl',
   'curated_vegan_pear_ginger_overnight_oats',
   'curated_vegan_blackberry_lime_rice_pudding',
+  // 2026-08-27, Open Next Steps item 20, phase 1: the real, structural,
+  // condition-agnostic AIP breakfast shortage (2 recipes total across
+  // every tracked condition before this batch). 15 new AIP-compliant
+  // breakfast recipes, a real, phased first batch, not a full closure --
+  // see scripts/add_hashimotos_aip_breakfast_batch.py's header comment.
+  'curated_snack_beef_kale_breakfast_hash',
+  'curated_snack_pork_cabbage_breakfast_skillet',
+  'curated_snack_salmon_broccoli_breakfast_bowl',
+  'curated_snack_halibut_fennel_breakfast_bowl',
+  'curated_snack_cod_cabbage_breakfast_skillet',
+  'curated_snack_shrimp_zucchini_breakfast_skillet',
+  'curated_snack_beef_broccoli_breakfast_bowl',
+  'curated_snack_pork_kale_breakfast_hash',
+  'curated_snack_salmon_fennel_breakfast_bowl',
+  'curated_snack_halibut_cabbage_breakfast_skillet',
+  'curated_snack_cod_broccoli_breakfast_bowl',
+  'curated_snack_shrimp_cabbage_breakfast_bowl',
+  'curated_snack_citrus_avocado_breakfast_bowl',
+  'curated_snack_tropical_breakfast_fruit_bowl',
+  'curated_snack_berry_melon_breakfast_bowl',
 ]);
 
 // ---------------------------------------------------------------------

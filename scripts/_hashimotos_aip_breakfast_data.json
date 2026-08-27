@@ -1,0 +1,867 @@
+[
+  {
+    "id": "curated_snack_beef_kale_breakfast_hash",
+    "builderType": "snack",
+    "name": "Beef & Kale Breakfast Hash",
+    "flavorProfile": "A quick morning hash of seared beef, braised kale, and carrot, finished with avocado.",
+    "healthBenefit": "Beef top sirloin, kale, and carrot all check completely clean for Hashimoto's, a real whole-food way to start the day without grains or eggs.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Beef Top Sirloin (Raw)",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Kale",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the kale and carrot in a covered pan with a splash of water, and braise over medium-low heat for 8-10 minutes, until soft.",
+      "Season the beef with the salt and sear in a dry, hot pan for 2-3 minutes per side, then slice thin.",
+      "Serve the beef over the braised kale and carrot, topped with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_pork_cabbage_breakfast_skillet",
+    "builderType": "snack",
+    "name": "Pork & Cabbage Breakfast Skillet",
+    "flavorProfile": "Pan-seared pork tenderloin with cabbage and carrot braised soft, a savory grain-free breakfast.",
+    "healthBenefit": "Pork tenderloin, cabbage, and carrot all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Pork Fillet / Tenderloin (Raw)",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cabbage",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "shredded",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the shredded cabbage and sliced carrot in a covered pan with a splash of water, and braise over medium-low heat for 10-12 minutes, until soft.",
+      "Season the sliced pork with the salt and sear in a dry, hot pan for 2-3 minutes per side, until cooked through.",
+      "Serve the pork over the braised cabbage and carrot."
+    ]
+  },
+  {
+    "id": "curated_snack_salmon_broccoli_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Salmon & Broccoli Breakfast Bowl",
+    "flavorProfile": "Baked salmon with roasted broccoli and carrot, finished with avocado, a real omega-3-rich start to the day.",
+    "healthBenefit": "Salmon, broccoli, and carrot all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Salmon Fillet (Raw)",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Broccoli",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "cut into florets",
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C).",
+      "Toss the broccoli and carrot with the salt and spread on a baking sheet.",
+      "Roast for 12-15 minutes, adding the salmon fillet to the sheet halfway through, until it flakes easily.",
+      "Serve with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_halibut_fennel_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Halibut & Fennel Breakfast Bowl",
+    "flavorProfile": "Baked halibut with roasted fennel and zucchini, finished with avocado.",
+    "healthBenefit": "Halibut, fennel, and zucchini all check completely clean for Hashimoto's, a real light, savory breakfast.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Halibut Fish (Raw)",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C).",
+      "Toss the fennel and zucchini with the salt and spread on a baking sheet.",
+      "Roast for 10 minutes, then add the halibut fillet to the sheet and roast for another 12-15 minutes, until it flakes easily.",
+      "Serve with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_cod_cabbage_breakfast_skillet",
+    "builderType": "snack",
+    "name": "Cod & Cabbage Breakfast Skillet",
+    "flavorProfile": "Pan-seared cod with cabbage and carrot braised soft, a real light way to start the day.",
+    "healthBenefit": "Cod, cabbage, and carrot all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Cod Fish",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cabbage",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "shredded",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the shredded cabbage and sliced carrot in a covered pan with a splash of water, and braise over medium-low heat for 10-12 minutes, until soft.",
+      "Season the cod with the salt and sear in a dry, hot pan for 3-4 minutes per side, until it flakes easily.",
+      "Serve the cod over the braised cabbage and carrot."
+    ]
+  },
+  {
+    "id": "curated_snack_shrimp_zucchini_breakfast_skillet",
+    "builderType": "snack",
+    "name": "Shrimp & Zucchini Breakfast Skillet",
+    "flavorProfile": "Shrimp sauteed with zucchini and carrot in a splash of water, finished with lime and avocado.",
+    "healthBenefit": "Shrimp, zucchini, and carrot all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Shrimp Crustaceans",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "julienned",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Saute the zucchini and carrot in a splash of water over medium-high heat for 4-5 minutes, until just tender.",
+      "Add the shrimp and cook for 2-3 minutes more, until pink and opaque all the way through.",
+      "Stir in the lime juice and salt, and serve with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_beef_broccoli_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Beef & Broccoli Breakfast Bowl",
+    "flavorProfile": "Seared beef with roasted broccoli and carrot, a real protein-forward start to the day.",
+    "healthBenefit": "Beef top sirloin, broccoli, and carrot all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Beef Top Sirloin (Raw)",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Broccoli",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "cut into florets",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C).",
+      "Toss the broccoli and carrot with half the salt and roast for 15 minutes, until tender.",
+      "Season the sliced beef with the remaining salt and sear in a dry, hot pan for 2-3 minutes per side.",
+      "Serve the beef over the roasted broccoli and carrot."
+    ]
+  },
+  {
+    "id": "curated_snack_pork_kale_breakfast_hash",
+    "builderType": "snack",
+    "name": "Pork & Kale Breakfast Hash",
+    "flavorProfile": "A quick morning hash of seared pork tenderloin, braised kale, and carrot, finished with avocado.",
+    "healthBenefit": "Pork tenderloin, kale, and carrot all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Pork Fillet / Tenderloin (Raw)",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Kale",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the kale and carrot in a covered pan with a splash of water, and braise over medium-low heat for 8-10 minutes, until soft.",
+      "Season the sliced pork with the salt and sear in a dry, hot pan for 2-3 minutes per side, until cooked through.",
+      "Serve the pork over the braised kale and carrot, topped with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_salmon_fennel_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Salmon & Fennel Breakfast Bowl",
+    "flavorProfile": "Baked salmon with roasted fennel and zucchini, a real light and savory breakfast.",
+    "healthBenefit": "Salmon, fennel, and zucchini all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Salmon Fillet (Raw)",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C).",
+      "Toss the fennel and zucchini with the salt and spread on a baking sheet.",
+      "Roast for 10 minutes, then add the salmon fillet to the sheet and roast for another 12-15 minutes, until it flakes easily."
+    ]
+  },
+  {
+    "id": "curated_snack_halibut_cabbage_breakfast_skillet",
+    "builderType": "snack",
+    "name": "Halibut & Cabbage Breakfast Skillet",
+    "flavorProfile": "Pan-seared halibut with cabbage and carrot braised soft, finished with avocado.",
+    "healthBenefit": "Halibut, cabbage, and carrot all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Halibut Fish (Raw)",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cabbage",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "shredded",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the shredded cabbage and sliced carrot in a covered pan with a splash of water, and braise over medium-low heat for 10-12 minutes, until soft.",
+      "Season the halibut with the salt and sear in a dry, hot pan for 3-4 minutes per side, until it flakes easily.",
+      "Serve the halibut over the braised cabbage and carrot, topped with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_cod_broccoli_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Cod & Broccoli Breakfast Bowl",
+    "flavorProfile": "Baked cod with roasted broccoli and carrot, a real light way to start the day.",
+    "healthBenefit": "Cod, broccoli, and carrot all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Cod Fish",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Broccoli",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "cut into florets",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C).",
+      "Toss the broccoli and carrot with half the salt and roast for 12 minutes.",
+      "Add the cod fillet, seasoned with the remaining salt, and roast for another 12-15 minutes, until it flakes easily."
+    ]
+  },
+  {
+    "id": "curated_snack_shrimp_cabbage_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Shrimp & Cabbage Breakfast Bowl",
+    "flavorProfile": "Shrimp sauteed with cabbage and carrot, finished with lime and avocado.",
+    "healthBenefit": "Shrimp, cabbage, and carrot all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Shrimp Crustaceans",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cabbage",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "shredded",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "julienned",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Saute the cabbage and carrot in a splash of water over medium-high heat for 4-5 minutes, until just tender.",
+      "Add the shrimp and cook for 2-3 minutes more, until pink and opaque all the way through.",
+      "Stir in the lime juice and salt, and serve with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_citrus_avocado_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Citrus & Avocado Breakfast Bowl",
+    "flavorProfile": "Sliced avocado with orange and grapefruit segments, finished with lime and cilantro, a real no-cook morning bowl.",
+    "healthBenefit": "Orange, grapefruit, and avocado all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Grapefruit",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Arrange the orange and grapefruit segments with the sliced avocado in a bowl.",
+      "Finish with the lime juice and cilantro."
+    ]
+  },
+  {
+    "id": "curated_snack_tropical_breakfast_fruit_bowl",
+    "builderType": "snack",
+    "name": "Tropical Breakfast Fruit Bowl",
+    "flavorProfile": "Banana, pineapple, and papaya, a real quick no-cook breakfast.",
+    "healthBenefit": "Banana, pineapple, and papaya all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Banana",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Pineapple",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Papaya",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the sliced banana, diced pineapple, and diced papaya in a bowl and serve right away."
+    ]
+  },
+  {
+    "id": "curated_snack_berry_melon_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Berry & Melon Breakfast Bowl",
+    "flavorProfile": "Blueberry, strawberry, and cantaloupe, a real quick no-cook breakfast.",
+    "healthBenefit": "Blueberry, strawberry, and cantaloupe all check completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Blueberry",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Strawberry",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "halved",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Cantaloupe Melon",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the blueberries, halved strawberries, and diced cantaloupe in a bowl and serve right away."
+    ]
+  }
+]

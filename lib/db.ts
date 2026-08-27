@@ -1631,20 +1631,88 @@ export async function listCuratedRecipes(builderType: BuilderFavoriteItemType): 
 // tap). getCuratedRecipe's own sharedCache parameter is the one caller
 // that now passes a single map shared across a whole run -- see
 // IngredientResolutionCaches.ingredientChoice's own comment for why.
+// 2026-08-27, direct question: "Can the way of how foods will be
+// consumed... be determined by... as they are meant to be cooked in the
+// system recipes?" Investigated and confirmed the honest answer was no
+// until this fix: curated_recipe_ingredients.cooking_method was already
+// stored and already shown in a recipe's own customer-facing ingredient
+// text ("broccoli, baked"), but this function ignored it completely and
+// always resolved 'Raw' first regardless -- meaning the ACTUAL food row
+// (and its real nutrient/condition-score data) used every time someone
+// tapped "Build This Recipe" for ANY curated recipe with a cooked
+// ingredient was silently the RAW version, not the cooked one the
+// recipe's own real instructions describe. This is a different, more
+// fundamental bug than the already-known "safeForConditions/
+// conditionCautions read wrong" one RECIPE_PREP_OVERRIDES (scripts/
+// compute_recipe_condition_data.js) already fixes -- that script only
+// ever patches the offline-computed Digest text, never what actually
+// gets resolved and saved into a person's own dish record. cookingMethod
+// now threaded through from the real stored column.
+// 2026-08-27: given a recipe's own free-text cooking_method, finds any
+// real, visible non-Raw prep_method row for this (category, base_name).
+// Tries a case-insensitive substring match against the real prep_method
+// vocabulary first (strictly more precise when it happens to hit, e.g.
+// cookingMethod "boiled" against a real "Boiled" row), then falls back
+// to the first visible non-Raw row in a stable, deterministic order --
+// see resolveCuratedRecipeIngredientUncached's own comment for why any
+// non-Raw variant is an honest, sufficient answer here.
+async function resolveNonRawPrepMethodMatch(category: string, baseName: string, cookingMethod: string) {
+  const db = await getReferenceDatabase();
+  const { clause, params } = buildScopeClause(category, null, false);
+  const rows = await db.getAllAsync<{
+    food_id: number;
+    source: string;
+    name: string;
+    short_name: string | null;
+    category: string;
+    prep_method: string | null;
+  }>(
+    `SELECT food_id, source, name, short_name, category, prep_method FROM foods
+     WHERE ${clause} AND base_name = ? AND prep_method IS NOT NULL AND prep_method != 'Raw'
+     ORDER BY CASE WHEN source IN ('USDA', 'Derived') THEN 0 ELSE 1 END, food_id`,
+    ...params,
+    baseName,
+  );
+  if (rows.length === 0) return null;
+  const lowerCooking = cookingMethod.toLowerCase();
+  const exact = rows.find((r) => r.prep_method && lowerCooking.includes(r.prep_method.toLowerCase()));
+  return toFoodOption(exact ?? rows[0]);
+}
+
 async function resolveCuratedRecipeIngredient(
   category: string,
   baseName: string,
+  cookingMethod: string | null,
   sharedCache?: Map<string, FoodOption | null>,
 ) {
-  const cacheKey = `${category}|${baseName}`;
+  const cacheKey = `${category}|${baseName}|${cookingMethod ?? ''}`;
   if (sharedCache?.has(cacheKey)) return sharedCache.get(cacheKey)!;
 
-  const resolved = await resolveCuratedRecipeIngredientUncached(category, baseName);
+  const resolved = await resolveCuratedRecipeIngredientUncached(category, baseName, cookingMethod);
   sharedCache?.set(cacheKey, resolved);
   return resolved;
 }
 
-async function resolveCuratedRecipeIngredientUncached(category: string, baseName: string) {
+// cookingMethod is a recipe's own free, customer-facing prose ("baked",
+// "braised", "sauteed"), never this database's own short, capitalized
+// prep_method vocabulary ("Baked", "Boiled", "Fried Without Fat (Pan)")
+// -- so resolveNonRawPrepMethodMatch below is deliberately not an exact
+// string match against resolveFoodChoice's own prepMethod param. This
+// app's own already-confirmed finding (2026-08-25/27, the raw-vs-cooked
+// recipe-condition-data work): every ingredient checked so far scores
+// identically for the sub-criteria that matter across its own real
+// non-Raw prep_method variants, so it's correct and sufficient to prefer
+// ANY visible real non-Raw row whenever a recipe's own ingredient text
+// says it's cooked at all, not just the one exact word used. A null
+// cookingMethod (the dish genuinely serves this ingredient raw, e.g. a
+// salad) is left to fall through to the existing Raw-first behavior
+// completely unchanged.
+async function resolveCuratedRecipeIngredientUncached(category: string, baseName: string, cookingMethod: string | null) {
+  if (cookingMethod) {
+    const viaCooked = await resolveNonRawPrepMethodMatch(category, baseName, cookingMethod);
+    if (viaCooked) return viaCooked;
+  }
+
   const viaKnownPrep =
     (await resolveFoodChoice(category, null, baseName, 'Raw')) ?? (await resolveFoodChoice(category, null, baseName, null));
   if (viaKnownPrep) return viaKnownPrep;
@@ -1737,7 +1805,7 @@ export async function getCuratedRecipe(
 
   const ingredients: BuilderFavoriteIngredient[] = [];
   for (const row of ingredientRows) {
-    const resolved = await resolveCuratedRecipeIngredient(row.category, row.base_name, sharedIngredientChoiceCache);
+    const resolved = await resolveCuratedRecipeIngredient(row.category, row.base_name, row.cooking_method, sharedIngredientChoiceCache);
     if (!resolved) continue;
     ingredients.push({
       foodId: resolved.foodId,
