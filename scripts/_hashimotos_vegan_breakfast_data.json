@@ -1,0 +1,1650 @@
+[
+  {
+    "id": "curated_vegan_blueberry_cinnamon_oatmeal",
+    "builderType": "snack",
+    "name": "Blueberry Cinnamon Oatmeal",
+    "flavorProfile": "Creamy coconut-milk oatmeal simmered plain, topped with warm blueberries and a real hit of cinnamon.",
+    "healthBenefit": "Oats and coconut milk alone, with warm blueberries and cinnamon stirred through, a genuinely whole-food breakfast built entirely from ingredients that check clean for Hashimoto's, not just soy-free.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Oats",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 150,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Blueberry",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.5,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Combine the oats and coconut milk in a small saucepan and bring to a gentle simmer.",
+      "Cook, stirring occasionally, for 5-7 minutes, until thick and creamy.",
+      "Fold in the blueberries and cinnamon, and cook 1-2 minutes more, just until the berries soften and release a little juice.",
+      "Drizzle with maple syrup if you'd like a touch of sweetness, and serve warm."
+    ]
+  },
+  {
+    "id": "curated_vegan_strawberry_banana_oatmeal",
+    "builderType": "snack",
+    "name": "Strawberry Banana Oatmeal",
+    "flavorProfile": "Coconut-milk oatmeal with sliced banana stirred in and fresh strawberries piled on top.",
+    "healthBenefit": "A simple, classic pairing built on the same clean oats-and-coconut-milk base, with real whole fruit doing all the sweetening work.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Oats",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 150,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Banana",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Strawberry",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Combine the oats and coconut milk in a small saucepan and bring to a gentle simmer.",
+      "Cook, stirring occasionally, for 5-7 minutes, until thick and creamy.",
+      "Stir in half the banana slices during the last minute of cooking, so they warm through and soften slightly.",
+      "Top with the remaining banana and the fresh strawberries, and a drizzle of maple syrup if using."
+    ]
+  },
+  {
+    "id": "curated_vegan_baked_apple_cinnamon_oatmeal_cup",
+    "builderType": "snack",
+    "name": "Baked Apple Cinnamon Oatmeal Cup",
+    "flavorProfile": "A single-serving baked oatmeal cup, sweetened only by diced apple and a real dose of cinnamon.",
+    "healthBenefit": "Baking the oats concentrates the apple's natural sweetness instead of relying on any added sugar, and this whole dish is built from a genuinely clean, whole-food ingredient list.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Oats",
+        "quantity": 45,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 120,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Apple",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "diced small",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.5,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 350F (175C).",
+      "Stir the oats, coconut milk, diced apple, and cinnamon together in a small oven-safe ramekin or cup.",
+      "Bake for 25-30 minutes, until set and lightly golden on top.",
+      "Let cool for a couple of minutes before eating, and drizzle with maple syrup if you'd like."
+    ]
+  },
+  {
+    "id": "curated_vegan_date_cinnamon_overnight_oats",
+    "builderType": "snack",
+    "name": "Date & Cinnamon Overnight Oats",
+    "flavorProfile": "No-cook overnight oats soaked in coconut milk, sweetened only by chopped dates and cinnamon.",
+    "healthBenefit": "A real make-ahead option built on the same clean base as this batch's other oat dishes, ready to eat straight from the fridge.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "jar",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Oats",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 130,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Date",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.5,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the oats, coconut milk, chopped dates, and cinnamon in a jar or container.",
+      "Stir well, cover, and refrigerate overnight (at least 6 hours).",
+      "Stir again before eating; add a splash more coconut milk if you prefer it looser."
+    ]
+  },
+  {
+    "id": "curated_vegan_orange_cranberry_rice_pudding",
+    "builderType": "snack",
+    "name": "Orange Cranberry Rice Pudding",
+    "flavorProfile": "Brown rice simmered slowly in coconut milk until creamy, finished with fresh orange segments and cranberries.",
+    "healthBenefit": "A real rice pudding, built entirely on clean, whole-food ingredients, with orange and cranberry's natural tartness balancing the coconut milk's richness.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Grains, rice, brown, long-grain, dry",
+        "quantity": 35,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 250,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Cranberry",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Combine the rice and coconut milk in a saucepan and bring to a gentle simmer.",
+      "Cook uncovered, stirring often, for 30-35 minutes, until the rice is fully tender and the mixture is thick and creamy.",
+      "Stir in the cranberries during the last 5 minutes so they soften and release some color.",
+      "Top with the fresh orange segments just before serving, warm or chilled."
+    ]
+  },
+  {
+    "id": "curated_vegan_ginger_pear_rice_pudding",
+    "builderType": "snack",
+    "name": "Ginger Pear Rice Pudding",
+    "flavorProfile": "Creamy coconut-milk rice pudding with fresh ginger and warm cinnamon, topped with sliced pear.",
+    "healthBenefit": "Fresh ginger gives this rice pudding real warmth without needing any of the spices flagged for Hashimoto's in this app's reference database.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Grains, rice, brown, long-grain, dry",
+        "quantity": 35,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 250,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Ginger, peeled, fresh",
+        "quantity": 3,
+        "unit": "g",
+        "cutPrep": "grated",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Pear",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Combine the rice, coconut milk, grated ginger, and cinnamon in a saucepan and bring to a gentle simmer.",
+      "Cook uncovered, stirring often, for 30-35 minutes, until the rice is fully tender and the mixture is thick and creamy.",
+      "Top with the fresh sliced pear just before serving, warm or chilled."
+    ]
+  },
+  {
+    "id": "curated_vegan_peach_sorghum_porridge",
+    "builderType": "snack",
+    "name": "Peach Sorghum Porridge",
+    "flavorProfile": "Whole-grain sorghum simmered in coconut milk until tender and creamy, topped with warm sliced peach and cinnamon.",
+    "healthBenefit": "Sorghum is a real, genuinely different whole grain from oats or rice, and one of the few this database scores completely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Sorghum grain",
+        "quantity": 45,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 180,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Peach",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.5,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Combine the sorghum and coconut milk in a saucepan and bring to a gentle simmer.",
+      "Cover and cook for 40-45 minutes, stirring occasionally and adding a splash of water if it gets too thick, until the sorghum is tender.",
+      "Stir in the cinnamon, top with the warm sliced peach, and drizzle with maple syrup if using."
+    ]
+  },
+  {
+    "id": "curated_vegan_raspberry_lime_sorghum_porridge",
+    "builderType": "snack",
+    "name": "Raspberry Lime Sorghum Porridge",
+    "flavorProfile": "Creamy sorghum porridge finished with fresh raspberries and a bright squeeze of lime.",
+    "healthBenefit": "A genuinely different flavor direction from this batch's other porridges, real citrus brightening a rich, whole-grain base.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Sorghum grain",
+        "quantity": 45,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 180,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Raspberry",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Combine the sorghum and coconut milk in a saucepan and bring to a gentle simmer.",
+      "Cover and cook for 40-45 minutes, stirring occasionally and adding a splash of water if it gets too thick, until the sorghum is tender.",
+      "Stir in the lime juice, top with the fresh raspberries, and drizzle with maple syrup if using."
+    ]
+  },
+  {
+    "id": "curated_vegan_sweet_polenta_apricot_compote",
+    "builderType": "snack",
+    "name": "Sweet Polenta with Warm Apricot Compote",
+    "flavorProfile": "Creamy coconut-milk polenta topped with apricots stewed soft with cinnamon.",
+    "healthBenefit": "Cornmeal polenta makes a genuinely different sweet breakfast base from any grain elsewhere in this batch, entirely clean for Hashimoto's.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Cornmeal, whole-grain, yellow",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 180,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Apricot",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "stewed",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.5,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Whisk the cornmeal into the coconut milk in a saucepan and bring to a gentle simmer, whisking often to prevent lumps.",
+      "Cook for 8-10 minutes, until thick and smooth.",
+      "Meanwhile, gently stew the sliced apricot with the cinnamon and a splash of water in a small pan for 5 minutes, until soft.",
+      "Spoon the warm apricot compote over the polenta and drizzle with maple syrup if using."
+    ]
+  },
+  {
+    "id": "curated_vegan_banana_polenta_porridge",
+    "builderType": "snack",
+    "name": "Banana Polenta Porridge",
+    "flavorProfile": "Smooth coconut-milk polenta with mashed banana stirred through and cinnamon on top.",
+    "healthBenefit": "A genuinely different texture from oatmeal or rice pudding, sweetened almost entirely by real banana.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Cornmeal, whole-grain, yellow",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 180,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Banana",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "mashed",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Whisk the cornmeal into the coconut milk in a saucepan and bring to a gentle simmer, whisking often to prevent lumps.",
+      "Cook for 8-10 minutes, until thick and smooth.",
+      "Stir in the mashed banana during the last minute of cooking.",
+      "Top with a dusting of cinnamon and a drizzle of maple syrup if using."
+    ]
+  },
+  {
+    "id": "curated_vegan_pineapple_coconut_tapioca_pudding",
+    "builderType": "snack",
+    "name": "Pineapple Coconut Tapioca Pudding",
+    "flavorProfile": "Small tapioca pearls simmered slowly in coconut milk until glossy and thick, topped with fresh pineapple.",
+    "healthBenefit": "A genuinely different texture from a porridge or rice pudding, real tapioca pearls cooked low and slow in coconut milk alone.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Tapioca, pearl, dry",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 220,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Pineapple",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Combine the tapioca pearls and coconut milk in a saucepan and let sit for 10 minutes to soften.",
+      "Bring to a gentle simmer, stirring frequently, and cook for 15-20 minutes, until the pearls turn translucent and the mixture thickens.",
+      "Let cool slightly (it will continue to thicken as it cools), then top with the fresh diced pineapple.",
+      "Drizzle with maple syrup if using, and serve warm or chilled."
+    ]
+  },
+  {
+    "id": "curated_vegan_mixed_berry_coconut_tapioca_pudding",
+    "builderType": "snack",
+    "name": "Mixed Berry Coconut Tapioca Pudding",
+    "flavorProfile": "Coconut-milk tapioca pudding topped with fresh blackberries and raspberries.",
+    "healthBenefit": "The same clean tapioca-and-coconut-milk base as this batch's pineapple version, with a genuinely different, tart-berry finish.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Tapioca, pearl, dry",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 220,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Blackberry",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Raspberry",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Combine the tapioca pearls and coconut milk in a saucepan and let sit for 10 minutes to soften.",
+      "Bring to a gentle simmer, stirring frequently, and cook for 15-20 minutes, until the pearls turn translucent and the mixture thickens.",
+      "Let cool slightly (it will continue to thicken as it cools), then top with the fresh blackberries and raspberries.",
+      "Drizzle with maple syrup if using, and serve warm or chilled."
+    ]
+  },
+  {
+    "id": "curated_vegan_tropical_fruit_bowl_coconut",
+    "builderType": "snack",
+    "name": "Tropical Fruit Bowl with Coconut",
+    "flavorProfile": "A no-cook bowl of banana, pineapple, papaya, and orange, drizzled with a little coconut milk.",
+    "healthBenefit": "A genuinely raw, no-cook option built entirely from real whole fruit, ready in minutes with nothing to simmer.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Banana",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Pineapple",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Papaya",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Slice or dice all the fruit and arrange it together in a bowl.",
+      "Drizzle the coconut milk over the top just before serving."
+    ]
+  },
+  {
+    "id": "curated_vegan_citrus_avocado_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Citrus Avocado Breakfast Bowl",
+    "flavorProfile": "Sliced avocado with orange and grapefruit segments, a squeeze of lime, and a pinch of salt.",
+    "healthBenefit": "A genuinely savory-leaning, no-cook breakfast built on whole avocado, the one fat source in this batch that scores completely clean for Hashimoto's, unlike any pressed oil.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Grapefruit",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.125,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Arrange the sliced avocado with the orange and grapefruit segments in a bowl.",
+      "Squeeze the lime juice over the top and finish with a pinch of salt."
+    ]
+  },
+  {
+    "id": "curated_vegan_berry_banana_coconut_smoothie",
+    "builderType": "snack",
+    "name": "Berry Banana Coconut Smoothie",
+    "flavorProfile": "A thick, no-cook smoothie of banana, blueberry, and strawberry blended with coconut milk and a splash of lime.",
+    "healthBenefit": "A genuinely quick option for a busy morning, built entirely from this batch's clean fruit-and-coconut-milk palette.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Banana",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Blueberry",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Strawberry",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 180,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the banana, blueberry, strawberry, coconut milk, and lime juice in a blender.",
+      "Blend until smooth, adding a splash more coconut milk if you prefer it thinner.",
+      "Pour into a glass and drink right away."
+    ]
+  },
+  {
+    "id": "curated_vegan_savory_rice_bowl_zucchini_pepper_tomato",
+    "builderType": "snack",
+    "name": "Savory Rice Bowl with Zucchini, Pepper & Tomato",
+    "flavorProfile": "Simmered rice topped with zucchini, bell pepper, and tomato cooked soft in a splash of water, finished with fresh cilantro and lime.",
+    "healthBenefit": "A genuinely savory option built without any oil at all, since every real cooking oil in this app's reference database is flagged for Hashimoto's -- the vegetables are cooked in a splash of water instead, a real, workable technique, not a compromise.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Grains, rice, brown, long-grain, dry",
+        "quantity": 45,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 150,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Red Bell Pepper",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the rice and filtered water in a saucepan, bring to a boil, then cover and simmer for 30-35 minutes, until tender.",
+      "Meanwhile, cook the zucchini and bell pepper in a splash of water in a covered pan over medium heat for 5-7 minutes, until soft, adding a little more water if the pan gets dry.",
+      "Stir in the diced tomato and cook 1-2 minutes more, just until warmed through.",
+      "Spoon the vegetables over the rice, finish with the cilantro, lime juice, and salt."
+    ]
+  },
+  {
+    "id": "curated_vegan_savory_polenta_leeks_tomato",
+    "builderType": "snack",
+    "name": "Savory Polenta with Leeks & Tomato",
+    "flavorProfile": "Smooth water-based polenta topped with leeks and tomato cooked soft, finished with fresh cilantro and lime.",
+    "healthBenefit": "A genuinely different savory grain base from the rice bowl in this same batch, still built entirely without any pressed oil.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Cornmeal, whole-grain, yellow",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 180,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Leek",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Whisk the cornmeal into the filtered water in a saucepan and bring to a gentle simmer, whisking often to prevent lumps.",
+      "Cook for 8-10 minutes, until thick and smooth, and season with half the salt.",
+      "Meanwhile, cook the sliced leek in a splash of water in a covered pan over medium heat for 6-8 minutes, until soft.",
+      "Stir in the diced tomato and cook 1-2 minutes more, just until warmed through.",
+      "Spoon the leek and tomato over the polenta, finish with the cilantro, lime juice, and remaining salt."
+    ]
+  },
+  {
+    "id": "curated_vegan_zucchini_fennel_hash_avocado",
+    "builderType": "snack",
+    "name": "Zucchini & Fennel Breakfast Hash with Avocado",
+    "flavorProfile": "Zucchini and fennel cooked soft with tomato, topped with sliced avocado, cilantro, and lime.",
+    "healthBenefit": "A genuinely different vegetable combination from this batch's other savory dishes, with real sliced avocado standing in for the richness a pressed oil would normally add.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "plate",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Cook the zucchini and fennel in a splash of water in a covered pan over medium heat for 7-9 minutes, until soft, adding a little more water if the pan gets dry.",
+      "Stir in the diced tomato and cook 1-2 minutes more, just until warmed through, then season with the salt.",
+      "Transfer to a plate and top with the sliced avocado, cilantro, and a squeeze of lime."
+    ]
+  },
+  {
+    "id": "curated_vegan_cranberry_orange_oatmeal",
+    "builderType": "snack",
+    "name": "Cranberry Orange Oatmeal",
+    "flavorProfile": "Coconut-milk oatmeal finished with fresh cranberries and orange segments.",
+    "healthBenefit": "Cranberry's tartness against orange's sweetness gives this oatmeal a genuinely different flavor from this batch's other fruit pairings.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Oats",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 150,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Cranberry",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Combine the oats and coconut milk in a small saucepan and bring to a gentle simmer.",
+      "Cook, stirring occasionally, for 5-7 minutes, until thick and creamy, stirring in the cranberries during the last 2 minutes so they soften.",
+      "Top with the fresh orange segments and a drizzle of maple syrup if using."
+    ]
+  },
+  {
+    "id": "curated_vegan_papaya_lime_smoothie_bowl",
+    "builderType": "snack",
+    "name": "Papaya Lime Smoothie Bowl",
+    "flavorProfile": "A thick, no-cook smoothie bowl of papaya and banana blended with coconut milk and fresh lime.",
+    "healthBenefit": "A genuinely different fruit base from this batch's berry-forward smoothie, ready in minutes with nothing to cook.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Papaya",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Banana",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 120,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the papaya, banana, coconut milk, and lime juice in a blender.",
+      "Blend until smooth and thick, adding a splash more coconut milk if needed.",
+      "Pour into a bowl and eat with a spoon."
+    ]
+  },
+  {
+    "id": "curated_vegan_cantaloupe_grapefruit_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Cantaloupe & Grapefruit Breakfast Bowl",
+    "flavorProfile": "A no-cook bowl of fresh cantaloupe and grapefruit with a squeeze of lime.",
+    "healthBenefit": "A genuinely light, refreshing option built entirely from real whole fruit, with no grain or coconut milk at all.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Cantaloupe Melon",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Grapefruit",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the diced cantaloupe and grapefruit segments in a bowl.",
+      "Squeeze the lime juice over the top just before serving."
+    ]
+  },
+  {
+    "id": "curated_vegan_apple_rice_pudding_cinnamon",
+    "builderType": "snack",
+    "name": "Apple Rice Pudding with Cinnamon",
+    "flavorProfile": "Creamy coconut-milk rice pudding with diced apple and cinnamon stirred through.",
+    "healthBenefit": "A genuinely different fruit pairing from this batch's other rice puddings, apple and cinnamon a classic, simple combination.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Grains, rice, brown, long-grain, dry",
+        "quantity": 35,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 250,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Apple",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "diced small",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.5,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Combine the rice and coconut milk in a saucepan and bring to a gentle simmer.",
+      "Cook uncovered, stirring often, for 30-35 minutes, until the rice is fully tender and the mixture is thick and creamy, stirring in the apple and cinnamon during the last 10 minutes.",
+      "Drizzle with maple syrup if using, and serve warm or chilled."
+    ]
+  },
+  {
+    "id": "curated_vegan_date_sorghum_porridge",
+    "builderType": "snack",
+    "name": "Date Sorghum Porridge",
+    "flavorProfile": "Whole-grain sorghum simmered in coconut milk with chopped dates and cinnamon.",
+    "healthBenefit": "A genuinely different sweetener direction from this batch's other sorghum porridge, real dates doing most of the sweetening.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Sorghum grain",
+        "quantity": 45,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 180,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Date",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the sorghum and coconut milk in a saucepan and bring to a gentle simmer.",
+      "Cover and cook for 40-45 minutes, stirring occasionally and adding a splash of water if it gets too thick, until the sorghum is tender.",
+      "Stir in the chopped dates and cinnamon during the last 5 minutes, so the dates soften slightly."
+    ]
+  },
+  {
+    "id": "curated_vegan_savory_fennel_tomato_rice_bowl",
+    "builderType": "snack",
+    "name": "Savory Fennel & Tomato Rice Bowl",
+    "flavorProfile": "Simmered rice topped with fennel and tomato cooked soft in a splash of water, finished with fresh cilantro and lime.",
+    "healthBenefit": "A genuinely different savory vegetable pairing from this batch's other rice bowl, still built entirely without any pressed oil.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Grains, rice, brown, long-grain, dry",
+        "quantity": 45,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 150,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro) leaves",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the rice and filtered water in a saucepan, bring to a boil, then cover and simmer for 30-35 minutes, until tender.",
+      "Meanwhile, cook the fennel in a splash of water in a covered pan over medium heat for 6-8 minutes, until soft, adding a little more water if the pan gets dry.",
+      "Stir in the diced tomato and cook 1-2 minutes more, just until warmed through.",
+      "Spoon the vegetables over the rice, finish with the cilantro, lime juice, and salt."
+    ]
+  },
+  {
+    "id": "curated_vegan_pear_ginger_overnight_oats",
+    "builderType": "snack",
+    "name": "Pear Ginger Overnight Oats",
+    "flavorProfile": "No-cook overnight oats soaked in coconut milk with fresh ginger and diced pear.",
+    "healthBenefit": "A genuinely different overnight-oats flavor from this batch's date-and-cinnamon version, fresh ginger giving it real warmth without needing any of the spices flagged for Hashimoto's in this app's reference database.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "jar",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Oats",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 130,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Pear",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Ginger, peeled, fresh",
+        "quantity": 2,
+        "unit": "g",
+        "cutPrep": "grated",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the oats, coconut milk, diced pear, and grated ginger in a jar or container.",
+      "Stir well, cover, and refrigerate overnight (at least 6 hours).",
+      "Stir again before eating; add a splash more coconut milk if you prefer it looser."
+    ]
+  },
+  {
+    "id": "curated_vegan_blackberry_lime_rice_pudding",
+    "builderType": "snack",
+    "name": "Blackberry Lime Rice Pudding",
+    "flavorProfile": "Creamy coconut-milk rice pudding topped with fresh blackberries and a squeeze of lime.",
+    "healthBenefit": "A genuinely different berry pairing from this batch's other rice puddings, lime brightening the blackberries' natural tartness.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Grains, rice, brown, long-grain, dry",
+        "quantity": 35,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "simmered",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 250,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Blackberry",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": "optional"
+      }
+    ],
+    "instructions": [
+      "Combine the rice and coconut milk in a saucepan and bring to a gentle simmer.",
+      "Cook uncovered, stirring often, for 30-35 minutes, until the rice is fully tender and the mixture is thick and creamy.",
+      "Stir in the lime juice, top with the fresh blackberries, and drizzle with maple syrup if using."
+    ]
+  }
+]

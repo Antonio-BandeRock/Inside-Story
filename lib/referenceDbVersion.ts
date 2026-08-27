@@ -22,4 +22,9 @@
 // all, so every "Build This Recipe"/curated-recipe-pick flow across
 // every Food builder was silently carrying an empty step list. See
 // lib/db.ts's own getCuratedRecipe comment for the full reasoning.
-export const REFERENCE_DB_VERSION = "20260826220000";
+// Bumped again the same day by scripts/add_hashimotos_safe_vegan_
+// breakfasts.py (26 new curated recipes closing the Hashimoto's+vegan+
+// breakfast coverage gap from 5 to 32, verified via scripts/audit_
+// meal_plan_recipe_coverage.js -- see that script's own header comment
+// and CLAUDE.md's own 2026-08-26 entry for the full reasoning).
+export const REFERENCE_DB_VERSION = "20260827000000";

@@ -32,7 +32,19 @@ function extractBreakfastEligibleIds() {
   const start = content.indexOf('BREAKFAST_ELIGIBLE_RECIPE_IDS = new Set<string>([');
   const end = content.indexOf(']);', start);
   const block = content.slice(start, end);
-  const ids = [...block.matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  // 2026-08-26, hardened after this exact regex twice miscounted a real
+  // batch: a `//` comment line inside this array (explaining why a batch
+  // of ids was added) is completely normal here, and any apostrophe in
+  // it (an entirely ordinary word like "Hashimoto's") reads as a string
+  // delimiter to a naive quote-matching regex, silently swallowing every
+  // real id up to the next apostrophe. Comment lines are stripped before
+  // matching now, so writing a normal, apostrophe-containing comment in
+  // this array never silently corrupts this count again.
+  const codeOnly = block
+    .split('\n')
+    .filter((line) => !/^\s*\/\//.test(line))
+    .join('\n');
+  const ids = [...codeOnly.matchAll(/'([^']+)'/g)].map((m) => m[1]);
   return new Set(ids);
 }
 

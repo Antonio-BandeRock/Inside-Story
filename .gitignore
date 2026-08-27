@@ -109,3 +109,6 @@ scripts/digest-tracker/digest-tracker-data.json
 
 # Pre-trim backup of the oversized CLAUDE.md (full history is versioned at docs/CLAUDE-ARCHIVE.md)
 CLAUDE.md.bak
+
+# Python bytecode cache from running one-off scripts/*.py content-authoring scripts
+scripts/__pycache__/

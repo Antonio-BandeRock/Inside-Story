@@ -1400,6 +1400,12 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_vegan_apple_rice_pudding_cinnamon": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_vegan_apricot_cashew_tofu_bowl": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -1413,7 +1419,19 @@
     "Gluten-Free",
     "Dairy-Free"
   ],
+  "curated_vegan_baked_apple_cinnamon_oatmeal_cup": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_vegan_baked_oatmeal_cup_banana_cinnamon": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_banana_polenta_porridge": [
     "Vegan",
     "Plant-Based/Flexitarian",
     "Gluten-Free",
@@ -1425,6 +1443,13 @@
     "Gluten-Free",
     "Dairy-Free",
     "High-Protein"
+  ],
+  "curated_vegan_berry_banana_coconut_smoothie": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
   ],
   "curated_vegan_black_bean_breakfast_bowl_avocado": [
     "Vegan",
@@ -1448,6 +1473,18 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_vegan_blackberry_lime_rice_pudding": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_blueberry_cinnamon_oatmeal": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_vegan_breakfast_burrito_tofu_black_beans": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -1465,6 +1502,14 @@
     "Plant-Based/Flexitarian",
     "Gluten-Free",
     "Dairy-Free"
+  ],
+  "curated_vegan_cantaloupe_grapefruit_breakfast_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
   ],
   "curated_vegan_cantaloupe_tofu_maple": [
     "Vegan",
@@ -1502,6 +1547,14 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_vegan_citrus_avocado_breakfast_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
   "curated_vegan_clementine_almond_tofu_bowl": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -1529,12 +1582,30 @@
     "Gluten-Free",
     "Dairy-Free"
   ],
+  "curated_vegan_cranberry_orange_oatmeal": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_vegan_date_cashew_tofu_bowl": [
     "Vegan",
     "Plant-Based/Flexitarian",
     "Gluten-Free",
     "Dairy-Free",
     "High-Protein"
+  ],
+  "curated_vegan_date_cinnamon_overnight_oats": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_date_sorghum_porridge": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
   ],
   "curated_vegan_date_walnut_tofu_bowl": [
     "Vegan",
@@ -1561,6 +1632,12 @@
     "Gluten-Free",
     "Dairy-Free",
     "High-Protein"
+  ],
+  "curated_vegan_ginger_pear_rice_pudding": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
   ],
   "curated_vegan_grapefruit_pistachio_tofu_bowl": [
     "Vegan",
@@ -1649,7 +1726,19 @@
     "Gluten-Free",
     "Dairy-Free"
   ],
+  "curated_vegan_mixed_berry_coconut_tapioca_pudding": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_vegan_nectarine_chia_pudding_cashews": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_orange_cranberry_rice_pudding": [
     "Vegan",
     "Plant-Based/Flexitarian",
     "Gluten-Free",
@@ -1668,6 +1757,13 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_vegan_papaya_lime_smoothie_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
   "curated_vegan_papaya_lime_tofu_bowl": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -1681,6 +1777,12 @@
     "Gluten-Free",
     "Dairy-Free"
   ],
+  "curated_vegan_peach_sorghum_porridge": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_vegan_pear_almond_tofu_bowl": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -1688,12 +1790,24 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_vegan_pear_ginger_overnight_oats": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_vegan_pear_walnut_tofu_bowl": [
     "Vegan",
     "Plant-Based/Flexitarian",
     "Gluten-Free",
     "Dairy-Free",
     "High-Protein"
+  ],
+  "curated_vegan_pineapple_coconut_tapioca_pudding": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
   ],
   "curated_vegan_plum_walnut_overnight_oats": [
     "Vegan",
@@ -1705,6 +1819,12 @@
     "Vegan",
     "Plant-Based/Flexitarian",
     "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_raspberry_lime_sorghum_porridge": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
     "Gluten-Free",
     "Dairy-Free"
   ],
@@ -1835,6 +1955,12 @@
     "Gluten-Free",
     "Dairy-Free"
   ],
+  "curated_vegan_savory_fennel_tomato_rice_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_vegan_savory_millet_bowl_roasted_vegetables_tahini": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -1856,6 +1982,12 @@
     "Gluten-Free",
     "Dairy-Free"
   ],
+  "curated_vegan_savory_polenta_leeks_tomato": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_vegan_savory_quinoa_bowl_tofu_scramble": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -1863,6 +1995,12 @@
     "Gluten-Free",
     "Dairy-Free",
     "High-Protein"
+  ],
+  "curated_vegan_savory_rice_bowl_zucchini_pepper_tomato": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
   ],
   "curated_vegan_side_baked_seitan_zucchini_tomatoes": [
     "Vegan",
@@ -2252,6 +2390,18 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_vegan_strawberry_banana_oatmeal": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_sweet_polenta_apricot_compote": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_vegan_tofu_avocado_tomato": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -2268,6 +2418,13 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_vegan_tropical_fruit_bowl_coconut": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
   "curated_vegan_watermelon_tofu_bowl": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -2283,5 +2440,12 @@
     "Gluten-Free",
     "Dairy-Free",
     "High-Protein"
+  ],
+  "curated_vegan_zucchini_fennel_hash_avocado": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
   ]
 }

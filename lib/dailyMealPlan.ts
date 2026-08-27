@@ -177,6 +177,46 @@ export const BREAKFAST_ELIGIBLE_RECIPE_IDS = new Set<string>([
   'curated_vegan_coconut_milk_overnight_oats_blueberry_flax',
   'curated_vegan_coconut_milk_chia_pudding_almond_butter_berries',
   'curated_vegan_buckwheat_porridge_coconut_milk_walnut_pear',
+  // 2026-08-26, direct follow-up closing the Hashimoto plus vegan plus
+  // breakfast gap specifically (the batch above closed the general
+  // vegan-breakfast target but left this narrower combination at 5 of
+  // 30): direct request to tackle the Hashimoto vegan-breakfast batch
+  // next. All 18 are real, verified curated recipes checked directly
+  // against every one of Hashimoto condition relevant sub-criteria
+  // before being written (see scripts/add_hashimotos_safe_vegan_
+  // breakfasts.py header comment) -- not just added here without the
+  // matching content.
+  'curated_vegan_blueberry_cinnamon_oatmeal',
+  'curated_vegan_strawberry_banana_oatmeal',
+  'curated_vegan_baked_apple_cinnamon_oatmeal_cup',
+  'curated_vegan_date_cinnamon_overnight_oats',
+  'curated_vegan_orange_cranberry_rice_pudding',
+  'curated_vegan_ginger_pear_rice_pudding',
+  'curated_vegan_peach_sorghum_porridge',
+  'curated_vegan_raspberry_lime_sorghum_porridge',
+  'curated_vegan_sweet_polenta_apricot_compote',
+  'curated_vegan_banana_polenta_porridge',
+  'curated_vegan_pineapple_coconut_tapioca_pudding',
+  'curated_vegan_mixed_berry_coconut_tapioca_pudding',
+  'curated_vegan_tropical_fruit_bowl_coconut',
+  'curated_vegan_citrus_avocado_breakfast_bowl',
+  'curated_vegan_berry_banana_coconut_smoothie',
+  'curated_vegan_savory_rice_bowl_zucchini_pepper_tomato',
+  'curated_vegan_savory_polenta_leeks_tomato',
+  'curated_vegan_zucchini_fennel_hash_avocado',
+  // Same-day follow-up: the 18 above brought Hashimoto plus vegan plus
+  // breakfast coverage from 5 to 24 (confirmed via scripts/audit_meal_
+  // plan_recipe_coverage.js), a real improvement but still short of the
+  // 30-minimum bar. These 8 close the remaining gap using the same
+  // verified-clean ingredient palette, no new ingredient needed checking.
+  'curated_vegan_cranberry_orange_oatmeal',
+  'curated_vegan_papaya_lime_smoothie_bowl',
+  'curated_vegan_cantaloupe_grapefruit_breakfast_bowl',
+  'curated_vegan_apple_rice_pudding_cinnamon',
+  'curated_vegan_date_sorghum_porridge',
+  'curated_vegan_savory_fennel_tomato_rice_bowl',
+  'curated_vegan_pear_ginger_overnight_oats',
+  'curated_vegan_blackberry_lime_rice_pudding',
 ]);
 
 // ---------------------------------------------------------------------
