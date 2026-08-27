@@ -4084,6 +4084,37 @@ export async function getDatabase() {
   return databasePromise;
 }
 
+// 2026-08-27, direct on-device report the morning after a version-bump
+// day: the app crashed on launch, without opening anything, with this
+// exact same error text -- confirmed by reading getGroundThemeSync's own
+// comment (lib/visualPreferences.ts) that this is a KNOWN, already-once-
+// fixed native race from 2026-08-19: that function opens its own real,
+// synchronous connection to this same DB_NAME file (constants/colors.ts
+// needs a real value before first render, which can only be done
+// synchronously at module-load time) and closes it again immediately --
+// but expo-sqlite's own native layer can apparently still hand
+// getDatabase()'s own async open, moments later, a connection object
+// tied to that already-released native resource, since a JS-level
+// closeSync() finishing doesn't guarantee the native side has fully torn
+// the shared object down before the very next open call runs. The
+// 2026-08-19 fix (closing the sync connection immediately rather than
+// holding it) narrowed this race, evidently without eliminating it --
+// the exact same symptom recurred, most likely because yesterday's own
+// multiple REFERENCE_DB_VERSION bumps forced a real, slow reimport this
+// launch, shifting the relative timing of everything else at startup
+// enough to reopen the window. Perfectly synchronizing expo-sqlite's own
+// sync and async native bridges isn't something fixable from this app's
+// own JS layer, so this is a real, pragmatic resilience measure instead:
+// if the very first real statement this app issues against the main db
+// fails with this specific, unambiguous native signature, the corrupted
+// connection is discarded and the whole sequence is retried exactly
+// once, opening a genuinely fresh native connection rather than reusing
+// the one that already broke.
+function isSharedObjectReleasedError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('shared object') && message.includes('released');
+}
+
 // A thin, memoizing shell -- every real caller (app/_layout.tsx's own two
 // concurrent effects, getReferenceDatabase()'s own internal call, and
 // anything else that calls this) now shares the exact same one real
@@ -4092,7 +4123,12 @@ export async function getDatabase() {
 // why this was needed.
 export async function initializeDatabase() {
   if (!initializeDatabasePromise) {
-    initializeDatabasePromise = runDatabaseInitialization();
+    initializeDatabasePromise = runDatabaseInitialization().catch(async (error) => {
+      if (!isSharedObjectReleasedError(error)) throw error;
+      databasePromise = null;
+      initializeDatabasePromise = null;
+      return runDatabaseInitialization();
+    });
   }
   return initializeDatabasePromise;
 }
