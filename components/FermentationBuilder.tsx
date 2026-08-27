@@ -64,6 +64,7 @@ import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { StepsEditor } from './StepsEditor';
+import { ConditionNoteRow } from './ConditionNoteRow';
 import { VoiceInputButton } from './VoiceInputButton';
 
 // Common home-cooking units -- a plain pill row, not InlineSelectList's own
@@ -248,19 +249,6 @@ const COOKING_METHODS = [
 const CUT_PREP_METHODS = [
   'N/A', 'Whole', 'Halved', 'Quartered', 'Sliced', 'Diced', 'Cubed', 'Chopped', 'Minced',
   'Grated', 'Shredded', 'Julienned', 'Crushed', 'Smashed', 'Muddled', 'Mashed', 'Pureed', 'Torn',
-];
-
-// Checked after cooking method is confirmed, 2026-07-28 -- forgetting to
-// log cooking oil/fat or seasoning is one of the most common silent-error
-// sources in food tracking (it's easy to remember the vegetables and
-// forget the tablespoon of olive oil they were cooked in). category values
-// match the real reference database (assets/data/foods_reference.db) --
-// confirmed both 'Fats' (olive oil, butter, other cooking fats) and
-// 'Herbs' (herbs, spices, vinegars, seasoning mixes) exist there and hold
-// what this label implies, rather than assuming.
-const EXTRAS_TO_CHECK: { category: string; label: string }[] = [
-  { category: 'Fats', label: 'cooking oil or fat' },
-  { category: 'Herbs', label: 'seasoning' },
 ];
 
 type FermentationIngredient = {
@@ -1079,6 +1067,17 @@ export function FermentationBuilder({
       setServingsConfirmed(true);
       setIngredients(loaded);
       setSelectedStrainIds(strainIds);
+      // 2026-08-26, direct report: "for system recipes, for all system
+      // recipes, there is supposed to be a premade set of steps written
+      // so they are not plagiarized but convey the correct steps."
+      // handleStartCuratedRecipeToday (above) already saves this
+      // recipe's own real instructions directly; this "Customize the
+      // ingredients first" path never carried them into StepsEditor at
+      // all, silently dropping them and leaving the person to write
+      // their own steps from scratch for a recipe that already has real,
+      // hand-written ones. Still fully editable from here, same as any
+      // other field on this screen.
+      setSteps(recipe.instructions ?? []);
     } finally {
       setLoadingCuratedRecipeId(null);
     }
@@ -1134,12 +1133,16 @@ export function FermentationBuilder({
   // 'building': the connected Category/Food picker shows automatically
   // (see the early return below) whenever nothing's pending confirmation.
   // 'reviewing': reached by tapping "Done adding ingredients" in the
-  // summary card -- what renders here depends on EXTRAS_TO_CHECK, computed
-  // live below from the current ingredient list (not stored), so adding a
-  // missing item via the picker immediately clears its own nudge without a
-  // separate transition. Cooking method is no longer a separate step here
-  // at all, 2026-07-29 -- it's asked per ingredient now, at "Add to Fermentation"
-  // time (see FermentationIngredient's own comment).
+  // summary card, landing directly on the real final review screen below
+  // (ingredients, real steps, nutrition/condition preview) -- 2026-08-26,
+  // direct report: a "no cooking oil or fat logged" nudge used to sit in
+  // front of it, copied from the other builders' own version of this
+  // check, but it never fit a fermentation honestly (most real ferments
+  // use neither), so it's removed here rather than kept as a check this
+  // builder can't answer meaningfully. Cooking method is no longer a
+  // separate step here at all, 2026-07-29 -- it's asked per ingredient
+  // now, at "Add to Fermentation" time (see FermentationIngredient's own
+  // comment).
   // 'report' -- 2026-08-25, see SideBuilder.tsx's own identical state.
   const [finishStep, setFinishStep] = useState<'building' | 'reviewing' | 'report'>('building');
   const [reportData, setReportData] = useState<RecipeDepthResult | null>(null);
@@ -1156,14 +1159,6 @@ export function FermentationBuilder({
   // explicitly requested, since re-opening a fermentation is almost always to
   // review/fix what's already there, not to add something new right away.
   const [addingIngredient, setAddingIngredient] = useState(false);
-  // Explicit "I looked, I meant it" override -- without this, adding the
-  // missing item is the ONLY way out of 'reviewing' once something's
-  // flagged, which is wrong for genuinely oil-free/seasoning-free fermentations
-  // (plain steamed vegetables, etc.).
-  const [nudgeDismissed, setNudgeDismissed] = useState(false);
-  const missingExtras = EXTRAS_TO_CHECK.filter(
-    (extra) => !ingredients.some((ingredient) => ingredient.resolved.category === extra.category),
-  );
 
   useEffect(() => {
     let isMounted = true;
@@ -1487,7 +1482,6 @@ export function FermentationBuilder({
     setServingsConfirmed(false);
     setAlsoSaveAsFavorite(false);
     setFinishStep('building');
-    setNudgeDismissed(false);
     setSteps([]);
     setIngredientSourceMode(null);
     setSourceChooserVisible(false);
@@ -1776,8 +1770,8 @@ export function FermentationBuilder({
         {/* Edit mode: this card only ever shows while addingIngredient is
             true (mid "+ Add Ingredient"), so its own escape hatch goes
             back to the overview screen instead of create mode's own
-            "reviewing" step -- that ready-screen/missingExtras flow
-            doesn't exist for edit mode at all (see the overview branch's
+            "reviewing" step -- that final-review flow doesn't exist for
+            edit mode at all (see the overview branch's
             own comment), so leaving this pointed at
             setFinishStep('reviewing') would have dropped an edit-mode
             person into a dead-end. Shown even with zero ingredients added
@@ -2631,39 +2625,6 @@ export function FermentationBuilder({
                 )}
               </View>
             </View>
-          ) : missingExtras.length > 0 && !nudgeDismissed ? (
-            // Soft nudge, 2026-07-28 -- never blocks finishing (see
-            // nudgeDismissed's own comment above): plenty of real fermentations
-            // genuinely have no oil or seasoning. Recomputed live
-            // from `ingredients` every render, so adding the missing
-            // item via the connected picker (back in 'building') clears
-            // its own mention here automatically, no separate
-            // acknowledgement needed.
-            <View style={[styles.formCard, { borderColor: tabColor }]}>
-              <Text style={styles.emptyText}>
-                No {missingExtras.map((extra) => extra.label).join(' or ')} logged for this fermentation yet.
-              </Text>
-              <View style={styles.buttonRow}>
-                <TouchableOpacity
-                  style={styles.secondaryButton}
-                  onPress={() => {
-                    dismissKeyboard();
-                    setNudgeDismissed(true);
-                  }}
-                >
-                  <Text style={[styles.secondaryButtonText, { color: tabColor }]}>None used, continue</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]}
-                  onPress={() => {
-                    dismissKeyboard();
-                    setFinishStep('building');
-                  }}
-                >
-                  <Text style={styles.primaryButtonText}>+ Add Ingredient</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
           ) : (
             // The real final review screen, 2026-08-17 (point 7: "this is
             // when it should all be displayed as the recipes are displayed
@@ -2756,10 +2717,7 @@ export function FermentationBuilder({
                 <View style={[styles.recipeConditionBox, { borderColor: colors.danger }]}>
                   <Text style={[styles.recipeConditionLabel, { color: colors.danger }]}>Worth Knowing If You Have...</Text>
                   {conditionNotes.map((note, index) => (
-                    <View key={index} style={index > 0 ? { marginTop: 8 } : undefined}>
-                      <Text style={styles.recipeConditionCondition}>{note.condition}</Text>
-                      <Text style={styles.recipeNutritionText}>{note.note}</Text>
-                    </View>
+                    <ConditionNoteRow key={index} note={note} onExplain={showInfoAlert} isFirst={index === 0} />
                   ))}
                 </View>
               ) : null}

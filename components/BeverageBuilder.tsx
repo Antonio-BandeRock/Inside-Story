@@ -54,6 +54,7 @@ import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { StepsEditor } from './StepsEditor';
+import { ConditionNoteRow } from './ConditionNoteRow';
 import { VoiceInputButton } from './VoiceInputButton';
 import type { BeverageSubtypeKey } from './BeverageSubtypePicker';
 
@@ -2475,10 +2476,7 @@ export function BeverageBuilder({
                 <View style={[styles.recipeConditionBox, { borderColor: colors.danger }]}>
                   <Text style={[styles.recipeConditionLabel, { color: colors.danger }]}>Worth Knowing If You Have...</Text>
                   {conditionNotes.map((note, index) => (
-                    <View key={index} style={index > 0 ? { marginTop: 8 } : undefined}>
-                      <Text style={styles.recipeConditionCondition}>{note.condition}</Text>
-                      <Text style={styles.recipeNutritionText}>{note.note}</Text>
-                    </View>
+                    <ConditionNoteRow key={index} note={note} onExplain={showInfoAlert} isFirst={index === 0} />
                   ))}
                 </View>
               ) : null}

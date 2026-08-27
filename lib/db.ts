@@ -11151,7 +11151,18 @@ function isNoteworthyConditionFlag(subCriterion: string, tier: string): boolean 
   }
 }
 
-export type ComponentConditionNote = { condition: string; note: string };
+// relevanceNote/citation added 2026-08-26, direct request: "the 'worth
+// knowing if you have...' boxes... should have a link to something in
+// the Digest with more information about the claim we are making, but
+// they are in the middle of creating their hydration through the
+// fermentation, and they might want to read the warning without losing
+// their place in the build." Both null when no real, cited relevance
+// data exists yet for whichever sub-criterion actually triggered this
+// note (most of the reference database's older sub-criteria don't),
+// so a caller can render a real, honest "tap to learn more" only when
+// there's genuinely something to show, matching this app's own standing
+// rule against inviting a tap that leads nowhere.
+export type ComponentConditionNote = { condition: string; note: string; relevanceNote: string | null; citation: string | null };
 
 // The real, general core -- 2026-08-15, split out for the same real
 // reason as getNutritionHighlightsForIngredients above: a favorite's own
@@ -11175,14 +11186,29 @@ export async function getConditionNotesForIngredients(
   const notes: ComponentConditionNote[] = [];
   for (const condition of conditions) {
     const flaggedFoods: string[] = [];
+    // The first real, cited relevance/note pair actually found while
+    // scanning this condition's own flagged ingredients -- not
+    // necessarily from the same food every time, but the same real,
+    // already-computed data getFoodScoresForCondition already carries
+    // for exactly this question, just never surfaced here before.
+    let relevanceNote: string | null = null;
+    let citation: string | null = null;
     for (const ingredient of ingredients) {
       if (!ingredient.foodId) continue;
       const [foodIdStr, source] = ingredient.foodId.split('|');
       const foodId = Number(foodIdStr);
       if (!source || Number.isNaN(foodId)) continue;
       const scores = await getFoodScoresForCondition(foodId, source, condition.code);
-      if (scores.some((score) => isNoteworthyConditionFlag(score.subCriterion, score.tier))) {
+      const flaggedScores = scores.filter((score) => isNoteworthyConditionFlag(score.subCriterion, score.tier));
+      if (flaggedScores.length > 0) {
         flaggedFoods.push(ingredient.foodName);
+        if (!relevanceNote) {
+          const withNote = flaggedScores.find((score) => score.relevanceNote);
+          if (withNote) {
+            relevanceNote = withNote.relevanceNote;
+            citation = withNote.citation;
+          }
+        }
       }
     }
     if (flaggedFoods.length > 0) {
@@ -11191,6 +11217,8 @@ export async function getConditionNotesForIngredients(
       notes.push({
         condition: condition.name,
         note: `${shown}${rest} may be worth a closer look if you have ${condition.name}.`,
+        relevanceNote,
+        citation,
       });
     }
   }

@@ -113,7 +113,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       yield: 'Makes one small 4-slice loaf. A loaf this size comfortably keeps one person in bread for several days.',
       ingredients: [
         { text: '250g (about 2 cups) whole-grain wheat flour' },
-        { text: '150ml warm water' },
+        { text: '150ml warm filtered water' },
         { text: '3.5g (about 1 teaspoon) active dry yeast' },
         { text: '3g (about ½ teaspoon) salt' },
         { text: '7.5g (about ½ tablespoon) honey' },
@@ -170,7 +170,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       yield: 'Makes 4 tortillas. One person can get through these across a couple of days of wraps and tacos.',
       ingredients: [
         { text: '125g (about 1 cup) white flour tortilla mix (or all-purpose flour)' },
-        { text: '75ml warm water' },
+        { text: '75ml warm filtered water' },
         { text: '10ml (about 2 teaspoons) olive oil' },
         { text: '1.5g (about ¼ teaspoon) salt' },
       ],
@@ -326,7 +326,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1.5g (about ½ teaspoon) ground turmeric' },
         { text: '15g (juice of about ½ lemon)' },
         { text: '7.5g (about ½ tablespoon) honey' },
-        { text: '250ml water' },
+        { text: '250ml filtered water' },
         { text: 'A pinch of ground black pepper' },
       ],
       instructions: [
@@ -364,7 +364,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       },
       yield: 'Makes about 2 cups (500ml), one glass for one person.',
       ingredients: [
-        { text: '500ml water' },
+        { text: '500ml filtered water' },
         { text: '2g (about ⅓ teaspoon) salt' },
         { text: '30g (juice of about 1 lemon)' },
         { text: '10g (about 2 teaspoons) honey' },
@@ -1482,7 +1482,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '30g (about 2 tablespoons) tahini' },
         { text: '15g (juice of about ½ lemon)' },
         { text: '1.5g (about ½ clove) garlic, minced' },
-        { text: '30ml (about 2 tablespoons) water' },
+        { text: '30ml (about 2 tablespoons) filtered water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -2296,7 +2296,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '25g (about 3 tablespoons) onion, diced' },
         { text: '1.5g (about ½ clove) garlic, minced' },
         { text: '2.5g (about ¾ teaspoon) chicken bouillon' },
-        { text: '250ml water' },
+        { text: '250ml filtered water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -2347,7 +2347,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '25g (about 3 tablespoons) onion, diced' },
         { text: '1.5g (about ½ clove) garlic, minced' },
         { text: '3.75g (about ¾ teaspoon) vegetable stock' },
-        { text: '190ml water' },
+        { text: '190ml filtered water' },
         { text: '3.75ml (about ¾ teaspoon) olive oil' },
         { text: 'A pinch of ground nutmeg' },
         { text: 'A pinch of salt' },
@@ -2403,7 +2403,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '25g (about 3 tablespoons) onion, diced' },
         { text: '1.5g (about ½ clove) garlic, minced' },
         { text: '3.75g (about ¾ teaspoon) vegetable stock' },
-        { text: '250ml water' },
+        { text: '250ml filtered water' },
         { text: '0.75g (about ⅛ teaspoon) ground cumin' },
         { text: 'A pinch of salt' },
       ],
@@ -2456,7 +2456,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1.25g (a small pinch) fresh basil, chopped' },
         { text: '3.75ml (about ¾ teaspoon) olive oil' },
         { text: '2.5g (about ½ teaspoon) vegetable stock' },
-        { text: '125ml water' },
+        { text: '125ml filtered water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -2774,7 +2774,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1/4 cup dried hibiscus flowers (Flor de Jamaica)' },
-        { text: '2 cups (450ml) boiling water, cooled to room temperature after steeping' },
+        { text: '2 cups (450ml) boiling filtered, unchlorinated water, cooled to room temperature after steeping' },
         { text: '1 small thumb (about 10g) organic ginger, unpeeled, sliced' },
         { text: 'A few slices (about 5g) organic turmeric, unpeeled' },
         { text: '3 tablespoons (about 32g) raw honey' },
@@ -2867,7 +2867,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         {
-          text: '7/8 cup (about 125g) elderberries, stems removed, lightly crushed (fresh or thawed frozen; fresh is uncommon at a regular supermarket, but dried elderberries, the same form sold for homemade elderberry syrup, are widely available at health food stores and online: soak about 40g dried in warm water for 20-30 minutes to reconstitute before using)',
+          text: '7/8 cup (about 125g) elderberries, stems removed, lightly crushed (fresh or thawed frozen; fresh is uncommon at a regular supermarket, but dried elderberries, the same form sold for homemade elderberry syrup, are widely available at health food stores and online: soak about 40g dried in warm filtered, unchlorinated water for 20-30 minutes to reconstitute before using)',
         },
         { text: '1 small thumb (about 10g) organic ginger, unpeeled, sliced' },
         { text: 'A few slices (about 5g) organic turmeric, unpeeled' },
@@ -3579,7 +3579,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       yield: 'Makes about 2 cups, enough for one person across several days.',
       ingredients: [
         { text: '1/2 cup (100g) rice, rinsed well' },
-        { text: '1 2/3 cups (400ml) water' },
+        { text: '1 2/3 cups (400ml) filtered, unchlorinated water' },
         { text: 'Koji rice culture, at about half the package\'s stated amount for this smaller batch (available from a fermentation or Japanese grocery supplier)' },
       ],
       instructions: [
@@ -3787,7 +3787,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       },
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
-        { text: '1/3 cup (75g) rice, soaked several hours then blended smooth with a little water' },
+        { text: '1/3 cup (75g) rice, soaked several hours then blended smooth with a little filtered, unchlorinated water' },
         { text: '7/8 cup (200ml) coconut milk' },
         { text: '1/4 teaspoon (1g) ground cardamom' },
         { text: '1 1/4 tablespoons (about 25g) raw honey' },
@@ -3997,7 +3997,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       yield: 'Makes about 4 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
         { text: '1 cup (200g) rice, rinsed well' },
-        { text: '3 cups (750ml) water' },
+        { text: '3 cups (750ml) filtered, unchlorinated water' },
         { text: 'Koji rice culture and sake yeast, at about half the package\'s stated amount for this smaller batch (available from a fermentation supplier)' },
       ],
       instructions: [
@@ -4035,7 +4035,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       yield: 'Makes about 4 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
         { text: '1 cup (200g) rice, rinsed well' },
-        { text: '3 cups (750ml) water' },
+        { text: '3 cups (750ml) filtered, unchlorinated water' },
         { text: 'Nuruk (Korean fermentation starter), at about half the package\'s stated amount for this smaller batch (available from a Korean grocery or fermentation supplier)' },
       ],
       instructions: [
@@ -4077,7 +4077,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       yield: 'Makes about 2 cups, enough for one person.',
       ingredients: [
         { text: '2/3 cup (150g) plain yogurt' },
-        { text: '1 1/2 cups (350ml) cold water' },
+        { text: '1 1/2 cups (350ml) cold filtered, unchlorinated water' },
         { text: '1/4 teaspoon (1.5g) salt' },
         { text: 'A few fresh mint leaves, torn, optional garnish' },
       ],
@@ -4127,7 +4127,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '2/3 cup (100g) mango, diced' },
         { text: 'A pinch (0.5g) ground cardamom' },
         { text: '2 teaspoons (10g) raw honey' },
-        { text: '1/3 cup (100ml) cold water' },
+        { text: '1/3 cup (100ml) cold filtered, unchlorinated water' },
       ],
       instructions: [
         'Blend the yogurt, mango, cardamom, honey, and water together until smooth.',
@@ -5319,7 +5319,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '100g (about ½ cup) tomato, diced' },
         { text: '7.5g (about 1½ teaspoons) vegetable stock' },
         { text: '2g (about ½ teaspoon) ground cumin' },
-        { text: '200ml water' },
+        { text: '200ml filtered water' },
         { text: '1.5g (a pinch) salt' },
       ],
       instructions: [
@@ -7280,7 +7280,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '5g (about 1 teaspoon) vegetable stock' },
         { text: '8ml (about 1½ teaspoons) olive oil' },
         { text: '5g (about 2 tablespoons) fresh parsley, chopped' },
-        { text: '300ml water' },
+        { text: '300ml filtered water' },
         { text: '1g (a pinch) salt' },
       ],
       instructions: [
@@ -7839,7 +7839,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '3g (about 1 clove) garlic, minced' },
         { text: '7.5g (about 1½ teaspoons) vegetable stock' },
         { text: '8ml (about 1½ teaspoons) olive oil' },
-        { text: '220ml water' },
+        { text: '220ml filtered water' },
         { text: '1.5g (a pinch) salt' },
       ],
       instructions: [
@@ -7994,7 +7994,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '3g (about 1 clove) garlic, minced' },
         { text: '7.5g (about 1½ teaspoons) vegetable stock' },
         { text: '1.5g (about ¼ teaspoon) ground cumin' },
-        { text: '220ml water' },
+        { text: '220ml filtered water' },
         { text: '1.5g (a pinch) salt' },
       ],
       instructions: [
@@ -8154,7 +8154,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '150ml coconut milk' },
         { text: '5g (about 1 teaspoon) vegetable stock' },
         { text: '8ml (about 1½ teaspoons) olive oil' },
-        { text: '120ml water' },
+        { text: '120ml filtered water' },
         { text: '1g (a pinch) salt' },
       ],
       instructions: [
@@ -8597,7 +8597,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '3g (about 1 clove) garlic, minced' },
         { text: '7.5g (about 1½ teaspoons) vegetable stock' },
         { text: '8ml (about 1½ teaspoons) olive oil' },
-        { text: '220ml water' },
+        { text: '220ml filtered water' },
         { text: '1.5g (a pinch) salt' },
       ],
       instructions: [
@@ -8888,7 +8888,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '3g (about 1 clove) garlic, minced' },
         { text: '5g (about 1 teaspoon) vegetable stock' },
         { text: '8ml (about 1½ teaspoons) olive oil' },
-        { text: '300ml water' },
+        { text: '300ml filtered water' },
         { text: '1g (a pinch) salt' },
       ],
       instructions: [
@@ -9504,7 +9504,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '40g (about ⅓ small) onion, diced' },
         { text: '3g (about 1 clove) garlic, minced' },
         { text: '7.5g (about 1½ teaspoons) vegetable stock' },
-        { text: '200ml water' },
+        { text: '200ml filtered water' },
         { text: '1.5g (a pinch) salt' },
       ],
       instructions: [
@@ -9765,7 +9765,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '2g (about ½ teaspoon) ground cumin' },
         { text: '2g (about 1 teaspoon) paprika' },
         { text: '5g (about 1 teaspoon) vegetable stock' },
-        { text: '150ml water' },
+        { text: '150ml filtered water' },
         { text: '1.5g (a pinch) salt' },
       ],
       instructions: [
@@ -10457,7 +10457,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       yield: 'Makes 1 large baked oatmeal cup.',
       ingredients: [
         { text: '50g rolled oats' },
-        { text: '1 tablespoon ground flaxseed, mixed with 3 tablespoons water, as a flax egg' },
+        { text: '1 tablespoon ground flaxseed, mixed with 3 tablespoons filtered water, as a flax egg' },
         { text: '100g banana, mashed' },
         { text: '100ml soy milk' },
         { text: '½ teaspoon ground cinnamon' },
@@ -13018,7 +13018,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ingredients: [
         { text: '90g green lentil, cooked and mashed, as the meatball base' },
         { text: '40g walnut, chopped, as the meatball base' },
-        { text: '8g ground flaxseed, mixed with 3 tablespoons water, as a binder' },
+        { text: '8g ground flaxseed, mixed with 3 tablespoons filtered water, as a binder' },
         { text: '3g garlic, minced' },
         { text: '180g tomato, crushed, simmered' },
         { text: '30g onion, diced' },
@@ -14355,7 +14355,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ingredients: [
         { text: '100g chickpeas, mashed, as the meatball base' },
         { text: '40g walnut, chopped, as the meatball base' },
-        { text: '8g ground flaxseed, mixed with 3 tablespoons water, as a binder' },
+        { text: '8g ground flaxseed, mixed with 3 tablespoons filtered water, as a binder' },
         { text: '1 teaspoon nutritional yeast' },
         { text: '3g garlic, minced' },
         { text: '200g tomato, crushed, simmered' },
@@ -14408,7 +14408,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '100g green lentil, cooked and mashed, as the loaf base' },
-        { text: '8g ground flaxseed, mixed with 3 tablespoons water, as a binder' },
+        { text: '8g ground flaxseed, mixed with 3 tablespoons filtered water, as a binder' },
         { text: '30g onion, diced' },
         { text: '70g parsnip, diced, roasted' },
         { text: '60g carrot, diced, roasted' },
@@ -14666,7 +14666,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '25g onion, diced' },
         { text: '1½g garlic, minced' },
         { text: '1 teaspoon vegetable stock concentrate' },
-        { text: '1 cup water' },
+        { text: '1 cup filtered water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -14720,7 +14720,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '⅔ cup coconut milk' },
         { text: '1 teaspoon vegetable stock concentrate' },
         { text: '2 teaspoons olive oil' },
-        { text: '120ml water' },
+        { text: '120ml filtered water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -14767,7 +14767,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '3g garlic, minced' },
         { text: '1 teaspoon vegetable stock concentrate' },
         { text: '2 teaspoons olive oil' },
-        { text: '250ml water' },
+        { text: '250ml filtered water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -14821,7 +14821,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 teaspoon vegetable stock concentrate' },
         { text: '2 teaspoons olive oil' },
         { text: '5g fresh parsley, chopped' },
-        { text: '250ml water' },
+        { text: '250ml filtered water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -14880,7 +14880,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: 'A pinch of ground cumin' },
         { text: 'A pinch of paprika' },
         { text: '1 teaspoon vegetable stock concentrate' },
-        { text: '150ml water' },
+        { text: '150ml filtered water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -14931,7 +14931,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '40g onion, diced' },
         { text: '3g garlic, minced' },
         { text: '1 teaspoon vegetable stock concentrate' },
-        { text: '200ml water' },
+        { text: '200ml filtered water' },
         { text: 'A pinch of salt' },
       ],
       instructions: [
@@ -15003,7 +15003,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 tablespoon olive oil' },
         { text: '50g avocado, sliced' },
         { text: '¼ teaspoon salt' },
-        { text: '120ml water' },
+        { text: '120ml filtered water' },
         { text: 'A pinch of black pepper' },
       ],
       instructions: [
@@ -15053,7 +15053,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 clove garlic, minced' },
         { text: '1 tablespoon olive oil' },
         { text: '¼ teaspoon salt' },
-        { text: '100ml water' },
+        { text: '100ml filtered water' },
         { text: 'A pinch of black pepper' },
       ],
       instructions: [
@@ -15155,7 +15155,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 tablespoon tahini' },
         { text: '½ lemon, juiced' },
         { text: '1 teaspoon olive oil' },
-        { text: '110ml water' },
+        { text: '110ml filtered water' },
         { text: '¼ teaspoon salt' },
       ],
       instructions: [
@@ -15302,7 +15302,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 clove garlic, minced' },
         { text: '1 tablespoon olive oil' },
         { text: '¼ teaspoon salt' },
-        { text: '100ml water' },
+        { text: '100ml filtered water' },
         { text: 'A pinch of black pepper' },
       ],
       instructions: [
@@ -15351,7 +15351,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 tablespoon hemp seeds' },
         { text: '½ lemon, juiced' },
         { text: '1 teaspoon olive oil' },
-        { text: '90ml water' },
+        { text: '90ml filtered water' },
         { text: '¼ teaspoon salt' },
       ],
       instructions: [
@@ -15494,7 +15494,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '1 clove garlic, minced' },
         { text: '1 tablespoon olive oil' },
         { text: '¼ teaspoon salt' },
-        { text: '160ml water' },
+        { text: '160ml filtered water' },
         { text: 'A pinch of black pepper' },
       ],
       instructions: [

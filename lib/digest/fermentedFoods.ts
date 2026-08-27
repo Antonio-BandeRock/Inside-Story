@@ -24,6 +24,13 @@ import type { DigestEntry } from './types';
 // here is real, condition-agnostic microbiology -- nothing in this category
 // requires Hashimoto's specifically to matter, so unlike most of this
 // Digest's other mixed categories, this one didn't need any per-entry split.
+//
+// 2026-08-26: a 16th entry, `fermented-filtered-water`, added directly
+// alongside a corpus-wide fix making every curated recipe's own water
+// ingredient say "filtered water" (fermentation recipes specifically say
+// "filtered, unchlorinated water"). Direct instruction: "this app
+// promotes the use of filtered water and should always continue to push
+// that."
 export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   {
     id: 'fermented-lactobacillus-acidophilus',
@@ -238,14 +245,29 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
+    relatedIds: ['fermented-filtered-water'],
+  },
+  {
+    id: 'fermented-filtered-water',
+    category: 'basicHealth',
+    title: 'Filtered Water for Fermentation: Why Tap Water Can Quietly Undermine a Batch',
+    teaser: "A ferment that never quite gets going, or stalls partway through, isn't always a bad culture: sometimes it's the water it started in.",
+    summary:
+      "Municipal tap water is deliberately treated to kill bacteria, viruses, and other microorganisms before it reaches a home, and a fermentation culture, lactic acid bacteria, a kombucha SCOBY, water kefir grains, wild yeast, is exactly the kind of living organism that treatment is built to suppress. Chlorine is volatile and mostly dissipates from standing or boiled water within a couple of hours, but many utilities have switched to chloramine specifically because it lasts longer in the pipes: it can take two to three days to dissipate at room temperature, and most ordinary pass-through filters that remove chlorine don't remove it. Tap water composition also isn't consistent from one place to another; treatment method, pipe age, and local mineral content all vary by municipality, so there's no way to know from the tap alone what else, beyond the disinfectant, might be present in a given area's supply. Filtered water sidesteps all of this at once, without needing to know the specifics of a local water system first. Every fermentation recipe in this app's own curated collection calls for filtered water for exactly this reason.",
+    citations: [
+      { source: 'US EPA: Chloramines in Drinking Water', url: 'https://www.epa.gov/dwreginfo/chloramines-drinking-water' },
+      { source: 'Fermenting for Foodies: How to Filter Water for Gut Health and Fermentation', url: 'https://www.fermentingforfoodies.com/filter-water-fermentation/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['fermented-sourcing-starters', 'fermented-tying-together'],
   },
   {
     id: 'fermented-tying-together',
     category: 'basicHealth',
     title: 'Tying It All Together: Diversity Over Any Single "Best" Strain',
-    teaser: 'Fourteen strains and ferments, and the recurring lesson is variety, not a single magic bullet.',
+    teaser: 'Fifteen strains, ferments, and practical notes, and the recurring lesson is variety, not a single magic bullet.',
     summary:
-      "No single strain across these fourteen entries does everything. L. Acidophilus helps lactose digestion, Bifidobacterium bifidum specifically rebuilds occludin, E. Coli Nissle restores different tight-junction proteins entirely, S. Boulardii survives antibiotics precisely because it isn't a bacterium at all. Milk kefir's 30+ species is the clearest illustration of what this category keeps pointing toward: gut-microbiome diversity itself, not any one \"best\" probiotic, is the actual target. Rotating between a home yogurt, sauerkraut, kefir, and an occasional kombucha realistically does more than picking one and eating it exclusively. The CFU-dosing and sourcing entries exist for the same reason: knowing what's actually being cultured matters more than how big the number on a label says it is. Building a varied fermentation habit, not chasing one perfect strain, is the honest, practical takeaway this whole category keeps arriving at.",
+      "No single strain across these fifteen entries does everything. L. Acidophilus helps lactose digestion, Bifidobacterium bifidum specifically rebuilds occludin, E. Coli Nissle restores different tight-junction proteins entirely, S. Boulardii survives antibiotics precisely because it isn't a bacterium at all. Milk kefir's 30+ species is the clearest illustration of what this category keeps pointing toward: gut-microbiome diversity itself, not any one \"best\" probiotic, is the actual target. Rotating between a home yogurt, sauerkraut, kefir, and an occasional kombucha realistically does more than picking one and eating it exclusively. The CFU-dosing, sourcing, and filtered-water entries exist for the same reason: knowing what's actually being cultured, and what it's being cultured in, matters more than how big the number on a label says it is. Building a varied fermentation habit, not chasing one perfect strain, is the practical takeaway this whole category keeps arriving at.",
     citations: [
       {
         source: 'PLOS ONE: sequencing-based analysis of kefir grains and milks from multiple sources',
@@ -253,6 +275,6 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['gut-strain-specific-mechanisms', 'fermented-cfu-dosing', 'foodhistory-regen-microbiome-symbiosis-mission'],
+    relatedIds: ['gut-strain-specific-mechanisms', 'fermented-cfu-dosing', 'fermented-filtered-water', 'foodhistory-regen-microbiome-symbiosis-mission'],
   },
 ];

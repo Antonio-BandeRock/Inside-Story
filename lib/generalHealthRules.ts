@@ -260,6 +260,26 @@ Not a reason to give up either one -- spacing tea or coffee an hour or so away f
   },
 };
 
+// 2026-08-26, direct instruction: "When using water for system recipes
+// it should always be filtered water, and a warning about using tap
+// water based on their area possibly having included chloramine and/or
+// chlorine that could be in it and unknown levels of other things that
+// could easily kill beneficial bacteria. However, this app promotes the
+// use of filtered water and should always continue to push that." Fires
+// for any real tap-water row (Water, tap / tap, drinking / tap,
+// municipal / tap, well -- every real municipal-supply row this app's
+// own database carries), not bottled or coconut water, which aren't the
+// same real concern. See lib/digest/fermentedFoods.ts's own
+// 'fermented-filtered-water' entry for the fuller citations.
+const TAP_WATER_RULE: GeneralHealthRule = {
+  topicId: 'tap-water-filtered',
+  title: 'Filtered Water, Not Tap',
+  message: `Municipal tap water is deliberately treated to kill bacteria, viruses, and other microorganisms before it reaches a home (US EPA: Chloramines in Drinking Water) -- exactly the kind of living organism a fermentation culture (lactic acid bacteria, a kombucha SCOBY, water kefir grains, wild yeast) actually is. Chlorine is volatile and mostly dissipates from standing or boiled water within a couple of hours, but many utilities have switched to chloramine specifically because it lasts longer in the pipes: it can take two to three days to dissipate at room temperature, and most ordinary pass-through filters that remove chlorine don't remove it.
+
+Tap water composition also isn't consistent from one place to another -- treatment method, pipe age, and local mineral content all vary by municipality, so there's no way to know from the tap alone what else, beyond the disinfectant, might be present in a given area's supply. This app's own curated recipes always call for filtered water for exactly this reason, and the same recommendation applies here.`,
+  check: (current) => current.category === 'Bev' && /\btap\b/i.test(current.baseName) && /\bwater\b/i.test(current.baseName),
+};
+
 export const GENERAL_HEALTH_RULES: GeneralHealthRule[] = [
   ALCOHOL_RULE,
   COFFEE_RULE,
@@ -269,6 +289,7 @@ export const GENERAL_HEALTH_RULES: GeneralHealthRule[] = [
   HIGH_HEAT_COOKING_RULE,
   PORTION_SIZE_RULE,
   TANNIN_IRON_RULE,
+  TAP_WATER_RULE,
 ];
 
 // Every rule's real, independent match for the CURRENT pending ingredient
