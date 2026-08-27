@@ -121,13 +121,35 @@ function main() {
   console.log('Lunch-main-eligible entries (side/salad/soup/handheld/smoothie): ' + lunchEntries.length);
   console.log('Dinner-main-eligible entries (side/salad/soup/handheld): ' + dinnerEntries.length);
 
-  function hasDietTag(id, tag) {
+  // Mirrors lib/digest/types.ts's own real BASE_DIET_TIER_RANK/
+  // recipeMatchesDietPreference exactly -- 2026-08-27, direct follow-up:
+  // a first version of this check treated every diet tag as an
+  // independent, literal match, which is wrong for the three base tiers
+  // specifically (Vegan/Vegetarian/Omnivore are a real hierarchy, not
+  // three unrelated tags: a Vegan-tagged recipe also satisfies a
+  // Vegetarian preference, and literally every recipe satisfies an
+  // Omnivore preference, since omnivore means no restriction at all).
+  // Getting this wrong made "Omnivore breakfast: 0 for every condition"
+  // and "Vegetarian dinner: 5-8" both look like real content gaps when
+  // they were actually just this check counting wrong.
+  const BASE_DIET_TIER_RANK = { Vegan: 0, Vegetarian: 1, Omnivore: 2 };
+  function dietTagsFor(id) {
     const idx = recipesContent.indexOf("linkedCuratedRecipeId: '" + id + "'");
-    if (idx === -1) return false;
+    if (idx === -1) return [];
     const nearby = recipesContent.slice(idx, idx + 2000);
     const tagsMatch = nearby.match(/dietTags: \[([^\]]*)\]/);
-    if (!tagsMatch) return false;
-    return tagsMatch[1].indexOf("'" + tag + "'") !== -1;
+    if (!tagsMatch) return [];
+    return [...tagsMatch[1].matchAll(/'([^']+)'/g)].map(function (m) { return m[1]; });
+  }
+  function hasDietTag(id, preference) {
+    const tags = dietTagsFor(id);
+    const preferenceRank = BASE_DIET_TIER_RANK[preference];
+    if (preferenceRank !== undefined) {
+      const recipeBaseTag = tags.find(function (t) { return BASE_DIET_TIER_RANK[t] !== undefined; });
+      if (recipeBaseTag === undefined) return false;
+      return BASE_DIET_TIER_RANK[recipeBaseTag] <= preferenceRank;
+    }
+    return tags.indexOf(preference) !== -1;
   }
 
   console.log('\n=== VEGAN coverage per meal (diet-only, no condition applied) ===');
@@ -162,6 +184,39 @@ function main() {
 
   console.log('\n=== Combinations below the 30-minimum bar (condition alone, not combined with a diet) ===');
   console.log(gaps.length === 0 ? 'None -- every condition already has 30+ for every meal type.' : gaps.join('\n'));
+
+  // 2026-08-27, direct follow-up: "I want to make sure that all of the
+  // other conditions have received the same amount of focus as
+  // Hashimoto's did." The Hashimoto's-vegan-breakfast work only ever
+  // checked ONE diet tag (Vegan) combined with condition -- this checks
+  // EVERY real diet tag combined with every condition and every meal, to
+  // find the true worst combination across the whole matrix rather than
+  // assuming vegan is the only diet worth checking.
+  const ALL_DIET_TAGS = [
+    'Vegan', 'Vegetarian', 'Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean',
+    'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein',
+  ];
+  console.log('\n=== EVERY diet tag x condition x meal, combinations below the 30-minimum bar ===');
+  const dietGaps = [];
+  ALL_DIET_TAGS.forEach(function (tag) {
+    CONDITION_CODES.forEach(function (code) {
+      const bCount = breakfastEntries.filter(function (e) { return isSafe(e, code) && hasDietTag(e.linkedCuratedRecipeId, tag); }).length;
+      const lCount = lunchEntries.filter(function (e) { return isSafe(e, code) && hasDietTag(e.linkedCuratedRecipeId, tag); }).length;
+      const dCount = dinnerEntries.filter(function (e) { return isSafe(e, code) && hasDietTag(e.linkedCuratedRecipeId, tag); }).length;
+      if (bCount < 30) dietGaps.push({ tag: tag, code: code, meal: 'breakfast', count: bCount });
+      if (lCount < 30) dietGaps.push({ tag: tag, code: code, meal: 'lunch', count: lCount });
+      if (dCount < 30) dietGaps.push({ tag: tag, code: code, meal: 'dinner', count: dCount });
+    });
+  });
+  if (dietGaps.length === 0) {
+    console.log('None -- every (diet, condition, meal) combination already has 30+.');
+  } else {
+    dietGaps.sort(function (a, b) { return a.count - b.count; });
+    dietGaps.forEach(function (g) {
+      console.log(g.tag.padEnd(24) + g.code.padEnd(24) + g.meal.padEnd(11) + String(g.count).padStart(4));
+    });
+    console.log('\nTotal combinations below 30: ' + dietGaps.length);
+  }
 }
 
 main();

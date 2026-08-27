@@ -493,7 +493,7 @@ const RECIPE_PREP_OVERRIDES = {
   curated_salad_pinto_bean_roasted_vegetable_bowl: { 'Legume|Pinto Beans': 'Boiled' },
   curated_side_pork_loin_turnip_kale: { 'Veg|Turnip': 'Baked', 'Veg|Kale': 'Boiled' },
   curated_soup_white_bean_kale_soup: { 'Legume|White Beans': 'Boiled', 'Veg|Kale': 'Boiled' },
-  curated_soup_lentil_kale_soup: { 'Veg|Kale': 'Boiled' },
+  curated_soup_lentil_kale_soup: { 'Veg|Kale': 'Boiled', 'Legume|Lentils': 'Boiled' },
   curated_side_chicken_thighs_kohlrabi_apple: { 'Veg|Kohlrabi': 'Baked' },
   curated_soup_white_bean_swiss_chard_soup: { 'Legume|White Beans': 'Boiled' },
   curated_side_pork_loin_radish_carrot: { 'Veg|Radish': 'Baked' },
@@ -531,7 +531,29 @@ const RECIPE_PREP_OVERRIDES = {
   curated_vegan_soup_white_bean_vegetable_soup: { 'Legume|White Beans': 'Boiled' },
   curated_vegan_soup_white_bean_tomato_fennel_broth: { 'Legume|White Beans': 'Boiled' },
   curated_vegan_soup_white_bean_tomato_garlic_broth: { 'Legume|White Beans': 'Boiled' },
-  curated_vegan_soup_lentil_black_bean_chili: { 'Legume|Black Beans': 'Boiled' },
+  curated_vegan_soup_lentil_black_bean_chili: { 'Legume|Black Beans': 'Boiled', 'Legume|Lentils': 'Boiled' },
+  // 2026-08-27, direct follow-up after auditing every diet type against
+  // every condition (not just vegan): confirmed 9 recipes were
+  // referencing an under-specified lentil/chickpea/lima-bean base_name
+  // with no real cooked variant to redirect to at all in this database
+  // (a genuinely different, deeper issue than the raw-vs-cooked
+  // resolution question the rest of this map answers) -- fixed at the
+  // source by switching each ingredient row itself to the richer
+  // base_name that already exists elsewhere in this app's own recipes
+  // and does carry a real Boiled/Canned variant (see the direct SQL fix
+  // this same day). These entries are the remaining half of that fix:
+  // selecting the specific cooked variant each of these dishes actually
+  // uses (a soup/stew/meatball/meatloaf simmers its own legumes; a
+  // Mediterranean chickpea salad and a roasted-vegetable lima bean
+  // salad both use canned, the standard real-world preparation for
+  // either dish).
+  curated_soup_red_lentil: { 'Legume|Lentils': 'Boiled' },
+  curated_soup_green_lentil_vegetable_stew: { 'Legume|Lentils': 'Boiled' },
+  curated_side_lentil_roasted_vegetable_tahini_bowl: { 'Legume|Lentils': 'Boiled' },
+  curated_vegan_side_lentil_meatloaf_parsnip_carrot: { 'Legume|Lentils': 'Boiled' },
+  curated_vegan_side_lentil_walnut_meatballs_tomato_sauce: { 'Legume|Lentils': 'Boiled' },
+  curated_salad_mediterranean_chickpea_feta: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Canned' },
+  curated_salad_lima_bean_roasted_vegetable_salad: { 'Legume|Lima beans, large': 'Canned' },
   curated_vegan_soup_mushroom_white_bean_soup: { 'Legume|White Beans': 'Boiled' },
   // 2026-08-26, the new savory vegan breakfast batch -- every one of
   // these actually simmers/cooks its own legume (confirmed directly

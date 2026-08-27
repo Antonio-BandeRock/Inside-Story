@@ -964,18 +964,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
-      safeForConditions: ['chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Chickpea: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
-        rheumatoid_arthritis: { severity: 'yellow', note: 'Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
-        cardiovascular_disease: { severity: 'yellow', note: 'Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
-        celiac: { severity: 'yellow', note: 'Chickpea: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured.' },
-        psoriasis: { severity: 'yellow', note: 'Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
-        ibd: { severity: 'yellow', note: 'Chickpea: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured.' },
-        multiple_sclerosis: { severity: 'yellow', note: 'Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
-        lupus: { severity: 'yellow', note: 'Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
-        sjogrens: { severity: 'yellow', note: 'Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
-        ibs: { severity: 'yellow', note: 'Chickpea: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured.' },
+        hashimotos: { severity: 'red', note: 'Oregano: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
+        rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        multiple_sclerosis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
+        sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
@@ -2382,10 +2379,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_red_lentil',
     linkedBuilderType: 'soup',
     recipeCard: {
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Lentil, red, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
+        hashimotos: { severity: 'red', note: 'Cumin (cummin) seed, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         chronic_kidney_disease: { severity: 'yellow', note: 'Celery: Moderate oxalate content, generally fine in normal portions.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -5296,10 +5293,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_green_lentil_vegetable_stew',
     linkedBuilderType: 'soup',
     recipeCard: {
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
+        hashimotos: { severity: 'red', note: 'Cumin (cummin) seed, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         chronic_kidney_disease: { severity: 'yellow', note: 'Celery: Moderate oxalate content, generally fine in normal portions.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -7505,20 +7502,18 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_lima_bean_roasted_vegetable_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
-      safeForConditions: ['fatty_liver_disease', 'gout', 'graves', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
+      safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Lima Bean: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
+        hashimotos: { severity: 'red', note: 'Oregano: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         chronic_kidney_disease: { severity: 'yellow', note: 'Eggplant: Moderate oxalate content, generally fine in normal portions.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
-        celiac: { severity: 'yellow', note: 'Lima Bean: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
-        ibd: { severity: 'yellow', note: 'Lima Bean: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured.' },
+        ibd: { severity: 'yellow', note: 'Eggplant: Moderate oxalate content, generally fine in normal portions.' },
         multiple_sclerosis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         lupus: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
-        ibs: { severity: 'yellow', note: 'Lima Bean: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured.' },
       },
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
@@ -7974,10 +7969,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_lentil_kale_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Lentil, red, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
+        hashimotos: { severity: 'red', note: 'Cumin (cummin) seed, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Cumin (cummin) seed, dried, ground: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -9021,10 +9016,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lentil_roasted_vegetable_tahini_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
+        hashimotos: { severity: 'yellow', note: 'Lentils: rated Mild Risk for lectins (legumes). A modest, generally minor concern.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
@@ -13001,10 +12996,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_lentil_walnut_meatballs_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
+        hashimotos: { severity: 'red', note: 'Walnut: rated High for mineral binding risk. A meaningfully high level for this measure.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         chronic_kidney_disease: { severity: 'yellow', note: 'Walnut: Elevated oxalate load. Discard cooking water where applicable; pair with a calcium source.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Walnut: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -14394,10 +14389,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_lentil_meatloaf_parsnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
-      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
+        hashimotos: { severity: 'yellow', note: 'Lentils: rated Mild Risk for lectins (legumes). A modest, generally minor concern.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
         psoriasis: { severity: 'yellow', note: 'Flaxseed Seeds: rated Imbalanced for oxidation risk. The ratio being measured skews unfavorably here.' },
@@ -14858,7 +14853,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {
-        hashimotos: { severity: 'red', note: 'Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern.' },
+        hashimotos: { severity: 'red', note: 'Cumin (cummin) seed, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range.' },
         rheumatoid_arthritis: { severity: 'yellow', note: 'Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
         chronic_kidney_disease: { severity: 'yellow', note: 'Black Beans: Moderate oxalate content, generally fine in normal portions.' },
         cardiovascular_disease: { severity: 'yellow', note: 'Corn, sweet, yellow: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },

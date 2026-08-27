@@ -3104,9 +3104,11 @@
   },
   "curated_salad_lima_bean_roasted_vegetable_salad": {
     "safeForConditions": [
+      "celiac",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -3116,7 +3118,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Lima Bean: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Oregano: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -3130,17 +3132,13 @@
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
-      "celiac": {
-        "severity": "yellow",
-        "note": "Lima Bean: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
-      },
       "psoriasis": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "ibd": {
         "severity": "yellow",
-        "note": "Lima Bean: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
+        "note": "Eggplant: Moderate oxalate content, generally fine in normal portions."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
@@ -3153,10 +3151,6 @@
       "sjogrens": {
         "severity": "yellow",
         "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "Lima Bean: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
       }
     },
     "stageAdvisoryNotes": [
@@ -3167,18 +3161,6 @@
       {
         "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -3252,10 +3234,13 @@
   },
   "curated_salad_mediterranean_chickpea_feta": {
     "safeForConditions": [
+      "celiac",
       "chronic_kidney_disease",
       "fatty_liver_disease",
       "gout",
       "graves",
+      "ibd",
+      "ibs",
       "migraine",
       "pcos",
       "prostate_health",
@@ -3265,43 +3250,31 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Chickpea: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Oregano: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
-        "note": "Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "cardiovascular_disease": {
         "severity": "yellow",
-        "note": "Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "celiac": {
-        "severity": "yellow",
-        "note": "Chickpea: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "psoriasis": {
         "severity": "yellow",
-        "note": "Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibd": {
-        "severity": "yellow",
-        "note": "Chickpea: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "multiple_sclerosis": {
         "severity": "yellow",
-        "note": "Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "lupus": {
         "severity": "yellow",
-        "note": "Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       },
       "sjogrens": {
         "severity": "yellow",
-        "note": "Chickpea: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
-      },
-      "ibs": {
-        "severity": "yellow",
-        "note": "Chickpea: rated Disruptive for excess fiber or anti-nutrients. This may work against or interfere with the process being measured."
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
       }
     },
     "stageAdvisoryNotes": [
@@ -3314,20 +3287,8 @@
         "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
-        "condition": "Irritable Bowel Syndrome: Phase 1: Elimination",
-        "note": "Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
         "note": "Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Inflammatory Bowel Disease: Remission",
-        "note": "Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -6027,8 +5988,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "severity": "yellow",
+        "note": "Lentils: rated Mild Risk for lectins (legumes). A modest, generally minor concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -6063,10 +6024,6 @@
       {
         "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
         "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
-      },
-      {
-        "condition": "Chronic Kidney Disease: Pre-Dialysis",
-        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -10132,7 +10089,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Cumin (cummin) seed, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -10204,7 +10161,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Lentil, red, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Cumin (cummin) seed, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -10382,7 +10339,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Lentil, red, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Cumin (cummin) seed, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -16175,8 +16132,8 @@
     ],
     "conditionCautions": {
       "hashimotos": {
-        "severity": "red",
-        "note": "Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "severity": "yellow",
+        "note": "Lentils: rated Mild Risk for lectins (legumes). A modest, generally minor concern."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -16230,7 +16187,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Walnut: rated High for mineral binding risk. A meaningfully high level for this measure."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",
@@ -18085,7 +18042,7 @@
     "conditionCautions": {
       "hashimotos": {
         "severity": "red",
-        "note": "Lentil, green, hulled, dry: rated High Risk for lectins (legumes). A significant, well-documented concern."
+        "note": "Cumin (cummin) seed, dried, ground: rated Excess Risk for iron (contextual). Eating a lot of this could push the level above a healthy range."
       },
       "rheumatoid_arthritis": {
         "severity": "yellow",

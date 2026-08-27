@@ -26,5 +26,13 @@
 // breakfasts.py (26 new curated recipes closing the Hashimoto's+vegan+
 // breakfast coverage gap from 5 to 32, verified via scripts/audit_
 // meal_plan_recipe_coverage.js -- see that script's own header comment
-// and CLAUDE.md's own 2026-08-26 entry for the full reasoning).
-export const REFERENCE_DB_VERSION = "20260827000000";
+// and CLAUDE.md's own 2026-08-26 entry for the full reasoning). Bumped
+// again 2026-08-27: scripts/fix_legume_ingredient_refs.sql corrects 9
+// curated recipes that referenced an under-specified legume base_name
+// (e.g. "Lentil, green, hulled, dry", "Chickpea", "Lima Bean") with no
+// real cooked/raw variant to redirect to at all -- switched to the
+// richer base_name for the identical real food ("Lentils", "Chickpeas
+// (garbanzo beans, bengal gram)", "Lima beans, large"), which does
+// carry a real Boiled/Canned variant, plus matching RECIPE_PREP_
+// OVERRIDES entries in scripts/compute_recipe_condition_data.js.
+export const REFERENCE_DB_VERSION = "20260827020000";
