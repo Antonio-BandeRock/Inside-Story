@@ -98,4 +98,35 @@
 // doesn't actually apply to them), and a "how long before effects begin"
 // figure pulled straight from each strain's own already-verified citation
 // where the trial reports one. See that script's own header comment.
-export const REFERENCE_DB_VERSION = "20260827080000";
+//
+// TEMPORARILY REVERTED 2026-08-27, same evening: "I reopened it and it's
+// still stuck at 95%... This has happened before." Direct, urgent, fully-
+// blocking report -- the person cannot open the app at all. This exact
+// symptom (a real reimport of the ~130MB+ reference database, forced by
+// bumping this value, hitting expo-sqlite's own real network-fetch-over-
+// Metro-on-WiFi cost, "100+ seconds" per the 2026-08-11 entry above)
+// already happened once today and is recognized by the person as a
+// repeat of a known, bad pattern -- not something to layer a third
+// timeout-based workaround onto while they're actively locked out.
+//
+// The immediate, certain fix: revert this value back to "20260827060000"
+// (this file's own value immediately before this session's two bumps
+// above), so getReferenceDatabase()'s own already-correct "skip the
+// reimport once it's genuinely not needed" check (see this file's own
+// 2026-08-11 entry) finds a real version match against whatever this
+// exact phone already successfully imported earlier the same day, before
+// this session's Fermentation-strain work began, and skips the slow
+// network fetch entirely -- getting the person back into a working app
+// on the very next launch, no waiting required.
+//
+// The real, honest cost, named directly rather than hidden: the 2
+// fermentation_strains catalog upgrades documented just above (batch2,
+// batch3 -- 7 to 18 strains, searchability, ferment guidance, time-to-
+// effect) are still fully present in the bundled .db file itself; only
+// the VERSION MARKER that would trigger this phone to actually pull them
+// down is reverted. They will not show up on this device until a later,
+// deliberate re-bump, ideally attempted over USB or a strong connection
+// rather than blind, or with a real, verified fix to the underlying
+// slow-reimport-over-Metro problem itself, not just this app's own
+// downstream symptom of it.
+export const REFERENCE_DB_VERSION = "20260827060000";
