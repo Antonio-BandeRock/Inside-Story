@@ -6416,7 +6416,25 @@ const styles = StyleSheet.create({
   // same 85%-opaque value cardTitle's own comment explains, not a fully
   // solid fill. Same menuLabelShadow fix applied here for real, not just
   // assumed-safe, protection.
-  categoryHeaderText: { ...typography.screenTitle, ...menuLabelShadow, color: TAB_TEXT_COLOR },
+  //
+  // 2026-08-27, direct report on the search-result pills specifically,
+  // widened into a full sweep: "make sure that there is not any font
+  // anywhere that is both bold and drop shadowed... remove the bold so
+  // there is ONLY drop shadowed font." A prior pass (2026-08-23) already
+  // established this rule for PILL text specifically (matchTermPillText,
+  // crossConditionPillText, both correctly caption-weight with a shadow
+  // and no bold); this pass applies the same rule to every other
+  // menuLabelShadow use in this file, not just pills -- 12 styles
+  // (categoryHeaderText here, plus digestTopicMenuItemLabel, shelfHeading,
+  // shelfCardTitle, cardTitle, demoHeading, demoSubheading, detailLabel,
+  // dynamicActionButtonText, recipeNutritionLabel, citationsLabel,
+  // relatedLabel) were spreading a bold typography preset (label/
+  // bodyEmphasis/eyebrow/screenTitle) together with menuLabelShadow, each
+  // now carries an explicit `fontWeight: '400'` override after the
+  // spread so the preset's own fontSize/letterSpacing survive but its
+  // weight doesn't -- the shadow alone is what's left to carry
+  // legibility against the photo background, matching what was asked.
+  categoryHeaderText: { ...typography.screenTitle, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR },
   categoryDescription: { ...typography.body, color: colors.textSecondary, lineHeight: 19 },
   // The Recipes lens's own real diet-filter control -- see its JSX
   // comment above. 2026-08-24, direct report: sitting bare on the
@@ -6521,7 +6539,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
   },
-  digestTopicMenuItemLabel: { ...typography.label, ...menuLabelShadow, color: TAB_TEXT_COLOR, flex: 1, marginRight: 8 },
+  digestTopicMenuItemLabel: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, flex: 1, marginRight: 8 },
   digestTopicMenuItemCount: { ...typography.caption, color: colors.textSecondary },
   // 2026-08-23, direct report: this text floats directly over the real
   // photo background now that GatedTabContent actually reveals one, with
@@ -6534,6 +6552,7 @@ const styles = StyleSheet.create({
   shelfHeading: {
     ...typography.label,
     ...menuLabelShadow,
+    fontWeight: '400',
     color: TAB_TEXT_COLOR,
     marginBottom: 8,
     alignSelf: 'flex-start',
@@ -6580,7 +6599,7 @@ const styles = StyleSheet.create({
   // transparent fill (above) was the actual bug on this specific card, now
   // fixed at its own source. This card's title stays as it was, the shadow
   // alone, same as any entry title inside an already-opaque card.
-  shelfCardTitle: { ...typography.label, ...menuLabelShadow, color: TAB_TEXT_COLOR, flex: 1, fontSize: 14 },
+  shelfCardTitle: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, flex: 1, fontSize: 14 },
   shelfCardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 16, marginTop: 4 },
   // 2026-08-09, ShelfTabCard's own compact per-term match indicator, shown
   // only while this card is part of a category's own scoped search
@@ -6613,7 +6632,7 @@ const styles = StyleSheet.create({
   // Magnesium" staying unreadable was shelfCardSelected's own near-
   // transparent fill (see that style's own 2026-08-23 comment), fixed at
   // its own source. This title stays as it was, the shadow alone.
-  cardTitle: { ...typography.label, ...menuLabelShadow, color: TAB_TEXT_COLOR, flex: 1 },
+  cardTitle: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, flex: 1 },
   cardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 17 },
   // 2026-08-09, SearchResultCard's own real per-term match display -- see
   // MatchSummaryRow's own comment for the full reasoning. matchBlock sits
@@ -6650,8 +6669,8 @@ const styles = StyleSheet.create({
   // whole pill row via MatchSummaryRow -- reuses the app's real styles
   // directly, not a copy.
   demoBlock: { marginTop: 4 },
-  demoHeading: { ...typography.label, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginBottom: 4 },
-  demoSubheading: { ...typography.label, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginTop: 18, marginBottom: 4 },
+  demoHeading: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 4 },
+  demoSubheading: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginTop: 18, marginBottom: 4 },
   demoIntro: { ...typography.caption, color: colors.textMuted, marginBottom: 10, lineHeight: 17 },
   demoExample: {
     backgroundColor: colors.surface,
@@ -6709,7 +6728,7 @@ const styles = StyleSheet.create({
   // background needing a shadow for contrast the way this app's other
   // shadowed labels do), so bold alone already carries full legibility.
   dietTagPillText: { ...typography.caption, color: colors.background, fontSize: 11, fontWeight: '700' },
-  detailLabel: { ...typography.eyebrow, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
+  detailLabel: { ...typography.eyebrow, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
   detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19 },
   detailTextBold: { fontWeight: '700' },
   swapText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 2 },
@@ -6762,7 +6781,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
   },
-  dynamicActionButtonText: { ...typography.bodyEmphasis, ...menuLabelShadow, color: TAB_TEXT_COLOR },
+  dynamicActionButtonText: { ...typography.bodyEmphasis, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR },
   dynamicActionButtonTextDanger: { color: colors.danger },
   dynamicActionConfirm: { ...typography.caption, color: colors.accent, marginTop: 8 },
   dynamicScheduleForm: {
@@ -6801,7 +6820,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
   },
-  recipeNutritionLabel: { ...typography.eyebrow, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginBottom: 4 },
+  recipeNutritionLabel: { ...typography.eyebrow, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 4 },
   recipeNutritionText: { ...typography.body, color: colors.textPrimary, lineHeight: 18, marginTop: 2 },
   // The per-condition caution box -- a real, distinct tint from the
   // nutrition callout above (a warm accent rather than the tab's own
@@ -6866,7 +6885,7 @@ const styles = StyleSheet.create({
   // confirmation, see FeedbackRow's own comment.
   favoriteAddedText: { ...typography.caption, color: colors.accent, marginTop: 4 },
   citationsBlock: { marginTop: 10 },
-  citationsLabel: { ...typography.eyebrow, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginBottom: 2 },
+  citationsLabel: { ...typography.eyebrow, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 2 },
   citationLink: {
     ...typography.caption,
     color: colors.primary,
@@ -6875,7 +6894,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   relatedBlock: { marginTop: 10 },
-  relatedLabel: { ...typography.eyebrow, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginBottom: 4 },
+  relatedLabel: { ...typography.eyebrow, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 4 },
   relatedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   relatedChip: {
     borderWidth: 1,
