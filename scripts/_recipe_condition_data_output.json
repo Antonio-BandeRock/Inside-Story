@@ -8577,6 +8577,40 @@
       }
     ]
   },
+  "curated_snack_beef_fennel_breakfast_bowl": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_snack_beef_kale_breakfast_hash": {
     "safeForConditions": [
       "cardiovascular_disease",
@@ -8875,6 +8909,142 @@
       }
     ]
   },
+  "curated_snack_chicken_broccoli_breakfast_bowl": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_chicken_cabbage_breakfast_skillet": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_chicken_kale_breakfast_hash": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_chicken_zucchini_breakfast_skillet": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_snack_citrus_avocado_breakfast_bowl": {
     "safeForConditions": [
       "cardiovascular_disease",
@@ -9086,6 +9256,40 @@
     ]
   },
   "curated_snack_cod_cabbage_breakfast_skillet": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_cod_kale_breakfast_skillet": {
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
@@ -9812,6 +10016,88 @@
       }
     ]
   },
+  "curated_snack_greek_yogurt_apple_pistachio_bowl": {
+    "safeForConditions": [
+      "celiac",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Pistachio nut: Moderate oxalate content, generally fine in normal portions."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Pistachio nut: Moderate oxalate content, generally fine in normal portions."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 4: Rebalancing",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 5: Maintenance",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
+        "note": "Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_snack_greek_yogurt_banana_pistachio_bowl": {
     "safeForConditions": [
       "celiac",
@@ -9895,6 +10181,150 @@
     ]
   },
   "curated_snack_greek_yogurt_berry_olive_oil_bowl": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 4: Rebalancing",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 5: Maintenance",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
+        "note": "Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_greek_yogurt_blueberry_olive_oil_bowl": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 4: Rebalancing",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 5: Maintenance",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
+        "note": "Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_greek_yogurt_cantaloupe_olive_oil_bowl": {
     "safeForConditions": [
       "celiac",
       "chronic_kidney_disease",
@@ -10130,7 +10560,161 @@
       }
     ]
   },
+  "curated_snack_greek_yogurt_grapefruit_olive_oil_bowl": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 4: Rebalancing",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 5: Maintenance",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
+        "note": "Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_snack_greek_yogurt_olive_oil_pistachio_bowl": {
+    "safeForConditions": [
+      "celiac",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Yogurt, Greek, plain, lowfat: rated Disruptive for fermentability. This may work against or interfere with the process being measured."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "chronic_kidney_disease": {
+        "severity": "yellow",
+        "note": "Pistachio nut: Moderate oxalate content, generally fine in normal portions."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "ibd": {
+        "severity": "yellow",
+        "note": "Pistachio nut: Moderate oxalate content, generally fine in normal portions."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 4: Rebalancing",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 5: Maintenance",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
+        "note": "Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_greek_yogurt_strawberry_pistachio_bowl": {
     "safeForConditions": [
       "celiac",
       "fatty_liver_disease",
@@ -10277,6 +10861,40 @@
       {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
         "note": "Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_halibut_broccoli_breakfast_bowl": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
@@ -10662,6 +11280,74 @@
       }
     ]
   },
+  "curated_snack_mediterranean_carrot_tomato_egg_skillet": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 4: Rebalancing",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn't bothered you through reintroduction, this stage's own broader focus means it's reasonable to stop treating it as a concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 5: Maintenance",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn't bothered you through reintroduction, this stage's own broader focus means it's reasonable to stop treating it as a concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_snack_mediterranean_carrot_zucchini_egg_skillet": {
     "safeForConditions": [
       "celiac",
@@ -10782,6 +11468,78 @@
       }
     ]
   },
+  "curated_snack_mediterranean_fennel_feta_egg_skillet": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 4: Rebalancing",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 5: Maintenance",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
+        "note": "Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_snack_mediterranean_fennel_tomato_egg_skillet": {
     "safeForConditions": [
       "celiac",
@@ -10850,6 +11608,58 @@
       }
     ]
   },
+  "curated_snack_mediterranean_fennel_zucchini_egg_skillet": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_snack_mediterranean_feta_tomato_egg_scramble": {
     "safeForConditions": [
       "celiac",
@@ -10911,6 +11721,78 @@
       {
         "condition": "Hashimoto's Thyroiditis: Stage 5: Maintenance",
         "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn't bothered you through reintroduction, this stage's own broader focus means it's reasonable to stop treating it as a concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
+        "note": "Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_mediterranean_leek_feta_egg_skillet": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 4: Rebalancing",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 5: Maintenance",
+        "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
@@ -11062,6 +11944,74 @@
       }
     ]
   },
+  "curated_snack_mediterranean_pepper_zucchini_egg_skillet": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 4: Rebalancing",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn't bothered you through reintroduction, this stage's own broader focus means it's reasonable to stop treating it as a concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 5: Maintenance",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn't bothered you through reintroduction, this stage's own broader focus means it's reasonable to stop treating it as a concern. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_snack_mediterranean_tomato_pepper_egg_skillet": {
     "safeForConditions": [
       "celiac",
@@ -11191,6 +12141,78 @@
       {
         "condition": "Hashimoto's Thyroiditis: Stage 5: Maintenance",
         "note": "Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
+        "note": "Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_mediterranean_zucchini_tomato_feta_skillet": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 2: Digging",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 3: Gut Repair",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 4: Rebalancing",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn't bothered you through reintroduction, this stage's own broader focus means it's reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Hashimoto's Thyroiditis: Stage 5: Maintenance",
+        "note": "A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn't bothered you through reintroduction, this stage's own broader focus means it's reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
       },
       {
         "condition": "Celiac Disease: Newly Diagnosed / Actively Healing",
@@ -11828,6 +12850,40 @@
       }
     ]
   },
+  "curated_snack_pork_broccoli_breakfast_skillet": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
   "curated_snack_pork_cabbage_breakfast_skillet": {
     "safeForConditions": [
       "cardiovascular_disease",
@@ -11999,6 +13055,40 @@
     ]
   },
   "curated_snack_salmon_fennel_breakfast_bowl": {
+    "safeForConditions": [
+      "cardiovascular_disease",
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "hashimotos",
+      "ibd",
+      "ibs",
+      "lupus",
+      "migraine",
+      "multiple_sclerosis",
+      "pcos",
+      "prostate_health",
+      "psoriasis",
+      "rheumatoid_arthritis",
+      "sjogrens",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {},
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_salmon_kale_breakfast_bowl": {
     "safeForConditions": [
       "cardiovascular_disease",
       "celiac",
@@ -12320,6 +13410,230 @@
     ],
     "conditionCautions": {},
     "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_turkey_broccoli_breakfast_bowl": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_turkey_cabbage_breakfast_skillet": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_turkey_fennel_breakfast_bowl": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
+      {
+        "condition": "Chronic Kidney Disease: On Dialysis",
+        "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      }
+    ]
+  },
+  "curated_snack_turkey_kale_breakfast_hash": {
+    "safeForConditions": [
+      "celiac",
+      "chronic_kidney_disease",
+      "fatty_liver_disease",
+      "gout",
+      "graves",
+      "ibd",
+      "ibs",
+      "migraine",
+      "pcos",
+      "prostate_health",
+      "type_1_diabetes",
+      "type_2_diabetes"
+    ],
+    "conditionCautions": {
+      "hashimotos": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "rheumatoid_arthritis": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "cardiovascular_disease": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "psoriasis": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "multiple_sclerosis": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "lupus": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      },
+      "sjogrens": {
+        "severity": "yellow",
+        "note": "Turkey Breast (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here."
+      }
+    },
+    "stageAdvisoryNotes": [
+      {
+        "condition": "Chronic Kidney Disease: Pre-Dialysis",
+        "note": "A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."
+      },
       {
         "condition": "Chronic Kidney Disease: On Dialysis",
         "note": "A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe's flagged ingredients: nothing here is hidden or blocked."

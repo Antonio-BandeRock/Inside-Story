@@ -63,4 +63,19 @@
 // were checked and excluded (a real "Mineral Binding Risk: High" or
 // "Iron, contextual: Excess Risk" flag respectively, confirmed by direct
 // query, the same still-open data question as sweet potato).
-export const REFERENCE_DB_VERSION = "20260827050000";
+// Bumped again the same day: direct follow-up "close the remaining
+// Hashimoto's/IBD/CKD Mediterranean and Paleo breakfast gaps." Confirmed
+// directly first: every phase-1/2 AIP and Mediterranean breakfast recipe
+// was already safe for IBD/CKD too, and every AIP recipe auto-earns
+// Paleo, so 13 more AIP breakfast recipes (scripts/
+// add_aip_breakfast_batch2.py, closing the GENERAL AIP-breakfast gap to
+// exactly 30) plus 11 more Mediterranean breakfast recipes (scripts/
+// add_mediterranean_breakfast_batch2.py, closing Hashimoto's own
+// Mediterranean gap and over-closing IBD/CKD's) closed every remaining
+// gap at once. Verified via scripts/audit_meal_plan_recipe_coverage.js:
+// every (diet tag, condition, meal) combination across all 570 now
+// clears 30+ -- Open Next Steps item 20 fully closed. A real ingredient
+// bug caught before the pipeline ran: "Turkey Breast (without skin)" is
+// entirely hidden in this database (confirmed by direct query), swapped
+// to the visible "Turkey Breast (Raw)" row instead.
+export const REFERENCE_DB_VERSION = "20260827060000";

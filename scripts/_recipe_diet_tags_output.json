@@ -1161,6 +1161,14 @@
     "AIP",
     "High-Protein"
   ],
+  "curated_snack_beef_fennel_breakfast_bowl": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
   "curated_snack_beef_kale_breakfast_hash": [
     "Omnivore",
     "Gluten-Free",
@@ -1201,6 +1209,42 @@
     "Gluten-Free",
     "High-Protein"
   ],
+  "curated_snack_chicken_broccoli_breakfast_bowl": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_snack_chicken_cabbage_breakfast_skillet": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_snack_chicken_kale_breakfast_hash": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_snack_chicken_zucchini_breakfast_skillet": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
   "curated_snack_citrus_avocado_breakfast_bowl": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -1231,6 +1275,15 @@
     "High-Protein"
   ],
   "curated_snack_cod_cabbage_breakfast_skillet": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_snack_cod_kale_breakfast_skillet": [
     "Omnivore",
     "Plant-Based/Flexitarian",
     "Gluten-Free",
@@ -1300,6 +1353,13 @@
     "Gluten-Free",
     "High-Protein"
   ],
+  "curated_snack_greek_yogurt_apple_pistachio_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
   "curated_snack_greek_yogurt_banana_pistachio_bowl": [
     "Vegetarian",
     "Plant-Based/Flexitarian",
@@ -1308,6 +1368,20 @@
     "High-Protein"
   ],
   "curated_snack_greek_yogurt_berry_olive_oil_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_greek_yogurt_blueberry_olive_oil_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_greek_yogurt_cantaloupe_olive_oil_bowl": [
     "Vegetarian",
     "Plant-Based/Flexitarian",
     "Mediterranean",
@@ -1328,7 +1402,21 @@
     "Gluten-Free",
     "High-Protein"
   ],
+  "curated_snack_greek_yogurt_grapefruit_olive_oil_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
   "curated_snack_greek_yogurt_olive_oil_pistachio_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_greek_yogurt_strawberry_pistachio_bowl": [
     "Vegetarian",
     "Plant-Based/Flexitarian",
     "Mediterranean",
@@ -1340,6 +1428,15 @@
     "Plant-Based/Flexitarian",
     "Mediterranean",
     "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_halibut_broccoli_breakfast_bowl": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
     "High-Protein"
   ],
   "curated_snack_halibut_cabbage_breakfast_skillet": [
@@ -1384,6 +1481,13 @@
     "Gluten-Free",
     "High-Protein"
   ],
+  "curated_snack_mediterranean_carrot_tomato_egg_skillet": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
   "curated_snack_mediterranean_carrot_zucchini_egg_skillet": [
     "Vegetarian",
     "Plant-Based/Flexitarian",
@@ -1398,6 +1502,13 @@
     "Gluten-Free",
     "High-Protein"
   ],
+  "curated_snack_mediterranean_fennel_feta_egg_skillet": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
   "curated_snack_mediterranean_fennel_tomato_egg_skillet": [
     "Vegetarian",
     "Plant-Based/Flexitarian",
@@ -1405,7 +1516,21 @@
     "Gluten-Free",
     "High-Protein"
   ],
+  "curated_snack_mediterranean_fennel_zucchini_egg_skillet": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
   "curated_snack_mediterranean_feta_tomato_egg_scramble": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_mediterranean_leek_feta_egg_skillet": [
     "Vegetarian",
     "Plant-Based/Flexitarian",
     "Mediterranean",
@@ -1426,6 +1551,13 @@
     "Gluten-Free",
     "High-Protein"
   ],
+  "curated_snack_mediterranean_pepper_zucchini_egg_skillet": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
   "curated_snack_mediterranean_tomato_pepper_egg_skillet": [
     "Vegetarian",
     "Plant-Based/Flexitarian",
@@ -1434,6 +1566,13 @@
     "High-Protein"
   ],
   "curated_snack_mediterranean_zucchini_feta_egg_skillet": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_mediterranean_zucchini_tomato_feta_skillet": [
     "Vegetarian",
     "Plant-Based/Flexitarian",
     "Mediterranean",
@@ -1494,6 +1633,14 @@
     "Gluten-Free",
     "High-Protein"
   ],
+  "curated_snack_pork_broccoli_breakfast_skillet": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
   "curated_snack_pork_cabbage_breakfast_skillet": [
     "Omnivore",
     "Gluten-Free",
@@ -1528,6 +1675,15 @@
     "High-Protein"
   ],
   "curated_snack_salmon_fennel_breakfast_bowl": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_snack_salmon_kale_breakfast_bowl": [
     "Omnivore",
     "Plant-Based/Flexitarian",
     "Gluten-Free",
@@ -1581,6 +1737,42 @@
     "Dairy-Free",
     "Paleo",
     "AIP"
+  ],
+  "curated_snack_turkey_broccoli_breakfast_bowl": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_snack_turkey_cabbage_breakfast_skillet": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_snack_turkey_fennel_breakfast_bowl": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_snack_turkey_kale_breakfast_hash": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
   ],
   "curated_snack_veggie_cheddar_scramble_potatoes": [
     "Vegetarian",

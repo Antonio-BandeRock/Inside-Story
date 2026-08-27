@@ -1,0 +1,755 @@
+[
+  {
+    "id": "curated_snack_chicken_broccoli_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Chicken & Broccoli Breakfast Bowl",
+    "flavorProfile": "Baked chicken breast with roasted broccoli and carrot, finished with avocado.",
+    "healthBenefit": "Chicken breast, broccoli, and carrot all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Chicken Breast (without skin)",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Broccoli",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "cut into florets",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C).",
+      "Toss the broccoli and carrot with the salt and roast for 12-15 minutes.",
+      "Add the chicken breast to the sheet and bake for another 15-18 minutes, until cooked through.",
+      "Slice the chicken and serve over the roasted vegetables with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_chicken_cabbage_breakfast_skillet",
+    "builderType": "snack",
+    "name": "Chicken & Cabbage Breakfast Skillet",
+    "flavorProfile": "Seared chicken breast with cabbage and carrot braised soft.",
+    "healthBenefit": "Chicken breast, cabbage, and carrot all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Chicken Breast (without skin)",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cabbage",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "shredded",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the cabbage and carrot in a covered pan with a splash of water, and braise over medium-low heat for 10-12 minutes.",
+      "Season the sliced chicken with the salt and sear in a dry, hot pan for 4-5 minutes per side, until cooked through.",
+      "Serve the chicken over the braised cabbage and carrot."
+    ]
+  },
+  {
+    "id": "curated_snack_chicken_kale_breakfast_hash",
+    "builderType": "snack",
+    "name": "Chicken & Kale Breakfast Hash",
+    "flavorProfile": "A quick morning hash of seared chicken breast, braised kale, and carrot, finished with avocado.",
+    "healthBenefit": "Chicken breast, kale, and carrot all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Chicken Breast (without skin)",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Kale",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the kale and carrot in a covered pan with a splash of water, and braise over medium-low heat for 8-10 minutes.",
+      "Season the sliced chicken with the salt and sear in a dry, hot pan for 4-5 minutes per side, until cooked through.",
+      "Serve the chicken over the braised kale and carrot, topped with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_chicken_zucchini_breakfast_skillet",
+    "builderType": "snack",
+    "name": "Chicken & Zucchini Breakfast Skillet",
+    "flavorProfile": "Chicken breast sauteed with zucchini and carrot, finished with lime.",
+    "healthBenefit": "Chicken breast, zucchini, and carrot all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Chicken Breast (without skin)",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "julienned",
+        "cookingMethod": "sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 0.25,
+        "unit": "each",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Saute the diced chicken in a splash of water over medium-high heat for 6-7 minutes, until cooked through.",
+      "Add the zucchini and carrot and saute for another 4-5 minutes, until tender.",
+      "Stir in the lime juice and salt just before serving."
+    ]
+  },
+  {
+    "id": "curated_snack_turkey_broccoli_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Turkey & Broccoli Breakfast Bowl",
+    "flavorProfile": "Baked turkey breast with roasted broccoli and carrot, finished with avocado.",
+    "healthBenefit": "Turkey breast, broccoli, and carrot all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Turkey Breast (Raw)",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Broccoli",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "cut into florets",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C).",
+      "Toss the broccoli and carrot with the salt and roast for 12-15 minutes.",
+      "Add the turkey breast to the sheet and bake for another 15-18 minutes, until cooked through.",
+      "Slice the turkey and serve over the roasted vegetables with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_turkey_cabbage_breakfast_skillet",
+    "builderType": "snack",
+    "name": "Turkey & Cabbage Breakfast Skillet",
+    "flavorProfile": "Seared turkey breast with cabbage and carrot braised soft.",
+    "healthBenefit": "Turkey breast, cabbage, and carrot all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Turkey Breast (Raw)",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cabbage",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "shredded",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the cabbage and carrot in a covered pan with a splash of water, and braise over medium-low heat for 10-12 minutes.",
+      "Season the sliced turkey with the salt and sear in a dry, hot pan for 4-5 minutes per side, until cooked through.",
+      "Serve the turkey over the braised cabbage and carrot."
+    ]
+  },
+  {
+    "id": "curated_snack_turkey_kale_breakfast_hash",
+    "builderType": "snack",
+    "name": "Turkey & Kale Breakfast Hash",
+    "flavorProfile": "A quick morning hash of seared turkey breast, braised kale, and carrot, finished with avocado.",
+    "healthBenefit": "Turkey breast, kale, and carrot all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Turkey Breast (Raw)",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Kale",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the kale and carrot in a covered pan with a splash of water, and braise over medium-low heat for 8-10 minutes.",
+      "Season the sliced turkey with the salt and sear in a dry, hot pan for 4-5 minutes per side, until cooked through.",
+      "Serve the turkey over the braised kale and carrot, topped with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_turkey_fennel_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Turkey & Fennel Breakfast Bowl",
+    "flavorProfile": "Baked turkey breast with roasted fennel and zucchini.",
+    "healthBenefit": "Turkey breast, fennel, and zucchini all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Turkey Breast (Raw)",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C).",
+      "Toss the fennel and zucchini with the salt and roast for 10 minutes.",
+      "Add the turkey breast to the sheet and bake for another 15-18 minutes, until cooked through."
+    ]
+  },
+  {
+    "id": "curated_snack_beef_fennel_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Beef & Fennel Breakfast Bowl",
+    "flavorProfile": "Seared beef sirloin with roasted fennel and zucchini, finished with avocado.",
+    "healthBenefit": "Beef top sirloin, fennel, and zucchini all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Beef Top Sirloin (Raw)",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C) and roast the fennel and zucchini with the salt for 15-18 minutes.",
+      "Season the sliced beef and sear in a dry, hot pan for 2-3 minutes per side.",
+      "Serve the beef over the roasted vegetables, topped with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_pork_broccoli_breakfast_skillet",
+    "builderType": "snack",
+    "name": "Pork & Broccoli Breakfast Skillet",
+    "flavorProfile": "Seared pork tenderloin with roasted broccoli and carrot.",
+    "healthBenefit": "Pork tenderloin, broccoli, and carrot all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Pork Fillet / Tenderloin (Raw)",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Broccoli",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "cut into florets",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C) and roast the broccoli and carrot with the salt for 15 minutes.",
+      "Season the sliced pork and sear in a dry, hot pan for 2-3 minutes per side.",
+      "Serve the pork over the roasted broccoli and carrot."
+    ]
+  },
+  {
+    "id": "curated_snack_salmon_kale_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Salmon & Kale Breakfast Bowl",
+    "flavorProfile": "Baked salmon with braised kale and carrot, finished with avocado.",
+    "healthBenefit": "Salmon, kale, and carrot all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Salmon Fillet (Raw)",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Kale",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the kale and carrot in a covered pan with a splash of water, and braise over medium-low heat for 8-10 minutes.",
+      "Season the salmon with the salt and bake at 400F (200C) for 12-15 minutes, until it flakes easily.",
+      "Serve the salmon over the braised kale and carrot, topped with the sliced avocado."
+    ]
+  },
+  {
+    "id": "curated_snack_halibut_broccoli_breakfast_bowl",
+    "builderType": "snack",
+    "name": "Halibut & Broccoli Breakfast Bowl",
+    "flavorProfile": "Baked halibut with roasted broccoli and carrot.",
+    "healthBenefit": "Halibut, broccoli, and carrot all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Halibut Fish (Raw)",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "baked",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Broccoli",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "cut into florets",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400F (200C) and toss the broccoli and carrot with the salt.",
+      "Roast for 12 minutes, then add the halibut fillet and roast for another 12-15 minutes, until it flakes easily."
+    ]
+  },
+  {
+    "id": "curated_snack_cod_kale_breakfast_skillet",
+    "builderType": "snack",
+    "name": "Cod & Kale Breakfast Skillet",
+    "flavorProfile": "Pan-seared cod with braised kale and carrot.",
+    "healthBenefit": "Cod, kale, and carrot all check completely clean for Hashimoto's, IBD, and CKD alike.",
+    "servings": 1.0,
+    "servingSizeAmount": 1.0,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Meat",
+        "baseName": "Cod Fish",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "seared",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Kale",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "braised",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "tsp",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Combine the kale and carrot in a covered pan with a splash of water, and braise over medium-low heat for 8-10 minutes.",
+      "Season the cod with the salt and sear in a dry, hot pan for 3-4 minutes per side, until it flakes easily.",
+      "Serve the cod over the braised kale and carrot."
+    ]
+  }
+]

@@ -256,6 +256,37 @@ export const BREAKFAST_ELIGIBLE_RECIPE_IDS = new Set<string>([
   'curated_snack_mediterranean_pepper_feta_egg_skillet',
   'curated_snack_greek_yogurt_tropical_olive_oil_bowl',
   'curated_snack_mediterranean_carrot_zucchini_egg_skillet',
+  // 2026-08-27, direct follow-up: "close the remaining Hashimoto's/IBD/
+  // CKD Mediterranean and Paleo breakfast gaps." 13 more AIP-compliant
+  // recipes (closing the general AIP-breakfast gap to exactly 30, which
+  // also closes Paleo-breakfast for Hashimoto's/IBD/CKD since every AIP
+  // recipe auto-earns Paleo) plus 11 more Mediterranean-compliant
+  // recipes (closing Hashimoto's own Mediterranean-breakfast gap
+  // outright and over-closing IBD/CKD's).
+  'curated_snack_chicken_broccoli_breakfast_bowl',
+  'curated_snack_chicken_cabbage_breakfast_skillet',
+  'curated_snack_chicken_kale_breakfast_hash',
+  'curated_snack_chicken_zucchini_breakfast_skillet',
+  'curated_snack_turkey_broccoli_breakfast_bowl',
+  'curated_snack_turkey_cabbage_breakfast_skillet',
+  'curated_snack_turkey_kale_breakfast_hash',
+  'curated_snack_turkey_fennel_breakfast_bowl',
+  'curated_snack_beef_fennel_breakfast_bowl',
+  'curated_snack_pork_broccoli_breakfast_skillet',
+  'curated_snack_salmon_kale_breakfast_bowl',
+  'curated_snack_halibut_broccoli_breakfast_bowl',
+  'curated_snack_cod_kale_breakfast_skillet',
+  'curated_snack_mediterranean_fennel_feta_egg_skillet',
+  'curated_snack_mediterranean_leek_feta_egg_skillet',
+  'curated_snack_mediterranean_carrot_tomato_egg_skillet',
+  'curated_snack_mediterranean_zucchini_tomato_feta_skillet',
+  'curated_snack_mediterranean_pepper_zucchini_egg_skillet',
+  'curated_snack_mediterranean_fennel_zucchini_egg_skillet',
+  'curated_snack_greek_yogurt_strawberry_pistachio_bowl',
+  'curated_snack_greek_yogurt_blueberry_olive_oil_bowl',
+  'curated_snack_greek_yogurt_grapefruit_olive_oil_bowl',
+  'curated_snack_greek_yogurt_apple_pistachio_bowl',
+  'curated_snack_greek_yogurt_cantaloupe_olive_oil_bowl',
 ]);
 
 // ---------------------------------------------------------------------
