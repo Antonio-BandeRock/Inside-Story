@@ -578,15 +578,16 @@ const COMBINING_STRAINS_NOTE =
   'antagonism between the strains in this catalog when taken or fermented together.';
 
 // Composes one strain's full "can I actually make an informed choice
-// about this" detail -- 2026-08-27, direct report that the pill list let
-// someone pick a strain "without knowing anything about it or what it
-// helps or how long they may need... before the effects will begin."
-// Shown two ways from one function, so both can never drift into
+// about this" detail -- 2026-08-27, direct report that the original pill
+// list let someone pick a strain "without knowing anything about it or
+// what it helps or how long they may need... before the effects will
+// begin." Shown two ways from one function, so both can never drift into
 // disagreeing about the same strain: inline for an already-selected
 // strain (via linkifyText below, real URLs turned into tappable links)
-// and from a small info icon on every pill (via showInfoAlert, which
+// and from tapping a row's own name/subtitle (via showInfoAlert, which
 // linkifies internally), the second letting someone read about a strain
-// BEFORE deciding whether to pick it, not only after.
+// BEFORE deciding whether to pick it, not only after -- see the JSX's
+// own comment further down for how that row is actually laid out now.
 function buildStrainInfoMessage(strain: FermentationStrain): string {
   const lines = [strain.description];
   if (strain.fermentGuidance) lines.push(strain.fermentGuidance);
@@ -2344,8 +2345,8 @@ export function FermentationBuilder({
               list. Never required to Continue -- a fermentation with no
               strain picked is still a real, valid one, matching Side
               Builder's own oil/seasoning nudge (a soft suggestion, never a
-              block). Same tappable-pill multi-select shape as Profile's own
-              Food Allergies field. */}
+              block). A checkbox list, not the tappable pills this used to
+              be -- see the 2026-08-27 comment further down for why. */}
           {showCulturesSection && fermentationStrains.length > 0 ? (
             <>
               <Text style={[styles.formLabel, styles.formLabelSpaced, { color: tabColor }]}>
@@ -2374,38 +2375,47 @@ export function FermentationBuilder({
                 ) : null}
               </View>
               {/* 2026-08-27, direct report: picking a pill meant choosing
-                  blind, "as if a person knows right off the bat what each
-                  one is good for, how long it needs to ferment, whether
-                  it can be fermented with other probiotics, and at what
-                  temp to ferment it." Tapping a pill's own text still
-                  toggles that pill's selection, unchanged; the new (i)
-                  icon on every pill opens the same full detail
-                  (buildStrainInfoMessage) via showInfoAlert, so reading
-                  about a strain never requires selecting it first. */}
+                  blind. First fix (same day) put an (i) icon inside each
+                  small pill alongside the select-toggle text -- direct
+                  follow-up, on-device: "I see it, but it isn't intuitive
+                  at all." Two cramped, ambiguous tap zones inside an
+                  8px-tall pill was the real problem, not a missing
+                  feature -- rebuilt as a real, plain list instead of
+                  wrapped pills, the same checkbox-row shape this exact
+                  builder already uses for "Also save as a Favorite" just
+                  above (renderFavoriteToggle): a real checkbox on the
+                  left is the ONLY thing that toggles selection, a
+                  trailing chevron marks the rest of the row as "tap for
+                  detail," and nothing does both at once. This is a
+                  standard, already-understood mobile pattern (an email
+                  client's own multi-select mode, an iOS Reminders list),
+                  not a new one invented here. */}
               <TouchableOpacity onPress={() => showInfoAlert('Combining Strains', COMBINING_STRAINS_NOTE)} style={styles.combiningStrainsLink}>
                 <Ionicons name="information-circle-outline" size={14} color={colors.textSecondary} />
                 <Text style={styles.combiningStrainsLinkText}>Can these be combined? Tap to learn more.</Text>
               </TouchableOpacity>
               {filteredFermentationStrains.length > 0 ? (
-                <View style={styles.strainPillWrap}>
+                <View style={styles.strainListWrap}>
                   {filteredFermentationStrains.map((strain) => {
                     const active = selectedStrainIds.includes(strain.id);
                     return (
-                      <View
-                        key={strain.id}
-                        style={[styles.strainPill, { borderColor: active ? tabColor : colors.border }, active ? { backgroundColor: tabColor } : null]}
-                      >
-                        <TouchableOpacity onPress={() => toggleStrain(strain.id)}>
-                          <Text style={[styles.strainPillText, active ? { color: colors.textOnPrimary } : null]}>
-                            {strain.commonName ?? strain.scientificName}
-                          </Text>
+                      <View key={strain.id} style={[styles.strainRow, active ? { borderColor: tabColor } : null]}>
+                        <TouchableOpacity onPress={() => toggleStrain(strain.id)} hitSlop={8} style={styles.strainRowCheckbox}>
+                          <Ionicons name={active ? 'checkbox' : 'square-outline'} size={22} color={active ? tabColor : colors.textSecondary} />
                         </TouchableOpacity>
                         <TouchableOpacity
+                          style={styles.strainRowTextArea}
+                          activeOpacity={0.7}
                           onPress={() => showInfoAlert(strain.commonName ?? strain.scientificName, buildStrainInfoMessage(strain))}
-                          hitSlop={8}
                         >
-                          <Ionicons name="information-circle-outline" size={15} color={active ? colors.textOnPrimary : colors.textSecondary} />
+                          <Text style={styles.strainRowTitle}>{strain.commonName ?? strain.scientificName}</Text>
+                          {strain.useCases ? (
+                            <Text style={styles.strainRowSubtitle} numberOfLines={1}>
+                              {strain.useCases}
+                            </Text>
+                          ) : null}
                         </TouchableOpacity>
+                        <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
                       </View>
                     );
                   })}
@@ -3067,23 +3077,27 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   dishNameInputEmbedded: { flex: 1, marginTop: 0, borderWidth: 0, backgroundColor: 'transparent' },
-  // Cultures & Probiotics multi-select, 2026-08-14 -- same tappable-pill
-  // shape as Profile's own Food Allergies field (app/profile.tsx).
-  strainPillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
-  // 2026-08-27: a plain View now, not a TouchableOpacity -- it wraps two
-  // real, independent tap targets (the label toggles selection, the (i)
-  // icon opens that strain's own detail via showInfoAlert), so the outer
-  // shape itself can no longer be the thing that's pressed.
-  strainPill: {
+  // Cultures & Probiotics, 2026-08-14, rebuilt from wrapped pills to a
+  // real list 2026-08-27 (see the JSX's own comment above this section
+  // for why: "I see it, but it isn't intuitive at all," reported against
+  // the pill version's own cramped dual tap-zones). Same checkbox-row
+  // shape renderFavoriteToggle already uses just above in this same
+  // file -- a real, familiar pattern, not a new one invented here.
+  strainListWrap: { gap: 8, marginTop: 8 },
+  strainRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 10,
     borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
-  strainPillText: { ...typography.body, color: colors.textPrimary },
+  strainRowCheckbox: { padding: 2 },
+  strainRowTextArea: { flex: 1 },
+  strainRowTitle: { ...typography.body, color: colors.textPrimary },
+  strainRowSubtitle: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
   // "Can these be combined?" link, 2026-08-27, sitting between the
   // search box and the pill list -- one shared, catalog-wide fact, not
   // per-strain, so it isn't repeated on every pill's own info popup.
