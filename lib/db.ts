@@ -483,26 +483,11 @@ export async function getReferenceDatabase() {
       const referenceDbPath = `file://${SQLite.defaultDatabaseDirectory}/${REFERENCE_DB_NAME}`;
       const alreadyImported = versionMatches && new File(referenceDbPath).exists;
 
-      // 2026-08-28, TEMPORARY -- direct on-device report that a build
-      // already confirmed (adb pull + unzip -v) to store the reference
-      // database genuinely uncompressed still took the same ~3 minutes
-      // to open as before the fix, meaning DEFLATE decompression wasn't
-      // the whole story, or wasn't the bottleneck here at all. Rather
-      // than guess again, this times every real step of this function
-      // with millisecond precision so the actual slow step can be read
-      // directly off a live device log instead of inferred indirectly.
-      // Remove once the real bottleneck is found and fixed for real.
-      const t0 = Date.now();
-      console.warn(`[refdb-timing] alreadyImported=${alreadyImported} versionMatches=${versionMatches} at +${Date.now() - t0}ms`);
-
       if (!alreadyImported) {
-        const tImportStart = Date.now();
-        console.warn(`[refdb-timing] importDatabaseFromAssetAsync starting at +${tImportStart - t0}ms`);
         await SQLite.importDatabaseFromAssetAsync(REFERENCE_DB_NAME, {
           assetId: require('../assets/data/foods_reference.db'),
           forceOverwrite: true,
         });
-        console.warn(`[refdb-timing] importDatabaseFromAssetAsync finished, took ${Date.now() - tImportStart}ms (total +${Date.now() - t0}ms)`);
 
         const now = new Date().toISOString();
         await mainDb.runAsync(
@@ -516,10 +501,7 @@ export async function getReferenceDatabase() {
         );
       }
 
-      const tOpenStart = Date.now();
-      const result = await SQLite.openDatabaseAsync(REFERENCE_DB_NAME);
-      console.warn(`[refdb-timing] openDatabaseAsync finished, took ${Date.now() - tOpenStart}ms (total +${Date.now() - t0}ms)`);
-      return result;
+      return SQLite.openDatabaseAsync(REFERENCE_DB_NAME);
     })();
   }
 

@@ -581,6 +581,26 @@ export default function HomeScreen() {
   // empty or crashing pool.
   const [userConditionCodes, setUserConditionCodes] = useState<string[]>([]);
   const [curiousAboutConditionCodes, setCuriousAboutConditionCodes] = useState<string[]>([]);
+  // 2026-08-28, real root cause of a multi-minute cold-start stall,
+  // found by adding real timing instrumentation and reading the actual
+  // device log rather than guessing further: load() below used to
+  // depend on `userConditionCodes` directly, but loadDigestConditionScope
+  // (called alongside it in the very same Promise.all) is what SETS that
+  // state -- getUserConditions() returns a freshly-built array every
+  // call, a new reference even when the actual condition codes never
+  // changed, so every resolution of loadDigestConditionScope recreated
+  // `load`, which recreated the outer useFocusEffect callback below,
+  // which refired the whole effect, which called loadDigestConditionScope
+  // again, which set the state again, forever -- a real, self-sustaining
+  // infinite refetch loop, not a slow database or a slow network. This
+  // ref mirrors the state without `load` needing to depend on it, so
+  // load() can read the latest tracked conditions without ever being
+  // recreated -- the standard fix for "a callback needs a fresh value
+  // without needing to change identity every time that value does."
+  const userConditionCodesRef = useRef(userConditionCodes);
+  useEffect(() => {
+    userConditionCodesRef.current = userConditionCodes;
+  }, [userConditionCodes]);
   // Ref, not state -- read once per focus to decide whether this is the
   // very first load this session (show the loading gate, then reveal
   // everything at once, scrolled to the top) or a returning focus (Tabs
@@ -679,7 +699,7 @@ export default function HomeScreen() {
       // why this now means something different (and more correct) than
       // before: a flag genuinely relevant to a tracked condition, not any
       // of the ~29 currently-scored sub-criteria regardless of relevance.
-      getSixDimensionsFlagCountsByDateRange(date, date, userConditionCodes),
+      getSixDimensionsFlagCountsByDateRange(date, date, userConditionCodesRef.current),
       listCheckins({ checkinType: 'flare', limit: 60 }),
       listCheckins({ checkinType: 'post_meal', limit: 60 }),
       getUserProfile(),
@@ -733,7 +753,7 @@ export default function HomeScreen() {
         });
       },
     );
-  }, [userConditionCodes]);
+  }, []);
 
   // Both loaded together, on every focus (so returning from Food/Bio-
   // Compass with something new logged still shows up) -- but the loading
@@ -741,36 +761,36 @@ export default function HomeScreen() {
   // session, via hasLoadedOnceRef. A returning focus updates `data`/
   // `weekTrend` in place once both resolve, with no gate flicker and no
   // fighting the person's own scroll position.
+  //
+  // 2026-08-28: this dependency array is the actual reason a cold launch
+  // could take minutes, not the reference database (a real, separate fix
+  // shipped the same day, worthwhile on its own merits but not the cause
+  // of THIS symptom). load's own dependency array used to include
+  // userConditionCodes directly -- but loadDigestConditionScope, called
+  // in the very same Promise.all below, is what SETS that state, and
+  // getUserConditions() returns a freshly-built array every call, a new
+  // reference even when the actual condition codes never changed. Every
+  // resolution of loadDigestConditionScope therefore recreated `load`,
+  // which recreated this effect's own callback, which made useFocusEffect
+  // refire the whole effect, which called loadDigestConditionScope again,
+  // which set the state again -- a real, self-sustaining infinite refetch
+  // loop, confirmed directly by adding real timing instrumentation and
+  // reading the actual device log: dozens of overlapping calls to the
+  // same handful of queries, each one slower than the last as more piled
+  // up, very likely the same real pressure behind at least some of the
+  // "NativeDatabase.prepareAsync has been rejected" SQLite-race errors
+  // chased over the two days before this was found. Fixed at the source
+  // (see userConditionCodesRef above): load() now reads the latest
+  // tracked conditions from that ref instead of closing over the state
+  // directly, so it never needs to be recreated when that state changes,
+  // and all 4 functions below are genuinely stable across renders --
+  // this effect now only fires on a real focus event, not on every
+  // render this state churn used to cause.
   useFocusEffect(
     useCallback(() => {
       const isFirstLoad = !hasLoadedOnceRef.current;
       if (isFirstLoad) setLoading(true);
-      // 2026-08-28, TEMPORARY -- direct on-device report that first
-      // launch still takes ~3 minutes even on a build confirmed (adb
-      // pull + unzip -v) to no longer pay a DEFLATE-decompression cost
-      // for the reference database. This times each of the 4 promises
-      // below individually so the actual slow one can be read directly
-      // off a live device log rather than guessed. Remove once the real
-      // bottleneck is found and fixed for real -- see lib/db.ts's own
-      // matching [refdb-timing] instrumentation in getReferenceDatabase.
-      const homeT0 = Date.now();
-      const timed = <T,>(label: string, promise: Promise<T>): Promise<T> =>
-        promise.then(
-          (value) => {
-            console.warn(`[home-timing] ${label} resolved, took ${Date.now() - homeT0}ms total`);
-            return value;
-          },
-          (error) => {
-            console.warn(`[home-timing] ${label} REJECTED after ${Date.now() - homeT0}ms total`, error);
-            throw error;
-          },
-        );
-      Promise.all([
-        timed('load', load()),
-        timed('loadWeekTrend', loadWeekTrend()),
-        timed('loadSkyData', loadSkyData()),
-        timed('loadDigestConditionScope', loadDigestConditionScope()),
-      ]).then(() => {
+      Promise.all([load(), loadWeekTrend(), loadSkyData(), loadDigestConditionScope()]).then(() => {
         if (!isFirstLoad) return;
         hasLoadedOnceRef.current = true;
         setLoading(false);
