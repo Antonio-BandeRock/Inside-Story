@@ -129,4 +129,13 @@
 // rather than blind, or with a real, verified fix to the underlying
 // slow-reimport-over-Metro problem itself, not just this app's own
 // downstream symptom of it.
-export const REFERENCE_DB_VERSION = "20260827060000";
+//
+// RE-BUMPED 2026-08-28, the deliberate re-attempt named above: "It is
+// connected via USB now." scripts/start-with-qr.js's own new adb-reverse
+// step (see that script's own 2026-08-28 header comment) was also run by
+// hand this same morning against the already-running dev server, so the
+// fast USB path this revert's own comment asked for is actually live,
+// not just theoretically available. Back to "20260827080000" -- the same
+// real value batch3 originally set, restoring the genuine version bump
+// this catalog's own real content has always needed, not a new number.
+export const REFERENCE_DB_VERSION = "20260827080000";
