@@ -166,7 +166,15 @@ export default function RootLayout() {
 
     const timeoutId = setTimeout(() => {
       if (!settled) {
-        console.error(
+        // 2026-08-28, direct on-device report: this timeout firing exactly
+        // as designed (letting someone into the app while a slow reimport
+        // keeps running in the background) was showing up as a full-screen
+        // red LogBox error, not a quiet log line -- console.error is what
+        // triggers that in a dev-client build, and a working fallback path
+        // isn't the same thing as a crash. console.warn still surfaces in
+        // the Metro/adb log for a real developer to notice, just without
+        // alarming whoever's actually holding the phone.
+        console.warn(
           'getReferenceDatabase: startup gate timed out after ' +
             REFERENCE_DB_STARTUP_TIMEOUT_MS +
             'ms waiting for the reference-database import; letting the app open anyway.',
@@ -204,7 +212,11 @@ export default function RootLayout() {
     const HARD_STARTUP_TIMEOUT_MS = REFERENCE_DB_STARTUP_TIMEOUT_MS + 60_000;
     const timeoutId = setTimeout(() => {
       if (!settled) {
-        console.error(
+        // 2026-08-28: console.warn, not console.error -- see the sibling
+        // timeout's own comment just above for why. Direct on-device
+        // report: this exact line firing (working as designed) was the
+        // "error" shown right after the app finally opened.
+        console.warn(
           'DatabaseSetupScreen: hard startup timeout fired after ' +
             HARD_STARTUP_TIMEOUT_MS +
             'ms; forcing the loading overlay closed regardless of Home’s own load state.',

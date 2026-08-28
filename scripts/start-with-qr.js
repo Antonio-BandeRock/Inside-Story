@@ -93,8 +93,55 @@ function printQr() {
   console.log(`\n${url}\n`);
 }
 
+// 2026-08-28, direct follow-up to a real, repeated on-device problem:
+// "It loads to 95% and stalls forever" / "This has happened before" --
+// root-caused (lib/db.ts's own getReferenceDatabase comment, 2026-08-11)
+// to expo-sqlite's importDatabaseFromAssetAsync doing a real network
+// fetch of the whole ~130MB+ reference-database asset over whatever
+// connection the phone is talking to Metro through. That connection has
+// always been the LAN IP printed above, i.e. WiFi -- confirmed directly
+// that same day: the identical file copies in under a second over USB
+// (149.7 MB/s) but took 100+ seconds this way. Rather than only ever
+// telling a person to plug in after they're already stuck, this
+// automatically sets up the USB path every time a device is already
+// connected when the server starts, so it's there and ready if a real
+// reimport is ever needed: `adb reverse` tunnels Metro's own port over
+// the USB cable, so a phone that reaches this dev server via
+// http://127.0.0.1:8081 instead of the LAN IP gets the fast path for
+// free. Purely additive and best-effort -- no adb installed, no device
+// currently connected, or the reverse call itself failing all just skip
+// silently; the WiFi QR code above still works exactly as before either
+// way, this never changes what already gets printed.
+function setUpUsbReverseIfDeviceConnected(port) {
+  let devices;
+  try {
+    devices = execSync('adb devices', { encoding: 'utf8' });
+  } catch {
+    return; // adb not installed/on PATH -- nothing to do.
+  }
+  const connected = devices
+    .split('\n')
+    .slice(1)
+    .some((line) => line.trim().endsWith('device'));
+  if (!connected) return;
+
+  try {
+    execSync(`adb reverse tcp:${port} tcp:${port}`, { stdio: 'ignore' });
+    console.log(
+      `A USB-connected device was detected -- reversed port ${port} over USB for a much faster connection.\n` +
+        `If a real reference-database reimport is ever needed again, open the app via a build that talks to ` +
+        `http://127.0.0.1:${port} (or reload the dev client while genuinely connected by USB) rather than the WiFi ` +
+        `URL above -- the same real transfer that takes 100+ seconds over WiFi finishes in under a second this way.\n`,
+    );
+  } catch {
+    // Device listed but reverse still failed (unauthorized, mid-reconnect,
+    // etc.) -- not fatal, the WiFi path above still works regardless.
+  }
+}
+
 killExistingServer(PORT);
 printQr();
+setUpUsbReverseIfDeviceConnected(PORT);
 
 const child = spawn('npx', ['expo', 'start', '--port', String(PORT), ...process.argv.slice(2)], {
   stdio: 'inherit',
