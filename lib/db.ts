@@ -10622,6 +10622,25 @@ async function scheduleMealPlanSlot(
   return scheduleMeal({ title, mealType, scheduledFor, sourceFavoriteId: favorite.id });
 }
 
+// 2026-08-28, real bug fixed, direct on-device report from Lisa's first
+// real test: "she then looked at the schedule and the meals aren't
+// following the time settings in profile." Confirmed directly: both
+// setUpMealPlan and addMealPlanDayToSchedule below had always hardcoded
+// 08:00/12:30/18:30 for every person, regardless of Profile's own real
+// usualBreakfastTime/usualLunchTime/usualDinnerTime fields -- the exact
+// fields Schedule's own manual "add a meal" form already reads via
+// usualTimeForMealType (app/(tabs)/schedule.tsx), just never threaded
+// into either of these two bulk/generated paths. A missing usual time for
+// a given meal keeps the same honest default these functions always used,
+// matching this app's own standing "absence means default" contract.
+function resolveMealPlanTimes(profile: UserProfile): Record<'breakfast' | 'lunch' | 'dinner', string> {
+  return {
+    breakfast: profile.usualBreakfastTime ?? '08:00',
+    lunch: profile.usualLunchTime ?? '12:30',
+    dinner: profile.usualDinnerTime ?? '18:30',
+  };
+}
+
 // "set this up for them if they want it to" -- walks every day in
 // lib/mealPlan.ts's own MEAL_PLAN, scheduling all 3 slots starting from
 // startDate (a plain 'YYYY-MM-DD' local date, day 1 = startDate). Real,
@@ -10637,6 +10656,9 @@ export async function setUpMealPlan(
   let scheduled = 0;
   let skipped = 0;
 
+  // Fetched once, not per day/slot -- the profile doesn't change mid-loop.
+  const mealTimes = resolveMealPlanTimes(await getUserProfile());
+
   for (const planDay of mealPlan) {
     const date = addDaysToLocalDate(startDate, planDay.day - 1);
     for (const [mealType, slot] of [
@@ -10644,8 +10666,7 @@ export async function setUpMealPlan(
       ['lunch', planDay.lunch],
       ['dinner', planDay.dinner],
     ] as const) {
-      const time = mealType === 'breakfast' ? '08:00' : mealType === 'lunch' ? '12:30' : '18:30';
-      const scheduledFor = `${date}T${time}`;
+      const scheduledFor = `${date}T${mealTimes[mealType]}`;
       const existing = await db.getFirstAsync<{ id: string }>(
         `SELECT id FROM schedule_items WHERE item_type = 'meal' AND meal_type = ? AND substr(scheduled_for, 1, 10) = ? AND status = 'planned' LIMIT 1`,
         mealType,
@@ -10669,9 +10690,10 @@ export async function setUpMealPlan(
 // a single day from the Meal Plan lens works exactly like the bulk button
 // did for that one day, no separate code path to drift out of sync.
 export async function addMealPlanDayToSchedule(planDay: MealPlanDay, date: string): Promise<void> {
-  await scheduleMealPlanSlot(planDay.breakfast, 'breakfast', `${date}T08:00`);
-  await scheduleMealPlanSlot(planDay.lunch, 'lunch', `${date}T12:30`);
-  await scheduleMealPlanSlot(planDay.dinner, 'dinner', `${date}T18:30`);
+  const mealTimes = resolveMealPlanTimes(await getUserProfile());
+  await scheduleMealPlanSlot(planDay.breakfast, 'breakfast', `${date}T${mealTimes.breakfast}`);
+  await scheduleMealPlanSlot(planDay.lunch, 'lunch', `${date}T${mealTimes.lunch}`);
+  await scheduleMealPlanSlot(planDay.dinner, 'dinner', `${date}T${mealTimes.dinner}`);
 }
 
 // Exported (2026-08-26) so the Daily/Weekly Meal Plan lens can compute the
