@@ -3,12 +3,18 @@
     "name": "Inside Story",
     "slug": "inside-story",
     "owner": "inside-story",
-    "version": "1.0.29.2",
+    "version": "1.0.29.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "hashimotosapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4df4360a-6556-4989-8ad3-dcae28961d17"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.insidestoryapp.app",
