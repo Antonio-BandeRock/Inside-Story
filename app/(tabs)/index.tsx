@@ -745,7 +745,32 @@ export default function HomeScreen() {
     useCallback(() => {
       const isFirstLoad = !hasLoadedOnceRef.current;
       if (isFirstLoad) setLoading(true);
-      Promise.all([load(), loadWeekTrend(), loadSkyData(), loadDigestConditionScope()]).then(() => {
+      // 2026-08-28, TEMPORARY -- direct on-device report that first
+      // launch still takes ~3 minutes even on a build confirmed (adb
+      // pull + unzip -v) to no longer pay a DEFLATE-decompression cost
+      // for the reference database. This times each of the 4 promises
+      // below individually so the actual slow one can be read directly
+      // off a live device log rather than guessed. Remove once the real
+      // bottleneck is found and fixed for real -- see lib/db.ts's own
+      // matching [refdb-timing] instrumentation in getReferenceDatabase.
+      const homeT0 = Date.now();
+      const timed = <T,>(label: string, promise: Promise<T>): Promise<T> =>
+        promise.then(
+          (value) => {
+            console.warn(`[home-timing] ${label} resolved, took ${Date.now() - homeT0}ms total`);
+            return value;
+          },
+          (error) => {
+            console.warn(`[home-timing] ${label} REJECTED after ${Date.now() - homeT0}ms total`, error);
+            throw error;
+          },
+        );
+      Promise.all([
+        timed('load', load()),
+        timed('loadWeekTrend', loadWeekTrend()),
+        timed('loadSkyData', loadSkyData()),
+        timed('loadDigestConditionScope', loadDigestConditionScope()),
+      ]).then(() => {
         if (!isFirstLoad) return;
         hasLoadedOnceRef.current = true;
         setLoading(false);
