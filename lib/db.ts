@@ -5638,6 +5638,25 @@ async function runDatabaseInitialization() {
       }
     }
 
+    // Deliberately eaten outside a declared fasting/eating window, 2026-08-29.
+    // Direct request, after the window turned out to be a hard block with no
+    // way past it: "what if they missed a meal, or they were sick and need to
+    // eat something?... have the choice be OK or Add Meal Anyway... It needs
+    // to be logged as being outside of the eating window, but kept for the
+    // trend info."
+    //
+    // 0/null means either inside the window, or scheduled while fasting was
+    // off entirely -- the two are genuinely the same thing here (nothing to
+    // be outside OF), and collapsing them keeps every row that predates this
+    // column honest rather than retroactively claiming a window it was never
+    // checked against. 1 means the person was shown the window, chose to add
+    // the meal anyway, and that exception is worth keeping rather than
+    // silently normalizing: a real meal eaten off-window is exactly the kind
+    // of thing trend analysis should be able to see.
+    if (!scheduleItemColumns.some((existing) => existing.name === 'outside_eating_window')) {
+      await db.execAsync('ALTER TABLE schedule_items ADD COLUMN outside_eating_window INTEGER;');
+    }
+
     // Appointments (item_type='appointment') -- doctor/lab/nutritionist/
     // trainer visits. appointment_type is a small free-text vocabulary
     // ('lab_draw' matters specifically: it's what lets the biotin/thyroid-
@@ -11830,6 +11849,14 @@ export type ScheduleItemRecord = {
   repeatUntil: string | null;
   repeatGroupId: string | null;
   repeatIndex: number | null;
+  // True only when the person was shown their declared eating window,
+  // chose to schedule the meal anyway, and that exception was recorded --
+  // see the outside_eating_window migration. False for anything inside
+  // the window, scheduled with fasting off, or predating that column.
+  // Arrives from SQLite as 0/1 rather than a JS boolean (these rows are
+  // cast directly from the query, with no mapping layer), so treat it as
+  // truthy/falsy and never compare it with === true.
+  outsideEatingWindow: boolean;
   // Appointment-only fields (item_type='appointment') -- see
   // scheduleAppointment. All null for every other item_type.
   appointmentType: string | null;
@@ -11858,6 +11885,7 @@ const SCHEDULE_ITEM_COLUMNS = `
   repeat_until AS repeatUntil, repeat_group_id AS repeatGroupId, repeat_index AS repeatIndex,
   appointment_type AS appointmentType, location, provider_name AS providerName,
   linked_device_calendar_event_id AS linkedDeviceCalendarEventId,
+  COALESCE(outside_eating_window, 0) = 1 AS outsideEatingWindow,
   rotation_selections_json AS rotationSelectionsJson,
   created_at AS createdAt, updated_at AS updatedAt
 `;
@@ -11945,6 +11973,10 @@ async function insertScheduleSeries(input: {
   location?: string | null;
   providerName?: string | null;
   linkedDeviceCalendarEventId?: string | null;
+  // See the outside_eating_window migration above. Only ever set by the
+  // meal paths; every other item type leaves it undefined, which stores
+  // null and correctly means "not applicable" rather than "inside".
+  outsideEatingWindow?: boolean;
   repeat: RepeatConfig;
 }): Promise<string> {
   const db = await getDatabase();
@@ -11966,8 +11998,8 @@ async function insertScheduleSeries(input: {
           (id, scheduled_for, item_type, meal_type, title, status, notes, source_favorite_id, source_meal_id,
            linked_treatment_id, repeat_type, repeat_end_type, repeat_count, repeat_until, repeat_group_id, repeat_index,
            appointment_type, location, provider_name, linked_device_calendar_event_id,
-           created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, 'planned', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           outside_eating_window, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, 'planned', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       id,
       `${occurrenceDate}T${firstTime}`,
@@ -11988,6 +12020,7 @@ async function insertScheduleSeries(input: {
       input.location ?? null,
       input.providerName ?? null,
       input.linkedDeviceCalendarEventId ?? null,
+      input.outsideEatingWindow ? 1 : null,
       now,
       now,
     );
@@ -12141,6 +12174,12 @@ export async function scheduleMeal(input: {
   // than left waiting indefinitely. See activateWaitingTrialsForComponents'
   // own comment.
   components?: MealComponentSelection[];
+  // Set by a caller that already showed the person their eating window and
+  // got a deliberate "add it anyway" -- see the outside_eating_window
+  // migration above. Never inferred here: this function has no idea whether
+  // the caller checked, and quietly guessing would produce exactly the kind
+  // of unreliable flag that makes trend data worthless.
+  outsideEatingWindow?: boolean;
 }) {
   const result = await insertScheduleSeries({
     itemType: 'meal',
@@ -12150,6 +12189,7 @@ export async function scheduleMeal(input: {
     notes: input.notes,
     sourceFavoriteId: input.sourceFavoriteId,
     sourceMealId: input.sourceMealId,
+    outsideEatingWindow: input.outsideEatingWindow,
     repeat: input.repeat ?? { type: 'none' },
   });
 
@@ -12627,7 +12667,17 @@ export async function unlinkScheduleItemFromDeviceCalendarEvent(id: string): Pro
 
 export async function updateScheduledMeal(
   id: string,
-  input: { title: string; mealType: string; scheduledFor: string; notes?: string },
+  input: {
+    title: string;
+    mealType: string;
+    scheduledFor: string;
+    notes?: string;
+    // Always written on an edit, not only when true: rescheduling a meal
+    // from outside the eating window back to inside it has to clear the
+    // flag, or the exception would stick to the meal permanently and
+    // quietly corrupt any trend built on it.
+    outsideEatingWindow?: boolean;
+  },
 ) {
   const db = await getDatabase();
   const now = new Date().toISOString();
@@ -12635,13 +12685,14 @@ export async function updateScheduledMeal(
   await db.runAsync(
     `
       UPDATE schedule_items
-      SET title = ?, meal_type = ?, scheduled_for = ?, notes = ?, updated_at = ?
+      SET title = ?, meal_type = ?, scheduled_for = ?, notes = ?, outside_eating_window = ?, updated_at = ?
       WHERE id = ?
     `,
     input.title.trim(),
     input.mealType,
     input.scheduledFor,
     input.notes?.trim() || null,
+    input.outsideEatingWindow ? 1 : null,
     now,
     id,
   );

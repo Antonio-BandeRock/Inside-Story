@@ -709,6 +709,9 @@ function MealsLens() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<FormState>(BLANK_FORM);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  // Added 2026-08-29 for the "Add Meal Anyway" choice on the eating-window
+  // check, which needs a real two-option prompt rather than a single-OK alert.
+  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
   const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
   // weekStart/selectedDate deliberately aren't reset on focus (unlike
   // `revealed` elsewhere in this file) -- navigating away to another tab
@@ -886,11 +889,21 @@ function MealsLens() {
       return;
     }
 
+    // 2026-08-29: this used to be a hard block with a single OK button and
+    // no way through. Direct request: "what if they missed a meal, or they
+    // were sick and need to eat something? Instead of that response being
+    // just plain OK and no way to add the meal, have the choice be OK or
+    // Add Meal Anyway... It needs to be logged as being outside of the
+    // eating window, but kept for the trend info." Correct: a fasting
+    // window is a goal someone set, not a lock on their own food, and a
+    // real off-window meal is exactly the kind of thing trend analysis
+    // should be able to see rather than something the app refuses to
+    // record at all.
+    let outsideEatingWindow = false;
     if (profile?.fastingEnabled && profile.eatingWindowStart && profile.eatingWindowEnd) {
       // Local re-check of isWithinEatingWindow's own logic -- kept here
-      // rather than imported so this screen fails closed (blocks the save)
-      // even if that import ever broke, since this is the one hard
-      // constraint the person explicitly asked to be enforced.
+      // rather than imported so this screen still notices the window even
+      // if that import ever broke.
       const { eatingWindowStart, eatingWindowEnd } = profile;
       const withinWindow =
         eatingWindowStart <= eatingWindowEnd
@@ -898,11 +911,14 @@ function MealsLens() {
           : time24 >= eatingWindowStart || time24 < eatingWindowEnd;
 
       if (!withinWindow) {
-        showInfoAlert(
-          'Outside your eating window',
-          `Your eating window is ${formatTime12(eatingWindowStart)} - ${formatTime12(eatingWindowEnd)}. Pick a time inside it, or turn off fasting in Profile if this is a deliberate exception.`,
-        );
-        return;
+        const addAnyway = await confirmSheet({
+          title: 'Outside your eating window',
+          message: `Your eating window is ${formatTime12(eatingWindowStart)} - ${formatTime12(eatingWindowEnd)}, and this meal is at ${formatTime12(time24)}. You can still add it, for a missed meal, feeling unwell, or any other reason. It will be saved and marked as outside your window, so your trends stay accurate rather than missing a meal you actually ate.`,
+          confirmLabel: 'Add Meal Anyway',
+          cancelLabel: 'Pick Another Time',
+        });
+        if (!addAnyway) return;
+        outsideEatingWindow = true;
       }
     }
 
@@ -910,7 +926,12 @@ function MealsLens() {
 
     try {
       if (form.editingId) {
-        await updateScheduledMeal(form.editingId, { title: form.title, mealType: form.mealType, scheduledFor });
+        await updateScheduledMeal(form.editingId, {
+          title: form.title,
+          mealType: form.mealType,
+          scheduledFor,
+          outsideEatingWindow,
+        });
       } else {
         await scheduleMeal({
           title: form.title,
@@ -919,6 +940,7 @@ function MealsLens() {
           sourceFavoriteId: form.sourceFavoriteId ?? undefined,
           sourceMealId: form.sourceMealId ?? undefined,
           repeat: form.repeat,
+          outsideEatingWindow,
         });
       }
       closeForm();
@@ -1167,6 +1189,7 @@ function MealsLens() {
   return (
     <>
     {infoAlertElement}
+    {confirmSheetElement}
     <AppActionSheet
       visible={removePrompt !== null}
       onClose={() => setRemovePrompt(null)}
@@ -1412,6 +1435,11 @@ function MealsLens() {
                           {item.status === 'logged' ? ' · Logged' : item.status === 'skipped' ? ' · Skipped' : ''}
                           {item.repeatGroupId ? ' · Repeats' : ''}
                           {item.linkedDeviceCalendarEventId ? ' · On phone calendar' : ''}
+                          {/* Marked, not hidden or warned about again: the
+                              person already made this call deliberately, so
+                              this is a plain factual label for their own
+                              records and for trends, not a nag. */}
+                          {item.outsideEatingWindow ? ' · Outside eating window' : ''}
                         </Text>
                       </View>
                     </View>

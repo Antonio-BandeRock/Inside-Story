@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.8',
+    date: '2026-08-29',
+    changes: [
+      'Scheduling a meal outside your fasting window is no longer blocked. You now get a choice: pick another time, or "Add Meal Anyway" for a missed meal, feeling unwell, or any other real reason.',
+      'A meal added that way is saved and marked "Outside eating window" on your schedule, so your records and trends reflect a meal you actually ate instead of leaving it out.',
+      'Rescheduling such a meal back inside your window clears that mark, so it never sticks to a meal it no longer describes.',
+    ],
+  },
+  {
     version: '1.0.30.7',
     date: '2026-08-29',
     changes: [
