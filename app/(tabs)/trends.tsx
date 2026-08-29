@@ -678,7 +678,7 @@ export default function TrendsScreen() {
                 </ScrollView>
 
                 {loading ? (
-                  <Text style={styles.loadingText}>Loading…</Text>
+                  <Text style={[styles.loadingText, styles.panelStandalone]}>Loading…</Text>
                 ) : resolvedRange.isSingleDay ? (
                   <View style={styles.chartCard}>
                     {latestNutrientPoint ? (
@@ -713,7 +713,7 @@ export default function TrendsScreen() {
               </>
             ) : lens === 'sixDs' ? (
               loading ? (
-                <Text style={styles.loadingText}>Loading…</Text>
+                <Text style={[styles.loadingText, styles.panelStandalone]}>Loading…</Text>
               ) : resolvedRange.isSingleDay ? (
                 <View style={styles.chartCard}>
                   {sixDsSeries && sixDsSeries.length > 0 ? (
@@ -743,7 +743,7 @@ export default function TrendsScreen() {
               )
             ) : lens === 'symptoms' ? (
               loading ? (
-                <Text style={styles.loadingText}>Loading…</Text>
+                <Text style={[styles.loadingText, styles.panelStandalone]}>Loading…</Text>
               ) : (
                 <View style={styles.chartCard}>
                   <TrendLineChart
@@ -771,7 +771,7 @@ export default function TrendsScreen() {
               )
             ) : lens === 'weight' ? (
               loading ? (
-                <Text style={styles.loadingText}>Loading…</Text>
+                <Text style={[styles.loadingText, styles.panelStandalone]}>Loading…</Text>
               ) : (
                 (() => {
                   // Always stored in kg (recordBodyMeasurement's own
@@ -815,9 +815,9 @@ export default function TrendsScreen() {
                   minWidth={220}
                 />
                 {!selectedTestCode ? (
-                  <Text style={[styles.loadingText, styles.spaced]}>Pick a test above to see its own trend.</Text>
+                  <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>Pick a test above to see its own trend.</Text>
                 ) : loading ? (
-                  <Text style={[styles.loadingText, styles.spaced]}>Loading…</Text>
+                  <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>Loading…</Text>
                 ) : (
                   (() => {
                     const test = labTests.find((t) => t.code === selectedTestCode);
@@ -875,15 +875,15 @@ export default function TrendsScreen() {
                 </View>
 
                 {loading ? (
-                  <Text style={styles.loadingText}>Looking through your logged history…</Text>
+                  <Text style={[styles.loadingText, styles.panelStandalone]}>Looking through your logged history…</Text>
                 ) : !patternResult || patternResult.totalSymptomInstances === 0 ? (
-                  <Text style={styles.loadingText}>
+                  <Text style={[styles.loadingText, styles.panelStandalone]}>
                     {"Log a flare or food reaction in Signals first; there's nothing to look for a pattern in yet."}
                   </Text>
                 ) : patternResult.foodCandidates.length === 0 &&
                   patternResult.dimensionCandidates.length === 0 &&
                   patternResult.categoryCandidates.length === 0 ? (
-                  <Text style={styles.loadingText}>
+                  <Text style={[styles.loadingText, styles.panelStandalone]}>
                     {"Nothing showed up before 2 or more of your "}
                     {patternResult.totalSymptomInstances}
                     {" logged flares/reactions in this window. That's a real result too; try a longer window, or keep logging."}
@@ -1018,6 +1018,24 @@ const styles = StyleSheet.create({
   // everywhere this style is used, just most visible here since Pattern
   // Finder's own empty state is genuinely reachable with real, current
   // on-device data (zero logged flares/reactions, confirmed directly).
+  // 2026-08-29, standing rule: no text sits directly on a tab's
+  // photographic background. panelStandalone is for text with no card
+  // to join (an empty state, an error or loading line);
+  // groupHeadingChip is for a heading introducing a GROUP of separate
+  // cards. A heading that labels ONE card should move inside that
+  // card instead of using either.
+  panelStandalone: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  groupHeadingChip: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
   loadingText: { ...typography.body, ...textShadow, color: colors.textSecondary, marginBottom: 16 },
   spaced: { marginTop: 12 },
 
@@ -1025,7 +1043,19 @@ const styles = StyleSheet.create({
   // (page-level lens name/filters, not "content in a box") -- left neutral
   // for that reason. caption/legendText below ARE rendered inside
   // chartCard, so they follow TAB_COLOR, 2026-07-27.
-  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10, ...textShadow },
+  // 2026-08-29: sitting above the card means sitting on the photo, so it
+  // carries its own surface now (standing rule: no text directly on the
+  // tab background). Its colour is unchanged.
+  sectionHeading: {
+    ...typography.sectionTitle,
+    color: colors.textPrimary,
+    marginBottom: 10,
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    ...textShadow,
+  },
   caption: { ...typography.body, color: TAB_COLOR, marginTop: 8, textAlign: 'center', ...textShadow },
   singleDayHeading: { ...typography.sectionTitle, fontSize: 26, textAlign: 'center', ...textShadow },
   // Added 2026-07-27: the chart itself used to float with no surrounding

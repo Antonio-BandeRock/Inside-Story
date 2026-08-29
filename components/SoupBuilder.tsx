@@ -2574,6 +2574,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     marginTop: 14,
+    // Filled so its label is not sitting on the photo background.
+    backgroundColor: colors.surface,
   },
   secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow },
   reportPreviewButton: { borderWidth: 2 },
@@ -2588,7 +2590,7 @@ const styles = StyleSheet.create({
   prepNoteLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
   // 2026-08-08 -- renderFavoriteToggle's own row.
-  favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
+  favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 , backgroundColor: colors.surface },
   favoriteToggleText: { ...typography.body, color: colors.textPrimary, flexShrink: 1, ...textShadow },
   // summaryCard/summaryCardSquareBottom/summaryLeftColumn/summaryDivider/
   // summaryRightColumn/summarySoupName lived here until 2026-08-17 -- the
@@ -2806,6 +2808,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     gap: 2,
     height: SOURCE_CANCEL_ROW_HEIGHT,
+    // Filled so its label is not sitting on the photo background.
+    backgroundColor: colors.surface,
   },
   // "Add Ingredients," 2026-08-17 (points 3/5) -- half the width of the
   // collapsible soup/ingredients card above it, and pinned to whichever

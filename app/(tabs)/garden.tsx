@@ -623,7 +623,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
     return (
       <View style={styles.pickerScreen}>
         <TouchableOpacity onPress={() => setAddingPlantingToPlot(null)}>
-          <Text style={styles.linkText}>‹ Cancel</Text>
+          <Text style={[styles.linkText, styles.groupHeadingChip]}>‹ Cancel</Text>
         </TouchableOpacity>
         <FoodLookup
           tabColor={TAB_COLOR}
@@ -1202,7 +1202,25 @@ const styles = StyleSheet.create({
   // established precedent for exactly this situation (app/(tabs)/index.tsx's
   // own emptyText): the brighter textSecondary color plus a real drop
   // shadow, not just a color swap alone.
-  emptyText: { ...typography.body, ...textShadow, color: colors.textSecondary, textAlign: 'center', marginTop: 24 },
+  // 2026-08-29, standing rule: no text sits directly on a tab's
+  // photographic background. panelStandalone is for text with no card
+  // to join (an empty state, an error or loading line);
+  // groupHeadingChip is for a heading introducing a GROUP of separate
+  // cards. A heading that labels ONE card should move inside that
+  // card instead of using either.
+  panelStandalone: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  groupHeadingChip: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  emptyText: { ...typography.body, ...textShadow, color: colors.textSecondary, textAlign: 'center', marginTop: 24 , backgroundColor: colors.surface },
   fieldRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   fieldLabel: { ...typography.label, color: colors.textPrimary,
 

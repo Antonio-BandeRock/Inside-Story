@@ -104,7 +104,7 @@ export default function ReportsScreen() {
       <SwipeableTabScreen enabled={!revealed}>
         <GatedTabContent pageTitle="Reports" variant="reports" revealed={revealed}>
           <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
-            <Text style={styles.sectionHeading}>{activeLensLabel}</Text>
+            <Text style={[styles.sectionHeading, styles.groupHeadingChip]}>{activeLensLabel}</Text>
 
             <View style={styles.pillRow}>
               {DAY_RANGE_OPTIONS.map((option) => (
@@ -122,7 +122,7 @@ export default function ReportsScreen() {
             </View>
 
             {loading ? (
-              <Text style={styles.loadingText}>Putting your report together…</Text>
+              <Text style={[styles.loadingText, styles.panelStandalone]}>Putting your report together…</Text>
             ) : (
               <View style={styles.reportCard}>
                 <Text style={styles.reportText}>{reportText}</Text>
@@ -165,6 +165,24 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { flex: 1 },
   content: { paddingHorizontal: 20, paddingBottom: 32 },
+  // 2026-08-29, standing rule: no text sits directly on a tab's
+  // photographic background. panelStandalone is for text with no card
+  // to join (an empty state, an error or loading line);
+  // groupHeadingChip is for a heading introducing a GROUP of separate
+  // cards. A heading that labels ONE card should move inside that
+  // card instead of using either.
+  panelStandalone: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  groupHeadingChip: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
   sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10, ...textShadow },
   loadingText: { ...typography.body, color: colors.textSecondary, marginBottom: 16, ...textShadow },
 

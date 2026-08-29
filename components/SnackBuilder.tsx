@@ -2494,6 +2494,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     marginTop: 14,
+    // Filled so its label is not sitting on the photo background.
+    backgroundColor: colors.surface,
   },
   secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow },
   reportPreviewButton: { borderWidth: 2 },
@@ -2503,7 +2505,7 @@ const styles = StyleSheet.create({
   // Steps UI, see this component's own per-ingredient Prep Steps block).
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
   // 2026-08-08 -- renderFavoriteToggle's own row.
-  favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
+  favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 , backgroundColor: colors.surface },
   favoriteToggleText: { ...typography.body, color: colors.textPrimary, flexShrink: 1, ...textShadow },
   // summaryCard/summaryCardSquareBottom/summaryLeftColumn/summaryDivider/
   // summaryRightColumn/summarySnackName lived here until 2026-08-17 -- the
@@ -2522,6 +2524,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     gap: 2,
     height: SOURCE_CANCEL_ROW_HEIGHT,
+    // Filled so its label is not sitting on the photo background.
+    backgroundColor: colors.surface,
   },
   // "Add Ingredients," 2026-08-17 (points 3/5) -- half the width of the
   // collapsible dish/ingredients card above it, and pinned to whichever

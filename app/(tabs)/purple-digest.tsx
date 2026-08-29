@@ -6592,7 +6592,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 16,
   },
-  emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
+  emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow, backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 12 },
   // 2026-08-16 -- wraps the search AppTextInput with a real mic button
   // (VoiceInputButton), added inside DigestSearchInput itself rather than
   // at either of this screen's own two call sites, since that component
@@ -6641,7 +6641,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     ...textShadow,
   },
-  searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8, ...textShadow },
+  searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8, ...textShadow, backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12 },
   searchResultCategory: { ...typography.caption, ...textShadow, color: TAB_TEXT_COLOR, marginBottom: 4 },
   // topicGrid/topicCard/topicCardTitle/topicCardCount/treeBackLink/
   // treeHeading (Basic Health's own real tree navigation) removed
@@ -6822,7 +6822,7 @@ const styles = StyleSheet.create({
   // labels); everything else the demo shows -- the dot itself, and the
   // whole pill row via MatchSummaryRow -- reuses the app's real styles
   // directly, not a copy.
-  demoBlock: { marginTop: 4 },
+  demoBlock: { marginTop: 4, backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 12 },
   demoHeading: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 4 },
   demoSubheading: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginTop: 18, marginBottom: 4 },
   demoIntro: { ...typography.caption, color: colors.textMuted, marginBottom: 10, lineHeight: 17, ...textShadow },

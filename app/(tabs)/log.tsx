@@ -607,9 +607,9 @@ function FlaresLens() {
       )}
 
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       ) : entries.length === 0 ? (
-        <Text style={styles.emptyText}>No flares logged yet.</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>No flares logged yet.</Text>
       ) : (
         <View style={styles.table}>
           {entries.map((entry) => (
@@ -721,9 +721,9 @@ function FoodReactionsLens() {
       )}
 
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       ) : entries.length === 0 ? (
-        <Text style={styles.emptyText}>No food reactions logged yet.</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>No food reactions logged yet.</Text>
       ) : (
         <View style={styles.table}>
           {entries.map((entry) => (
@@ -1035,7 +1035,7 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
         // own focus effect (see lib/pendingFoodTrialReturn.ts), lands
         // right back on the exact builder, mid-build, not just the tab.
         <TouchableOpacity onPress={() => router.navigate('/food')}>
-          <Text style={styles.backLink}>‹ Back to what you were building</Text>
+          <Text style={[styles.backLink, styles.groupHeadingChip]}>‹ Back to what you were building</Text>
         </TouchableOpacity>
       ) : null}
       {!formOpen ? (
@@ -1136,9 +1136,9 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
       )}
 
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       ) : trials.length === 0 ? (
-        <Text style={styles.emptyText}>No food trials yet.</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>No food trials yet.</Text>
       ) : (
         <View style={styles.table}>
           {trials.map((trial) => {
@@ -1351,7 +1351,7 @@ function ExerciseSection() {
       )}
 
       {logs.length === 0 ? (
-        <Text style={styles.emptyText}>No exercise logged yet.</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>No exercise logged yet.</Text>
       ) : (
         <View style={styles.table}>
           {logs.map((log) => (
@@ -1532,7 +1532,7 @@ function BloodPressureSection() {
       )}
 
       {readings.length === 0 ? (
-        <Text style={styles.emptyText}>No blood pressure readings yet.</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>No blood pressure readings yet.</Text>
       ) : (
         <View style={styles.table}>
           {readings.map((reading) => (
@@ -1642,7 +1642,7 @@ function GeneralNoteSection() {
       )}
 
       {notesList.length === 0 ? (
-        <Text style={styles.emptyText}>No notes yet.</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>No notes yet.</Text>
       ) : (
         <View style={styles.table}>
           {notesList.map((entry) => (
@@ -1693,7 +1693,7 @@ function GeneralNoteLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      <Text style={styles.helperText}>
+      <Text style={[styles.helperText, styles.panelStandalone]}>
         For anything else worth remembering: a prescription change, how a supplement felt, a drink you had.
       </Text>
       <GeneralNoteSection />
@@ -1710,7 +1710,7 @@ function NocturiaLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      <Text style={styles.emptyText}>
+      <Text style={[styles.emptyText, styles.panelStandalone]}>
         Not built yet. Waking at night to urinate is a trackable symptom worth its own log; this will get its own
         logging (how many times, what time) built out.
       </Text>
@@ -1839,6 +1839,24 @@ const styles = StyleSheet.create({
     ...textShadow,
 
   },
+  // 2026-08-29, standing rule: no text sits directly on a tab's
+  // photographic background. panelStandalone is for text with no card
+  // to join (an empty state, an error or loading line);
+  // groupHeadingChip is for a heading introducing a GROUP of separate
+  // cards. A heading that labels ONE card should move inside that
+  // card instead of using either.
+  panelStandalone: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  groupHeadingChip: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
   addButton: {
     borderWidth: 1,
     borderColor: colors.primary,
@@ -1846,6 +1864,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     marginBottom: 16,
+    // Filled so its label is not sitting on the photo background.
+    backgroundColor: colors.surface,
   },
   addButtonText: { ...typography.bodyEmphasis, color: colors.primary,
 

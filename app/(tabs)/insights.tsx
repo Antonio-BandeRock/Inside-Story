@@ -1156,23 +1156,23 @@ export default function InsightsScreen() {
                 tabColor={TAB_COLOR}
               />
             ) : loading ? (
-              <Text style={styles.emptyText}>Loading…</Text>
+              <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
             ) : errorMessage ? (
-              <Text style={styles.errorText}>{errorMessage}</Text>
+              <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
             ) : lens === 'nutrients' ? (
               !nutrientBreakdown || nutrientBreakdown.meals.length === 0 ? (
-                <Text style={styles.emptyText}>Save a meal to see this.</Text>
+                <Text style={[styles.emptyText, styles.panelStandalone]}>Save a meal to see this.</Text>
               ) : (
                 <NutrientsTable breakdown={nutrientBreakdown} scope={scope} />
               )
             ) : lens === 'hydration' ? (
               !nutrientBreakdown || nutrientBreakdown.meals.length === 0 ? (
-                <Text style={styles.emptyText}>Save a meal to see this.</Text>
+                <Text style={[styles.emptyText, styles.panelStandalone]}>Save a meal to see this.</Text>
               ) : (
                 <HydrationView breakdown={nutrientBreakdown} tabColor={TAB_COLOR} />
               )
             ) : !dimensionsBreakdown || dimensionsBreakdown.meals.length === 0 ? (
-              <Text style={styles.emptyText}>Save a meal to see this.</Text>
+              <Text style={[styles.emptyText, styles.panelStandalone]}>Save a meal to see this.</Text>
             ) : lens === 'sixDs' ? (
               <SixDsView
                 breakdown={dimensionsBreakdown}
@@ -1350,18 +1350,17 @@ export function NutrientsTable({
         </View>
       ) : null}
 
-      {canExpandContributors && sorted.length > 0 ? (
-        <Text style={styles.sectionLabel}>Tap any nutrient to see which foods contributed to it.</Text>
-      ) : null}
-
       {sorted.length === 0 ? (
-        <Text style={styles.emptyText}>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>
           {isDayScope
             ? 'Nothing to compare yet. Once foods with nutrient data are logged today, targets will show up here.'
             : "This doesn't have a measurable amount of any tracked nutrient."}
         </Text>
       ) : (
         <View style={styles.table}>
+          {canExpandContributors ? (
+            <Text style={styles.tableHeading}>Tap any nutrient to see which foods contributed to it.</Text>
+          ) : null}
           <View style={[styles.tableRow, styles.tableHeaderRow]}>
             <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellNutrient]}>Nutrient</Text>
             <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellAmount]}>Amount</Text>
@@ -1471,7 +1470,7 @@ function HydrationView({ breakdown, tabColor }: { breakdown: DailyNutrientBreakd
   const water = entries.find((entry) => entry.nutrientCode === 'water');
 
   if (!water) {
-    return <Text style={styles.emptyText}>No water target found. Check your sex and birth date in Profile.</Text>;
+    return <Text style={[styles.emptyText, styles.panelStandalone]}>No water target found. Check your sex and birth date in Profile.</Text>;
   }
 
   const litersConsumed = water.combinedTotal / 1000;
@@ -1556,10 +1555,10 @@ function PortionsView({
   const [mealsPerDay, setMealsPerDay] = useState(3);
 
   if (loading) {
-    return <Text style={styles.emptyText}>Loading…</Text>;
+    return <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>;
   }
   if (!profile) {
-    return <Text style={styles.emptyText}>Loading…</Text>;
+    return <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>;
   }
 
   const { sex, birthDate, heightCm, activityLevel } = profile;
@@ -1686,7 +1685,7 @@ function PortionsView({
       {waterRow ? (
         <>
           <Text style={styles.portionsSectionHeading}>Water</Text>
-          <Text style={[styles.statValue, { textAlign: 'left' }]}>{(waterRow.amount / 1000).toFixed(1)}L / day</Text>
+          <Text style={[styles.statValue, { textAlign: 'left' }, styles.panelStandalone]}>{(waterRow.amount / 1000).toFixed(1)}L / day</Text>
           <Text style={styles.footerNote}>
             {waterRow.sourceAgency}. Counts water-rich food too, not just drinks -- see the Hydration lens for
             today&apos;s actual progress toward it.
@@ -1696,7 +1695,7 @@ function PortionsView({
 
       <Text style={styles.portionsSectionHeading}>Today so far</Text>
       {!somethingLoggedToday ? (
-        <Text style={styles.emptyText}>Nothing logged yet today.</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Nothing logged yet today.</Text>
       ) : (
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.tableHeaderRow]}>
@@ -1963,7 +1962,7 @@ export function SixDsView({
   const perCondition = resolveScopePerCondition(breakdown, scope);
 
   if (trackedConditions.length === 0) {
-    return <Text style={styles.emptyText}>Set your tracked conditions in Profile to see this.</Text>;
+    return <Text style={[styles.emptyText, styles.panelStandalone]}>Set your tracked conditions in Profile to see this.</Text>;
   }
 
   return (
@@ -2195,12 +2194,14 @@ export function PrepView({
 
   return (
     <>
-      <Text style={styles.sectionLabel}>{sectionLabel}</Text>
-
       {visibleRows.length === 0 ? (
-        <Text style={styles.emptyText}>{emptyMessage}</Text>
+        <View style={styles.table}>
+          <Text style={styles.tableHeading}>{sectionLabel}</Text>
+          <Text style={[styles.emptyText, styles.tableBody]}>{emptyMessage}</Text>
+        </View>
       ) : (
         <View style={styles.table}>
+          <Text style={styles.tableHeading}>{sectionLabel}</Text>
           {visibleRows.map((row, index) => (
             <View key={`${row.foodName}_${index}`} style={styles.tipCard}>
               <Text style={styles.tipCardTitle}>{prepRowTitle(row, scope.level)}</Text>
@@ -2506,7 +2507,7 @@ function NutrientRankingView({
             <Text style={[styles.stagePillText, styles.stagePillTextActive]}>By Food</Text>
           </TouchableOpacity>
         </View>
-        <Text style={[styles.emptyText, styles.rankSpaced]}>
+        <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>
           Search or browse below to pick a food and see how it ranks against every nutrient it has a measured
           amount of, within its own category.
         </Text>
@@ -2596,7 +2597,7 @@ function NutrientRankingView({
           </View>
         </View>
         {mode === 'byNutrient' ? (
-          <Text style={[styles.emptyText, styles.rankSpaced]}>
+          <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>
             {!selected
               ? 'Pick a nutrient, then a prep state, to see foods ranked by how much of it they contain, per 100g.'
               : !prepGroupTouched
@@ -2606,9 +2607,9 @@ function NutrientRankingView({
         ) : null}
         {mode === 'byNutrient' ? (
           !selected || !prepGroupTouched ? null : loading ? (
-            <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
+            <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>Loading…</Text>
           ) : rankedFoods.length === 0 ? (
-            <Text style={[styles.emptyText, styles.rankSpaced]}>No foods with a measured amount of this found.</Text>
+            <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>No foods with a measured amount of this found.</Text>
           ) : selected === 'protein' ? (
             // Protein specifically splits into Animal vs. Plant -- see
             // classifyProteinSource's own comment in lib/db.ts for exactly
@@ -2616,23 +2617,23 @@ function NutrientRankingView({
             // a real "protein source" category at all (a sauce, a sweetener)
             // is simply left out of both lists rather than forced into either.
             <>
-              <Text style={[styles.rankGroupHeading, styles.rankSpaced, { color: tabColor }]}>Animal Protein</Text>
-              <View style={styles.table}>
+              <View style={[styles.table, styles.rankSpaced]}>
+                <Text style={[styles.tableHeading, { color: tabColor }]}>Animal Protein</Text>
                 {(() => {
                   const animal = rankedFoods.filter((food) => classifyProteinSource(food.category) === 'animal');
                   return animal.length === 0 ? (
-                    <Text style={styles.emptyText}>None found.</Text>
+                    <Text style={[styles.emptyText, styles.tableBody]}>None found.</Text>
                   ) : (
                     animal.map((food, index) => renderRow(food, index + 1))
                   );
                 })()}
               </View>
-              <Text style={[styles.rankGroupHeading, styles.rankSpaced, { color: tabColor }]}>Plant Protein</Text>
-              <View style={styles.table}>
+              <View style={[styles.table, styles.rankSpaced]}>
+                <Text style={[styles.tableHeading, { color: tabColor }]}>Plant Protein</Text>
                 {(() => {
                   const plant = rankedFoods.filter((food) => classifyProteinSource(food.category) === 'plant');
                   return plant.length === 0 ? (
-                    <Text style={styles.emptyText}>None found.</Text>
+                    <Text style={[styles.emptyText, styles.tableBody]}>None found.</Text>
                   ) : (
                     plant.map((food, index) => renderRow(food, index + 1))
                   );
@@ -2665,7 +2666,7 @@ function NutrientRankingView({
               </TouchableOpacity>
             </View>
             {foodRankingsLoading ? (
-              <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
+              <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>Loading…</Text>
             ) : foodRankings.length === 0 && prepGroup && classifyPrepStateGroup(rankingFood.prepMethod) !== prepGroup ? (
               // A real, worth-catching mismatch, not just a generic "nothing
               // found": this food's own prep state doesn't belong to the
@@ -2674,12 +2675,12 @@ function NutrientRankingView({
               // result here means "wrong filter for this food," not "this
               // food has no measured nutrients," and deserves its own,
               // clearer message rather than reading as a possible bug.
-              <Text style={[styles.emptyText, styles.rankSpaced]}>
+              <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>
                 {rankingFood.baseName} is {PREP_STATE_GROUP_LABELS[classifyPrepStateGroup(rankingFood.prepMethod)].toLowerCase()},
                 not {PREP_STATE_GROUP_LABELS[prepGroup].toLowerCase()} -- switch the Prep state filter below to see how it ranks.
               </Text>
             ) : foodRankings.length === 0 ? (
-              <Text style={[styles.emptyText, styles.rankSpaced]}>
+              <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>
                 No measured nutrients found for this food within {categoryLabel(rankingFood.category)}
                 {prepGroup ? ` (${PREP_STATE_GROUP_LABELS[prepGroup]})` : ''}.
               </Text>
@@ -2725,7 +2726,7 @@ function CookingImpactView({ tabColor }: { tabColor: string }) {
 
   return (
     <>
-      <Text style={[styles.sectionLabel, { color: tabColor }]}>Nutrient / Compound</Text>
+      <Text style={[styles.sectionLabel, { color: tabColor }, styles.groupHeadingChip]}>Nutrient / Compound</Text>
       <PopoverSelect
         options={compoundOptions}
         selected={selectedId}
@@ -2736,7 +2737,7 @@ function CookingImpactView({ tabColor }: { tabColor: string }) {
         minWidth={220}
       />
       {!selectedCompound ? (
-        <Text style={[styles.emptyText, styles.rankSpaced]}>
+        <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>
           Pick a nutrient or compound above to see how much of it common cooking methods leave behind.
         </Text>
       ) : (
@@ -2761,7 +2762,7 @@ function CookingImpactView({ tabColor }: { tabColor: string }) {
               );
             })}
           </View>
-          <Text style={[styles.cookingCitation, styles.rankSpaced]}>{selectedCompound.citation}</Text>
+          <Text style={[styles.cookingCitation, styles.rankSpaced, styles.panelStandalone]}>{selectedCompound.citation}</Text>
         </>
       )}
     </>
@@ -2814,7 +2815,7 @@ function SafeFoodsView({
   // frozen screen, the exact confusion this whole change was built to fix.
   if (categoriesLoading) {
     return (
-      <Text style={[styles.emptyText, styles.rankSpaced]}>
+      <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>
         Checking every food against {conditionNames.length > 0 ? conditionNames.join(', ') : 'every scored factor'}, once for this
         session -- this can take a while the first time.
       </Text>
@@ -2823,7 +2824,7 @@ function SafeFoodsView({
 
   return (
     <>
-      <Text style={[styles.sectionLabel, { color: tabColor }]}>Category</Text>
+      <Text style={[styles.sectionLabel, { color: tabColor }, styles.groupHeadingChip]}>Category</Text>
       <PopoverSelect
         options={categoryOptions}
         selected={selected}
@@ -2834,11 +2835,11 @@ function SafeFoodsView({
         minWidth={220}
       />
       {!selected ? (
-        <Text style={[styles.emptyText, styles.rankSpaced]}>Pick a category above to see which of its foods have {scopeDescription}.</Text>
+        <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>Pick a category above to see which of its foods have {scopeDescription}.</Text>
       ) : loading ? (
-        <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>Loading…</Text>
       ) : foods.length === 0 ? (
-        <Text style={[styles.emptyText, styles.rankSpaced]}>
+        <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>
           No foods in this category are both fully unflagged and free of a diet-preference or allergy conflict.
         </Text>
       ) : (
@@ -2927,18 +2928,18 @@ function HealingStageView({
       </View>
 
       {loading ? (
-        <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>Loading…</Text>
       ) : tab === 'stage1' ? (
         // Stage 1's own groups always show in full -- a deliberately short
         // list by design (see this lens's own help text), so there's
         // nothing to collapse.
         groups.map((group) => (
-          <View key={group.label} style={styles.rankSpaced}>
-            <Text style={[styles.rankGroupHeading, { color: tabColor }]}>{group.label}</Text>
+          <View key={group.label} style={[styles.table, styles.rankSpaced]}>
+            <Text style={[styles.tableHeading, { color: tabColor }]}>{group.label}</Text>
             {group.foods.length === 0 ? (
-              <Text style={styles.emptyText}>None found.</Text>
+              <Text style={[styles.emptyText, styles.tableBody]}>None found.</Text>
             ) : (
-              <View style={styles.table}>{group.foods.map(renderFoodRow)}</View>
+              <View>{group.foods.map(renderFoodRow)}</View>
             )}
           </View>
         ))
@@ -3088,9 +3089,9 @@ function LabsView({
     <>
       {infoAlertElement}
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       ) : recentResults.length === 0 ? (
-        <Text style={styles.emptyText}>Nothing logged yet. Tap below to log your first result.</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Nothing logged yet. Tap below to log your first result.</Text>
       ) : (
         <View style={styles.table}>
           {recentResults.map((result) => {
@@ -3303,7 +3304,7 @@ function MyMedsView({
       <>
         {infoAlertElement}
         {confirmElement}
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       </>
     );
   }
@@ -3312,9 +3313,9 @@ function MyMedsView({
     const items = treatments.filter((treatment) => treatment.treatmentType === type);
     if (items.length === 0) return null;
     return (
-      <View style={styles.rankSpaced}>
-        <Text style={[styles.rankGroupHeading, { color: tabColor }]}>{label}</Text>
-        <View style={styles.table}>
+      <View style={[styles.table, styles.rankSpaced]}>
+        <Text style={[styles.tableHeading, { color: tabColor }]}>{label}</Text>
+        <View>
           {items.map((treatment) => (
             <View key={treatment.id} style={styles.rankRow}>
               <View style={styles.rankTextWrap}>
@@ -3342,7 +3343,7 @@ function MyMedsView({
 
       {warnings.length > 0 ? (
         <View style={styles.rankSpaced}>
-          <Text style={[styles.rankGroupHeading, { color: tabColor }]}>Things to check</Text>
+          <Text style={[styles.rankGroupHeading, styles.groupHeadingChip, { color: tabColor }]}>Things to check</Text>
           {warnings.map((warning, index) => (
             <View key={`${warning.ruleId}_${index}`} style={[styles.formCard, styles.rankSpaced, { borderColor: tabColor }]}>
               <Text style={[styles.rankFoodName, { color: tabColor }]}>{warning.title}</Text>
@@ -3356,7 +3357,7 @@ function MyMedsView({
 
       {personalRuleMatches.length > 0 ? (
         <View style={styles.rankSpaced}>
-          <Text style={[styles.rankGroupHeading, { color: colors.accent }]}>Your Own Rules</Text>
+          <Text style={[styles.rankGroupHeading, styles.groupHeadingChip, { color: colors.accent }]}>Your Own Rules</Text>
           {/* Compact rows, not full description cards -- 2026-08-18, direct
               correction: full paragraphs and citations belong in Purple
               Digest, tool screens like this one show compact data and only
@@ -3388,7 +3389,7 @@ function MyMedsView({
 
       {referenceOnly.length > 0 ? (
         <View style={styles.rankSpaced}>
-          <Text style={[styles.rankGroupHeading, { color: tabColor }]}>Worth knowing (reference only)</Text>
+          <Text style={[styles.rankGroupHeading, styles.groupHeadingChip, { color: tabColor }]}>Worth knowing (reference only)</Text>
           {referenceOnly.map((rule) => (
             <View key={rule.ruleId} style={[styles.formCard, styles.rankSpaced, { borderColor: colors.border }]}>
               <Text style={styles.rankFoodName}>{rule.title}</Text>
@@ -3401,7 +3402,7 @@ function MyMedsView({
       ) : null}
 
       {treatments.length === 0 ? (
-        <Text style={[styles.emptyText, styles.rankSpaced]}>
+        <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>
           Nothing tracked yet. Add a prescription, OTC drug, or supplement on Schedule&apos;s own My Meds lens.
         </Text>
       ) : (
@@ -3413,9 +3414,9 @@ function MyMedsView({
       )}
 
       <View style={styles.rankSpaced}>
-        <Text style={[styles.rankGroupHeading, { color: tabColor }]}>Manage Your Rules</Text>
+        <Text style={[styles.rankGroupHeading, styles.groupHeadingChip, { color: tabColor }]}>Manage Your Rules</Text>
         {allPersonalRules.length === 0 && !formOpen ? (
-          <Text style={styles.emptyText}>
+          <Text style={[styles.emptyText, styles.panelStandalone]}>
             Nothing saved yet. Add something you&apos;ve noticed yourself, or a specific instruction your own doctor gave you.
           </Text>
         ) : (
@@ -3582,11 +3583,11 @@ const ADVISORY_META: Record<TriggeredAdvisory['kind'], { title: string; message:
 // real card per kind, listing every food/meal that triggered it.
 function AdvisoriesView({ advisories, loading, tabColor }: { advisories: TriggeredAdvisory[]; loading: boolean; tabColor: string }) {
   if (loading) {
-    return <Text style={styles.emptyText}>Loading…</Text>;
+    return <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>;
   }
   if (advisories.length === 0) {
     return (
-      <Text style={styles.emptyText}>
+      <Text style={[styles.emptyText, styles.panelStandalone]}>
         Nothing triggered today: no alcohol, coffee, or plain fruit juice logged so far.
       </Text>
     );
@@ -3647,11 +3648,21 @@ const styles = StyleSheet.create({
     ...textShadow,
 
   },
+  // Every use of this in this file is a standalone footnote sitting under
+  // a card rather than inside one, confirmed by checking all six sites
+  // rather than assumed -- so it carries its own surface (2026-08-29
+  // standing rule, see tableHeading above). Anything added later that
+  // needs a footnote INSIDE a card should use a different style rather
+  // than nesting a surface within a surface.
   footerNote: {
     ...typography.caption,
     color: colors.textMuted,
     fontStyle: 'italic',
     marginTop: 10,
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
 
     ...textShadow,
 
@@ -3701,8 +3712,15 @@ const styles = StyleSheet.create({
   // per-condition sections, stacked top to bottom with the same 18px this
   // screen already uses to separate one distinct piece of content from
   // its neighbor.
+  // Same reasoning as hydrationWrap below: one condition's heading and
+  // its chart or empty state are one block, so the section carries the
+  // surface and the heading inside it needs no chip of its own.
   conditionScoreSection: {
     marginBottom: 18,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
   },
   conditionScoreHeading: {
     ...typography.bodyEmphasis,
@@ -3718,6 +3736,54 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: colors.surface,
+  },
+
+  // 2026-08-29, standing rule, direct instruction: "No font should ever
+  // be directly on the tab background without its own background anywhere
+  // in the app... Some of them are headers that should just be a part of
+  // the information it represents below it."
+  //
+  // `table` above is already a real opaque surface, so the fix for a
+  // heading that labels one is to move it INSIDE that surface as its
+  // first row rather than leaving it floating above on the photo. Rows
+  // below already carry their own borderTop, so the heading gets a
+  // separator under it for free.
+  //
+  // panelStandalone is for the other case: text that genuinely has no
+  // card to join (an empty state, a footnote) and needs a surface of its
+  // own instead.
+  tableHeading: {
+    ...typography.eyebrow,
+    color: TAB_COLOR,
+    ...textShadow,
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  tableBody: {
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 12,
+  },
+  // For a heading that labels a GROUP of separate cards rather than one
+  // card. It has nothing to fold into (see tableHeading above for that
+  // case), so it carries a surface of its own. Deliberately borderless:
+  // the cards it introduces already carry their own borders, and a third
+  // bordered box above them reads as clutter.
+  groupHeadingChip: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 8,
+  },
+  panelStandalone: {
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
   },
   tableRow: {
     flexDirection: 'row',
@@ -4110,7 +4176,19 @@ const styles = StyleSheet.create({
   // the column is a real, defensive guard against either field's own
   // content overflowing the row's width on a narrow screen, not just
   // decoration.
-  rankFieldRow: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
+  // Carries a surface so its field labels are not sitting on the photo
+  // background (2026-08-29 standing rule, see tableHeading above). The
+  // labels belong to the fields, so the row they share is the natural
+  // thing to give a background to rather than chipping each label.
+  rankFieldRow: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'flex-start',
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
   rankFieldColumn: { flexShrink: 1 },
   // 2026-08-16 -- wraps the Labs entry form's own "Lab Name" label with a
   // real mic button beside it, same shape SideBuilder.tsx's own Name-field
@@ -4119,7 +4197,21 @@ const styles = StyleSheet.create({
   // Nutrient Ranking's own "By Food" mode, 2026-08-14 -- the picked food's
   // own name/category, plus the "Change food" action, sitting above its
   // real per-nutrient ranking list.
-  rankFoodSummaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  // The picked food's name, its suggested serving, and the "Change food"
+  // control are one block, so the row carries the surface rather than
+  // each piece carrying its own (2026-08-29 standing rule, see
+  // tableHeading above). This also covers the outline-only `pill` inside
+  // it, whose label was otherwise sitting straight on the photo.
+  rankFoodSummaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
   rankFoodSummaryText: { ...typography.bodyEmphasis, color: colors.textPrimary, flexShrink: 1,
 
     ...textShadow,
@@ -4161,11 +4253,15 @@ const styles = StyleSheet.create({
   },
   // Healing Stage lens, 2026-08-08.
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  // Same reasoning as secondaryButton: the unselected pill was outline
+  // only, so its label sat on the photo. The selected state still
+  // overrides this with the tab colour at its own call sites.
   stagePill: {
     borderWidth: 1,
     borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 8,
+    backgroundColor: colors.surface,
   },
   stagePillText: { ...typography.captionEmphasis,
 
@@ -4194,7 +4290,18 @@ const styles = StyleSheet.create({
   },
   roundHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   // Hydration lens, 2026-08-08.
-  hydrationWrap: { alignItems: 'center', paddingTop: 12 },
+  // Surface on the wrapper rather than a chip per line: the ring, its
+  // status and its note are one block of information, so they share one
+  // background instead of stacking three separate boxes (2026-08-29
+  // standing rule, see tableHeading above).
+  hydrationWrap: {
+    alignItems: 'center',
+    paddingTop: 12,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+  },
   hydrationStatus: { ...typography.bodyEmphasis, marginTop: 12,
 
     ...textShadow,
@@ -4232,11 +4339,16 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
 
   },
+  // Outline-only until 2026-08-29, which left its label sitting on the
+  // photo background. A fill is the fix rather than a shadow: an
+  // unfilled control on a photo is the exact case the standing rule
+  // exists for. Call sites still set their own borderColor.
   secondaryButton: {
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 16,
     alignItems: 'center',
+    backgroundColor: colors.surface,
   },
   secondaryButtonText: { ...typography.bodyEmphasis,
 
@@ -4287,7 +4399,14 @@ const styles = StyleSheet.create({
   advisoryHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   advisoryTitle: { flex: 1 },
   // Energy & Portions lens, 2026-08-15.
+  // All six uses label a group of stat boxes or pills rather than one
+  // card, so this carries its own surface (2026-08-29 standing rule; see
+  // groupHeadingChip above for the same case handled per-line elsewhere).
   portionsSectionHeading: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 18, marginBottom: 8,
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
 
     ...textShadow,
 

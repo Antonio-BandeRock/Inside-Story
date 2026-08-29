@@ -100,8 +100,12 @@ export function BeverageSubtypePicker({
 
 const styles = StyleSheet.create({
   scrollContent: { padding: 16, gap: 12 },
-  heading: { ...typography.sectionTitle, ...textShadow },
-  subheading: { ...typography.body, color: colors.textMuted, marginBottom: 4, ...textShadow },
+  // 2026-08-29 standing rule: no text sits on the photo background.
+  // heading and subheading below carry matching top/bottom corners and no
+  // gap between them, so the pair reads as one intro block rather than two
+  // stacked boxes.
+  heading: { ...typography.sectionTitle, ...textShadow, backgroundColor: colors.surface, borderTopLeftRadius: 10, borderTopRightRadius: 10, paddingTop: 12, paddingHorizontal: 12, paddingBottom: 4 },
+  subheading: { ...typography.body, color: colors.textMuted, marginBottom: 12, marginTop: -12, ...textShadow, backgroundColor: colors.surface, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, paddingBottom: 12, paddingHorizontal: 12 },
   card: {
     backgroundColor: colors.surface,
     borderWidth: 1,

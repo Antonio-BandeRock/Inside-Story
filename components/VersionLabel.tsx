@@ -42,12 +42,20 @@ export function VersionLabel() {
 }
 
 const styles = StyleSheet.create({
+  // 2026-08-29 standing rule: no text sits directly on the tab
+  // background. This label floats over every screen, so it carries its
+  // own small fill. Kept as tight as the text allows, and the existing
+  // 0.75 opacity applies to the fill as well as the glyphs, so it stays
+  // as unobtrusive as it was rather than becoming a solid corner badge.
   text: {
     position: 'absolute',
     fontSize: 9,
     lineHeight: LABEL_LINE_HEIGHT,
     color: colors.textMuted,
     opacity: 0.75,
+    backgroundColor: colors.surface,
+    borderRadius: 6,
+    paddingHorizontal: 5,
     ...textShadow,
   },
 });

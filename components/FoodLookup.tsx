@@ -1792,7 +1792,7 @@ export function FoodLookup({
           way about which source is "better." */}
       {resolvedSource && isFallbackSource(resolvedSource) ? (
         <View style={[styles.sourceFallbackNote, { borderColor: tabColor }]}>
-          <Text style={styles.sourceFallbackText}>Not in USDA: from {sourceLabel(resolvedSource)}</Text>
+          <Text style={[styles.sourceFallbackText, styles.panelStandalone]}>Not in USDA: from {sourceLabel(resolvedSource)}</Text>
         </View>
       ) : null}
 
@@ -1805,7 +1805,7 @@ export function FoodLookup({
           is still being evaluated. */}
       {personalize && resolvedFoodId !== null && !loading ? (
         personalEvaluationLoading || !personalEvaluation ? (
-          <Text style={styles.emptyText}>Checking against your profile…</Text>
+          <Text style={[styles.emptyText, styles.panelStandalone]}>Checking against your profile…</Text>
         ) : personalEvaluation.allergyMatch ||
           personalEvaluation.dietViolations.length > 0 ||
           personalize.trackedConditions.length > 0 ? (
@@ -1846,9 +1846,9 @@ export function FoodLookup({
       ) : null}
 
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       ) : errorMessage ? (
-        <Text style={styles.errorText}>{errorMessage}</Text>
+        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
       ) : groupedNutrients ? (
         <View style={[styles.table, { height: tableHeight, borderColor: tabColor }]}>
           {/* One header for the whole table, not per group -- see
@@ -2072,6 +2072,24 @@ const styles = StyleSheet.create({
 
     ...textShadow,
 
+  },
+  // 2026-08-29, standing rule: no text sits directly on a tab's
+  // photographic background. panelStandalone is for text with no card
+  // to join (an empty state, an error or loading line);
+  // groupHeadingChip is for a heading introducing a GROUP of separate
+  // cards. A heading that labels ONE card should move inside that
+  // card instead of using either.
+  panelStandalone: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  groupHeadingChip: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
   emptyText: {
     ...typography.body,

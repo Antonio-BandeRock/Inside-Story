@@ -1428,7 +1428,7 @@ export function MealBuilder({
           {categoryOptionsLoading ? (
             <ActivityIndicator color={tabColor} style={styles.loadingSpinner} />
           ) : categoryOptions.length === 0 ? (
-            <Text style={styles.emptyText}>
+            <Text style={[styles.emptyText, styles.panelStandalone]}>
               {`No saved ${meta.label.toLowerCase()}s yet. Build one from the ${meta.label} Builder first, then come back here to add it.`}
             </Text>
           ) : (
@@ -1444,7 +1444,7 @@ export function MealBuilder({
                 <VoiceInputButton onResult={(transcript) => setCategorySearchQuery(transcript)} color={tabColor} />
               </View>
               {filteredCategoryOptions.length === 0 ? (
-                <Text style={[styles.emptyText, styles.formLabelSpaced]}>
+                <Text style={[styles.emptyText, styles.formLabelSpaced, styles.panelStandalone]}>
                   {`No saved ${meta.label.toLowerCase()}s match "${categorySearchQuery.trim()}".`}
                 </Text>
               ) : (
@@ -1745,6 +1745,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
     marginTop: 16,
+    // Filled so its label is not sitting on the photo background.
+    backgroundColor: colors.surface,
   },
   secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow },
   reportPreviewButton: { borderWidth: 2 },
@@ -1752,7 +1754,7 @@ const styles = StyleSheet.create({
   // 2026-08-08 -- renderFavoriteToggle's own row, same shape as every
   // sub-builder's identical style (see SideBuilder.tsx's own
   // favoriteToggleRow/favoriteToggleText).
-  favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
+  favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 , backgroundColor: colors.surface },
   favoriteToggleText: { ...typography.body, color: colors.textPrimary, flexShrink: 1, ...textShadow },
   // schedulingTime's own Hour/Minute/AM-PM row, 2026-08-08 -- three roughly
   // equal fields side by side, same flexDirection: 'row' shape as Profile's
@@ -1785,16 +1787,36 @@ const styles = StyleSheet.create({
   // Past Meals' own "Adjust" link, or a scheduled/logged meal's own
   // "Log now"/edit path all land here with zero shared entry-point copy).
   mealTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  backRow: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: 4 },
+  // Surface so the back link is not sitting on the photo (2026-08-29
+  // standing rule).
+  backRow: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: 4, alignSelf: 'flex-start', backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, },
   backRowText: { ...typography.bodyEmphasis, ...textShadow },
   // tabColor applied inline at both call sites -- matches SideBuilder's own
   // "Ingredients" heading (also typography.eyebrow), which gets the same
   // treatment despite being a section heading rather than a single-field
   // label.
-  sectionHeading: { ...typography.eyebrow, ...textShadow },
+  sectionHeading: { ...typography.eyebrow, ...textShadow, backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12 },
   gridHeading: { marginTop: 6 },
-  gridCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 4, marginBottom: 4, ...textShadow },
+  gridCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 4, marginBottom: 4, ...textShadow, backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, },
   loadingSpinner: { marginTop: 20 },
+  // 2026-08-29, standing rule: no text sits directly on a tab's
+  // photographic background. panelStandalone is for text with no card
+  // to join (an empty state, an error or loading line);
+  // groupHeadingChip is for a heading introducing a GROUP of separate
+  // cards. A heading that labels ONE card should move inside that
+  // card instead of using either.
+  panelStandalone: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  groupHeadingChip: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
   emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
   savedList: { gap: 8 },
   // A bordered box per row (not SideBuilder's own plain bottom-border list

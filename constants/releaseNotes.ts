@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.23',
+    date: '2026-08-29',
+    changes: [
+      'No text anywhere in the app sits directly on a tab\'s background photo now. Headings that labelled a box, like "Needs attention today", moved inside the box they describe; empty states, footnotes and loading lines got a background of their own; and outline-only buttons and pills were filled in so their labels are readable.',
+      'Insights and Schedules had the most of this and were fully swept, along with every Food builder, Signals, Trends, Digest, Home, Garden, Food and Reports.',
+    ],
+  },
+  {
     version: '1.0.30.22',
     date: '2026-08-29',
     changes: [

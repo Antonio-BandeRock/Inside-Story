@@ -1445,13 +1445,30 @@ const styles = StyleSheet.create({
   // one-off invented separately, so it borrows those exact styles rather
   // than a second, similar-but-not-identical set.
   desktopContent: { padding: 16, gap: 12 },
+    // 2026-08-29 standing rule: no text sits on the photo background.
+    // Heading and subheading carry matching top/bottom corners and no gap
+    // between them, so the pair reads as one intro block, not two boxes.
   desktopHeading: { ...typography.screenTitle, ...menuLabelShadow, color: TAB_COLOR,
     fontWeight: '400',
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    paddingTop: 12,
+    paddingHorizontal: 12,
+    paddingBottom: 4,
   },
   desktopSubheading: { ...typography.body, color: colors.textSecondary, lineHeight: 19,
+    // Cancels desktopContent's own gap so this sits flush under the
+    // heading above and the two read as one box.
+    marginTop: -12,
 
     ...textShadow,
 
+    backgroundColor: colors.surface,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    paddingBottom: 12,
+    paddingHorizontal: 12,
   },
   desktopBackLink: {
     ...typography.body,

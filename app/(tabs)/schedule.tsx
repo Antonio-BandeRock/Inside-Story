@@ -1199,9 +1199,9 @@ function MealsLens() {
     />
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       {loading ? (
-          <Text style={styles.emptyText}>Loading…</Text>
+          <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
         ) : errorMessage ? (
-          <Text style={styles.errorText}>{errorMessage}</Text>
+          <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
         ) : (
           <>
             <View style={styles.weekStripCard}>
@@ -1420,7 +1420,7 @@ function MealsLens() {
             )}
 
             {selectedItems.length === 0 ? (
-              <Text style={styles.emptyText}>Nothing scheduled for {describeRelativeDate(selectedDate)} yet.</Text>
+              <Text style={[styles.emptyText, styles.panelStandalone]}>Nothing scheduled for {describeRelativeDate(selectedDate)} yet.</Text>
             ) : (
               <View style={styles.table}>
                 {selectedItems.map((item) => (
@@ -1665,9 +1665,9 @@ function PastMealsLens() {
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       ) : items.length === 0 ? (
-        <Text style={styles.emptyText}>No past meals yet.</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>No past meals yet.</Text>
       ) : (
         <View style={styles.table}>
           {items.map((item) => {
@@ -2391,11 +2391,11 @@ function ShoppingListLens() {
         ))}
       </View>
 
-      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+      {errorMessage ? <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text> : null}
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       ) : totalItems === 0 ? (
-        <Text style={styles.emptyText}>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>
           Nothing scheduled in this window yet. Meals added from the Meal Plan lens (or scheduled any other way) will show up here.
         </Text>
       ) : (
@@ -2663,9 +2663,9 @@ function HydrationLens() {
         actions={removePrompt?.actions ?? []}
       />
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       ) : errorMessage ? (
-        <Text style={styles.errorText}>{errorMessage}</Text>
+        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
       ) : (
         <>
           {waterEntry ? (
@@ -2816,7 +2816,7 @@ function HydrationLens() {
           )}
 
           {rows.length === 0 ? (
-            <Text style={styles.emptyText}>
+            <Text style={[styles.emptyText, styles.panelStandalone]}>
               Nothing logged or scheduled yet today. This includes any "Beverage" meals logged directly from Meals too.
             </Text>
           ) : (
@@ -3249,7 +3249,7 @@ function MyMedsLens() {
     if (groupTreatments.length === 0) return null;
     return (
       <View style={styles.myMedsGroup}>
-        <Text style={styles.doseSectionLabel}>{title}</Text>
+        <Text style={styles.myMedsGroupHeading}>{title}</Text>
         {groupTreatments.map((treatment) => {
           const isExpanded = expandedId === treatment.id;
           const ingredients = ingredientsByTreatment[treatment.id] ?? [];
@@ -3350,9 +3350,9 @@ function MyMedsLens() {
       {infoAlertElement}
       {confirmSheetElement}
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       ) : errorMessage ? (
-        <Text style={styles.errorText}>{errorMessage}</Text>
+        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
       ) : (
         <>
           {addMode === null ? (
@@ -3626,7 +3626,7 @@ function MyMedsLens() {
 
           {interactionWarnings.length > 0 ? (
             <View style={styles.interactionSection}>
-              <Text style={styles.interactionSectionLabel}>Things to check</Text>
+              <Text style={[styles.interactionSectionLabel, styles.groupHeadingChip]}>Things to check</Text>
               {interactionWarnings.map((warning, index) => (
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
@@ -3640,7 +3640,7 @@ function MyMedsLens() {
 
           {referenceOnlyRules.length > 0 ? (
             <View style={styles.interactionSection}>
-              <Text style={styles.interactionSectionLabel}>Worth knowing (reference only, not personalized)</Text>
+              <Text style={[styles.interactionSectionLabel, styles.groupHeadingChip]}>Worth knowing (reference only, not personalized)</Text>
               {referenceOnlyRules.map((rule) => (
                 <View key={rule.ruleId} style={[styles.interactionCard, styles.interactionCardReference]}>
                   <Text style={styles.interactionTitle}>{rule.title}</Text>
@@ -3653,7 +3653,7 @@ function MyMedsLens() {
           ) : null}
 
           {treatments.length === 0 ? (
-            <Text style={styles.emptyText}>Nothing tracked yet. Add a prescription, OTC drug, or supplement above.</Text>
+            <Text style={[styles.emptyText, styles.panelStandalone]}>Nothing tracked yet. Add a prescription, OTC drug, or supplement above.</Text>
           ) : (
             <>
               {renderTreatmentGroup('Prescriptions', treatments.filter((treatment) => treatment.treatmentType === 'prescription'))}
@@ -3952,9 +3952,9 @@ function SupplementsLens() {
         actions={removePrompt?.actions ?? []}
       />
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       ) : errorMessage ? (
-        <Text style={styles.errorText}>{errorMessage}</Text>
+        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
       ) : (
         <>
           {!showForm ? (
@@ -4052,7 +4052,7 @@ function SupplementsLens() {
 
           {interactionWarnings.length > 0 ? (
             <View style={styles.interactionSection}>
-              <Text style={styles.interactionSectionLabel}>Things to check</Text>
+              <Text style={[styles.interactionSectionLabel, styles.groupHeadingChip]}>Things to check</Text>
               {interactionWarnings.map((warning, index) => (
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
@@ -4066,8 +4066,8 @@ function SupplementsLens() {
 
           {referenceOnlyRules.length > 0 ? (
             <View style={styles.interactionSection}>
-              <Text style={styles.interactionSectionLabel}>Worth knowing (reference only, not personalized)</Text>
-              <Text style={styles.helperText}>
+              <Text style={[styles.interactionSectionLabel, styles.groupHeadingChip]}>Worth knowing (reference only, not personalized)</Text>
+              <Text style={[styles.helperText, styles.panelStandalone]}>
                 This needs information this app doesn't track yet (an upcoming lab draw), so it can't be checked
                 against your actual schedule. Shown as cited background information only.
               </Text>
@@ -4083,7 +4083,7 @@ function SupplementsLens() {
           ) : null}
 
           {treatments.length === 0 ? (
-            <Text style={styles.emptyText}>No supplements added yet.</Text>
+            <Text style={[styles.emptyText, styles.panelStandalone]}>No supplements added yet.</Text>
           ) : (
             <View style={styles.table}>
               {treatments.map((treatment) => {
@@ -4454,9 +4454,9 @@ function PrescriptionsLens() {
         actions={removePrompt?.actions ?? []}
       />
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       ) : errorMessage ? (
-        <Text style={styles.errorText}>{errorMessage}</Text>
+        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
       ) : (
         <>
           {!showForm ? (
@@ -4528,7 +4528,7 @@ function PrescriptionsLens() {
 
           {interactionWarnings.length > 0 ? (
             <View style={styles.interactionSection}>
-              <Text style={styles.interactionSectionLabel}>Things to check</Text>
+              <Text style={[styles.interactionSectionLabel, styles.groupHeadingChip]}>Things to check</Text>
               {interactionWarnings.map((warning, index) => (
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
@@ -4541,7 +4541,7 @@ function PrescriptionsLens() {
           ) : null}
 
           {treatments.length === 0 ? (
-            <Text style={styles.emptyText}>No prescriptions added yet.</Text>
+            <Text style={[styles.emptyText, styles.panelStandalone]}>No prescriptions added yet.</Text>
           ) : (
             <View style={styles.table}>
               {treatments.map((treatment) => {
@@ -5024,9 +5024,9 @@ function AppointmentsLens() {
         actions={removePrompt?.actions ?? []}
       />
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
       ) : errorMessage ? (
-        <Text style={styles.errorText}>{errorMessage}</Text>
+        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
       ) : (
         <>
           {!showForm && !showImportPicker ? (
@@ -5197,7 +5197,7 @@ function AppointmentsLens() {
 
           {interactionWarnings.length > 0 ? (
             <View style={styles.interactionSection}>
-              <Text style={styles.interactionSectionLabel}>Things to check</Text>
+              <Text style={[styles.interactionSectionLabel, styles.groupHeadingChip]}>Things to check</Text>
               {interactionWarnings.map((warning, index) => (
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
@@ -5210,7 +5210,7 @@ function AppointmentsLens() {
           ) : null}
 
           {appointments.length === 0 ? (
-            <Text style={styles.emptyText}>Nothing scheduled. Add an appointment or import one from your phone calendar.</Text>
+            <Text style={[styles.emptyText, styles.panelStandalone]}>Nothing scheduled. Add an appointment or import one from your phone calendar.</Text>
           ) : (
             <View style={styles.table}>
               {appointments.map((item) => (
@@ -5285,7 +5285,7 @@ function ComingSoonLens({
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      <Text style={styles.emptyText}>{COMING_SOON_COPY[lens]}</Text>
+      <Text style={[styles.emptyText, styles.panelStandalone]}>{COMING_SOON_COPY[lens]}</Text>
     </ScrollView>
   );
 }
@@ -5391,6 +5391,10 @@ const styles = StyleSheet.create({
   bodyContent: { padding: 16, paddingBottom: 32 },
   emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
   errorText: { ...typography.body, color: colors.danger, ...textShadow },
+  // Outline-only until 2026-08-29, which left its label sitting straight
+  // on the photo background. A fill is the fix rather than a shadow: an
+  // unfilled control on a photo is exactly the case the standing rule
+  // exists for.
   addButton: {
     borderWidth: 1,
     borderColor: colors.primary,
@@ -5398,6 +5402,25 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     marginBottom: 16,
+    backgroundColor: colors.surface,
+  },
+
+  // Shared surfaces for the two cases the standing rule leaves: text with
+  // no card to join (an empty state, an error line) gets panelStandalone,
+  // and a heading introducing a GROUP of separate cards gets
+  // groupHeadingChip. A heading that labels ONE card should move inside
+  // that card instead of using either of these.
+  panelStandalone: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  groupHeadingChip: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
   addButtonText: { ...typography.bodyEmphasis, color: colors.primary, ...textShadow },
   // Meals lens' own week strip, 2026-08-18 -- same border/color rule as
@@ -5578,7 +5601,32 @@ const styles = StyleSheet.create({
   // room), 2026-08-08 for My Meds.
   ingredientFormRow: { marginBottom: 4 },
   myMedsAddRow: { flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' },
-  myMedsGroup: { marginBottom: 16 },
+  // 2026-08-29, standing rule: "No font should ever be directly on the
+  // tab background without its own background anywhere in the app."
+  // `row` below carries no background of its own by design (it expects to
+  // sit inside a card), but this group placed rows straight onto the
+  // photo, so every treatment name, dose line and action label was
+  // sitting on it. Giving the group the card fixes that whole cluster at
+  // once rather than chipping each line inside it. overflow hidden so the
+  // rows' full-bleed top borders stay inside the rounded corners.
+  myMedsGroup: {
+    marginBottom: 16,
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  // The group's title, sitting inside that card as its first row. Needs
+  // its own padding because the rows below are deliberately full-bleed.
+  myMedsGroupHeading: {
+    ...typography.captionEmphasis,
+    color: TAB_COLOR,
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 6,
+    ...textShadow,
+  },
   // The researched-content card shown once a nutrient/form (or a matched
   // common medication) is picked -- deliberately a lighter, dashed-border
   // look, distinct from formCard/interactionCard's own solid TAB_COLOR
@@ -5601,7 +5649,8 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginTop: 16 },
-  secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
+  // Filled for the same reason as addButton above.
+  secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR, ...textShadow },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.buttonColor, ...BUTTON_SHADOW },
   primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
@@ -5681,6 +5730,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
+    backgroundColor: colors.surface,
   },
   dateInput: { flex: 1 },
   appointmentRowTime: { width: 76, lineHeight: 16 },
