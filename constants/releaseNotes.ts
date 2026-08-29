@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.10',
+    date: '2026-08-29',
+    changes: [
+      'Time errors now name the exact field that is wrong ("AM or PM has not been picked", "the hour reads 25") instead of restating the rules and leaving you to work out which box it means.',
+      'If every field is actually valid and it still refuses, it now says so plainly rather than blaming your entry.',
+    ],
+  },
+  {
     version: '1.0.30.9',
     date: '2026-08-29',
     changes: [

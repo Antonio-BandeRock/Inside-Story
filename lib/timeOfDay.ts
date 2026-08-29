@@ -36,6 +36,52 @@ export function buildTime24(hour: string, minute: string, ampm: 'AM' | 'PM' | ''
   return `${pad(hour24)}:${pad(parsedMinute)}`;
 }
 
+// Says which specific part of a time entry is wrong, instead of restating
+// the rules and leaving the person to work out which field it means.
+//
+// 2026-08-29, after a direct report that entering 12 / 00 / AM (midnight)
+// was refused with "Enter a valid time (hour 1-12, minute 0-59, AM or
+// PM)". That combination genuinely does build 00:00, verified directly,
+// so the generic message was hiding whichever field was actually empty or
+// unexpected rather than naming it. Guessing at the cause twice was worse
+// than useless, so this makes the failure state its own reason.
+//
+// Ordered so the most likely omission (no AM/PM chosen) is reported
+// first, and only ever describes a field that is genuinely wrong.
+export function describeTimeInputProblem(
+  hour: string,
+  minute: string,
+  ampm: 'AM' | 'PM' | '',
+): string {
+  const problems: string[] = [];
+
+  if (!hour) {
+    problems.push('an hour is missing');
+  } else {
+    const parsedHour = Number(hour);
+    if (!Number.isFinite(parsedHour) || parsedHour < 0 || parsedHour > 12) {
+      problems.push(`the hour reads "${hour}", which needs to be 1 to 12`);
+    }
+  }
+
+  if (minute !== '') {
+    const parsedMinute = Number(minute);
+    if (!Number.isFinite(parsedMinute) || parsedMinute < 0 || parsedMinute > 59) {
+      problems.push(`the minutes read "${minute}", which needs to be 0 to 59`);
+    }
+  }
+
+  if (!ampm) problems.push('AM or PM has not been picked');
+
+  if (problems.length === 0) {
+    // Every individual field checks out, so something upstream of this
+    // form is at fault. Say so plainly rather than blaming the entry.
+    return 'That time looks valid, so something went wrong saving it. Please report exactly what you entered.';
+  }
+
+  return `Check the time: ${problems.join(', and ')}. Midnight is 12 AM, noon is 12 PM.`;
+}
+
 // The inverse of buildTime24 -- splits a stored 24h "HH:mm" back into the
 // 12-hour hour/minute/AM-PM an edit form uses. Returns a blank buffer for
 // null/unset.

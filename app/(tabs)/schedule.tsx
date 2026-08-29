@@ -108,7 +108,7 @@ import {
 } from '../../lib/deviceCalendar';
 import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../../lib/interactionRules';
 import type { NutrientGapEntry } from '../../lib/nutrientAnalysis';
-import { buildTime24, formatTime12, splitTime24, type TimeOfDayInput } from '../../lib/timeOfDay';
+import { buildTime24, describeTimeInputProblem, formatTime12, splitTime24, type TimeOfDayInput } from '../../lib/timeOfDay';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { Dropdown, type DropdownOption } from '../../components/Dropdown';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -880,7 +880,7 @@ function MealsLens() {
     }
     const time24 = buildTime24(form.time.hour, form.time.minute, form.time.ampm);
     if (!time24) {
-      showInfoAlert('Almost there', 'Enter an hour (1-12, or 0 for midnight), a minute (0-59), and AM or PM. Midnight is 12 AM and noon is 12 PM.');
+      showInfoAlert('Almost there', describeTimeInputProblem(form.time.hour, form.time.minute, form.time.ampm));
       return;
     }
     const repeatError = form.editingId ? null : validateRepeat(form.repeat);
@@ -2529,7 +2529,7 @@ function HydrationLens() {
     }
     const time24 = buildTime24(form.time.hour, form.time.minute, form.time.ampm);
     if (!time24) {
-      showInfoAlert('Almost there', 'Enter an hour (1-12, or 0 for midnight), a minute (0-59), and AM or PM. Midnight is 12 AM and noon is 12 PM.');
+      showInfoAlert('Almost there', describeTimeInputProblem(form.time.hour, form.time.minute, form.time.ampm));
       return;
     }
     const repeatError = form.editingId ? null : validateRepeat(form.repeat);
@@ -3858,7 +3858,7 @@ function SupplementsLens() {
   async function handleSaveDose(treatment: TreatmentRecord) {
     const time24 = buildTime24(doseFormTime.hour, doseFormTime.minute, doseFormTime.ampm);
     if (!time24) {
-      showInfoAlert('Almost there', 'Enter an hour (1-12, or 0 for midnight), a minute (0-59), and AM or PM. Midnight is 12 AM and noon is 12 PM.');
+      showInfoAlert('Almost there', describeTimeInputProblem(doseFormTime.hour, doseFormTime.minute, doseFormTime.ampm));
       return;
     }
     const repeatError = validateRepeat(doseFormRepeat);
@@ -4362,7 +4362,7 @@ function PrescriptionsLens() {
   async function handleSaveDose(treatment: TreatmentRecord) {
     const time24 = buildTime24(doseFormTime.hour, doseFormTime.minute, doseFormTime.ampm);
     if (!time24) {
-      showInfoAlert('Almost there', 'Enter an hour (1-12, or 0 for midnight), a minute (0-59), and AM or PM. Midnight is 12 AM and noon is 12 PM.');
+      showInfoAlert('Almost there', describeTimeInputProblem(doseFormTime.hour, doseFormTime.minute, doseFormTime.ampm));
       return;
     }
     const repeatError = validateRepeat(doseFormRepeat);
@@ -4857,7 +4857,7 @@ function AppointmentsLens() {
     }
     const time24 = buildTime24(form.time.hour, form.time.minute, form.time.ampm);
     if (!time24) {
-      showInfoAlert('Almost there', 'Enter an hour (1-12, or 0 for midnight), a minute (0-59), and AM or PM. Midnight is 12 AM and noon is 12 PM.');
+      showInfoAlert('Almost there', describeTimeInputProblem(form.time.hour, form.time.minute, form.time.ampm));
       return;
     }
 

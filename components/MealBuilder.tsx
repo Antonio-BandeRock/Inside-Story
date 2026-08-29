@@ -35,7 +35,7 @@ import {
 import { getConditionStagingModel, resolveDeclaredStage, type DeclaredConditionStage } from '../lib/conditionStages';
 import { parseAmountValue } from '../lib/measurement';
 import { computeRecipeDepth, type RecipeDepthResult } from '../lib/recipeDepth';
-import { buildTime24, formatTime12, type TimeOfDayInput } from '../lib/timeOfDay';
+import { buildTime24, describeTimeInputProblem, formatTime12, type TimeOfDayInput } from '../lib/timeOfDay';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
@@ -754,7 +754,7 @@ export function MealBuilder({
   async function confirmScheduleForLater() {
     const time24 = buildTime24(scheduleTimeBuffer.hour, scheduleTimeBuffer.minute, scheduleTimeBuffer.ampm);
     if (!time24) {
-      showInfoAlert('Almost there', 'Enter an hour (1-12, or 0 for midnight), a minute (0-59), and AM or PM. Midnight is 12 AM and noon is 12 PM.');
+      showInfoAlert('Almost there', describeTimeInputProblem(scheduleTimeBuffer.hour, scheduleTimeBuffer.minute, scheduleTimeBuffer.ampm));
       return;
     }
     if (!mealType) return;
@@ -824,7 +824,7 @@ export function MealBuilder({
   async function confirmAddToRoutine() {
     const time24 = buildTime24(routineTimeBuffer.hour, routineTimeBuffer.minute, routineTimeBuffer.ampm);
     if (!time24) {
-      showInfoAlert('Almost there', 'Enter an hour (1-12, or 0 for midnight), a minute (0-59), and AM or PM. Midnight is 12 AM and noon is 12 PM.');
+      showInfoAlert('Almost there', describeTimeInputProblem(routineTimeBuffer.hour, routineTimeBuffer.minute, routineTimeBuffer.ampm));
       return;
     }
     dismissKeyboard();
@@ -959,7 +959,7 @@ export function MealBuilder({
     if (!correctingTrial) return;
     const time24 = buildTime24(correctionTimeBuffer.hour, correctionTimeBuffer.minute, correctionTimeBuffer.ampm);
     if (!time24) {
-      showInfoAlert('Almost there', 'Enter an hour (1-12, or 0 for midnight), a minute (0-59), and AM or PM. Midnight is 12 AM and noon is 12 PM.');
+      showInfoAlert('Almost there', describeTimeInputProblem(correctionTimeBuffer.hour, correctionTimeBuffer.minute, correctionTimeBuffer.ampm));
       return;
     }
     let dateStr: string;
