@@ -1445,7 +1445,9 @@ const styles = StyleSheet.create({
   // one-off invented separately, so it borrows those exact styles rather
   // than a second, similar-but-not-identical set.
   desktopContent: { padding: 16, gap: 12 },
-  desktopHeading: { ...typography.screenTitle, ...menuLabelShadow, color: TAB_COLOR },
+  desktopHeading: { ...typography.screenTitle, ...menuLabelShadow, color: TAB_COLOR,
+    fontWeight: '400',
+  },
   desktopSubheading: { ...typography.body, color: colors.textSecondary, lineHeight: 19 },
   desktopBackLink: {
     ...typography.body,

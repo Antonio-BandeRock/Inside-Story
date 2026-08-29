@@ -2001,7 +2001,9 @@ const styles = StyleSheet.create({
     // handles the space after this now; keeping this too would have
     // stacked on top of it (26px instead of the real, intended 10).
   },
-  greetingText: { ...typography.screenTitle, ...textShadow, color: colors.textPrimary },
+  greetingText: { ...typography.screenTitle, ...textShadow, color: colors.textPrimary,
+    fontWeight: '400',
+  },
   affirmationText: { ...typography.body, ...textShadow, color: colors.primary, marginTop: 2, fontStyle: 'italic' },
   dateText: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 2 },
 
@@ -2110,7 +2112,9 @@ const styles = StyleSheet.create({
   // (arcCard, fuelGaugesCard, orbCard all center their real content).
   cardLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', marginBottom: 8 },
   // Color set inline per box (see CardLabel) to match that box's own tab.
-  cardLabelText: { ...typography.eyebrow, ...textShadow },
+  cardLabelText: { ...typography.eyebrow, ...textShadow,
+    fontWeight: '400',
+  },
   emptyCard: {
     backgroundColor: colors.surface,
     borderRadius: 16,
@@ -2156,7 +2160,9 @@ const styles = StyleSheet.create({
   // across every info box). "Worth a look" layers statNumberFlagged on top
   // of that when there's something to flag -- a semantic warning color
   // deliberately takes priority over the tab's own identity color there.
-  statNumber: { ...typography.screenTitle, ...textShadow, color: colors.textPrimary },
+  statNumber: { ...typography.screenTitle, ...textShadow, color: colors.textPrimary,
+    fontWeight: '400',
+  },
   statNumberFlagged: { color: colors.statusFlagged },
 
   // Cancels `content`'s own paddingHorizontal: 20 on the ScrollView itself
@@ -2182,7 +2188,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary,
   },
-  quickActionSecondaryText: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary },
+  quickActionSecondaryText: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary,
+    fontWeight: '400',
+  },
 
   fuelGaugesCard: {
     backgroundColor: colors.surface,
@@ -2222,7 +2230,9 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   assessmentDueTextCol: { flex: 1 },
-  assessmentDueTitle: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary },
+  assessmentDueTitle: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary,
+    fontWeight: '400',
+  },
   assessmentDueSubtitle: { ...typography.caption, ...textShadow, color: colors.textSecondary, marginTop: 2, lineHeight: 16 },
 
   // Today's Check-In -- same card shape as orbCard/fuelGaugesCard above,
@@ -2239,7 +2249,9 @@ const styles = StyleSheet.create({
   },
   feelingPrompt: { ...typography.body, ...textShadow, marginBottom: 12 },
   feelingCategoryBlock: { marginBottom: 12 },
-  feelingCategoryLabel: { ...typography.eyebrow, ...textShadow, color: colors.textMuted, marginBottom: 6 },
+  feelingCategoryLabel: { ...typography.eyebrow, ...textShadow, color: colors.textMuted, marginBottom: 6,
+    fontWeight: '400',
+  },
   // gap 10 (was 8), 2026-08-08 -- see content's own comment.
   feelingTagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   feelingTagChip: {
@@ -2261,7 +2273,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  feelingCancelButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textSecondary },
+  feelingCancelButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textSecondary,
+    fontWeight: '400',
+  },
   feelingSaveButton: {
     flex: 1,
     alignItems: 'center',
@@ -2269,10 +2283,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   feelingSaveButtonDisabled: { opacity: 0.5 },
-  feelingSaveButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textOnPrimary },
+  feelingSaveButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textOnPrimary,
+    fontWeight: '400',
+  },
   // Shown once today's entry already exists -- tapping it reopens the
   // picker (openFeelingPicker), pre-filled with what's already saved.
-  feelingLoggedText: { ...typography.bodyEmphasis, ...textShadow },
+  feelingLoggedText: { ...typography.bodyEmphasis, ...textShadow,
+    fontWeight: '400',
+  },
   feelingChangeLink: { ...typography.caption, ...textShadow, color: colors.textMuted, marginTop: 2 },
   feelingStartButton: {
     alignItems: 'center',
@@ -2280,7 +2298,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
   },
-  feelingStartButtonText: { ...typography.bodyEmphasis, ...textShadow },
+  feelingStartButtonText: { ...typography.bodyEmphasis, ...textShadow,
+    fontWeight: '400',
+  },
 
   trendCard: {
     backgroundColor: colors.surface,
@@ -2291,8 +2311,12 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   // Base color is a fallback only -- overridden inline with tabColorFor('/trends'), same reasoning as statNumber above.
-  trendNumber: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary },
-  trendDelta: { ...typography.bodyEmphasis, ...textShadow, marginTop: 4 },
+  trendNumber: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary,
+    fontWeight: '400',
+  },
+  trendDelta: { ...typography.bodyEmphasis, ...textShadow, marginTop: 4,
+    fontWeight: '400',
+  },
   trendCaption: { ...typography.caption, ...textShadow, color: colors.textSecondary, marginTop: 4 },
 
   // gap 10 (was 12), 2026-08-08 -- see content's own comment.
@@ -2311,7 +2335,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
   },
-  moreFlipCardText: { ...typography.bodyEmphasis, ...textShadow, textAlign: 'center', lineHeight: 21 },
+  moreFlipCardText: { ...typography.bodyEmphasis, ...textShadow, textAlign: 'center', lineHeight: 21,
+    fontWeight: '400',
+  },
 
   modalBackdrop: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(15, 23, 42, 0.4)', padding: 24 },
   modalBackdropTouchable: { ...StyleSheet.absoluteFillObject },
@@ -2322,13 +2348,19 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 360,
   },
-  modalTitle: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary },
+  modalTitle: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary,
+    fontWeight: '400',
+  },
   modalMeta: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 4 },
   modalActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 16 },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.buttonColor, ...BUTTON_SHADOW },
-  primaryButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textOnButton,
+    fontWeight: '400',
+  },
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
-  secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textSecondary },
+  secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textSecondary,
+    fontWeight: '400',
+  },
 
   quickInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
   quickInput: {
@@ -2343,7 +2375,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
   },
   quickInputSmall: { width: 70, textAlign: 'center' },
-  quickInputSeparator: { ...typography.label, ...textShadow, color: colors.textPrimary },
+  quickInputSeparator: { ...typography.label, ...textShadow, color: colors.textPrimary,
+    fontWeight: '400',
+  },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, flexShrink: 1 },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },

@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.11',
+    date: '2026-08-29',
+    changes: [
+      'Removed bold from every remaining place where text was both bold and drop shadowed, across the whole app rather than one screen at a time: 23 styles on Home, Food, the flip cards, and two shared components. Drop shadow now carries the emphasis on its own everywhere.',
+    ],
+  },
+  {
     version: '1.0.30.10',
     date: '2026-08-29',
     changes: [

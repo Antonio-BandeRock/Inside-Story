@@ -64,6 +64,6 @@ export function ProgressRing({
 
 const styles = StyleSheet.create({
   container: { alignItems: 'center', width: 78 },
-  label: { ...typography.captionEmphasis, ...textShadow, color: colors.textPrimary, marginTop: 6, textAlign: 'center' },
+  label: { ...typography.captionEmphasis, ...textShadow, color: colors.textPrimary, marginTop: 6, textAlign: 'center', fontWeight: '400' },
   sublabel: { ...typography.caption, ...textShadow, color: colors.textSecondary, textAlign: 'center' },
 });

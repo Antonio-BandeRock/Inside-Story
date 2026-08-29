@@ -71,6 +71,6 @@ const styles = StyleSheet.create({
     height: 108,
     borderRadius: 54,
   },
-  label: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary, marginTop: 10 },
+  label: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary, marginTop: 10, fontWeight: '400' },
   caption: { ...typography.caption, ...textShadow, color: colors.textSecondary, marginTop: 2 },
 });
