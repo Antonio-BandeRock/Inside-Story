@@ -198,7 +198,17 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   primaryButtonDisabled: { opacity: 0.6 },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   emptyText: { ...typography.body, color: colors.textMuted, ...textShadow },
   row: {

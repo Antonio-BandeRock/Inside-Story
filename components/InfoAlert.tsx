@@ -149,6 +149,15 @@ const styles = StyleSheet.create({
   },
   okButtonText: {
     ...typography.bodyEmphasis,
-    color: colors.textOnPrimary,
+    color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
   },
 });

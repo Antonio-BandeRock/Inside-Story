@@ -1461,7 +1461,15 @@ const styles = StyleSheet.create({
     backgroundColor: TAB_COLOR,
     borderRadius: 20,
     paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingVertical: 8,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
 
   },
 });

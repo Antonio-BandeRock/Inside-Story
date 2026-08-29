@@ -172,7 +172,17 @@ const styles = StyleSheet.create({
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   pillText: { ...typography.caption, color: colors.textPrimary, ...textShadow },
-  pillTextActive: { color: colors.textOnPrimary },
+  pillTextActive: { color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
 
   reportCard: {
     backgroundColor: colors.surface,
@@ -194,5 +204,15 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
   },
-  shareButtonText: { ...typography.body, color: colors.textOnPrimary, fontWeight: '400' },
+  shareButtonText: { ...typography.body, color: colors.textOnPrimary, fontWeight: '400',
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
 });

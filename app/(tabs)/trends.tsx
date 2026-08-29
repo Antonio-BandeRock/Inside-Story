@@ -1051,7 +1051,17 @@ const styles = StyleSheet.create({
   smallPill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   pillText: { ...typography.caption, color: colors.textPrimary, ...textShadow },
-  pillTextActive: { color: colors.textOnPrimary },
+  pillTextActive: { color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
 
   // The custom date panel -- a plain, neutral box (matches disclaimerCard's
   // own treatment below), tucked directly under the pill row it belongs to

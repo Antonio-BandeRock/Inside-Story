@@ -5427,7 +5427,17 @@ const styles = StyleSheet.create({
   weekDayCellToday: { borderColor: TAB_COLOR },
   weekDayLabel: { ...typography.caption, color: TAB_COLOR, ...textShadow },
   weekDayNumber: { ...typography.bodyEmphasis, color: TAB_COLOR, marginTop: 2, ...textShadow },
-  weekDayLabelSelected: { color: colors.textOnPrimary },
+  weekDayLabelSelected: { color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   weekDayDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: 'transparent', marginTop: 4 },
   weekDayDotActive: { backgroundColor: TAB_COLOR },
   weekDayDotActiveSelected: { backgroundColor: colors.textOnPrimary },
@@ -5489,7 +5499,17 @@ const styles = StyleSheet.create({
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   pillText: { ...typography.caption, color: TAB_COLOR, textTransform: 'capitalize', ...textShadow },
   pillTextSmall: { ...typography.caption, color: TAB_COLOR, ...textShadow },
-  pillTextActive: { color: colors.textOnPrimary },
+  pillTextActive: { color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   modeRow: { flexDirection: 'row', gap: 6, marginTop: 12 },
   modeTab: {
     flex: 1,
@@ -5500,7 +5520,17 @@ const styles = StyleSheet.create({
   },
   modeTabActive: { backgroundColor: colors.primary },
   modeTabText: { ...typography.captionEmphasis, color: TAB_COLOR, ...textShadow },
-  modeTabTextActive: { color: colors.textOnPrimary },
+  modeTabTextActive: { color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   sourceList: {
     marginTop: 10,
     borderWidth: 1,
@@ -5574,7 +5604,17 @@ const styles = StyleSheet.create({
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
   secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR, ...textShadow },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.buttonColor, ...BUTTON_SHADOW },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   primaryButtonDisabled: { opacity: 0.5 },
   // Meal Plan/Shopping List lenses, 2026-08-24.
   mealPlanDayRow: {

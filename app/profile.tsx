@@ -3798,6 +3798,15 @@ const styles = StyleSheet.create({
   },
   pillTextActive: {
     color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
   },
   // Home Screen's own "Order" list, 2026-08-23 -- one row per reorderable
   // section, up/down buttons rather than drag-and-drop (see the JSX's own
@@ -4052,7 +4061,15 @@ const styles = StyleSheet.create({
   },
   addAllergyButtonText: {
     ...typography.captionEmphasis,
-    color: colors.textOnPrimary,
+    color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
 
   },
   errorText: {
@@ -4103,7 +4120,15 @@ const styles = StyleSheet.create({
   },
   checkinButtonText: {
     ...typography.bodyEmphasis,
-    color: colors.textOnPrimary,
+    color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
 
   },
   // For a checkinButton label that deliberately spans more than one line.

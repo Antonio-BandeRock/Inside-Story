@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.18',
+    date: '2026-08-29',
+    changes: [
+      'Selected pills and buttons with black text no longer carry a leftover drop shadow. The shadow came from the unselected style underneath, so the dark text now cancels it outright rather than just not adding one.',
+      'The symptom check-in now scores and reports only the sections you were actually asked about. Results used to show a thyroid burden score and an IBS severity band to everyone, calculated from questions they never saw.',
+      'The new prostate check-in is fully scored, with its published mild/moderate/severe bands and a comparison against your last one.',
+    ],
+  },
+  {
     version: '1.0.30.17',
     date: '2026-08-29',
     changes: [

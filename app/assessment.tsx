@@ -217,10 +217,12 @@ function AssessmentResults({
   const hypoDomain = domains.find((d) => d.code === 'hypothyroid_symptoms');
   const ibsDomain = domains.find((d) => d.code === 'digestive_ibs');
   const wellbeingDomain = domains.find((d) => d.code === 'wellbeing');
+  const prostateDomain = domains.find((d) => d.code === 'prostate_urinary');
 
   const hypoDelta = comparison ? deltaLabel(comparison.hypothyroidSymptomsDeltaPercent, false, '%') : null;
   const ibsDelta = comparison ? deltaLabel(comparison.digestiveSymptomsDeltaRaw, false, ' pts') : null;
   const wellbeingDelta = comparison ? deltaLabel(comparison.wellbeingDeltaPercent, true, '%') : null;
+  const prostateDelta = comparison ? deltaLabel(comparison.prostateUrinaryDeltaRaw, false, ' pts') : null;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
@@ -232,35 +234,71 @@ function AssessmentResults({
         </Text>
       ) : null}
 
-      <ResultCard
-        title={hypoDomain?.displayName ?? 'Hypothyroid Symptoms'}
-        primaryText={`${Math.round(scores.hypothyroidSymptoms.percentScore)}% symptom burden`}
-        secondaryText={`${scores.hypothyroidSymptoms.itemsAnswered} of 13 items answered`}
-        delta={hypoDelta}
-        framingNote={hypoDomain?.framingNote}
-      />
+      {/* 2026-08-29: only report on the domains this person was actually
+          asked about. These cards used to render unconditionally, so
+          someone tracking Prostate Health got a hypothyroid burden score
+          and an IBS severity band built entirely from questions they were
+          never shown. Each card is now gated on its own domain being in
+          the scoped set. */}
+      {hypoDomain ? (
+        <ResultCard
+          title={hypoDomain.displayName}
+          primaryText={`${Math.round(scores.hypothyroidSymptoms.percentScore)}% symptom burden`}
+          secondaryText={`${scores.hypothyroidSymptoms.itemsAnswered} of 13 items answered`}
+          delta={hypoDelta}
+          framingNote={hypoDomain.framingNote}
+        />
+      ) : null}
 
-      <ResultCard
-        title={ibsDomain?.displayName ?? 'Digestive / IBS Symptoms'}
-        primaryText={`${bandLabel(scores.digestiveSymptoms.band)} (${Math.round(scores.digestiveSymptoms.rawScore)} / 500)`}
-        secondaryText={null}
-        delta={ibsDelta}
-        framingNote={ibsDomain?.framingNote}
-      />
+      {ibsDomain ? (
+        <ResultCard
+          title={ibsDomain.displayName}
+          primaryText={`${bandLabel(scores.digestiveSymptoms.band)} (${Math.round(scores.digestiveSymptoms.rawScore)} / 500)`}
+          secondaryText={null}
+          delta={ibsDelta}
+          framingNote={ibsDomain.framingNote}
+        />
+      ) : null}
 
-      <ResultCard
-        title={wellbeingDomain?.displayName ?? 'Overall Wellbeing'}
-        primaryText={`${Math.round(scores.wellbeing.percentScore)}% wellbeing`}
-        secondaryText={`${scores.wellbeing.itemsAnswered} of 5 items answered`}
-        delta={wellbeingDelta}
-        framingNote={wellbeingDomain?.framingNote}
-      />
+      {prostateDomain ? (
+        <ResultCard
+          title={prostateDomain.displayName}
+          primaryText={`${prostateBandLabel(scores.prostateUrinary.band)} (${scores.prostateUrinary.rawScore} / 35)`}
+          secondaryText={`${scores.prostateUrinary.itemsAnswered} of 7 items answered`}
+          delta={prostateDelta}
+          framingNote={prostateDomain.framingNote}
+        />
+      ) : null}
+
+      {wellbeingDomain ? (
+        <ResultCard
+          title={wellbeingDomain.displayName}
+          primaryText={`${Math.round(scores.wellbeing.percentScore)}% wellbeing`}
+          secondaryText={`${scores.wellbeing.itemsAnswered} of 5 items answered`}
+          delta={wellbeingDelta}
+          framingNote={wellbeingDomain.framingNote}
+        />
+      ) : null}
 
       <TouchableOpacity style={styles.submitButton} onPress={onDone}>
         <Text style={styles.submitButtonText}>Done</Text>
       </TouchableOpacity>
     </ScrollView>
   );
+}
+
+// The IPSS bands use their own three-level vocabulary, deliberately not
+// folded into bandLabel below, whose 'remission' level has no IPSS
+// equivalent and would read wrong here.
+function prostateBandLabel(band: 'mild' | 'moderate' | 'severe'): string {
+  switch (band) {
+    case 'mild':
+      return 'Mild';
+    case 'moderate':
+      return 'Moderate';
+    default:
+      return 'Severe';
+  }
 }
 
 function bandLabel(band: 'remission' | 'mild' | 'moderate' | 'severe'): string {
@@ -385,6 +423,15 @@ const styles = StyleSheet.create({
   },
   scalePillTextActive: {
     color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
   },
   submitButton: {
     backgroundColor: colors.primary,
@@ -399,6 +446,15 @@ const styles = StyleSheet.create({
   submitButtonText: {
     ...typography.bodyEmphasis,
     color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
   },
   resultsTitle: {
     fontSize: 24,

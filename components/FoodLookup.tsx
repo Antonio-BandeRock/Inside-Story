@@ -2219,7 +2219,15 @@ const styles = StyleSheet.create({
   personalVerdictPillText: {
     ...typography.captionEmphasis,
     color: colors.textOnPrimary,
-    fontSize: 11,
+    fontSize: 11,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
 
   },
   // The caution's own real note (e.g. "Whole-Grain Wheat Flour: rated High

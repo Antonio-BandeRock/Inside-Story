@@ -6519,7 +6519,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    ...BUTTON_SHADOW,
+    ...BUTTON_SHADOW,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
   },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
@@ -6794,7 +6803,17 @@ const styles = StyleSheet.create({
   // under -- matchTermPillText (below) already carries menuLabelShadow, so
   // this filled/title-matched variant loses its own fontWeight: '400'
   // rather than stacking bold on top of an already-shadowed pill.
-  matchTermPillTextTitle: { color: colors.background },
+  matchTermPillTextTitle: { color: colors.background,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   matchTermPillTextMiss: { color: colors.textMuted },
   // SearchMatchDemo's own worked-example block, inside the "About Search
   // Matching" sheet -- 2026-08-09, direct request for real, visual dot/
@@ -6862,7 +6881,17 @@ const styles = StyleSheet.create({
   // fontWeight '700' against a solid, opaque TAB_COLOR fill (not a photo
   // background needing a shadow for contrast the way this app's other
   // shadowed labels do), so bold alone already carries full legibility.
-  dietTagPillText: { ...typography.caption, color: colors.background, fontSize: 11, fontWeight: '400' },
+  dietTagPillText: { ...typography.caption, color: colors.background, fontSize: 11, fontWeight: '400',
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   detailLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
   detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, ...textShadow },
   // Emphasis inside Digest body content (the **...** spans renderRichText
@@ -6890,7 +6919,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 12,
   },
-  buildRecipeButtonText: { ...typography.bodyEmphasis, color: colors.background },
+  buildRecipeButtonText: { ...typography.bodyEmphasis, color: colors.background,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   buildRecipeButtonDisabled: { opacity: 0.5 },
   // "Build This Recipe" plus its own small, real Share button sitting
   // right beside it, 2026-08-15 -- see CuratedRecipeShareButton's own
@@ -6946,7 +6985,17 @@ const styles = StyleSheet.create({
   },
   ampmPillActive: { backgroundColor: TAB_COLOR, borderColor: TAB_COLOR },
   ampmPillText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
-  ampmPillTextActive: { color: colors.background },
+  ampmPillTextActive: { color: colors.background,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   stageNoteText: { ...typography.caption, color: colors.textMuted, fontStyle: 'italic', marginTop: 8, ...textShadow },
   // RecipeCardDetail's own numbered instruction steps -- same body/color
   // treatment as detailText, just its own style key so a slightly tighter

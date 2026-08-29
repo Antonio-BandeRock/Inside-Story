@@ -591,11 +591,37 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     ...BUTTON_SHADOW,
   },
-  fieldText: { ...typography.body, flexShrink: 1, color: colors.textOnButton,
+  fieldText: { ...typography.body, flexShrink: 1, color: colors.textOnButton,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
 
   },
-  fieldTextPlaceholder: { color: colors.textOnButton, opacity: 0.65 },
-  chevron: { ...typography.caption, color: colors.textOnButton,
+  fieldTextPlaceholder: { color: colors.textOnButton, opacity: 0.65,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
+  chevron: { ...typography.caption, color: colors.textOnButton,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
 
   },
   popover: {
@@ -652,7 +678,15 @@ const styles = StyleSheet.create({
     ...textShadow,
 
   },
-  rowTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary,
+  rowTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
 
   },
   emptyText: {

@@ -311,7 +311,17 @@ const styles = StyleSheet.create({
     ...BUTTON_SHADOW,
   },
   primaryButtonMuted: { backgroundColor: colors.border },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   primaryButtonTextMuted: { color: colors.textMuted },
   secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow },
   summaryEmptyText: { ...typography.caption, color: colors.textSecondary, ...textShadow },

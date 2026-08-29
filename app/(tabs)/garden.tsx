@@ -1227,7 +1227,17 @@ const styles = StyleSheet.create({
   // Phase 4's own Length/Width entry boxes -- narrow enough to sit
   // side-by-side with the Feet/Meters toggle in the same fieldRow.
   sizeInput: { width: 90 },
-  pillTextActive: { color: colors.textOnButton, fontWeight: '400' },
+  pillTextActive: { color: colors.textOnButton, fontWeight: '400',
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   expandedSection: { gap: 8, marginTop: 4 },
   plantingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   // A tappable row for picking a planting to log a harvest from -- a real,
@@ -1240,7 +1250,17 @@ const styles = StyleSheet.create({
   pendingCard: { gap: 8 },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 4 },
   primaryButton: { borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, alignItems: 'center', ...BUTTON_SHADOW },
-  primaryButtonText: { color: colors.textOnButton, fontWeight: '400' },
+  primaryButtonText: { color: colors.textOnButton, fontWeight: '400',
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   disabledButton: { opacity: 0.5 },
   errorText: { color: colors.danger },
   secondaryButton: { borderWidth: 1, borderRadius: 8, paddingVertical: 10, alignItems: 'center' },

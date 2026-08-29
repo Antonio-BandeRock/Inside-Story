@@ -341,7 +341,17 @@ const styles = StyleSheet.create({
     borderLeftColor: 'transparent',
   },
   itemText: { ...typography.body, color: colors.textPrimary, ...textShadow },
-  itemTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  itemTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   // Marks a real group's own LAST member -- see renderItem's own comment
   // for why this exists alongside the left accent bar. A visibly thicker,
   // colored bottom border reads as a deliberate "block ends here" cap

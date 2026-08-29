@@ -122,10 +122,58 @@ export function scoreWellbeing(responses: AssessmentResponseValue[]): WellbeingS
   return { rawScore, percentScore: rawScore * 4, itemsAnswered };
 }
 
+
+// --- Prostate urinary symptoms: the 7-item IPSS, each 0-5 -------------
+//
+// 2026-08-29, added with the prostate_urinary assessment domain. Without
+// this the check-in would collect all seven answers and score none of
+// them, which is worse than not offering it: the person would answer and
+// get nothing back.
+//
+// Bands are the published IPSS ones (Barry et al. 1992), not invented:
+// 0-7 mild, 8-19 moderate, 20-35 severe.
+export type ProstateSeverityBand = 'mild' | 'moderate' | 'severe';
+
+export const PROSTATE_ITEM_CODES = [
+  'prostate_incomplete_emptying',
+  'prostate_frequency',
+  'prostate_intermittency',
+  'prostate_urgency',
+  'prostate_weak_stream',
+  'prostate_straining',
+  'prostate_nocturia',
+];
+
+export type ProstateUrinaryScore = {
+  rawScore: number;
+  maxScore: number;
+  band: ProstateSeverityBand;
+  itemsAnswered: number;
+};
+
+export function scoreProstateUrinary(responses: AssessmentResponseValue[]): ProstateUrinaryScore {
+  let rawScore = 0;
+  let itemsAnswered = 0;
+  for (const code of PROSTATE_ITEM_CODES) {
+    const value = valueFor(responses, code);
+    if (value != null) {
+      rawScore += value;
+      itemsAnswered += 1;
+    }
+  }
+
+  let band: ProstateSeverityBand;
+  if (rawScore <= 7) band = 'mild';
+  else if (rawScore <= 19) band = 'moderate';
+  else band = 'severe';
+
+  return { rawScore, maxScore: PROSTATE_ITEM_CODES.length * 5, band, itemsAnswered };
+}
 export type AssessmentScores = {
   hypothyroidSymptoms: HypothyroidSymptomScore;
   digestiveSymptoms: DigestiveSymptomScore;
   wellbeing: WellbeingScore;
+  prostateUrinary: ProstateUrinaryScore;
 };
 
 export function scoreAssessment(responses: AssessmentResponseValue[]): AssessmentScores {
@@ -133,6 +181,7 @@ export function scoreAssessment(responses: AssessmentResponseValue[]): Assessmen
     hypothyroidSymptoms: scoreHypothyroidSymptoms(responses),
     digestiveSymptoms: scoreDigestiveSymptoms(responses),
     wellbeing: scoreWellbeing(responses),
+    prostateUrinary: scoreProstateUrinary(responses),
   };
 }
 
@@ -140,6 +189,7 @@ export type AssessmentComparison = {
   hypothyroidSymptomsDeltaPercent: number; // negative = improved (less symptom burden)
   digestiveSymptomsDeltaRaw: number; // negative = improved (lower IBS-SSS)
   wellbeingDeltaPercent: number; // positive = improved
+  prostateUrinaryDeltaRaw: number; // negative = improved (lower IPSS)
 };
 
 // Simple delta between two scored assessments -- deliberately just the
@@ -150,5 +200,6 @@ export function compareAssessmentScores(previous: AssessmentScores, current: Ass
     hypothyroidSymptomsDeltaPercent: current.hypothyroidSymptoms.percentScore - previous.hypothyroidSymptoms.percentScore,
     digestiveSymptomsDeltaRaw: current.digestiveSymptoms.rawScore - previous.digestiveSymptoms.rawScore,
     wellbeingDeltaPercent: current.wellbeing.percentScore - previous.wellbeing.percentScore,
+    prostateUrinaryDeltaRaw: current.prostateUrinary.rawScore - previous.prostateUrinary.rawScore,
   };
 }

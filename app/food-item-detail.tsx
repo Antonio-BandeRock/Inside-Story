@@ -588,6 +588,15 @@ const styles = StyleSheet.create({
   },
   lensButtonTextActive: {
     color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
   },
   sideMeta: {
     ...typography.caption,

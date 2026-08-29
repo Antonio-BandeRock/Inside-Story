@@ -2282,7 +2282,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
   },
   feelingTagText: { ...typography.caption, ...textShadow, color: colors.textPrimary },
-  feelingTagTextActive: { color: colors.textOnPrimary },
+  feelingTagTextActive: { color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   feelingActionsRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
   feelingCancelButton: {
     flex: 1,
@@ -2304,6 +2314,15 @@ const styles = StyleSheet.create({
   feelingSaveButtonDisabled: { opacity: 0.5 },
   feelingSaveButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary,
     fontWeight: '400',
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
   },
   // Shown once today's entry already exists -- tapping it reopens the
   // picker (openFeelingPicker), pre-filled with what's already saved.
@@ -2375,6 +2394,15 @@ const styles = StyleSheet.create({
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.buttonColor, ...BUTTON_SHADOW },
   primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
     fontWeight: '400',
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
   },
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
   secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textSecondary,
@@ -2401,5 +2429,15 @@ const styles = StyleSheet.create({
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   pillText: { ...typography.caption, ...textShadow, color: colors.textPrimary },
-  pillTextActive: { color: colors.textOnPrimary },
+  pillTextActive: { color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
 });

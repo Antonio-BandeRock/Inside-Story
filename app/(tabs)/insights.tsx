@@ -4152,7 +4152,17 @@ const styles = StyleSheet.create({
     ...textShadow,
 
   },
-  stagePillTextActive: { color: colors.textOnPrimary },
+  stagePillTextActive: { color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   // Same colors.surface/2px-tabColor-border treatment every other card on
   // this page already uses (see table's own comment above) -- a round is
   // a tappable card (the whole thing opens/closes on tap), not a plain row.
@@ -4191,7 +4201,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...BUTTON_SHADOW,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
 
   },
   secondaryButton: {
@@ -4288,5 +4306,15 @@ const styles = StyleSheet.create({
     ...textShadow,
 
   },
-  portionsPillTextActive: { color: colors.textOnPrimary },
+  portionsPillTextActive: { color: colors.textOnPrimary,
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
 });

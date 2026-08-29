@@ -254,7 +254,17 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   primaryButtonDisabled: { opacity: 0.6 },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, textAlign: 'center' },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, textAlign: 'center',
+
+    // Dark text: cancel any shadow inherited from a base style it is
+
+    // composed with. See constants/typography.ts.
+
+    textShadowColor: 'transparent',
+
+    textShadowRadius: 0,
+
+  },
   secondaryButton: {
     borderWidth: 1,
     borderColor: colors.border,
