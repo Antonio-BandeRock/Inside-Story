@@ -16,7 +16,12 @@ export function buildTime24(hour: string, minute: string, ampm: 'AM' | 'PM' | ''
     !hour ||
     !ampm ||
     !Number.isFinite(parsedHour) ||
-    parsedHour < 1 ||
+    // 0 accepted, 2026-08-29: someone entering midnight reasonably types 0
+    // or 00 rather than 12, and rejecting it produced a dead-end "enter a
+    // valid time (hour 1-12...)" error with no way forward. On a 12-hour
+    // clock 0 and 12 name the same hour, so 0 is treated as 12 below
+    // (0 AM is midnight, 0 PM is noon) rather than refused.
+    parsedHour < 0 ||
     parsedHour > 12 ||
     !Number.isFinite(parsedMinute) ||
     parsedMinute < 0 ||

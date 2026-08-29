@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.9',
+    date: '2026-08-29',
+    changes: [
+      'Fixed setting a meal time to midnight. Entering the hour as 0 or 00 was rejected as invalid, which stopped you before any other check could run.',
+      'Time errors now say what to actually enter, including that midnight is 12 AM and noon is 12 PM, instead of only listing a range.',
+    ],
+  },
+  {
     version: '1.0.30.8',
     date: '2026-08-29',
     changes: [

@@ -754,7 +754,7 @@ export function MealBuilder({
   async function confirmScheduleForLater() {
     const time24 = buildTime24(scheduleTimeBuffer.hour, scheduleTimeBuffer.minute, scheduleTimeBuffer.ampm);
     if (!time24) {
-      showInfoAlert('Almost there', 'Enter a valid time (hour 1-12, minute 0-59, and AM or PM).');
+      showInfoAlert('Almost there', 'Enter an hour (1-12, or 0 for midnight), a minute (0-59), and AM or PM. Midnight is 12 AM and noon is 12 PM.');
       return;
     }
     if (!mealType) return;
@@ -824,7 +824,7 @@ export function MealBuilder({
   async function confirmAddToRoutine() {
     const time24 = buildTime24(routineTimeBuffer.hour, routineTimeBuffer.minute, routineTimeBuffer.ampm);
     if (!time24) {
-      showInfoAlert('Almost there', 'Enter a valid time (hour 1-12, minute 0-59, and AM or PM).');
+      showInfoAlert('Almost there', 'Enter an hour (1-12, or 0 for midnight), a minute (0-59), and AM or PM. Midnight is 12 AM and noon is 12 PM.');
       return;
     }
     dismissKeyboard();
@@ -959,7 +959,7 @@ export function MealBuilder({
     if (!correctingTrial) return;
     const time24 = buildTime24(correctionTimeBuffer.hour, correctionTimeBuffer.minute, correctionTimeBuffer.ampm);
     if (!time24) {
-      showInfoAlert('Almost there', 'Enter a valid time (hour 1-12, minute 0-59, and AM or PM).');
+      showInfoAlert('Almost there', 'Enter an hour (1-12, or 0 for midnight), a minute (0-59), and AM or PM. Midnight is 12 AM and noon is 12 PM.');
       return;
     }
     let dateStr: string;
