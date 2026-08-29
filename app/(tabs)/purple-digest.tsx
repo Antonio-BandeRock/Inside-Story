@@ -23,7 +23,7 @@ import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TAB_REVEAL_DURATION_MS } from '../../constants/tabReveal';
-import { menuLabelShadow, typography } from '../../constants/typography';
+import { menuLabelShadow, textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { CONDITION_CODE_TO_DIGEST_KEY, DIGEST_KEY_TO_CONDITION_CODE } from '../../lib/conditionCodeMap';
@@ -6505,7 +6505,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8 },
-  searchResultCategory: { ...typography.caption, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginBottom: 4 },
+  searchResultCategory: { ...typography.caption, ...textShadow, color: TAB_TEXT_COLOR, marginBottom: 4 },
   // topicGrid/topicCard/topicCardTitle/topicCardCount/treeBackLink/
   // treeHeading (Basic Health's own real tree navigation) removed
   // 2026-08-14 alongside BasicHealthTree/TopicCard -- see that removal's
@@ -6653,7 +6653,7 @@ const styles = StyleSheet.create({
   matchTermPillTitle: { backgroundColor: TAB_COLOR, borderColor: TAB_COLOR },
   matchTermPillBody: { backgroundColor: 'transparent', borderColor: TAB_COLOR },
   matchTermPillMiss: { backgroundColor: 'transparent', borderColor: colors.border },
-  matchTermPillText: { ...typography.caption, ...menuLabelShadow, color: TAB_TEXT_COLOR, fontSize: 11 },
+  matchTermPillText: { ...typography.caption, ...textShadow, color: TAB_TEXT_COLOR, fontSize: 11 },
   // 2026-08-25, direct report: "drop shadowed is fine only if the font is
   // not already bolded," the same rule dietTagPillText was already fixed
   // under -- matchTermPillText (below) already carries menuLabelShadow, so
@@ -6700,7 +6700,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     maxWidth: 160,
   },
-  crossConditionPillText: { ...typography.caption, ...menuLabelShadow, color: TAB_TEXT_COLOR, fontSize: 11 },
+  crossConditionPillText: { ...typography.caption, ...textShadow, color: TAB_TEXT_COLOR, fontSize: 11 },
   // RecipeDietTagRow's own pills, same filled-pill shape as
   // matchTermPillTitle above, sitting right at the top of a recipe's own
   // detail view since "which diets this fits" is meant to be identifiable
@@ -6728,7 +6728,7 @@ const styles = StyleSheet.create({
   // background needing a shadow for contrast the way this app's other
   // shadowed labels do), so bold alone already carries full legibility.
   dietTagPillText: { ...typography.caption, color: colors.background, fontSize: 11, fontWeight: '700' },
-  detailLabel: { ...typography.eyebrow, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
+  detailLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
   detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19 },
   detailTextBold: { fontWeight: '700' },
   swapText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 2 },
@@ -6820,7 +6820,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
   },
-  recipeNutritionLabel: { ...typography.eyebrow, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 4 },
+  recipeNutritionLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 4 },
   recipeNutritionText: { ...typography.body, color: colors.textPrimary, lineHeight: 18, marginTop: 2 },
   // The per-condition caution box -- a real, distinct tint from the
   // nutrition callout above (a warm accent rather than the tab's own
@@ -6885,7 +6885,7 @@ const styles = StyleSheet.create({
   // confirmation, see FeedbackRow's own comment.
   favoriteAddedText: { ...typography.caption, color: colors.accent, marginTop: 4 },
   citationsBlock: { marginTop: 10 },
-  citationsLabel: { ...typography.eyebrow, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 2 },
+  citationsLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 2 },
   citationLink: {
     ...typography.caption,
     color: colors.primary,
@@ -6894,7 +6894,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   relatedBlock: { marginTop: 10 },
-  relatedLabel: { ...typography.eyebrow, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 4 },
+  relatedLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 4 },
   relatedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   relatedChip: {
     borderWidth: 1,

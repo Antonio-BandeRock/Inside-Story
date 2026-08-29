@@ -62,6 +62,17 @@ export const textShadow = {
 // than textShadow, short of CORNER_ICON_SHADOW's own even-heavier
 // treatment (tuned for TabHub/LensHub's large 32px corner-button icon,
 // not small caption text).
+//
+// NOT for small text. 2026-08-29, direct report on Digest's own search
+// pills: "the little pills for the search word are both bold text and
+// drop shadowed. This makes them look blurred." Those pills were never
+// bold in code (caption tier, fontWeight 400) -- a 4px blur radius with a
+// 1.5px offset on 11px text simply smears the glyphs enough to read as
+// thick and blurry, which is why several passes hunting for a fontWeight
+// found nothing. Anything at the caption (12) or eyebrow (10) tier, or an
+// explicit fontSize of 12 or less, should use plain textShadow above
+// instead; this stronger one is for the larger labels it was tuned
+// against (TabHub/LensHub grid labels, category headers, card titles).
 export const menuLabelShadow = {
   textShadowColor: 'rgba(0, 0, 0, 0.85)',
   textShadowOffset: { width: 0, height: 1.5 },

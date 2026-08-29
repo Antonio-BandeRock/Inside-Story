@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.12',
+    date: '2026-08-29',
+    changes: [
+      'Fixed the blurred look on Digest search pills and other small labels. They were never bold: a drop shadow tuned for large menu labels (4px blur) was being applied to 11px text, which smeared it enough to read as thick and blurry. Small text now uses the lighter shadow.',
+    ],
+  },
+  {
     version: '1.0.30.11',
     date: '2026-08-29',
     changes: [
