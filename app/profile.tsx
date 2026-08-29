@@ -2845,8 +2845,15 @@ export default function ProfileScreen() {
               disabled={realigningMealTimes}
               onPress={handleRealignScheduledMealTimes}
             >
-              <Text style={styles.checkinButtonText}>
-                {realigningMealTimes ? 'Updating…' : 'Apply My Meal Timing Changes to Existing Meals'}
+              {/* Deliberate line break after "Changes", 2026-08-29 direct
+                  request. Kept as a literal \n rather than letting the
+                  label wrap on its own, so the break lands in the same
+                  place on every screen width instead of wherever the text
+                  happens to run out of room. */}
+              <Text style={[styles.checkinButtonText, styles.checkinButtonTextMultiline]}>
+                {realigningMealTimes
+                  ? 'Updating…'
+                  : 'Apply My Meal Timing Changes\nto Existing Meals'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -3943,6 +3950,13 @@ const styles = StyleSheet.create({
   checkinButtonText: {
     ...typography.bodyEmphasis,
     color: colors.textOnPrimary,
+  },
+  // For a checkinButton label that deliberately spans more than one line.
+  // checkinButton's own alignItems: 'center' centers the Text box itself,
+  // but says nothing about how the lines inside that box align to each
+  // other, so a wrapped label reads left-aligned without this.
+  checkinButtonTextMultiline: {
+    textAlign: 'center',
   },
   // A full-width counterpart to checkinButton above, deliberately colored
   // for a destructive action (wipe-and-replace restore) rather than

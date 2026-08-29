@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.7',
+    date: '2026-08-29',
+    changes: [
+      'The button in Profile > Meal Plan now breaks onto a second line after "Changes", with both lines centered on the button.',
+    ],
+  },
+  {
     version: '1.0.30.6',
     date: '2026-08-29',
     changes: [
