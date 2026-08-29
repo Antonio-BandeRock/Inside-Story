@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.3',
+    date: '2026-08-29',
+    changes: [
+      'Meal plans now also respect your intermittent fasting eating window, not just your usual meal times. A meal whose usual time falls outside your window is moved inside it instead of being scheduled when you would not be eating.',
+      'New "Update Times on Meals Already Scheduled" button in the Meal Plan area. Setting a plan up again never fixed the times on days already on your schedule, because it deliberately leaves those days alone. This corrects them in place, keeping the same meals on the same days, and leaves anything you already logged untouched.',
+    ],
+  },
+  {
     version: '1.0.30.2',
     date: '2026-08-29',
     changes: [

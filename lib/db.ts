@@ -10633,12 +10633,79 @@ async function scheduleMealPlanSlot(
 // into either of these two bulk/generated paths. A missing usual time for
 // a given meal keeps the same honest default these functions always used,
 // matching this app's own standing "absence means default" contract.
-function resolveMealPlanTimes(profile: UserProfile): Record<'breakfast' | 'lunch' | 'dinner', string> {
-  return {
+//
+// 2026-08-29, the SECOND half of that same gap, reported after the first
+// fix shipped: "it still isn't picking up on any of the meal information
+// from Profile for meal timing and intermittent fasting." The fasting
+// eating window was the identical oversight one field over: Schedule's own
+// manual add-a-meal form hard-blocks any time outside the declared window
+// (app/(tabs)/schedule.tsx), while both bulk paths here ignored it
+// entirely, so a generated plan could schedule breakfast hours before
+// someone's eating window even opened. Fixing only the usual meal times
+// last pass and not checking the fasting fields sitting in the same
+// Profile card was an incomplete fix, not a separate bug.
+type MealPlanTimes = {
+  times: Record<'breakfast' | 'lunch' | 'dinner', string>;
+  /** True when the eating window actually moved at least one meal. */
+  adjustedForFasting: boolean;
+};
+
+function timeToMinutes(time: string): number {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
+function minutesToTime(minutes: number): string {
+  const wrapped = ((minutes % 1440) + 1440) % 1440;
+  const hours = Math.floor(wrapped / 60);
+  return `${String(hours).padStart(2, '0')}:${String(wrapped % 60).padStart(2, '0')}`;
+}
+
+// Uses this file's own already-exported isWithinEatingWindow (defined
+// further down, hoisted like every other function declaration here)
+// rather than a second copy: it already handles the overnight case and is
+// the same test Schedule's own manual add-a-meal form enforces, which is
+// exactly the behavior these bulk paths were missing.
+function resolveMealPlanTimes(profile: UserProfile): MealPlanTimes {
+  const times = {
     breakfast: profile.usualBreakfastTime ?? '08:00',
     lunch: profile.usualLunchTime ?? '12:30',
     dinner: profile.usualDinnerTime ?? '18:30',
   };
+
+  const { fastingEnabled, eatingWindowStart, eatingWindowEnd } = profile;
+  if (!fastingEnabled || !eatingWindowStart || !eatingWindowEnd) {
+    return { times, adjustedForFasting: false };
+  }
+
+  // Only meals that genuinely fall outside the window get moved. Someone
+  // whose usual times already sit inside their eating window keeps exactly
+  // the times they set, which is the common case and shouldn't be silently
+  // rewritten just because fasting is switched on.
+  const startMinutes = timeToMinutes(eatingWindowStart);
+  const endMinutes = timeToMinutes(eatingWindowEnd);
+  const windowLength =
+    endMinutes > startMinutes ? endMinutes - startMinutes : 1440 - startMinutes + endMinutes;
+
+  // Breakfast opens the window, dinner sits just inside its close (the end
+  // is exclusive, so landing exactly on it would be outside), lunch splits
+  // the difference. A window shorter than the dinner offset collapses
+  // safely toward the midpoint rather than running backwards past the start.
+  const dinnerOffset = Math.max(Math.floor(windowLength / 2), windowLength - 30);
+  const placements: Record<'breakfast' | 'lunch' | 'dinner', number> = {
+    breakfast: startMinutes,
+    lunch: startMinutes + Math.floor(windowLength / 2),
+    dinner: startMinutes + dinnerOffset,
+  };
+
+  let adjustedForFasting = false;
+  for (const mealType of ['breakfast', 'lunch', 'dinner'] as const) {
+    if (isWithinEatingWindow(times[mealType], eatingWindowStart, eatingWindowEnd)) continue;
+    times[mealType] = minutesToTime(placements[mealType]);
+    adjustedForFasting = true;
+  }
+
+  return { times, adjustedForFasting };
 }
 
 // "set this up for them if they want it to" -- walks every day in
@@ -10657,7 +10724,7 @@ export async function setUpMealPlan(
   let skipped = 0;
 
   // Fetched once, not per day/slot -- the profile doesn't change mid-loop.
-  const mealTimes = resolveMealPlanTimes(await getUserProfile());
+  const { times: mealTimes } = resolveMealPlanTimes(await getUserProfile());
 
   for (const planDay of mealPlan) {
     const date = addDaysToLocalDate(startDate, planDay.day - 1);
@@ -10690,10 +10757,67 @@ export async function setUpMealPlan(
 // a single day from the Meal Plan lens works exactly like the bulk button
 // did for that one day, no separate code path to drift out of sync.
 export async function addMealPlanDayToSchedule(planDay: MealPlanDay, date: string): Promise<void> {
-  const mealTimes = resolveMealPlanTimes(await getUserProfile());
+  const { times: mealTimes } = resolveMealPlanTimes(await getUserProfile());
   await scheduleMealPlanSlot(planDay.breakfast, 'breakfast', `${date}T${mealTimes.breakfast}`);
   await scheduleMealPlanSlot(planDay.lunch, 'lunch', `${date}T${mealTimes.lunch}`);
   await scheduleMealPlanSlot(planDay.dinner, 'dinner', `${date}T${mealTimes.dinner}`);
+}
+
+// Realigns meals ALREADY on the schedule to the current Profile meal
+// times and eating window, 2026-08-29.
+//
+// Direct report after the meal-time fix shipped: "I updated my wife's
+// phone and then regenerated her 6 week meal plan and it still isn't
+// picking up on any of the meal information from Profile." Root cause,
+// confirmed by reading setUpMealPlan above rather than guessed: it skips
+// any date/slot that already has a planned meal (deliberately, so a
+// half-finished run can be resumed without double-booking). So pressing
+// "Set Up My 6-Week Plan" again over an existing plan is a genuine no-op
+// for every day already scheduled: the old rows, with their old wrong
+// times, stay exactly as they are. The times fix was correct and simply
+// never ran for her. Telling someone to "clear and regenerate" was also
+// not real advice, since no clear action exists in that lens at all.
+//
+// Deliberately an UPDATE of the time, not a delete-and-recreate. The
+// scheduled meals themselves are already right: same days, same recipes,
+// only the clock time is wrong. Recreating them would mean deleting
+// schedule_items whose own saved component dishes and meal favorite were
+// created by scheduleMealPlanSlot, orphaning those favorites (and risking
+// throwing away a meal someone had since customized) to fix nothing but a
+// timestamp.
+//
+// Only touches status = 'planned' rows: a meal already logged, skipped, or
+// completed is history, and rewriting when a past meal happened would be
+// falsifying a record, not fixing a setting.
+export async function realignPlannedMealTimes(
+  fromDate: string,
+): Promise<{ updated: number; adjustedForFasting: boolean }> {
+  const db = await getDatabase();
+  const { times, adjustedForFasting } = resolveMealPlanTimes(await getUserProfile());
+
+  let updated = 0;
+  for (const mealType of ['breakfast', 'lunch', 'dinner'] as const) {
+    const result = await db.runAsync(
+      `
+        UPDATE schedule_items
+        SET scheduled_for = substr(scheduled_for, 1, 10) || 'T' || ?,
+            updated_at = ?
+        WHERE item_type = 'meal'
+          AND meal_type = ?
+          AND status = 'planned'
+          AND substr(scheduled_for, 1, 10) >= ?
+          AND substr(scheduled_for, 12) <> ?
+      `,
+      times[mealType],
+      new Date().toISOString(),
+      mealType,
+      fromDate,
+      times[mealType],
+    );
+    updated += result.changes ?? 0;
+  }
+
+  return { updated, adjustedForFasting };
 }
 
 // Exported (2026-08-26) so the Daily/Weekly Meal Plan lens can compute the
