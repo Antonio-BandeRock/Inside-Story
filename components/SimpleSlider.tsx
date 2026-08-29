@@ -9,7 +9,7 @@
 import { useMemo, useRef } from 'react';
 import { PanResponder, StyleSheet, Text, View, type GestureResponderEvent, type PanResponderGestureState } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 const TRACK_WIDTH = 240;
 const THUMB_SIZE = 24;
@@ -68,8 +68,8 @@ export function SimpleSlider({ label, value, onChange }: Props) {
 const styles = StyleSheet.create({
   wrap: { gap: 6 },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  label: { ...typography.bodyEmphasis, color: colors.textPrimary },
-  valueText: { ...typography.caption, color: colors.textMuted },
+  label: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+  valueText: { ...typography.caption, color: colors.textMuted, ...textShadow },
   track: {
     width: TRACK_WIDTH,
     height: THUMB_SIZE,

@@ -2,7 +2,7 @@ import { Fragment, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 const HEIGHT = 140;
 const TOP_Y = 16;
@@ -183,9 +183,9 @@ export function TrendLineChart({
 
 const styles = StyleSheet.create({
   container: { alignItems: 'center' },
-  selectedValueText: { ...typography.sectionTitle, color: colors.textPrimary, fontSize: 18, marginBottom: 8, textAlign: 'center' },
+  selectedValueText: { ...typography.sectionTitle, color: colors.textPrimary, fontSize: 18, marginBottom: 8, textAlign: 'center', ...textShadow },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 2 },
-  labelText: { ...typography.caption, color: colors.textMuted },
+  labelText: { ...typography.caption, color: colors.textMuted, ...textShadow },
   // No border of its own, 2026-07-27 -- this component's only real caller
   // (app/(tabs)/trends.tsx) now always wraps it in its own bordered
   // chartCard, so a second border here would nest one box inside another.
@@ -194,5 +194,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
   },
-  emptyText: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
+  emptyText: { ...typography.body, color: colors.textSecondary, textAlign: 'center', ...textShadow },
 });

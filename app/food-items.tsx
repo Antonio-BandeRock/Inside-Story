@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import {
   deleteBakedGoods,
   deleteBeverage,
@@ -626,6 +626,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 24,
+    ...textShadow,
   },
   itemRow: {
     flexDirection: 'row',
@@ -659,11 +660,13 @@ const styles = StyleSheet.create({
   itemTitle: {
     ...typography.bodyEmphasis,
     color: colors.textPrimary,
+    ...textShadow,
   },
   itemSubtitle: {
     ...typography.caption,
     color: colors.textSecondary,
     marginTop: 2,
+    ...textShadow,
   },
   closeButton: {
     position: 'absolute',

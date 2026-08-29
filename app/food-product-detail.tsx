@@ -8,7 +8,7 @@ import { useInfoAlert } from '../components/InfoAlert';
 import { TrendLineChart } from '../components/TrendLineChart';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import {
   deleteScannedProduct,
   getFoodNutrients,
@@ -310,9 +310,9 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: 20, paddingBottom: 48, gap: 12 },
   centerBody: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12 },
-  text: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
-  caption: { ...typography.caption, color: colors.textMuted },
-  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4 },
+  text: { ...typography.body, color: colors.textSecondary, textAlign: 'center', ...textShadow },
+  caption: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   logPriceLabel: { marginTop: 12 },
   card: {
     padding: 14,
@@ -333,6 +333,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
+    ...textShadow,
   },
   textArea: {
     flex: 1,
@@ -345,6 +346,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     textAlignVertical: 'top',
+    ...textShadow,
   },
   priceInput: {
     flex: 1,
@@ -355,6 +357,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
+    ...textShadow,
   },
   disabled: { opacity: 0.6 },
   primaryButton: {
@@ -367,7 +370,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 12,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
   secondaryButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -379,7 +382,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 4,
   },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary, ...textShadow },
   dataTable: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -393,14 +396,14 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   dataTableRowLast: { borderBottomWidth: 0 },
-  dataTableCellText: { ...typography.body, color: colors.textPrimary, paddingVertical: 8, paddingHorizontal: 10 },
+  dataTableCellText: { ...typography.body, color: colors.textPrimary, paddingVertical: 8, paddingHorizontal: 10, ...textShadow },
   dataTableColNutrient: { flex: 2 },
   dataTableColAmount: { flex: 1, textAlign: 'right' },
   priceList: { gap: 4, marginTop: 6 },
   priceRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  priceRowDate: { ...typography.caption, color: colors.textMuted, width: 80 },
-  priceRowAmount: { ...typography.bodyEmphasis, color: colors.textPrimary },
-  priceRowStore: { ...typography.caption, color: colors.textSecondary, flexShrink: 1 },
+  priceRowDate: { ...typography.caption, color: colors.textMuted, width: 80, ...textShadow },
+  priceRowAmount: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+  priceRowStore: { ...typography.caption, color: colors.textSecondary, flexShrink: 1, ...textShadow },
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -412,5 +415,5 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 4,
   },
-  deleteButtonText: { ...typography.bodyEmphasis, color: colors.danger },
+  deleteButtonText: { ...typography.bodyEmphasis, color: colors.danger, ...textShadow },
 });

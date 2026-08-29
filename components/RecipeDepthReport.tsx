@@ -26,7 +26,7 @@
 
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import type { DimensionSeverity } from '../lib/recipeDepth';
 import type { ConditionStageAdvisory } from '../lib/conditionStageAdvisory';
 import type { DeclaredConditionStage } from '../lib/conditionStages';
@@ -217,26 +217,26 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 16,
   },
-  eyebrow: { ...typography.eyebrow, marginBottom: 4 },
-  title: { ...typography.sectionTitle, color: colors.textPrimary },
-  yield: { ...typography.caption, color: colors.textMuted, marginBottom: 8 },
+  eyebrow: { ...typography.eyebrow, marginBottom: 4, ...textShadow },
+  title: { ...typography.sectionTitle, color: colors.textPrimary, ...textShadow },
+  yield: { ...typography.caption, color: colors.textMuted, marginBottom: 8, ...textShadow },
   card: {
     borderWidth: 2,
     borderRadius: 10,
     padding: 12,
     marginTop: 14,
   },
-  cardLabel: { ...typography.eyebrow, marginBottom: 6 },
-  bodyText: { ...typography.body, color: colors.textPrimary, marginTop: 2 },
-  bodyTextBold: { ...typography.bodyEmphasis, color: colors.textPrimary },
+  cardLabel: { ...typography.eyebrow, marginBottom: 6, ...textShadow },
+  bodyText: { ...typography.body, color: colors.textPrimary, marginTop: 2, ...textShadow },
+  bodyTextBold: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   conditionBlock: { marginTop: 12 },
   conditionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  conditionName: { ...typography.bodyEmphasis, color: colors.textPrimary },
+  conditionName: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   verdictPill: { borderRadius: 999, paddingVertical: 3, paddingHorizontal: 10 },
-  verdictPillText: { ...typography.caption, fontWeight: '700', color: colors.textOnButton },
+  verdictPillText: { ...typography.caption, fontWeight: '400', color: colors.textOnButton, ...textShadow },
   stageContextRow: { marginTop: 4, marginBottom: 4 },
-  stageDescription: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
-  setStageLink: { ...typography.captionEmphasis, marginTop: 4, textDecorationLine: 'underline' },
+  stageDescription: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
+  setStageLink: { ...typography.captionEmphasis, marginTop: 4, textDecorationLine: 'underline', ...textShadow },
   stageNoteSpacing: { marginTop: 8 },
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
   buttonHalf: { flex: 1 },
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...BUTTON_SHADOW,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
   secondaryButton: {
     borderRadius: 8,
     borderWidth: 2,
@@ -255,5 +255,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     alignItems: 'center',
   },
-  secondaryButtonText: { ...typography.bodyEmphasis },
+  secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow },
 });

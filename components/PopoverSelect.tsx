@@ -3,7 +3,7 @@ import { Dimensions, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { BUTTON_SHADOW, colors, popoverBackground } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import { useActiveInputControls } from './ActiveInputContext';
 import type { DropdownOption } from './Dropdown';
 import { useOverlay } from './OverlayContext';
@@ -575,9 +575,17 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     ...BUTTON_SHADOW,
   },
-  fieldText: { ...typography.body, flexShrink: 1, color: colors.textOnButton },
+  fieldText: { ...typography.body, flexShrink: 1, color: colors.textOnButton,
+
+    ...textShadow,
+
+  },
   fieldTextPlaceholder: { color: colors.textOnButton, opacity: 0.65 },
-  chevron: { ...typography.caption, color: colors.textOnButton },
+  chevron: { ...typography.caption, color: colors.textOnButton,
+
+    ...textShadow,
+
+  },
   popover: {
     position: 'absolute',
     borderWidth: 1,
@@ -627,12 +635,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  rowText: { ...typography.body, color: colors.textPrimary },
-  rowTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  rowText: { ...typography.body, color: colors.textPrimary,
+
+    ...textShadow,
+
+  },
+  rowTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary,
+
+    ...textShadow,
+
+  },
   emptyText: {
     ...typography.caption,
     color: colors.textMuted,
     paddingHorizontal: 12,
     paddingVertical: 10,
+
+    ...textShadow,
+
   },
 });

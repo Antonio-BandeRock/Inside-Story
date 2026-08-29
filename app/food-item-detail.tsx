@@ -7,7 +7,7 @@ import { NutrientsTable, PrepView, SixDsView, type Scope } from './(tabs)/insigh
 import type { ResolvedFoodSelection } from '../components/FoodLookup';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import {
   getBakedGoods,
   getBakedGoodsIngredients,
@@ -567,6 +567,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 24,
+    ...textShadow,
   },
   lensRow: {
     flexDirection: 'row',
@@ -583,6 +584,7 @@ const styles = StyleSheet.create({
   lensButtonText: {
     ...typography.captionEmphasis,
     color: colors.textSecondary,
+    ...textShadow,
   },
   lensButtonTextActive: {
     color: colors.textOnPrimary,
@@ -591,6 +593,7 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textSecondary,
     marginBottom: 10,
+    ...textShadow,
   },
   ingredientCard: {
     borderWidth: 1,
@@ -602,17 +605,20 @@ const styles = StyleSheet.create({
   ingredientName: {
     ...typography.bodyEmphasis,
     color: colors.textPrimary,
+    ...textShadow,
   },
   ingredientDetail: {
     ...typography.caption,
     color: colors.textSecondary,
     marginTop: 2,
+    ...textShadow,
   },
   ingredientNote: {
     ...typography.caption,
     color: colors.textSecondary,
     marginTop: 4,
     fontStyle: 'italic',
+    ...textShadow,
   },
   // The Favorites/Saved-item round-trip, 2026-08-14 -- see this file's own
   // top-of-component comment.
@@ -620,17 +626,20 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.tabFood,
     marginTop: 4,
+    ...textShadow,
   },
   ingredientTrialNote: {
     ...typography.caption,
     color: colors.textSecondary,
     marginTop: 4,
+    ...textShadow,
   },
   sectionLabel: {
     ...typography.eyebrow,
     color: colors.textSecondary,
     marginTop: 16,
     marginBottom: 6,
+    ...textShadow,
   },
   ingredientLinkRow: {
     flexDirection: 'row',
@@ -645,6 +654,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     flex: 1,
     marginRight: 8,
+    ...textShadow,
   },
   floatingButton: {
     position: 'absolute',

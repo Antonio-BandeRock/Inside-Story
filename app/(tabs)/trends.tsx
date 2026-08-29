@@ -1025,9 +1025,9 @@ const styles = StyleSheet.create({
   // (page-level lens name/filters, not "content in a box") -- left neutral
   // for that reason. caption/legendText below ARE rendered inside
   // chartCard, so they follow TAB_COLOR, 2026-07-27.
-  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10 },
-  caption: { ...typography.body, color: TAB_COLOR, marginTop: 8, textAlign: 'center' },
-  singleDayHeading: { ...typography.sectionTitle, fontSize: 26, textAlign: 'center' },
+  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10, ...textShadow },
+  caption: { ...typography.body, color: TAB_COLOR, marginTop: 8, textAlign: 'center', ...textShadow },
+  singleDayHeading: { ...typography.sectionTitle, fontSize: 26, textAlign: 'center', ...textShadow },
   // Added 2026-07-27: the chart itself used to float with no surrounding
   // box at all, the one page in this family with no "info box" anywhere --
   // wraps it in the same colors.surface/TAB_COLOR-border treatment every
@@ -1050,7 +1050,7 @@ const styles = StyleSheet.create({
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
   smallPill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  pillText: { ...typography.caption, color: colors.textPrimary },
+  pillText: { ...typography.caption, color: colors.textPrimary, ...textShadow },
   pillTextActive: { color: colors.textOnPrimary },
 
   // The custom date panel -- a plain, neutral box (matches disclaimerCard's
@@ -1062,15 +1062,15 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
   },
-  customLabel: { ...typography.eyebrow, color: colors.menuIconMuted, marginBottom: 6 },
+  customLabel: { ...typography.eyebrow, color: colors.menuIconMuted, marginBottom: 6, ...textShadow },
   dateRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dateFieldGroup: { alignItems: 'flex-start' },
-  dateFieldLabel: { ...typography.eyebrow, color: colors.menuIconMuted, marginBottom: 4 },
+  dateFieldLabel: { ...typography.eyebrow, color: colors.menuIconMuted, marginBottom: 4, ...textShadow },
 
   legendRow: { flexDirection: 'row', gap: 16, marginTop: 12, justifyContent: 'center' },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 10, height: 10, borderRadius: 5 },
-  legendText: { ...typography.caption, color: TAB_COLOR },
+  legendText: { ...typography.caption, color: TAB_COLOR, ...textShadow },
 
   // Pattern Finder's own real, permanent caveat -- deliberately a plain,
   // neutral box (colors.surface, no TAB_COLOR border) rather than the
@@ -1082,8 +1082,8 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
   },
-  disclaimerText: { ...typography.body, color: colors.textSecondary },
-  patternSectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 12, fontSize: 16 },
+  disclaimerText: { ...typography.body, color: colors.textSecondary, ...textShadow },
+  patternSectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 12, fontSize: 16, ...textShadow },
   patternRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1094,8 +1094,8 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   patternRowText: { flex: 1 },
-  patternRowTitle: { ...typography.body, color: colors.textPrimary, fontWeight: '600' },
-  patternRowCaption: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
+  patternRowTitle: { ...typography.body, color: colors.textPrimary, fontWeight: '400', ...textShadow },
+  patternRowCaption: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
   trialButton: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },
-  trialButtonText: { ...typography.caption, fontWeight: '600' },
+  trialButtonText: { ...typography.caption, fontWeight: '400', ...textShadow },
 });

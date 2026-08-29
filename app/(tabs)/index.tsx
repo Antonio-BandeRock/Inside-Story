@@ -2096,7 +2096,11 @@ const styles = StyleSheet.create({
   // enough to be seen as what they are") -- a real, separate, larger nested
   // Text span for just the icon character, not the whole label's own font
   // size (which would make the label text itself oversized too).
-  skyGridEmoji: { fontSize: 17, lineHeight: 20 },
+  skyGridEmoji: { fontSize: 17, lineHeight: 20,
+
+    ...textShadow,
+
+  },
 
   // Used to precede every content card on this page as its own separate
   // box -- 2026-07-26, folded into each of those cards instead (see

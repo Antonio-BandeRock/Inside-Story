@@ -2,7 +2,7 @@ import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { NAVIGATION_HAND } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 export type PasswordPromptMode = 'set' | 'enter';
 
@@ -158,12 +158,14 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 18,
     marginBottom: 6,
+    ...textShadow,
   },
   message: {
     ...typography.body,
     color: colors.textSecondary,
     lineHeight: 20,
     marginBottom: 14,
+    ...textShadow,
   },
   input: {
     ...typography.body,
@@ -174,17 +176,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 10,
+    ...textShadow,
   },
   hint: {
     ...typography.caption,
     color: colors.textMuted,
     marginBottom: 4,
+    ...textShadow,
   },
   error: {
     ...typography.caption,
     color: colors.danger,
     marginTop: 4,
     marginBottom: 4,
+    ...textShadow,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -198,6 +203,7 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     ...typography.bodyEmphasis,
     color: colors.textSecondary,
+    ...textShadow,
   },
   okButton: {
     paddingHorizontal: 24,
@@ -208,5 +214,6 @@ const styles = StyleSheet.create({
   okButtonText: {
     ...typography.bodyEmphasis,
     color: colors.textOnPrimary,
+    ...textShadow,
   },
 });

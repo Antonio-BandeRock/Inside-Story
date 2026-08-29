@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { NAVIGATION_HAND } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import { appendDictatedText, parseVoiceCommands } from '../lib/voiceCommandParsing';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -261,7 +261,7 @@ export function StepsEditor({
 
 const styles = StyleSheet.create({
   stepsSection: {},
-  formLabel: { ...typography.eyebrow },
+  formLabel: { ...typography.eyebrow, ...textShadow },
   formInput: {
     ...typography.body,
     color: colors.textPrimary,
@@ -271,6 +271,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     marginTop: 4,
+    ...textShadow,
   },
   // Mirrors SideBuilder.tsx's own dishNameFieldWrap -- one continuous
   // bordered box (formInput's own real border/background, stripped back off
@@ -310,10 +311,10 @@ const styles = StyleSheet.create({
     ...BUTTON_SHADOW,
   },
   primaryButtonMuted: { backgroundColor: colors.border },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
   primaryButtonTextMuted: { color: colors.textMuted },
-  secondaryButtonText: { ...typography.bodyEmphasis },
-  summaryEmptyText: { ...typography.caption, color: colors.textSecondary },
+  secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow },
+  summaryEmptyText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   stepRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -323,8 +324,8 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   stepTextWrap: { flex: 1, flexDirection: 'row', marginRight: 6, paddingVertical: 10 },
-  stepNumber: { ...typography.bodyEmphasis, color: colors.textPrimary, marginRight: 6 },
-  stepText: { ...typography.body, color: colors.textPrimary, flex: 1 },
+  stepNumber: { ...typography.bodyEmphasis, color: colors.textPrimary, marginRight: 6, ...textShadow },
+  stepText: { ...typography.body, color: colors.textPrimary, flex: 1, ...textShadow },
   stepActions: { flexDirection: 'row', alignItems: 'center' },
   // Real padding, not hitSlop -- matches this app's own established
   // "closely-stacked list rows need real, non-overlapping tap targets"

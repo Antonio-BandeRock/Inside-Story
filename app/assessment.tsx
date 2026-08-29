@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import {
   AssessmentDomain,
   AssessmentItem,
@@ -309,11 +309,13 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginBottom: 8,
     lineHeight: 20,
+    ...textShadow,
   },
   progressText: {
     ...typography.captionEmphasis,
     color: colors.primary,
     marginBottom: 16,
+    ...textShadow,
   },
   domainCard: {
     backgroundColor: colors.surface,
@@ -328,12 +330,14 @@ const styles = StyleSheet.create({
   domainTitle: {
     ...typography.sectionTitle,
     marginBottom: 4,
+    ...textShadow,
   },
   domainDescription: {
     ...typography.body,
     color: colors.textSecondary,
     marginBottom: 14,
     lineHeight: 18,
+    ...textShadow,
   },
   itemBlock: {
     marginBottom: 16,
@@ -341,6 +345,7 @@ const styles = StyleSheet.create({
   itemPrompt: {
     ...typography.label,
     marginBottom: 8,
+    ...textShadow,
   },
   scaleRow: {
     flexDirection: 'row',
@@ -361,6 +366,7 @@ const styles = StyleSheet.create({
   scalePillText: {
     ...typography.caption,
     color: colors.textPrimary,
+    ...textShadow,
   },
   scalePillTextActive: {
     color: colors.textOnPrimary,
@@ -378,26 +384,31 @@ const styles = StyleSheet.create({
   submitButtonText: {
     ...typography.bodyEmphasis,
     color: colors.textOnPrimary,
+    ...textShadow,
   },
   resultsTitle: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: '400',
     marginBottom: 10,
+    ...textShadow,
   },
   resultPrimary: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '400',
     marginBottom: 2,
+    ...textShadow,
   },
   resultSecondary: {
     ...typography.caption,
     color: colors.textSecondary,
     marginBottom: 8,
+    ...textShadow,
   },
   deltaText: {
     ...typography.captionEmphasis,
     color: colors.textPrimary,
     marginTop: 8,
+    ...textShadow,
   },
   // An isolated results moment, not a dense table -- a real positive color
   // is appropriate here (see the matching note on profile.tsx's savedFlash).
@@ -413,5 +424,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     lineHeight: 17,
     fontStyle: 'italic',
+    ...textShadow,
   },
 });

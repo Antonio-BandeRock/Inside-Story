@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import { Dimensions, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
+import { textShadow } from '../constants/typography';
 import { useActiveInputControls } from './ActiveInputContext';
 import { useOverlay } from './OverlayContext';
 
@@ -361,11 +362,13 @@ const styles = StyleSheet.create({
     color: '#374151',
     fontSize: 14,
     flexShrink: 1,
+    ...textShadow,
   },
   chevron: {
     color: '#374151',
     fontSize: 12,
     marginLeft: 8,
+    ...textShadow,
   },
   // position/left/right/bottom fixed here; `top` is set inline per render
   // (see menuPosition above) so this only ever covers from the menu's own
@@ -399,9 +402,10 @@ const styles = StyleSheet.create({
     // textTransform: 'uppercase' removed, 2026-07-28 -- no all-caps
     // headers anywhere in the app, per explicit request.
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: '400',
     color: '#111827',
     letterSpacing: 0.4,
+    ...textShadow,
   },
   // Without this, the FlatList reports its full content height to the
   // parent's Yoga layout instead of shrinking to fit -- the parent's
@@ -421,9 +425,10 @@ const styles = StyleSheet.create({
   menuItemText: {
     fontSize: 14,
     color: '#374151',
+    ...textShadow,
   },
   menuItemTextSelected: {
-    fontWeight: '700',
+    fontWeight: '400',
     color: '#1b5e20',
   },
 });

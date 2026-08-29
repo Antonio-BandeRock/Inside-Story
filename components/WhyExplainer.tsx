@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 // 2026-08-23, direct request: a generic, no-personal-data "why" for
 // interaction warnings and reference-only rules, direct follow-up to
@@ -42,5 +42,6 @@ const styles = StyleSheet.create({
     color: colors.primary,
     textDecorationLine: 'underline',
     marginTop: 4,
+    ...textShadow,
   },
 });

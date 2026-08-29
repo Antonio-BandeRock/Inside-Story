@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import {
   ABV_PRESETS,
   ALCOHOL_RETENTION_CITATION,
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginTop: 8,
   },
-  toggleText: { ...typography.caption, flex: 1 },
+  toggleText: { ...typography.caption, flex: 1, ...textShadow },
   panel: {
     borderWidth: 1,
     borderRadius: 10,
@@ -306,18 +306,18 @@ const styles = StyleSheet.create({
     gap: 10,
     backgroundColor: colors.surface,
   },
-  panelIntro: { ...typography.caption, color: colors.textMuted },
+  panelIntro: { ...typography.caption, color: colors.textMuted, ...textShadow },
   fieldBlock: { gap: 4 },
-  fieldLabel: { ...typography.eyebrow },
-  fieldHint: { ...typography.caption, color: colors.textMuted, fontSize: 11 },
+  fieldLabel: { ...typography.eyebrow, ...textShadow },
+  fieldHint: { ...typography.caption, color: colors.textMuted, fontSize: 11, ...textShadow },
   resultBox: {
     borderWidth: 1,
     borderRadius: 8,
     padding: 10,
     gap: 4,
   },
-  resultLine: { ...typography.body, color: colors.textPrimary },
-  resultTotal: { ...typography.bodyEmphasis, marginTop: 2 },
+  resultLine: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  resultTotal: { ...typography.bodyEmphasis, marginTop: 2, ...textShadow },
   trackedBanner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginTop: 4,
   },
-  trackedBannerText: { ...typography.caption, flex: 1 },
-  resultPrompt: { ...typography.caption, color: colors.textMuted },
-  citation: { ...typography.caption, color: colors.textMuted, fontSize: 11 },
+  trackedBannerText: { ...typography.caption, flex: 1, ...textShadow },
+  resultPrompt: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  citation: { ...typography.caption, color: colors.textMuted, fontSize: 11, ...textShadow },
 });

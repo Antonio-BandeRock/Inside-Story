@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
+import { textShadow } from '../constants/typography';
 
 // A deliberate stub, Phase 0 of the header growth vine/Timeline plan
 // (2026-08-21, see the Notion App Development Log and the "Header Vine,
@@ -34,14 +35,16 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: '400',
     color: colors.textPrimary,
     textAlign: 'center',
+    ...textShadow,
   },
   body: {
     fontSize: 15,
     lineHeight: 22,
     color: colors.textMuted,
     textAlign: 'center',
+    ...textShadow,
   },
 });

@@ -33,7 +33,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { GENERIC_BACKGROUND_PALETTES } from './GenericBackground';
 import { useOverlay } from './OverlayContext';
@@ -164,6 +164,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 20,
     paddingBottom: 14,
+    ...textShadow,
   },
   message: {
     ...typography.body,
@@ -172,6 +173,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     paddingHorizontal: 20,
     paddingBottom: 14,
+    ...textShadow,
   },
   row: {
     paddingVertical: 14,
@@ -184,5 +186,6 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     textAlign: 'center',
+    ...textShadow,
   },
 });

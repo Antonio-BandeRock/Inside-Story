@@ -3,7 +3,7 @@ import { SectionList, StyleSheet, Text, TouchableOpacity, View, useWindowDimensi
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors } from '../constants/colors';
 import { NAVIGATION_HAND, useFooterBandHeight } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import {
   getConditionStages,
   getDietaryReferenceIntakesForCurrentUser,
@@ -1985,6 +1985,9 @@ const styles = StyleSheet.create({
     ...typography.label,
     fontSize: 18,
     textAlign: 'center',
+
+    ...textShadow,
+
   },
   // "From Your Harvest" quick-pick -- see handlePickHarvest's own comment
   // above for what this is. Styled to sit right above Category's own list
@@ -2001,6 +2004,9 @@ const styles = StyleSheet.create({
   harvestHeading: {
     ...typography.eyebrow,
     marginBottom: 4,
+
+    ...textShadow,
+
   },
   harvestRow: {
     paddingVertical: 6,
@@ -2008,6 +2014,9 @@ const styles = StyleSheet.create({
   harvestText: {
     ...typography.body,
     color: colors.textPrimary,
+
+    ...textShadow,
+
   },
   // "Say a Food Name" -- see the render-time comment on this section for
   // what it does. Same bordered-block treatment as harvestSection right
@@ -2028,11 +2037,17 @@ const styles = StyleSheet.create({
   },
   voiceFoodHeading: {
     ...typography.eyebrow,
+
+    ...textShadow,
+
   },
   voiceFoodStatus: {
     ...typography.body,
     color: colors.textSecondary,
     marginTop: 6,
+
+    ...textShadow,
+
   },
   voiceFoodResultRow: {
     paddingVertical: 6,
@@ -2040,22 +2055,37 @@ const styles = StyleSheet.create({
   voiceFoodResultText: {
     ...typography.body,
     color: colors.textPrimary,
+
+    ...textShadow,
+
   },
   voiceFoodResultMeta: {
     ...typography.caption,
     color: colors.textMuted,
+
+    ...textShadow,
+
   },
   voiceFoodClear: {
     ...typography.captionEmphasis,
     marginTop: 6,
+
+    ...textShadow,
+
   },
   emptyText: {
     ...typography.body,
     color: colors.textSecondary,
+
+    ...textShadow,
+
   },
   errorText: {
     ...typography.body,
     color: colors.danger,
+
+    ...textShadow,
+
   },
   // Each field/summary-row after the first sits exactly 2px below the one
   // above it -- matches SUMMARY_ROW_GAP above (was 3px/SUMMARY_ROW_GAP 3,
@@ -2086,10 +2116,16 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     flexShrink: 1,
+
+    ...textShadow,
+
   },
   summaryChange: {
     ...typography.captionEmphasis,
     marginLeft: 8,
+
+    ...textShadow,
+
   },
   // The "‹ Food Groups" row shown above a group's own real-category list,
   // 2026-08-17 -- same borderWidth/paddingVertical/backgroundColor recipe
@@ -2110,6 +2146,9 @@ const styles = StyleSheet.create({
   },
   categoryGroupBackText: {
     ...typography.captionEmphasis,
+
+    ...textShadow,
+
   },
   // Real source-attribution note, 2026-08-11 -- see this file's own
   // render-time comment for when this actually shows.
@@ -2123,6 +2162,9 @@ const styles = StyleSheet.create({
   sourceFallbackText: {
     ...typography.caption,
     color: colors.textSecondary,
+
+    ...textShadow,
+
   },
   // The "For You" personalized card, 2026-08-26 -- same colors.surface +
   // tab-colored border recipe every other opaque card on this screen
@@ -2140,6 +2182,9 @@ const styles = StyleSheet.create({
   },
   personalCardLabel: {
     ...typography.captionEmphasis,
+
+    ...textShadow,
+
   },
   personalWarningRow: {
     borderRadius: 8,
@@ -2148,6 +2193,9 @@ const styles = StyleSheet.create({
   },
   personalWarningText: {
     ...typography.caption,
+
+    ...textShadow,
+
   },
   personalConditionRow: {
     flexDirection: 'row',
@@ -2159,6 +2207,9 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textSecondary,
     flexShrink: 1,
+
+    ...textShadow,
+
   },
   personalVerdictPill: {
     borderRadius: 999,
@@ -2169,6 +2220,9 @@ const styles = StyleSheet.create({
     ...typography.captionEmphasis,
     color: colors.textOnPrimary,
     fontSize: 11,
+
+    ...textShadow,
+
   },
   // The caution's own real note (e.g. "Whole-Grain Wheat Flour: rated High
   // Risk for gluten...") takes the full row width below the name/pill --
@@ -2177,6 +2231,9 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textSecondary,
     flexBasis: '100%',
+
+    ...textShadow,
+
   },
   // The Portion column's own header cell -- label, the editable gram input,
   // and (when known) the "use the typical serving" reset link all stack
@@ -2202,10 +2259,16 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     minWidth: 44,
     textAlign: 'center',
+
+    ...textShadow,
+
   },
   portionResetLink: {
     ...typography.caption,
     marginTop: 2,
+
+    ...textShadow,
+
   },
   // Replaces what used to be a fully duplicated header row per nutrient
   // group -- just the group's own name (NUTRIENT_GROUP_LABELS), enough to
@@ -2220,6 +2283,9 @@ const styles = StyleSheet.create({
   },
   tableGroupLabelText: {
     ...typography.eyebrow,
+
+    ...textShadow,
+
   },
   // Fills whatever's left of the table box below the fixed column header
   // (see that box's own `height: tableHeight`) -- this is the one thing
@@ -2255,9 +2321,15 @@ const styles = StyleSheet.create({
   // its own border color.
   tableCell: {
     ...typography.caption,
+
+    ...textShadow,
+
   },
   tableHeaderCell: {
     ...typography.eyebrow,
+
+    ...textShadow,
+
   },
   tableCellNutrient: {
     flex: 2,

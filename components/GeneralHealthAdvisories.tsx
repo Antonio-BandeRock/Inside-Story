@@ -14,7 +14,7 @@
 // either is built out, stay unaffected by anything muted here.
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreferences';
 import {
   evaluateGeneralHealthRules,
@@ -102,5 +102,6 @@ const styles = StyleSheet.create({
   text: {
     ...typography.caption,
     flex: 1,
+    ...textShadow,
   },
 });

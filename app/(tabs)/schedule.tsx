@@ -120,7 +120,7 @@ import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { WhyExplainer } from '../../components/WhyExplainer';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
-import { typography } from '../../constants/typography';
+import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -5389,8 +5389,8 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
-  emptyText: { ...typography.body, color: colors.textSecondary },
-  errorText: { ...typography.body, color: colors.danger },
+  emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
+  errorText: { ...typography.body, color: colors.danger, ...textShadow },
   addButton: {
     borderWidth: 1,
     borderColor: colors.primary,
@@ -5399,7 +5399,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  addButtonText: { ...typography.bodyEmphasis, color: colors.primary },
+  addButtonText: { ...typography.bodyEmphasis, color: colors.primary, ...textShadow },
   // Meals lens' own week strip, 2026-08-18 -- same border/color rule as
   // every other card on this page (a TAB_COLOR border, TAB_COLOR text).
   weekStripCard: {
@@ -5412,8 +5412,8 @@ const styles = StyleSheet.create({
   },
   weekStripNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
   weekNavButton: { paddingHorizontal: 14, paddingVertical: 2 },
-  weekNavButtonText: { ...typography.sectionTitle, color: TAB_COLOR },
-  weekRangeLabel: { ...typography.bodyEmphasis, color: TAB_COLOR },
+  weekNavButtonText: { ...typography.sectionTitle, color: TAB_COLOR, ...textShadow },
+  weekRangeLabel: { ...typography.bodyEmphasis, color: TAB_COLOR, ...textShadow },
   weekDayRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 4 },
   weekDayCell: {
     flex: 1,
@@ -5425,13 +5425,13 @@ const styles = StyleSheet.create({
   },
   weekDayCellSelected: { backgroundColor: colors.primary },
   weekDayCellToday: { borderColor: TAB_COLOR },
-  weekDayLabel: { ...typography.caption, color: TAB_COLOR },
-  weekDayNumber: { ...typography.bodyEmphasis, color: TAB_COLOR, marginTop: 2 },
+  weekDayLabel: { ...typography.caption, color: TAB_COLOR, ...textShadow },
+  weekDayNumber: { ...typography.bodyEmphasis, color: TAB_COLOR, marginTop: 2, ...textShadow },
   weekDayLabelSelected: { color: colors.textOnPrimary },
   weekDayDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: 'transparent', marginTop: 4 },
   weekDayDotActive: { backgroundColor: TAB_COLOR },
   weekDayDotActiveSelected: { backgroundColor: colors.textOnPrimary },
-  weekTodayLink: { ...typography.caption, color: TAB_COLOR, textAlign: 'center', marginTop: 10, textDecorationLine: 'underline' },
+  weekTodayLink: { ...typography.caption, color: TAB_COLOR, textAlign: 'center', marginTop: 10, textDecorationLine: 'underline', ...textShadow },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
   // 2026-07-27.
   formCard: {
@@ -5454,23 +5454,23 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: TAB_COLOR,
   },
-  hydrationSummaryLabel: { ...typography.eyebrow, color: TAB_COLOR },
-  hydrationSummaryValue: { ...typography.screenTitle, color: TAB_COLOR, marginTop: 4 },
-  hydrationSummaryMeta: { ...typography.caption, color: TAB_COLOR, marginTop: 2 },
+  hydrationSummaryLabel: { ...typography.eyebrow, color: TAB_COLOR, ...textShadow },
+  hydrationSummaryValue: { ...typography.screenTitle, color: TAB_COLOR, marginTop: 4, ...textShadow },
+  hydrationSummaryMeta: { ...typography.caption, color: TAB_COLOR, marginTop: 2, ...textShadow },
   // Colors below (through interactionCitation) are TAB_COLOR, not the
   // plain neutrals they used to be -- 2026-07-27, "every font inside a box
   // should match that box's own border color." Leaves selection-state
   // colors (pillActive/pillTextActive, sourceRowTextSelected) alone -- that's
   // a "this option is currently picked" signal, the same convention used
   // app-wide, a different meaning than "which tab."
-  label: { ...typography.label, color: TAB_COLOR, marginBottom: 6, marginTop: 10 },
+  label: { ...typography.label, color: TAB_COLOR, marginBottom: 6, marginTop: 10, ...textShadow },
   // 2026-08-16 -- wraps a real free-text field's own label with a real mic
   // button beside it, the same shape SideBuilder.tsx's own Name-field row
   // already established. label's own marginTop/marginBottom still apply
   // (margin on a child inside a row isn't cleared by the row itself), so
   // no existing spacing anywhere this wraps needed to change.
   labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  helperText: { ...typography.caption, color: TAB_COLOR, marginTop: 4, marginBottom: 8 },
+  helperText: { ...typography.caption, color: TAB_COLOR, marginTop: 4, marginBottom: 8, ...textShadow },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pill: {
     borderWidth: 1,
@@ -5487,8 +5487,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  pillText: { ...typography.caption, color: TAB_COLOR, textTransform: 'capitalize' },
-  pillTextSmall: { ...typography.caption, color: TAB_COLOR },
+  pillText: { ...typography.caption, color: TAB_COLOR, textTransform: 'capitalize', ...textShadow },
+  pillTextSmall: { ...typography.caption, color: TAB_COLOR, ...textShadow },
   pillTextActive: { color: colors.textOnPrimary },
   modeRow: { flexDirection: 'row', gap: 6, marginTop: 12 },
   modeTab: {
@@ -5499,7 +5499,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
   },
   modeTabActive: { backgroundColor: colors.primary },
-  modeTabText: { ...typography.captionEmphasis, color: TAB_COLOR },
+  modeTabText: { ...typography.captionEmphasis, color: TAB_COLOR, ...textShadow },
   modeTabTextActive: { color: colors.textOnPrimary },
   sourceList: {
     marginTop: 10,
@@ -5519,9 +5519,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   sourceRowSelected: { backgroundColor: colors.primaryTint },
-  sourceRowText: { ...typography.body, color: TAB_COLOR, flex: 1, marginRight: 8 },
-  sourceRowTextSelected: { color: colors.primary, fontWeight: '600' },
-  sourceRowKind: { ...typography.caption, color: TAB_COLOR },
+  sourceRowText: { ...typography.body, color: TAB_COLOR, flex: 1, marginRight: 8, ...textShadow },
+  sourceRowTextSelected: { color: colors.primary, fontWeight: '400' },
+  sourceRowKind: { ...typography.caption, color: TAB_COLOR, ...textShadow },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -5531,10 +5531,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
     ...typography.body,
     color: TAB_COLOR,
+    ...textShadow,
   },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   timeInput: { width: 56, textAlign: 'center' },
-  timeSeparator: { ...typography.label, color: TAB_COLOR },
+  timeSeparator: { ...typography.label, color: TAB_COLOR, ...textShadow },
   doseUnitInput: { flex: 1 },
   ingredientRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   ingredientNutrientCol: { flex: 2 },
@@ -5562,7 +5563,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
   },
-  myMedsResearchLabel: { ...typography.captionEmphasis, color: TAB_COLOR, marginTop: 4 },
+  myMedsResearchLabel: { ...typography.captionEmphasis, color: TAB_COLOR, marginTop: 4, ...textShadow },
   myMedsDetail: {
     marginTop: 10,
     paddingTop: 10,
@@ -5571,9 +5572,9 @@ const styles = StyleSheet.create({
   },
   formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginTop: 16 },
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR, ...textShadow },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.buttonColor, ...BUTTON_SHADOW },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
   primaryButtonDisabled: { opacity: 0.5 },
   // Meal Plan/Shopping List lenses, 2026-08-24.
   mealPlanDayRow: {
@@ -5584,7 +5585,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     gap: 2,
   },
-  mealPlanSlotText: { ...typography.body, color: TAB_COLOR },
+  mealPlanSlotText: { ...typography.body, color: TAB_COLOR, ...textShadow },
   mealPlanDayFooter: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
   mealPlanDayDateInput: { flex: 1 },
   // Daily Meal Plan lens, 2026-08-25.
@@ -5615,10 +5616,10 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   rowMain: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  rowTime: { ...typography.captionEmphasis, color: TAB_COLOR, width: 68 },
+  rowTime: { ...typography.captionEmphasis, color: TAB_COLOR, width: 68, ...textShadow },
   rowTextCol: { flex: 1 },
-  rowTitle: { ...typography.label, color: TAB_COLOR },
-  rowMeta: { ...typography.caption, color: TAB_COLOR, marginTop: 2 },
+  rowTitle: { ...typography.label, color: TAB_COLOR, ...textShadow },
+  rowMeta: { ...typography.caption, color: TAB_COLOR, marginTop: 2, ...textShadow },
   rowActions: { flexDirection: 'row', gap: 16, marginTop: 10, marginLeft: 80 },
   supplementRowActions: { flexDirection: 'row', gap: 16, marginTop: 10 },
   doseSection: {
@@ -5627,10 +5628,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  doseSectionLabel: { ...typography.captionEmphasis, color: TAB_COLOR, marginBottom: 6 },
+  doseSectionLabel: { ...typography.captionEmphasis, color: TAB_COLOR, marginBottom: 6, ...textShadow },
   doseRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 },
-  doseRowTime: { ...typography.captionEmphasis, color: TAB_COLOR, width: 68 },
-  doseRowStatus: { ...typography.caption, color: TAB_COLOR, flex: 1 },
+  doseRowTime: { ...typography.captionEmphasis, color: TAB_COLOR, width: 68, ...textShadow },
+  doseRowStatus: { ...typography.caption, color: TAB_COLOR, flex: 1, ...textShadow },
   doseRowActions: { flexDirection: 'row', gap: 14 },
   doseForm: { marginTop: 8 },
   appointmentTopActions: { gap: 10, marginBottom: 16 },
@@ -5644,7 +5645,7 @@ const styles = StyleSheet.create({
   dateInput: { flex: 1 },
   appointmentRowTime: { width: 76, lineHeight: 16 },
   interactionSection: { marginBottom: 16 },
-  interactionSectionLabel: { ...typography.label, color: TAB_COLOR, marginBottom: 8 },
+  interactionSectionLabel: { ...typography.label, color: TAB_COLOR, marginBottom: 8, ...textShadow },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
   // 2026-07-27.
   interactionCard: {
@@ -5656,12 +5657,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   interactionCardReference: { backgroundColor: colors.surfaceMuted },
-  interactionTitle: { ...typography.bodyEmphasis, color: TAB_COLOR },
-  interactionMessage: { ...typography.body, color: TAB_COLOR, marginTop: 4 },
-  interactionCitation: { ...typography.caption, color: TAB_COLOR, marginTop: 6 },
-  actionText: { ...typography.captionEmphasis, color: TAB_COLOR },
-  actionTextPrimary: { ...typography.captionEmphasis, color: colors.primary },
-  actionTextRemove: { ...typography.captionEmphasis, color: colors.danger },
+  interactionTitle: { ...typography.bodyEmphasis, color: TAB_COLOR, ...textShadow },
+  interactionMessage: { ...typography.body, color: TAB_COLOR, marginTop: 4, ...textShadow },
+  interactionCitation: { ...typography.caption, color: TAB_COLOR, marginTop: 6, ...textShadow },
+  actionText: { ...typography.captionEmphasis, color: TAB_COLOR, ...textShadow },
+  actionTextPrimary: { ...typography.captionEmphasis, color: colors.primary, ...textShadow },
+  actionTextRemove: { ...typography.captionEmphasis, color: colors.danger, ...textShadow },
   backdrop: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -5680,8 +5681,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 8,
   },
-  rotateSheetTitle: { ...typography.sectionTitle, color: colors.textPrimary, flex: 1, marginRight: 12 },
-  rotateSheetCloseText: { ...typography.sectionTitle, color: colors.textMuted },
+  rotateSheetTitle: { ...typography.sectionTitle, color: colors.textPrimary, flex: 1, marginRight: 12, ...textShadow },
+  rotateSheetCloseText: { ...typography.sectionTitle, color: colors.textMuted, ...textShadow },
   rotateSheetScroll: { marginTop: 8 },
   rotateIngredientCard: {
     backgroundColor: colors.surfaceMuted,
@@ -5689,5 +5690,5 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
   },
-  rotateIngredientLabel: { ...typography.captionEmphasis, color: colors.textSecondary, marginBottom: 6 },
+  rotateIngredientLabel: { ...typography.captionEmphasis, color: colors.textSecondary, marginBottom: 6, ...textShadow },
 });

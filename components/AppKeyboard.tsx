@@ -19,7 +19,7 @@ import {
 } from '../constants/appKeyboard';
 import { NAVIGATION_HAND, useFooterBandHeight } from '../constants/floatingButton';
 import { TAB_REVEAL_DURATION_MS } from '../constants/tabReveal';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 // 2026-08-21, a real, reported gap: there was no way to type an apostrophe
 // anywhere on this keyboard at all -- not in this letters layout, not in
@@ -469,6 +469,7 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     ...typography.caption,
+    ...textShadow,
   },
   // Always rendered, with or without an actual search box inside, so
   // Next/Done never shift position depending on whether one is present.
@@ -485,6 +486,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     color: colors.textPrimary,
     ...typography.body,
+    ...textShadow,
   },
   row: {
     flexDirection: 'row',
@@ -503,5 +505,5 @@ const styles = StyleSheet.create({
   keyLetter: { backgroundColor: colors.keySurface },
   keyMuted: { backgroundColor: colors.border },
   keyActive: { backgroundColor: colors.accent },
-  keyLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, textTransform: 'none' },
+  keyLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, textTransform: 'none', ...textShadow },
 });

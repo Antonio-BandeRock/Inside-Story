@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 // 2026-08-13, direct request: "if I tap the Beverages lens, it should
 // provide a subcategorical choice about what kind of beverage they will be
@@ -100,8 +100,8 @@ export function BeverageSubtypePicker({
 
 const styles = StyleSheet.create({
   scrollContent: { padding: 16, gap: 12 },
-  heading: { ...typography.sectionTitle },
-  subheading: { ...typography.body, color: colors.textMuted, marginBottom: 4 },
+  heading: { ...typography.sectionTitle, ...textShadow },
+  subheading: { ...typography.body, color: colors.textMuted, marginBottom: 4, ...textShadow },
   card: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -109,6 +109,6 @@ const styles = StyleSheet.create({
     padding: 14,
     gap: 4,
   },
-  cardLabel: { ...typography.label },
-  cardDescription: { ...typography.body, color: colors.textMuted },
+  cardLabel: { ...typography.label, ...textShadow },
+  cardDescription: { ...typography.body, color: colors.textMuted, ...textShadow },
 });

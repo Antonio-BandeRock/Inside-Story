@@ -44,7 +44,7 @@ import { useLayoutEffect, useRef, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { NAVIGATION_HAND } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import { useOverlay } from './OverlayContext';
 import { useScreenHeaderHeight } from './ScreenHeader';
 
@@ -215,6 +215,7 @@ const styles = StyleSheet.create({
   collapsedLabel: {
     ...typography.bodyEmphasis,
     flexShrink: 1,
+    ...textShadow,
   },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.55)' },
   // Top-anchored, not centered -- paddingTop is set inline per-render (see
@@ -252,6 +253,7 @@ const styles = StyleSheet.create({
     ...typography.bodyEmphasis,
     fontSize: 17,
     flexShrink: 1,
+    ...textShadow,
   },
   collapseButton: {
     padding: 2,

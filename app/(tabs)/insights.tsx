@@ -3616,16 +3616,25 @@ const styles = StyleSheet.create({
   emptyText: {
     ...typography.body,
     color: colors.textSecondary,
+
+    ...textShadow,
+
   },
   errorText: {
     ...typography.body,
     color: colors.danger,
+
+    ...textShadow,
+
   },
   footerNote: {
     ...typography.caption,
     color: colors.textMuted,
     fontStyle: 'italic',
     marginTop: 10,
+
+    ...textShadow,
+
   },
   noticeCard: {
     backgroundColor: colors.noticeBg,
@@ -3637,6 +3646,9 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.noticeText,
     lineHeight: 17,
+
+    ...textShadow,
+
   },
   // Same structural-label language as the table headers below (eyebrow) --
   // both are "this is scaffolding, not content" text, so they should look
@@ -3646,6 +3658,9 @@ const styles = StyleSheet.create({
     ...typography.eyebrow,
     color: TAB_COLOR,
     marginBottom: 8,
+
+    ...textShadow,
+
   },
   // Food Lookup's own layout -- no section labels between steps (each
   // field's own placeholder/summary text already says what it's for).
@@ -3673,6 +3688,9 @@ const styles = StyleSheet.create({
     ...typography.bodyEmphasis,
     color: TAB_COLOR,
     marginBottom: 4,
+
+    ...textShadow,
+
   },
   table: {
     borderWidth: 2,
@@ -3713,10 +3731,16 @@ const styles = StyleSheet.create({
   tableCell: {
     ...typography.caption,
     color: TAB_COLOR,
+
+    ...textShadow,
+
   },
   tableHeaderCell: {
     ...typography.eyebrow,
     color: TAB_COLOR,
+
+    ...textShadow,
+
   },
   tableCellNutrient: {
     flex: 2,
@@ -3734,7 +3758,7 @@ const styles = StyleSheet.create({
   tableCellStatus: {
     flex: 2,
     textAlign: 'right',
-    fontWeight: '600',
+    fontWeight: '400',
   },
   // Bumped up to `label` size -- the dimension name is the primary thing
   // being scanned in this row, so it should read a size larger than the
@@ -3743,6 +3767,9 @@ const styles = StyleSheet.create({
     ...typography.label,
     flex: 3,
     color: TAB_COLOR,
+
+    ...textShadow,
+
   },
   // A real green/yellow/red traffic light -- green is a deliberate,
   // visible color here (not just "recede to neutral"), so all three
@@ -3750,15 +3777,15 @@ const styles = StyleSheet.create({
   // severityRowStyle above.
   statusGreenText: {
     color: colors.primary,
-    fontWeight: '600',
+    fontWeight: '400',
   },
   statusYellowText: {
     color: colors.statusYellow,
-    fontWeight: '600',
+    fontWeight: '400',
   },
   statusRedText: {
     color: colors.danger,
-    fontWeight: '600',
+    fontWeight: '400',
   },
   // Sub-day scopes show "% of today's target" as plain information, not a
   // judgment -- no flagged/good coloring, since a single food isn't
@@ -3785,12 +3812,18 @@ const styles = StyleSheet.create({
     color: TAB_COLOR,
     flex: 1,
     marginRight: 8,
+
+    ...textShadow,
+
   },
   subTableValue: {
     ...typography.captionEmphasis,
     color: colors.textPrimary,
     textDecorationLine: 'underline',
     textDecorationStyle: 'dotted',
+
+    ...textShadow,
+
   },
   subTableValueActive: {
     color: colors.primary,
@@ -3808,6 +3841,9 @@ const styles = StyleSheet.create({
   detailFoodName: {
     ...typography.caption,
     color: TAB_COLOR,
+
+    ...textShadow,
+
   },
   // Base color here never actually shows -- always rendered with
   // severityTextStyle(...) layered on top (see PrepView/SixDsView's own
@@ -3816,23 +3852,35 @@ const styles = StyleSheet.create({
   detailFoodTier: {
     ...typography.captionEmphasis,
     color: colors.textPrimary,
+
+    ...textShadow,
+
   },
   detailText: {
     ...typography.caption,
     color: TAB_COLOR,
     lineHeight: 17,
     marginTop: 4,
+
+    ...textShadow,
+
   },
   detailSourcesLabel: {
     ...typography.eyebrow,
     color: TAB_COLOR,
     marginTop: 6,
+
+    ...textShadow,
+
   },
   detailSourcesText: {
     ...typography.caption,
     color: TAB_COLOR,
     lineHeight: 15,
     fontStyle: 'italic',
+
+    ...textShadow,
+
   },
   backdrop: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.25)' },
   // Positioning + drop shadow only now -- the actual circle fill (TAB_COLOR)
@@ -3874,6 +3922,9 @@ const styles = StyleSheet.create({
   cardHeader: {
     ...typography.eyebrow,
     color: colors.primary,
+
+    ...textShadow,
+
   },
   scopeCardHeaderRow: {
     flexDirection: 'row',
@@ -3884,6 +3935,9 @@ const styles = StyleSheet.create({
   scopeCloseText: {
     ...typography.bodyEmphasis,
     color: colors.textMuted,
+
+    ...textShadow,
+
   },
   breadcrumbRow: {
     flexDirection: 'row',
@@ -3900,10 +3954,16 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: colors.textMuted,
     marginHorizontal: 4,
+
+    ...textShadow,
+
   },
   breadcrumbText: {
     ...typography.captionEmphasis,
     color: colors.primary,
+
+    ...textShadow,
+
   },
   breadcrumbTextActive: {
     color: colors.textPrimary,
@@ -3924,6 +3984,9 @@ const styles = StyleSheet.create({
   pillText: {
     ...typography.captionEmphasis,
     color: colors.primary,
+
+    ...textShadow,
+
   },
   tipCard: {
     borderTopWidth: 1,
@@ -3933,6 +3996,9 @@ const styles = StyleSheet.create({
   tipCardTitle: {
     ...typography.label,
     color: TAB_COLOR,
+
+    ...textShadow,
+
   },
   tipEntry: {
     marginTop: 6,
@@ -3941,6 +4007,9 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: TAB_COLOR,
     lineHeight: 18,
+
+    ...textShadow,
+
   },
   // Nutrient Ranking lens, 2026-08-08. 2026-08-14 -- the fields (Nutrient/
   // Prep state) used to live in a separate fixed zone pinned above the
@@ -3956,7 +4025,11 @@ const styles = StyleSheet.create({
   rankResultsScroll: { flex: 1 },
   rankResultsContent: { paddingTop: 6, paddingBottom: 16 },
   rankSpaced: { marginTop: 14 },
-  rankGroupHeading: { ...typography.eyebrow, marginBottom: 8 },
+  rankGroupHeading: { ...typography.eyebrow, marginBottom: 8,
+
+    ...textShadow,
+
+  },
   rankRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -3971,6 +4044,9 @@ const styles = StyleSheet.create({
     color: TAB_COLOR,
     width: 22,
     textAlign: 'right',
+
+    ...textShadow,
+
   },
   rankTextWrap: { flex: 1 },
   // 2026-08-11: both of these used to carry numberOfLines={1}, silently
@@ -3984,15 +4060,31 @@ const styles = StyleSheet.create({
   // rank-list usages -- confirmed directly, not assumed), so removing the
   // line cap is the whole fix: the row already grows to fit real,
   // multi-line content on its own.
-  rankFoodName: { ...typography.bodyEmphasis, color: colors.textPrimary },
-  rankFoodCategory: { ...typography.caption, color: colors.textSecondary, marginTop: 1 },
-  rankAmount: { ...typography.captionEmphasis, color: TAB_COLOR },
+  rankFoodName: { ...typography.bodyEmphasis, color: colors.textPrimary,
+
+    ...textShadow,
+
+  },
+  rankFoodCategory: { ...typography.caption, color: colors.textSecondary, marginTop: 1,
+
+    ...textShadow,
+
+  },
+  rankAmount: { ...typography.captionEmphasis, color: TAB_COLOR,
+
+    ...textShadow,
+
+  },
   // Nutrient Ranking's own "By Food" mode, 2026-08-14 -- the amount and,
   // when a real DRI exists for that nutrient, a %DV line right under it,
   // both right-aligned as one column rather than two separately-placed
   // Texts.
   rankAmountWrap: { alignItems: 'flex-end' },
-  rankDriPercent: { ...typography.caption, color: colors.textSecondary, marginTop: 1 },
+  rankDriPercent: { ...typography.caption, color: colors.textSecondary, marginTop: 1,
+
+    ...textShadow,
+
+  },
   // Nutrient/Prep state side by side, 2026-08-14 -- see this lens' own
   // fixed-field-zone comment above for the full reasoning. flexShrink on
   // the column is a real, defensive guard against either field's own
@@ -4008,7 +4100,11 @@ const styles = StyleSheet.create({
   // own name/category, plus the "Change food" action, sitting above its
   // real per-nutrient ranking list.
   rankFoodSummaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  rankFoodSummaryText: { ...typography.bodyEmphasis, color: colors.textPrimary, flexShrink: 1 },
+  rankFoodSummaryText: { ...typography.bodyEmphasis, color: colors.textPrimary, flexShrink: 1,
+
+    ...textShadow,
+
+  },
   // Cooking Impact lens, 2026-08-10.
   cookingMethodRow: {
     paddingVertical: 10,
@@ -4023,10 +4119,26 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 3,
   },
-  cookingMethodLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, flexShrink: 1 },
-  cookingConfidenceBadge: { ...typography.caption, fontSize: 11 },
-  cookingMethodSummary: { ...typography.caption, color: colors.textSecondary, lineHeight: 16 },
-  cookingCitation: { ...typography.caption, color: colors.textMuted, fontSize: 11 },
+  cookingMethodLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, flexShrink: 1,
+
+    ...textShadow,
+
+  },
+  cookingConfidenceBadge: { ...typography.caption, fontSize: 11,
+
+    ...textShadow,
+
+  },
+  cookingMethodSummary: { ...typography.caption, color: colors.textSecondary, lineHeight: 16,
+
+    ...textShadow,
+
+  },
+  cookingCitation: { ...typography.caption, color: colors.textMuted, fontSize: 11,
+
+    ...textShadow,
+
+  },
   // Healing Stage lens, 2026-08-08.
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   stagePill: {
@@ -4035,7 +4147,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
-  stagePillText: { ...typography.captionEmphasis },
+  stagePillText: { ...typography.captionEmphasis,
+
+    ...textShadow,
+
+  },
   stagePillTextActive: { color: colors.textOnPrimary },
   // Same colors.surface/2px-tabColor-border treatment every other card on
   // this page already uses (see table's own comment above) -- a round is
@@ -4049,13 +4165,20 @@ const styles = StyleSheet.create({
   roundHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   // Hydration lens, 2026-08-08.
   hydrationWrap: { alignItems: 'center', paddingTop: 12 },
-  hydrationStatus: { ...typography.bodyEmphasis, marginTop: 12 },
+  hydrationStatus: { ...typography.bodyEmphasis, marginTop: 12,
+
+    ...textShadow,
+
+  },
   hydrationNote: {
     ...typography.body,
     color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 10,
     maxWidth: 280,
+
+    ...textShadow,
+
   },
   // Labs lens, 2026-08-08 -- this page's first real form, so these four
   // (button row/primary/secondary button) are new here even though the
@@ -4068,14 +4191,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...BUTTON_SHADOW,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
+
+    ...textShadow,
+
+  },
   secondaryButton: {
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 16,
     alignItems: 'center',
   },
-  secondaryButtonText: { ...typography.bodyEmphasis },
+  secondaryButtonText: { ...typography.bodyEmphasis,
+
+    ...textShadow,
+
+  },
   labInput: {
     ...typography.body,
     color: colors.textPrimary,
@@ -4085,11 +4216,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     marginTop: 4,
+
+    ...textShadow,
+
   },
   labDateRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
   // My Meds & Interactions lens, 2026-08-08.
-  myMedsMessage: { ...typography.body, color: colors.textPrimary, marginTop: 6 },
-  myMedsCitation: { ...typography.caption, color: colors.textMuted, marginTop: 6 },
+  myMedsMessage: { ...typography.body, color: colors.textPrimary, marginTop: 6,
+
+    ...textShadow,
+
+  },
+  myMedsCitation: { ...typography.caption, color: colors.textMuted, marginTop: 6,
+
+    ...textShadow,
+
+  },
   // Personal rules, 2026-08-18 -- a small, deliberately plain tag naming
   // where a rule came from, on every rule card in both the "Your Own
   // Rules" and "Manage Your Rules" sections, so it's never mistaken for
@@ -4100,12 +4242,20 @@ const styles = StyleSheet.create({
   // lens); these two are the small Pause/Resume/Delete touch targets that
   // sit at a row's trailing end now instead of a full-width button row.
   rankActionButton: { paddingVertical: 4, paddingHorizontal: 6 },
-  rankActionText: { ...typography.captionEmphasis },
+  rankActionText: { ...typography.captionEmphasis,
+
+    ...textShadow,
+
+  },
   // Today's Advisories lens, 2026-08-08.
   advisoryHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   advisoryTitle: { flex: 1 },
   // Energy & Portions lens, 2026-08-15.
-  portionsSectionHeading: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 18, marginBottom: 8 },
+  portionsSectionHeading: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 18, marginBottom: 8,
+
+    ...textShadow,
+
+  },
   statRow: { flexDirection: 'row', gap: 12 },
   statBox: {
     flex: 1,
@@ -4116,8 +4266,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     paddingVertical: 12,
   },
-  statValue: { ...typography.sectionTitle, color: colors.textPrimary },
-  statLabel: { ...typography.caption, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
+  statValue: { ...typography.sectionTitle, color: colors.textPrimary,
+
+    ...textShadow,
+
+  },
+  statLabel: { ...typography.caption, color: colors.textMuted, textAlign: 'center', marginTop: 4,
+
+    ...textShadow,
+
+  },
   portionsPillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   portionsPill: {
     borderWidth: 1,
@@ -4127,6 +4285,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     backgroundColor: colors.surface,
   },
-  portionsPillText: { ...typography.bodyEmphasis, color: colors.textPrimary },
+  portionsPillText: { ...typography.bodyEmphasis, color: colors.textPrimary,
+
+    ...textShadow,
+
+  },
   portionsPillTextActive: { color: colors.textOnPrimary },
 });

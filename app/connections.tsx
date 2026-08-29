@@ -16,7 +16,7 @@ import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import { buildConnectionInvite, buildConnectionInviteLink, listConnections, removeConnection, renameConnection, type Connection } from '../lib/connections';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 
@@ -184,9 +184,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     gap: 6,
   },
-  fingerprintLabel: { ...typography.caption, color: colors.textMuted },
-  fingerprintValue: { ...typography.bodyEmphasis, color: colors.textPrimary, letterSpacing: 2 },
-  fingerprintHint: { ...typography.caption, color: colors.textMuted },
+  fingerprintLabel: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  fingerprintValue: { ...typography.bodyEmphasis, color: colors.textPrimary, letterSpacing: 2, ...textShadow },
+  fingerprintHint: { ...typography.caption, color: colors.textMuted, ...textShadow },
   primaryButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -198,9 +198,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   primaryButtonDisabled: { opacity: 0.6 },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
-  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4 },
-  emptyText: { ...typography.body, color: colors.textMuted },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
+  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
+  emptyText: { ...typography.body, color: colors.textMuted, ...textShadow },
   row: {
     padding: 14,
     borderRadius: 12,
@@ -213,12 +213,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   rowInfo: { flex: 1 },
-  rowName: { ...typography.bodyEmphasis, color: colors.textPrimary },
-  rowMeta: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
+  rowName: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+  rowMeta: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
   rowActions: { flexDirection: 'row', gap: 16 },
-  rowActionText: { ...typography.body, color: colors.accent },
-  rowActionTextMuted: { ...typography.body, color: colors.textMuted },
-  rowActionTextDanger: { ...typography.body, color: colors.danger },
+  rowActionText: { ...typography.body, color: colors.accent, ...textShadow },
+  rowActionTextMuted: { ...typography.body, color: colors.textMuted, ...textShadow },
+  rowActionTextDanger: { ...typography.body, color: colors.danger, ...textShadow },
   editRow: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  editInput: { flex: 1, ...typography.body, color: colors.textPrimary, borderBottomWidth: 1, borderBottomColor: colors.border, paddingVertical: 4 },
+  editInput: { flex: 1, ...typography.body, color: colors.textPrimary, borderBottomWidth: 1, borderBottomColor: colors.border, paddingVertical: 4, ...textShadow },
 });

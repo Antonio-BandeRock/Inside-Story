@@ -4,7 +4,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 export type HelpSection = { heading: string; body: string };
 
@@ -145,6 +145,9 @@ const styles = StyleSheet.create({
   title: {
     ...typography.sectionTitle,
     color: colors.textPrimary,
+
+    ...textShadow,
+
   },
   closeButton: {
     position: 'absolute',
@@ -177,10 +180,16 @@ const styles = StyleSheet.create({
     ...typography.label,
     color: colors.primary,
     marginBottom: 4,
+
+    ...textShadow,
+
   },
   sectionBody: {
     ...typography.body,
     color: colors.textPrimary,
     lineHeight: 20,
+
+    ...textShadow,
+
   },
 });

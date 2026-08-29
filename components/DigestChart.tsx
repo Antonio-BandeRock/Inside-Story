@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import type { DigestChart as DigestChartData } from '../lib/digest';
 
 // A plain, small horizontal bar chart -- 2026-08-07, built for Purple
@@ -65,8 +65,9 @@ const styles = StyleSheet.create({
   },
   title: {
     ...typography.caption,
-    fontWeight: '700',
+    fontWeight: '400',
     color: colors.textPrimary,
+    ...textShadow,
   },
   row: {
     flexDirection: 'row',
@@ -81,6 +82,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textMuted,
     flex: 5,
+    ...textShadow,
   },
   track: {
     flex: 7,
@@ -100,11 +102,13 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     flex: 2,
     textAlign: 'right',
+    ...textShadow,
   },
   sourceNote: {
     ...typography.caption,
     fontSize: 10,
     color: colors.textMuted,
     fontStyle: 'italic',
+    ...textShadow,
   },
 });

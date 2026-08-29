@@ -26,7 +26,7 @@ import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { TabDesktopMenu } from '../../components/TabDesktopMenu';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
-import { menuLabelShadow, typography } from '../../constants/typography';
+import { menuLabelShadow, textShadow, typography } from '../../constants/typography';
 import {
   listBakedGoods,
   listBeverages,
@@ -1448,15 +1448,22 @@ const styles = StyleSheet.create({
   desktopHeading: { ...typography.screenTitle, ...menuLabelShadow, color: TAB_COLOR,
     fontWeight: '400',
   },
-  desktopSubheading: { ...typography.body, color: colors.textSecondary, lineHeight: 19 },
+  desktopSubheading: { ...typography.body, color: colors.textSecondary, lineHeight: 19,
+
+    ...textShadow,
+
+  },
   desktopBackLink: {
     ...typography.body,
     color: colors.textOnPrimary,
-    fontWeight: '600',
+    fontWeight: '400',
     alignSelf: 'flex-start',
     backgroundColor: TAB_COLOR,
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 8,
+
+    ...textShadow,
+
   },
 });

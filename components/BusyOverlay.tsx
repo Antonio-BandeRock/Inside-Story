@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Modal, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 // A real, reusable "this is genuinely still working" overlay -- 2026-08-16,
 // direct request following real, on-device backup/restore testing: "there
@@ -90,5 +90,6 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     textAlign: 'center',
     marginTop: 16,
+    ...textShadow,
   },
 });

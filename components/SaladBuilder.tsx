@@ -7,7 +7,7 @@ import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { SALAD_BUILDER_CATEGORIES } from '../constants/foodBuilderCategories';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import {
   getBuilderFavorite,
   getConditionStages,
@@ -2403,7 +2403,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     marginTop: 6,
   },
-  healingStageAdvisoryText: { ...typography.caption },
+  healingStageAdvisoryText: { ...typography.caption, ...textShadow },
   // Deliberately NOT a ScrollView -- see this component's own render-time
   // comment for why FoodLookup can never sit inside one.
   pickerScreen: { flex: 1, paddingHorizontal: 16, paddingTop: 5 },
@@ -2424,6 +2424,7 @@ const styles = StyleSheet.create({
   },
   loadingRecipeText: {
     ...typography.body,
+    ...textShadow,
   },
   // "Or Find a Recipe," 2026-08-16 -- replaces what used to be
   // curatedRecipesSection/curatedRecipeCard/etc. (an inline list of this
@@ -2449,9 +2450,11 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     flexShrink: 1,
+    ...textShadow,
   },
   formLabel: {
     ...typography.eyebrow,
+    ...textShadow,
   },
   formInput: {
     ...typography.body,
@@ -2462,6 +2465,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     marginTop: 4,
+    ...textShadow,
   },
   // 2026-08-17 -- see the Salad Name field's own comment for why this
   // exists: one continuous bordered box (the field's own real border/
@@ -2558,7 +2562,7 @@ const styles = StyleSheet.create({
   continueButtonSpacing: {
     marginTop: 28,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
   // Continue's own "still missing something" look, 2026-07-28 -- dim
   // grey rather than this page's own tabColor, reading as not-quite-ready
   // without actually disabling the button (see handleContinuePress's own
@@ -2584,7 +2588,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 14,
   },
-  secondaryButtonText: { ...typography.bodyEmphasis },
+  secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow },
   // "Preview Full Report" needs a real visible outline of its own -- see
   // SideBuilder.tsx's own identical style for the full reasoning.
   reportPreviewButton: { borderWidth: 2 },
@@ -2600,7 +2604,7 @@ const styles = StyleSheet.create({
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
   // 2026-08-08 -- renderFavoriteToggle's own row.
   favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
-  favoriteToggleText: { ...typography.body, color: colors.textPrimary, flexShrink: 1 },
+  favoriteToggleText: { ...typography.body, color: colors.textPrimary, flexShrink: 1, ...textShadow },
   // summaryCard/summaryCardSquareBottom/summaryLeftColumn/summaryDivider/
   // summaryRightColumn/summarySaladName lived here until 2026-08-17 -- the
   // old two-column summary card (salad info on the left, a scrollable
@@ -2612,6 +2616,7 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textSecondary,
     marginTop: 2,
+    ...textShadow,
   },
   // Edit mode's own overview screen, 2026-08-01 -- full-width equivalents
   // of summarySaladName/summaryIngredientRow/summaryRemoveButton above,
@@ -2622,6 +2627,7 @@ const styles = StyleSheet.create({
   overviewSaladName: {
     ...typography.bodyEmphasis,
     fontSize: 17,
+    ...textShadow,
   },
   // 44px minHeight -- a real, comfortable touch target on its own terms
   // (not stretched thin across the whole screen width the way the old
@@ -2642,6 +2648,7 @@ const styles = StyleSheet.create({
   overviewIngredientText: {
     ...typography.body,
     color: colors.textPrimary,
+    ...textShadow,
   },
   overviewRemoveButton: {
     padding: 10,
@@ -2657,6 +2664,7 @@ const styles = StyleSheet.create({
   summaryEmptyText: {
     ...typography.caption,
     color: colors.textSecondary,
+    ...textShadow,
   },
   // Real padding, not just a bare TouchableOpacity, 2026-08-17 -- matches
   // this whole file's own established anti-mis-tap discipline for the
@@ -2666,6 +2674,7 @@ const styles = StyleSheet.create({
   },
   summaryDoneText: {
     ...typography.captionEmphasis,
+    ...textShadow,
   },
   // Food name and its warning flags on one line, flags pinned right --
   // alignItems 'flex-start' (not 'center') so the boxes stay level with
@@ -2696,6 +2705,7 @@ const styles = StyleSheet.create({
     ...typography.bodyEmphasis,
     color: colors.textSecondary,
     flexShrink: 1,
+    ...textShadow,
   },
   // "Change Food", pinned above the header and left-aligned. alignSelf
   // 'flex-start' keeps its tap target tight to the text instead of
@@ -2781,6 +2791,7 @@ const styles = StyleSheet.create({
   emptyText: {
     ...typography.body,
     color: colors.textSecondary,
+    ...textShadow,
   },
   // The small "‹ Cancel" link shown above the connected FoodLookup once a
   // real ingredient-source method has been chosen -- see
@@ -2808,7 +2819,7 @@ const styles = StyleSheet.create({
   },
   addIngredientsButtonLeft: { alignSelf: 'flex-start' },
   addIngredientsButtonRight: { alignSelf: 'flex-end' },
-  addIngredientsButtonText: { ...typography.bodyEmphasis },
+  addIngredientsButtonText: { ...typography.bodyEmphasis, ...textShadow },
   // A plain horizontal rule inside the collapsible card's own overlay,
   // separating the salad-info block from the Ingredients list beneath it --
   // the old summaryDivider was a vertical line between two columns; this
@@ -2839,11 +2850,13 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textSecondary,
     marginRight: 6,
+    ...textShadow,
   },
   recipeIngredientText: {
     ...typography.body,
     color: colors.textPrimary,
     flex: 1,
+    ...textShadow,
   },
   // "What This Salad Gives You" -- matches RecipeCardDetail's own real
   // nutrition callout box shape/tinting (a bordered box in this page's own
@@ -2857,15 +2870,18 @@ const styles = StyleSheet.create({
   recipeNutritionLabel: {
     ...typography.eyebrow,
     marginBottom: 6,
+    ...textShadow,
   },
   recipeNutritionText: {
     ...typography.body,
     color: colors.textPrimary,
     marginTop: 2,
+    ...textShadow,
   },
   recipeNutritionBold: {
     ...typography.bodyEmphasis,
     color: colors.textPrimary,
+    ...textShadow,
   },
   // "Worth Knowing If You Have..." -- a distinctly-tinted box (colors.danger
   // border, matching RecipeCardDetail's own real condition-caution
@@ -2880,9 +2896,11 @@ const styles = StyleSheet.create({
   recipeConditionLabel: {
     ...typography.eyebrow,
     marginBottom: 6,
+    ...textShadow,
   },
   recipeConditionCondition: {
     ...typography.bodyEmphasis,
     color: colors.textPrimary,
+    ...textShadow,
   },
 });

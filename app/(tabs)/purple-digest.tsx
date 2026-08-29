@@ -6386,13 +6386,14 @@ const styles = StyleSheet.create({
   backToHomeText: {
     ...typography.body,
     color: colors.textOnButton,
-    fontWeight: '600',
+    fontWeight: '400',
     alignSelf: 'flex-start',
     backgroundColor: colors.buttonColor,
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: 8,
     ...BUTTON_SHADOW,
+    ...textShadow,
   },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
@@ -6435,7 +6436,7 @@ const styles = StyleSheet.create({
   // weight doesn't -- the shadow alone is what's left to carry
   // legibility against the photo background, matching what was asked.
   categoryHeaderText: { ...typography.screenTitle, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR },
-  categoryDescription: { ...typography.body, color: colors.textSecondary, lineHeight: 19 },
+  categoryDescription: { ...typography.body, color: colors.textSecondary, lineHeight: 19, ...textShadow },
   // The Recipes lens's own real diet-filter control -- see its JSX
   // comment above. 2026-08-24, direct report: sitting bare on the
   // scrolling body (straight over the shared photo background, unlike
@@ -6456,7 +6457,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 16,
   },
-  emptyText: { ...typography.body, color: colors.textSecondary },
+  emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
   // 2026-08-16 -- wraps the search AppTextInput with a real mic button
   // (VoiceInputButton), added inside DigestSearchInput itself rather than
   // at either of this screen's own two call sites, since that component
@@ -6503,8 +6504,9 @@ const styles = StyleSheet.create({
     // shrinking this gap alone, same as fixedHeader's own paddingBottom
     // below getting the matching other half of the same report.
     marginBottom: 4,
+    ...textShadow,
   },
-  searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8 },
+  searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8, ...textShadow },
   searchResultCategory: { ...typography.caption, ...textShadow, color: TAB_TEXT_COLOR, marginBottom: 4 },
   // topicGrid/topicCard/topicCardTitle/topicCardCount/treeBackLink/
   // treeHeading (Basic Health's own real tree navigation) removed
@@ -6540,7 +6542,7 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   digestTopicMenuItemLabel: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, flex: 1, marginRight: 8 },
-  digestTopicMenuItemCount: { ...typography.caption, color: colors.textSecondary },
+  digestTopicMenuItemCount: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   // 2026-08-23, direct report: this text floats directly over the real
   // photo background now that GatedTabContent actually reveals one, with
   // nothing behind it at all. A shadow-only first attempt, then a plain
@@ -6600,7 +6602,7 @@ const styles = StyleSheet.create({
   // fixed at its own source. This card's title stays as it was, the shadow
   // alone, same as any entry title inside an already-opaque card.
   shelfCardTitle: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, flex: 1, fontSize: 14 },
-  shelfCardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 16, marginTop: 4 },
+  shelfCardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 16, marginTop: 4, ...textShadow },
   // 2026-08-09, ShelfTabCard's own compact per-term match indicator, shown
   // only while this card is part of a category's own scoped search
   // results -- see ShelfTabCard's own comment for why this is a row of
@@ -6633,7 +6635,7 @@ const styles = StyleSheet.create({
   // transparent fill (see that style's own 2026-08-23 comment), fixed at
   // its own source. This title stays as it was, the shadow alone.
   cardTitle: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, flex: 1 },
-  cardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 17 },
+  cardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 17, ...textShadow },
   // 2026-08-09, SearchResultCard's own real per-term match display -- see
   // MatchSummaryRow's own comment for the full reasoning. matchBlock sits
   // directly under the teaser, matchSummaryText states the plain "X of Y
@@ -6642,7 +6644,7 @@ const styles = StyleSheet.create({
   // outlined (matchTermPillBody) when it only matched the body/citations,
   // and dim (matchTermPillMiss) when it didn't match this entry at all.
   matchBlock: { marginTop: 8 },
-  matchSummaryText: { ...typography.caption, color: colors.textMuted, marginBottom: 6 },
+  matchSummaryText: { ...typography.caption, color: colors.textMuted, marginBottom: 6, ...textShadow },
   matchTermRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   matchTermPill: {
     borderWidth: 1,
@@ -6657,7 +6659,7 @@ const styles = StyleSheet.create({
   // 2026-08-25, direct report: "drop shadowed is fine only if the font is
   // not already bolded," the same rule dietTagPillText was already fixed
   // under -- matchTermPillText (below) already carries menuLabelShadow, so
-  // this filled/title-matched variant loses its own fontWeight: '700'
+  // this filled/title-matched variant loses its own fontWeight: '400'
   // rather than stacking bold on top of an already-shadowed pill.
   matchTermPillTextTitle: { color: colors.background },
   matchTermPillTextMiss: { color: colors.textMuted },
@@ -6671,7 +6673,7 @@ const styles = StyleSheet.create({
   demoBlock: { marginTop: 4 },
   demoHeading: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 4 },
   demoSubheading: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginTop: 18, marginBottom: 4 },
-  demoIntro: { ...typography.caption, color: colors.textMuted, marginBottom: 10, lineHeight: 17 },
+  demoIntro: { ...typography.caption, color: colors.textMuted, marginBottom: 10, lineHeight: 17, ...textShadow },
   demoExample: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -6680,18 +6682,18 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
   },
-  demoExampleTitle: { ...typography.bodyEmphasis, color: colors.textPrimary, marginBottom: 6 },
-  demoExampleNote: { ...typography.caption, color: colors.textMuted, marginTop: 6, lineHeight: 16 },
+  demoExampleTitle: { ...typography.bodyEmphasis, color: colors.textPrimary, marginBottom: 6, ...textShadow },
+  demoExampleNote: { ...typography.caption, color: colors.textMuted, marginTop: 6, lineHeight: 16, ...textShadow },
   demoDotRow: { flexDirection: 'row', gap: 14 },
   demoDotColumn: { alignItems: 'center', gap: 3 },
-  demoDotLabel: { ...typography.caption, color: colors.textMuted, fontSize: 10 },
-  demoClosing: { ...typography.body, color: colors.textSecondary, lineHeight: 19, marginTop: 4 },
+  demoDotLabel: { ...typography.caption, color: colors.textMuted, fontSize: 10, ...textShadow },
+  demoClosing: { ...typography.body, color: colors.textSecondary, lineHeight: 19, marginTop: 4, ...textShadow },
   cardDetail: { marginTop: 10, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 },
-  tierLabelText: { ...typography.eyebrow, marginBottom: 6 },
+  tierLabelText: { ...typography.eyebrow, marginBottom: 6, ...textShadow },
   // EntryMetaRow's own reading-time text plus, when relevant, the plain,
   // non-tappable cross-condition pills sitting right beside it.
   metaRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 8 },
-  readingTimeText: { ...typography.caption, color: colors.textMuted },
+  readingTimeText: { ...typography.caption, color: colors.textMuted, ...textShadow },
   crossConditionPill: {
     borderWidth: 1,
     borderColor: TAB_COLOR,
@@ -6727,11 +6729,11 @@ const styles = StyleSheet.create({
   // fontWeight '700' against a solid, opaque TAB_COLOR fill (not a photo
   // background needing a shadow for contrast the way this app's other
   // shadowed labels do), so bold alone already carries full legibility.
-  dietTagPillText: { ...typography.caption, color: colors.background, fontSize: 11, fontWeight: '700' },
+  dietTagPillText: { ...typography.caption, color: colors.background, fontSize: 11, fontWeight: '400', ...textShadow },
   detailLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
-  detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19 },
-  detailTextBold: { fontWeight: '700' },
-  swapText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 2 },
+  detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, ...textShadow },
+  detailTextBold: { fontWeight: '400' },
+  swapText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 2, ...textShadow },
   // The Recipes category's own real CTA, 2026-08-14 -- solid-filled with
   // TAB_COLOR (not the lightened popoverBackground tint other screens use
   // for a primary action), since this is the one, unambiguous "do the
@@ -6747,7 +6749,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 12,
   },
-  buildRecipeButtonText: { ...typography.bodyEmphasis, color: colors.background },
+  buildRecipeButtonText: { ...typography.bodyEmphasis, color: colors.background, ...textShadow },
   buildRecipeButtonDisabled: { opacity: 0.5 },
   // "Build This Recipe" plus its own small, real Share button sitting
   // right beside it, 2026-08-15 -- see CuratedRecipeShareButton's own
@@ -6783,7 +6785,7 @@ const styles = StyleSheet.create({
   },
   dynamicActionButtonText: { ...typography.bodyEmphasis, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR },
   dynamicActionButtonTextDanger: { color: colors.danger },
-  dynamicActionConfirm: { ...typography.caption, color: colors.accent, marginTop: 8 },
+  dynamicActionConfirm: { ...typography.caption, color: colors.accent, marginTop: 8, ...textShadow },
   dynamicScheduleForm: {
     marginTop: 12,
     padding: 12,
@@ -6802,14 +6804,14 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   ampmPillActive: { backgroundColor: TAB_COLOR, borderColor: TAB_COLOR },
-  ampmPillText: { ...typography.caption, color: colors.textSecondary },
+  ampmPillText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   ampmPillTextActive: { color: colors.background },
-  stageNoteText: { ...typography.caption, color: colors.textMuted, fontStyle: 'italic', marginTop: 8 },
+  stageNoteText: { ...typography.caption, color: colors.textMuted, fontStyle: 'italic', marginTop: 8, ...textShadow },
   // RecipeCardDetail's own numbered instruction steps -- same body/color
   // treatment as detailText, just its own style key so a slightly tighter
   // top margin per line (rather than detailText's single-block spacing)
   // reads correctly as a real numbered list rather than one dense paragraph.
-  recipeStepText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 4 },
+  recipeStepText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 4, ...textShadow },
   // The "what this dish gives you" nutrition callout -- a real, tinted box
   // (the same lightened-tab-color recipe already used elsewhere in this
   // app for a highlighted callout) so it reads as a distinct rating rather
@@ -6821,7 +6823,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   recipeNutritionLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 4 },
-  recipeNutritionText: { ...typography.body, color: colors.textPrimary, lineHeight: 18, marginTop: 2 },
+  recipeNutritionText: { ...typography.body, color: colors.textPrimary, lineHeight: 18, marginTop: 2, ...textShadow },
   // The per-condition caution box -- a real, distinct tint from the
   // nutrition callout above (a warm accent rather than the tab's own
   // color) so a caution reads visually different from a highlight, and
@@ -6832,8 +6834,8 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
   },
-  recipeConditionLabel: { ...typography.eyebrow, color: colors.accent, marginBottom: 4 },
-  recipeConditionCondition: { ...typography.bodyEmphasis, color: colors.accent, marginTop: 4 },
+  recipeConditionLabel: { ...typography.eyebrow, color: colors.accent, marginBottom: 4, ...textShadow },
+  recipeConditionCondition: { ...typography.bodyEmphasis, color: colors.accent, marginTop: 4, ...textShadow },
   recipeConditionItemSpaced: { marginTop: 6 },
   // 2026-08-25, direct correction: "That cannot be" -- a flagged recipe's
   // own per-condition caution box needs to read as genuinely different
@@ -6868,9 +6870,9 @@ const styles = StyleSheet.create({
   // actual label text. statusYellowStandalone (the brighter amber added
   // 2026-08-18 specifically because the darker one read poorly as text)
   // measures 5.67:1 here, comfortably past the 4.5:1 floor.
-  recipeConditionLabelYellow: { ...typography.eyebrow, color: colors.statusYellowStandalone, marginBottom: 4 },
+  recipeConditionLabelYellow: { ...typography.eyebrow, color: colors.statusYellowStandalone, marginBottom: 4, ...textShadow },
   // colors.danger on statusRedBg measures 5.17:1, verified the same way.
-  recipeConditionLabelRed: { ...typography.eyebrow, color: colors.danger, marginBottom: 4 },
+  recipeConditionLabelRed: { ...typography.eyebrow, color: colors.danger, marginBottom: 4, ...textShadow },
   feedbackRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -6880,10 +6882,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  feedbackPrompt: { ...typography.caption, color: colors.textMuted, marginRight: 2 },
+  feedbackPrompt: { ...typography.caption, color: colors.textMuted, marginRight: 2, ...textShadow },
   // 2026-08-15 -- the real, brief "thumbs-up doubled as add-to-favorites"
   // confirmation, see FeedbackRow's own comment.
-  favoriteAddedText: { ...typography.caption, color: colors.accent, marginTop: 4 },
+  favoriteAddedText: { ...typography.caption, color: colors.accent, marginTop: 4, ...textShadow },
   citationsBlock: { marginTop: 10 },
   citationsLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 2 },
   citationLink: {
@@ -6892,6 +6894,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     lineHeight: 16,
     marginBottom: 2,
+    ...textShadow,
   },
   relatedBlock: { marginTop: 10 },
   relatedLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 4 },
@@ -6915,5 +6918,5 @@ const styles = StyleSheet.create({
     // actually allows.
     maxWidth: '100%',
   },
-  relatedChipText: { ...typography.captionEmphasis, color: colors.primary },
+  relatedChipText: { ...typography.captionEmphasis, color: colors.primary, ...textShadow },
 });

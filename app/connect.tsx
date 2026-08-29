@@ -21,7 +21,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import {
   addConnection,
   buildConnectionInviteLink,
@@ -224,8 +224,8 @@ export default function ConnectScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   body: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12 },
-  title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center' },
-  text: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
+  title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center', ...textShadow },
+  text: { ...typography.body, color: colors.textSecondary, textAlign: 'center', ...textShadow },
   fingerprintBox: {
     marginTop: 8,
     padding: 14,
@@ -237,9 +237,9 @@ const styles = StyleSheet.create({
     gap: 6,
     width: '100%',
   },
-  fingerprintLabel: { ...typography.caption, color: colors.textMuted, textAlign: 'center' },
-  fingerprintValue: { ...typography.bodyEmphasis, color: colors.textPrimary, letterSpacing: 2 },
-  errorText: { ...typography.caption, color: colors.danger, marginTop: 8, textAlign: 'center' },
+  fingerprintLabel: { ...typography.caption, color: colors.textMuted, textAlign: 'center', ...textShadow },
+  fingerprintValue: { ...typography.bodyEmphasis, color: colors.textPrimary, letterSpacing: 2, ...textShadow },
+  errorText: { ...typography.caption, color: colors.danger, marginTop: 8, textAlign: 'center', ...textShadow },
   actionRow: { flexDirection: 'row', gap: 12, marginTop: 12, width: '100%' },
   actionButton: { flex: 1 },
   doneButton: { marginTop: 4, width: '100%' },
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   primaryButtonDisabled: { opacity: 0.6 },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, textAlign: 'center' },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, textAlign: 'center', ...textShadow },
   secondaryButton: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -262,5 +262,5 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
   },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary, ...textShadow },
 });

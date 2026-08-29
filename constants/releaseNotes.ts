@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.13',
+    date: '2026-08-29',
+    changes: [
+      'No bold text anywhere in the app any more. Every size tier is now regular weight, and every explicit bold override was removed, so this is fixed at the source instead of one screen at a time.',
+      'Every piece of text in the app now has a drop shadow, for consistency throughout rather than only on screens where it had been added by hand.',
+      'The TabHub and LensHub menu labels keep their stronger shadow, the one place that was deliberately made heavier because a normal shadow did not show against that menu background.',
+    ],
+  },
+  {
     version: '1.0.30.12',
     date: '2026-08-29',
     changes: [

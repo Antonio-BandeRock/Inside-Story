@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View, type ViewToken } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 export type InlineSelectOption = {
   label: string;
@@ -340,8 +340,8 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: 'transparent',
   },
-  itemText: { ...typography.body, color: colors.textPrimary },
-  itemTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  itemText: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  itemTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary, ...textShadow },
   // Marks a real group's own LAST member -- see renderItem's own comment
   // for why this exists alongside the left accent bar. A visibly thicker,
   // colored bottom border reads as a deliberate "block ends here" cap

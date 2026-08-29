@@ -19,7 +19,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet } from './AppActionSheet';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import type { DigestEntry } from '../lib/digest/types';
 import { useInfoAlert } from './InfoAlert';
 import { getPhotoForTarget, pickAndSaveMealPhoto, setPhotoForTarget, type PhotoTarget } from '../lib/mealPhotos';
@@ -167,8 +167,20 @@ const styles = StyleSheet.create({
   photo: { width: '100%', height: 180, borderRadius: 12, backgroundColor: colors.surface },
   spinner: { marginTop: 8 },
   addRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
-  addText: { ...typography.bodyEmphasis },
+  addText: { ...typography.bodyEmphasis,
+
+    ...textShadow,
+
+  },
   actionsRow: { flexDirection: 'row', gap: 20, marginTop: 8 },
-  actionText: { ...typography.bodyEmphasis },
-  removeText: { ...typography.bodyEmphasis, color: colors.danger },
+  actionText: { ...typography.bodyEmphasis,
+
+    ...textShadow,
+
+  },
+  removeText: { ...typography.bodyEmphasis, color: colors.danger,
+
+    ...textShadow,
+
+  },
 });

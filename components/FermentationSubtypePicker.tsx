@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 // 2026-08-21, direct request: "Fermentation should ask what type of
 // fermentation they want to build before moving on to any part of the
@@ -151,10 +151,10 @@ export function FermentationSubtypePicker({
 
 const styles = StyleSheet.create({
   scrollContent: { padding: 16, gap: 12 },
-  heading: { ...typography.sectionTitle },
-  subheading: { ...typography.body, color: colors.textMuted, marginBottom: 4 },
+  heading: { ...typography.sectionTitle, ...textShadow },
+  subheading: { ...typography.body, color: colors.textMuted, marginBottom: 4, ...textShadow },
   backRow: { marginBottom: 4 },
-  backText: { ...typography.bodyEmphasis },
+  backText: { ...typography.bodyEmphasis, ...textShadow },
   card: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -162,6 +162,6 @@ const styles = StyleSheet.create({
     padding: 14,
     gap: 4,
   },
-  cardLabel: { ...typography.label },
-  cardDescription: { ...typography.body, color: colors.textMuted },
+  cardLabel: { ...typography.label, ...textShadow },
+  cardDescription: { ...typography.body, color: colors.textMuted, ...textShadow },
 });

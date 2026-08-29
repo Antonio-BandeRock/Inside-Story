@@ -18,7 +18,7 @@ import { colors, GROUND_THEME_LABELS, GROUND_THEMES, type GroundTheme } from '..
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import { APP_VERSION } from '../constants/version';
 import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreferences';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
@@ -3512,12 +3512,19 @@ const styles = StyleSheet.create({
   // uses, and for the identical reason: Profile has no ScreenHeader/TabHub
   // reach of its own to surface this any other way.
   profileTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  profileTitle: { ...typography.bodyEmphasis, fontSize: 20, color: colors.textPrimary },
+  profileTitle: { ...typography.bodyEmphasis, fontSize: 20, color: colors.textPrimary,
+
+    ...textShadow,
+
+  },
   intro: {
     ...typography.body,
     color: colors.textSecondary,
     marginBottom: 12,
     lineHeight: 20,
+
+    ...textShadow,
+
   },
   // A brief, isolated confirmation flash: unlike a dense table full of
   // status rows, there's nothing else on screen competing for attention in
@@ -3527,6 +3534,9 @@ const styles = StyleSheet.create({
     ...typography.captionEmphasis,
     color: colors.primary,
     marginBottom: 12,
+
+    ...textShadow,
+
   },
   card: {
     backgroundColor: colors.surface,
@@ -3551,6 +3561,9 @@ const styles = StyleSheet.create({
     // text (see that token's comment in constants/colors.ts).
     color: colors.menuLabelMuted,
     marginBottom: 4,
+
+    ...textShadow,
+
   },
   // Collapsible-card header row (icon 2026-08-09): the same `label` Text
   // above now sits alongside a chevron, both inside one tap target
@@ -3594,12 +3607,18 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginBottom: 12,
     lineHeight: 18,
+
+    ...textShadow,
+
   },
   subLabel: {
     ...typography.label,
     color: colors.textPrimary,
     marginTop: 10,
     marginBottom: 6,
+
+    ...textShadow,
+
   },
   // 2026-08-21, direct correction after a first, wrong-target attempt (a
   // line between the top-level collapsible cards themselves, reverted; see
@@ -3634,6 +3653,9 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     borderTopWidth: 1,
     borderTopColor: colors.border,
+
+    ...textShadow,
+
   },
   mealTimeRow: {
     marginBottom: 10,
@@ -3642,6 +3664,9 @@ const styles = StyleSheet.create({
     ...typography.label,
     color: colors.textPrimary,
     marginBottom: 4,
+
+    ...textShadow,
+
   },
   pillRow: {
     flexDirection: 'row',
@@ -3669,10 +3694,16 @@ const styles = StyleSheet.create({
   pillText: {
     ...typography.caption,
     color: colors.textPrimary,
+
+    ...textShadow,
+
   },
   pillTextSmall: {
     ...typography.caption,
     color: colors.textPrimary,
+
+    ...textShadow,
+
   },
   pillTextActive: {
     color: colors.textOnPrimary,
@@ -3690,7 +3721,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
   },
-  homeOrderLabel: { ...typography.body, color: colors.textPrimary, flex: 1, marginRight: 8 },
+  homeOrderLabel: { ...typography.body, color: colors.textPrimary, flex: 1, marginRight: 8,
+
+    ...textShadow,
+
+  },
   homeOrderButtons: { flexDirection: 'row', gap: 4 },
   homeOrderButton: {
     width: 32,
@@ -3770,10 +3805,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: colors.textSecondary,
     textAlign: 'center',
+
+    ...textShadow,
+
   },
   iconGridLabelActive: {
     color: colors.primary,
-    fontWeight: '600',
+    fontWeight: '400',
   },
   // Ground color picker, 2026-08-19, same "show the actual thing being
   // chosen" reasoning as iconGridRow/iconGridItem just above, adapted for a
@@ -3818,10 +3856,13 @@ const styles = StyleSheet.create({
     ...typography.caption,
     fontSize: 11,
     color: colors.textSecondary,
+
+    ...textShadow,
+
   },
   groundThemeLabelActive: {
     color: colors.primary,
-    fontWeight: '600',
+    fontWeight: '400',
   },
   dateRow: {
     flexDirection: 'row',
@@ -3843,6 +3884,9 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.primary,
     textDecorationLine: 'underline',
+
+    ...textShadow,
+
   },
   // Wraps a PickerField's label and PopoverSelect: same shape as Side
   // Builder's labeledPickerField/formLabel pair.
@@ -3853,6 +3897,9 @@ const styles = StyleSheet.create({
     ...typography.eyebrow,
     color: colors.menuIconMuted,
     marginBottom: 4,
+
+    ...textShadow,
+
   },
   input: {
     borderWidth: 1,
@@ -3897,6 +3944,9 @@ const styles = StyleSheet.create({
   clearButtonText: {
     ...typography.captionEmphasis,
     color: colors.danger,
+
+    ...textShadow,
+
   },
   // A positive-action counterpart to clearButton above: same compact
   // footprint (fits inline next to a text input, unlike checkinButton's
@@ -3912,16 +3962,25 @@ const styles = StyleSheet.create({
   addAllergyButtonText: {
     ...typography.captionEmphasis,
     color: colors.textOnPrimary,
+
+    ...textShadow,
+
   },
   errorText: {
     ...typography.caption,
     color: colors.danger,
     marginTop: 8,
+
+    ...textShadow,
+
   },
   derivedText: {
     ...typography.caption,
     color: colors.textSecondary,
     marginTop: 8,
+
+    ...textShadow,
+
   },
   // Already-tested-foods review, 2026-08-14, one row per concern under a
   // condition's curated list (see lib/conditionFoodConcerns.ts).
@@ -3934,11 +3993,17 @@ const styles = StyleSheet.create({
   concernLabel: {
     ...typography.bodyEmphasis,
     color: colors.textPrimary,
+
+    ...textShadow,
+
   },
   concernReopenLink: {
     ...typography.caption,
     color: colors.primary,
     marginTop: 8,
+
+    ...textShadow,
+
   },
   checkinButton: {
     backgroundColor: colors.primary,
@@ -3950,6 +4015,9 @@ const styles = StyleSheet.create({
   checkinButtonText: {
     ...typography.bodyEmphasis,
     color: colors.textOnPrimary,
+
+    ...textShadow,
+
   },
   // For a checkinButton label that deliberately spans more than one line.
   // checkinButton's own alignItems: 'center' centers the Text box itself,
@@ -3975,6 +4043,9 @@ const styles = StyleSheet.create({
   dangerButtonText: {
     ...typography.bodyEmphasis,
     color: colors.danger,
+
+    ...textShadow,
+
   },
   localBackupRow: {
     marginTop: 8,

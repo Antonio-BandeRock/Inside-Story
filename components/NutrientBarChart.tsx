@@ -11,7 +11,7 @@
 
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 export type NutrientChartDatum = { nutrient: string; percent: number };
 
@@ -40,9 +40,9 @@ export function NutrientBarChart({ data, color }: { data: NutrientChartDatum[]; 
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
-  label: { ...typography.caption, color: colors.textPrimary, width: 92 },
+  label: { ...typography.caption, color: colors.textPrimary, width: 92, ...textShadow },
   track: { flex: 1, height: 10, borderRadius: 5, backgroundColor: colors.border, overflow: 'hidden' },
   bar: { height: '100%', borderRadius: 5 },
-  value: { ...typography.caption, color: colors.textMuted, width: 36, textAlign: 'right' },
-  footnote: { ...typography.caption, color: colors.textMuted, marginTop: 10, fontStyle: 'italic' },
+  value: { ...typography.caption, color: colors.textMuted, width: 36, textAlign: 'right', ...textShadow },
+  footnote: { ...typography.caption, color: colors.textMuted, marginTop: 10, fontStyle: 'italic', ...textShadow },
 });

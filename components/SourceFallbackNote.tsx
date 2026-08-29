@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import { isFallbackSource } from '../lib/db';
 import { sourceLabel } from './FoodLookup';
 
@@ -33,5 +33,6 @@ const styles = StyleSheet.create({
   text: {
     ...typography.caption,
     color: colors.textSecondary,
+    ...textShadow,
   },
 });

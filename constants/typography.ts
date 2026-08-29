@@ -5,27 +5,35 @@
 // what a type scale is for: training the eye to read "big bold = section,
 // small gray = supporting detail" the same way on every screen, without
 // having to re-learn it per page.
+// 2026-08-29, standing rule, direct instruction after a morning lost to
+// fixing bold one style at a time: "I don't want bold font anywhere in the
+// app, I don't care where it is located... all text, no matter where it is
+// located in the app, is to have drop shadows." Every tier below is
+// therefore fontWeight '400'. The tiers still differ by SIZE (and the
+// eyebrow tier by letter-spacing), which is what establishes hierarchy now
+// -- weight no longer does, anywhere. Do not reintroduce a bold weight
+// here or override one in a screen's own StyleSheet.
 export const typography = {
   // The page title in ScreenHeader -- the single biggest, boldest text on
   // any screen, so the eye always finds "what page am I on" first.
-  screenTitle: { fontSize: 20, fontWeight: '700' as const },
+  screenTitle: { fontSize: 20, fontWeight: '400' as const },
 
   // A card or major section's own heading (a form card's title, a domain
   // name, "Favorites"/"Templates").
-  sectionTitle: { fontSize: 17, fontWeight: '700' as const },
+  sectionTitle: { fontSize: 17, fontWeight: '400' as const },
 
   // A smaller heading nested inside a section, or a list row's primary
   // text (a meal name, a favorite's name, a field label).
-  label: { fontSize: 14, fontWeight: '600' as const },
+  label: { fontSize: 14, fontWeight: '400' as const },
 
   // Regular readable paragraph/description text.
   body: { fontSize: 14, fontWeight: '400' as const },
-  bodyEmphasis: { fontSize: 14, fontWeight: '600' as const },
+  bodyEmphasis: { fontSize: 14, fontWeight: '400' as const },
 
   // Secondary/supporting text -- meta lines, table cell values, helper
   // text. True content, but not the primary thing being scanned.
   caption: { fontSize: 12, fontWeight: '400' as const },
-  captionEmphasis: { fontSize: 12, fontWeight: '600' as const },
+  captionEmphasis: { fontSize: 12, fontWeight: '400' as const },
 
   // The smallest tier -- table column headers, eyebrow labels above a
   // section, footer notes. Small + bold + letter-spacing so it still reads
@@ -36,7 +44,7 @@ export const typography = {
   // shared style nearly every header/label in the app builds on, so
   // fixing it here covers all of them at once rather than hunting down
   // each individual usage.
-  eyebrow: { fontSize: 10, fontWeight: '700' as const, letterSpacing: 0.4 },
+  eyebrow: { fontSize: 10, fontWeight: '400' as const, letterSpacing: 0.4 },
 } as const;
 
 // A subtle drop shadow, spread into a text style with `...textShadow` --

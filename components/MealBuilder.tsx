@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import {
   correctFoodTrialStartDate,
   createMealFromComponents,
@@ -1678,14 +1678,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     padding: 16,
   },
-  formLabel: { ...typography.eyebrow },
+  formLabel: { ...typography.eyebrow, ...textShadow },
   formLabelSpaced: { marginTop: 14 },
   // The "nothing saved yet" notice above the identity form, 2026-08-08 --
   // row layout (icon beside the explanation) rather than formCard's own
   // usual stacked-fields shape, since this card holds one message, not a
   // form.
   emptyStateCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  emptyStateText: { ...typography.body, color: colors.textPrimary, flex: 1 },
+  emptyStateText: { ...typography.body, color: colors.textPrimary, flex: 1, ...textShadow },
   // 2026-08-16 -- wraps the Meal Name label with its own real mic button,
   // same plain label-plus-button layout every direct-ingredient builder's
   // own prepNoteLabelRow already uses (this file has no ingredient card of
@@ -1701,6 +1701,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     marginTop: 4,
+    ...textShadow,
   },
   // 2026-08-16 -- the "Add from..." category list's own search box, right
   // under the "Saved Xs" heading rather than inside a formCard (this
@@ -1717,7 +1718,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
   },
-  typePillText: { ...typography.body, color: colors.textPrimary },
+  typePillText: { ...typography.body, color: colors.textPrimary, ...textShadow },
   primaryButton: {
     borderRadius: 8,
     paddingVertical: 10,
@@ -1726,7 +1727,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     ...BUTTON_SHADOW,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
   primaryButtonTextMuted: { color: colors.textMuted },
   secondaryButton: {
     borderRadius: 8,
@@ -1735,14 +1736,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 16,
   },
-  secondaryButtonText: { ...typography.bodyEmphasis },
+  secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow },
   reportPreviewButton: { borderWidth: 2 },
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
   // 2026-08-08 -- renderFavoriteToggle's own row, same shape as every
   // sub-builder's identical style (see SideBuilder.tsx's own
   // favoriteToggleRow/favoriteToggleText).
   favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
-  favoriteToggleText: { ...typography.body, color: colors.textPrimary, flexShrink: 1 },
+  favoriteToggleText: { ...typography.body, color: colors.textPrimary, flexShrink: 1, ...textShadow },
   // schedulingTime's own Hour/Minute/AM-PM row, 2026-08-08 -- three roughly
   // equal fields side by side, same flexDirection: 'row' shape as Profile's
   // own dateRow (app/profile.tsx).
@@ -1758,16 +1759,16 @@ const styles = StyleSheet.create({
   // added, i.e. this card's own CONTENT, not the meal's own identity the
   // way mealTitle/formLabel are -- tabColor is reserved for the form's own
   // labels/controls, per that file's own comment on pendingHeader).
-  pendingName: { ...typography.bodyEmphasis, fontSize: 17, color: colors.textSecondary },
-  pendingSubtitle: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
+  pendingName: { ...typography.bodyEmphasis, fontSize: 17, color: colors.textSecondary, ...textShadow },
+  pendingSubtitle: { ...typography.caption, color: colors.textSecondary, marginTop: 2, ...textShadow },
   // "Add to My Hydration Routine"'s own explanatory line, 2026-08-26 --
   // pendingSubtitle's own style plus a bit more room below since this one
   // is a full sentence, not a short label.
-  hydrationRoutineHelperText: { ...typography.caption, color: colors.textSecondary, marginTop: 6, marginBottom: 10 },
+  hydrationRoutineHelperText: { ...typography.caption, color: colors.textSecondary, marginTop: 6, marginBottom: 10, ...textShadow },
   // tabColor applied inline at its one call site -- matches SideBuilder's
   // own overviewDishName, the same "this card's own name is the form's
   // subject" role mealTitle plays here.
-  mealTitle: { ...typography.bodyEmphasis, fontSize: 18 },
+  mealTitle: { ...typography.bodyEmphasis, fontSize: 18, ...textShadow },
   // 2026-08-16 -- HelpButton sits beside the title rather than the title
   // owning the whole row alone, so the (i) icon is visible the instant the
   // Assembling view opens, regardless of how it was reached (a fresh meal,
@@ -1775,16 +1776,16 @@ const styles = StyleSheet.create({
   // "Log now"/edit path all land here with zero shared entry-point copy).
   mealTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: 4 },
-  backRowText: { ...typography.bodyEmphasis },
+  backRowText: { ...typography.bodyEmphasis, ...textShadow },
   // tabColor applied inline at both call sites -- matches SideBuilder's own
   // "Ingredients" heading (also typography.eyebrow), which gets the same
   // treatment despite being a section heading rather than a single-field
   // label.
-  sectionHeading: { ...typography.eyebrow },
+  sectionHeading: { ...typography.eyebrow, ...textShadow },
   gridHeading: { marginTop: 6 },
-  gridCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 4, marginBottom: 4 },
+  gridCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 4, marginBottom: 4, ...textShadow },
   loadingSpinner: { marginTop: 20 },
-  emptyText: { ...typography.body, color: colors.textSecondary },
+  emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
   savedList: { gap: 8 },
   // A bordered box per row (not SideBuilder's own plain bottom-border list
   // row) -- deliberately closer to app/food-items.tsx's own itemRow in
@@ -1808,8 +1809,8 @@ const styles = StyleSheet.create({
   savedRowText: { flex: 1 },
   // colors.textPrimary, matching SideBuilder's own overviewIngredientText --
   // a plain saved-item name in a list, not the form's own identity.
-  savedRowName: { ...typography.bodyEmphasis, color: colors.textPrimary },
-  savedRowDetail: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
+  savedRowName: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+  savedRowDetail: { ...typography.caption, color: colors.textSecondary, marginTop: 2, ...textShadow },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1828,6 +1829,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
   },
-  gridTileLabel: { ...typography.caption, textAlign: 'center', color: colors.textPrimary },
+  gridTileLabel: { ...typography.caption, textAlign: 'center', color: colors.textPrimary, ...textShadow },
   logButton: { marginTop: 4 },
 });

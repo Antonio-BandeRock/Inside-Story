@@ -7,7 +7,7 @@ import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
 import { PopoverSelect } from '../components/PopoverSelect';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import {
   advanceFermentationBatch,
   deleteFermentationBatch,
@@ -423,11 +423,11 @@ export default function FermentationTrackerScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: 20, paddingBottom: 48, gap: 12 },
-  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginTop: 12 },
-  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary },
-  emptyText: { ...typography.body, color: colors.textMuted },
-  caption: { ...typography.caption, color: colors.textMuted },
-  itemTitle: { ...typography.bodyEmphasis, color: colors.textPrimary, flex: 1, marginRight: 8 },
+  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginTop: 12, ...textShadow },
+  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+  emptyText: { ...typography.body, color: colors.textMuted, ...textShadow },
+  caption: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  itemTitle: { ...typography.bodyEmphasis, color: colors.textPrimary, flex: 1, marginRight: 8, ...textShadow },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   card: {
     padding: 14,
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 4,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
   secondaryButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 4,
   },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary, ...textShadow },
   harvestForm: { gap: 8, marginTop: 4 },
   harvestFormRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   harvestFormButton: { flex: 1, marginTop: 0 },
@@ -474,5 +474,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
+    ...textShadow,
   },
 });

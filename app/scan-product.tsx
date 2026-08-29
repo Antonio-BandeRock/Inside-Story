@@ -28,7 +28,7 @@ import { SimpleSlider } from '../components/SimpleSlider';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import { lookupProductByBarcode, type LookedUpProduct } from '../lib/barcodeLookup';
 import {
   getFoodNutrients,
@@ -1320,7 +1320,7 @@ const styles = StyleSheet.create({
   camera: { flex: 1 },
   scanOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
   scanFrame: { width: 260, height: 160, borderWidth: 3, borderColor: colors.accent, borderRadius: 16 },
-  scanHint: { ...typography.body, color: '#FFFFFF', marginTop: 16, textAlign: 'center', paddingHorizontal: 24 },
+  scanHint: { ...typography.body, color: '#FFFFFF', marginTop: 16, textAlign: 'center', paddingHorizontal: 24, ...textShadow },
   // paddingTop/paddingBottom (captureOverlay) and top (captureCancelButton)
   // are deliberately NOT set here anymore -- both are always supplied at
   // render time as insets.top/insets.bottom plus the same base numbers, so
@@ -1369,9 +1369,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   sliderRow: { alignItems: 'center' },
-  title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center' },
-  text: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
-  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4 },
+  title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center', ...textShadow },
+  text: { ...typography.body, color: colors.textSecondary, textAlign: 'center', ...textShadow },
+  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   card: {
     padding: 14,
     borderRadius: 12,
@@ -1403,8 +1403,8 @@ const styles = StyleSheet.create({
   },
   dataTableRowLast: { borderBottomWidth: 0 },
   dataTableHeaderRow: { backgroundColor: colors.surface },
-  dataTableHeaderText: { ...typography.bodyEmphasis, color: colors.textSecondary, paddingVertical: 8, paddingHorizontal: 10 },
-  dataTableCellText: { ...typography.body, color: colors.textPrimary, paddingVertical: 8, paddingHorizontal: 10 },
+  dataTableHeaderText: { ...typography.bodyEmphasis, color: colors.textSecondary, paddingVertical: 8, paddingHorizontal: 10, ...textShadow },
+  dataTableCellText: { ...typography.body, color: colors.textPrimary, paddingVertical: 8, paddingHorizontal: 10, ...textShadow },
   // The Per 100g table's own real 3 columns -- fixed flex ratios, not
   // content-sized, so every row's amount/unit land in the same horizontal
   // position regardless of how long that row's own nutrient name is.
@@ -1420,8 +1420,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   ingredientCellDivider: { borderRightWidth: 1, borderRightColor: colors.border },
-  ingredientCellText: { ...typography.caption, color: colors.textPrimary },
-  gridHint: { ...typography.caption, color: colors.textMuted },
+  ingredientCellText: { ...typography.caption, color: colors.textPrimary, ...textShadow },
+  gridHint: { ...typography.caption, color: colors.textMuted, ...textShadow },
   // The multi-angle review screen's own real thumbnail grid -- one card
   // per captured angle, wrapping onto a new line rather than a fixed row,
   // so this still reads fine whether there's 1 photo or the real max of 3.
@@ -1438,12 +1438,12 @@ const styles = StyleSheet.create({
   attemptCardSelected: { borderColor: colors.accent },
   attemptThumbnail: { width: '100%', height: 110, borderRadius: 8, backgroundColor: colors.border },
   attemptStatusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  attemptStatusText: { ...typography.caption, color: colors.textSecondary },
-  attemptSnippet: { ...typography.caption, color: colors.textSecondary },
-  attemptBestBadge: { ...typography.caption, color: colors.accent, fontWeight: '600' },
+  attemptStatusText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  attemptSnippet: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  attemptBestBadge: { ...typography.caption, color: colors.accent, fontWeight: '400', ...textShadow },
   flagRow: { padding: 12, borderRadius: 10, borderWidth: 1, gap: 4 },
-  flagLabel: { ...typography.bodyEmphasis, color: colors.textPrimary },
-  flagDetail: { ...typography.caption, color: colors.textSecondary },
+  flagLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+  flagDetail: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   textAreaRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
   textArea: {
     flex: 1,
@@ -1455,6 +1455,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     textAlignVertical: 'top',
+    ...textShadow,
   },
   priceInput: {
     flex: 1,
@@ -1464,6 +1465,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: 10,
     padding: 12,
+    ...textShadow,
   },
   disabled: { opacity: 0.6 },
   primaryButton: {
@@ -1476,7 +1478,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 14,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
   secondaryButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1487,7 +1489,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 12,
   },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary, ...textShadow },
   libraryLink: { alignItems: 'center', paddingVertical: 4 },
-  libraryLinkText: { ...typography.caption, color: colors.textMuted, textDecorationLine: 'underline' },
+  libraryLinkText: { ...typography.caption, color: colors.textMuted, textDecorationLine: 'underline', ...textShadow },
 });

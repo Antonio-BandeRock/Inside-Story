@@ -10,7 +10,7 @@ import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
-import { typography } from '../../constants/typography';
+import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { generateReport } from '../../lib/reportGenerator';
 
@@ -165,13 +165,13 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { flex: 1 },
   content: { paddingHorizontal: 20, paddingBottom: 32 },
-  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10 },
-  loadingText: { ...typography.body, color: colors.textSecondary, marginBottom: 16 },
+  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10, ...textShadow },
+  loadingText: { ...typography.body, color: colors.textSecondary, marginBottom: 16, ...textShadow },
 
   pillRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  pillText: { ...typography.caption, color: colors.textPrimary },
+  pillText: { ...typography.caption, color: colors.textPrimary, ...textShadow },
   pillTextActive: { color: colors.textOnPrimary },
 
   reportCard: {
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   // be read as a plain document (and shared verbatim via Share below), not
   // styled UI copy, so it keeps its own line breaks and alignment exactly
   // as generateReport built them.
-  reportText: { ...typography.caption, color: colors.textPrimary, lineHeight: 20 },
+  reportText: { ...typography.caption, color: colors.textPrimary, lineHeight: 20, ...textShadow },
 
   shareButton: {
     marginTop: 16,
@@ -194,5 +194,5 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
   },
-  shareButtonText: { ...typography.body, color: colors.textOnPrimary, fontWeight: '600' },
+  shareButtonText: { ...typography.body, color: colors.textOnPrimary, fontWeight: '400', ...textShadow },
 });

@@ -11,7 +11,7 @@ import {
   useMenuCardBottom,
 } from '../constants/floatingButton';
 import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { IridescentRingCircle } from './IridescentRingCircle';
 
@@ -301,6 +301,7 @@ const styles = StyleSheet.create({
   cardHeader: {
     ...typography.eyebrow,
     marginBottom: 8,
+    ...textShadow,
   },
   categoriesScroll: {
     maxHeight: 260,
@@ -317,9 +318,11 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     flexShrink: 1,
+    ...textShadow,
   },
   emptyText: {
     ...typography.body,
     color: colors.textSecondary,
+    ...textShadow,
   },
 });

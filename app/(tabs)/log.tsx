@@ -15,7 +15,7 @@ import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
-import { typography } from '../../constants/typography';
+import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { getCheckinTagsByCategory, type CheckinTagDefinition } from '../../lib/checkinTags';
 import { appendDictatedText, parseVoiceCommands } from '../../lib/voiceCommandParsing';
@@ -1834,7 +1834,11 @@ const styles = StyleSheet.create({
   // established fix already applied in Garden's own harvest/planting
   // pickers.
   pickerScreen: { flex: 1, paddingHorizontal: 16, paddingTop: 5 },
-  emptyText: { ...typography.body, color: colors.textSecondary, marginBottom: 16 },
+  emptyText: { ...typography.body, color: colors.textSecondary, marginBottom: 16,
+
+    ...textShadow,
+
+  },
   addButton: {
     borderWidth: 1,
     borderColor: colors.primary,
@@ -1843,7 +1847,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  addButtonText: { ...typography.bodyEmphasis, color: colors.primary },
+  addButtonText: { ...typography.bodyEmphasis, color: colors.primary,
+
+    ...textShadow,
+
+  },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
   // 2026-07-27.
   formCard: {
@@ -1860,18 +1868,38 @@ const styles = StyleSheet.create({
   // pillTextActive) and actionTextPrimary/actionTextRemove (a positive/
   // destructive action convention used app-wide) alone -- different
   // meanings than "which tab."
-  label: { ...typography.label, color: TAB_COLOR, marginBottom: 6, marginTop: 10 },
-  helperText: { ...typography.caption, color: TAB_COLOR, marginTop: 4, marginBottom: 8 },
+  label: { ...typography.label, color: TAB_COLOR, marginBottom: 6, marginTop: 10,
+
+    ...textShadow,
+
+  },
+  helperText: { ...typography.caption, color: TAB_COLOR, marginTop: 4, marginBottom: 8,
+
+    ...textShadow,
+
+  },
   // The "‹ Back to what you were building" link, 2026-08-14 -- same real
   // treatment as Digest's own already-established "‹ Back to
   // Digest" link (backToHomeText), not a new visual language.
-  backLink: { ...typography.body, color: TAB_COLOR, fontWeight: '600', marginBottom: 12 },
+  backLink: { ...typography.body, color: TAB_COLOR, fontWeight: '400', marginBottom: 12,
+
+    ...textShadow,
+
+  },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
   pillSmall: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 8 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  pillText: { ...typography.caption, color: TAB_COLOR },
-  pillTextSmall: { ...typography.caption, color: TAB_COLOR },
+  pillText: { ...typography.caption, color: TAB_COLOR,
+
+    ...textShadow,
+
+  },
+  pillTextSmall: { ...typography.caption, color: TAB_COLOR,
+
+    ...textShadow,
+
+  },
   pillTextActive: { color: colors.textOnPrimary },
   input: {
     borderWidth: 1,
@@ -1887,24 +1915,60 @@ const styles = StyleSheet.create({
   noteLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   timeInput: { width: 56, textAlign: 'center' },
-  timeSeparator: { ...typography.label, color: TAB_COLOR },
+  timeSeparator: { ...typography.label, color: TAB_COLOR,
+
+    ...textShadow,
+
+  },
   formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginTop: 16 },
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR,
+
+    ...textShadow,
+
+  },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.buttonColor, ...BUTTON_SHADOW },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
+
+    ...textShadow,
+
+  },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule, 2026-07-27.
   table: { borderWidth: 2, borderColor: TAB_COLOR, borderRadius: 10, overflow: 'hidden', backgroundColor: colors.surface },
   row: { borderTopWidth: 1, borderTopColor: colors.border, padding: 12 },
   rowTextCol: { flex: 1 },
-  rowTitle: { ...typography.label, color: TAB_COLOR },
-  rowMeta: { ...typography.caption, color: TAB_COLOR, marginTop: 2 },
+  rowTitle: { ...typography.label, color: TAB_COLOR,
+
+    ...textShadow,
+
+  },
+  rowMeta: { ...typography.caption, color: TAB_COLOR, marginTop: 2,
+
+    ...textShadow,
+
+  },
   rowActions: { flexDirection: 'row', gap: 16, marginTop: 10 },
-  actionText: { ...typography.captionEmphasis, color: TAB_COLOR },
-  actionTextPrimary: { ...typography.captionEmphasis, color: colors.primary },
-  actionTextRemove: { ...typography.captionEmphasis, color: colors.danger },
+  actionText: { ...typography.captionEmphasis, color: TAB_COLOR,
+
+    ...textShadow,
+
+  },
+  actionTextPrimary: { ...typography.captionEmphasis, color: colors.primary,
+
+    ...textShadow,
+
+  },
+  actionTextRemove: { ...typography.captionEmphasis, color: colors.danger,
+
+    ...textShadow,
+
+  },
   tagGroup: { marginBottom: 8 },
-  tagGroupLabel: { ...typography.eyebrow, color: TAB_COLOR, marginBottom: 4 },
+  tagGroupLabel: { ...typography.eyebrow, color: TAB_COLOR, marginBottom: 4,
+
+    ...textShadow,
+
+  },
   readyText: { color: colors.statusFlagged },
   clearedText: { color: colors.primary },
   flaggedText: { color: colors.danger },

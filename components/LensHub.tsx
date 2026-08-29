@@ -1179,6 +1179,9 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginBottom: 6,
     marginLeft: 4,
+
+    ...textShadow,
+
   },
   // Fills whatever vertical space `card` has left after cardHeader (card's
   // own default column flexDirection + this flex: 1 does that) -- the
@@ -1204,6 +1207,9 @@ const styles = StyleSheet.create({
   },
   groupHeaderText: {
     ...typography.eyebrow,
+
+    ...textShadow,
+
   },
   // See LensOption's own `dividerBefore` comment -- same `width: '100%'`
   // fresh-row trick as groupHeaderRow above, just wrapping a plain line

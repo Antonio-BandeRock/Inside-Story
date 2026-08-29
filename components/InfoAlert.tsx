@@ -2,7 +2,7 @@ import { useCallback, useState, type ReactNode } from 'react';
 import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { NAVIGATION_HAND } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 type InfoAlertRequest = { title: string; message: string };
 
@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: 18,
     marginBottom: 10,
+    ...textShadow,
   },
   messageScroll: {
     marginBottom: 16,
@@ -131,6 +132,7 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     lineHeight: 21,
+    ...textShadow,
   },
   link: {
     color: colors.primary,
@@ -148,5 +150,6 @@ const styles = StyleSheet.create({
   okButtonText: {
     ...typography.bodyEmphasis,
     color: colors.textOnPrimary,
+    ...textShadow,
   },
 });

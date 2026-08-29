@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import type { ComponentConditionNote } from '../lib/db';
 
 // Shared render for one row inside a Food builder's "Worth Knowing If You
@@ -62,7 +62,7 @@ export function ConditionNoteRow({
 
 const styles = StyleSheet.create({
   spaced: { marginTop: 8 },
-  condition: { ...typography.bodyEmphasis, color: colors.textPrimary },
-  text: { ...typography.body, color: colors.textPrimary, marginTop: 2 },
-  learnMore: { ...typography.caption, color: colors.danger, marginTop: 2 },
+  condition: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+  text: { ...typography.body, color: colors.textPrimary, marginTop: 2, ...textShadow },
+  learnMore: { ...typography.caption, color: colors.danger, marginTop: 2, ...textShadow },
 });

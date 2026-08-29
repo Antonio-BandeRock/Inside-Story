@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import type { MyItemsCategory } from './MyItemsHub';
 
 // The Digest's own topic-menu look (see purple-digest.tsx's own
@@ -42,6 +42,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
   },
-  itemLabel: { ...typography.label, flex: 1, marginRight: 8 },
-  itemCount: { ...typography.caption, color: colors.textSecondary },
+  itemLabel: { ...typography.label, flex: 1, marginRight: 8, ...textShadow },
+  itemCount: { ...typography.caption, color: colors.textSecondary, ...textShadow },
 });

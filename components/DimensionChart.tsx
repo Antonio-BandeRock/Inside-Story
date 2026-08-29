@@ -18,7 +18,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Polygon, Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import type { TierSeverity } from '../lib/sixDimensionsReference';
 
 export type DimensionChartDatum = { dimension: string; severity: TierSeverity };
@@ -148,14 +148,14 @@ export function DimensionChart({ conditionName, data, color }: { conditionName?:
 
 const styles = StyleSheet.create({
   wrap: { marginTop: 12 },
-  title: { ...typography.bodyEmphasis, marginBottom: 8 },
+  title: { ...typography.bodyEmphasis, marginBottom: 8, ...textShadow },
   radarWrap: { alignItems: 'center' },
   rowsWrap: { gap: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   rowDot: { width: 12, height: 12, borderRadius: 6 },
-  rowLabel: { ...typography.body, color: colors.textPrimary, flexShrink: 1 },
+  rowLabel: { ...typography.body, color: colors.textPrimary, flexShrink: 1, ...textShadow },
   legend: { marginTop: 10, gap: 4 },
   legendRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
   legendDot: { width: 8, height: 8, borderRadius: 4, marginTop: 4 },
-  legendText: { ...typography.caption, color: colors.textMuted, flex: 1 },
+  legendText: { ...typography.caption, color: colors.textMuted, flex: 1, ...textShadow },
 });

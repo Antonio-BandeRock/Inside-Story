@@ -48,7 +48,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import { getConnectionByPublicKey } from '../lib/connections';
 import { decodeShareEnvelope, stageSharedItem, type ShareEnvelope } from '../lib/sharing';
 
@@ -202,16 +202,48 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: 20 },
   body: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12 },
-  fromLine: { ...typography.caption, color: colors.textMuted, marginBottom: 4 },
-  title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center' },
-  text: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
+  fromLine: { ...typography.caption, color: colors.textMuted, marginBottom: 4,
+
+    ...textShadow,
+
+  },
+  title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center',
+
+    ...textShadow,
+
+  },
+  text: { ...typography.body, color: colors.textSecondary, textAlign: 'center',
+
+    ...textShadow,
+
+  },
   verifiedRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 },
-  verifiedText: { ...typography.caption, color: colors.accent, flexShrink: 1 },
-  unverifiedText: { ...typography.caption, color: colors.textMuted, marginTop: 10 },
+  verifiedText: { ...typography.caption, color: colors.accent, flexShrink: 1,
+
+    ...textShadow,
+
+  },
+  unverifiedText: { ...typography.caption, color: colors.textMuted, marginTop: 10,
+
+    ...textShadow,
+
+  },
   photo: { width: '100%', height: 200, borderRadius: 12, marginTop: 16, backgroundColor: colors.surface },
-  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 20, marginBottom: 6 },
-  ingredientLine: { ...typography.body, color: colors.textPrimary, lineHeight: 20 },
-  errorText: { ...typography.caption, color: colors.danger, marginTop: 16 },
+  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 20, marginBottom: 6,
+
+    ...textShadow,
+
+  },
+  ingredientLine: { ...typography.body, color: colors.textPrimary, lineHeight: 20,
+
+    ...textShadow,
+
+  },
+  errorText: { ...typography.caption, color: colors.danger, marginTop: 16,
+
+    ...textShadow,
+
+  },
   actionRow: { flexDirection: 'row', gap: 12, marginTop: 24 },
   actionButton: { flex: 1 },
   primaryButton: {
@@ -222,7 +254,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   primaryButtonDisabled: { opacity: 0.6 },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
+
+    ...textShadow,
+
+  },
   secondaryButton: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -230,5 +266,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
   },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary,
+
+    ...textShadow,
+
+  },
 });
