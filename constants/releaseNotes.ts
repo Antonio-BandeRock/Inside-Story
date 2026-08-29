@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.19',
+    date: '2026-08-29',
+    changes: [
+      "Prostate Health now has its own Already tested foods list in Profile, where only Hashimoto's had one before: caffeine, alcohol, evening fluids, choline-rich foods, and selenium or vitamin E supplements. Each links to the cited research behind it.",
+    ],
+  },
+  {
     version: '1.0.30.18',
     date: '2026-08-29',
     changes: [

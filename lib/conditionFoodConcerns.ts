@@ -93,6 +93,64 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
       },
     ],
   },
+  // Prostate Health, 2026-08-29. Direct request, after this registry's own
+  // Hashimoto's-only scope was surfaced by someone tracking Prostate
+  // Health finding nothing here: "Do Prostate Health's Already tested
+  // foods next."
+  //
+  // Every entry below links to a Digest entry that already exists and
+  // already carries its own verified citation, confirmed by reading each
+  // one rather than assumed from the id looking plausible. Nothing new was
+  // claimed here.
+  //
+  // Deliberately excluded, named rather than quietly dropped: spicy food,
+  // which is very commonly listed as a bladder irritant in clinic-facing
+  // BPH advice but which a direct literature search found no trial-level
+  // evidence for. Adding it would mean presenting popular guidance at the
+  // same confidence as the SELECT trial, which this app's own evidence
+  // discipline does not allow. Also excluded: tomatoes/lycopene and
+  // cruciferous vegetables, both real and well-cited here, but as
+  // PROTECTIVE findings rather than anything worth testing tolerance to.
+  {
+    conditionCode: 'prostate_health',
+    concerns: [
+      {
+        id: 'prostate-caffeine',
+        label: 'Caffeine',
+        shortNote:
+          'Acts on the same alpha-1-adrenergic receptors in bladder-neck and prostate muscle that BPH medications target, plus its own diuretic effect. A documented association, and one people often find varies a lot person to person.',
+        digestEntryId: 'prostate-alpha-adrenergic-stress-cold-caffeine',
+      },
+      {
+        id: 'prostate-alcohol',
+        label: 'Alcohol',
+        shortNote:
+          'Named directly in the behavioral-therapy trial that measurably reduced night-time waking, alongside caffeine, as an evening intake worth cutting back.',
+        digestEntryId: 'prostate-behavioral-nocturia-reduction',
+      },
+      {
+        id: 'prostate-evening-fluids',
+        label: 'Fluids late in the evening',
+        shortNote:
+          'Not a food to avoid, a timing question: shifting total fluid earlier in the day is part of the structured program that beat both drug therapy and placebo for nocturia.',
+        digestEntryId: 'prostate-behavioral-nocturia-reduction',
+      },
+      {
+        id: 'prostate-choline-rich-foods',
+        label: 'Choline-rich foods (eggs, red meat, organ meat)',
+        shortNote:
+          'A 47,896-man, 22-year study found the highest choline intake tracked with a 70% higher risk of lethal prostate cancer, with gut bacteria doing the actual chemistry. A long-term pattern question rather than a daily reaction.',
+        digestEntryId: 'prostate-choline-tmao',
+      },
+      {
+        id: 'prostate-selenium-vitamin-e-supplements',
+        label: 'Selenium and vitamin E supplements',
+        shortNote:
+          'The 35,000-man SELECT trial found selenium does not prevent prostate cancer here, and that vitamin E may raise risk. Worth knowing before taking either, even though selenium is well evidenced for other conditions.',
+        digestEntryId: 'prostate-selenium-select-trial-correction',
+      },
+    ],
+  },
 ];
 
 export function getConditionFoodConcerns(conditionCode: string): ConditionFoodConcern[] | null {
