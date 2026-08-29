@@ -19,6 +19,7 @@ import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonS
 import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
 import { typography } from '../constants/typography';
+import { APP_VERSION } from '../constants/version';
 import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreferences';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
@@ -788,14 +789,43 @@ export default function ProfileScreen() {
       if (!result.isAvailable) {
         hideBusy();
         setUpdateCheckBusy(false);
-        showBackupAlert('Up to Date', 'You already have the latest version of Inside Story.');
+        showBackupAlert(
+          'Up to Date',
+          `You already have the latest version of Inside Story (${APP_VERSION}). Nothing was downloaded, and the app does not need to restart.`,
+        );
+        return;
+      }
+      // Ask before restarting, 2026-08-29, direct report on this button's
+      // own first real use: "the app just restarts. It doesn't give any
+      // warning about what is going to happen, or what to do when it
+      // starts again." Applying an update genuinely does close and
+      // relaunch the app, which is startling with no warning and can
+      // discard whatever someone was in the middle of. Reuses the same
+      // confirm sheet Backup & Restore's own destructive confirm already
+      // uses, not a second pattern. Not marked destructive: this isn't
+      // data loss, it's a restart, and the red styling would overstate it.
+      hideBusy();
+      const proceed = await confirmBackup({
+        title: 'Update Available',
+        message:
+          'A newer version of Inside Story is ready. It will download, then the app will close and reopen on its own to finish. This usually takes a few seconds. Anything you are part-way through entering right now would be lost, so finish or save that first if you need to. When it reopens, you will see a summary of what changed.',
+        confirmLabel: 'Update and Restart',
+        cancelLabel: 'Not Now',
+      });
+      if (!proceed) {
+        setUpdateCheckBusy(false);
         return;
       }
       showBusy('Downloading update…');
       await Updates.fetchUpdateAsync();
+      showBusy('Restarting to finish…');
       // reloadAsync tears the whole JS context down and relaunches on a
       // fresh bundle on success, so nothing after this line runs in that
       // case -- matching handleSelectGroundTheme's own reload just above.
+      // What the person sees next is Home's own "Updated to X" summary
+      // (see announceAppliedUpdate in app/(tabs)/index.tsx), which is the
+      // other half of this same report: confirmation that an update was
+      // genuinely applied, and what was actually in it.
       await Updates.reloadAsync();
     } catch (error) {
       console.error('handleCheckForUpdates failed', error);
@@ -3229,6 +3259,10 @@ export default function ProfileScreen() {
               Inside Story only checks for a new version automatically when it first opens, not while it&apos;s
               already running. If you know an update was just sent out, check here instead of closing and
               reopening the app.
+            </Text>
+            <Text style={[styles.helpText, styles.derivedText]}>
+              You&apos;re on version {APP_VERSION}. Checking is safe: if there&apos;s nothing new, nothing happens.
+              If there is, you&apos;ll be told what will happen and asked before anything restarts.
             </Text>
             <TouchableOpacity style={styles.checkinButton} disabled={updateCheckBusy} onPress={handleCheckForUpdates}>
               <Text style={styles.checkinButtonText}>{updateCheckBusy ? 'Working…' : 'Check for Updates'}</Text>

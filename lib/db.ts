@@ -12580,6 +12580,46 @@ export async function setStoredMeasurementSystem(value: 'metric' | 'imperial') {
   );
 }
 
+// The last APP_VERSION this device actually ran, 2026-08-29 -- the piece
+// that lets the app notice it has just been updated and say so, rather
+// than an update being a silent restart. Direct report after the first
+// OTA update ever reached a phone: "It doesn't give any warning about
+// what is going to happen... or if an update was applied or if there was
+// any update at all."
+//
+// Deliberately compared against the running APP_VERSION rather than
+// tracking expo-updates' own update ID: this catches BOTH ways a new
+// version actually arrives (the manual Check for Updates button, and the
+// automatic check-on-launch that applies on the next reopen), and it also
+// survives a full native reinstall, which an update ID would not. Stored
+// in app_meta alongside measurement system above, the same single
+// key/value pattern, since this is one small scalar, not a table's worth
+// of data.
+const LAST_SEEN_APP_VERSION_KEY = 'last_seen_app_version';
+
+export async function getLastSeenAppVersion(): Promise<string | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ value: string }>(
+    'SELECT value FROM app_meta WHERE key = ?',
+    LAST_SEEN_APP_VERSION_KEY,
+  );
+  return row?.value ?? null;
+}
+
+export async function setLastSeenAppVersion(value: string) {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+    `,
+    LAST_SEEN_APP_VERSION_KEY,
+    value,
+    now,
+  );
+}
+
 export async function listMeals(limit = 10) {
   const db = await getDatabase();
   return db.getAllAsync<MealRecord>(

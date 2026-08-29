@@ -19,7 +19,12 @@ import { useBackgroundBottomInset } from '../../components/ScreenBackground';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { FLOATING_BUTTON_SIZE, useBottomLeftHubPosition, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
+import {
+  formatReleaseNotesMessage,
+  getReleaseNotesSince,
+} from '../../constants/releaseNotes';
 import { TAB_ROUTES } from '../../constants/tabs';
+import { APP_VERSION } from '../../constants/version';
 import { textShadow, typography } from '../../constants/typography';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
 import { getMoonPhase, getUpcomingSeasonalMarker } from '../../lib/celestialEvents';
@@ -37,6 +42,7 @@ import {
 import {
   getCheckinForDate,
   getCuriousAboutConditions,
+  getLastSeenAppVersion,
   getNutrientTotalsByDateRange,
   getSixDimensionsFlagCountsByDateRange,
   getUserConditions,
@@ -48,6 +54,7 @@ import {
   recordBodyMeasurement,
   recordCheckin,
   recordExercise,
+  setLastSeenAppVersion,
   setScheduledMealSkipped,
   type CheckinValence,
   type MealRecord,
@@ -786,6 +793,50 @@ export default function HomeScreen() {
   // and all 4 functions below are genuinely stable across renders --
   // this effect now only fires on a real focus event, not on every
   // render this state churn used to cause.
+  // "Was the app just updated, and what changed?" 2026-08-29, direct
+  // report after the first OTA update ever actually reached a phone: "It
+  // doesn't give any warning about what is going to happen, or what to do
+  // when it starts again, or if an update was applied or if there was any
+  // update at all... provide a informational thing after the update is
+  // applied to tell that an update was actually applied, and what did that
+  // update include for changes."
+  //
+  // Compares the running APP_VERSION against the last one this device
+  // recorded (see getLastSeenAppVersion's own comment in lib/db.ts for why
+  // the version, not expo-updates' own update ID, is the right thing to
+  // compare). Catches both ways a new version arrives: Profile's own
+  // Check for Updates button, and the automatic check-on-launch that
+  // applies on the next reopen -- neither of which said anything at all
+  // before this.
+  //
+  // The recorded version is updated whether or not there was anything to
+  // show, so a version with no release-notes entry (a purely internal
+  // bump) silently moves the marker forward instead of leaving it stale
+  // and re-triggering on every launch afterward.
+  //
+  // showInfoAlert is stable by construction (useCallback with [] deps, see
+  // components/InfoAlert.tsx's own comment on exactly this), so adding
+  // this to the focus effect's dependency array below cannot reintroduce
+  // the refetch loop fixed there on 2026-08-28.
+  const announceAppliedUpdate = useCallback(async () => {
+    try {
+      const previousVersion = await getLastSeenAppVersion();
+      if (previousVersion === APP_VERSION) return;
+      const notes = getReleaseNotesSince(previousVersion, APP_VERSION);
+      await setLastSeenAppVersion(APP_VERSION);
+      if (notes.length === 0) return;
+      showInfoAlert(
+        `Updated to ${APP_VERSION}`,
+        `Inside Story updated itself and restarted. Here's what changed:\n\n${formatReleaseNotesMessage(notes)}`,
+      );
+    } catch (error) {
+      // A failure here should never block Home from finishing its own
+      // load: not knowing whether to show a changelog is a cosmetic gap,
+      // not a reason to leave someone staring at a loading screen.
+      console.warn('announceAppliedUpdate failed', error);
+    }
+  }, [showInfoAlert]);
+
   useFocusEffect(
     useCallback(() => {
       const isFirstLoad = !hasLoadedOnceRef.current;
@@ -794,6 +845,12 @@ export default function HomeScreen() {
         if (!isFirstLoad) return;
         hasLoadedOnceRef.current = true;
         setLoading(false);
+        // Deliberately here, inside the first-load branch, rather than in
+        // its own mount effect: this is the exact moment the startup
+        // overlay is about to clear (markHomeDataReady below), so the
+        // What's New popup lands over a ready Home screen instead of
+        // racing the loading gate and appearing behind it.
+        void announceAppliedUpdate();
         // 2026-08-16: the real fix for "the loading bar... was put in
         // place to hide the loading time of the home screen." Signals
         // app/_layout.tsx's own startup gate that Home's own first real
@@ -803,7 +860,7 @@ export default function HomeScreen() {
         markHomeDataReady();
         scrollRef.current?.scrollTo({ y: 0, animated: false });
       });
-    }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope]),
+    }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope, announceAppliedUpdate]),
   );
 
   // Plain useEffect (mount-once), not useFocusEffect -- this is meant to
