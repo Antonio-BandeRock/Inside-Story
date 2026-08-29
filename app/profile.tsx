@@ -77,6 +77,7 @@ import {
   setStoredMeasurementSystem,
   setUserConditionSelected,
   setUserNutrientTargetOverride,
+  realignPlannedMealTimes,
   setUserProfile,
   SymptomAssessmentRecord,
   type UserNutrientTargetOverride,
@@ -1648,6 +1649,46 @@ export default function ProfileScreen() {
     if (profile[field] != null) updateProfile({ [field]: null });
   }
 
+  // See the "Meals already scheduled" block in the Meal Timing card below
+  // for why this lives in Profile. Uses today as the start date rather
+  // than asking for one: rewriting when a PAST meal was scheduled is
+  // never what someone means by "apply my new times," and already-logged
+  // meals are excluded by realignPlannedMealTimes itself regardless.
+  const [realigningMealTimes, setRealigningMealTimes] = useState(false);
+  async function handleRealignScheduledMealTimes() {
+    if (realigningMealTimes) return;
+    setRealigningMealTimes(true);
+    try {
+      const today = new Date();
+      const fromDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(
+        today.getDate(),
+      ).padStart(2, '0')}`;
+      const { updated, adjustedForFasting } = await realignPlannedMealTimes(fromDate);
+      if (updated === 0) {
+        showBackupAlert(
+          'Nothing to change',
+          'Every meal scheduled from today onward is already at the times set above.',
+        );
+        return;
+      }
+      showBackupAlert(
+        'Times updated',
+        `${updated} scheduled meal${updated === 1 ? ' was' : 's were'} moved to the times set above.` +
+          (adjustedForFasting
+            ? ' Some were also moved to fit inside your eating window, since your usual time for them fell outside it.'
+            : '') +
+          ' Meals you have already logged were left alone.',
+      );
+    } catch (error) {
+      showBackupAlert(
+        'Could not update the times',
+        error instanceof Error ? error.message : String(error),
+      );
+    } finally {
+      setRealigningMealTimes(false);
+    }
+  }
+
   function handleFastingToggle(enabled: boolean) {
     updateProfile({ fastingEnabled: enabled });
   }
@@ -2412,6 +2453,31 @@ export default function ProfileScreen() {
                 )}
               </>
             ) : null}
+
+            {/* 2026-08-29, direct instruction after this action was first
+                built into a Schedule lens instead and described in a way
+                that pointed here: "Move it to Profile next to the meal
+                times." Correct placement, and it should have been here
+                from the start: this is where the times above are changed,
+                so it is where "apply them to what I already scheduled"
+                belongs. Deliberately MOVED, not duplicated, so there is
+                exactly one place this action exists. */}
+            <Text style={styles.subLabelDivided}>Meals already scheduled</Text>
+            <Text style={styles.helpText}>
+              Changing the times above only affects meals scheduled from now on. Meal plans already on your
+              schedule keep the times they were created with. This updates them to match what you set above,
+              keeping the same meals on the same days, from today forward. Meals you have already logged are
+              left alone.
+            </Text>
+            <TouchableOpacity
+              style={styles.checkinButton}
+              disabled={realigningMealTimes}
+              onPress={handleRealignScheduledMealTimes}
+            >
+              <Text style={styles.checkinButtonText}>
+                {realigningMealTimes ? 'Updating…' : 'Apply These Times to Meals Already Scheduled'}
+              </Text>
+            </TouchableOpacity>
           </View>
         ) : null}
       </View>

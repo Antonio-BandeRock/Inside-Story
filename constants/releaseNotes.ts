@@ -41,11 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.4',
+    date: '2026-08-29',
+    changes: [
+      'Moved "Apply These Times to Meals Already Scheduled" into Profile, in the Meal Timing section, directly under your meal times and fasting window. It was previously in Schedule under the Meal Plan lens, which is not where you set those times and not where the previous update said it would be.',
+    ],
+  },
+  {
     version: '1.0.30.3',
     date: '2026-08-29',
     changes: [
       'Meal plans now also respect your intermittent fasting eating window, not just your usual meal times. A meal whose usual time falls outside your window is moved inside it instead of being scheduled when you would not be eating.',
-      'New "Update Times on Meals Already Scheduled" button in the Meal Plan area. Setting a plan up again never fixed the times on days already on your schedule, because it deliberately leaves those days alone. This corrects them in place, keeping the same meals on the same days, and leaves anything you already logged untouched.',
+      'Added a way to correct the times on meals already scheduled. Setting a plan up again never fixed them, because it deliberately leaves days already on your schedule alone. This corrects them in place, keeping the same meals on the same days, and leaves anything you already logged untouched. (See 1.0.30.4: this now lives in Profile, under Meal Timing.)',
     ],
   },
   {

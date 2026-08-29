@@ -56,7 +56,6 @@ import {
   setScheduledMealSkipped,
   settlePastScheduledMeals,
   setTreatmentActive,
-  realignPlannedMealTimes,
   setUpMealPlan,
   unlinkScheduleItemFromDeviceCalendarEvent,
   updateAppointment,
@@ -2190,7 +2189,6 @@ function MealPlanLens() {
   );
   const [startDate, setStartDate] = useState(todayDateString());
   const [settingUp, setSettingUp] = useState(false);
-  const [realigning, setRealigning] = useState(false);
   const [addingDay, setAddingDay] = useState<number | null>(null);
   // Every track has the same 42 days, so the day-number-to-date mapping
   // stays valid across a track switch without needing to be reset.
@@ -2215,36 +2213,6 @@ function MealPlanLens() {
       showInfoAlert('Could not set up the plan', error instanceof Error ? error.message : String(error));
     } finally {
       setSettingUp(false);
-    }
-  }
-
-  async function handleRealignTimes() {
-    if (!isValidDateString(startDate)) {
-      showInfoAlert('Almost there', 'Enter a valid date (YYYY-MM-DD) to update from.');
-      return;
-    }
-    setRealigning(true);
-    try {
-      const { updated, adjustedForFasting } = await realignPlannedMealTimes(startDate);
-      if (updated === 0) {
-        showInfoAlert(
-          'Nothing to change',
-          'Every meal scheduled on or after this date is already at the times set in Profile.',
-        );
-        return;
-      }
-      showInfoAlert(
-        'Times updated',
-        `${updated} scheduled meal${updated === 1 ? ' was' : 's were'} moved to the times set in Profile.` +
-          (adjustedForFasting
-            ? ' Some were also moved to fit inside your eating window, since your usual time for them fell outside it.'
-            : '') +
-          ' Meals you have already logged were left alone.',
-      );
-    } catch (error) {
-      showInfoAlert('Could not update the times', error instanceof Error ? error.message : String(error));
-    } finally {
-      setRealigning(false);
     }
   }
 
@@ -2305,30 +2273,17 @@ function MealPlanLens() {
           <Text style={styles.primaryButtonText}>{settingUp ? 'Setting up…' : 'Set Up My 6-Week Plan'}</Text>
         </TouchableOpacity>
 
-        {/* 2026-08-29, direct report: "I updated my wife's phone and then
-            regenerated her 6 week meal plan and it still isn't picking up
-            on any of the meal information from Profile." Setting the plan
-            up again deliberately skips any day already scheduled, so it
-            can never fix the times on a plan that already exists (see
-            realignPlannedMealTimes in lib/db.ts for the full reasoning).
-            This is the action that actually does that, without deleting
-            or regenerating anything: same days, same meals, corrected
-            times. */}
+        {/* 2026-08-29: the "fix the times on meals already scheduled"
+            action deliberately lives in Profile, in the Meal Timing card
+            right below the times themselves, NOT here. Direct instruction
+            after it was first built here: "Move it to Profile next to the
+            meal times." Kept in exactly one place rather than duplicated,
+            so there is never a question of which one is real. */}
         <Text style={[styles.helperText, { marginTop: 16 }]}>
-          Already set up a plan and then changed your meal times or fasting window in Profile? Setting the plan
-          up again will not fix it, because days already on your schedule are left alone. Use this instead. It
-          keeps the same meals on the same days and only corrects their times.
+          Setting the plan up again leaves days already on your schedule alone, so it will not change their
+          times. To apply new meal times or a fasting window to a plan already scheduled, use Profile, under
+          Meal Timing.
         </Text>
-        <TouchableOpacity
-          style={[styles.primaryButton, { marginTop: 8 }, realigning && styles.primaryButtonDisabled]}
-          activeOpacity={0.85}
-          disabled={realigning}
-          onPress={handleRealignTimes}
-        >
-          <Text style={styles.primaryButtonText}>
-            {realigning ? 'Updating…' : 'Update Times on Meals Already Scheduled'}
-          </Text>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.sourceList}>
