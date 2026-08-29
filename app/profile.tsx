@@ -230,6 +230,7 @@ const ALL_CARD_SECTION_KEYS = [
   'meal-schedule',
   'connections',
   'backup',
+  'app-updates',
   'developer',
 ] as const;
 type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
@@ -750,6 +751,59 @@ export default function ProfileScreen() {
       showBackupAlert(
         'Saved',
         'Your new ground color is saved, but this device could not restart the app automatically. Close and reopen Inside Story to see it everywhere.',
+      );
+    }
+  }
+
+  // App Updates, 2026-08-28, direct question: "If the app is already open,
+  // does it fetch the update in the background? If not, is there a way to
+  // make that a selection in profile?" The honest answer to the first half
+  // is no -- EAS Update's default checkAutomatically: ON_LOAD only checks
+  // when the JS bundle first loads (a fresh launch), never while the app
+  // is already sitting open in the foreground, which is why the standing
+  // "open once, close, reopen" two-step exists at all. This is the second
+  // half: a manual button so someone doesn't have to force-close the app
+  // just to find out whether a newer update exists. Deliberately its own
+  // busy/disabled state, not shared with backupBusy above, since a stuck
+  // update check should never also lock out Export/Restore.
+  const [updateCheckBusy, setUpdateCheckBusy] = useState(false);
+  async function handleCheckForUpdates() {
+    if (updateCheckBusy) return;
+    setUpdateCheckBusy(true);
+    showBusy('Checking for updates…');
+    try {
+      // Updates.isEnabled is false in Expo Go and in a development-client
+      // build with no update channel configured -- both real, common cases
+      // during this app's own testing, not just a theoretical guard.
+      if (!Updates.isEnabled) {
+        hideBusy();
+        setUpdateCheckBusy(false);
+        showBackupAlert(
+          'Not Available on This Build',
+          'This copy of Inside Story isn’t connected to update checking (true of a development build running from a live server). Close and reopen the app instead to pick up a change.',
+        );
+        return;
+      }
+      const result = await Updates.checkForUpdateAsync();
+      if (!result.isAvailable) {
+        hideBusy();
+        setUpdateCheckBusy(false);
+        showBackupAlert('Up to Date', 'You already have the latest version of Inside Story.');
+        return;
+      }
+      showBusy('Downloading update…');
+      await Updates.fetchUpdateAsync();
+      // reloadAsync tears the whole JS context down and relaunches on a
+      // fresh bundle on success, so nothing after this line runs in that
+      // case -- matching handleSelectGroundTheme's own reload just above.
+      await Updates.reloadAsync();
+    } catch (error) {
+      console.error('handleCheckForUpdates failed', error);
+      hideBusy();
+      setUpdateCheckBusy(false);
+      showBackupAlert(
+        'Could Not Check for Updates',
+        'Something went wrong checking for an update. Make sure this device has an internet connection and try again.',
       );
     }
   }
@@ -3157,6 +3211,27 @@ export default function ProfileScreen() {
             </TouchableOpacity>
             <TouchableOpacity style={styles.dangerButton} disabled={backupBusy} onPress={handleRestoreFromFile}>
               <Text style={styles.dangerButtonText}>{backupBusy ? 'Working…' : 'Restore from a File…'}</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+      </View>
+
+      {/* App Updates, 2026-08-28, see handleCheckForUpdates's own comment
+          above for the full "why this exists" reasoning: the app only
+          ever checks for a JS update automatically when it first launches,
+          never while already open, so this is the manual alternative to
+          force-closing and relaunching just to find out. */}
+      <View style={styles.card}>
+        {renderCardHeader('app-updates', 'App Updates')}
+        {!collapsedSections.has('app-updates') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Inside Story only checks for a new version automatically when it first opens, not while it&apos;s
+              already running. If you know an update was just sent out, check here instead of closing and
+              reopening the app.
+            </Text>
+            <TouchableOpacity style={styles.checkinButton} disabled={updateCheckBusy} onPress={handleCheckForUpdates}>
+              <Text style={styles.checkinButtonText}>{updateCheckBusy ? 'Working…' : 'Check for Updates'}</Text>
             </TouchableOpacity>
           </View>
         ) : null}
