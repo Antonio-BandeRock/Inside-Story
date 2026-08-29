@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.20',
+    date: '2026-08-29',
+    changes: [
+      "Every condition now has its own Already tested foods list in Profile, not just Hashimoto's and Prostate Health. 84 entries across all 19, each linked to the cited research behind it.",
+      "Prostate Health gained spicy food and tea, backed by a validated survey where 47% of men with chronic pelvic pain reported real food sensitivities, plus tomatoes and cruciferous vegetables as foods worth eating more of.",
+    ],
+  },
+  {
     version: '1.0.30.19',
     date: '2026-08-29',
     changes: [
