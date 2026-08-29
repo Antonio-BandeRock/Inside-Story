@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.21',
+    date: '2026-08-29',
+    changes: [
+      "Sharpened the prostate spicy-food entry to what the evidence actually says: capsaicin-containing hot peppers and chili, not spices in general. Cinnamon, turmeric, cumin, black pepper and garlic were all on the same 176-item questionnaire and none were flagged.",
+      "Added the foods that survey found soothing, which most summaries leave out: water, herbal non-caffeinated teas, and psyllium.",
+    ],
+  },
+  {
     version: '1.0.30.20',
     date: '2026-08-29',
     changes: [

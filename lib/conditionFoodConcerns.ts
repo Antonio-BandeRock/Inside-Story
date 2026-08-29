@@ -163,9 +163,9 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
       },
       {
         id: 'prostate-spicy-food',
-        label: 'Spicy food, hot peppers and chili',
+        label: 'Hot peppers and chili (capsaicin)',
         shortNote:
-          'Among the most commonly reported aggravators in a validated 176-item survey of men with chronic pelvic pain, where 47% reported real food sensitivity. Individual, not universal, which is exactly why it is worth testing rather than assuming.',
+          'The specific items the evidence actually names, scoring -0.44 and -0.38 on a -2 to +2 scale in a validated 176-item survey. Note it is capsaicin-containing peppers, not spices generally: cinnamon, turmeric, cumin and black pepper were all on that questionnaire and none were flagged.',
         digestEntryId: 'prostate-food-sensitivity-cpps',
       },
       {
@@ -181,6 +181,20 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         shortNote:
           'A food to eat more of, not less: a 42-study, 692,000-participant meta-analysis found lycopene tracks with roughly 12% lower prostate cancer risk, and cooked tomato makes it far more absorbable. Marked here so you can flag it if you are avoiding tomatoes.',
         digestEntryId: 'prostate-lycopene-tomatoes',
+      },
+      {
+        id: 'prostate-soothing-fluids',
+        label: 'Water and herbal (non-caffeinated) teas',
+        shortNote:
+          "The same survey asked what helped, not just what hurt, and these scored among the most soothing. Worth knowing that ordinary tea and herbal tea landed on opposite ends of it.",
+        digestEntryId: 'prostate-food-sensitivity-cpps',
+      },
+      {
+        id: 'prostate-psyllium-fiber',
+        label: 'Psyllium and bulking fiber',
+        shortNote:
+          "Also among the items that measurably eased symptoms in that survey, alongside water and herbal tea.",
+        digestEntryId: 'prostate-food-sensitivity-cpps',
       },
       {
         id: 'prostate-cruciferous',
