@@ -8,6 +8,7 @@ import {
   AssessmentResponseType,
   getAssessmentDomains,
   getAssessmentItems,
+  getUserConditions,
   getSymptomAssessmentTrend,
   recordSymptomAssessment,
 } from '../lib/db';
@@ -24,6 +25,18 @@ import {
 // modeled on).
 const SEVERITY_LABELS = ['Not at all', 'Mild', 'Moderate', 'Severe', 'Very severe'];
 const WELLBEING_LABELS = ['Never', 'Rarely', 'Sometimes', 'Often', 'Very often', 'Always'];
+// The IPSS answer scale, wording taken from the validated instrument
+// itself rather than paraphrased. The nocturia item reads as a count in
+// the original; 'Almost always' still maps to the same 5, and the item's
+// own prompt already asks 'how many times', so the scale stays honest.
+const IPSS_LABELS = [
+  'Not at all',
+  'Less than 1 time in 5',
+  'Less than half the time',
+  'About half the time',
+  'More than half the time',
+  'Almost always',
+];
 
 function optionsForResponseType(type: AssessmentResponseType): { value: number; label: string }[] {
   switch (type) {
@@ -31,6 +44,8 @@ function optionsForResponseType(type: AssessmentResponseType): { value: number; 
       return SEVERITY_LABELS.map((label, i) => ({ value: i, label }));
     case 'wellbeing_0_5':
       return WELLBEING_LABELS.map((label, i) => ({ value: i, label }));
+    case 'ipss_0_5':
+      return IPSS_LABELS.map((label, i) => ({ value: i, label }));
     case 'vas_0_100_10step':
       return Array.from({ length: 11 }, (_, i) => ({ value: i * 10, label: String(i * 10) }));
     case 'frequency_days_0_10':
@@ -53,7 +68,7 @@ export default function AssessmentScreen() {
   useEffect(() => {
     let isMounted = true;
 
-    Promise.all([getAssessmentDomains(), getAssessmentItems()]).then(([loadedDomains, loadedItems]) => {
+    Promise.all([getUserConditions().then((codes) => getAssessmentDomains(codes)), getAssessmentItems()]).then(([loadedDomains, loadedItems]) => {
       if (!isMounted) return;
       setDomains(loadedDomains);
       setItems(loadedItems);
@@ -384,7 +399,6 @@ const styles = StyleSheet.create({
   submitButtonText: {
     ...typography.bodyEmphasis,
     color: colors.textOnPrimary,
-    ...textShadow,
   },
   resultsTitle: {
     fontSize: 24,

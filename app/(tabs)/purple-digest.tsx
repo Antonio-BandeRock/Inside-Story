@@ -6519,8 +6519,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: 8,
-    ...BUTTON_SHADOW,
-    ...textShadow,
+    ...BUTTON_SHADOW,
   },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
@@ -6863,7 +6862,7 @@ const styles = StyleSheet.create({
   // fontWeight '700' against a solid, opaque TAB_COLOR fill (not a photo
   // background needing a shadow for contrast the way this app's other
   // shadowed labels do), so bold alone already carries full legibility.
-  dietTagPillText: { ...typography.caption, color: colors.background, fontSize: 11, fontWeight: '400', ...textShadow },
+  dietTagPillText: { ...typography.caption, color: colors.background, fontSize: 11, fontWeight: '400' },
   detailLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
   detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, ...textShadow },
   // Emphasis inside Digest body content (the **...** spans renderRichText
@@ -6891,7 +6890,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 12,
   },
-  buildRecipeButtonText: { ...typography.bodyEmphasis, color: colors.background, ...textShadow },
+  buildRecipeButtonText: { ...typography.bodyEmphasis, color: colors.background },
   buildRecipeButtonDisabled: { opacity: 0.5 },
   // "Build This Recipe" plus its own small, real Share button sitting
   // right beside it, 2026-08-15 -- see CuratedRecipeShareButton's own

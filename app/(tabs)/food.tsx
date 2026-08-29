@@ -1461,9 +1461,7 @@ const styles = StyleSheet.create({
     backgroundColor: TAB_COLOR,
     borderRadius: 20,
     paddingHorizontal: 14,
-    paddingVertical: 8,
-
-    ...textShadow,
+    paddingVertical: 8,
 
   },
 });

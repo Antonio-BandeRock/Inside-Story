@@ -1727,7 +1727,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     ...BUTTON_SHADOW,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   primaryButtonTextMuted: { color: colors.textMuted },
   secondaryButton: {
     borderRadius: 8,

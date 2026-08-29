@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   primaryButtonDisabled: { opacity: 0.6 },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   emptyText: { ...typography.body, color: colors.textMuted, ...textShadow },
   row: {

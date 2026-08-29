@@ -2093,7 +2093,7 @@ export default function ProfileScreen() {
                   selected={birthYear || null}
                   minWidth={72}
                   tabColor={colors.menuIconMuted}
-                  tintedSurface
+                  groundSurface
                   onSelect={(value) => {
                     setBirthYear(value);
                     commitBirthDate({ year: value });
@@ -2106,7 +2106,7 @@ export default function ProfileScreen() {
                   selected={birthMonth || null}
                   minWidth={52}
                   tabColor={colors.menuIconMuted}
-                  tintedSurface
+                  groundSurface
                   onSelect={(value) => {
                     setBirthMonth(value);
                     commitBirthDate({ month: value });
@@ -2119,7 +2119,7 @@ export default function ProfileScreen() {
                   selected={birthDay || null}
                   minWidth={52}
                   tabColor={colors.menuIconMuted}
-                  tintedSurface
+                  groundSurface
                   onSelect={(value) => {
                     setBirthDay(value);
                     commitBirthDate({ day: value });
@@ -2147,7 +2147,7 @@ export default function ProfileScreen() {
                       selected={heightFeetInput || null}
                       minWidth={52}
                       tabColor={colors.menuIconMuted}
-                      tintedSurface
+                      groundSurface
                       onSelect={(value) => {
                         setHeightFeetInput(value);
                         commitHeight({ feet: value });
@@ -2160,7 +2160,7 @@ export default function ProfileScreen() {
                       selected={heightInchesInput || null}
                       minWidth={52}
                       tabColor={colors.menuIconMuted}
-                      tintedSurface
+                      groundSurface
                       onSelect={(value) => {
                         setHeightInchesInput(value);
                         commitHeight({ inches: value });
@@ -2175,7 +2175,7 @@ export default function ProfileScreen() {
                     selected={heightCmInput || null}
                     minWidth={72}
                     tabColor={colors.menuIconMuted}
-                    tintedSurface
+                    groundSurface
                     onSelect={(value) => {
                       setHeightCmInput(value);
                       commitHeight({ cm: value });
@@ -2203,7 +2203,7 @@ export default function ProfileScreen() {
                     selected={weightLbInput || null}
                     minWidth={64}
                     tabColor={colors.menuIconMuted}
-                    tintedSurface
+                    groundSurface
                     searchable
                     onSelect={(value) => {
                       setWeightLbInput(value);
@@ -2218,7 +2218,7 @@ export default function ProfileScreen() {
                     selected={weightKgInput || null}
                     minWidth={64}
                     tabColor={colors.menuIconMuted}
-                    tintedSurface
+                    groundSurface
                     searchable
                     onSelect={(value) => {
                       setWeightKgInput(value);
@@ -2282,7 +2282,7 @@ export default function ProfileScreen() {
                   selected={profile.growingZone}
                   minWidth={64}
                   tabColor={colors.menuIconMuted}
-                  tintedSurface
+                  groundSurface
                   onSelect={(value) => {
                     setProfile((current) => ({ ...current, growingZone: value }));
                     setUserProfile({ growingZone: value });
@@ -2323,7 +2323,7 @@ export default function ProfileScreen() {
                       selected={mealTimeBuffers[dayPart].hour || null}
                       minWidth={48}
                       tabColor={colors.menuIconMuted}
-                      tintedSurface
+                      groundSurface
                       onSelect={(value) => {
                         setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], hour: value } }));
                         commitMealTime(dayPart, { hour: value });
@@ -2336,7 +2336,7 @@ export default function ProfileScreen() {
                       selected={mealTimeBuffers[dayPart].minute || null}
                       minWidth={52}
                       tabColor={colors.menuIconMuted}
-                      tintedSurface
+                      groundSurface
                       onSelect={(value) => {
                         setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], minute: value } }));
                         commitMealTime(dayPart, { minute: value });
@@ -2399,7 +2399,7 @@ export default function ProfileScreen() {
                       selected={eatingWindowStartBuffer.hour || null}
                       minWidth={48}
                       tabColor={colors.menuIconMuted}
-                      tintedSurface
+                      groundSurface
                       onSelect={(value) => {
                         setEatingWindowStartBuffer((current) => ({ ...current, hour: value }));
                         commitEatingWindow({ start: { hour: value } });
@@ -2412,7 +2412,7 @@ export default function ProfileScreen() {
                       selected={eatingWindowStartBuffer.minute || null}
                       minWidth={52}
                       tabColor={colors.menuIconMuted}
-                      tintedSurface
+                      groundSurface
                       onSelect={(value) => {
                         setEatingWindowStartBuffer((current) => ({ ...current, minute: value }));
                         commitEatingWindow({ start: { minute: value } });
@@ -2446,7 +2446,7 @@ export default function ProfileScreen() {
                       selected={eatingWindowEndBuffer.hour || null}
                       minWidth={48}
                       tabColor={colors.menuIconMuted}
-                      tintedSurface
+                      groundSurface
                       onSelect={(value) => {
                         setEatingWindowEndBuffer((current) => ({ ...current, hour: value }));
                         commitEatingWindow({ end: { hour: value } });
@@ -2459,7 +2459,7 @@ export default function ProfileScreen() {
                       selected={eatingWindowEndBuffer.minute || null}
                       minWidth={52}
                       tabColor={colors.menuIconMuted}
-                      tintedSurface
+                      groundSurface
                       onSelect={(value) => {
                         setEatingWindowEndBuffer((current) => ({ ...current, minute: value }));
                         commitEatingWindow({ end: { minute: value } });
@@ -2597,7 +2597,7 @@ export default function ProfileScreen() {
                 placeholder="Every 30 days"
                 minWidth={150}
                 tabColor={colors.menuIconMuted}
-                tintedSurface
+                groundSurface
                 onSelect={(label) => {
                   const picked = CHECKIN_REMINDER_OPTIONS.find((option) => option.label === label);
                   if (!picked) return;
@@ -4052,9 +4052,7 @@ const styles = StyleSheet.create({
   },
   addAllergyButtonText: {
     ...typography.captionEmphasis,
-    color: colors.textOnPrimary,
-
-    ...textShadow,
+    color: colors.textOnPrimary,
 
   },
   errorText: {
@@ -4105,9 +4103,7 @@ const styles = StyleSheet.create({
   },
   checkinButtonText: {
     ...typography.bodyEmphasis,
-    color: colors.textOnPrimary,
-
-    ...textShadow,
+    color: colors.textOnPrimary,
 
   },
   // For a checkinButton label that deliberately spans more than one line.

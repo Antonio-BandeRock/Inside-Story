@@ -180,6 +180,7 @@ export const PopoverSelect = memo(function PopoverSelect({
   searchPlaceholder = 'Type to search…',
   width = POPOVER_WIDTH,
   tintedSurface = false,
+  groundSurface = false,
   openAbove = false,
   openBelow = false,
   onOpenChange,
@@ -213,6 +214,17 @@ export const PopoverSelect = memo(function PopoverSelect({
   // "dark line, lighter field and list" look, rather than the list reading
   // as an unrelated app-wide grey next to a picker's own accent color.
   tintedSurface?: boolean;
+  // Draw the popover on the ground-theme surface instead of a tint of
+  // tabColor. 2026-08-29, direct report about Profile: its list background
+  // "doesn't appear to follow the ground color setting, which it should
+  // because it is the profile, and the profile is a screen, rather than
+  // something you can do with the app kind of screen." Correct: a tool
+  // screen reasonably takes its own tab colour, a settings screen should
+  // follow the ground the whole app is sitting on. Deliberately
+  // colors.surface (dark, ground-derived) rather than a lightened tint,
+  // since the rows draw light text and a pale surface would leave that
+  // unreadable, measured at roughly 1:1.
+  groundSurface?: boolean;
   // Opt-in, default false (every existing caller keeps the standard
   // side-anchored positioning above, unchanged). When true, opens directly
   // above the field instead -- see computePopoverPositionAbove's own
@@ -282,7 +294,11 @@ export const PopoverSelect = memo(function PopoverSelect({
   // reserve room for it -- a plain short list keeps behaving exactly as
   // before, free to use the full screen height like it always has.
   const bottomReserve = searchable ? insets.bottom + KEYBOARD_HEIGHT : 0;
-  const resolvedPopoverBackground = tintedSurface ? popoverBackground(tabColor) : colors.menuSurface;
+  const resolvedPopoverBackground = groundSurface
+    ? colors.surface
+    : tintedSurface
+      ? popoverBackground(tabColor)
+      : colors.menuSurface;
 
   function closeMenu() {
     setIsOpen(false);
@@ -575,15 +591,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     ...BUTTON_SHADOW,
   },
-  fieldText: { ...typography.body, flexShrink: 1, color: colors.textOnButton,
-
-    ...textShadow,
+  fieldText: { ...typography.body, flexShrink: 1, color: colors.textOnButton,
 
   },
   fieldTextPlaceholder: { color: colors.textOnButton, opacity: 0.65 },
-  chevron: { ...typography.caption, color: colors.textOnButton,
-
-    ...textShadow,
+  chevron: { ...typography.caption, color: colors.textOnButton,
 
   },
   popover: {
@@ -640,9 +652,7 @@ const styles = StyleSheet.create({
     ...textShadow,
 
   },
-  rowTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary,
-
-    ...textShadow,
+  rowTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary,
 
   },
   emptyText: {

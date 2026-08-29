@@ -194,5 +194,5 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
   },
-  shareButtonText: { ...typography.body, color: colors.textOnPrimary, fontWeight: '400', ...textShadow },
+  shareButtonText: { ...typography.body, color: colors.textOnPrimary, fontWeight: '400' },
 });

@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   primaryButtonDisabled: { opacity: 0.6 },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, textAlign: 'center', ...textShadow },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, textAlign: 'center' },
   secondaryButton: {
     borderWidth: 1,
     borderColor: colors.border,

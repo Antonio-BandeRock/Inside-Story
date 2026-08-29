@@ -4111,7 +4111,16 @@ export type AssessmentDomain = {
   citation: string;
 };
 
-export type AssessmentResponseType = 'severity_0_4' | 'vas_0_100_10step' | 'frequency_days_0_10' | 'wellbeing_0_5';
+export type AssessmentResponseType =
+  | 'severity_0_4'
+  | 'vas_0_100_10step'
+  | 'frequency_days_0_10'
+  | 'wellbeing_0_5'
+  // The IPSS answer scale, 2026-08-29, added with the prostate_urinary
+  // domain. Its own wording ('less than 1 time in 5' and so on) is part of
+  // the validated instrument, so it needs its own type rather than reusing
+  // wellbeing_0_5's frequency-of-feeling labels.
+  | 'ipss_0_5';
 
 export type AssessmentItem = {
   code: string;
@@ -4124,9 +4133,21 @@ export type AssessmentItem = {
 // The question content for the periodic self-assessment (see
 // scripts/build_food_reference_db.py's populate_assessment_content for the
 // real citations each domain is modeled on).
-export async function getAssessmentDomains() {
+// Only the domains that actually apply to this person, 2026-08-29.
+// Direct report from someone tracking Prostate Health: "I was curious why
+// the check-in is available to me and what it might have on it for my
+// condition. It is all related to IBS... they shouldn't reference IBS if I
+// haven't selected IBS as one of my conditions."
+//
+// A domain with NO rows in assessment_domain_conditions is universal and
+// always shows (Overall Wellbeing is the only one: WHO-5 measures general
+// wellbeing, not any single condition). A domain WITH rows shows only when
+// the person tracks at least one of them. Passing no condition codes
+// therefore yields just the universal domains, which is the honest result
+// for someone who has not told the app they have anything to track.
+export async function getAssessmentDomains(conditionCodes?: string[]) {
   const db = await getReferenceDatabase();
-  return db.getAllAsync<AssessmentDomain>(
+  const all = await db.getAllAsync<AssessmentDomain>(
     `
       SELECT code, display_name AS displayName, description, scoring_method AS scoringMethod,
              framing_note AS framingNote, citation
@@ -4134,6 +4155,23 @@ export async function getAssessmentDomains() {
       ORDER BY code
     `,
   );
+  if (!conditionCodes) return all;
+
+  const mappings = await db.getAllAsync<{ domainCode: string; conditionCode: string }>(
+    'SELECT domain_code AS domainCode, condition_code AS conditionCode FROM assessment_domain_conditions',
+  );
+  const scoped = new Map<string, Set<string>>();
+  for (const row of mappings) {
+    if (!scoped.has(row.domainCode)) scoped.set(row.domainCode, new Set());
+    scoped.get(row.domainCode)!.add(row.conditionCode);
+  }
+  const tracked = new Set(conditionCodes);
+  return all.filter((domain) => {
+    const needed = scoped.get(domain.code);
+    if (!needed) return true;
+    for (const code of needed) if (tracked.has(code)) return true;
+    return false;
+  });
 }
 
 export async function getAssessmentItems(domainCode?: string) {

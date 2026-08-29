@@ -2219,9 +2219,7 @@ const styles = StyleSheet.create({
   personalVerdictPillText: {
     ...typography.captionEmphasis,
     color: colors.textOnPrimary,
-    fontSize: 11,
-
-    ...textShadow,
+    fontSize: 11,
 
   },
   // The caution's own real note (e.g. "Whole-Grain Wheat Flour: rated High

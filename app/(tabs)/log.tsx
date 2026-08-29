@@ -1928,9 +1928,7 @@ const styles = StyleSheet.create({
 
   },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.buttonColor, ...BUTTON_SHADOW },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
-
-    ...textShadow,
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
 
   },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule, 2026-07-27.

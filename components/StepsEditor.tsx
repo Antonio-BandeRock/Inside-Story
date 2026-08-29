@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     ...BUTTON_SHADOW,
   },
   primaryButtonMuted: { backgroundColor: colors.border },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   primaryButtonTextMuted: { color: colors.textMuted },
   secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow },
   summaryEmptyText: { ...typography.caption, color: colors.textSecondary, ...textShadow },

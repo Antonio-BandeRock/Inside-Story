@@ -5574,7 +5574,7 @@ const styles = StyleSheet.create({
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
   secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR, ...textShadow },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.buttonColor, ...BUTTON_SHADOW },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   primaryButtonDisabled: { opacity: 0.5 },
   // Meal Plan/Shopping List lenses, 2026-08-24.
   mealPlanDayRow: {

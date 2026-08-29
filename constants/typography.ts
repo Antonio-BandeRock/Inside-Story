@@ -53,6 +53,15 @@ export const typography = {
 // colors.surface card. Not folded into typography's own tiers above and
 // not applied everywhere by default: most text in the app already sits on
 // an opaque card and doesn't need it, so this stays opt-in per screen.
+// NEVER on near-black text. 2026-08-29, direct report: "I am seeing other
+// black font with drop shadows in the Profile. I think black font should
+// not have drop shadowing applied anywhere in the app." Correct, and it is
+// a real refinement of the app-wide "drop shadow on all text" rule rather
+// than an exception to it: a dark shadow behind dark text has nothing to
+// separate it from, so it only thickens and smudges the glyphs. Anything
+// coloured colors.textOnPrimary, colors.textOnButton, or colors.background
+// (all near-black, the last being every ground theme's own dark base, used
+// as TEXT colour on filled pills and buttons) carries no shadow at all.
 export const textShadow = {
   textShadowColor: 'rgba(0, 0, 0, 0.7)',
   textShadowOffset: { width: 0, height: 1 },

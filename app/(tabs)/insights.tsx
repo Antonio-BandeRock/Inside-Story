@@ -4191,9 +4191,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...BUTTON_SHADOW,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
-
-    ...textShadow,
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
 
   },
   secondaryButton: {

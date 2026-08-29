@@ -2459,7 +2459,7 @@ const styles = StyleSheet.create({
   continueButtonSpacing: {
     marginTop: 28,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   // Continue's own "still missing something" look, 2026-07-28 -- dim
   // grey rather than this page's own tabColor, reading as not-quite-ready
   // without actually disabling the button (see handleContinuePress's own

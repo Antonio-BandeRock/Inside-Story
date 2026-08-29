@@ -1478,7 +1478,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 14,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   secondaryButton: {
     flexDirection: 'row',
     alignItems: 'center',

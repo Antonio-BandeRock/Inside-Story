@@ -149,7 +149,6 @@ const styles = StyleSheet.create({
   },
   okButtonText: {
     ...typography.bodyEmphasis,
-    color: colors.textOnPrimary,
-    ...textShadow,
+    color: colors.textOnPrimary,
   },
 });

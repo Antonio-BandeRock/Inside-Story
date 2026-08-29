@@ -2302,7 +2302,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   feelingSaveButtonDisabled: { opacity: 0.5 },
-  feelingSaveButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textOnPrimary,
+  feelingSaveButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary,
     fontWeight: '400',
   },
   // Shown once today's entry already exists -- tapping it reopens the
@@ -2373,7 +2373,7 @@ const styles = StyleSheet.create({
   modalMeta: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 4 },
   modalActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 16 },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.buttonColor, ...BUTTON_SHADOW },
-  primaryButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textOnButton,
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
     fontWeight: '400',
   },
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },

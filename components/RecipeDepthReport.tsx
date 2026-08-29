@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   conditionHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   conditionName: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   verdictPill: { borderRadius: 999, paddingVertical: 3, paddingHorizontal: 10 },
-  verdictPillText: { ...typography.caption, fontWeight: '400', color: colors.textOnButton, ...textShadow },
+  verdictPillText: { ...typography.caption, fontWeight: '400', color: colors.textOnButton },
   stageContextRow: { marginTop: 4, marginBottom: 4 },
   stageDescription: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
   setStageLink: { ...typography.captionEmphasis, marginTop: 4, textDecorationLine: 'underline', ...textShadow },
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...BUTTON_SHADOW,
   },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton, ...textShadow },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton },
   secondaryButton: {
     borderRadius: 8,
     borderWidth: 2,
