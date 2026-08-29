@@ -5518,6 +5518,15 @@ async function runDatabaseInitialization() {
     }
 
     // Insights' own Energy & Portions lens, 2026-08-15.
+    // How often this person wants to be reminded to take the periodic
+    // symptom check-in, in days. 2026-08-29, direct request: "add an option
+    // for how often they want the app to remind them to check in." Null
+    // means they have not chosen, and Home falls back to its own long-
+    // standing 30-day default rather than nagging on some invented cadence.
+    if (!userProfileColumns.some((column) => column.name === 'checkin_reminder_days')) {
+      await db.execAsync('ALTER TABLE user_profile ADD COLUMN checkin_reminder_days INTEGER;');
+    }
+
     const hasActivityLevelColumn = userProfileColumns.some((column) => column.name === 'activity_level');
     if (!hasActivityLevelColumn) {
       await db.execAsync('ALTER TABLE user_profile ADD COLUMN activity_level TEXT;');
@@ -12833,6 +12842,9 @@ export type UserProfile = {
   // sex/birthDate/height/weight. See lib/energyNeeds.ts's own header
   // comment for the real sources behind each tier's activity multiplier.
   activityLevel: ActivityLevel | null;
+  // Days between periodic symptom check-in reminders. Null means unset, in
+  // which case Home uses its own default (see ASSESSMENT_DUE_AFTER_DAYS).
+  checkinReminderDays: number | null;
   // "HH:mm", 24h, local time -- roughly when this person usually eats each
   // meal. Purely a convenience default for the Schedule tab's time picker;
   // nothing else in the app should treat these as a commitment the person
@@ -12875,6 +12887,7 @@ export async function getUserProfile(): Promise<UserProfile> {
     has_hashimotos: number | null;
     height_cm: number | null;
     activity_level: string | null;
+    checkin_reminder_days: number | null;
     usual_breakfast_time: string | null;
     usual_lunch_time: string | null;
     usual_dinner_time: string | null;
@@ -12887,7 +12900,7 @@ export async function getUserProfile(): Promise<UserProfile> {
     growing_zone_postal_code: string | null;
   }>(
     `
-      SELECT first_name, last_name, sex, birth_date, has_hashimotos, height_cm, activity_level,
+      SELECT first_name, last_name, sex, birth_date, has_hashimotos, height_cm, activity_level, checkin_reminder_days,
              usual_breakfast_time, usual_lunch_time, usual_dinner_time, usual_snack_time,
              fasting_enabled, eating_window_start, eating_window_end,
              growing_zone, growing_zone_country, growing_zone_postal_code
@@ -12904,6 +12917,7 @@ export async function getUserProfile(): Promise<UserProfile> {
       hasHashimotos: null,
       heightCm: null,
       activityLevel: null,
+      checkinReminderDays: null,
       usualBreakfastTime: null,
       usualLunchTime: null,
       usualDinnerTime: null,
@@ -12927,6 +12941,7 @@ export async function getUserProfile(): Promise<UserProfile> {
     activityLevel: (ACTIVITY_LEVELS as string[]).includes(row.activity_level ?? '')
       ? (row.activity_level as ActivityLevel)
       : null,
+    checkinReminderDays: typeof row.checkin_reminder_days === 'number' ? row.checkin_reminder_days : null,
     usualBreakfastTime: row.usual_breakfast_time,
     usualLunchTime: row.usual_lunch_time,
     usualDinnerTime: row.usual_dinner_time,
@@ -13003,12 +13018,12 @@ export async function setUserProfile(update: Partial<UserProfile>) {
     await db.runAsync(
       `
         INSERT INTO user_profile (
-          id, first_name, last_name, sex, birth_date, has_hashimotos, height_cm, activity_level,
+          id, first_name, last_name, sex, birth_date, has_hashimotos, height_cm, activity_level, checkin_reminder_days,
           usual_breakfast_time, usual_lunch_time, usual_dinner_time, usual_snack_time,
           fasting_enabled, eating_window_start, eating_window_end,
           growing_zone, growing_zone_country, growing_zone_postal_code, updated_at
         )
-        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           first_name = excluded.first_name,
           last_name = excluded.last_name,
@@ -13017,6 +13032,7 @@ export async function setUserProfile(update: Partial<UserProfile>) {
           has_hashimotos = excluded.has_hashimotos,
           height_cm = excluded.height_cm,
           activity_level = excluded.activity_level,
+          checkin_reminder_days = excluded.checkin_reminder_days,
           usual_breakfast_time = excluded.usual_breakfast_time,
           usual_lunch_time = excluded.usual_lunch_time,
           usual_dinner_time = excluded.usual_dinner_time,
@@ -13036,6 +13052,7 @@ export async function setUserProfile(update: Partial<UserProfile>) {
       merged.hasHashimotos == null ? null : merged.hasHashimotos ? 1 : 0,
       merged.heightCm,
       merged.activityLevel,
+      merged.checkinReminderDays,
       merged.usualBreakfastTime,
       merged.usualLunchTime,
       merged.usualDinnerTime,
@@ -15726,6 +15743,41 @@ export async function findTrialsAffectedByMealEdit(
 // loop (same table, same status values, same reopenFoodTrial path back
 // into active testing) -- this is a real shortcut into the SAME data, not
 // a second, parallel concept.
+// "Haven't tested" -- 2026-08-29, direct request for a third option
+// alongside "Already tolerate this" and "Already avoid this": "This
+// means it remains to be seen as to whether they will test it, but they
+// can if they want to."
+//
+// Deliberately a real row at status 'waiting' rather than leaving the
+// concern blank. Blank already means 'never looked at this', so it would
+// keep offering the same undecided choice forever; a waiting row records
+// that the person has seen it and consciously left it open, and can start
+// a real trial from it later. Written directly rather than through
+// createFoodTrial specifically so no reminder series is attached: nothing
+// is being tested yet, so there is nothing to check in on.
+export async function markConcernNotTested(
+  concernLabel: string,
+  conditionCode: string,
+): Promise<string> {
+  const db = await getDatabase();
+  const id = `food_trial_${Date.now()}`;
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO food_trials
+        (id, food_name, started_at, observation_days, status, condition_code, created_at, updated_at)
+      VALUES (?, ?, ?, ?, 'waiting', ?, ?, ?)
+    `,
+    id,
+    concernLabel.trim(),
+    `${todayDateStringLocal()}T${new Date().toTimeString().slice(0, 5)}`,
+    3,
+    conditionCode,
+    now,
+    now,
+  );
+  return id;
+}
 export async function markConcernAlreadyTested(
   concernLabel: string,
   conditionCode: string,

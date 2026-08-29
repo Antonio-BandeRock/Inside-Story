@@ -6782,7 +6782,14 @@ const styles = StyleSheet.create({
   matchTermPillTitle: { backgroundColor: TAB_COLOR, borderColor: TAB_COLOR },
   matchTermPillBody: { backgroundColor: 'transparent', borderColor: TAB_COLOR },
   matchTermPillMiss: { backgroundColor: 'transparent', borderColor: colors.border },
-  matchTermPillText: { ...typography.caption, ...textShadow, color: TAB_TEXT_COLOR, fontSize: 11 },
+  // No shadow at all, 2026-08-29, direct instruction after the lighter
+  // shadow still read wrong: "The pills in the search Digest still show up
+  // as smudgy looking. Remove drop shadowing from those completely." A
+  // deliberate, named exception to this app's own standing "drop shadow on
+  // all text" rule: at 11px, inside a bordered pill that already separates
+  // the text from whatever is behind it, any shadow smears the glyphs
+  // rather than helping them read.
+  matchTermPillText: { ...typography.caption, color: TAB_TEXT_COLOR, fontSize: 11 },
   // 2026-08-25, direct report: "drop shadowed is fine only if the font is
   // not already bolded," the same rule dietTagPillText was already fixed
   // under -- matchTermPillText (below) already carries menuLabelShadow, so

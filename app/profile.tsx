@@ -68,6 +68,7 @@ import {
   listFoodAllergies,
   listSymptomAssessments,
   markConcernAlreadyTested,
+  markConcernNotTested,
   recordBodyMeasurement,
   removeFoodAllergy,
   reopenFoodTrial,
@@ -213,6 +214,24 @@ const ICON_GRID_PILL_SIZE = 52;
 // lib/db.ts); isCeiling picks which of user_nutrient_targets' two columns
 // (target_amount for a floor, limit_amount for a ceiling) this field
 // actually edits.
+// How often to be reminded to take the periodic symptom check-in.
+// 2026-08-29, direct request: "add an option for how often they want the
+// app to remind them to check in. Make it a selectable, scrollable (if
+// necessary for the amount of options) list as is used throughout the
+// Food builders" -- so PopoverSelect, this app's own standing picker,
+// not a new control. The values are plain day counts; 30 matches the
+// cadence Home used before this setting existed, so someone who never
+// touches it keeps exactly the behaviour they already had.
+const CHECKIN_REMINDER_OPTIONS: { value: number; label: string }[] = [
+  { value: 7, label: 'Every week' },
+  { value: 14, label: 'Every 2 weeks' },
+  { value: 21, label: 'Every 3 weeks' },
+  { value: 30, label: 'Every 30 days' },
+  { value: 60, label: 'Every 2 months' },
+  { value: 90, label: 'Every 3 months' },
+  { value: 180, label: 'Every 6 months' },
+  { value: 365, label: 'Once a year' },
+];
 const NUTRIENT_TARGET_FIELDS: { nutrientCode: string; label: string; unit: string; isCeiling: boolean }[] = [
   { nutrientCode: 'protein', label: 'Protein', unit: 'g', isCeiling: false },
   { nutrientCode: 'fiber_total', label: 'Fiber', unit: 'g', isCeiling: false },
@@ -229,6 +248,7 @@ const ALL_CARD_SECTION_KEYS = [
   'home-screen',
   'header-growth',
   'appearance',
+  'garden-details',
   'meal-schedule',
   'connections',
   'backup',
@@ -427,6 +447,7 @@ export default function ProfileScreen() {
     hasHashimotos: null,
     heightCm: null,
     activityLevel: null,
+    checkinReminderDays: null,
     usualBreakfastTime: null,
     usualLunchTime: null,
     usualDinnerTime: null,
@@ -1247,6 +1268,14 @@ export default function ProfileScreen() {
     flashSaved();
   }
 
+  // The third option, 2026-08-29. Same refresh-and-flash shape as
+  // handleMarkConcern above; only the recorded outcome differs.
+  async function handleMarkConcernNotTested(concern: ConditionFoodConcern, conditionCode: string) {
+    await markConcernNotTested(concern.label, conditionCode);
+    const trials = await getFoodTrialsForCondition(conditionCode);
+    setConditionFoodConcernTrials((current) => ({ ...current, [conditionCode]: trials }));
+    flashSaved();
+  }
   // "Not sure anymore?" reopenFoodTrial itself now reschedules a fresh
   // reminder series (see its comment in lib/db.ts); this just needs to
   // call it and refresh this one condition's trial list.
@@ -2225,6 +2254,20 @@ export default function ProfileScreen() {
               <Text style={styles.derivedText}>{ACTIVITY_LEVEL_INFO[profile.activityLevel].description}</Text>
             ) : null}
 
+          </View>
+        ) : null}
+      </View>
+
+      {/* Garden Details, 2026-08-29, direct request: move Growing Zone
+          into its own section named Garden Details, since "in future
+          versions there will be more to setup in here." Its own card
+          rather than a sub-heading inside Personal Info, so the further
+          garden settings that request anticipates have somewhere to land
+          without another reorganisation. */}
+      <View style={styles.card}>
+        {renderCardHeader('garden-details', 'Garden Details')}
+        {!collapsedSections.has('garden-details') ? (
+          <View style={styles.cardBody}>
             <Text style={styles.subLabelDivided}>Growing Zone</Text>
             <Text style={styles.helpText}>
               Your USDA Plant Hardiness Zone (e.g. &quot;7a&quot;): powers the Garden tab&apos;s
@@ -2253,6 +2296,7 @@ export default function ProfileScreen() {
                 <Text style={styles.growingZoneLinkText}>Find My Zone →</Text>
               </TouchableOpacity>
             </View>
+
           </View>
         ) : null}
       </View>
@@ -2533,6 +2577,36 @@ export default function ProfileScreen() {
                 above. Excludes whatever's already selected as one's own
                 just above, so the same condition is never offered in both
                 lists at once. Same conditionGrid layout reused directly. */}
+            {/* 2026-08-29: the cadence Home's own check-in reminder banner
+                actually uses. Left unset it falls back to the same 30 days
+                Home used before this existed, so nothing changes for anyone
+                who never opens this. */}
+            <Text style={styles.subLabelDivided}>Check-in reminders</Text>
+            <Text style={styles.helpText}>
+              How often Home should remind you to take your symptom check-in. Retaking it is what turns a
+              single day into a trend, but the right spacing is personal, so pick whatever you will actually
+              keep up with.
+            </Text>
+            <PickerField label="Remind me">
+              <PopoverSelect
+                options={CHECKIN_REMINDER_OPTIONS.map((option) => option.label)}
+                selected={
+                  CHECKIN_REMINDER_OPTIONS.find((option) => option.value === profile.checkinReminderDays)?.label ??
+                  null
+                }
+                placeholder="Every 30 days"
+                minWidth={150}
+                tabColor={colors.menuIconMuted}
+                tintedSurface
+                onSelect={(label) => {
+                  const picked = CHECKIN_REMINDER_OPTIONS.find((option) => option.label === label);
+                  if (!picked) return;
+                  setProfile((current) => ({ ...current, checkinReminderDays: picked.value }));
+                  setUserProfile({ checkinReminderDays: picked.value });
+                  flashSaved();
+                }}
+              />
+            </PickerField>
             <Text style={styles.subLabelDivided}>Curious about other conditions</Text>
             <Text style={styles.helpText}>
               Learn about a condition without adding it to what this app tracks and helps with for you personally,
@@ -2735,16 +2809,33 @@ export default function ProfileScreen() {
                               >
                                 <Text style={styles.pillText}>Already avoid this</Text>
                               </TouchableOpacity>
+                              {/* 2026-08-29, direct request for a third
+                                  option: "Haven't tested". Records that this
+                                  was seen and deliberately left open, rather
+                                  than leaving it blank, which already means
+                                  "never looked at" and would keep asking. */}
+                              <TouchableOpacity
+                                style={styles.pill}
+                                onPress={() => handleMarkConcernNotTested(concern, code)}
+                              >
+                                <Text style={styles.pillText}>Haven&apos;t tested</Text>
+                              </TouchableOpacity>
                             </View>
                           ) : trial.status === 'trialing' ? (
                             <Text style={styles.derivedText}>Currently being tested in Signals.</Text>
                           ) : (
                             <View style={styles.pillRow}>
                               <Text style={styles.derivedText}>
-                                {trial.status === 'cleared' ? 'Marked: tolerated.' : 'Marked: avoiding.'}
+                                {trial.status === 'cleared'
+                                  ? 'Marked: tolerated.'
+                                  : trial.status === 'flagged'
+                                    ? 'Marked: avoiding.'
+                                    : 'Marked: not tested yet.'}
                               </Text>
                               <TouchableOpacity onPress={() => handleReopenConcernTrial(trial.id, code)}>
-                                <Text style={styles.concernReopenLink}>Not sure anymore? Put back into testing</Text>
+                                <Text style={styles.concernReopenLink}>
+                                  {trial.status === 'waiting' ? 'Test this now' : 'Not sure anymore? Put back into testing'}
+                                </Text>
                               </TouchableOpacity>
                             </View>
                           )}

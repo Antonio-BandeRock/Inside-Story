@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.16',
+    date: '2026-08-29',
+    changes: [
+      'Digest search pills no longer have any drop shadow, so the small text stops looking smudged.',
+      'Growing Zone moved into its own Garden Details section in Profile, with room for more garden settings later.',
+      'Profile > Conditions & Check-In now lets you choose how often to be reminded to check in, from weekly to once a year. Home uses whatever you pick.',
+      'The check-in reminder on Home now only appears if you have told the app you have a condition, and stops asking for a first check-in once you have taken one.',
+      "Already tested foods gained a third choice, Haven't tested, for a food you have looked at and left open rather than decided on. You can start testing it later from the same row.",
+    ],
+  },
+  {
     version: '1.0.30.15',
     date: '2026-08-29',
     changes: [

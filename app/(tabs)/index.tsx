@@ -355,6 +355,10 @@ type DashboardData = {
   // been taken at all -- treated the same as "due" as a real number would
   // be past the cadence below.
   daysSinceAssessment: number | null;
+  // The person's own chosen reminder cadence (Profile > Conditions &
+  // Check-In). Null means unset, in which case ASSESSMENT_DUE_AFTER_DAYS
+  // applies, exactly as it did before this setting existed.
+  checkinReminderDays: number | null;
 };
 
 // The periodic symptom check-in's own automatic re-prompt cadence --
@@ -757,6 +761,7 @@ export default function HomeScreen() {
           hasAnyLogHistory,
           feelingCheckin,
           daysSinceAssessment,
+          checkinReminderDays: profile.checkinReminderDays,
         });
       },
     );
@@ -1047,7 +1052,17 @@ export default function HomeScreen() {
   const nutrientFlagCount = data ? findNutrientGaps(data.nutrientEntries).length + findExcessRisks(data.nutrientEntries).length : 0;
   const worthALookCount = nutrientFlagCount + (data?.sixDsFlagCount ?? 0);
   const todayLabel = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-  const assessmentDue = data ? data.daysSinceAssessment === null || data.daysSinceAssessment >= ASSESSMENT_DUE_AFTER_DAYS : false;
+  // 2026-08-29, direct request: this banner "should only be there at all
+  // if they have set a preference telling the app that they have a
+  // condition" -- so no tracked condition means no reminder at all,
+  // rather than prompting someone who never told the app they have
+  // anything to track. The cadence itself is the person's own choice now,
+  // falling back to the long-standing 30-day default when unset.
+  const checkinIntervalDays = data?.checkinReminderDays ?? ASSESSMENT_DUE_AFTER_DAYS;
+  const assessmentDue =
+    data && userConditionCodes.length > 0
+      ? data.daysSinceAssessment === null || data.daysSinceAssessment >= checkinIntervalDays
+      : false;
 
   const coreNutrientRings = data
     ? CORE_NUTRIENT_CODES.map((code) => data.nutrientEntries.find((entry) => entry.nutrientCode === code)).filter(
