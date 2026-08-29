@@ -2454,30 +2454,6 @@ export default function ProfileScreen() {
               </>
             ) : null}
 
-            {/* 2026-08-29, direct instruction after this action was first
-                built into a Schedule lens instead and described in a way
-                that pointed here: "Move it to Profile next to the meal
-                times." Correct placement, and it should have been here
-                from the start: this is where the times above are changed,
-                so it is where "apply them to what I already scheduled"
-                belongs. Deliberately MOVED, not duplicated, so there is
-                exactly one place this action exists. */}
-            <Text style={styles.subLabelDivided}>Meals already scheduled</Text>
-            <Text style={styles.helpText}>
-              Changing the times above only affects meals scheduled from now on. Meal plans already on your
-              schedule keep the times they were created with. This updates them to match what you set above,
-              keeping the same meals on the same days, from today forward. Meals you have already logged are
-              left alone.
-            </Text>
-            <TouchableOpacity
-              style={styles.checkinButton}
-              disabled={realigningMealTimes}
-              onPress={handleRealignScheduledMealTimes}
-            >
-              <Text style={styles.checkinButtonText}>
-                {realigningMealTimes ? 'Updating…' : 'Apply These Times to Meals Already Scheduled'}
-              </Text>
-            </TouchableOpacity>
           </View>
         ) : null}
       </View>
@@ -2848,6 +2824,30 @@ export default function ProfileScreen() {
               onPress={() => router.push({ pathname: '/schedule', params: { openScheduleLens: 'dailyMealPlan' } })}
             >
               <Text style={styles.checkinButtonText}>Generate My Meal Plan</Text>
+            </TouchableOpacity>
+
+            {/* 2026-08-29: this action belongs here, in Profile > Meal
+                Plan. It was built into a Schedule lens first, then moved
+                to Profile > Meal Timing, both wrong. Direct correction:
+                "You were supposed to move it to Profile > Meal Plan."
+                Kept in exactly one place, never duplicated, so there is
+                never a question of which one is real. */}
+            <Text style={styles.subLabelDivided}>Meals already scheduled</Text>
+            <Text style={styles.helpText}>
+              Changing your meal times or fasting window only affects meals scheduled from then on. A meal plan
+              already on your schedule keeps the times it was created with, and generating a plan again will not
+              fix it, because days already scheduled are left alone. This updates them to your current settings,
+              keeping the same meals on the same days, from today forward. Meals you have already logged are
+              left alone.
+            </Text>
+            <TouchableOpacity
+              style={styles.checkinButton}
+              disabled={realigningMealTimes}
+              onPress={handleRealignScheduledMealTimes}
+            >
+              <Text style={styles.checkinButtonText}>
+                {realigningMealTimes ? 'Updating…' : 'Apply These Times to Meals Already Scheduled'}
+              </Text>
             </TouchableOpacity>
           </View>
         ) : null}

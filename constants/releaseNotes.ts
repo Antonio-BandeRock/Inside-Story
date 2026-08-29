@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.5',
+    date: '2026-08-29',
+    changes: [
+      'Moved "Apply These Times to Meals Already Scheduled" to Profile, in the Meal Plan section, directly under "Generate My Meal Plan". This is where it should have been. It is in one place only.',
+    ],
+  },
+  {
     version: '1.0.30.4',
     date: '2026-08-29',
     changes: [
