@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.6',
+    date: '2026-08-29',
+    changes: [
+      'Renamed the button in Profile > Meal Plan to "Apply My Meal Timing Changes to Existing Meals", so it says plainly that tapping it updates meals already scheduled to match what you changed in Meal Timing.',
+    ],
+  },
+  {
     version: '1.0.30.5',
     date: '2026-08-29',
     changes: [

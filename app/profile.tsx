@@ -1667,13 +1667,13 @@ export default function ProfileScreen() {
       if (updated === 0) {
         showBackupAlert(
           'Nothing to change',
-          'Every meal scheduled from today onward is already at the times set above.',
+          'Every meal scheduled from today onward already matches your Meal Timing settings.',
         );
         return;
       }
       showBackupAlert(
         'Times updated',
-        `${updated} scheduled meal${updated === 1 ? ' was' : 's were'} moved to the times set above.` +
+        `${updated} scheduled meal${updated === 1 ? ' was' : 's were'} moved to match your Meal Timing settings.` +
           (adjustedForFasting
             ? ' Some were also moved to fit inside your eating window, since your usual time for them fell outside it.'
             : '') +
@@ -2834,9 +2834,9 @@ export default function ProfileScreen() {
                 never a question of which one is real. */}
             <Text style={styles.subLabelDivided}>Meals already scheduled</Text>
             <Text style={styles.helpText}>
-              Changing your meal times or fasting window only affects meals scheduled from then on. A meal plan
+              Changes you make in Meal Timing only affect meals scheduled from that point on. A meal plan
               already on your schedule keeps the times it was created with, and generating a plan again will not
-              fix it, because days already scheduled are left alone. This updates them to your current settings,
+              fix it, because days already scheduled are left alone. Tap the button below to update them,
               keeping the same meals on the same days, from today forward. Meals you have already logged are
               left alone.
             </Text>
@@ -2846,7 +2846,7 @@ export default function ProfileScreen() {
               onPress={handleRealignScheduledMealTimes}
             >
               <Text style={styles.checkinButtonText}>
-                {realigningMealTimes ? 'Updating…' : 'Apply These Times to Meals Already Scheduled'}
+                {realigningMealTimes ? 'Updating…' : 'Apply My Meal Timing Changes to Existing Meals'}
               </Text>
             </TouchableOpacity>
           </View>
