@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.14',
+    date: '2026-08-29',
+    changes: [
+      'Emphasized phrases in Digest articles now show in the Digest accent color instead of bold, so emphasis is still visible now that bold is gone everywhere.',
+    ],
+  },
+  {
     version: '1.0.30.13',
     date: '2026-08-29',
     changes: [

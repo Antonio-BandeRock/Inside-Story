@@ -5558,9 +5558,9 @@ function DigestCard({
           <View style={styles.cardDetail}>
             <EntryMetaRow entry={entry} />
             <Text style={styles.detailLabel}>The problem</Text>
-            <Text style={styles.detailText}>{renderRichText(entry.problem, styles.detailTextBold)}</Text>
+            <Text style={styles.detailText}>{renderRichText(entry.problem, styles.detailTextEmphasis)}</Text>
             <Text style={styles.detailLabel}>The mechanism</Text>
-            <Text style={styles.detailText}>{renderRichText(entry.mechanism, styles.detailTextBold)}</Text>
+            <Text style={styles.detailText}>{renderRichText(entry.mechanism, styles.detailTextEmphasis)}</Text>
             <Text style={styles.detailLabel}>Swaps</Text>
             {entry.swaps.map((swap, index) => (
               <Text key={index} style={styles.swapText}>
@@ -5597,7 +5597,7 @@ function DigestCard({
             {tierLabel(entry.overallTier)}
           </Text>
           <EntryMetaRow entry={entry} />
-          <Text style={styles.detailText}>{renderRichText(entry.summary, styles.detailTextBold)}</Text>
+          <Text style={styles.detailText}>{renderRichText(entry.summary, styles.detailTextEmphasis)}</Text>
           {entry.linkedCuratedRecipeId && entry.linkedBuilderType ? (
             <View style={styles.recipeButtonRow}>
               <TouchableOpacity
@@ -5798,7 +5798,7 @@ function RecipeCardDetail({
         <Text style={styles.recipeNutritionLabel}>What this dish gives you</Text>
         {card.nutritionHighlights.map((highlight, index) => (
           <Text key={index} style={styles.recipeNutritionText}>
-            {'•'} <Text style={styles.detailTextBold}>{highlight.nutrient}:</Text> {highlight.note}
+            {'•'} <Text style={styles.detailTextEmphasis}>{highlight.nutrient}:</Text> {highlight.note}
           </Text>
         ))}
       </View>
@@ -6732,7 +6732,15 @@ const styles = StyleSheet.create({
   dietTagPillText: { ...typography.caption, color: colors.background, fontSize: 11, fontWeight: '400', ...textShadow },
   detailLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
   detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, ...textShadow },
-  detailTextBold: { fontWeight: '400' },
+  // Emphasis inside Digest body content (the **...** spans renderRichText
+  // pulls out). 2026-08-29: this was fontWeight '700' until bold was
+  // removed app-wide, which left emphasis indistinguishable from the text
+  // around it. Asked directly rather than assumed, and the answer was to
+  // color it: the Digest's own accent, at regular weight like everything
+  // else. Measured 6.68:1 against the card behind it, comfortably past the
+  // 4.5:1 floor, so it stays readable as body-size prose rather than just
+  // decorative. Renamed from detailTextBold, which no longer described it.
+  detailTextEmphasis: { color: TAB_TEXT_COLOR },
   swapText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 2, ...textShadow },
   // The Recipes category's own real CTA, 2026-08-14 -- solid-filled with
   // TAB_COLOR (not the lightened popoverBackground tint other screens use
