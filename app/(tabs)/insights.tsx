@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import { useLocalSearchParams } from 'expo-router';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
   classifyPrepStateGroup,
@@ -531,6 +532,7 @@ export default function InsightsScreen() {
   // Food Lookup owns its own separate layout instead (see FoodLookupView's
   // own opening comment for why) and no longer needs this at all.
   const scrollViewRef = useRef<ScrollView>(null);
+  const { openInsightsLens } = useLocalSearchParams<{ openInsightsLens?: string }>();
   const [lens, setLens] = useState<Lens>('nutrients');
   // Whether this tab's own specific background/content is currently risen
   // (GatedTabContent.tsx) -- separate from `lens` itself, which keeps its
@@ -549,9 +551,27 @@ export default function InsightsScreen() {
   const [myInsightsOpen, setMyInsightsOpen] = useState(false);
   useFocusEffect(
     useCallback(() => {
+      // openInsightsLens overrides the normal "always land on the resting
+      // picker" reset below, the same way schedule.tsx's own
+      // openScheduleLens and purple-digest.tsx's own openDigestLens
+      // already do. 2026-08-29, direct report about Home's "Worth a look"
+      // tile: "goes to the Insights screen with nothing else selected. A
+      // person who taps that will never know where they are supposed to
+      // look for the thing that is worth a look." Correct -- that tile
+      // navigated to a bare /insights, which resets to the lens picker,
+      // so the count it just showed had no destination at all. Validated
+      // against LENSES rather than cast, so a stale or mistyped link
+      // falls through to the ordinary resting picker instead of setting
+      // a lens key that does not exist.
+      const requestedLens = LENSES.find((option) => option.key === openInsightsLens);
+      if (requestedLens) {
+        setLens(requestedLens.key);
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
-    }, []),
+    }, [openInsightsLens]),
   );
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');

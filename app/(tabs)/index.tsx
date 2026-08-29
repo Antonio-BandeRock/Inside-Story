@@ -12,6 +12,7 @@ import { EDGE_SHADOW_HEIGHT, EdgeShadow } from '../../components/EdgeShadow';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
 import type { HelpSection } from '../../components/HelpButton';
+import { AppActionSheet } from '../../components/AppActionSheet';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { ProgressRing } from '../../components/ProgressRing';
 import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
@@ -549,6 +550,9 @@ export default function HomeScreen() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  // Only ever opens when "Worth a look" is genuinely made of both kinds of
+  // flag at once -- see handleWorthALookPress below.
+  const [worthALookChoiceOpen, setWorthALookChoiceOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ScheduleItemRecord | null>(null);
   const [quickLogModal, setQuickLogModal] = useState<'bp' | 'exercise' | null>(null);
   const [bpSystolic, setBpSystolic] = useState('');
@@ -1050,7 +1054,38 @@ export default function HomeScreen() {
   const upNext = data ? findUpNext(data.scheduledToday) : null;
   const mealsLoggedToday = data?.todaysMeals.length ?? 0;
   const nutrientFlagCount = data ? findNutrientGaps(data.nutrientEntries).length + findExcessRisks(data.nutrientEntries).length : 0;
-  const worthALookCount = nutrientFlagCount + (data?.sixDsFlagCount ?? 0);
+  const sixDsFlagCount = data?.sixDsFlagCount ?? 0;
+  const worthALookCount = nutrientFlagCount + sixDsFlagCount;
+
+  // 2026-08-29, direct report: this tile "goes to the Insights screen with
+  // nothing else selected. A person who taps that will never know where
+  // they are supposed to look for the thing that is worth a look."
+  // Correct: it navigated to a bare /insights, which always resets to the
+  // lens picker, so the number it just showed led nowhere.
+  //
+  // The count is genuinely two different things added together, which is
+  // why one fixed destination could never be right for it: nutrientFlagCount
+  // is today's nutrient gaps and excess risks (the Nutrients lens), and
+  // sixDsFlagCount is flagged sub-criteria for the person's own tracked
+  // conditions (the Condition Scores lens). So the tap resolves against
+  // whichever the number is actually made of, and only asks when both
+  // genuinely contributed -- naming each count in the choice, so the
+  // question answers itself rather than being one more thing to guess at.
+  function handleWorthALookPress() {
+    if (nutrientFlagCount > 0 && sixDsFlagCount > 0) {
+      setWorthALookChoiceOpen(true);
+      return;
+    }
+    if (sixDsFlagCount > 0) {
+      router.navigate({ pathname: '/insights', params: { openInsightsLens: 'sixDs' } });
+      return;
+    }
+    // Nothing flagged at all still lands on Nutrients rather than the bare
+    // picker: it is the lens this number is mostly built from, and seeing
+    // the day's numbers with nothing flagged is a real answer to "why is
+    // this zero," not a dead end.
+    router.navigate({ pathname: '/insights', params: { openInsightsLens: 'nutrients' } });
+  }
   const todayLabel = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
   // 2026-08-29, direct request: this banner "should only be there at all
   // if they have set a preference telling the app that they have a
@@ -1400,7 +1435,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.statTile, { borderColor: tabColorFor('/insights') }]}
-          onPress={() => router.navigate('/insights')}
+          onPress={handleWorthALookPress}
           activeOpacity={0.75}
         >
           <CardLabel tabPath="/insights" text="Worth a look" />
@@ -1664,6 +1699,28 @@ export default function HomeScreen() {
   return (
     <View style={styles.screen}>
       {infoAlertElement}
+      <AppActionSheet
+        visible={worthALookChoiceOpen}
+        onClose={() => setWorthALookChoiceOpen(false)}
+        title="Worth a look"
+        message="Today's count covers two different things. Which would you like to see?"
+        actions={[
+          {
+            label: `Nutrients (${nutrientFlagCount})`,
+            onPress: () => {
+              setWorthALookChoiceOpen(false);
+              router.navigate({ pathname: '/insights', params: { openInsightsLens: 'nutrients' } });
+            },
+          },
+          {
+            label: `Condition Scores (${sixDsFlagCount})`,
+            onPress: () => {
+              setWorthALookChoiceOpen(false);
+              router.navigate({ pathname: '/insights', params: { openInsightsLens: 'sixDs' } });
+            },
+          },
+        ]}
+      />
       <SwipeableTabScreen>
         <View style={styles.contentArea}>
         <ScrollView

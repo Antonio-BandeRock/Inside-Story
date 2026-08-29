@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.22',
+    date: '2026-08-29',
+    changes: [
+      "Home's \"Worth a look\" tile now opens the lens the number actually came from, instead of dropping you on the Insights picker with no idea where to look. Nutrient flags open Nutrients, condition flags open Condition Scores, and when the count is made of both it asks which one you want, naming how many of each.",
+    ],
+  },
+  {
     version: '1.0.30.21',
     date: '2026-08-29',
     changes: [
