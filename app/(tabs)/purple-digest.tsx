@@ -1321,7 +1321,74 @@ function classifyConditionTopic(entry: AnyDigestEntry): ConditionTopic {
 // would only fragment them for no real benefit, matching the same
 // judgment call Basic Health's own smaller topics (Neurogenesis,
 // Depletion, Mitochondria & Metabolism, and so on) were left alone under.
-const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partial<Record<ConditionTopic, { label: string; ids: string[] }[]>>>> = {
+// 2026-08-29: widened from ConditionTopic to a plain string key so Earth
+// Matters and Home Gardening topics can declare subgroups through the same
+// mechanism, rather than only condition pages being able to. Direct
+// request to make absolutely sure EVERY shelf in Digest gets split when it
+// covers more than one thing, not just the condition ones.
+const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partial<Record<string, { label: string; ids: string[] }[]>>>> = {
+  rheumatoidArthritis: {
+    'Core Science': [
+      { label: 'What Triggers It', ids: ['ra-smoking-citrullination', 'ra-periodontal-disease-pgingivalis', 'ra-hla-drb1-molecular-mechanism'] },
+      { label: 'Diagnosis & Measurement', ids: ['ra-seronegative-real-data', 'ra-mri-ultrasound-early-erosion', 'ra-treat-to-target-remission'] },
+      { label: 'Distinct Presentations', ids: ['ra-elderly-onset-distinct-presentation', 'ra-felty-syndrome'] },
+      { label: 'Disease Activity & Timing', ids: ['ra-leptin-disease-activity-correlation', 'ra-capra-chronotherapy-trial'] },
+    ],
+  },
+  earthMatters: {
+    'Soil Science & Why It Matters': [
+      { label: 'Is Soil Depletion Actually Real?', ids: ['foodhistory-soil-landmark-studies', 'foodhistory-soil-dilution-vs-depletion', 'foodhistory-soil-real-depletion', 'foodhistory-regen-nutrient-density-honest-evidence', 'foodhistory-regen-co2-nutrient-decline', 'foodhistory-regen-fao-baseline-stakes'] },
+      { label: 'How Soil Fertility Actually Works', ids: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-mycorrhizal-networks', 'foodhistory-regen-liquid-carbon-pathway', 'foodhistory-regen-soil-food-web-mineralization', 'foodhistory-regen-rhizobia-nitrogen-fixation', 'foodhistory-regen-darwin-earthworms-vermicompost', 'foodhistory-regen-terra-preta-ancient-biochar', 'foodhistory-regen-engineered-nitrogen-fixing-microbes'] },
+      { label: 'Practices, Measured', ids: ['foodhistory-regen-agroforestry-quantified', 'foodhistory-regen-water-infiltration-quantified', 'foodhistory-regen-nrcs-soil-health-demonstrations', 'foodhistory-regen-uc-davis-century-experiment', 'foodhistory-regen-holistic-grazing-disputed', 'foodhistory-regen-organic-yield-gap-meta-analysis', 'foodhistory-regen-yield-gap-context-dependent', 'foodhistory-regen-korean-natural-farming-jadam', 'foodhistory-regen-biodynamic-farming-correction'] },
+      { label: 'Case Studies Around the World', ids: ['foodhistory-regen-india-water-harvesting-case-study', 'foodhistory-regen-kenya-rangeland-enclosures', 'foodhistory-regen-colombia-shade-coffee-birds', 'foodhistory-regen-india-zbnf-case-study', 'foodhistory-regen-sikkim-organic-state', 'foodhistory-regen-elephant-dung-fertilizer'] },
+      { label: 'Standards, Policy & Who Owns the Land', ids: ['foodhistory-regen-usda-organic-certification', 'foodhistory-regen-farmland-ownership-concentration', 'foodhistory-regen-4-per-1000-initiative'] },
+    ],
+    Pollinators: [
+      { label: 'The Scale of the Decline', ids: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-insect-apocalypse-hallmann', 'foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-bat-pollinators-white-nose'] },
+      { label: 'What\'s Actually at Stake', ids: ['foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-pollinator-nutrition-stakes', 'foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-smallholder-pollinator-vulnerability'] },
+      { label: 'Wild Pollinators & Mechanisms', ids: ['foodhistory-regen-wild-bees-buzz-pollination', 'foodhistory-regen-phenological-mismatch', 'foodhistory-regen-organic-farming-pollinator-abundance'] },
+      { label: 'What Is Being Done About It', ids: ['foodhistory-regen-robotic-drone-pollination', 'foodhistory-regen-pollinator-habitat-regenerative-link'] },
+    ],
+  },
+  homeGardening: {
+    'The Real Case for a Home Garden': [
+      { label: 'Why Grow Your Own At All', ids: ['garden-economics-subsidizing-food', 'garden-mental-health-benefits', 'garden-community-gardens', 'garden-grow-what-you-can-however-small', 'garden-carbon-in-the-ground', 'garden-pollinator-friendly-earth-matters-link'] },
+      { label: 'Growing Indoors', ids: ['garden-indoor-growing-methods-overview', 'garden-led-grow-lights-photoperiod', 'garden-water-quality-filtration'] },
+      { label: 'Fertility, Compost & Pests', ids: ['garden-organic-fertility-amendments', 'garden-organic-approved-pesticides', 'garden-hot-composting', 'garden-three-sisters-companion-planting'] },
+    ],
+  },
+  lupus: {
+    'Core Science': [
+      { label: 'Terms & Definitions', ids: ['glossary-aps-antiphospholipid', 'glossary-sledai'] },
+      { label: 'Mechanisms & Triggers', ids: ['lupus-uv-light-flare-mechanism', 'lupus-c1q-complement-deficiency-genetic', 'lupus-circadian-clock-bmal1', 'lupus-immune-stimulating-herbs'] },
+      { label: 'Complications', ids: ['lupus-antiphospholipid-syndrome', 'lupus-glucocorticoid-osteoporosis', 'lupus-raynauds-thrombosis-risk', 'lupus-fatigue-real-prevalence-mechanism'] },
+      { label: 'Treatment Adherence', ids: ['lupus-hydroxychloroquine-adherence-flare-prevention'] },
+    ],
+  },
+  celiac: {
+    'Core Science': [
+      { label: 'Living Gluten-Free in Practice', ids: ['celiac-cross-contamination', 'celiac-oats-controversy', 'celiac-villi-healing-timeline', 'celiac-gut-dysbiosis-reversal-gfd'] },
+      { label: 'When Symptoms Persist', ids: ['celiac-persistent-symptoms-ibs-overlap', 'celiac-refractory-type1-vs-type2', 'celiac-seronegative-real-prevalence'] },
+      { label: 'Beyond the Gut', ids: ['celiac-hypertension-paradox-real-data', 'celiac-atrial-fibrillation-real-risk', 'celiac-male-fertility-honest-null', 'celiac-circadian-clock-disruption'] },
+    ],
+  },
+  chronicKidneyDisease: {
+    'Core Science': [
+      { label: 'Diet & Restrictions, Reconsidered', ids: ['ckd-potassium-restriction-reconsidered', 'ckd-protein-restriction-plant-based', 'ckd-metabolic-acidosis-bicarbonate'] },
+      { label: 'Anemia & Iron', ids: ['ckd-anemia-erythropoietin', 'ckd-iv-vs-oral-iron-real-trials'] },
+      { label: 'Symptoms That Get Overlooked', ids: ['ckd-associated-pruritus', 'ckd-restless-legs-syndrome-real-prevalence', 'ckd-nocturnal-blood-pressure-circadian'] },
+      { label: 'Staging & Measurement Debates', ids: ['ckd-age-adapted-egfr-debate', 'ckd-adiponectin-paradox'] },
+    ],
+  },
+  gout: {
+    'Core Science': [
+      { label: 'Getting the Diagnosis Right', ids: ['gout-flare-vs-septic-arthritis', 'gout-pseudogout-cppd-distinction'] },
+      { label: 'Diet & Triggers', ids: ['gout-cherries', 'gout-dash-sodium-trial-real-mechanism'] },
+      { label: 'What Gout Travels With', ids: ['gout-metabolic-cluster-connection', 'gout-sleep-apnea-bidirectional-real-data', 'gout-erectile-dysfunction-real-data'] },
+      { label: 'Damage & Advanced Treatment', ids: ['gout-tophi-real-prevalence-joint-damage', 'gout-pegloticase-tophus-resolution-real-data'] },
+      { label: 'Why Flares Strike at Night', ids: ['gout-nocturnal-flare-circadian-pattern'] },
+    ],
+  },
   prostateHealth: {
     'Core Science': [
       { label: 'Overview & Glossary', ids: ['prostate-overview', 'glossary-bph', 'glossary-brca2', 'glossary-psa', 'glossary-psma'] },
@@ -1361,6 +1428,20 @@ const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partial<Recor
     ],
   },
   hashimotos: {
+    'Core Science': [
+      { label: 'Terms & Definitions', ids: ['glossary-aip', 'glossary-aps2', 'glossary-autoimmune-disease', 'glossary-autophagy-mitophagy', 'glossary-euthyroid-hypothyroid', 'glossary-healing-stages', 'glossary-molecular-mimicry', 'glossary-mots-c', 'glossary-th17', 'glossary-wolff-chaikoff', 'glossary-ndt'] },
+    ],
+    'Healing Stages': [
+      { label: 'How the Stages Map Out', ids: ['healing-stage-map'] },
+      { label: 'Stage 1: Settling Things Down', ids: ['healing-stage1-eat', 'healing-stage1-avoid', 'healing-stage1-bone-broth', 'healing-stage1-fermented-exclusion'] },
+      { label: 'Stage 2: Reintroducing', ids: ['healing-stage2-reintroduction', 'healing-stage2-fermented-entry', 'healing-stage2-fiber-expansion'] },
+      { label: 'Stage 3: Well-Healed', ids: ['healing-stage3-what-it-looks-like', 'healing-stage3-practical-shifts'] },
+      { label: 'Honest Corrections', ids: ['healing-tension-detox-myth'] },
+    ],
+    'Mitochondria & Metabolism': [
+      { label: 'Autophagy & Cellular Cleanup', ids: ['mito-il23-autophagy-suppression', 'mito-mtor-cd4-reprogramming', 'mito-mots-c'] },
+      { label: 'Fasting: Both Sides', ids: ['mito-fasting-autophagy-tension', 'mito-ramadan-fasting-study'] },
+    ],
     'Diet & Food': [
       {
         label: 'Nutrients & Supplements',
@@ -1521,6 +1602,12 @@ const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partial<Recor
     ],
   },
   graves: {
+    'Core Science': [
+      { label: 'Terms & Definitions', ids: ['glossary-graves-disease', 'glossary-ptu'] },
+      { label: 'What Causes It, and Who Gets It', ids: ['graves-overview', 'graves-genetic-family-risk', 'graves-stress-trigger', 'graves-subclinical-hyperthyroidism', 'graves-iodine', 'graves-leptin-lower-than-controls', 'graves-circadian-clock-disruption'] },
+      { label: 'Treatment & Real Outcomes', ids: ['graves-beta-blockers', 'graves-remission-real-rates', 'graves-rai-hypothyroidism-real-rate', 'graves-thyroidectomy-real-complication-rates', 'graves-orbital-decompression-real-outcomes', 'graves-selenium-orbitopathy-5year-honest-followup'] },
+      { label: 'Beyond the Thyroid', ids: ['graves-dermopathy-pretibial-myxedema', 'graves-atrial-fibrillation-real-risk', 'graves-hair-loss-honest-evidence-gap'] },
+    ],
     'Medications & Treatment': [
       {
         label: 'Antithyroid Drug Treatment',
@@ -1561,6 +1648,12 @@ const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partial<Recor
     ],
   },
   cardiovascularDisease: {
+    'Core Science': [
+      { label: 'Terms & Definitions', ids: ['glossary-ldl-hdl', 'glossary-pad', 'glossary-tmao'] },
+      { label: 'Diet & Sodium', ids: ['cvd-dash-sodium', 'cvd-potassium-salt-substitute-real-trial', 'cvd-legumes-cruciferous-sex-specific-young-adults'] },
+      { label: 'Testing & Risk Markers', ids: ['cvd-coronary-calcium-score', 'cvd-hypoadiponectinemia-independent-risk'] },
+      { label: 'Treatment, With Honest Reversals', ids: ['cvd-aspirin-primary-prevention-reversal', 'cvd-pad-supervised-exercise-real-data', 'cvd-afib-catheter-ablation-real-trial'] },
+    ],
     'Whole-Body Effects': [
       { label: 'Heart Attack & Symptoms', ids: ['cvd-heart-attack-red-flags', 'cvd-elderly-atypical-mi-presentation'] },
       { label: 'Beyond the Heart', ids: ['cvd-kidney-brain-pad-real-data', 'cvd-myocardial-ischemia-neurogenesis-impairment'] },
@@ -1626,11 +1719,14 @@ const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partial<Recor
 // otherwise just disappear.
 function applyConditionTopicSubgroups(
   categoryKey: string | undefined,
-  topic: ConditionTopic,
+  // Plain string, not ConditionTopic: Earth Matters and Home Gardening
+  // route their own topics through this same function now (2026-08-29), so
+  // every category can declare subgroups rather than only condition pages.
+  topic: string,
   topicEntries: AnyDigestEntry[],
 ): { label: string; entries: AnyDigestEntry[] }[] {
   const subgroups = categoryKey ? CONDITION_TOPIC_SUBGROUPS[categoryKey as DigestCategoryKey]?.[topic] : undefined;
-  if (!subgroups) return [{ label: topic as string, entries: sortDigestEntriesLogically(topicEntries) }];
+  if (!subgroups) return [{ label: topic, entries: sortDigestEntriesLogically(topicEntries) }];
   const idToLabel = new Map<string, string>();
   for (const sub of subgroups) {
     for (const id of sub.ids) idToLabel.set(id, sub.label);
@@ -2164,10 +2260,9 @@ function groupEarthMattersEntries(entries: AnyDigestEntry[]): {
     if (!buckets.has(topic)) buckets.set(topic, []);
     buckets.get(topic)!.push(entry);
   }
-  const topics = EARTH_MATTERS_TOPIC_ORDER.map((topic) => ({
-    label: topic as string,
-    entries: sortDigestEntriesLogically(buckets.get(topic) ?? []),
-  })).filter((group) => group.entries.length > 0);
+  const topics = EARTH_MATTERS_TOPIC_ORDER.flatMap((topic) =>
+    applyConditionTopicSubgroups('earthMatters', topic, buckets.get(topic) ?? []),
+  ).filter((group) => group.entries.length > 0);
   return { topics, tyingTogether };
 }
 
@@ -2272,10 +2367,9 @@ function groupHomeGardeningEntries(entries: AnyDigestEntry[]): {
     if (!buckets.has(topic)) buckets.set(topic, []);
     buckets.get(topic)!.push(entry);
   }
-  const topics = HOME_GARDENING_TOPIC_ORDER.map((topic) => ({
-    label: topic as string,
-    entries: sortDigestEntriesLogically(buckets.get(topic) ?? []),
-  })).filter((group) => group.entries.length > 0);
+  const topics = HOME_GARDENING_TOPIC_ORDER.flatMap((topic) =>
+    applyConditionTopicSubgroups('homeGardening', topic, buckets.get(topic) ?? []),
+  ).filter((group) => group.entries.length > 0);
   return { topics, tyingTogether };
 }
 
@@ -4135,6 +4229,7 @@ export default function PurpleDigestScreen() {
                   // heading (an exact match against the same label) needs
                   // hiding too, same fix as every other exact-match case.
                   hideTopLevelLabel="Glossary"
+                  currentHeaderTitle={drilldownTopicLabel ?? undefined}
                 />
               ) : lens === 'search' ? (
                 !isSearchActive ? (
@@ -4206,6 +4301,7 @@ export default function PurpleDigestScreen() {
                       // their own topic labels contain '::' for this to
                       // match against.
                       hideTopLevelLabel={selectedTopicGroup ?? undefined}
+                      currentHeaderTitle={drilldownTopicLabel ?? undefined}
                       // 2026-08-25: this call site never passed these before,
                       // the real gap behind the "CKD note shows on a
                       // Hashimoto's search result" bug report -- see the
@@ -4312,6 +4408,7 @@ export default function PurpleDigestScreen() {
                     onJumpToRelated={jumpToRelated}
                     onDynamicEntriesChanged={refreshDynamicEntries}
                     hideTopLevelLabel={selectedTopicGroup}
+                    currentHeaderTitle={drilldownTopicLabel ?? undefined}
                   />
                 )
               ) : entries.length === 0 ? (
@@ -4373,6 +4470,7 @@ export default function PurpleDigestScreen() {
                         onJumpToRelated={jumpToRelated}
                         onDynamicEntriesChanged={refreshDynamicEntries}
                         hideTopLevelLabel={selectedTopicGroup}
+                        currentHeaderTitle={drilldownTopicLabel ?? undefined}
                         activeConditionCode={activeConditionCode}
                         activeStageCode={activeStageCode}
                       />
@@ -4982,19 +5080,43 @@ function collapseTopicsForMenu(topics: { label: string; entries: AnyDigestEntry[
 // empty string here means "this heading is fully redundant, don't show
 // it at all" -- the render site below skips the <Text> entirely rather
 // than leave a blank line.
-function shelfHeadingLabel(label: string, hideTopLevelLabel?: string): string {
+function shelfHeadingLabel(
+  label: string,
+  hideTopLevelLabel?: string,
+  currentHeaderTitle?: string,
+): string {
   // A closing synthesis section always holds exactly one card, whose own
   // title already says what it is -- a "Putting It Together" label above
   // it (the search-results path can reach this same group through the
   // ordinary groups prop, not just the dedicated section below) is always
   // redundant, not just when hideTopLevelLabel happens to match.
   if (label === TYING_TOGETHER_GROUP_KEY) return '';
-  if (!hideTopLevelLabel) return shelfGroupDisplayLabel(label);
-  if (label === hideTopLevelLabel) return '';
-  if (label.startsWith(`${hideTopLevelLabel}::`)) {
-    return shelfGroupDisplayLabel(label.slice(hideTopLevelLabel.length + 2));
-  }
-  return shelfGroupDisplayLabel(label);
+
+  const displayed = !hideTopLevelLabel
+    ? shelfGroupDisplayLabel(label)
+    : label === hideTopLevelLabel
+      ? ''
+      : label.startsWith(`${hideTopLevelLabel}::`)
+        ? shelfGroupDisplayLabel(label.slice(hideTopLevelLabel.length + 2))
+        : shelfGroupDisplayLabel(label);
+
+  // 2026-08-29, direct report: drilling into Basic Health > Essential
+  // Nutrients > Body Fat Biology showed "Body Fat Biology" as the header
+  // AND again as a shelf heading directly under it. "It already has the
+  // header in the bigger box at the top, and therefor it doesn't need a
+  // second smaller header above the actual data below."
+  //
+  // Earlier passes fixed this one call site at a time (Essential
+  // Nutrients' subtopics, then Glossary) by matching against whichever
+  // label happened to be hidden, which could never catch the case where a
+  // deeper drill-down makes the header show a SUBGROUP name while
+  // hideTopLevelLabel is still only the parent topic. This check is the
+  // general rule instead: whatever heading would render, if it says the
+  // same thing as the header already on screen, it is redundant and does
+  // not render. That holds at every depth, in every category, including
+  // ones added later.
+  if (currentHeaderTitle && displayed === currentHeaderTitle) return '';
+  return displayed;
 }
 
 // Every category's own plain-browsing landing view, 2026-08-23, direct
@@ -5051,6 +5173,7 @@ function BasicHealthShelves({
   matchInfoById,
   onDynamicEntriesChanged,
   hideTopLevelLabel,
+  currentHeaderTitle,
   activeConditionCode,
   activeStageCode,
 }: {
@@ -5082,6 +5205,10 @@ function BasicHealthShelves({
   // itself) hides its own heading entirely rather than repeating the page
   // header word for word.
   hideTopLevelLabel?: string;
+  // The title already showing in the header card above these shelves. Any
+  // shelf heading that would just repeat it is suppressed -- see
+  // shelfHeadingLabel for the full reasoning.
+  currentHeaderTitle?: string;
   // 2026-08-24, direct correction: "Meals You Can Eat" now shows every
   // recipe for a condition, not just the genuinely clean ones, so a
   // flagged recipe needs to show ITS OWN caution for THIS specific
@@ -5188,8 +5315,8 @@ function BasicHealthShelves({
                 filtered-search view below), so it's converted to a plain,
                 readable display string only here, at render time. See
                 shelfGroupDisplayLabel's own comment. */}
-            {shelfHeadingLabel(group.label, hideTopLevelLabel) ? (
-              <Text style={styles.shelfHeading}>{shelfHeadingLabel(group.label, hideTopLevelLabel)}</Text>
+            {shelfHeadingLabel(group.label, hideTopLevelLabel, currentHeaderTitle) ? (
+              <Text style={styles.shelfHeading}>{shelfHeadingLabel(group.label, hideTopLevelLabel, currentHeaderTitle)}</Text>
             ) : null}
             <FlatList
               horizontal

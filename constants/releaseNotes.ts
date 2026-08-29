@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.15',
+    date: '2026-08-29',
+    changes: [
+      'Fixed a duplicated heading in the Digest. Drilling into something like Basic Health > Essential Nutrients > Body Fat Biology showed the name in the header and again as a smaller heading right underneath it. Any heading that just repeats the header above it is now hidden, at every level and in every category.',
+      "Went through every shelf in the Digest and split the ones covering more than one subject into named subsections: soil science, pollinators, the case for a home garden, and the core-science shelves for Hashimoto's, Graves', lupus, celiac, gout, kidney disease, cardiovascular disease, and rheumatoid arthritis, plus Hashimoto's healing stages and metabolism shelves.",
+    ],
+  },
+  {
     version: '1.0.30.14',
     date: '2026-08-29',
     changes: [
