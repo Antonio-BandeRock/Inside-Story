@@ -1,11 +1,13 @@
 import {
   getBodyMeasurementTrend,
   getNutrientTotalsByDateRange,
+  getOutsideEatingWindowCountsByDateRange,
   getProjectedNutrientTotalsByDateRange,
   getProjectedSixDimensionsFlagCountsByDateRange,
   getSixDimensionsFlagCountsByDateRange,
   listCheckins,
   type CheckinType,
+  type EatingWindowDayCount,
 } from './db';
 import { analyzeNutrientIntake, type NutrientStatus } from './nutrientAnalysis';
 
@@ -195,6 +197,42 @@ export async function getWeightTrendPoints(days: number): Promise<TrendPoint[]> 
   return rows
     .map((row) => ({ date: row.loggedAt.slice(0, 10), value: row.value }))
     .filter((point) => point.date >= rangeStart);
+}
+
+// Eating-window exceptions over time -- 2026-08-30, closing the gap the
+// "Add Meal Anyway" work named directly: the flag was stored and shown on
+// its own row, but nothing read it, so calling it trend data was a claim
+// the app could not back.
+//
+// One point per day that actually had a scheduled meal, valued by how
+// many of that day's meals were deliberate outside-the-window exceptions.
+// A day with meals and no exceptions is a real zero and is plotted; a day
+// with no scheduled meals at all is genuinely nothing to say and is left
+// out, the same rule getNutrientTrendSeriesForRange already follows for
+// days with nothing logged.
+export type EatingWindowTrend = {
+  points: TrendPoint[];
+  // Carried alongside the plotted points so the screen can say "3 of 26
+  // meals" rather than only charting a line. Summed over the same range.
+  totalExceptions: number;
+  totalMeals: number;
+  daysWithExceptions: number;
+  byDay: EatingWindowDayCount[];
+};
+
+export async function getEatingWindowTrendForRange(startDate: string, endDate: string): Promise<EatingWindowTrend> {
+  const byDay = await getOutsideEatingWindowCountsByDateRange(startDate, endDate);
+  return {
+    points: byDay.map((day) => ({ date: day.date, value: day.outsideCount })),
+    totalExceptions: byDay.reduce((sum, day) => sum + day.outsideCount, 0),
+    totalMeals: byDay.reduce((sum, day) => sum + day.totalMeals, 0),
+    daysWithExceptions: byDay.filter((day) => day.outsideCount > 0).length,
+    byDay,
+  };
+}
+
+export async function getEatingWindowTrend(days: number): Promise<EatingWindowTrend> {
+  return getEatingWindowTrendForRange(dateStringDaysAgo(days - 1), todayDateString());
 }
 
 // A weight or lab-result trend genuinely benefits from an axis padded

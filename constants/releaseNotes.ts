@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.1',
+    date: '2026-08-30',
+    changes: [
+      'New Eating Window lens on Trends. When you keep a meal after the app tells you it falls outside your fasting window, that choice was already being recorded but nothing ever showed it back to you. Now it charts over time, with how many meals it was out of how many scheduled.',
+      'It says plainly what it cannot see: only meals scheduled in the app are counted, and meal-plan meals never appear because the generator moves them to fit your window rather than booking them outside it.',
+      'With no fasting window set it says so rather than drawing an empty chart, which would have looked like perfect compliance with a rule you never set.',
+    ],
+  },
+  {
     version: '1.0.30.26',
     date: '2026-08-29',
     changes: [

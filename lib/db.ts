@@ -12502,6 +12502,54 @@ export async function listScheduledMealsForDateRange(startDate: string, endDate:
   );
 }
 
+// Per-day counts of meals scheduled outside a declared eating window,
+// alongside how many meals that day had at all.
+//
+// 2026-08-29 named this as the honest gap left by the "Add Meal Anyway"
+// work: the flag was being stored and shown on the row, but nothing in
+// Trends read it, and calling that "a trend" without building one would
+// have been a claim the app could not back. This is the query behind it.
+//
+// What the flag actually means, since it determines what may honestly be
+// claimed from it: it is only ever set when someone was shown their own
+// declared eating window, chose "Add Meal Anyway", and that exception was
+// recorded. It is therefore a count of DELIBERATE exceptions, not of
+// meals that merely happen to fall outside a window. The bulk meal-plan
+// paths never set it, correctly -- resolveMealPlanTimes moves a generated
+// meal to fit the window rather than booking one outside it.
+//
+// totalMeals is returned alongside so a day can be read as "1 of 4"
+// rather than a bare count, and so a day with meals but no exceptions is
+// a real, meaningful zero rather than absent data. A day with no
+// scheduled meals at all returns no row and is genuinely nothing to plot.
+export type EatingWindowDayCount = { date: string; outsideCount: number; totalMeals: number };
+
+export async function getOutsideEatingWindowCountsByDateRange(
+  startDate: string,
+  endDate: string,
+): Promise<EatingWindowDayCount[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ date: string; outsideCount: number; totalMeals: number }>(
+    `
+      SELECT substr(scheduled_for, 1, 10) AS date,
+             SUM(CASE WHEN COALESCE(outside_eating_window, 0) = 1 THEN 1 ELSE 0 END) AS outsideCount,
+             COUNT(*) AS totalMeals
+      FROM schedule_items
+      WHERE item_type = 'meal'
+        AND substr(scheduled_for, 1, 10) BETWEEN ? AND ?
+        -- A skipped meal was deliberately not eaten, so counting it as an
+        -- eating-window exception would be wrong in both directions: it
+        -- inflates the exceptions and the day's own meal total.
+        AND COALESCE(status, '') <> 'skipped'
+      GROUP BY date
+      ORDER BY date ASC
+    `,
+    startDate,
+    endDate,
+  );
+  return rows;
+}
+
 // The real "Past Meals" list -- 2026-08-14, the browsing side of
 // settlePastScheduledMeals just above (see that function's own comment for
 // the full "why"). By the time someone opens this, every real past
