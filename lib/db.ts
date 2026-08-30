@@ -13021,6 +13021,209 @@ export async function listMeals(limit = 10) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Quick-log, phase 1: "Log Again"
+// ---------------------------------------------------------------------------
+// 2026-08-30, opened as Open Next Steps item 21 after reviewing a competing
+// product that spends its whole feature budget on capture speed. Logging
+// friction is already this project's own named #1 risk (see the brief's
+// "Named, unresolved risks"): if nobody logs, none of the correlation work
+// downstream has anything to correlate. The cheapest, highest-return fix is
+// not photo recognition, it is noticing that most logging is a REPEAT of
+// something already logged, and making that repeat one tap.
+//
+// Nothing new is stored to make this work. Both functions below read the
+// meals a person has already logged and hand them straight back to the two
+// already-proven save paths (createMealFromComponents for an assembled meal,
+// createMeal for a directly-entered one), so a re-logged meal is
+// indistinguishable from one built by hand, including its food-trial
+// activation.
+
+export type RecentMealSummary = {
+  // The most recent meal carrying this name -- what relogMeal() below
+  // actually copies from, so an edited dish re-logs in its latest form.
+  id: string;
+  name: string;
+  mealType: string;
+  eatenAt: string;
+  // How many times a meal by this name has been logged, ever. Shown so a
+  // routine breakfast reads as routine. Deliberately NOT used for ordering
+  // (see the ORDER BY below): a frequency-weighted ranking is a real idea,
+  // but it would need tuning against actual usage rather than a guessed
+  // formula, so this first pass stays on plain recency, which is honest and
+  // predictable.
+  timesLogged: number;
+  // Whether this meal was assembled from saved components (a side, a salad,
+  // and so on) or entered as a flat ingredient list. Decides which of the
+  // two save paths relogMeal() uses, and it is cheaper to answer here, once,
+  // than per row at tap time.
+  hasComponents: boolean;
+};
+
+// One row per DISTINCT meal name, each the most recent meal carrying that
+// name. Deduped by name alone rather than name plus meal_type on purpose: a
+// salad eaten at both lunch and dinner is one dish to a person, not two, and
+// splitting it would fill the row with near-duplicates. The meal type comes
+// along from whichever instance was most recent, which is the same
+// assumption "log it again" already makes about everything else.
+//
+// ROW_NUMBER() rather than a GROUP BY/MAX(eaten_at) self-join specifically
+// because two meals sharing a name AND the same eaten_at minute (an easy
+// thing to do when re-logging quickly) would produce duplicate rows out of
+// that join, and a window function has no such tie problem.
+export async function listRecentDistinctMeals(limit = 8): Promise<RecentMealSummary[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{
+    id: string;
+    name: string;
+    mealType: string;
+    eatenAt: string;
+    timesLogged: number;
+    hasComponents: number;
+  }>(
+    `
+      SELECT id, name, mealType, eatenAt, timesLogged, hasComponents
+      FROM (
+        SELECT
+          m.id AS id,
+          m.name AS name,
+          m.meal_type AS mealType,
+          m.eaten_at AS eatenAt,
+          COUNT(*) OVER (PARTITION BY m.name) AS timesLogged,
+          ROW_NUMBER() OVER (PARTITION BY m.name ORDER BY m.eaten_at DESC, m.created_at DESC) AS rn,
+          EXISTS (SELECT 1 FROM meal_components mc WHERE mc.meal_id = m.id) AS hasComponents
+        FROM meals m
+      )
+      WHERE rn = 1
+      ORDER BY eatenAt DESC
+      LIMIT ?
+    `,
+    limit,
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    mealType: row.mealType,
+    eatenAt: row.eatenAt,
+    timesLogged: row.timesLogged,
+    hasComponents: row.hasComponents === 1,
+  }));
+}
+
+// meal_items stores an ingredient's amount in serving_size/serving_unit and
+// hardcodes its own quantity column to 1 (see insertMealItems, the one place
+// that knows this layout) -- so mapping a stored row back into a
+// MealIngredientInput means reading servingSize/servingUnit into
+// quantity/unit, NOT reading the quantity column. Getting this backwards
+// would silently re-log every ingredient as "1 of something".
+//
+// rotationAlternates and slotId are correctly absent here: both are
+// properties of a reusable favorite, never stored on meal_items at all (see
+// MealIngredientInput's own comments), so there is nothing to carry back.
+function mealItemToIngredientInput(item: MealItemRecord): MealIngredientInput {
+  return {
+    foodId: item.foodId ?? undefined,
+    foodName: item.foodName,
+    category: item.category ?? '',
+    quantity: item.servingSize ?? 0,
+    unit: item.servingUnit ?? '',
+    notes: item.notes ?? undefined,
+    dishName: item.dishName ?? undefined,
+    sideName: item.sideName ?? undefined,
+    dishServings: item.dishServings ?? undefined,
+    yourSharePercent: item.yourSharePercent ?? undefined,
+    cookingMethod: item.cookingMethod ?? undefined,
+  };
+}
+
+// How many food trials now point at this exact meal as the thing that
+// activated them. Only ever asked immediately after a re-log, to answer one
+// narrow question honestly: is deleting this meal actually enough to undo
+// what just happened, or did it also start (or get attributed to) a trial
+// that a plain delete would leave behind? See relogMeal below.
+export async function countFoodTrialsActivatedByMeal(mealId: string): Promise<number> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ count: number }>(
+    'SELECT COUNT(*) AS count FROM food_trials WHERE activated_by_meal_id = ?',
+    mealId,
+  );
+  return row?.count ?? 0;
+}
+
+// Logs a brand new meal that copies an already-logged one, at whatever time
+// is passed in. Deliberately a copy, never an edit: the original stays
+// exactly where it is in the record, because "I ate this again" is a second
+// event, not a correction of the first one.
+//
+// is_immediate is set true because this is only ever reached by tapping "log
+// this now", which is what that flag means (logged as it happened, rather
+// than filled in after the fact). notes carry over, since a note on a dish
+// ("no dressing") is usually a property of how the person makes it.
+//
+// A meal assembled from components routes through createMealFromComponents
+// rather than copying its already-flattened meal_items, which matters for
+// two reasons beyond tidiness: the new meal gets its own meal_components
+// bookkeeping rows (so it can be reopened and edited in Meal Builder like
+// any other), and food trials waiting on one of those components get
+// activated, which a flat ingredient copy would silently skip. The cost is
+// that a component deleted since the original was logged makes this fail,
+// which is reported honestly rather than half-written.
+//
+// touchedFoodTrials is what lets a caller decide whether a one-tap Undo is
+// honest to offer. deleteMeal() cascades cleanly through meal_items and
+// meal_components (both declare ON DELETE CASCADE, and PRAGMA foreign_keys
+// is ON), but food_trials has no such link: a trial this meal moved out of
+// 'waiting' would stay started, with its check-ins already scheduled, after
+// the meal itself was deleted. Rather than half-reverting that silently, or
+// rebuilding the trial-correction flow Past Meals already owns, a re-log
+// that touched a trial simply does not offer Undo and says so.
+export async function relogMeal(
+  sourceMealId: string,
+  eatenAt: string,
+): Promise<{ id: string; name: string; touchedFoodTrials: boolean } | { error: string }> {
+  const source = await getMeal(sourceMealId);
+  if (!source) {
+    return { error: 'That meal could not be found. It may have been deleted.' };
+  }
+
+  const components = await getMealComponents(sourceMealId);
+  if (components.length > 0) {
+    const result = await createMealFromComponents({
+      name: source.name,
+      mealType: source.meal_type,
+      eatenAt,
+      notes: source.notes ?? undefined,
+      isImmediate: true,
+      components: components.map((component) => ({
+        componentType: component.componentType,
+        componentId: component.componentId,
+        yourSharePercent: component.yourSharePercent,
+      })),
+    });
+    if ('error' in result) return result;
+    const activatedTrials = await countFoodTrialsActivatedByMeal(result.id);
+    return { id: result.id, name: source.name, touchedFoodTrials: activatedTrials > 0 };
+  }
+
+  const items = await getMealItems(sourceMealId);
+  if (items.length === 0) {
+    return { error: 'That meal has no ingredients saved on it, so there is nothing to log again.' };
+  }
+
+  const meal = await createMeal({
+    name: source.name,
+    mealType: source.meal_type,
+    eatenAt,
+    notes: source.notes ?? undefined,
+    isImmediate: true,
+    ingredients: items.map(mealItemToIngredientInput),
+  });
+  // createMeal, unlike createMealFromComponents, never activates a food
+  // trial (only the component path does), so this one is always undoable.
+  return { id: meal.id, name: source.name, touchedFoodTrials: false };
+}
+
 // The person's own, entirely optional sex/age/diagnosis info -- every
 // field defaults to null (not set) and stays that way until the person
 // deliberately sets it themselves. Nothing else in this app should ever

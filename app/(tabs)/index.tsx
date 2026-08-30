@@ -48,6 +48,7 @@ import {
   type HomeSkyResult,
 } from '../../lib/homeSky';
 import {
+  deleteMeal,
   getCheckinForDate,
   getCuriousAboutConditions,
   getLastSeenAppVersion,
@@ -57,15 +58,18 @@ import {
   getUserProfile,
   listCheckins,
   listMealsForDate,
+  listRecentDistinctMeals,
   listScheduledMealsForDate,
   listSymptomAssessments,
   recordBodyMeasurement,
+  relogMeal,
   recordCheckin,
   recordExercise,
   setLastSeenAppVersion,
   setScheduledMealSkipped,
   type CheckinValence,
   type MealRecord,
+  type RecentMealSummary,
   type ScheduleItemRecord,
   type WellbeingCheckin,
 } from '../../lib/db';
@@ -100,6 +104,20 @@ function nowTimeString24(): string {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+// One compact line under a Log Again tile's own name: what kind of meal it
+// is, and how established it is. Both values come straight from
+// listRecentDistinctMeals, so this costs no extra query. Meal types are
+// stored lowercase (breakfast, lunch, snack, beverage, and so on), so this
+// only has to lift the first letter rather than carry a lookup table that
+// would need updating every time a new type is added.
+function describeRecentMeal(meal: RecentMealSummary): string {
+  const mealType = meal.mealType
+    ? meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1)
+    : 'Meal';
+  const timesLogged = meal.timesLogged === 1 ? 'logged once' : `${meal.timesLogged} times`;
+  return `${mealType} · ${timesLogged}`;
 }
 
 function timeGreeting(): string {
@@ -372,6 +390,10 @@ function nutrientRingColors(entry: NutrientGapEntry): { from: string; to: string
 
 type DashboardData = {
   todaysMeals: MealRecord[];
+  // Quick-log phase 1, 2026-08-30 -- one row per distinct meal name this
+  // person has already logged, most recent first. Powers the Log Again
+  // section; see renderLogAgain below.
+  recentMeals: RecentMealSummary[];
   scheduledToday: ScheduleItemRecord[];
   nutrientEntries: NutrientGapEntry[];
   sixDsFlagCount: number;
@@ -588,6 +610,20 @@ export default function HomeScreen() {
   const [worthALookChoiceOpen, setWorthALookChoiceOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ScheduleItemRecord | null>(null);
   const [quickLogModal, setQuickLogModal] = useState<'bp' | 'exercise' | null>(null);
+  // Log Again, 2026-08-30. The banner is deliberately inline in the section
+  // rather than a modal or an alert: the whole promise of this feature is
+  // one tap, and something that has to be dismissed before the next tap
+  // breaks that. It clears itself on the next tap or the next Undo, and it
+  // is plain session state, so leaving Home and coming back clears it too.
+  const [relogBanner, setRelogBanner] = useState<{
+    mealId: string;
+    name: string;
+    at: string;
+    canUndo: boolean;
+  } | null>(null);
+  // Which tile is mid-save. Also gates every other tile, so a double tap
+  // across two different meals cannot start two writes at once.
+  const [relogBusyId, setRelogBusyId] = useState<string | null>(null);
   const [bpSystolic, setBpSystolic] = useState('');
   const [bpDiastolic, setBpDiastolic] = useState('');
   const [bpBpm, setBpBpm] = useState('');
@@ -757,6 +793,10 @@ export default function HomeScreen() {
       // a listCheckins() call filtered client-side.
       getCheckinForDate(date, 'general'),
       listSymptomAssessments(1),
+      // Log Again, 2026-08-30. Appended last rather than slotted in beside
+      // listMealsForDate above so the destructure below stays a stable
+      // append-only list. One indexed query over meals, no per-row work.
+      listRecentDistinctMeals(8),
     ]).then(
       ([
         todaysMeals,
@@ -768,6 +808,7 @@ export default function HomeScreen() {
         profile,
         feelingCheckin,
         recentAssessments,
+        recentMeals,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -791,6 +832,7 @@ export default function HomeScreen() {
 
         setData({
           todaysMeals,
+          recentMeals,
           scheduledToday,
           nutrientEntries,
           sixDsFlagCount,
@@ -1751,6 +1793,144 @@ export default function HomeScreen() {
     );
   }
 
+  // -------------------------------------------------------------------------
+  // Log Again (quick-log, phase 1) -- 2026-08-30
+  // -------------------------------------------------------------------------
+  // Opened as Open Next Steps item 21. Logging friction is this project's own
+  // named #1 risk, and the cheapest fix is not photo recognition: most logging
+  // is a REPEAT of something already logged, so making a repeat one tap buys
+  // most of the benefit for none of the privacy cost. Nothing here sends
+  // anything off the device.
+  //
+  // Logs at the current minute rather than asking when. Someone tapping this
+  // is eating now, and a time picker in the middle of it would put the
+  // friction straight back. Anything eaten earlier still goes through Food,
+  // which already asks properly.
+  async function handleLogAgain(meal: RecentMealSummary) {
+    if (relogBusyId) return;
+    setRelogBusyId(meal.id);
+    const loggedAtTime = nowTimeString24();
+    try {
+      const result = await relogMeal(meal.id, `${todayDateString()}T${loggedAtTime}`);
+      if ('error' in result) {
+        setRelogBanner(null);
+        showInfoAlert('That did not log', result.error);
+        return;
+      }
+      setRelogBanner({
+        mealId: result.id,
+        name: result.name,
+        at: loggedAtTime,
+        // See relogMeal in lib/db.ts: a re-log that started a food trial
+        // cannot be undone by deleting the meal alone, so Undo is withheld
+        // rather than offered and quietly half-working.
+        canUndo: !result.touchedFoodTrials,
+      });
+      await load();
+    } catch (error) {
+      console.error('[Home] Log Again failed', error);
+      setRelogBanner(null);
+      showInfoAlert(
+        'That did not log',
+        'Something went wrong saving it. Check Past Meals to see whether any of it was written before trying again.',
+      );
+    } finally {
+      setRelogBusyId(null);
+    }
+  }
+
+  // A brand new meal was created, so undoing it is a plain delete: meal_items
+  // and meal_components both cascade off it (see their own table definitions
+  // in lib/db.ts), and the meal this one was copied FROM is untouched either
+  // way.
+  async function handleUndoRelog() {
+    if (!relogBanner || !relogBanner.canUndo) return;
+    const target = relogBanner;
+    setRelogBanner(null);
+    try {
+      await deleteMeal(target.mealId);
+      await load();
+    } catch (error) {
+      console.error('[Home] Undo of a re-logged meal failed', error);
+      showInfoAlert('Undo did not work', `${target.name} is still logged. You can remove it from Past Meals.`);
+    }
+  }
+
+  function renderLogAgain() {
+    if (!isHomeSectionVisible(visualPrefs, 'logAgain')) return null;
+    const recent = data?.recentMeals ?? [];
+    const foodColor = tabColorFor('/food');
+    return (
+      <View style={[styles.logAgainCard, { borderColor: foodColor }]}>
+        <CardLabel tabPath="/food" text="Log Again" />
+        {relogBanner ? (
+          <View style={[styles.logAgainBanner, { borderColor: foodColor }]}>
+            <Text style={styles.logAgainBannerText}>
+              {`${relogBanner.name} is logged at ${formatTime12(relogBanner.at)}.`}
+            </Text>
+            {relogBanner.canUndo ? (
+              <TouchableOpacity onPress={handleUndoRelog} activeOpacity={0.75} style={styles.logAgainUndoButton}>
+                <Ionicons name="arrow-undo-outline" size={14} color={foodColor} style={textShadow} />
+                <Text style={[styles.logAgainUndoText, { color: foodColor }]}>Undo</Text>
+              </TouchableOpacity>
+            ) : (
+              <Text style={styles.logAgainBannerNote}>
+                This one started a food trial, so it stays. You can change it from Past Meals.
+              </Text>
+            )}
+          </View>
+        ) : null}
+        {recent.length === 0 ? (
+          <Text style={styles.logAgainCaption}>
+            Once you log a meal, it shows up here, so having it again takes one tap.
+          </Text>
+        ) : (
+          <Fragment>
+            <Text style={styles.logAgainCaption}>Had one of these again? Tap it to log it now.</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.logAgainScroll}
+              contentContainerStyle={styles.logAgainRow}
+            >
+              {recent.map((meal) => {
+                const busy = relogBusyId === meal.id;
+                return (
+                  <TouchableOpacity
+                    key={meal.id}
+                    style={[
+                      styles.logAgainTile,
+                      { borderColor: foodColor },
+                      relogBusyId ? styles.logAgainTileDisabled : null,
+                    ]}
+                    onPress={() => handleLogAgain(meal)}
+                    activeOpacity={0.8}
+                    disabled={relogBusyId !== null}
+                  >
+                    <View style={styles.logAgainTileTop}>
+                      <Ionicons
+                        name={busy ? 'hourglass-outline' : 'repeat-outline'}
+                        size={16}
+                        color={foodColor}
+                        style={textShadow}
+                      />
+                      <Text style={[styles.logAgainTileName, { color: foodColor }]} numberOfLines={2}>
+                        {meal.name}
+                      </Text>
+                    </View>
+                    <Text style={styles.logAgainTileMeta} numberOfLines={1}>
+                      {describeRecentMeal(meal)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </Fragment>
+        )}
+      </View>
+    );
+  }
+
   // Single dispatcher rather than a Record<HomeSectionKey, fn> object --
   // this only ever gets called with a REORDERABLE_HOME_SECTION_KEYS
   // member (see getOrderedHomeSectionKeys), never 'weather' (which stays
@@ -1763,6 +1943,8 @@ export default function HomeScreen() {
         return renderSymptomCheckinReminder();
       case 'todaysCheckin':
         return renderTodaysCheckin();
+      case 'logAgain':
+        return renderLogAgain();
       case 'yourDay':
         return renderYourDay();
       case 'statTiles':
@@ -2361,6 +2543,61 @@ const styles = StyleSheet.create({
   quickActionSecondaryText: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary,
     fontWeight: '400',
   },
+
+  // Log Again (quick-log phase 1), 2026-08-30. One surface holds the whole
+  // section, its heading included, per the standing "no text sits directly on
+  // the tab background" rule: a label that names one card belongs inside that
+  // card rather than floating above it.
+  logAgainCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
+    borderWidth: TAB_BORDER_WIDTH,
+    borderColor: colors.border,
+    gap: 10,
+  },
+  logAgainCaption: { ...typography.caption, ...textShadow, color: colors.textMuted },
+  // Negative margin so the tile row can scroll all the way to the card edges
+  // instead of stopping short at its padding, with that same padding handed
+  // to the content instead. Same technique as fullBleedScroll above, scoped
+  // to this one card rather than the whole screen.
+  logAgainScroll: { marginHorizontal: -INFO_CARD_PADDING_HORIZONTAL },
+  logAgainRow: {
+    flexDirection: 'row',
+    gap: 10,
+    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
+  },
+  logAgainTile: {
+    width: 152,
+    minHeight: 76,
+    justifyContent: 'space-between',
+    gap: 6,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  logAgainTileDisabled: { opacity: 0.5 },
+  logAgainTileTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
+  logAgainTileName: { ...typography.bodyEmphasis, ...textShadow, flex: 1 },
+  logAgainTileMeta: { ...typography.caption, ...textShadow, color: colors.textMuted },
+  logAgainBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  logAgainBannerText: { ...typography.caption, ...textShadow, flex: 1 },
+  logAgainBannerNote: { ...typography.caption, ...textShadow, flex: 1, color: colors.textMuted },
+  logAgainUndoButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  logAgainUndoText: { ...typography.caption, ...textShadow },
 
   fuelGaugesCard: {
     backgroundColor: colors.surface,

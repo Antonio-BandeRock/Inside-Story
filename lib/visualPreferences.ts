@@ -220,6 +220,10 @@ export type HomeSectionKey =
   | 'weather'
   | 'symptomCheckinReminder'
   | 'todaysCheckin'
+  // Quick-log phase 1, 2026-08-30 -- see Home's own renderLogAgain for
+  // why this sits high in the default order: it exists to make a repeat
+  // meal one tap, and a shortcut buried below the fold is not a shortcut.
+  | 'logAgain'
   | 'yourDay'
   | 'statTiles'
   | 'quickActions'
@@ -232,6 +236,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weather',
   'symptomCheckinReminder',
   'todaysCheckin',
+  'logAgain',
   'yourDay',
   'statTiles',
   'quickActions',
@@ -261,6 +266,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weather: 'Weather & Sunrise/Sunset',
   symptomCheckinReminder: 'Symptom Check-In Reminder',
   todaysCheckin: "Today's Check-In",
+  logAgain: 'Log Again (Repeat a Meal)',
   yourDay: 'Your Day (Schedule)',
   statTiles: 'Meals & Worth-a-Look Tiles',
   quickActions: 'Quick Action Shortcuts',

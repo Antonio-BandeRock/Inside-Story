@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.3',
+    date: '2026-08-30',
+    changes: [
+      "New Log Again section on Home. The meals you have already logged show up as tiles, and tapping one logs it again at the current time. Most of what anyone eats is something they have eaten before, and building it from scratch every time was the slowest part of using this app.",
+      "It copies the meal exactly as you last saved it, ingredients, portions and notes included, so it counts toward your day the same way the original did. The meal you copied from is left alone.",
+      "Tapped the wrong one? Undo appears right there and removes it. The one case where Undo is not offered is a meal that started a food trial, since removing the meal would not put the trial back, and it says so rather than half-undoing it quietly.",
+      "You can move it, or turn it off, from Profile > Home Screen like every other section.",
+    ],
+  },
+  {
     version: '1.0.31.2',
     date: '2026-08-30',
     changes: [
