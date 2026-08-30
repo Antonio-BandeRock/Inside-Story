@@ -62,6 +62,18 @@ const CASES = [
   ['a couple of eggs', [[2, 'each', 'eggs']]],
   ['an apple', [[1, 'each', 'apple']]],
   ['1/2 cup of oats', [[0.5, 'cup', 'oats']]],
+  // 2026-08-30, from a real failed attempt that logged nothing at all. Two
+  // causes: "and" only separated when an amount followed it, and the prep word
+  // dragged the match down. Both fixed; both locked in here.
+  [
+    'scrambled eggs and ham and bacon',
+    [[1, 'each', 'eggs'], [1, 'each', 'ham'], [1, 'each', 'bacon']],
+  ],
+  ['grilled chicken and steamed broccoli', [[1, 'each', 'chicken'], [1, 'each', 'broccoli']]],
+  ['a banana and coffee', [[1, 'each', 'banana'], [1, 'each', 'coffee']]],
+  // Still one dish, protected by name rather than by the old amount rule.
+  ['mac and cheese', [[1, 'each', 'mac cheese']]],
+  ['cookies and cream ice cream', [[1, 'each', 'cookies cream ice cream']]],
 ];
 
 // [spoken, candidate, expectation] -- the ordering that matters, not exact

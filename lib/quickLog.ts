@@ -163,6 +163,40 @@ const FILLER_WORDS = new Set([
   'with', 'and', 'plus', 'for', 'just', 'about', 'roughly', 'around',
 ]);
 
+// How a food was prepared or described. Dropped before matching, because the
+// reference database names foods, not preparations: "scrambled eggs" has to
+// reach "Egg" to match anything at all, and leaving the word in drags every
+// score down.
+//
+// 2026-08-30, from a real failed attempt: "scrambled eggs and ham and bacon"
+// came back as nothing matched. Two separate causes, this being the first.
+//
+// Dropping these only affects MATCHING. The row still shows the person their
+// own words, so nothing they said disappears from view. Worth naming as not
+// done: the prep word is not yet used to pick which prepared row of a food
+// resolves, so a spoken "boiled" still lands on the same row a spoken "fried"
+// does. That is a real gap, not a decision.
+const PREP_WORDS = new Set([
+  'scrambled', 'fried', 'boiled', 'poached', 'grilled', 'roasted', 'baked',
+  'steamed', 'sauteed', 'sautéed', 'mashed', 'whipped', 'toasted', 'smoked',
+  'cured', 'sliced', 'chopped', 'diced', 'shredded', 'minced', 'grated',
+  'crushed', 'fresh', 'frozen', 'canned', 'dried', 'raw', 'cooked', 'leftover',
+  'homemade', 'plain', 'hot', 'cold', 'warm',
+]);
+
+// Phrases where "and" is part of one dish's name rather than a separator.
+// Deliberately short and defensible: only things that stop meaning anything if
+// split. Pairs that are genuinely two foods ("bacon and eggs", "ham and
+// cheese") are NOT here on purpose, because this app needs each food scored
+// separately, and splitting them is the right answer rather than a compromise.
+const COMPOUND_FOOD_PHRASES = [
+  'macaroni and cheese',
+  'mac and cheese',
+  'peanut butter and jelly',
+  'cookies and cream',
+  'sweet and sour',
+];
+
 export type ParsedSpokenItem = {
   // Exactly what was said for this item, kept so the screen can show a person
   // their own words next to whatever the app matched them to.
@@ -195,13 +229,27 @@ function stripCommas(text: string): string {
 
 const ARTICLES = new Set(['a', 'an']);
 
-// True when this word begins an amount: a digit, a spoken number, a spoken
-// fraction, or an article (which means one).
-function startsAnAmount(word: string | undefined): boolean {
-  if (!word) return false;
-  return (
-    /^\d/.test(word) || SPOKEN_NUMBERS[word] != null || SPOKEN_FRACTIONS[word] != null || ARTICLES.has(word)
-  );
+// Which "and" positions in a chunk belong to a compound dish name and must not
+// be treated as separators.
+function protectedJoinerIndices(words: string[]): Set<number> {
+  const protectedIndices = new Set<number>();
+  for (const phrase of COMPOUND_FOOD_PHRASES) {
+    const phraseWords = phrase.split(' ');
+    for (let start = 0; start + phraseWords.length <= words.length; start += 1) {
+      let matches = true;
+      for (let offset = 0; offset < phraseWords.length; offset += 1) {
+        if (words[start + offset] !== phraseWords[offset]) {
+          matches = false;
+          break;
+        }
+      }
+      if (!matches) continue;
+      for (let offset = 0; offset < phraseWords.length; offset += 1) {
+        if (phraseWords[offset] === 'and') protectedIndices.add(start + offset);
+      }
+    }
+  }
+  return protectedIndices;
 }
 
 // True when an "and" at this position is continuing a number rather than
@@ -215,10 +263,18 @@ function andContinuesANumber(words: string[], andIndex: number): boolean {
 }
 
 // Splits a spoken phrase into separate items on the joining words a person
-// actually uses in a list. Deliberately does NOT split on every "and":
-// "macaroni and cheese" and "peanut butter and jelly" are single foods, so an
-// "and" only separates when what follows it starts a fresh amount and is not
-// part of the number already being read.
+// actually uses in a list.
+//
+// 2026-08-30, second cause of the "scrambled eggs and ham and bacon" failure:
+// this used to split on "and" ONLY when an amount followed it, so that phrase
+// stayed one item and matched nothing. People list foods without saying a
+// number for each one far more often than they name a compound dish, so "and"
+// now separates by default and a short list of compound names is protected
+// instead. An "and" continuing a number ("one and a half") is still not a
+// separator either.
+//
+// A wrong split is a visible, correctable one: every item is shown before
+// anything is logged, and an unwanted row is removed with one tap.
 export function splitSpokenItems(transcript: string): string[] {
   const normalized = normalizeSpokenText(transcript);
   if (!normalized) return [];
@@ -227,6 +283,7 @@ export function splitSpokenItems(transcript: string): string[] {
   const items: string[] = [];
   for (const chunk of commaSeparated) {
     const words = chunk.split(' ').filter(Boolean);
+    const protectedJoiners = protectedJoinerIndices(words);
     let current: string[] = [];
     for (let index = 0; index < words.length; index += 1) {
       const word = words[index];
@@ -234,7 +291,8 @@ export function splitSpokenItems(transcript: string): string[] {
       if (
         isJoiner &&
         current.length > 0 &&
-        startsAnAmount(words[index + 1]) &&
+        words[index + 1] != null &&
+        !protectedJoiners.has(index) &&
         !(word === 'and' && andContinuesANumber(words, index))
       ) {
         items.push(current.join(' '));
@@ -334,7 +392,7 @@ export function parseSpokenItem(spokenText: string): ParsedSpokenItem {
     index = unitIndex + 1;
   }
 
-  const foodWords = words.slice(index).filter((word) => !FILLER_WORDS.has(word));
+  const foodWords = words.slice(index).filter((word) => !FILLER_WORDS.has(word) && !PREP_WORDS.has(word));
   return {
     spokenText: spokenText.trim(),
     quantity: quantity ?? 1,
@@ -351,7 +409,7 @@ export function parseSpokenItem(spokenText: string): ParsedSpokenItem {
 export function scoreNameMatch(spoken: string, candidateName: string): number {
   const spokenWords = stripCommas(normalizeSpokenText(spoken))
     .split(' ')
-    .filter((word) => word && !FILLER_WORDS.has(word));
+    .filter((word) => word && !FILLER_WORDS.has(word) && !PREP_WORDS.has(word));
   const candidateWords = stripCommas(normalizeSpokenText(candidateName)).split(' ').filter(Boolean);
   if (spokenWords.length === 0 || candidateWords.length === 0) return 0;
 

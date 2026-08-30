@@ -27,6 +27,30 @@ The app is under active development and substantially built. Current state:
 
 
 
+**Most recent (2026-08-30, 1.0.31.13): the right corner label this time, and the voice parser failing on an ordinary sentence.**
+
+
+
+**The background was on Home's Digest shortcut, not the LensHub label.** Direct correction: "It is the Digest icon located on the Home tab that the name Digest has a background behind it." `purpleDigestShortcutLabel` (`app/(tabs)/index.tsx`) carried a real `colors.surface` fill from the 2026-08-29 sweep. Removed, and added to the audit allowlist. The LensHub corner label softened in the previous version was a misidentification and is **reverted to how it always looked**, since it was never what was reported and changing it was unrequested. The audit's `ALLOWED` entries can now name a single style, so allowing one label in Home does not quietly exempt every other bare Text in that file.
+
+
+
+**The parser failed on "scrambled eggs and ham and bacon", and logged nothing at all.** Two separate causes, both found by reproducing the exact phrase rather than reasoning about it. First, `splitSpokenItems` only treated "and" as a separator when an AMOUNT followed it, so the whole sentence stayed one item and was hunted for as a single food. That rule was written to protect "macaroni and cheese" and it protected far too much: people list foods without saying a number for each far more often than they name a compound dish. "And" now separates by default, and a short, named `COMPOUND_FOOD_PHRASES` list protects the handful that stop meaning anything when split. Pairs that are genuinely two foods ("bacon and eggs", "ham and cheese") are deliberately NOT on that list, since this app needs each food scored separately.
+
+
+
+**Second, "scrambled" was dragging the match down.** The reference database names foods, not preparations, so a new `PREP_WORDS` set (scrambled, grilled, roasted, boiled, sliced, canned, and the rest) is dropped before matching. It only affects matching: the row still shows the person their own words. **Named as not done:** the prep word is not yet used to pick WHICH prepared row of a food resolves, so a spoken "boiled" still lands where a spoken "fried" does. That is a real gap rather than a decision.
+
+
+
+`scripts/test_spoken_food_parsing.js` grew from 19 checks to 24, covering the reported phrase, two more list phrases, and both protected compound dishes, so this cannot quietly come back. `tsc` clean project-wide, `eslint` clean on every touched file, bare-text audit at 0 with 2 named exceptions. **Not yet confirmed on-device.**
+
+
+
+**Named and not started: the Grocery List report**, proposed the same day as "our first real report" and specified in real detail: pick how many days of the schedule to shop for (2 to 4 encouraged, up to a week allowed), say how many people, and the app works out how much of each ingredient every scheduled dish needs. Reachable from Home, persistent rather than regenerated (it is used while standing in a shop), interactive check-off as things go in the cart, a price per item or per pound, barcode scanning to add a product and its price, and the whole thing feeding Trends for price and usage over time. `getUpcomingShoppingList` (`lib/db.ts`, 2026-08-24) already aggregates ingredients across scheduled meals and is the foundation; everything else (persistence, check-off, prices, scan-to-add, Trends wiring) is new.
+
+
+
 **Most recent (2026-08-30, 1.0.31.12): two corner-label backgrounds removed, and only one of them was actually a background.** Direct report: "a background was added behind the Digest tab LensHub menu name under the icon in the bottom left corner. It was also added to the version. Please remove both backgrounds and move the version number up by 5 pixels, and center it vertically on the tab icons that sit above it."
 
 

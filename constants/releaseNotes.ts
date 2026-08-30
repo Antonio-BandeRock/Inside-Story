@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.13',
+    date: '2026-08-30',
+    changes: [
+      "Saying a list of foods now works. \"Scrambled eggs and ham and bacon\" came back as nothing matched, because the app only treated \"and\" as a separator when a number followed it, so the whole sentence was hunted for as one food. It now separates on \"and\" by default, while dishes whose name contains one, like macaroni and cheese, stay together.",
+      "It also understands how food was cooked. Scrambled, grilled, roasted, boiled and the rest no longer get in the way of finding the food itself.",
+      "Removed the background box behind the word Digest under the Home screen's corner icon. The corner menu label on other tabs is back to how it always looked, which is what it should have been.",
+    ],
+  },
+  {
     version: '1.0.31.12',
     date: '2026-08-30',
     changes: [

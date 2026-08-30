@@ -1122,20 +1122,19 @@ const styles = StyleSheet.create({
     elevation: 10,
     zIndex: 10,
   },
-  // 2026-08-30, direct report: "a background was added behind the Digest tab
-  // LensHub menu name under the icon in the bottom left corner... remove both
-  // backgrounds." There was never a fill here to remove. What reads as one is
-  // CORNER_ICON_SHADOW, rgba(0,0,0,0.9) at a 5px radius: right for the 32px
-  // icon above, but on 11px text that blur pools into a dark patch behind the
-  // glyphs rather than sitting under them. Exactly the 2026-08-29 finding, where
-  // menuLabelShadow's own 4px blur on 11px text was reported as "bold and
-  // blurred" and turned out to be the shadow rather than the weight. The icon
-  // keeps the heavy shadow; the label takes the ordinary one.
+  // Same reasoning as CORNER_ICON_SHADOW above (this sits on the same flat
+  // footer strip, not a lighter card) -- textShadow's own ordinary shadow
+  // would be too faint here.
+  //
+  // Briefly softened to textShadow on 2026-08-30 on a misread of which label
+  // was being reported, then put back: the label actually being reported was
+  // Home's own Digest corner shortcut, which had a real fill. This one is
+  // unchanged from how it has always looked.
   buttonLabel: {
     ...typography.caption,
     fontSize: 11,
     marginTop: 2,
-    ...textShadow,
+    ...CORNER_ICON_SHADOW,
   },
   backdrop: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.25)' },
   navBarMask: {

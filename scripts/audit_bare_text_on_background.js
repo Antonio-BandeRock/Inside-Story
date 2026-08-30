@@ -68,13 +68,25 @@ const ALLOWED = [
     reason:
       '2026-08-30, direct request: "remove both backgrounds". The version label floats over every screen at 9px and a fill read as a badge in the corner. Legibility rests on textShadow, the same thing the two hub labels beside it rely on.',
   },
+  {
+    file: 'app/(tabs)/index.tsx',
+    style: 'purpleDigestShortcutLabel',
+    reason:
+      '2026-08-30, direct request: "It is the Digest icon located on the Home tab that the name Digest has a background behind it... remove both backgrounds." A corner control label, not content. Legibility rests on textShadow.',
+  },
 ];
 
-function isAllowed(file) {
+function isAllowed(file, styles) {
   // Findings carry whatever separator the platform produced, so both sides are
   // normalized before comparing rather than assuming forward slashes.
   const normalized = String(file).split('\\').join('/');
-  return ALLOWED.some((entry) => normalized === entry.file || normalized.endsWith(entry.file));
+  return ALLOWED.some((entry) => {
+    const fileMatches = normalized === entry.file || normalized.endsWith(entry.file);
+    if (!fileMatches) return false;
+    // An entry may name one style, so allowing a label in a big screen file
+    // does not quietly exempt every other bare Text in the same file.
+    return !entry.style || String(styles ?? '').includes(entry.style);
+  });
 }
 
 function collectFiles(dir, out) {
@@ -298,8 +310,8 @@ for (const { file, sourceFile } of parsed) {
   visit(sourceFile);
 }
 
-const allowedFindings = findings.filter((finding) => isAllowed(finding.file));
-const findingsToReport = findings.filter((finding) => !isAllowed(finding.file));
+const allowedFindings = findings.filter((finding) => isAllowed(finding.file, finding.styles));
+const findingsToReport = findings.filter((finding) => !isAllowed(finding.file, finding.styles));
 
 const byFile = new Map();
 for (const finding of findingsToReport) {

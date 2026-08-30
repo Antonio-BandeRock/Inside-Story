@@ -2326,19 +2326,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // Sits over whatever the screen is showing, so it carries its own small
-  // fill (2026-08-29 standing rule: no text directly on the background).
-  // Deliberately tight padding and a pill radius rather than a card: this
-  // is a corner control's label, not content.
+  // No fill, 2026-08-30, direct request: "It is the Digest icon located on the
+  // Home tab that the name Digest has a background behind it... remove both
+  // backgrounds." It had carried one since the 2026-08-29 no-bare-text sweep,
+  // which was right by that rule and wrong in effect: a pill behind a corner
+  // control's own one-word label reads as a badge stuck to the screen. This is a
+  // named exception in scripts/audit_bare_text_on_background.js rather than a
+  // silent one. Legibility rests on textShadow, the same as the hub labels
+  // beside it.
   purpleDigestShortcutLabel: {
     ...typography.caption,
     ...textShadow,
     fontSize: 11,
     marginTop: 2,
-    backgroundColor: colors.surface,
-    borderRadius: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
   },
   // position: 'relative' so bottomMask (position: 'absolute' inside it)
   // places relative to this box, not the whole screen.
