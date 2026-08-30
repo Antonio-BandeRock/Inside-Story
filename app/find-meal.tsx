@@ -17,6 +17,14 @@
 //
 // relogMeal and the rest of the machinery underneath are unchanged; only the
 // way in is different.
+//
+// Renamed the same day, on a second steer: "Find a Meal You've Had is
+// mislabeled because they could want to find a meal they haven't had yet. It
+// should also have access to the system meals generally in an order that makes
+// sense." So this is not a history list, it is the whole catalogue of meals
+// reachable without opening a builder: what has been logged, what has been
+// favorited, and all 300-plus curated recipes, sectioned by which builder they
+// belong to, in the same order the Digest's own Recipes category uses.
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -31,11 +39,16 @@ import {
   deleteMealPhotoDraft,
   getMealFavorite,
   listFavorites,
+  listAllCuratedRecipes,
   listRecentDistinctMeals,
   listScheduledMealsForDate,
   markScheduledMealLogged,
+  logCuratedRecipeAsMeal,
   relogMeal,
+  scheduleCuratedRecipe,
   scheduleMeal,
+  type BuilderFavoriteItemType,
+  type CuratedRecipeListRow,
   type RecentMealSummary,
   type ScheduleItemRecord,
 } from '../lib/db';
@@ -48,7 +61,29 @@ const LIST_LIMIT = 300;
 
 type PickableMeal =
   | { kind: 'meal'; id: string; name: string; mealType: string; lastEatenAt: string; timesLogged: number }
-  | { kind: 'favorite'; id: string; name: string };
+  | { kind: 'favorite'; id: string; name: string }
+  | { kind: 'curated'; id: string; name: string; builderType: BuilderFavoriteItemType; healthBenefit: string };
+
+// The order the Digest's own Recipes category already lists these in, reused
+// rather than invented, so a system meal sits where someone who has browsed
+// Recipes would expect it.
+const BUILDER_SECTIONS: { type: BuilderFavoriteItemType; label: string }[] = [
+  { type: 'side', label: 'Sides' },
+  { type: 'salad', label: 'Salads & Bowls' },
+  { type: 'soup', label: 'Soups' },
+  { type: 'handheld', label: 'Handhelds' },
+  { type: 'smoothie', label: 'Smoothies' },
+  { type: 'beverage', label: 'Beverages' },
+  { type: 'fermentation', label: 'Fermentation' },
+  { type: 'snack', label: 'Snacks' },
+  { type: 'bakedGoods', label: 'Baked Goods' },
+  { type: 'sauce', label: 'Sauces' },
+  { type: 'dessert', label: 'Desserts' },
+];
+
+// A flat list of headers and rows, so one FlatList can render sections without
+// pulling in SectionList and its own separate rendering contract.
+type ListEntry = { type: 'header'; key: string; label: string } | { type: 'row'; key: string; meal: PickableMeal };
 
 type Mode = 'list' | 'actions' | 'earlier' | 'schedule' | 'replace';
 
@@ -85,7 +120,7 @@ export default function FindMealScreen() {
   }>();
 
   const [query, setQuery] = useState('');
-  const [meals, setMeals] = useState<PickableMeal[]>([]);
+  const [meals, setMeals] = useState<ListEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<Mode>('list');
   const [selected, setSelected] = useState<PickableMeal | null>(null);
@@ -97,9 +132,13 @@ export default function FindMealScreen() {
   const load = useCallback(async (search: string) => {
     setLoading(true);
     try {
-      const [recent, favorites] = await Promise.all([
+      const [recent, favorites, curated] = await Promise.all([
         listRecentDistinctMeals(LIST_LIMIT, search),
         listFavorites(LIST_LIMIT, 'meal'),
+        // Bundled reference content, identical for everyone and unchanging
+        // between searches, so this is filtered in memory rather than requeried
+        // on every keystroke.
+        listAllCuratedRecipes(),
       ]);
       const trimmed = search.trim().toLowerCase();
       // Favorites are filtered here rather than in SQL because listFavorites is
@@ -116,9 +155,32 @@ export default function FindMealScreen() {
         lastEatenAt: meal.eatenAt,
         timesLogged: meal.timesLogged,
       }));
-      // Favorites first: they are deliberately kept templates, so someone who
-      // bothered to save one is more likely to be reaching for it.
-      setMeals([...favoriteRows, ...mealRows]);
+      const curatedRows: PickableMeal[] = curated
+        .filter((recipe: CuratedRecipeListRow) => !trimmed || recipe.name.toLowerCase().includes(trimmed))
+        .map((recipe: CuratedRecipeListRow) => ({
+          kind: 'curated' as const,
+          id: recipe.id,
+          name: recipe.name,
+          builderType: recipe.builderType,
+          healthBenefit: recipe.healthBenefit,
+        }));
+
+      const entries: ListEntry[] = [];
+      const pushSection = (label: string, rows: PickableMeal[]) => {
+        if (rows.length === 0) return;
+        entries.push({ type: 'header', key: `header-${label}`, label });
+        for (const meal of rows) entries.push({ type: 'row', key: `${meal.kind}-${meal.id}`, meal });
+      };
+
+      // Your own things first: a meal already logged or deliberately saved is
+      // far more likely to be what someone is reaching for than one of 300-plus
+      // system recipes.
+      pushSection('Meals you have logged', mealRows);
+      pushSection('Your favorites', favoriteRows);
+      for (const section of BUILDER_SECTIONS) {
+        pushSection(section.label, curatedRows.filter((row) => row.kind === 'curated' && row.builderType === section.type));
+      }
+      setMeals(entries);
     } catch (error) {
       console.error('[FindMealScreen] Failed to load meals', error);
       setMeals([]);
@@ -154,6 +216,22 @@ export default function FindMealScreen() {
   // own to copy, so it goes through createMealFromComponents.
   async function logSelectedAt(eatenAt: string): Promise<string | null> {
     if (!selected) return null;
+    if (selected.kind === 'curated') {
+      // A curated recipe is reference content shared by everyone, so it becomes
+      // one of this person's own saved dishes first, exactly as "Build This
+      // Recipe" already does inside a builder.
+      const result = await logCuratedRecipeAsMeal({
+        recipeId: selected.id,
+        mealType: 'snack',
+        eatenAt,
+        photoUri: photoUri ?? null,
+      });
+      if ('error' in result) {
+        showInfoAlert('That did not log', result.error);
+        return null;
+      }
+      return result.id;
+    }
     if (selected.kind === 'meal') {
       const result = await relogMeal(selected.id, eatenAt, { photoUri: photoUri ?? null });
       if ('error' in result) {
@@ -233,6 +311,19 @@ export default function FindMealScreen() {
     }
     setBusy(true);
     try {
+      if (selected.kind === 'curated') {
+        const failure = await scheduleCuratedRecipe({
+          recipeId: selected.id,
+          mealType: 'snack',
+          scheduledFor: `${dateText.trim()}T${time24}`,
+        });
+        if (failure) {
+          showInfoAlert('That did not schedule', failure.error);
+          return;
+        }
+        router.back();
+        return;
+      }
       // Scheduling records where this came from rather than copying it: a
       // planned meal is resolved into real components at the moment it is
       // actually logged, which is what every other scheduling path in the app
@@ -294,6 +385,7 @@ export default function FindMealScreen() {
   }
 
   function describeMeal(meal: PickableMeal): string {
+    if (meal.kind === 'curated') return meal.healthBenefit || 'System recipe';
     if (meal.kind === 'favorite') return 'Saved favorite';
     const mealType = meal.mealType ? meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1) : 'Meal';
     const times = meal.timesLogged === 1 ? 'logged once' : `${meal.timesLogged} times`;
@@ -340,7 +432,7 @@ export default function FindMealScreen() {
         style={styles.screen}
         contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}
         data={meals}
-        keyExtractor={(item) => `${item.kind}-${item.id}`}
+        keyExtractor={(item) => item.key}
         ListHeaderComponent={
           <View style={styles.listHeader}>
             {photoUri ? (
@@ -357,7 +449,7 @@ export default function FindMealScreen() {
               value={query}
               onChangeText={setQuery}
               style={styles.searchInput}
-              placeholder="Search your meals"
+              placeholder="Search meals and recipes"
               placeholderTextColor={colors.textMuted}
             />
             {loading ? <ActivityIndicator color={colors.accent} /> : null}
@@ -368,31 +460,41 @@ export default function FindMealScreen() {
             <View style={styles.card}>
               <Text style={styles.muted}>
                 {query.trim()
-                  ? 'Nothing you have logged matches that.'
-                  : 'Once you log or favorite a meal, it shows up here to reuse or schedule.'}
+                  ? 'Nothing here matches that.'
+                  : 'Meals you log, meals you favorite, and every system recipe show up here to reuse or schedule.'}
               </Text>
             </View>
           )
         }
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.row} activeOpacity={0.8} onPress={() => openActionsFor(item)}>
-            <Ionicons
-              name={item.kind === 'favorite' ? 'star-outline' : 'restaurant-outline'}
-              size={18}
-              color={colors.accent}
-              style={textShadow}
-            />
-            <View style={styles.rowTextWrap}>
-              <Text style={styles.rowName} numberOfLines={2}>
-                {item.name}
-              </Text>
-              <Text style={styles.rowMeta} numberOfLines={1}>
-                {describeMeal(item)}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-          </TouchableOpacity>
-        )}
+        renderItem={({ item }) =>
+          item.type === 'header' ? (
+            <Text style={styles.sectionHeader}>{item.label}</Text>
+          ) : (
+            <TouchableOpacity style={styles.row} activeOpacity={0.8} onPress={() => openActionsFor(item.meal)}>
+              <Ionicons
+                name={
+                  item.meal.kind === 'favorite'
+                    ? 'star-outline'
+                    : item.meal.kind === 'curated'
+                      ? 'book-outline'
+                      : 'restaurant-outline'
+                }
+                size={18}
+                color={colors.accent}
+                style={textShadow}
+              />
+              <View style={styles.rowTextWrap}>
+                <Text style={styles.rowName} numberOfLines={2}>
+                  {item.meal.name}
+                </Text>
+                <Text style={styles.rowMeta} numberOfLines={1}>
+                  {describeMeal(item.meal)}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+            </TouchableOpacity>
+          )
+        }
       />
     );
   }
@@ -542,7 +644,7 @@ export default function FindMealScreen() {
 
   return (
     <View style={styles.screen}>
-      <Stack.Screen options={{ title: "Find a Meal You've Had" }} />
+      <Stack.Screen options={{ title: 'Find a Meal' }} />
       {infoAlertElement}
       {mode === 'list'
         ? renderList()
@@ -592,6 +694,13 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
     marginBottom: 8,
+  },
+  sectionHeader: {
+    ...typography.bodyEmphasis,
+    color: colors.accent,
+    marginTop: 10,
+    marginBottom: 6,
+    ...textShadow,
   },
   rowTextWrap: { flex: 1, gap: 2 },
   rowName: { ...typography.body, color: colors.textPrimary, ...textShadow },
