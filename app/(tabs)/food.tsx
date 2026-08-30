@@ -977,9 +977,21 @@ export default function FoodScreen() {
   // one-line .map() rather than a second hand-written array, so the other
   // three rows (My Food Products/My Whole Foods/System Meals) can never
   // silently drift out of sync between the popup and the Desktop.
-  const desktopMyFoodsCategories: MyItemsCategory[] = myFoodsCategories.map((category) =>
-    category.id === 'saved-favorites' ? { ...category, onPress: () => setDesktopSubmenu('saved-favorites') } : category,
-  );
+  const desktopMyFoodsCategories: MyItemsCategory[] = [
+    // 2026-08-30, direct steer: "these are very powerful tools that should also
+    // be available on the Food screen. Find a meal should be available on the
+    // Food screen." It reaches everything a person has logged or favorited plus
+    // every system recipe, which is exactly what this tab is about, so it leads
+    // rather than sitting under a submenu.
+    {
+      id: 'find-a-meal',
+      label: 'Find a Meal',
+      onPress: () => router.push('/find-meal'),
+    },
+    ...myFoodsCategories.map((category) =>
+      category.id === 'saved-favorites' ? { ...category, onPress: () => setDesktopSubmenu('saved-favorites') } : category,
+    ),
+  ];
 
   // The real submenu opened by "Saved & Favorites" above -- every builder's
   // own saved/favorite pair, unchanged in content and order from what used

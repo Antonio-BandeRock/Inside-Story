@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.8',
+    date: '2026-08-30',
+    changes: [
+      "Fixed: setting up a 6-week meal plan filled your favorites with 126 meals you never asked to save. Scheduling a meal has always had to keep a hidden copy of its parts so it can be rebuilt on the day, and that copy was showing up as a favorite. It no longer does, and the ones already sitting in your favorites have been cleared out. Anything you saved on purpose is untouched.",
+      "Find a Meal is renamed and now covers meals you have not had yet as well. Alongside what you have logged and favorited, every system recipe is there, grouped the same way the Digest groups them: Sides, Salads & Bowls, Soups, Handhelds, and the rest.",
+      "Find a Meal is now also on the Food screen, and Ate out or off-plan is now also at the top of the Meals schedule.",
+      "The Digest cards on Home are now one card per area you actually have: Basic Health, Earth Matters, Gardening, Recipes, and one for each of your conditions. My Kitchen and My Favorites are not among them, since those are your own saved things and belong on the Food screen. The shelf is shuffled every time you open the app, and each card moves to something else from its own area every 15 minutes.",
+    ],
+  },
+  {
     version: '1.0.31.7',
     date: '2026-08-30',
     changes: [

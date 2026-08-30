@@ -27,6 +27,34 @@ The app is under active development and substantially built. Current state:
 
 
 
+**Most recent (2026-08-30, 1.0.31.8): a real favorites bug found by using the app, plus three follow-ups on the quick-log work.**
+
+
+
+**The bug, and it was wider than reported.** Direct on-device report: "when I had the app create a 6 week meal plan schedule, it seems to have made all of them a favorite automatically. If that is the case, it definitely should not do that." True, and not only for meal plans. A scheduled meal remembers which components to resume with through `schedule_items.source_favorite_id`, so EVERY scheduling path has always created a favorite to point at, deliberately and independent of any "also save as a favorite" choice (MealBuilder's own comment on this says "structurally required, not a preference"). That reasoning is sound. What was wrong is that a row created only to carry components then appeared everywhere real favorites are listed, and a 6-week plan is 126 slots, so it buried them.
+
+
+
+**Fixed without touching the carrier mechanism**, which is load-bearing: new `favorites.auto_generated` column, set by `scheduleMealPlanSlot` and by MealBuilder's two schedule paths (there as `!alsoSaveAsFavorite`, so ticking the box still produces a real favorite), and filtered out in `listFavorites`. Everything that resolves a favorite BY ID still works untouched, so scheduled meals keep resuming their components. **The retroactive pass is the part that needed care:** a carrier favorite is written seconds before the schedule item pointing at it, while a favorite made deliberately and scheduled later (the Meals lens can point at an existing one) is minutes or days older, so the migration marks only those within 5 seconds of their schedule item. Verified against a scratch database with all three cases: carrier hidden, deliberately-made-then-scheduled kept, never-scheduled kept.
+
+
+
+**"Find a Meal You've Had" renamed and widened.** Direct steer: "mislabeled because they could want to find a meal they haven't had yet. It should also have access to the system meals generally in an order that makes sense." Now the whole catalogue reachable without opening a builder: meals logged, meals favorited, and all curated recipes, sectioned by builder type in the same order the Digest's Recipes category uses. New `listAllCuratedRecipes`, `logCuratedRecipeAsMeal` and `scheduleCuratedRecipe` (`lib/db.ts`) do the conversion a curated recipe needs before it can be logged at all, which is the same step "Build This Recipe" already performs inside a builder.
+
+
+
+**Both tools placed where the work happens**, per "these are very powerful tools that should also be available on the Food screen": Find a Meal now leads Food's own resting Desktop menu, and the off-plan voice shortcut sits at the top of Schedule's Meals lens, where a planned meal is what needs resolving.
+
+
+
+**Home's Digest cards rebuilt as one card per group.** Direct steer, quoted in the code: one card each for Basic Health, Earth Matters, Gardening, Recipes and every tracked or curious-about condition, never My Kitchen or My Favorites (a person's own saved things, which belong on Food). The shelf order is seeded once per mount, so it is random per app open and stable while open; each card's entry is seeded by its group plus a 15-minute rotation counter. Both are seeded rather than `Math.random()` at render time for the same reason the daily shuffle they replace was: an unseeded pick would change the card on every unrelated re-render. The "More from The Digest" card is gone, since the shelf is now everything rather than a slice being held back.
+
+
+
+`tsc` clean project-wide, `eslint` compared against the stashed pre-change tree and confirmed at an identical problem count, bare-text audit at 0, spoken-parser test 19 of 19. **Not yet confirmed on-device**, and the checks that matter most: open Favorites and confirm the meal-plan entries are gone while anything saved deliberately is still there; search Find a Meal for a system recipe by name and schedule it; and confirm Home shows one card per area, in a different order after a restart.
+
+
+
 **Most recent (2026-08-30, 1.0.31.7): the Log Again tile strip removed and replaced with a searchable list, a few hours after it shipped.** Direct steer, and it was right: "random meals being presented to possibly have them again doesn't make sense. It could be a shortcut to reschedule a past meal and they then see a standard scrollable list of meal names to choose from, with a search field to filter by a specific word rather than remembering what it was named in the app."
 
 

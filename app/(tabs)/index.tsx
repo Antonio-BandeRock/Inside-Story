@@ -281,20 +281,53 @@ function flipCardExcerpt(text: string, maxLength = 200): string {
   return `${truncated.slice(0, lastSpace > 0 ? lastSpace : maxLength)}…`;
 }
 
-function digestFlipCardPool(userConditionCodes: string[], curiousAboutConditionCodes: string[]): FlipCardEntry[] {
-  const visibleCategories = new Set<DigestCategoryKey>(['basicHealth']);
-  for (const code of [...userConditionCodes, ...curiousAboutConditionCodes]) {
-    const digestKey = CONDITION_CODE_TO_DIGEST_KEY[code];
-    if (digestKey) visibleCategories.add(digestKey);
-  }
+// 2026-08-30, direct steer: "the flip cards at the bottom should have one card
+// per each of the groups available to them from Digest; Basic Health, Earth
+// Matters, Gardening, Recipes, and each of their conditions, but not My
+// Kitchen, or My Favorites which should be available from the Food screen. They
+// should be randomly placed on the shelf each time the app opens. The cards
+// should be randomly pulled in random orders and should each change once every
+// 15 minutes."
+//
+// So the shelf is no longer one pooled, shuffled list of entries; it is one
+// card per group, each showing something from its own group. My Kitchen and My
+// Favorites are deliberately absent: both are a person's own saved things
+// rather than reading, and Food is where they belong.
+const ALWAYS_AVAILABLE_FLIP_CARD_GROUPS: DigestCategoryKey[] = [
+  'basicHealth',
+  'earthMatters',
+  'homeGardening',
+  'recipes',
+];
+
+// How often each card swaps to a different entry from its own group.
+const FLIP_CARD_ROTATION_MS = 15 * 60 * 1000;
+
+type FlipCardGroup = { category: DigestCategoryKey; entries: FlipCardEntry[] };
+
+function toFlipCardEntry(entry: (typeof ALL_DIGEST_ENTRIES)[number]): FlipCardEntry {
   // ProblemFoodEntry has no title/summary of its own (foodName/problem
   // instead) -- see isProblemFoodEntry's own comment in lib/digest/types.ts
   // for why category alone can't tell the two shapes apart.
-  return ALL_DIGEST_ENTRIES.filter((entry) => visibleCategories.has(entry.category)).map((entry) =>
-    isProblemFoodEntry(entry)
-      ? { id: entry.id, hook: entry.teaser, backTitle: entry.foodName, backBody: flipCardExcerpt(entry.problem) }
-      : { id: entry.id, hook: entry.teaser, backTitle: entry.title, backBody: flipCardExcerpt(entry.summary) },
-  );
+  return isProblemFoodEntry(entry)
+    ? { id: entry.id, hook: entry.teaser, backTitle: entry.foodName, backBody: flipCardExcerpt(entry.problem) }
+    : { id: entry.id, hook: entry.teaser, backTitle: entry.title, backBody: flipCardExcerpt(entry.summary) };
+}
+
+function digestFlipCardGroups(userConditionCodes: string[], curiousAboutConditionCodes: string[]): FlipCardGroup[] {
+  const categories: DigestCategoryKey[] = [...ALWAYS_AVAILABLE_FLIP_CARD_GROUPS];
+  for (const code of [...userConditionCodes, ...curiousAboutConditionCodes]) {
+    const digestKey = CONDITION_CODE_TO_DIGEST_KEY[code];
+    if (digestKey && !categories.includes(digestKey)) categories.push(digestKey);
+  }
+  return categories
+    .map((category) => ({
+      category,
+      entries: ALL_DIGEST_ENTRIES.filter((entry) => entry.category === category).map(toFlipCardEntry),
+    }))
+    // A group with nothing in it would render an empty card, which reads as
+    // broken rather than as "nothing here yet".
+    .filter((group) => group.entries.length > 0);
 }
 
 // A fixed, seeded "random" shuffle rather than Math.random() -- reused
@@ -313,16 +346,10 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-function todayDaySeed(): number {
-  const now = new Date();
-  const startOfYear = new Date(now.getFullYear(), 0, 0).getTime();
-  const dayOfYear = Math.floor((now.getTime() - startOfYear) / (24 * 60 * 60 * 1000));
-  return now.getFullYear() * 1000 + dayOfYear;
-}
-
-// Fisher-Yates using the seeded generator above -- deterministic for a
-// given seed, so "today's order" is stable across every re-render and
-// every time Home refocuses today, but reshuffles tomorrow.
+// Fisher-Yates using the seeded generator above -- deterministic for a given
+// seed, which is the whole point: the flip-card shelf is seeded once per app
+// open, so its order is random each time the app starts and then stable while
+// it is open, rather than reshuffling under someone on every re-render.
 function seededShuffleIndices(length: number, seed: number): number[] {
   const random = mulberry32(seed);
   const indices = Array.from({ length }, (_, index) => index);
@@ -627,13 +654,14 @@ export default function HomeScreen() {
   // deliberately NOT state at all -- both are pure, synchronous, offline
   // math (lib/celestialEvents.ts), computed directly in the render below.
   const [skyResult, setSkyResult] = useState<HomeSkyResult | undefined>(undefined);
-  // How many of digestFlipCardPool's own today-shuffled order are
-  // currently shown -- starts at 4 (the original fixed count), grows via the "show
-  // more" card at the end. Intentionally NOT reset on focus/day change --
-  // if someone's mid-browsing when the date rolls over, snapping their
-  // already-expanded view back to 4 would feel like a bug, not a feature;
-  // it'll naturally reset next cold start.
-  const [visibleFlipCardCount, setVisibleFlipCardCount] = useState(4);
+  // Bumped every 15 minutes to move every card onto a different entry from its
+  // own group. Plain state rather than a timestamp so the shuffle below depends
+  // on one changing number and nothing else.
+  const [flipCardRotation, setFlipCardRotation] = useState(0);
+  // Fixed once per mount, which is once per app open, so the shelf order is
+  // random each time the app opens but stable while it is open. Regenerating it
+  // on every render would reshuffle the shelf under someone mid-read.
+  const [flipCardShelfSeed] = useState(() => Math.floor(Math.random() * 0xffffffff));
   // The real scope of Home's own Digest flip cards, 2026-08-23 direct
   // request -- see digestFlipCardPool's own comment below for how these
   // two lists actually get used. Both start empty (matching "nothing
@@ -658,6 +686,11 @@ export default function HomeScreen() {
   // load() can read the latest tracked conditions without ever being
   // recreated -- the standard fix for "a callback needs a fresh value
   // without needing to change identity every time that value does."
+  useEffect(() => {
+    const timer = setInterval(() => setFlipCardRotation((current) => current + 1), FLIP_CARD_ROTATION_MS);
+    return () => clearInterval(timer);
+  }, []);
+
   const userConditionCodesRef = useRef(userConditionCodes);
   useEffect(() => {
     userConditionCodesRef.current = userConditionCodes;
@@ -1168,13 +1201,31 @@ export default function HomeScreen() {
   // filtering ALL_DIGEST_ENTRIES (1,500+ entries) is real, non-trivial
   // work worth memoizing, the same lesson Basic Health's own perf fix
   // already taught this app (see CLAUDE.md's 2026-08-23 entry on that).
-  const flipCardPool = useMemo(
-    () => digestFlipCardPool(userConditionCodes, curiousAboutConditionCodes),
+  const flipCardGroups = useMemo(
+    () => digestFlipCardGroups(userConditionCodes, curiousAboutConditionCodes),
     [userConditionCodes, curiousAboutConditionCodes],
   );
-  const dailyFlipCardOrder = seededShuffleIndices(flipCardPool.length, todayDaySeed());
-  const visibleFlipCards = dailyFlipCardOrder.slice(0, visibleFlipCardCount).map((index) => flipCardPool[index]);
-  const hasMoreFlipCards = visibleFlipCardCount < flipCardPool.length;
+
+  // One card per group, each holding a random entry from its own group.
+  //
+  // Both kinds of randomness are seeded rather than Math.random() at render
+  // time, for the same reason the daily shuffle this replaced was: an unseeded
+  // pick would land on a different entry on every single re-render, so a card
+  // would change under someone the moment anything else on Home updated. The
+  // shelf order is seeded per app open, and each card's entry is seeded by its
+  // own group plus the rotation counter, so a card only moves when 15 minutes
+  // have genuinely passed.
+  const visibleFlipCards = useMemo(() => {
+    const shelfOrder = seededShuffleIndices(flipCardGroups.length, flipCardShelfSeed);
+    return shelfOrder.map((groupIndex) => {
+      const group = flipCardGroups[groupIndex];
+      const random = mulberry32(flipCardShelfSeed + flipCardRotation * 7919 + groupIndex * 104729);
+      const entry = group.entries[Math.floor(random() * group.entries.length)];
+      // Keyed by group as well as entry: two groups could in principle surface
+      // the same entry id, and a duplicate React key would drop a card.
+      return { ...entry, groupKey: group.category };
+    });
+  }, [flipCardGroups, flipCardShelfSeed, flipCardRotation]);
 
   // Moon phase + the next equinox/solstice countdown: pure, synchronous,
   // offline math (lib/celestialEvents.ts) -- always available, computed
@@ -1746,9 +1797,13 @@ export default function HomeScreen() {
         style={[styles.fullBleedScroll]}
         contentContainerStyle={styles.flipRow}
       >
+        {/* No "more from the Digest" card any more: the shelf is now every
+            group the person actually has, so there is nothing being held back
+            to reveal. Each card moves to a different entry from its own group
+            every 15 minutes instead. */}
         {visibleFlipCards.map((card) => (
           <FlipCard
-            key={card.id}
+            key={card.groupKey}
             icon={<PurpleRibbonIcon size={28} color={colors.tabPurpleDigest} />}
             hook={card.hook}
             backTitle={card.backTitle}
@@ -1757,16 +1812,6 @@ export default function HomeScreen() {
             borderColor={colors.tabPurpleDigest}
           />
         ))}
-        {hasMoreFlipCards ? (
-          <TouchableOpacity
-            style={[styles.moreFlipCard, { borderColor: colors.tabPurpleDigest }]}
-            onPress={() => setVisibleFlipCardCount((count) => Math.min(count + 4, flipCardPool.length))}
-            activeOpacity={0.85}
-          >
-            <Ionicons name="add-circle-outline" size={32} color={colors.tabPurpleDigest} />
-            <Text style={[styles.moreFlipCardText, { color: colors.tabPurpleDigest }]}>More from{'\n'}The Digest</Text>
-          </TouchableOpacity>
-        ) : null}
       </ScrollView>
     );
   }

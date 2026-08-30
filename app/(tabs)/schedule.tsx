@@ -725,6 +725,20 @@ function describeRelativeDate(dateStr: string): string {
 // individual scheduled meal to the phone's own Calendar app the same way
 // Appointments already does (see ensureDeviceCalendarPermission/
 // handleAddToDeviceCalendar below, both reusing lib/deviceCalendar.ts).
+// 2026-08-30, direct steer: "Ate out or off-plan maybe could be available
+// from the Schedules screen." It fits here better than anywhere: this lens is
+// where a planned meal sits waiting, and the voice screen is what resolves one
+// that did not happen the way it was planned.
+function OffPlanShortcut() {
+  const router = useRouter();
+  return (
+    <TouchableOpacity style={styles.offPlanButton} activeOpacity={0.85} onPress={() => router.push('/voice-log')}>
+      <Ionicons name="mic-outline" size={18} color={TAB_COLOR} />
+      <Text style={styles.offPlanButtonText}>Ate out or off-plan? Say it</Text>
+    </TouchableOpacity>
+  );
+}
+
 function MealsLens() {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -1226,6 +1240,7 @@ function MealsLens() {
       actions={removePrompt?.actions ?? []}
     />
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      <OffPlanShortcut />
       {loading ? (
           <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
         ) : errorMessage ? (
@@ -5610,6 +5625,21 @@ export default function ScheduleScreen() {
 }
 
 const styles = StyleSheet.create({
+  // 2026-08-30, the off-plan voice shortcut at the top of the Meals lens.
+  offPlanButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: colors.surface,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: TAB_COLOR,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+  },
+  offPlanButtonText: { ...typography.bodyEmphasis, ...textShadow, color: TAB_COLOR },
   screen: { flex: 1 },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
