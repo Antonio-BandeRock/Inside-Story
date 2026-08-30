@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.4',
+    date: '2026-08-30',
+    changes: [
+      "Scan a barcode and you can now log it as eaten right there. Until now a finished scan could only be saved for later or priced, which answers whether to buy something but never that you are eating it.",
+      "It asks two things and fills both in for you: how much, in grams, and which meal. The meal is guessed from the clock against your own meal times in Profile, and both are yours to change before anything is written.",
+      "The amount is in grams and starts at 100 because that is what a barcode nutrition panel reports. Nothing in the lookup gives a serving size, so the app does not invent one.",
+      "Undo sits right next to the confirmation. Logging it also files the product under My Processed Foods, the same one entry buying it would have created, not a second copy.",
+    ],
+  },
+  {
     version: '1.0.31.3',
     date: '2026-08-30',
     changes: [

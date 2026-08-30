@@ -31,13 +31,24 @@ import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { lookupProductByBarcode, type LookedUpProduct } from '../lib/barcodeLookup';
 import {
+  createMeal,
+  deleteMeal,
   getFoodNutrients,
   getScannedProductByBarcode,
   getUserConditions,
+  getUserProfile,
   recordScannedProductPrice,
   saveScannedProduct,
+  type UserProfile,
 } from '../lib/db';
+import {
+  inferMealTypeForTime,
+  QUICK_LOG_MEAL_TYPES,
+  quickLogMealTypeLabel,
+  type QuickLogMealType,
+} from '../lib/quickLog';
 import { parseIngredientsForDisplay } from '../lib/ingredientsParsing';
+import { formatTime12 } from '../lib/timeOfDay';
 import { countRecognizedLetters, extractPriceGuess, recognizeTextFromImage } from '../lib/ocr';
 import { pickAndSaveMealPhoto, saveCapturedPhoto } from '../lib/mealPhotos';
 import {
@@ -162,6 +173,22 @@ const REPORTABLE_NUTRIENT_CODES = ['energy_kcal', 'fat_total', 'carbohydrate', '
 // vertically down every column regardless of what any one cell holds.
 const INGREDIENT_TABLE_COLUMNS = 2;
 
+// meals.eaten_at's own stored format, 'YYYY-MM-DDTHH:mm' in local time (see
+// listMealsForDate's own comment in lib/db.ts). new Date().toISOString()
+// would be UTC with seconds and a trailing Z, which would silently break
+// the date matching every Insights, Trends and Home lens already relies on.
+function nowLocalTime24(): string {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+function nowLocalDateTimeString(): string {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${nowLocalTime24()}`;
+}
+
 function chunkIntoRows<T>(items: T[], columns: number): T[][] {
   const rows: T[][] = [];
   for (let i = 0; i < items.length; i += columns) {
@@ -207,6 +234,30 @@ export default function ScanProductScreen() {
   const [pricePhotoUri, setPricePhotoUri] = useState<string | null>(null);
   const [savingPrice, setSavingPrice] = useState(false);
 
+  // Quick-log phase 2, 2026-08-30 (Open Next Steps item 21). The scan already
+  // resolved a real product with a real nutrient panel; until now the only
+  // thing that could be done with it was save it for later and shop for it.
+  // Logging it as eaten is the one action someone standing in a kitchen
+  // holding the box is most likely to actually want.
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [logPanelOpen, setLogPanelOpen] = useState(false);
+  // Grams, because a scanned nutrient panel is per 100g and nothing in the
+  // barcode lookup reports a serving size (confirmed against LookedUpProduct
+  // in lib/barcodeLookup.ts). Guessing one would be inventing a number that
+  // then silently scales every nutrient this logs.
+  const [logAmountText, setLogAmountText] = useState('100');
+  const [logMealType, setLogMealType] = useState<QuickLogMealType>('snack');
+  const [loggingMeal, setLoggingMeal] = useState(false);
+  // Set only on a successful log, and only ever used to offer Undo. A
+  // scanned product logs through createMeal with a flat ingredient list,
+  // which (unlike the component path) never activates a food trial, so
+  // deleting the meal really is enough to undo it here.
+  const [loggedMeal, setLoggedMeal] = useState<{ id: string; at: string } | null>(null);
+  // Shown inline rather than through this screen's own error status, which
+  // would replace the whole report with an error page and lose everything
+  // the scan just worked out.
+  const [logError, setLogError] = useState<string | null>(null);
+
   // Real, in-app camera capture for the ingredients/price photos -- see
   // saveCapturedPhoto's own header comment in lib/mealPhotos.ts for the
   // full, confirmed-on-device reason "Take a Photo" no longer hands off to
@@ -246,6 +297,12 @@ export default function ScanProductScreen() {
 
   useEffect(() => {
     getUserConditions().then(setSelectedConditions);
+    // Only ever read for the meal-type guess below. A profile with no usual
+    // meal times set still works: inferMealTypeForTime falls back to plain
+    // clock thresholds rather than refusing to answer.
+    getUserProfile()
+      .then(setProfile)
+      .catch((error) => console.error('[ScanProductScreen] Failed to load the profile', error));
   }, []);
 
   // 2026-08-16 -- direct request: "the output needs to be in a readable
@@ -302,6 +359,11 @@ export default function ScanProductScreen() {
     setAdditiveFlags([]);
     setConditionFlags([]);
     setSavedProductId(null);
+    setLogPanelOpen(false);
+    setLogAmountText('100');
+    setLoggingMeal(false);
+    setLoggedMeal(null);
+    setLogError(null);
     setPriceText('');
     setPricePhotoUri(null);
     setErrorMessage(null);
@@ -676,23 +738,32 @@ export default function ScanProductScreen() {
     Speech.speak(parts.join(' '));
   }
 
+  // Pulled out of handleBuyThis, 2026-08-30, so logging this as eaten and
+  // buying it both create the same one My Processed Foods row rather than
+  // two near-duplicates for the same barcode. Returns the id either way,
+  // whether the row already existed from an earlier scan or was just made.
+  async function ensureScannedProductSaved(): Promise<number> {
+    const existing = savedProductId ?? existingProductId;
+    if (existing != null) return existing;
+    if (!barcode) throw new Error('No barcode to save against.');
+    const id = await saveScannedProduct({
+      barcode,
+      name,
+      brand,
+      lookupSource: lookedUp?.lookupSource ?? 'Manual',
+      ingredientsText: ingredientsText || null,
+      photoUri: ingredientsPhotoUri,
+      nutrients: lookedUp?.nutrients ?? [],
+    });
+    setSavedProductId(id);
+    return id;
+  }
+
   async function handleBuyThis() {
     if (!barcode) return;
     setSaving(true);
     try {
-      let id = savedProductId ?? existingProductId;
-      if (id == null) {
-        id = await saveScannedProduct({
-          barcode,
-          name,
-          brand,
-          lookupSource: lookedUp?.lookupSource ?? 'Manual',
-          ingredientsText: ingredientsText || null,
-          photoUri: ingredientsPhotoUri,
-          nutrients: lookedUp?.nutrients ?? [],
-        });
-        setSavedProductId(id);
-      }
+      await ensureScannedProductSaved();
       setStatus('price-capture');
     } catch (error) {
       console.error('[ScanProductScreen] Failed to save scanned product', error);
@@ -700,6 +771,72 @@ export default function ScanProductScreen() {
       setStatus('error');
     } finally {
       setSaving(false);
+    }
+  }
+
+  // Opens the amount/meal-type panel rather than logging on the spot. One
+  // tap is the goal everywhere else in quick-log, but a scanned nutrient
+  // panel is per 100g with no serving size reported anywhere, so logging
+  // silently at some assumed amount would put a number into the record that
+  // nobody chose. Asking once, with both fields already filled in, is the
+  // honest version of fast.
+  function handleOpenLogPanel() {
+    setLogError(null);
+    setLogMealType(inferMealTypeForTime(profile, nowLocalTime24()));
+    setLogPanelOpen(true);
+  }
+
+  async function handleLogThis() {
+    const grams = Number(logAmountText);
+    if (!Number.isFinite(grams) || grams <= 0) return;
+    setLoggingMeal(true);
+    setLogError(null);
+    try {
+      const productId = await ensureScannedProductSaved();
+      const eatenAt = nowLocalDateTimeString();
+      const meal = await createMeal({
+        name,
+        mealType: logMealType,
+        eatenAt,
+        isImmediate: true,
+        ingredients: [
+          {
+            // The (id, source) shape every scanned product already uses to
+            // resolve its own nutrients -- see getFoodNutrients' own
+            // source === 'Scanned' branch in lib/db.ts.
+            foodId: `${productId}|Scanned`,
+            foodName: name,
+            category: 'MyProcessedFoods',
+            quantity: grams,
+            unit: 'g',
+            dishServings: 1,
+            yourSharePercent: 100,
+          },
+        ],
+      });
+      setLoggedMeal({ id: meal.id, at: eatenAt.slice(11) });
+      setLogPanelOpen(false);
+    } catch (error) {
+      console.error('[ScanProductScreen] Failed to log a scanned product', error);
+      setLogError('Something went wrong logging this. Check Past Meals before trying again.');
+    } finally {
+      setLoggingMeal(false);
+    }
+  }
+
+  // Safe as a plain delete: this meal was created through createMeal with a
+  // flat ingredient list, which never activates a food trial the way the
+  // component path does, and meal_items cascades off the meal's own row.
+  async function handleUndoLoggedMeal() {
+    if (!loggedMeal) return;
+    const target = loggedMeal;
+    setLoggedMeal(null);
+    setLogError(null);
+    try {
+      await deleteMeal(target.id);
+    } catch (error) {
+      console.error('[ScanProductScreen] Undo of a logged scanned product failed', error);
+      setLogError('That is still logged. You can remove it from Past Meals.');
     }
   }
 
@@ -1170,6 +1307,12 @@ export default function ScanProductScreen() {
   }
 
   if (status === 'report') {
+    // Recomputed per render rather than held in state: it is one Number()
+    // call over a field the person is actively typing into, and a second
+    // piece of state would only be one more thing able to fall out of step
+    // with the text itself.
+    const logAmountGrams = Number(logAmountText);
+    const logAmountIsValid = Number.isFinite(logAmountGrams) && logAmountGrams > 0;
     return (
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
         <Text style={styles.title}>{name}</Text>
@@ -1230,6 +1373,79 @@ export default function ScanProductScreen() {
           <Ionicons name="volume-high-outline" size={18} color={colors.textSecondary} />
           <Text style={styles.secondaryButtonText}>Read This to Me</Text>
         </TouchableOpacity>
+
+        {/* Quick-log phase 2, 2026-08-30. Until now a finished scan could only
+            be saved for later or priced, which answers "should I buy this"
+            but never "I am eating this". Logging it here means the nutrients
+            the scan already resolved land in today's totals without anyone
+            rebuilding the same product inside a builder. */}
+        {loggedMeal ? (
+          <View style={styles.logBanner}>
+            <Text style={styles.logBannerText}>
+              {`${name} is logged as ${quickLogMealTypeLabel(logMealType).toLowerCase()} at ${formatTime12(loggedMeal.at)}.`}
+            </Text>
+            <TouchableOpacity style={styles.logUndoButton} activeOpacity={0.75} onPress={handleUndoLoggedMeal}>
+              <Ionicons name="arrow-undo-outline" size={14} color={colors.accent} />
+              <Text style={styles.logUndoText}>Undo</Text>
+            </TouchableOpacity>
+          </View>
+        ) : logPanelOpen ? (
+          <View style={styles.card}>
+            <Text style={styles.sectionLabel}>How much did you have?</Text>
+            <View style={styles.textAreaRow}>
+              <AppTextInput
+                value={logAmountText}
+                onChangeText={setLogAmountText}
+                style={styles.priceInput}
+                keyboardType="decimal-pad"
+                placeholder="100"
+                placeholderTextColor={colors.textMuted}
+              />
+              <Text style={styles.logUnitText}>grams</Text>
+            </View>
+            <Text style={styles.logHint}>
+              This label reads per 100 grams, and the barcode lookup does not report a serving size, so the amount is
+              yours to set.
+            </Text>
+            <Text style={styles.sectionLabel}>Which meal?</Text>
+            <View style={styles.logMealTypeRow}>
+              {QUICK_LOG_MEAL_TYPES.map((mealType) => {
+                const active = logMealType === mealType;
+                return (
+                  <TouchableOpacity
+                    key={mealType}
+                    style={[styles.logMealTypePill, active ? styles.logMealTypePillActive : null]}
+                    activeOpacity={0.8}
+                    onPress={() => setLogMealType(mealType)}
+                  >
+                    <Text style={[styles.logMealTypePillText, active ? styles.logMealTypePillTextActive : null]}>
+                      {quickLogMealTypeLabel(mealType)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            {logError ? <Text style={styles.logErrorText}>{logError}</Text> : null}
+            <TouchableOpacity
+              style={[styles.primaryButton, loggingMeal || !logAmountIsValid ? styles.disabled : null]}
+              activeOpacity={0.85}
+              onPress={handleLogThis}
+              disabled={loggingMeal || !logAmountIsValid}
+            >
+              <Ionicons name="checkmark-circle-outline" size={18} color={colors.background} />
+              <Text style={styles.primaryButtonText}>{loggingMeal ? `Logging…` : `Log It`}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => setLogPanelOpen(false)}>
+              <Text style={styles.secondaryButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={handleOpenLogPanel}>
+            <Ionicons name="restaurant-outline" size={18} color={colors.background} />
+            <Text style={styles.primaryButtonText}>Log This as Eaten</Text>
+          </TouchableOpacity>
+        )}
+        {logError && !logPanelOpen ? <Text style={styles.logErrorText}>{logError}</Text> : null}
 
         <TouchableOpacity
           style={[styles.primaryButton, saving ? styles.disabled : null]}
@@ -1500,6 +1716,38 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary, ...textShadow },
+  // Quick-log phase 2, 2026-08-30.
+  logBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    backgroundColor: colors.surface,
+  },
+  logBannerText: { ...typography.body, color: colors.textPrimary, flex: 1, ...textShadow },
+  logUndoButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  logUndoText: { ...typography.body, color: colors.accent, ...textShadow },
+  logHint: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  logErrorText: { ...typography.caption, color: colors.danger, ...textShadow },
+  logUnitText: { ...typography.body, color: colors.textSecondary, paddingTop: 12, ...textShadow },
+  logMealTypeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  logMealTypePill: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  logMealTypePillActive: { borderColor: colors.accent, backgroundColor: colors.accent },
+  logMealTypePillText: { ...typography.body, color: colors.textSecondary, ...textShadow },
+  // Dark text on the light accent fill: cancel the shadow it would otherwise
+  // inherit, matching primaryButtonText just below. See constants/typography.ts.
+  logMealTypePillTextActive: { color: colors.background, textShadowColor: 'transparent', textShadowRadius: 0 },
   libraryLink: { alignItems: 'center', paddingVertical: 4 },
   libraryLinkText: { ...typography.caption, color: colors.textMuted, textDecorationLine: 'underline', ...textShadow },
 });
