@@ -64,9 +64,38 @@ import { useVisualPreferences } from '../hooks/useVisualPreferences';
 // flips to 'right', the buttons would cluster right of the butterfly
 // instead, and this box needs to become a true mirror image on the left
 // -- not just re-centered, its near/far edges swap sides too.
+// The box's own horizontal span, pulled out 2026-08-30 so the version label can
+// sit centred under it without a second copy of this math. Direct request:
+// "Move the version number to the lower right under and centered on the box
+// that tells the user where they are in the app."
+//
+// A hook rather than a constant because every input is live: the window width
+// and which TabHub icon is currently chosen, since that artwork is wider or
+// narrower depending and this box positions itself off its real edge.
+//
+// TabHub's own button is alignSelf: 'center' with no other horizontal inset in
+// play, so it (and whichever icon is centered around it, symmetrically wider on
+// both sides) sits centered on windowWidth/2, regardless of NAVIGATION_HAND --
+// only which SIDE the hub buttons cluster on (and which side this box mirrors
+// to) depends on that.
+export function usePageIdentityBoxSpan(): { left: number; right: number } {
+  const { width: windowWidth } = useWindowDimensions();
+  const { tabHubIcon } = useVisualPreferences();
+  const { width: buttonIconWidth, bottomOverhang } = getTabHubIconRenderSize(tabHubIcon);
+  const buttonIconOverhangY = Math.max(0, Math.ceil(bottomOverhang));
+  const verticalBuffer = FLOATING_BUTTON_BOTTOM_OFFSET - buttonIconOverhangY;
+  const buttonCenterX = windowWidth / 2;
+
+  return NAVIGATION_HAND === 'left'
+    ? { left: buttonCenterX + buttonIconWidth / 2 + verticalBuffer, right: SECONDARY_HUB_CARD_LEFT_MARGIN }
+    : {
+        left: SECONDARY_HUB_CARD_LEFT_MARGIN,
+        right: windowWidth - (buttonCenterX - buttonIconWidth / 2 - verticalBuffer),
+      };
+}
+
 export function PageIdentityLabel({ title, activeLensLabel }: { title: string; activeLensLabel?: string }) {
   const insets = useSafeAreaInsets();
-  const { width: windowWidth } = useWindowDimensions();
   const tabRoute = TAB_ROUTES.find((route) => route.title === title);
   const tabColor = tabRoute?.color ?? colors.primary;
   // 2026-08-09: this box positions itself relative to the TabHub button's
@@ -85,8 +114,11 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   // 'seedTall' alone has a smaller, pinned bottomOverhang (its extra height
   // goes up, not down), and this box needs that real number, not the
   // symmetric one, to clear the nav bar by the right amount.
-  const { width: buttonIconWidth, bottomOverhang } = getTabHubIconRenderSize(tabHubIcon);
+  const { bottomOverhang } = getTabHubIconRenderSize(tabHubIcon);
   const buttonIconOverhangY = Math.max(0, Math.ceil(bottomOverhang));
+  // Same span the version label below this box uses, from one shared hook
+  // rather than two copies of the math that could drift apart.
+  const horizontalPosition = usePageIdentityBoxSpan();
 
   // Nothing to show at all until a real lens is picked, 2026-08-08 -- see
   // this file's own 2026-08-08 comment above for why the box no longer
@@ -105,20 +137,6 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   // box's own top edge land the same distance below the footer's
   // iridescent line the icon's own top edge already sits.
   const boxHeight = FLOATING_BUTTON_SIZE + buttonIconOverhangY * 2;
-  // TabHub's own button is alignSelf: 'center' with no other horizontal
-  // inset in play, so it (and whichever icon is centered around it,
-  // symmetrically wider on both sides) sits centered on windowWidth/2,
-  // regardless of NAVIGATION_HAND -- only which SIDE the hub buttons
-  // cluster on (and which side this box mirrors to) depends on that.
-  const buttonCenterX = windowWidth / 2;
-  const horizontalPosition =
-    NAVIGATION_HAND === 'left'
-      ? { left: buttonCenterX + buttonIconWidth / 2 + verticalBuffer, right: SECONDARY_HUB_CARD_LEFT_MARGIN }
-      : {
-          left: SECONDARY_HUB_CARD_LEFT_MARGIN,
-          right: windowWidth - (buttonCenterX - buttonIconWidth / 2 - verticalBuffer),
-        };
-
   return (
     <View
       style={[styles.container, horizontalPosition, { bottom: boxBottom, height: boxHeight, borderColor: tabColor }]}

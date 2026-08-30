@@ -27,6 +27,30 @@ The app is under active development and substantially built. Current state:
 
 
 
+**Most recent (2026-08-30, 1.0.31.15): the same auto-created-artifact bug one level down, plus three layout and behaviour changes.**
+
+
+
+**Auto-saved sides, salads, soups and the rest.** Direct report, and correct: "I think there are some automatically saved sides, Salads and Bowls, and Fermentations, and Beverages, and Snacks, and Soups, and Handhelds, and probably the others will show up too." This is the same shape as the favorites bug fixed earlier the same day, one level down. `scheduleMealPlanSlot` turns each curated recipe in a slot into a real saved dish through `saveComponentFromCuratedPayload`, because a scheduled meal resolves its components from real saved records. Structurally required. What was wrong is that those records then appeared in every "Saved Sides"/"Saved Salads" list as though someone had built them, and a 6-week plan is 126 slots, most with more than one component.
+
+
+
+**Same treatment as favorites**: an `auto_generated` column on all eleven component tables (added in one loop over `COMPONENT_TABLE_BY_TYPE` rather than eleven hand-written migrations), set when the meal-plan path creates one, and filtered out of all eleven `listX` functions. Resolution BY ID is untouched, so every scheduled meal still rebuilds correctly. The retroactive pass keys off the carrier favorites already marked in the earlier fix and reads their `payload_json` in JS rather than SQL, so it needs no assumption about whether this build's SQLite has the JSON1 extension, and it chunks its `IN (...)` updates because one plan can reference well over a hundred rows in a single table.
+
+
+
+**Three smaller things.** Home's Digest corner shortcut rendered a bare 32px icon while every other tab's corner button now reserves a 60px slot, so its label sat higher than everywhere else: it now reserves the same slot. The version number moved to the lower right, centred under the identity box, sharing that box's exact horizontal span through a new `usePageIdentityBoxSpan` hook rather than a second copy of the math that could drift when the TabHub icon changes size; it keeps its own vertical position, because that box only renders once a lens is picked and pinning to it would make the version jump around depending on whether the box happened to be there.
+
+
+
+**The LensHub menus no longer open themselves.** Direct instruction. Switched off inside `useAutoOpenLensHubSignal` rather than by unpicking the plumbing: one line to reverse, and the `openLensHub` param is still the only thing that records that a tab was deliberately chosen rather than swiped to. What replaces it is a resting prompt at the top of every tab, naming the corner button with the same icon and colour the button itself uses. Worth recording the symmetry: that prompt existed before and was removed on 2026-08-08 *because* the menu started opening itself. Turning the auto-open off puts that reasoning back the other way round.
+
+
+
+`tsc` clean project-wide, `eslint` clean on every touched file, bare-text audit at 0 with 2 named exceptions, parser test 30 of 30. **Not yet confirmed on-device**, and the check that matters most: open Saved Sides and Saved Salads and confirm the meal-plan dishes are gone while anything built by hand is still there.
+
+
+
 **Most recent (2026-08-30, 1.0.31.14): the voice search widened when a phrase finds nothing, and the corner label stopped moving.**
 
 

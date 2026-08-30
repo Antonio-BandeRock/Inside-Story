@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.15',
+    date: '2026-08-30',
+    changes: [
+      "Fixed: setting up a 6-week meal plan also filled Saved Sides, Saved Salads, Saved Soups and the rest with dishes you never built. Scheduling a meal has to keep a real saved copy of each part so it can be rebuilt on the day, and those copies were showing up as your own work. They no longer do, and the ones already there have been cleared out. Anything you built yourself is untouched.",
+      "The Digest label on the Home screen now sits at the same height as the corner label on every other tab.",
+      "The tab menus no longer open by themselves when you switch tabs. Instead each tab now shows a box at the top telling you which button to tap to pick a tool.",
+      "The version number moved to the lower right, centred under the box that tells you where you are.",
+    ],
+  },
+  {
     version: '1.0.31.14',
     date: '2026-08-30',
     changes: [

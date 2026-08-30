@@ -23,7 +23,23 @@ import { useLocalSearchParams } from 'expo-router';
 // sidesteps that exact problem rather than reintroducing it: swiping
 // between tabs never carries this param at all, so it can never
 // re-trigger from a swipe, only from an explicit "go to this tab" tap.
+// 2026-08-30, direct instruction: "I think the Tab LensHub menus should no
+// longer be selected and open automatically, but should be referred to in the
+// top informational box for each main tab."
+//
+// The param and every call site are left exactly as they are, and this reads it
+// back as before -- it just no longer hands it on. Two reasons for switching it
+// off HERE rather than removing the plumbing: it is one line to reverse if the
+// auto-open is ever wanted again, and the param is still what tells a deep link
+// which tab was deliberately chosen, which nothing else records.
+//
+// What replaces it is GatedTabContent's own resting prompt, which points at the
+// corner button. That prompt existed before, and was removed on 2026-08-08
+// precisely BECAUSE the menu started opening itself ("we won't need to have the
+// little box... telling them to Tap the (icon) button to select a function").
+// Turning the auto-open off puts that reasoning back the other way round.
 export function useAutoOpenLensHubSignal(): string | undefined {
   const { openLensHub } = useLocalSearchParams<{ openLensHub?: string }>();
-  return openLensHub;
+  void openLensHub;
+  return undefined;
 }

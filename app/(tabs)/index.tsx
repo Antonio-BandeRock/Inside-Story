@@ -2149,7 +2149,15 @@ export default function HomeScreen() {
         activeOpacity={0.85}
         accessibilityLabel="Open The Digest"
       >
-        <PurpleRibbonIcon size={32} color={colors.tabPurpleDigest} />
+        {/* 2026-08-30: the same icon slot LensHub's own corner button now
+            reserves. Every other tab's corner label sits below a 60px slot
+            (whether or not the ring is showing), so this one rendering a bare
+            32px glyph left "Digest" sitting higher than the label on every
+            other tab. Direct report: "You missed the Digest icon on the Home
+            screen for the label jump problem." */}
+        <View style={styles.purpleDigestIconSlot}>
+          <PurpleRibbonIcon size={32} color={colors.tabPurpleDigest} />
+        </View>
         <Text style={[styles.purpleDigestShortcutLabel, { color: colors.tabPurpleDigest }]} numberOfLines={1}>
           Digest
         </Text>
@@ -2321,6 +2329,12 @@ const styles = StyleSheet.create({
   // as "the same kind of button," just without a popup behind it.
   purpleDigestShortcut: {
     position: 'absolute',
+    width: FLOATING_BUTTON_SIZE,
+    height: FLOATING_BUTTON_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  purpleDigestIconSlot: {
     width: FLOATING_BUTTON_SIZE,
     height: FLOATING_BUTTON_SIZE,
     alignItems: 'center',

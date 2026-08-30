@@ -1,6 +1,9 @@
+import { Ionicons } from '@expo/vector-icons';
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { colors } from '../constants/colors';
 import { TAB_ROUTES } from '../constants/tabs';
+import { textShadow, typography } from '../constants/typography';
 import { ScreenBackground, type BackgroundVariant } from './ScreenBackground';
 
 // 2026-07-26: replaces every non-Home tab's own distinct background always
@@ -105,12 +108,31 @@ export function GatedTabContent({
   // comment for how it's used.
   const routeKey = TAB_ROUTES.find((route) => route.title === pageTitle)?.path as string | undefined;
 
+  const route = TAB_ROUTES.find((entry) => entry.title === pageTitle);
+  const tabColor = route?.color ?? colors.primary;
+
   return (
     <View style={styles.body}>
       {revealed ? (
         <ScreenBackground variant={variant} routeKey={routeKey}>{children}</ScreenBackground>
       ) : (
-        restingContent ?? null
+        <View style={styles.restingWrap}>
+          {/* 2026-08-30. The menu no longer opens itself on arrival (see
+              hooks/useAutoOpenLensHubSignal.ts), so something has to say where
+              the tools are. This is that: one box, at the top of every tab's
+              resting area, naming the corner button by the same icon and colour
+              the button itself uses so the two read as the same thing. */}
+          <View style={[styles.prompt, { borderColor: tabColor }]}>
+            <View style={styles.promptRow}>
+              {route ? <Ionicons name={route.icon} size={20} color={tabColor} style={textShadow} /> : null}
+              <Text style={[styles.promptTitle, { color: tabColor }]}>{pageTitle}</Text>
+            </View>
+            <Text style={styles.promptBody}>
+              Tap the {pageTitle} button in the bottom corner to choose what you want to do here.
+            </Text>
+          </View>
+          {restingContent ?? null}
+        </View>
       )}
     </View>
   );
@@ -118,4 +140,20 @@ export function GatedTabContent({
 
 const styles = StyleSheet.create({
   body: { flex: 1 },
+  restingWrap: { flex: 1 },
+  prompt: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 4,
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    // Same rgba(0,0,0,0.55) this app already uses wherever text sits over a
+    // photo background (InfoAlert, PasswordPrompt, PageIdentityLabel).
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    gap: 4,
+  },
+  promptRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  promptTitle: { ...typography.bodyEmphasis, ...textShadow },
+  promptBody: { ...typography.caption, color: colors.textSecondary, ...textShadow },
 });
