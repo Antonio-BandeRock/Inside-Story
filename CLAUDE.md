@@ -25,6 +25,17 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-08-30, 1.0.31.10): a correction to the previous release, right on both counts.** Direct: "The Find a meal you have had still refers to finding a past meal... You replaced what we had with only the system recipes. And you didn't rename the button."
+
+**The rename was half done.** The screen title, the route registration and the Food menu entry all became "Find a Meal"; the Home button, which is the one people actually tap and the whole reason the rename existed, still read "Find a meal you have had". Fixed. Worth noting how it slipped: the bundle grep that catches this class of miss was run for the strings that were ADDED, not for the stale one that should have disappeared. Grepping for what should be gone is the half that caught the route title and would have caught this too.
+
+**The second half was a real regression, and self-inflicted in the same release.** Hiding auto-generated carrier favorites was correct in itself, but those rows were the only way a meal from a 6-week plan could be found on this screen. Removing them and adding 300-plus curated recipes in one update made it look like one had been swapped for the other. Fixed by giving meals already scheduled and not yet eaten their own section, sourced from  over the next 42 days (one whole plan) and deduped by name, since a plan repeats its dishes and 126 near-identical rows would be worse than none. Logging one resolves the occurrence it came from via , so it stops sitting on the schedule waiting for something that already happened. This is also the most literal reading of the original steer: a meal on the plan is exactly "a meal they haven't had yet".
+
+**A Your meals / System recipes filter** keeps a handful of a person's own meals from being buried under the curated library, opening on their own by default with the library one tap away rather than absent.
+
+ clean project-wide,  unchanged from baseline, bare-text audit at 0. **Not yet confirmed on-device.**
+
+
 
 
 **Most recent (2026-08-30, 1.0.31.8): a real favorites bug found by using the app, plus three follow-ups on the quick-log work.**

@@ -22,9 +22,20 @@
 // mislabeled because they could want to find a meal they haven't had yet. It
 // should also have access to the system meals generally in an order that makes
 // sense." So this is not a history list, it is the whole catalogue of meals
-// reachable without opening a builder: what has been logged, what has been
-// favorited, and all 300-plus curated recipes, sectioned by which builder they
-// belong to, in the same order the Digest's own Recipes category uses.
+// reachable without opening a builder.
+//
+// Corrected again straight after, and the correction was right on both counts.
+// The first pass renamed the screen title and the Food menu entry but left the
+// Home button reading "Find a meal you have had", which is the one people
+// actually tap. And the same release hid auto-generated carrier favorites,
+// which was correct in itself but took away the only way meals from a 6-week
+// plan could be found here, so the screen filled up with system recipes and
+// looked like it had swapped one thing for the other.
+//
+// Both fixed. Meals already scheduled but not yet eaten now have their own
+// section, which is the most literal reading of "a meal they haven't had yet",
+// and a Yours/System filter keeps 300-plus curated recipes from burying a
+// handful of the person's own meals.
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -42,6 +53,7 @@ import {
   listAllCuratedRecipes,
   listRecentDistinctMeals,
   listScheduledMealsForDate,
+  listScheduledMealsForDateRange,
   markScheduledMealLogged,
   logCuratedRecipeAsMeal,
   relogMeal,
@@ -62,7 +74,11 @@ const LIST_LIMIT = 300;
 type PickableMeal =
   | { kind: 'meal'; id: string; name: string; mealType: string; lastEatenAt: string; timesLogged: number }
   | { kind: 'favorite'; id: string; name: string }
-  | { kind: 'curated'; id: string; name: string; builderType: BuilderFavoriteItemType; healthBenefit: string };
+  | { kind: 'curated'; id: string; name: string; builderType: BuilderFavoriteItemType; healthBenefit: string }
+  // A meal already on the schedule and not yet eaten. Its components live on
+  // the favorite the scheduling path created to carry them, which is why this
+  // carries that id rather than the schedule item's.
+  | { kind: 'planned'; id: string; favoriteId: string; name: string; mealType: string; scheduledFor: string };
 
 // The order the Digest's own Recipes category already lists these in, reused
 // rather than invented, so a system meal sits where someone who has browsed
@@ -86,6 +102,16 @@ const BUILDER_SECTIONS: { type: BuilderFavoriteItemType; label: string }[] = [
 type ListEntry = { type: 'header'; key: string; label: string } | { type: 'row'; key: string; meal: PickableMeal };
 
 type Mode = 'list' | 'actions' | 'earlier' | 'schedule' | 'replace';
+
+// Yours covers everything that is this person's: logged, favorited, and
+// already on their schedule. System is the curated library. Defaulting to Yours
+// keeps a handful of real meals from being buried under 300-plus recipes, while
+// System is one tap away rather than absent.
+type Scope = 'yours' | 'system';
+
+// How far ahead a scheduled meal is still worth offering. A 6-week plan is the
+// longest thing this app generates, so this covers one whole plan.
+const PLANNED_LOOKAHEAD_DAYS = 42;
 
 function todayLocalDateString(): string {
   const now = new Date();
@@ -120,6 +146,7 @@ export default function FindMealScreen() {
   }>();
 
   const [query, setQuery] = useState('');
+  const [scope, setScope] = useState<Scope>('yours');
   const [meals, setMeals] = useState<ListEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<Mode>('list');
@@ -129,16 +156,17 @@ export default function FindMealScreen() {
   const [dateText, setDateText] = useState(todayLocalDateString());
   const [plannedToday, setPlannedToday] = useState<ScheduleItemRecord[]>([]);
 
-  const load = useCallback(async (search: string) => {
+  const load = useCallback(async (search: string, currentScope: Scope) => {
     setLoading(true);
     try {
-      const [recent, favorites, curated] = await Promise.all([
+      const [recent, favorites, curated, scheduled] = await Promise.all([
         listRecentDistinctMeals(LIST_LIMIT, search),
         listFavorites(LIST_LIMIT, 'meal'),
         // Bundled reference content, identical for everyone and unchanging
         // between searches, so this is filtered in memory rather than requeried
         // on every keystroke.
         listAllCuratedRecipes(),
+        listScheduledMealsForDateRange(todayLocalDateString(), dateStringDaysFromToday(PLANNED_LOOKAHEAD_DAYS)),
       ]);
       const trimmed = search.trim().toLowerCase();
       // Favorites are filtered here rather than in SQL because listFavorites is
@@ -165,6 +193,28 @@ export default function FindMealScreen() {
           healthBenefit: recipe.healthBenefit,
         }));
 
+      // Only meals still waiting, and only those that kept a carrier favorite to
+      // resume their components from. One row per distinct name: a 6-week plan
+      // repeats the same dishes, and 126 near-identical rows would be worse than
+      // no list at all.
+      const seenPlannedNames = new Set<string>();
+      const plannedRows: PickableMeal[] = [];
+      for (const item of scheduled) {
+        if (item.status !== 'planned' || !item.sourceFavoriteId) continue;
+        if (trimmed && !item.title.toLowerCase().includes(trimmed)) continue;
+        const nameKey = item.title.toLowerCase();
+        if (seenPlannedNames.has(nameKey)) continue;
+        seenPlannedNames.add(nameKey);
+        plannedRows.push({
+          kind: 'planned',
+          id: item.id,
+          favoriteId: item.sourceFavoriteId,
+          name: item.title,
+          mealType: item.mealType ?? 'snack',
+          scheduledFor: item.scheduledFor,
+        });
+      }
+
       const entries: ListEntry[] = [];
       const pushSection = (label: string, rows: PickableMeal[]) => {
         if (rows.length === 0) return;
@@ -172,13 +222,17 @@ export default function FindMealScreen() {
         for (const meal of rows) entries.push({ type: 'row', key: `${meal.kind}-${meal.id}`, meal });
       };
 
-      // Your own things first: a meal already logged or deliberately saved is
-      // far more likely to be what someone is reaching for than one of 300-plus
-      // system recipes.
-      pushSection('Meals you have logged', mealRows);
-      pushSection('Your favorites', favoriteRows);
-      for (const section of BUILDER_SECTIONS) {
-        pushSection(section.label, curatedRows.filter((row) => row.kind === 'curated' && row.builderType === section.type));
+      if (currentScope === 'yours') {
+        pushSection('Coming up on your schedule', plannedRows);
+        pushSection('Meals you have logged', mealRows);
+        pushSection('Your favorites', favoriteRows);
+      } else {
+        for (const section of BUILDER_SECTIONS) {
+          pushSection(
+            section.label,
+            curatedRows.filter((row) => row.kind === 'curated' && row.builderType === section.type),
+          );
+        }
       }
       setMeals(entries);
     } catch (error) {
@@ -190,8 +244,8 @@ export default function FindMealScreen() {
   }, []);
 
   useEffect(() => {
-    void load(query);
-  }, [query, load]);
+    void load(query, scope);
+  }, [query, scope, load]);
 
   useEffect(() => {
     listScheduledMealsForDate(todayLocalDateString())
@@ -229,6 +283,35 @@ export default function FindMealScreen() {
       if ('error' in result) {
         showInfoAlert('That did not log', result.error);
         return null;
+      }
+      return result.id;
+    }
+    if (selected.kind === 'planned') {
+      // Its components live on the carrier favorite the scheduling path made,
+      // which is exactly what the scheduled occurrence itself resumes from.
+      const favorite = await getMealFavorite(selected.favoriteId);
+      if (!favorite) {
+        showInfoAlert('That did not log', 'This scheduled meal could not be opened. Its saved parts may have been deleted.');
+        return null;
+      }
+      const result = await createMealFromComponents({
+        name: favorite.name,
+        mealType: favorite.mealType || selected.mealType,
+        eatenAt,
+        notes: favorite.notes,
+        isImmediate: true,
+        components: favorite.components,
+      });
+      if ('error' in result) {
+        showInfoAlert('That did not log', result.error);
+        return null;
+      }
+      // Logging it closes out the occurrence it came from, so it stops sitting
+      // on the schedule waiting for something that already happened.
+      try {
+        await markScheduledMealLogged(selected.id, result.id);
+      } catch (error) {
+        console.error('[FindMealScreen] Logged, but could not close out the scheduled meal', error);
       }
       return result.id;
     }
@@ -333,7 +416,8 @@ export default function FindMealScreen() {
         mealType: selected.kind === 'meal' ? selected.mealType : 'snack',
         scheduledFor: `${dateText.trim()}T${time24}`,
         sourceMealId: selected.kind === 'meal' ? selected.id : undefined,
-        sourceFavoriteId: selected.kind === 'favorite' ? selected.id : undefined,
+        sourceFavoriteId:
+          selected.kind === 'favorite' ? selected.id : selected.kind === 'planned' ? selected.favoriteId : undefined,
       });
       router.back();
     } catch (error) {
@@ -385,6 +469,11 @@ export default function FindMealScreen() {
   }
 
   function describeMeal(meal: PickableMeal): string {
+    if (meal.kind === 'planned') {
+      const when = meal.scheduledFor.slice(0, 10);
+      const at = meal.scheduledFor.length >= 16 ? formatTime12(meal.scheduledFor.slice(11, 16)) : '';
+      return `Scheduled for ${when}${at ? ` at ${at}` : ''}`;
+    }
     if (meal.kind === 'curated') return meal.healthBenefit || 'System recipe';
     if (meal.kind === 'favorite') return 'Saved favorite';
     const mealType = meal.mealType ? meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1) : 'Meal';
@@ -445,11 +534,30 @@ export default function FindMealScreen() {
                 </Text>
               </View>
             ) : null}
+            <View style={styles.scopeRow}>
+              {(
+                [
+                  { value: 'yours' as const, label: 'Your meals' },
+                  { value: 'system' as const, label: 'System recipes' },
+                ]
+              ).map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[styles.pill, scope === option.value ? styles.pillActive : null]}
+                  activeOpacity={0.8}
+                  onPress={() => setScope(option.value)}
+                >
+                  <Text style={[styles.pillText, scope === option.value ? styles.pillTextActive : null]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
             <AppTextInput
               value={query}
               onChangeText={setQuery}
               style={styles.searchInput}
-              placeholder="Search meals and recipes"
+              placeholder={scope === 'yours' ? 'Search your meals' : 'Search system recipes'}
               placeholderTextColor={colors.textMuted}
             />
             {loading ? <ActivityIndicator color={colors.accent} /> : null}
@@ -461,7 +569,9 @@ export default function FindMealScreen() {
               <Text style={styles.muted}>
                 {query.trim()
                   ? 'Nothing here matches that.'
-                  : 'Meals you log, meals you favorite, and every system recipe show up here to reuse or schedule.'}
+                  : scope === 'yours'
+                    ? 'Meals you log, favorite, or have coming up on your schedule show up here. System recipes are under the other tab.'
+                    : 'Every system recipe shows up here to log or schedule.'}
               </Text>
             </View>
           )
@@ -477,7 +587,9 @@ export default function FindMealScreen() {
                     ? 'star-outline'
                     : item.meal.kind === 'curated'
                       ? 'book-outline'
-                      : 'restaurant-outline'
+                      : item.meal.kind === 'planned'
+                        ? 'calendar-outline'
+                        : 'restaurant-outline'
                 }
                 size={18}
                 color={colors.accent}
@@ -695,6 +807,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     marginBottom: 8,
   },
+  scopeRow: { flexDirection: 'row', gap: 8 },
   sectionHeader: {
     ...typography.bodyEmphasis,
     color: colors.accent,

@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.10',
+    date: '2026-08-30',
+    changes: [
+      "The button on Home still said Find a meal you have had, which was the whole thing that was meant to change. It now just says Find a meal.",
+      "Meals already on your schedule but not yet eaten now have their own section at the top. Hiding the meal-plan favorites in the last update was right, but it also took away the only way those meals could be found here.",
+      "Your meals and System recipes are now two tabs, so a few of your own meals no longer get buried under hundreds of system ones. It opens on your meals.",
+    ],
+  },
+  {
     version: '1.0.31.9',
     date: '2026-08-30',
     changes: [

@@ -1906,7 +1906,7 @@ export default function HomeScreen() {
           onPress={() => router.push('/find-meal')}
         >
           <Ionicons name="restaurant-outline" size={18} color={foodColor} style={textShadow} />
-          <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Find a meal you have had</Text>
+          <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Find a meal</Text>
         </TouchableOpacity>
         {draftPhotos.length > 0 ? (
           <Fragment>
