@@ -12502,6 +12502,38 @@ export async function listScheduledMealsForDateRange(startDate: string, endDate:
   );
 }
 
+// How many things are actually scheduled from a date forward, by type.
+//
+// 2026-08-30, direct report: "After generating my meal plan and putting
+// it onto a schedule, it isn't listed in My Schedules." Confirmed by
+// reading the call site rather than guessing at the meal plan: Schedule's
+// own MyItemsHub was mounted with no `categories` prop at all, so it has
+// always shown that component's "Nothing saved yet" placeholder no matter
+// what was scheduled. The meal plan was writing its rows correctly the
+// whole time; the popup was never wired to look.
+//
+// Counts from a date forward rather than over a fixed past window,
+// because this popup's job is "what have I got set up," and something
+// that already happened is not that. Skipped items are excluded: they are
+// a deliberate "not happening," so counting them would overstate what is
+// actually coming.
+export async function getUpcomingScheduleCountsByType(fromDate: string): Promise<Record<string, number>> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ itemType: string; total: number }>(
+    `
+      SELECT item_type AS itemType, COUNT(*) AS total
+      FROM schedule_items
+      WHERE substr(scheduled_for, 1, 10) >= ?
+        AND COALESCE(status, '') <> 'skipped'
+      GROUP BY item_type
+    `,
+    fromDate,
+  );
+  const counts: Record<string, number> = {};
+  for (const row of rows) counts[row.itemType] = row.total;
+  return counts;
+}
+
 // Per-day counts of meals scheduled outside a declared eating window,
 // alongside how many meals that day had at all.
 //

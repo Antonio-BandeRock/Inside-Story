@@ -3,7 +3,7 @@
     "name": "Inside Story",
     "slug": "inside-story",
     "owner": "inside-story",
-    "version": "1.0.31.1",
+    "version": "1.0.31.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "hashimotosapp",

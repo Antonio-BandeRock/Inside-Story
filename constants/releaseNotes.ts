@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.2',
+    date: '2026-08-30',
+    changes: [
+      "My Schedules now actually lists what you have scheduled. It was showing \"Nothing saved yet\" no matter what, because it was never wired to look: your meal plan had been scheduling correctly the whole time. It now lists Today's Meals, Scheduled Meals, Supplements, Prescriptions, Appointments, Hydration and Shopping List, with a count of what is still upcoming, and each one opens straight to its lens.",
+    ],
+  },
+  {
     version: '1.0.31.1',
     date: '2026-08-30',
     changes: [

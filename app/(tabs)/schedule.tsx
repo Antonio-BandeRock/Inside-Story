@@ -26,6 +26,7 @@ import {
   getNutrientTiming,
   getSupplementForms,
   getTreatmentNutrients,
+  getUpcomingScheduleCountsByType,
   getUpcomingShoppingList,
   getUserConditions,
   getUserProfile,
@@ -5474,6 +5475,45 @@ export default function ScheduleScreen() {
   // closing itself first. The standalone MyItemsHub button further down
   // keeps working exactly as before regardless.
   const [mySchedulesOpen, setMySchedulesOpen] = useState(false);
+  // 2026-08-30, direct report: "After generating my meal plan and putting
+  // it onto a schedule, it isn't listed in My Schedules." Confirmed by
+  // reading this file rather than the meal plan: MyItemsHub below was
+  // mounted with no `categories` prop, so it always showed that
+  // component's own "Nothing saved yet" placeholder regardless of what was
+  // actually scheduled. The rows were being written correctly the whole
+  // time; nothing was looking for them.
+  //
+  // Loaded on open rather than on focus (MyItemsHub's own onOpen hook, the
+  // same way Food's My Foods counts already work), so a popup nobody opens
+  // costs nothing.
+  const [scheduleCounts, setScheduleCounts] = useState<Record<string, number>>({});
+  const loadScheduleCounts = useCallback(() => {
+    getUpcomingScheduleCountsByType(todayDateString())
+      .then(setScheduleCounts)
+      // A count is a convenience on a shortcut menu, not the data itself --
+      // failing to load one should leave the menu usable rather than break
+      // the popup, so every category still opens its lens either way.
+      .catch(() => setScheduleCounts({}));
+  }, []);
+
+  // Only the item types genuinely scheduled by this app today. Each opens
+  // the lens that actually lists that type, so the popup is a real way
+  // through to the data rather than a display of numbers.
+  const myScheduleCategories = useMemo(() => {
+    const openLens = (key: Lens) => () => {
+      setLens(key);
+      setRevealed(true);
+    };
+    return [
+      { id: 'todaysMeals', label: "Today's Meals", count: undefined, onPress: openLens('todaysMeals') },
+      { id: 'meals', label: 'Scheduled Meals', count: scheduleCounts.meal ?? 0, onPress: openLens('meals') },
+      { id: 'supplements', label: 'Supplements', count: scheduleCounts.supplement ?? 0, onPress: openLens('supplements') },
+      { id: 'prescriptions', label: 'Prescriptions', count: scheduleCounts.prescription ?? 0, onPress: openLens('prescriptions') },
+      { id: 'appointments', label: 'Appointments', count: scheduleCounts.appointment ?? 0, onPress: openLens('appointments') },
+      { id: 'hydration', label: 'Hydration', count: undefined, onPress: openLens('hydration') },
+      { id: 'shoppingList', label: 'Shopping List', count: undefined, onPress: openLens('shoppingList') },
+    ];
+  }, [scheduleCounts]);
   useFocusEffect(
     useCallback(() => {
       // openScheduleLens overrides the normal "always land on the resting
@@ -5538,6 +5578,8 @@ export default function ScheduleScreen() {
       <MyItemsHub
         label="My Schedules"
         tabColor={TAB_COLOR}
+        categories={myScheduleCategories}
+        onOpen={loadScheduleCounts}
         open={mySchedulesOpen}
         onOpenChange={setMySchedulesOpen}
       />
@@ -5547,7 +5589,17 @@ export default function ScheduleScreen() {
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={autoOpenLensHub}
-        extraTile={{ label: 'My Schedules', icon: 'bookmarks-outline', onPress: () => setMySchedulesOpen(true) }}
+        extraTile={{
+          label: 'My Schedules',
+          icon: 'bookmarks-outline',
+          onPress: () => {
+            // MyItemsHub's own onOpen only fires for its own button, so
+            // opening the popup this way has to load the counts itself or
+            // the same menu would show stale/absent numbers.
+            loadScheduleCounts();
+            setMySchedulesOpen(true);
+          },
+        }}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);
