@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.9',
+    date: '2026-08-30',
+    changes: [
+      "The Find a Meal screen was still showing its old title in the header bar for a moment before correcting itself.",
+    ],
+  },
+  {
     version: '1.0.31.8',
     date: '2026-08-30',
     changes: [

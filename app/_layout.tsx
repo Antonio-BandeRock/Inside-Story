@@ -480,7 +480,7 @@ export default function RootLayout() {
                 name="find-meal"
                 options={{
                   headerShown: true,
-                  title: "Find a Meal You've Had",
+                  title: 'Find a Meal',
                   headerStyle: { backgroundColor: colors.background },
                   headerTintColor: colors.textPrimary,
                 }}
