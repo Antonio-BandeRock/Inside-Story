@@ -126,22 +126,31 @@ export function DimensionChart({ conditionName, data, color }: { conditionName?:
     <View style={styles.wrap}>
       {conditionName ? <Text style={[styles.title, { color }]}>{conditionName}</Text> : null}
       {useRadar ? <RadarChart data={data} color={color} /> : <DimensionRows data={data} />}
-      {/* The legend always lists every real dimension by its full name,
-          not just the ones abbreviated to "D1"/"D2" on a radar's own axis
-          labels -- every other condition's own dimensions have no short
-          form at all, so this is the only place their full real name ever
-          appears. */}
-      <View style={styles.legend}>
-        {data.map((datum, i) => (
-          <View key={datum.dimension} style={styles.legendRow}>
-            <View style={[styles.legendDot, { backgroundColor: severityColor(datum.severity) }]} />
-            <Text style={styles.legendText}>
-              {useRadar ? `${shortAxisLabel(datum.dimension, i)} — ` : ''}
-              {datum.dimension}
-            </Text>
-          </View>
-        ))}
-      </View>
+      {/* The legend exists to spell out full dimension names that the
+          radar can only fit as "D1"/"D2"/"1"/"2" on its own axis labels.
+          2026-08-29, direct report from someone tracking Prostate Health,
+          which owns two dimensions: "I see the two cancer risks each
+          twice. There are two versions, one in white font which should
+          stay, and one in smaller blue font which should be removed."
+          Exactly right, and it follows from the legend's own purpose:
+          below three dimensions there is no radar, DimensionRows above
+          already prints each full name in plain white text, and the
+          legend was then printing the identical string again in muted
+          caption grey with an empty abbreviation prefix. It only earns
+          its place alongside a radar. */}
+      {useRadar ? (
+        <View style={styles.legend}>
+          {data.map((datum, i) => (
+            <View key={datum.dimension} style={styles.legendRow}>
+              <View style={[styles.legendDot, { backgroundColor: severityColor(datum.severity) }]} />
+              <Text style={styles.legendText}>
+                {`${shortAxisLabel(datum.dimension, i)} — `}
+                {datum.dimension}
+              </Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }

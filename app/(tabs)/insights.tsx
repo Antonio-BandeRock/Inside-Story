@@ -573,6 +573,9 @@ export default function InsightsScreen() {
       return () => setRevealed(false);
     }, [openInsightsLens]),
   );
+  // See LensExplainer above for why this is one shared boolean rather
+  // than one per lens.
+  const [lensExplainerExpanded, setLensExplainerExpanded] = useState(true);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -1090,6 +1093,11 @@ export default function InsightsScreen() {
               style={styles.body}
               contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}
             >
+              <LensExplainer
+                lens={lens}
+                expanded={lensExplainerExpanded}
+                onToggle={() => setLensExplainerExpanded((current) => !current)}
+              />
               {lens === 'cookingImpact' ? (
               // Also independent of today's log -- a pure, static reference
               // lookup (no DB round-trip at all), so this owns its own
@@ -1156,7 +1164,7 @@ export default function InsightsScreen() {
                 tabColor={TAB_COLOR}
               />
             ) : loading ? (
-              <LensLoadingCard lens={lens} />
+              <LensLoadingCard />
             ) : errorMessage ? (
               <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
             ) : lens === 'nutrients' ? (
@@ -1324,17 +1332,51 @@ function contributorsForNutrient(
 // the lens's own name and its first help section, which is exactly that
 // explanation and is already maintained. Anyone wanting the rest taps the
 // Info button, same as always.
-function LensLoadingCard({ lens }: { lens: Lens }) {
+// 2026-08-29, follow-up report: "It showed the new message in Insights >
+// Condition Scores but then as soon as the loading completed the whole
+// paragraph went away. Maybe it should be collapsible there and the
+// information loading can be displayed below it?"
+//
+// Fair: tying the explanation to the loading state meant the only people
+// who ever got to read it were the ones who waited out a slow lens, and
+// it vanished at exactly the moment the thing it describes appeared. It
+// is now a permanent header on every lens, collapsible, with whatever
+// the lens loaded sitting underneath it.
+//
+// Collapsed state is one boolean shared by every lens rather than one
+// per lens: someone who collapses this has said they do not want the
+// explanation taking up room, and re-expanding it on the next lens would
+// ignore that. It resets when the screen is left, which is deliberate --
+// the lens picker is where a fresh visit starts, and arriving into a
+// lens with its explanation showing is the behaviour being asked for.
+function LensExplainer({
+  lens,
+  expanded,
+  onToggle,
+}: {
+  lens: Lens;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
   const option = LENSES.find((entry) => entry.key === lens);
   const first = option?.help?.[0];
+  if (!option || !first) return null;
   return (
-    <View style={styles.panelStandalone}>
-      <Text style={styles.lensLoadingHeading}>{option?.label ?? 'Loading'}</Text>
-      {first ? <Text style={styles.lensLoadingBody}>{first.body}</Text> : null}
-      <View style={styles.lensLoadingSpinnerRow}>
-        <ActivityIndicator color={TAB_COLOR} />
-        <Text style={styles.lensLoadingNote}>Working this out from what you have logged today…</Text>
-      </View>
+    <View style={styles.lensExplainerCard}>
+      <TouchableOpacity style={styles.lensExplainerHeaderRow} onPress={onToggle} activeOpacity={0.75}>
+        <Text style={styles.lensLoadingHeading}>{option.label}</Text>
+        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={TAB_COLOR} />
+      </TouchableOpacity>
+      {expanded ? <Text style={styles.lensLoadingBody}>{first.body}</Text> : null}
+    </View>
+  );
+}
+
+function LensLoadingCard() {
+  return (
+    <View style={[styles.panelStandalone, styles.lensLoadingSpinnerRow]}>
+      <ActivityIndicator color={TAB_COLOR} />
+      <Text style={styles.lensLoadingNote}>Working this out from what you have logged today…</Text>
     </View>
   );
 }
@@ -3806,6 +3848,19 @@ const styles = StyleSheet.create({
   },
   // The loading card shown while a slow lens computes -- see
   // LensLoadingCard above for why it exists.
+  lensExplainerCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    marginBottom: 14,
+  },
+  lensExplainerHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
   lensLoadingHeading: {
     ...typography.eyebrow,
     color: TAB_COLOR,

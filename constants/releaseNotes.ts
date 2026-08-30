@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.25',
+    date: '2026-08-29',
+    changes: [
+      "An Insights lens now keeps its explanation at the top instead of losing it the moment loading finishes, and you can collapse it with the chevron if you don't want it taking up room. Whatever the lens loaded sits underneath it.",
+      'Fixed each dimension being listed twice in Condition Scores for any condition with fewer than three of them (Prostate Health has two). The muted grey repeat underneath was a chart legend doing a job the plain list above it was already doing.',
+    ],
+  },
+  {
     version: '1.0.30.24',
     date: '2026-08-29',
     changes: [
