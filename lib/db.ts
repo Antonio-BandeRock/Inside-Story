@@ -11088,12 +11088,13 @@ export type ResolvedMealComponent = {
   servings: number;
   yourSharePercent: number;
   ingredients: MealIngredientInput[];
-  // 2026-08-17 -- real, hand-authored prep steps, only ever populated for a
-  // 'side' component so far (see SideDetail.instructions); every other
-  // componentType's own XDetail has no such field yet, so this stays
-  // undefined for them the exact same way it does for a side with zero
-  // steps of its own -- not a gap this app is trying to hide, just not
-  // built out for the other 10 builders yet.
+  // 2026-08-17 -- real, hand-authored prep steps. Populated for any of
+  // the 11 component types now: instructions_json exists on all 11 saved-
+  // record tables and every get function maps it through. Undefined only
+  // when nobody ever wrote steps for that dish, which is a real answer
+  // ("no steps saved") rather than a missing feature. Until 2026-08-29
+  // resolveMealComponent only read this for a side, so the other 10 were
+  // dropping steps they had genuinely saved -- see its own comment.
   instructions?: string[];
   // 2026-08-25 -- same real depth (safeForConditions/conditionCautions/
   // dietTags/stageNotes) a curated recipe already carries. Populated for
@@ -11114,13 +11115,17 @@ export async function resolveMealComponent(selection: MealComponentSelection): P
   const detail = await getComponentDetail(selection.componentType, selection.componentId);
   if (!detail) return null;
 
-  // Real, narrow cast -- getComponentDetail's own inferred return type is a
-  // union across all 11 builders' own XDetail shapes, and only SideDetail
-  // actually carries `instructions` today. Widening every other XDetail
-  // with the same optional field just to avoid this cast is real, separate
-  // work for whenever those builders get their own Steps section (see
-  // SideDetail's own comment) -- not done blind here.
-  const detailInstructions = selection.componentType === 'side' ? (detail as SideDetail).instructions : undefined;
+  // 2026-08-29: this used to read `instructions` only when componentType
+  // was 'side', on the stated grounds that SideDetail was the only shape
+  // carrying the field. That stopped being true and the comment went
+  // stale: instructions_json was migrated onto all 11 saved-record tables,
+  // every one of the 11 get functions selects it and maps it through
+  // parseInstructionsJson, and since the 2026-08-26 curated-recipe
+  // backfill every builder's "Build This Recipe" path fills those steps
+  // in. So a salad, soup or handheld inside a meal was silently dropping
+  // the steps it had actually saved. Now generic, exactly like depthData
+  // below, which was already generalised for the same reason.
+  const detailInstructions = (detail as { instructions?: string[] }).instructions;
   // 2026-08-25 -- generalized the same day the depth-report rollout gave
   // all 11 XDetail shapes a real depthData field (see each one's own
   // "2026-08-25, see depth_data_json's own migration comment on sides"
@@ -11159,6 +11164,87 @@ export async function resolveMealComponent(selection: MealComponentSelection): P
     instructions: detailInstructions && detailInstructions.length > 0 ? detailInstructions : undefined,
     depthData: detailDepthData,
   };
+}
+
+// One of today's meals, resolved far enough to actually cook from.
+//
+// 2026-08-29, direct request: "When I go to Meals Logged Today, it makes
+// me think that there needs to be a Today's Meals, and when it opens,
+// each meal will have the recipe available to follow so they can use them
+// to cook the recipe."
+//
+// Every other meal surface in the app answers a different question. The
+// Meals lens plans what you intend to do, Past Meals corrects what
+// actually happened, and Home counts. None of them shows you how to make
+// the thing. This does.
+export type TodaysMealComponent = {
+  name: string;
+  componentType: MealComponentType;
+  yourSharePercent: number;
+  ingredients: { foodName: string; quantity: number; unit: string; notes?: string }[];
+  instructions: string[];
+};
+
+export type TodaysMeal = {
+  scheduleItemId: string;
+  title: string;
+  scheduledFor: string;
+  mealType: string | null;
+  status: string;
+  notes: string | null;
+  components: TodaysMealComponent[];
+  // Separated from "this meal has components, none of which have steps",
+  // because they need different things said to the person: one is a meal
+  // typed in by hand with nothing to open, the other is a real assembled
+  // dish whose builder steps were never written.
+  hasComponents: boolean;
+  anyInstructions: boolean;
+};
+
+export async function listTodaysMealsWithRecipes(date: string): Promise<TodaysMeal[]> {
+  const items = await listScheduledMealsForDate(date);
+  const meals: TodaysMeal[] = [];
+
+  for (const item of items) {
+    const components: TodaysMealComponent[] = [];
+
+    // Only a favorite-sourced meal carries real components to resolve. A
+    // meal typed in directly ("something unplanned") has no recipe behind
+    // it by definition, and says so rather than showing an empty shell.
+    if (item.sourceFavoriteId) {
+      const favorite = await getMealFavorite(item.sourceFavoriteId);
+      for (const component of favorite?.components ?? []) {
+        const resolved = await resolveMealComponent(component);
+        if (!resolved) continue;
+        components.push({
+          name: resolved.name,
+          componentType: resolved.componentType,
+          yourSharePercent: resolved.yourSharePercent,
+          ingredients: resolved.ingredients.map((ingredient) => ({
+            foodName: ingredient.foodName,
+            quantity: ingredient.quantity,
+            unit: ingredient.unit,
+            notes: ingredient.notes,
+          })),
+          instructions: resolved.instructions ?? [],
+        });
+      }
+    }
+
+    meals.push({
+      scheduleItemId: item.id,
+      title: item.title,
+      scheduledFor: item.scheduledFor,
+      mealType: item.mealType,
+      status: item.status,
+      notes: item.notes,
+      components,
+      hasComponents: components.length > 0,
+      anyInstructions: components.some((component) => component.instructions.length > 0),
+    });
+  }
+
+  return meals;
 }
 
 export async function saveMealComponents(mealId: string, components: MealComponentSelection[]): Promise<void> {

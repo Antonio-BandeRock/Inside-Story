@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.26',
+    date: '2026-08-29',
+    changes: [
+      "New Today's Meals lens on Schedules: everything you have scheduled to eat today, in time order, and tapping one opens its ingredients and steps so you can cook straight from it. Home's meals tile opens this now.",
+      'It shows the whole day rather than only what you have already eaten, since you cook a meal before you log it. Planned, eaten and skipped are each labelled.',
+      'Fixed steps being dropped from every dish except sides when it was part of a meal. Salads, soups, handhelds and the rest all save their steps and were silently not showing them.',
+    ],
+  },
+  {
     version: '1.0.30.25',
     date: '2026-08-29',
     changes: [

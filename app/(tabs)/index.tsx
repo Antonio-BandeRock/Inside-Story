@@ -1467,12 +1467,15 @@ export default function HomeScreen() {
             screen and the person doesn't know where to go from there."
             Correct -- it navigated to /food, which rests on the Desktop
             menu, so the count it had just shown led nowhere. The meals
-            behind this number are the ones already eaten today, which is
-            exactly what Schedule's Past Meals lens lists, so that is where
-            it goes now. Same fix as the "Worth a look" tile beside it. */}
+            behind this number are today's meals, so it opens Schedule's
+            Today's Meals lens: the whole day in time order, each one
+            openable to its ingredients and steps. It briefly pointed at
+            Past Meals instead, which was closer than the Desktop menu but
+            still the wrong question, since that lens is for correcting the
+            record rather than cooking from it. */}
         <TouchableOpacity
           style={[styles.statTile, { borderColor: tabColorFor('/schedule') }]}
-          onPress={() => router.navigate({ pathname: '/schedule', params: { openScheduleLens: 'pastMeals' } })}
+          onPress={() => router.navigate({ pathname: '/schedule', params: { openScheduleLens: 'todaysMeals' } })}
           activeOpacity={0.75}
         >
           {/* Carries Schedule's colour and icon rather than Food's, since

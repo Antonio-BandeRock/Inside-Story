@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -37,6 +38,7 @@ import {
   listMealsForDate,
   listPastScheduledMeals,
   listPrescriptionTreatments,
+  listTodaysMealsWithRecipes,
   listScheduledMealsForDate,
   listScheduledMealsForDateRange,
   listScheduledPrescriptionDosesForTreatment,
@@ -72,6 +74,7 @@ import {
   type NutrientTiming,
   type RepeatConfig,
   type RotationSelection,
+  type TodaysMeal,
   type ScheduleItemRecord,
   type ShoppingListSection,
   type SupplementForm,
@@ -149,6 +152,7 @@ const USUAL_TIME_MEAL_TYPES = new Set(['breakfast', 'lunch', 'dinner', 'snack'])
 // haven't been designed yet.
 type Lens =
   | 'meals'
+  | 'todaysMeals'
   | 'pastMeals'
   | 'mealPlan'
   | 'dailyMealPlan'
@@ -203,6 +207,29 @@ const LENSES: LensOption<Lens>[] = [
         body: 'Set in Profile. "Usual meal times" just pre-fills the time picker for that meal type. If you turn on fasting and set an eating window, this page will not let you schedule a meal outside it.',
       },
       REPEATING_SCHEDULES_HELP,
+    ],
+  },
+  {
+    key: 'todaysMeals',
+    label: "Today's Meals",
+    icon: 'book-outline',
+    help: [
+      {
+        heading: 'What this is for',
+        body: 'Everything you have scheduled to eat today, in time order, with the ingredients and steps for each one. This is the lens to open while you are actually cooking, rather than to plan or to correct the record.',
+      },
+      {
+        heading: 'Why the whole day, not just what you have eaten',
+        body: 'You cook a meal before you log it, so a list of only the meals already eaten would be useless for cooking from. Planned, eaten and skipped meals all appear, each labelled, so it is clear which is which.',
+      },
+      {
+        heading: 'Where the steps come from',
+        body: 'A meal built from saved dishes carries each dish’s own ingredients and whatever steps were written for it, including the steps that come with a system recipe when you build one. A meal typed in directly has no recipe behind it and says so, rather than showing an empty panel.',
+      },
+      {
+        heading: 'If a dish has no steps',
+        body: 'The ingredients still show. Steps are only ever there if somebody wrote them, either in the dish’s own builder or by starting from a system recipe, so a dish with none is an honest gap rather than something missing here.',
+      },
     ],
   },
   {
@@ -394,7 +421,7 @@ const LENSES: LensOption<Lens>[] = [
 ];
 
 const COMING_SOON_COPY: Record<
-  Exclude<Lens, 'meals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>,
+  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>,
   string
 > = {
   exercise: 'Schedule planned workouts and activity. Not built yet.',
@@ -2351,6 +2378,142 @@ const SHOPPING_LIST_WINDOW_OPTIONS = [3, 4, 7];
 // which resolves ANY already-planned meal in the chosen window, not just
 // ones the Meal Plan lens itself created, so this stays useful even for
 // someone who never touches that lens at all.
+// Today's Meals -- 2026-08-29, direct request: "When I go to Meals Logged
+// Today, it makes me think that there needs to be a Today's Meals, and
+// when it opens, each meal will have the recipe available to follow so
+// they can use them to cook the recipe."
+//
+// Deliberately its own lens rather than another mode bolted onto Meals or
+// Past Meals, because it answers a question neither of those does. Meals
+// plans what you intend to do, Past Meals corrects what actually
+// happened, and both are about the record. This one is for standing in
+// the kitchen with the phone propped up: what am I making today, and what
+// are the steps.
+//
+// It shows the whole day, not just what has already been eaten, since you
+// cook a meal before you log it -- a lens that only listed logged meals
+// would be useless for the thing it was asked for.
+function TodaysMealsLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [meals, setMeals] = useState<TodaysMeal[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    setErrorMessage('');
+    listTodaysMealsWithRecipes(todayDateString())
+      .then(setMeals)
+      .catch((error) =>
+        setErrorMessage(`Could not load today's meals: ${error instanceof Error ? error.message : String(error)}`),
+      )
+      .finally(() => setLoading(false));
+  }, []);
+
+  useFocusEffect(useCallback(() => load(), [load]));
+
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {errorMessage ? <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text> : null}
+      {loading ? (
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+      ) : meals.length === 0 ? (
+        <Text style={[styles.emptyText, styles.panelStandalone]}>
+          Nothing scheduled to eat today yet. Anything you schedule on the Meals lens, or generate from a meal plan,
+          shows up here with its steps ready to cook from.
+        </Text>
+      ) : (
+        meals.map((meal) => {
+          const expanded = expandedId === meal.scheduleItemId;
+          return (
+            <View key={meal.scheduleItemId} style={styles.formCard}>
+              <TouchableOpacity
+                style={styles.todaysMealHeaderRow}
+                onPress={() => setExpandedId(expanded ? null : meal.scheduleItemId)}
+                activeOpacity={0.75}
+              >
+                <View style={styles.todaysMealHeaderText}>
+                  <Text style={styles.rowTitle}>{meal.title}</Text>
+                  <Text style={styles.rowMeta}>
+                    {[
+                      formatTime12(meal.scheduledFor.slice(11, 16)),
+                      meal.mealType ? capitalizeFirst(meal.mealType) : null,
+                      meal.status === 'logged' ? 'Eaten' : meal.status === 'skipped' ? 'Skipped' : 'Planned',
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </Text>
+                </View>
+                <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={TAB_COLOR} />
+              </TouchableOpacity>
+
+              {expanded ? (
+                <View style={styles.todaysMealBody}>
+                  {!meal.hasComponents ? (
+                    // A meal typed in by hand has no recipe behind it to
+                    // open. Saying so plainly beats an empty panel that
+                    // reads as broken.
+                    <Text style={styles.emptyText}>
+                      This one was entered directly rather than built from saved dishes, so there is nothing to cook
+                      from here. Building it in the Food tab is what gives a meal its ingredients and steps.
+                    </Text>
+                  ) : (
+                    <>
+                      {!meal.anyInstructions ? (
+                        <Text style={styles.emptyText}>
+                          The ingredients are below, but no steps were written for these dishes. You can add them by
+                          editing the dish in its own builder.
+                        </Text>
+                      ) : null}
+                      {meal.components.map((component, index) => (
+                        <View key={`${component.componentType}-${index}`} style={styles.todaysMealComponent}>
+                          <Text style={styles.todaysMealComponentName}>{component.name}</Text>
+                          {component.yourSharePercent !== 100 ? (
+                            <Text style={styles.rowMeta}>{`Your share: ${component.yourSharePercent}% of the batch`}</Text>
+                          ) : null}
+
+                          <Text style={styles.todaysMealSectionLabel}>Ingredients</Text>
+                          {component.ingredients.length === 0 ? (
+                            <Text style={styles.rowMeta}>No ingredients recorded.</Text>
+                          ) : (
+                            component.ingredients.map((ingredient, ingredientIndex) => (
+                              <Text key={`${ingredient.foodName}-${ingredientIndex}`} style={styles.rowMeta}>
+                                {`${ingredient.foodName}: ${roundForDisplay(ingredient.quantity)} ${ingredient.unit}`}
+                                {ingredient.notes ? ` (${ingredient.notes})` : ''}
+                              </Text>
+                            ))
+                          )}
+
+                          {component.instructions.length > 0 ? (
+                            <>
+                              <Text style={styles.todaysMealSectionLabel}>Steps</Text>
+                              {component.instructions.map((step, stepIndex) => (
+                                <Text key={stepIndex} style={styles.todaysMealStep}>
+                                  {`${stepIndex + 1}. ${step}`}
+                                </Text>
+                              ))}
+                            </>
+                          ) : null}
+                        </View>
+                      ))}
+                    </>
+                  )}
+                  {meal.notes ? <Text style={styles.rowMeta}>{`Note: ${meal.notes}`}</Text> : null}
+                </View>
+              ) : null}
+            </View>
+          );
+        })
+      )}
+    </ScrollView>
+  );
+}
+
+function capitalizeFirst(value: string): string {
+  return value.length === 0 ? value : value[0].toUpperCase() + value.slice(1);
+}
+
 function ShoppingListLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [daysAhead, setDaysAhead] = useState(4);
@@ -5280,7 +5443,7 @@ function AppointmentsLens() {
 function ComingSoonLens({
   lens,
 }: {
-  lens: Exclude<Lens, 'meals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>;
+  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>;
 }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
@@ -5345,6 +5508,8 @@ export default function ScheduleScreen() {
         <GatedTabContent pageTitle="Schedules" variant="schedule" revealed={revealed}>
           {lens === 'meals' ? (
             <MealsLens />
+          ) : lens === 'todaysMeals' ? (
+            <TodaysMealsLens />
           ) : lens === 'pastMeals' ? (
             <PastMealsLens />
           ) : lens === 'mealPlan' ? (
@@ -5417,6 +5582,21 @@ const styles = StyleSheet.create({
   // and a heading introducing a GROUP of separate cards gets
   // groupHeadingChip. A heading that labels ONE card should move inside
   // that card instead of using either of these.
+  // Today's Meals -- see TodaysMealsLens above.
+  todaysMealHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  todaysMealHeaderText: { flexShrink: 1 },
+  todaysMealBody: { marginTop: 12, gap: 10 },
+  todaysMealComponent: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: 10,
+    gap: 2,
+  },
+  todaysMealComponentName: { ...typography.label, color: TAB_COLOR, ...textShadow },
+  todaysMealSectionLabel: { ...typography.eyebrow, color: TAB_COLOR, marginTop: 8, ...textShadow },
+  // Steps get real line height and a hanging indent feel: this is text
+  // read a line at a time with hands busy, not scanned.
+  todaysMealStep: { ...typography.body, color: colors.textPrimary, lineHeight: 21, marginTop: 4, ...textShadow },
   panelStandalone: {
     backgroundColor: colors.surface,
     borderRadius: 10,
