@@ -5397,6 +5397,28 @@ async function runDatabaseInitialization() {
         criterion_key TEXT PRIMARY KEY,
         achieved_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
+
+      -- Quick-log phase 4, 2026-08-30. A photo taken with the intent to log
+      -- something, before there is anything to attach it to.
+      --
+      -- This is the whole "separate capture from classification" idea made
+      -- real: getting a plate photographed takes two seconds and can happen at
+      -- a table with people waiting, while working out what was in it and how
+      -- much cannot. Deliberately NOT a meals row with empty ingredients --
+      -- that would count as a logged meal everywhere in the app (Home's own
+      -- counts, Trends, Log Again's tiles) while contributing no nutrients at
+      -- all, which reads as a meal that somehow had nothing in it. A draft is
+      -- honestly not a meal yet, so it lives apart until someone finishes it.
+      CREATE TABLE IF NOT EXISTS meal_photo_drafts (
+        id TEXT PRIMARY KEY,
+        photo_uri TEXT NOT NULL,
+        -- Local 'YYYY-MM-DDTHH:mm', matching meals.eaten_at, so finishing a
+        -- draft can log it at the moment the photo was actually taken rather
+        -- than whenever it was got around to.
+        captured_at TEXT NOT NULL,
+        note TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
     `);
 
     const mealColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(meals)');
@@ -5404,6 +5426,17 @@ async function runDatabaseInitialization() {
 
     if (!hasImmediateColumn) {
       await db.execAsync('ALTER TABLE meals ADD COLUMN is_immediate INTEGER NOT NULL DEFAULT 0;');
+    }
+
+    // Quick-log phase 4, 2026-08-30. Photos already worked everywhere in this
+    // app EXCEPT on a logged meal: lib/mealPhotos.ts's own PhotoTarget covered
+    // saved components, favorites, curated recipes and staged shares, and a
+    // meals row had nowhere to keep one. Same conditional pattern every column
+    // above uses.
+    const hasMealPhotoColumn = mealColumns.some((column) => column.name === 'photo_uri');
+
+    if (!hasMealPhotoColumn) {
+      await db.execAsync('ALTER TABLE meals ADD COLUMN photo_uri TEXT;');
     }
 
     const mealItemColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(meal_items)');
@@ -10384,6 +10417,10 @@ export async function createMeal(input: {
   notes?: string;
   isImmediate: boolean;
   ingredients: MealIngredientInput[];
+  // Quick-log phase 4, 2026-08-30. Optional everywhere, so every existing
+  // caller is unaffected; set when a meal is being logged from a photo that
+  // was taken first (see meal_photo_drafts).
+  photoUri?: string | null;
 }) {
   const db = await getDatabase();
   const id = `meal_${Date.now()}`;
@@ -10391,8 +10428,8 @@ export async function createMeal(input: {
 
   await db.runAsync(
     `
-      INSERT INTO meals (id, name, meal_type, eaten_at, notes, source_type, is_immediate, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, 'manual', ?, ?, ?)
+      INSERT INTO meals (id, name, meal_type, eaten_at, notes, source_type, is_immediate, photo_uri, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, 'manual', ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -10400,6 +10437,7 @@ export async function createMeal(input: {
     input.eatenAt,
     input.notes?.trim() || null,
     input.isImmediate ? 1 : 0,
+    input.photoUri ?? null,
     now,
     now,
   );
@@ -13178,9 +13216,14 @@ export async function countFoodTrialsActivatedByMeal(mealId: string): Promise<nu
 // the meal itself was deleted. Rather than half-reverting that silently, or
 // rebuilding the trial-correction flow Past Meals already owns, a re-log
 // that touched a trial simply does not offer Undo and says so.
+// overrides exists for one narrow, real case: quick-log phase 3 re-logging a
+// meal that was actually eaten out, where the copy should carry that note even
+// though the meal it was copied from does not. Absent, everything carries over
+// from the source exactly as before.
 export async function relogMeal(
   sourceMealId: string,
   eatenAt: string,
+  overrides?: { notes?: string | null; photoUri?: string | null },
 ): Promise<{ id: string; name: string; touchedFoodTrials: boolean } | { error: string }> {
   const source = await getMeal(sourceMealId);
   if (!source) {
@@ -13193,7 +13236,7 @@ export async function relogMeal(
       name: source.name,
       mealType: source.meal_type,
       eatenAt,
-      notes: source.notes ?? undefined,
+      notes: overrides?.notes ?? source.notes ?? undefined,
       isImmediate: true,
       components: components.map((component) => ({
         componentType: component.componentType,
@@ -13215,13 +13258,71 @@ export async function relogMeal(
     name: source.name,
     mealType: source.meal_type,
     eatenAt,
-    notes: source.notes ?? undefined,
+    notes: overrides?.notes ?? source.notes ?? undefined,
     isImmediate: true,
     ingredients: items.map(mealItemToIngredientInput),
+    photoUri: overrides?.photoUri ?? null,
   });
   // createMeal, unlike createMealFromComponents, never activates a food
   // trial (only the component path does), so this one is always undoable.
   return { id: meal.id, name: source.name, touchedFoodTrials: false };
+}
+
+// ---------------------------------------------------------------------------
+// Quick-log, phase 4: photos taken before there is anything to attach them to
+// ---------------------------------------------------------------------------
+export type MealPhotoDraft = {
+  id: string;
+  photoUri: string;
+  capturedAt: string;
+  note: string | null;
+};
+
+export async function createMealPhotoDraft(photoUri: string, capturedAt: string, note?: string | null): Promise<string> {
+  const db = await getDatabase();
+  const id = `meal_photo_draft_${Date.now()}`;
+  await db.runAsync(
+    'INSERT INTO meal_photo_drafts (id, photo_uri, captured_at, note) VALUES (?, ?, ?, ?)',
+    id,
+    photoUri,
+    capturedAt,
+    note?.trim() || null,
+  );
+  return id;
+}
+
+// Oldest first, deliberately: a photo waiting since breakfast should be the one
+// asking to be dealt with, not the one taken a minute ago.
+export async function listMealPhotoDrafts(limit = 12): Promise<MealPhotoDraft[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<MealPhotoDraft>(
+    `
+      SELECT id, photo_uri AS photoUri, captured_at AS capturedAt, note
+      FROM meal_photo_drafts
+      ORDER BY captured_at ASC, created_at ASC
+      LIMIT ?
+    `,
+    limit,
+  );
+}
+
+export async function getMealPhotoDraft(id: string): Promise<MealPhotoDraft | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<MealPhotoDraft>(
+    'SELECT id, photo_uri AS photoUri, captured_at AS capturedAt, note FROM meal_photo_drafts WHERE id = ?',
+    id,
+  );
+  return row ?? null;
+}
+
+// Removes the draft row only. The photo file itself is deliberately left alone
+// here, because the usual reason a draft goes away is that its photo was just
+// handed to a real meal, and deleting the file would take the photo off that
+// meal. Discarding a draft outright is the one case that should also delete the
+// file, and it does that at its own call site via deleteMealPhotoFile.
+export async function deleteMealPhotoDraft(id: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM meal_photo_drafts WHERE id = ?', id);
 }
 
 // ---------------------------------------------------------------------------

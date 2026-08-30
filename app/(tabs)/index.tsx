@@ -39,6 +39,7 @@ import { getMoonPhase, getUpcomingSeasonalMarker } from '../../lib/celestialEven
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
 import { ALL_DIGEST_ENTRIES, isProblemFoodEntry, type DigestCategoryKey } from '../../lib/digest';
 import { markHomeDataReady } from '../../lib/homeReadySignal';
+import { deleteMealPhotoFile, pickAndSaveMealPhoto } from '../../lib/mealPhotos';
 import {
   aqiBandForIndex,
   getHomeSkyData,
@@ -48,7 +49,9 @@ import {
   type HomeSkyResult,
 } from '../../lib/homeSky';
 import {
+  createMealPhotoDraft,
   deleteMeal,
+  deleteMealPhotoDraft,
   getCheckinForDate,
   getCuriousAboutConditions,
   getLastSeenAppVersion,
@@ -57,6 +60,7 @@ import {
   getUserConditions,
   getUserProfile,
   listCheckins,
+  listMealPhotoDrafts,
   listMealsForDate,
   listRecentDistinctMeals,
   listScheduledMealsForDate,
@@ -68,6 +72,7 @@ import {
   setLastSeenAppVersion,
   setScheduledMealSkipped,
   type CheckinValence,
+  type MealPhotoDraft,
   type MealRecord,
   type RecentMealSummary,
   type ScheduleItemRecord,
@@ -394,6 +399,9 @@ type DashboardData = {
   // person has already logged, most recent first. Powers the Log Again
   // section; see renderLogAgain below.
   recentMeals: RecentMealSummary[];
+  // Quick-log phase 4, 2026-08-30 -- photos taken with the intent to log
+  // something, not yet turned into a meal. See meal_photo_drafts in lib/db.ts.
+  photoDrafts: MealPhotoDraft[];
   scheduledToday: ScheduleItemRecord[];
   nutrientEntries: NutrientGapEntry[];
   sixDsFlagCount: number;
@@ -624,6 +632,11 @@ export default function HomeScreen() {
   // Which tile is mid-save. Also gates every other tile, so a double tap
   // across two different meals cannot start two writes at once.
   const [relogBusyId, setRelogBusyId] = useState<string | null>(null);
+  // Quick-log phase 4. Two sheets rather than one: picking where a photo comes
+  // from, and deciding what an already-taken one actually was.
+  const [photoSourceSheetOpen, setPhotoSourceSheetOpen] = useState(false);
+  const [activeDraft, setActiveDraft] = useState<MealPhotoDraft | null>(null);
+  const [capturingPhoto, setCapturingPhoto] = useState(false);
   const [bpSystolic, setBpSystolic] = useState('');
   const [bpDiastolic, setBpDiastolic] = useState('');
   const [bpBpm, setBpBpm] = useState('');
@@ -797,6 +810,8 @@ export default function HomeScreen() {
       // listMealsForDate above so the destructure below stays a stable
       // append-only list. One indexed query over meals, no per-row work.
       listRecentDistinctMeals(8),
+      // Quick-log phase 4, 2026-08-30.
+      listMealPhotoDrafts(12),
     ]).then(
       ([
         todaysMeals,
@@ -809,6 +824,7 @@ export default function HomeScreen() {
         feelingCheckin,
         recentAssessments,
         recentMeals,
+        photoDrafts,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -833,6 +849,7 @@ export default function HomeScreen() {
         setData({
           todaysMeals,
           recentMeals,
+          photoDrafts,
           scheduledToday,
           nutrientEntries,
           sixDsFlagCount,
@@ -1856,9 +1873,77 @@ export default function HomeScreen() {
     }
   }
 
+  // Quick-log phase 4, 2026-08-30. A photo takes two seconds and can be taken
+  // at a table with people waiting; working out what was in it and how much
+  // cannot. So the photo is kept on its own until there is time, rather than
+  // being the thing that has to happen at the same moment as the logging.
+  //
+  // Deliberately not saved as a meal with no ingredients: that would count as a
+  // logged meal everywhere in the app while contributing no nutrients, which
+  // reads as a meal that had nothing in it. See meal_photo_drafts.
+  async function handleCapturePhoto(source: 'camera' | 'library') {
+    setPhotoSourceSheetOpen(false);
+    setCapturingPhoto(true);
+    try {
+      const result = await pickAndSaveMealPhoto(source, 'meal-photo-draft');
+      if (result.status !== 'success') {
+        if (result.status === 'permission-denied') {
+          showInfoAlert(
+            source === 'camera' ? 'Camera access needed' : 'Photo access needed',
+            "You can turn this on in your device's own Settings, under this app's permissions.",
+          );
+        } else if (result.status === 'too-small') {
+          showInfoAlert('That photo is too small', 'Try taking a new one rather than using a thumbnail.');
+        }
+        return;
+      }
+      await createMealPhotoDraft(result.uri, `${todayDateString()}T${nowTimeString24()}`);
+      await load();
+    } catch (error) {
+      console.error('[Home] Failed to keep a meal photo', error);
+      showInfoAlert('That photo did not save', 'Something went wrong keeping it. Give it another try.');
+    } finally {
+      setCapturingPhoto(false);
+    }
+  }
+
+  // Logs the draft as a repeat of an already-logged meal, at the time the photo
+  // was taken rather than now, since that is when the food was actually eaten.
+  async function handleDraftAsRecentMeal(draft: MealPhotoDraft, meal: RecentMealSummary) {
+    setActiveDraft(null);
+    try {
+      const result = await relogMeal(meal.id, draft.capturedAt, { photoUri: draft.photoUri });
+      if ('error' in result) {
+        showInfoAlert('That did not log', result.error);
+        return;
+      }
+      // The photo now belongs to the meal, so only the draft row goes; deleting
+      // the file here would take the photo off the meal that just got it.
+      await deleteMealPhotoDraft(draft.id);
+      await load();
+    } catch (error) {
+      console.error('[Home] Failed to log a photo draft as a recent meal', error);
+      showInfoAlert('That did not log', 'Something went wrong saving it. Check Past Meals before trying again.');
+    }
+  }
+
+  async function handleDiscardDraft(draft: MealPhotoDraft) {
+    setActiveDraft(null);
+    try {
+      await deleteMealPhotoDraft(draft.id);
+      // The one case where the file itself should go too: nothing else ever
+      // took ownership of it.
+      await deleteMealPhotoFile(draft.photoUri);
+      await load();
+    } catch (error) {
+      console.error('[Home] Failed to discard a photo draft', error);
+    }
+  }
+
   function renderLogAgain() {
     if (!isHomeSectionVisible(visualPrefs, 'logAgain')) return null;
     const recent = data?.recentMeals ?? [];
+    const draftPhotos = data?.photoDrafts ?? [];
     const foodColor = tabColorFor('/food');
     return (
       <View style={[styles.logAgainCard, { borderColor: foodColor }]}>
@@ -1891,8 +1976,47 @@ export default function HomeScreen() {
           onPress={() => router.push('/voice-log')}
         >
           <Ionicons name="mic-outline" size={18} color={foodColor} style={textShadow} />
-          <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Say what you ate</Text>
+          <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Ate out or off-plan? Say it</Text>
         </TouchableOpacity>
+        {/* Quick-log phase 4, 2026-08-30. */}
+        <TouchableOpacity
+          style={[styles.logAgainSpeakButton, { borderColor: foodColor }, capturingPhoto ? styles.logAgainTileDisabled : null]}
+          activeOpacity={0.8}
+          onPress={() => setPhotoSourceSheetOpen(true)}
+          disabled={capturingPhoto}
+        >
+          <Ionicons name="camera-outline" size={18} color={foodColor} style={textShadow} />
+          <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>
+            {capturingPhoto ? 'Keeping the photo…' : 'No time now? Photograph it'}
+          </Text>
+        </TouchableOpacity>
+        {draftPhotos.length > 0 ? (
+          <>
+            <Text style={styles.logAgainCaption}>
+              {`${draftPhotos.length} ${draftPhotos.length === 1 ? 'photo is' : 'photos are'} waiting to be turned into a meal. Tap one when you have a minute.`}
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.logAgainScroll}
+              contentContainerStyle={styles.logAgainRow}
+            >
+              {draftPhotos.map((draft) => (
+                <TouchableOpacity
+                  key={draft.id}
+                  style={[styles.draftTile, { borderColor: foodColor }]}
+                  activeOpacity={0.8}
+                  onPress={() => setActiveDraft(draft)}
+                >
+                  <Image source={{ uri: draft.photoUri }} style={styles.draftThumb} />
+                  <Text style={styles.logAgainTileMeta} numberOfLines={1}>
+                    {draft.capturedAt.length >= 16 ? formatTime12(draft.capturedAt.slice(11, 16)) : 'Waiting'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </>
+        ) : null}
         {recent.length === 0 ? (
           <Text style={styles.logAgainCaption}>
             Once you log a meal, it shows up here, so having it again takes one tap.
@@ -1980,6 +2104,50 @@ export default function HomeScreen() {
   return (
     <View style={styles.screen}>
       {infoAlertElement}
+      {/* Quick-log phase 4, 2026-08-30. */}
+      <AppActionSheet
+        visible={photoSourceSheetOpen}
+        onClose={() => setPhotoSourceSheetOpen(false)}
+        title="Photograph this meal"
+        message="Keep a photo now and turn it into a logged meal whenever you have a minute. Nothing is sent anywhere, and nothing is guessed from the picture."
+        actions={[
+          { label: 'Take a photo', onPress: () => handleCapturePhoto('camera') },
+          { label: 'Choose an existing photo', onPress: () => handleCapturePhoto('library') },
+        ]}
+      />
+      <AppActionSheet
+        visible={activeDraft !== null}
+        onClose={() => setActiveDraft(null)}
+        title="What was this?"
+        message="Pick one of your usual meals, or say what it was. The photo goes onto whatever you log, at the time it was taken."
+        actions={[
+          ...(data?.recentMeals ?? []).slice(0, 4).map((meal) => ({
+            label: meal.name,
+            onPress: () => {
+              if (activeDraft) void handleDraftAsRecentMeal(activeDraft, meal);
+            },
+          })),
+          {
+            label: '🎤 Say what it was',
+            onPress: () => {
+              const draft = activeDraft;
+              setActiveDraft(null);
+              if (draft) {
+                router.push({
+                  pathname: '/voice-log',
+                  params: { draftId: draft.id, photoUri: draft.photoUri, capturedAt: draft.capturedAt },
+                });
+              }
+            },
+          },
+          {
+            label: 'Discard this photo',
+            onPress: () => {
+              if (activeDraft) void handleDiscardDraft(activeDraft);
+            },
+          },
+        ]}
+      />
       <AppActionSheet
         visible={worthALookChoiceOpen}
         onClose={() => setWorthALookChoiceOpen(false)}
@@ -2605,6 +2773,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   logAgainTileDisabled: { opacity: 0.5 },
+  draftTile: {
+    width: 104,
+    gap: 6,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 8,
+    alignItems: 'center',
+  },
+  draftThumb: { width: 84, height: 84, borderRadius: 8, backgroundColor: colors.border },
   logAgainTileTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
   logAgainTileName: { ...typography.bodyEmphasis, ...textShadow, flex: 1 },
   logAgainTileMeta: { ...typography.caption, ...textShadow, color: colors.textMuted },

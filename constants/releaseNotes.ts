@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.6',
+    date: '2026-08-30',
+    changes: [
+      "Say what you ate is now built around the two times you actually need it: a meal out, and a meal you ate instead of the one you had planned. It offers today's planned meals so the one you skipped stops sitting on your schedule waiting, and it can mark a meal as eaten out.",
+      "New: photograph a meal now, sort it out later. If you have no time to log something properly, take a picture of it. It waits on your Home screen until you have a minute, then becomes a real logged meal with the photo kept on it, dated to when the photo was taken rather than when you got around to it.",
+      "Nothing is read from the picture and nothing is sent anywhere. It is a reminder of what you ate, so you can log it accurately later instead of guessing at the end of the day.",
+      "Finish a photo by picking one of your usual meals, or by saying what it was. Either way the photo goes onto the meal.",
+    ],
+  },
+  {
     version: '1.0.31.5',
     date: '2026-08-30',
     changes: [

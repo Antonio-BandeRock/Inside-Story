@@ -7,6 +7,17 @@
 // before, a product with a barcode). Speaking is the one input that covers
 // anything else without opening a builder.
 //
+// 2026-08-30, direct steer on what that "anything else" actually is in
+// practice: "Say what you ate should be related to eating out at a restaurant
+// OR if you went off of the scheduled meal, this would be an easy and quick
+// way to replace it." Correct, and it is the case with the least chance of
+// ever being logged otherwise -- a restaurant plate has no barcode, no recipe
+// and no saved record anywhere, and a meal eaten instead of a planned one
+// leaves the planned one sitting unresolved forever. So this screen also
+// offers today's still-planned meals to replace, and a way to mark a meal as
+// eaten out, rather than being a generic dictation box that happens to log
+// food.
+//
 // Two rules shape the whole screen:
 //
 //   1. Nothing is ever logged from speech alone. A recognizer returns literal
@@ -21,9 +32,9 @@
 //      number nobody chose into the record and then into every trend built on
 //      it. Those rows are flagged and excluded until a weight is given.
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { useInfoAlert } from '../components/InfoAlert';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -32,10 +43,13 @@ import { textShadow, typography } from '../constants/typography';
 import {
   createMeal,
   createMealFromComponents,
+  deleteMealPhotoDraft,
   estimateGramsForFood,
   getMealFavorite,
   listFavorites,
   listRecentDistinctMeals,
+  listScheduledMealsForDate,
+  markScheduledMealLogged,
   relogMeal,
   resolveFoodOptionForBaseName,
   searchReferenceFoodNamesAcrossCategories,
@@ -43,6 +57,7 @@ import {
   type GlobalFoodMatch,
   type MealIngredientInput,
   type RecentMealSummary,
+  type ScheduleItemRecord,
 } from '../lib/db';
 import {
   CONFIDENT_MATCH_SCORE,
@@ -63,6 +78,12 @@ function nowLocalTime24(): string {
   const now = new Date();
   const pad = (value: number) => String(value).padStart(2, '0');
   return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+function todayLocalDateString(): string {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
 function nowLocalDateTimeString(): string {
@@ -106,6 +127,15 @@ type Phase = 'listening' | 'resolving' | 'review' | 'saving';
 
 export default function VoiceLogScreen() {
   const router = useRouter();
+  // Quick-log phase 4, 2026-08-30. Set only when this screen was opened to
+  // finish a photo taken earlier (Home's own Log Again card). The photo goes
+  // onto whatever gets logged, and the meal is dated to when the PHOTO was
+  // taken rather than to now, since that is when the food was actually eaten.
+  const { draftId, photoUri, capturedAt } = useLocalSearchParams<{
+    draftId?: string;
+    photoUri?: string;
+    capturedAt?: string;
+  }>();
   const scrollPadding = useFloatingButtonScrollPadding();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
@@ -116,6 +146,16 @@ export default function VoiceLogScreen() {
   const [items, setItems] = useState<ReviewItem[]>([]);
   const [mealProposal, setMealProposal] = useState<MealProposal | null>(null);
   const [recognitionMode, setRecognitionMode] = useState<VoiceRecognitionMode | null>(null);
+  // Today's meals that are still only planned. Offered as something this
+  // spoken meal can stand in for, which is the whole "I went off the plan"
+  // case: without it the planned meal stays unresolved forever and the day
+  // reads as though two meals happened when only one did.
+  const [replaceableMeals, setReplaceableMeals] = useState<ScheduleItemRecord[]>([]);
+  const [replacingScheduleItemId, setReplacingScheduleItemId] = useState<string | null>(null);
+  // Recorded as a plain note on the meal rather than a new column: it is
+  // context for a person reading their own record back later, not something
+  // any scoring or trend currently reads.
+  const [ateOut, setAteOut] = useState(false);
 
   // Guards against the resolve pass running twice for one spoken phrase: the
   // recognizer can deliver a final result and then end the session, and both
@@ -128,6 +168,9 @@ export default function VoiceLogScreen() {
       // as state here, since nothing else on this screen depends on it.
       .then((loaded) => setMealType(inferMealTypeForTime(loaded, nowLocalTime24())))
       .catch((error) => console.error('[VoiceLogScreen] Failed to load the profile', error));
+    listScheduledMealsForDate(todayLocalDateString())
+      .then((scheduled) => setReplaceableMeals(scheduled.filter((item) => item.status === 'planned')))
+      .catch((error) => console.error('[VoiceLogScreen] Failed to load today\'s planned meals', error));
   }, []);
 
   const resolveTranscript = useCallback(async (spoken: string) => {
@@ -319,6 +362,40 @@ export default function VoiceLogScreen() {
   }
 
   const usableItems = items.filter((item) => item.foodId != null && item.grams != null && item.grams > 0);
+  // A photo taken at 12:40 and finished at 3pm was still eaten at 12:40.
+  const eatenAtForLog = capturedAt && capturedAt.length >= 16 ? capturedAt : nowLocalDateTimeString();
+
+  // Only the draft ROW goes: the photo file now belongs to the meal, and
+  // deleting it here would take the photo off the meal that just received it.
+  // Non-fatal on purpose, the meal is already saved by this point.
+  async function clearFinishedDraft() {
+    if (!draftId) return;
+    try {
+      await deleteMealPhotoDraft(draftId);
+    } catch (error) {
+      console.error('[VoiceLogScreen] Logged the meal but could not clear the photo draft', error);
+    }
+  }
+  const replacedMeal = replaceableMeals.find((item) => item.id === replacingScheduleItemId) ?? null;
+
+  // Marking the planned slot as logged AGAINST the meal actually eaten is the
+  // honest record of going off-plan: the slot did happen, and this is what it
+  // turned out to be. Skipping it would say no meal happened at all, and
+  // leaving it planned would have the day read as two meals when there was
+  // one. Deliberately non-fatal: the meal itself is already saved by this
+  // point, and losing the link is worth far less than losing the meal.
+  async function resolveReplacedMeal(loggedMealId: string) {
+    if (!replacingScheduleItemId) return;
+    try {
+      await markScheduledMealLogged(replacingScheduleItemId, loggedMealId);
+    } catch (error) {
+      console.error('[VoiceLogScreen] Logged the meal but could not resolve the planned one', error);
+      showInfoAlert(
+        'Logged, but the planned meal is still showing',
+        'What you ate is saved. Marking the planned meal as covered by it did not work, so you may still see it on your schedule.',
+      );
+    }
+  }
 
   async function handleLogItems() {
     if (usableItems.length === 0) return;
@@ -338,13 +415,17 @@ export default function VoiceLogScreen() {
         yourSharePercent: 100,
       }));
       const name = finalTranscript.trim().slice(0, 60) || 'Spoken meal';
-      await createMeal({
+      const meal = await createMeal({
         name: name.charAt(0).toUpperCase() + name.slice(1),
         mealType,
-        eatenAt: nowLocalDateTimeString(),
+        eatenAt: eatenAtForLog,
+        notes: ateOut ? 'Eaten out.' : undefined,
         isImmediate: true,
         ingredients,
+        photoUri: photoUri ?? null,
       });
+      await resolveReplacedMeal(meal.id);
+      await clearFinishedDraft();
       router.back();
     } catch (error) {
       console.error('[VoiceLogScreen] Failed to log a spoken meal', error);
@@ -358,12 +439,16 @@ export default function VoiceLogScreen() {
     setPhase('saving');
     try {
       if (mealProposal.kind === 'recent') {
-        const result = await relogMeal(mealProposal.id, nowLocalDateTimeString());
+        const result = await relogMeal(mealProposal.id, eatenAtForLog, {
+          notes: ateOut ? 'Eaten out.' : undefined,
+          photoUri: photoUri ?? null,
+        });
         if ('error' in result) {
           setPhase('review');
           showInfoAlert('That did not log', result.error);
           return;
         }
+        await resolveReplacedMeal(result.id);
       } else {
         const favorite = await getMealFavorite(mealProposal.id);
         if (!favorite) {
@@ -374,8 +459,8 @@ export default function VoiceLogScreen() {
         const result = await createMealFromComponents({
           name: favorite.name,
           mealType: favorite.mealType || mealType,
-          eatenAt: nowLocalDateTimeString(),
-          notes: favorite.notes,
+          eatenAt: eatenAtForLog,
+          notes: ateOut ? 'Eaten out.' : favorite.notes,
           isImmediate: true,
           components: favorite.components,
         });
@@ -384,7 +469,9 @@ export default function VoiceLogScreen() {
           showInfoAlert('That did not log', result.error);
           return;
         }
+        await resolveReplacedMeal(result.id);
       }
+      await clearFinishedDraft();
       router.back();
     } catch (error) {
       console.error('[VoiceLogScreen] Failed to log a matched meal', error);
@@ -399,8 +486,8 @@ export default function VoiceLogScreen() {
         <Ionicons name="mic" size={44} color={colors.accent} />
         <Text style={styles.title}>{status === 'listening' ? 'Listening…' : 'Getting ready…'}</Text>
         <Text style={styles.text}>
-          Say what you ate. Something like &quot;two eggs and a slice of toast&quot;, or the name of a meal you have
-          logged before.
+          Best for a meal out, or anything you ate instead of what you had planned. Say it the way you would tell
+          someone: &quot;two eggs and a slice of toast&quot;, or the name of a meal you have logged before.
         </Text>
         {transcript ? <Text style={styles.liveTranscript}>{transcript}</Text> : null}
         <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => router.back()}>
@@ -500,6 +587,16 @@ export default function VoiceLogScreen() {
   function renderReview() {
     return (
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        {photoUri ? (
+          <View style={styles.card}>
+            <Text style={styles.sectionLabel}>Finishing this photo</Text>
+            <Image source={{ uri: photoUri }} style={styles.draftPhoto} />
+            <Text style={styles.privacyNote}>
+              Nothing is read from the picture. It is kept with whatever you log, and the meal is dated to when the
+              photo was taken.
+            </Text>
+          </View>
+        ) : null}
         <View style={styles.card}>
           <Text style={styles.sectionLabel}>You said</Text>
           <Text style={styles.text}>{finalTranscript || 'Nothing was picked up.'}</Text>
@@ -536,6 +633,40 @@ export default function VoiceLogScreen() {
           </View>
         )}
 
+        {replaceableMeals.length > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.sectionLabel}>Was this instead of something you had planned?</Text>
+            <Text style={styles.privacyNote}>
+              Picking one marks it as covered by what you actually ate, so it stops sitting on your schedule waiting.
+            </Text>
+            {replaceableMeals.map((planned) => {
+              const active = replacingScheduleItemId === planned.id;
+              return (
+                <TouchableOpacity
+                  key={planned.id}
+                  style={styles.replaceRow}
+                  activeOpacity={0.8}
+                  onPress={() => setReplacingScheduleItemId(active ? null : planned.id)}
+                >
+                  <Ionicons
+                    name={active ? 'radio-button-on' : 'radio-button-off'}
+                    size={18}
+                    color={active ? colors.accent : colors.textMuted}
+                  />
+                  <Text style={styles.replaceRowText} numberOfLines={2}>
+                    {`${planned.title}${planned.scheduledFor.length >= 16 ? ` · ${planned.scheduledFor.slice(11, 16)}` : ''}`}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        ) : null}
+
+        <TouchableOpacity style={styles.ateOutRow} activeOpacity={0.7} onPress={() => setAteOut((current) => !current)}>
+          <Ionicons name={ateOut ? 'checkbox' : 'square-outline'} size={20} color={colors.accent} />
+          <Text style={styles.ateOutText}>I ate this out, not at home</Text>
+        </TouchableOpacity>
+
         <Text style={styles.sectionLabel}>Which meal?</Text>
         <View style={styles.mealTypeRow}>
           {QUICK_LOG_MEAL_TYPES.map((candidate) => {
@@ -561,6 +692,11 @@ export default function VoiceLogScreen() {
           </Text>
         ) : null}
 
+        {replacedMeal ? (
+          <Text style={styles.privacyNote}>
+            {`Logging this also marks "${replacedMeal.title}" as covered, so it stops waiting on your schedule.`}
+          </Text>
+        ) : null}
         <TouchableOpacity
           style={[styles.primaryButton, usableItems.length === 0 ? styles.disabled : null]}
           activeOpacity={0.85}
@@ -650,6 +786,11 @@ const styles = StyleSheet.create({
     borderColor: colors.accent,
   },
   inlineButtonText: { ...typography.caption, color: colors.accent, ...textShadow },
+  draftPhoto: { width: '100%', height: 180, borderRadius: 10, backgroundColor: colors.border },
+  replaceRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
+  replaceRowText: { ...typography.body, color: colors.textPrimary, flex: 1, ...textShadow },
+  ateOutRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4 },
+  ateOutText: { ...typography.body, color: colors.textSecondary, ...textShadow },
   mealTypeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   mealTypePill: {
     paddingVertical: 8,

@@ -303,6 +303,10 @@ export async function saveSharePhotoFromBase64(base64: string, scopeKey: string)
 
 export type PhotoTarget =
   | { kind: 'component'; componentType: MealComponentType; componentId: string }
+  // Quick-log phase 4, 2026-08-30 -- a photo on a meal that was actually
+  // logged, which is the one case this union never covered. See meals.photo_uri
+  // in lib/db.ts.
+  | { kind: 'meal'; mealId: string }
   | { kind: 'favorite'; favoriteId: string }
   | { kind: 'curatedRecipe'; recipeId: string }
   // Read-only display target for a not-yet-decided staged share -- see
@@ -394,6 +398,10 @@ export async function getPhotoForTarget(target: PhotoTarget): Promise<string | n
       const row = await db.getFirstAsync<{ photo_uri: string | null }>(`SELECT photo_uri FROM ${table} WHERE id = ?`, target.componentId);
       return row?.photo_uri ?? null;
     }
+    case 'meal': {
+      const row = await db.getFirstAsync<{ photo_uri: string | null }>('SELECT photo_uri FROM meals WHERE id = ?', target.mealId);
+      return row?.photo_uri ?? null;
+    }
     case 'favorite':
       return getFavoritePhoto(target.favoriteId);
     case 'curatedRecipe': {
@@ -416,6 +424,11 @@ export async function setPhotoForTarget(target: PhotoTarget, photoUri: string | 
       const db = await getDatabase();
       const table = COMPONENT_TABLE_BY_TYPE[target.componentType];
       await db.runAsync(`UPDATE ${table} SET photo_uri = ? WHERE id = ?`, photoUri, target.componentId);
+      return;
+    }
+    case 'meal': {
+      const db = await getDatabase();
+      await db.runAsync('UPDATE meals SET photo_uri = ? WHERE id = ?', photoUri, target.mealId);
       return;
     }
     case 'favorite':
