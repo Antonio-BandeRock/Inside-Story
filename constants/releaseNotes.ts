@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.5',
+    date: '2026-08-30',
+    changes: [
+      "Say what you ate. There is a new microphone button on Home, in the Log Again box: speak a meal and the app works out what you meant, shows you every part of it, and logs it once you say go.",
+      "It understands amounts the way people say them. Two eggs and a slice of toast becomes two separate things. One and a half cups of oatmeal is one and a half, not two and a half. Macaroni and cheese stays one food.",
+      "Nothing is logged from your voice alone. Every food it matched and every amount it worked out is shown first and can be corrected, and a loose match says so.",
+      "If it recognizes the name of a meal you have logged before, it offers to log that one instead, with its real ingredients rather than a rebuilt guess.",
+      "When an amount cannot honestly be turned into a weight, it says so rather than guessing. A cup of rice has no weight the app can work out, only drinks, alcohol and fats have a density it can rely on, so it asks for grams instead of inventing a number.",
+      "Voice now runs on your phone itself wherever your phone can do that, so the audio never leaves the device. Where it cannot, the screen tells you plainly that your phone's own speech service handled it.",
+    ],
+  },
+  {
     version: '1.0.31.4',
     date: '2026-08-30',
     changes: [

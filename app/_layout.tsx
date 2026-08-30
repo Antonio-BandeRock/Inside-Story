@@ -474,6 +474,17 @@ export default function RootLayout() {
               {/* 2026-08-16, the real barcode-scanning feature -- reached from
                   Food's own "My Foods" hub. Themed the same as every other
                   Stack screen. */}
+              {/* Quick-log phase 3, 2026-08-30 -- reached from Home's own Log
+                  Again card. Themed the same as every other Stack screen. */}
+              <Stack.Screen
+                name="voice-log"
+                options={{
+                  headerShown: true,
+                  title: 'Say What You Ate',
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
               <Stack.Screen
                 name="scan-product"
                 options={{

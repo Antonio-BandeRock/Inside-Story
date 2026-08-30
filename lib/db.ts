@@ -13224,6 +13224,67 @@ export async function relogMeal(
   return { id: meal.id, name: source.name, touchedFoodTrials: false };
 }
 
+// ---------------------------------------------------------------------------
+// Quick-log, phase 3: resolving a spoken food to something loggable
+// ---------------------------------------------------------------------------
+// 2026-08-30. searchReferenceFoodNamesAcrossCategories already answers "which
+// foods sound like this", and it is what the Food builders' own "Say a Food
+// Name" mode has used since 2026-08-16 -- but it stops at a (category,
+// subcategory, base_name) triple, leaving a person to pick a prep method
+// before anything is real. That extra step is the whole friction quick-log
+// exists to remove, so these two resolve the rest of the way.
+
+// A concrete, loggable food row for a (category, base_name) pair, using the
+// same Raw-first then any-visible-row order curated recipes have relied on
+// since 2026-08-26. Exported wrapper rather than a second implementation, so a
+// spoken "chickpeas" resolves to exactly the row a curated recipe naming
+// chickpeas would.
+export async function resolveFoodOptionForBaseName(category: string, baseName: string): Promise<FoodOption | null> {
+  return resolveCuratedRecipeIngredientUncached(category, baseName, null);
+}
+
+// How many grams a spoken amount actually comes to for one food, or null when
+// that genuinely cannot be worked out.
+//
+// This exists because "a cup of rice" is not loggable and "a cup of milk" is,
+// and nothing on the surface says so. convertToGrams needs a density to turn
+// any volume into a weight, and only three categories (Bev, Alcohol, Fats) are
+// uniform enough to carry one, so a volume amount of anything else has no
+// honest answer. 'each' has the same problem from the other direction: it needs
+// a real per-unit weight row for that specific food, which plenty of foods do
+// not have.
+//
+// Returning null rather than falling back to some assumed number is the point.
+// A quietly assumed 100g would log a number nobody chose and then feed it into
+// every trend built on top of it; the screen calling this says plainly that it
+// needs a weight instead.
+export async function estimateGramsForFood(
+  foodId: string,
+  category: string | null,
+  quantity: number,
+  unit: string,
+): Promise<number | null> {
+  const [foodIdStr, source] = foodId.split('|');
+  const numericFoodId = Number(foodIdStr);
+  if (!source || Number.isNaN(numericFoodId)) return null;
+  if (!Number.isFinite(quantity) || quantity <= 0) return null;
+
+  if (unit.trim().toLowerCase() === 'each') {
+    const unitWeight = await getFoodUnitWeight(numericFoodId, source);
+    return unitWeight ? unitWeight.gramsPerUnit * quantity : null;
+  }
+
+  const normalized = normalizeUnitForConversion(unit);
+  if (!normalized) return null;
+
+  let foodCategory: string | null = category;
+  if ((VOLUME_UNITS as readonly string[]).includes(normalized) && !foodCategory) {
+    foodCategory = await getFoodCategory(numericFoodId, source);
+  }
+  const conversion = convertToGrams(quantity, normalized, { foodCategory: foodCategory ?? undefined });
+  return conversion.ok ? conversion.grams : null;
+}
+
 // The person's own, entirely optional sex/age/diagnosis info -- every
 // field defaults to null (not set) and stays that way until the person
 // deliberately sets it themselves. Nothing else in this app should ever

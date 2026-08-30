@@ -1880,6 +1880,19 @@ export default function HomeScreen() {
             )}
           </View>
         ) : null}
+        {/* Quick-log phase 3, 2026-08-30. Sits inside the Log Again card
+            rather than in Quick Actions on purpose: this and the tiles below
+            it are the same job (get a meal into the record without opening a
+            builder), and splitting them across the screen would hide the one
+            that covers anything not logged before. */}
+        <TouchableOpacity
+          style={[styles.logAgainSpeakButton, { borderColor: foodColor }]}
+          activeOpacity={0.8}
+          onPress={() => router.push('/voice-log')}
+        >
+          <Ionicons name="mic-outline" size={18} color={foodColor} style={textShadow} />
+          <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Say what you ate</Text>
+        </TouchableOpacity>
         {recent.length === 0 ? (
           <Text style={styles.logAgainCaption}>
             Once you log a meal, it shows up here, so having it again takes one tap.
@@ -2558,6 +2571,18 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   logAgainCaption: { ...typography.caption, ...textShadow, color: colors.textMuted },
+  logAgainSpeakButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: colors.surface,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  logAgainSpeakText: { ...typography.bodyEmphasis, ...textShadow },
   // Negative margin so the tile row can scroll all the way to the card edges
   // instead of stopping short at its padding, with that same padding handed
   // to the content instead. Same technique as fullBleedScroll above, scoped

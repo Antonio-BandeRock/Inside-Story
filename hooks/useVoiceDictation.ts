@@ -36,14 +36,22 @@ export type UseVoiceDictationOptions = {
   lang?: string;
 };
 
+// Where the audio was actually processed for the most recent session. Null
+// until one has started. This is not a preference; it is a report, and any
+// screen handling health-adjacent speech should be able to say honestly which
+// one it got.
+export type VoiceRecognitionMode = 'on-device' | 'network';
+
 export type UseVoiceDictationResult = {
   status: VoiceDictationStatus;
   start: () => Promise<void>;
   stop: () => void;
+  recognitionMode: VoiceRecognitionMode | null;
 };
 
 export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoiceDictationOptions): UseVoiceDictationResult {
   const [status, setStatus] = useState<VoiceDictationStatus>('idle');
+  const [recognitionMode, setRecognitionMode] = useState<VoiceRecognitionMode | null>(null);
   const onResultRef = useRef(onResult);
   onResultRef.current = onResult;
   const onErrorRef = useRef(onError);
@@ -88,11 +96,45 @@ export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoic
       onErrorRef.current?.('unavailable', 'Speech recognition is not available on this device.');
       return;
     }
+    // Prefer recognition that never leaves the phone. This matters more here
+    // than it would in most apps: this one's whole stance is that no server
+    // holds anyone's health data, and dictating what you ate is health data the
+    // moment it is spoken. The OS recognizer defaults to a network service
+    // (Google's or Apple's), so without asking, every food name spoken into
+    // this app was being sent off the device -- not to this project's own
+    // backend, which does not exist, but off the device all the same.
+    //
+    // Asked rather than assumed: supportsOnDeviceRecognition() reports whether
+    // the device can do it at all, and getSupportedLocales' installedLocales is
+    // what says the language pack for this locale is actually downloaded.
+    // Requesting on-device recognition for a locale that is not installed fails
+    // the session outright, so both have to be true before asking for it.
+    // Anything short of that falls back to exactly the previous behaviour,
+    // which keeps voice working everywhere it worked before.
+    let useOnDevice = false;
+    try {
+      if (ExpoSpeechRecognitionModule.supportsOnDeviceRecognition()) {
+        const locales = await ExpoSpeechRecognitionModule.getSupportedLocales({});
+        const normalized = lang.toLowerCase().replace('_', '-');
+        useOnDevice = (locales.installedLocales ?? []).some(
+          (installed) => installed.toLowerCase().replace('_', '-') === normalized,
+        );
+      }
+    } catch (error) {
+      // A device that cannot answer the question is treated as a no, never as
+      // a yes: falling back to network recognition still works, while asking
+      // for on-device recognition it cannot do would kill the session.
+      console.warn('[useVoiceDictation] Could not check for on-device recognition', error);
+      useOnDevice = false;
+    }
+
     isActiveRef.current = true;
+    setRecognitionMode(useOnDevice ? 'on-device' : 'network');
     setStatus('listening');
     ExpoSpeechRecognitionModule.start({
       lang,
       interimResults: true,
+      requiresOnDeviceRecognition: useOnDevice,
       // Auto-stops once a final result comes back (or, on iOS 17 and
       // below, after ~3 seconds of silence) -- the natural "tap, speak,
       // it finishes on its own" shape for both a search box and a short
@@ -117,5 +159,5 @@ export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoic
   // added alongside it rather than left as a latent gap.
   useEffect(() => stop, [stop]);
 
-  return { status, start, stop };
+  return { status, start, stop, recognitionMode };
 }
