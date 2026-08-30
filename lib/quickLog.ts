@@ -197,6 +197,45 @@ const COMPOUND_FOOD_PHRASES = [
   'sweet and sour',
 ];
 
+// Progressively simpler things to search for when the full phrase finds
+// nothing.
+//
+// 2026-08-30, from a real attempt that matched nothing: "green eggs and ham
+// with mixed vegetables and orange juice". The reference database has no
+// "green eggs" (confirmed by direct query: zero rows), but it has 33 for
+// "eggs". A single LIKE on the whole phrase is all-or-nothing, so one leading
+// adjective the database does not happen to use sinks the whole item.
+//
+// The ladder drops leading words one at a time, then falls back to the longest
+// single word, which is usually the noun. Order matters: the fullest phrase is
+// tried first, so "orange juice" still resolves as orange juice rather than
+// being widened to "juice" unnecessarily.
+export function buildFoodSearchLadder(foodText: string): string[] {
+  const words = foodText.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [];
+
+  const queries: string[] = [];
+  for (let start = 0; start < words.length; start += 1) {
+    queries.push(words.slice(start).join(' '));
+  }
+  const longest = [...words].sort((a, b) => b.length - a.length)[0];
+  if (longest) queries.push(longest);
+
+  const seen = new Set<string>();
+  const ladder: string[] = [];
+  for (const query of queries) {
+    const trimmed = query.trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    ladder.push(trimmed);
+    // Four attempts is enough to strip a couple of adjectives and still fall
+    // back to the noun. Past that the query is so short it matches half the
+    // database, which is worse than admitting nothing was found.
+    if (ladder.length >= 4) break;
+  }
+  return ladder;
+}
+
 export type ParsedSpokenItem = {
   // Exactly what was said for this item, kept so the screen can show a person
   // their own words next to whatever the app matched them to.
@@ -287,7 +326,10 @@ export function splitSpokenItems(transcript: string): string[] {
     let current: string[] = [];
     for (let index = 0; index < words.length; index += 1) {
       const word = words[index];
-      const isJoiner = word === 'and' || word === 'plus';
+      // "with" separates too, 2026-08-30: "ham with mixed vegetables" is two
+      // foods to score, not one thing to hunt for. Same for "chicken with
+      // rice", "toast with butter", "coffee with milk".
+      const isJoiner = word === 'and' || word === 'plus' || word === 'with';
       if (
         isJoiner &&
         current.length > 0 &&

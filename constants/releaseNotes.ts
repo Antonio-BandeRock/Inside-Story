@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.14',
+    date: '2026-08-30',
+    changes: [
+      "Saying a food the database spells differently now works. \"Green eggs\" found nothing, because the app searched for that exact phrase and gave up. It now tries the whole phrase first, then drops words off the front until something matches, so green eggs finds eggs and mixed vegetables finds vegetables.",
+      "\"With\" now separates two foods the same way \"and\" does, so \"ham with mixed vegetables\" is two things rather than one.",
+      "The label under the corner menu icon no longer jumps down when you open the menu. It now sits where it always sat when open, whether the menu is open or not.",
+    ],
+  },
+  {
     version: '1.0.31.13',
     date: '2026-08-30',
     changes: [

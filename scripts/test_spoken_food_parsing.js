@@ -74,6 +74,19 @@ const CASES = [
   // Still one dish, protected by name rather than by the old amount rule.
   ['mac and cheese', [[1, 'each', 'mac cheese']]],
   ['cookies and cream ice cream', [[1, 'each', 'cookies cream ice cream']]],
+  // "with" separates two foods, 2026-08-30.
+  ['ham with mixed vegetables', [[1, 'each', 'ham'], [1, 'each', 'mixed vegetables']]],
+  ['coffee with milk', [[1, 'each', 'coffee'], [1, 'each', 'milk']]],
+];
+
+// [foodText, expected search ladder] -- 2026-08-30. A single LIKE on the whole
+// phrase is all-or-nothing, so one leading adjective the database does not use
+// sank a whole item ("green eggs" finds nothing; "eggs" finds 33).
+const LADDER_CASES = [
+  ['green eggs', ['green eggs', 'eggs', 'green']],
+  ['mixed vegetables', ['mixed vegetables', 'vegetables']],
+  ['orange juice', ['orange juice', 'juice', 'orange']],
+  ['ham', ['ham']],
 ];
 
 // [spoken, candidate, expectation] -- the ordering that matters, not exact
@@ -113,7 +126,17 @@ function run() {
     }
   }
 
-  const total = CASES.length + SCORE_EXPECTATIONS.length;
+  for (const [foodText, expected] of LADDER_CASES) {
+    const actual = quickLog.buildFoodSearchLadder(foodText);
+    if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+      failures += 1;
+      console.error(`FAIL  ladder for ${foodText}`);
+      console.error(`  got      ${JSON.stringify(actual)}`);
+      console.error(`  expected ${JSON.stringify(expected)}`);
+    }
+  }
+
+  const total = CASES.length + SCORE_EXPECTATIONS.length + LADDER_CASES.length;
   if (failures > 0) {
     console.error(`\nSpoken food parsing: ${failures} of ${total} checks failed.`);
     process.exit(1);

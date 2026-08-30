@@ -27,6 +27,34 @@ The app is under active development and substantially built. Current state:
 
 
 
+**Most recent (2026-08-30, 1.0.31.14): the voice search widened when a phrase finds nothing, and the corner label stopped moving.**
+
+
+
+**"Green eggs and ham with mixed vegetables and orange juice" matched nothing.** The split was already right after 1.0.31.13; the search was the problem, and it was checked against the real database rather than reasoned about: `green eggs` returns **0** rows, `eggs` returns 33. A single LIKE on the whole phrase is all-or-nothing, so one leading adjective the database does not happen to use sinks a whole item.
+
+
+
+**New `buildFoodSearchLadder`** (`lib/quickLog.ts`) returns progressively simpler queries: the full phrase, then each successive suffix, then the longest single word, capped at four. The screen walks it and stops at the first that finds anything. Verified end to end by running each rung through the app's own filtered query against `foods_reference.db`: green eggs matches on "eggs" (6), ham on "ham" (8), mixed vegetables on itself (8), orange juice on itself (8). Order matters and is deliberate: the fullest phrase goes first, so "orange juice" resolves as orange juice rather than being widened to "juice" for no reason. **Widening does not over-claim:** scoring still runs against what was actually SAID, so "green eggs" against "Egg, whole, raw" scores about 0.42, under the 0.6 confidence bar, and surfaces as a loose match to accept rather than a silent pick.
+
+
+
+**"With" now separates**, since "ham with mixed vegetables" is two foods to score, not one thing to hunt for. Same for "chicken with rice", "coffee with milk".
+
+
+
+**One honest loose end:** "orange juice" matches on its first rung and always would have, so whatever failed for that item on-device was NOT the search. If it still fails, the cause is downstream (resolution, or an amount that cannot be turned into a weight) and worth reporting as its own thing rather than assuming this fixed it.
+
+
+
+**The corner label was jumping** because the open state wraps the icon in a 60px ring while the closed state rendered a bare 32px glyph, so the label below sat about 14px higher when closed. Direct instruction: "Keep all of the labels at the current level of when the icon is selected, whether it is selected or not." The closed branch now reserves the ring's own footprint, so only the ring appears and disappears and nothing moves. Checked the siblings rather than assuming: TabHub's grid items already size both branches identically, and MyItemsHub has no label under its icon, so LensHub was the only one affected.
+
+
+
+`scripts/test_spoken_food_parsing.js` is at 30 checks, now covering the ladder and the "with" split. Its own failure output was verified by deliberately breaking a case and confirming it reports and exits non-zero, since a test that cannot fail is worth nothing. `tsc` clean project-wide, `eslint` clean on every touched file, bare-text audit at 0 with 2 named exceptions. **Not yet confirmed on-device.**
+
+
+
 **Most recent (2026-08-30, 1.0.31.13): the right corner label this time, and the voice parser failing on an ordinary sentence.**
 
 

@@ -62,6 +62,7 @@ import {
 import {
   CONFIDENT_MATCH_SCORE,
   inferMealTypeForTime,
+  buildFoodSearchLadder,
   parseSpokenItem,
   QUICK_LOG_MEAL_TYPES,
   quickLogMealTypeLabel,
@@ -226,7 +227,16 @@ export default function VoiceLogScreen() {
           };
           if (!item.foodText) return base;
 
-          const matches = await searchReferenceFoodNamesAcrossCategories(item.foodText, undefined, 8);
+          // Walks progressively simpler queries and stops at the first that
+          // finds anything, so one leading adjective the database does not use
+          // ("green eggs") no longer sinks the whole item. Scoring still runs
+          // against what was actually said, not the widened query, so a
+          // fallback match still has to earn its place.
+          let matches: Awaited<ReturnType<typeof searchReferenceFoodNamesAcrossCategories>> = [];
+          for (const query of buildFoodSearchLadder(item.foodText)) {
+            matches = await searchReferenceFoodNamesAcrossCategories(query, undefined, 8);
+            if (matches.length > 0) break;
+          }
           const scored = matches
             .map((match) => ({ match, score: scoreNameMatch(item.foodText, match.baseName) }))
             .sort((a, b) => b.score - a.score);

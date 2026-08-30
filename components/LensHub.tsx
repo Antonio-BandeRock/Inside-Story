@@ -705,14 +705,24 @@ export function LensHub<T extends string>({
             shadow reads fine against that lighter card but was nearly
             invisible here -- too close in darkness to the footer itself to
             register as a real shadow rather than just vanishing into it. */}
+        {/* 2026-08-30, direct report: "The labels of the tab icons in the
+            lower left corner for each tab are shifting when they are selected.
+            The label shifts down to avoid the circle that goes around it...
+            Keep all of the labels at the current level of when the icon is
+            selected, whether it is selected or not."
+            The open branch wraps the icon in a 60px ring while the closed
+            branch rendered a bare 32px glyph, so the label below sat ~14px
+            higher when closed and visibly jumped on open. The closed branch now
+            reserves the ring's own footprint, so only the ring appears and
+            disappears; nothing moves. */}
         {open ? (
           <IridescentRingCircle size={FLOATING_BUTTON_SIZE}>
             {renderIcon ? renderIcon(32) : <Ionicons name={tabIcon} size={32} color={tabColor} style={CORNER_ICON_SHADOW} />}
           </IridescentRingCircle>
-        ) : renderIcon ? (
-          renderIcon(32)
         ) : (
-          <Ionicons name={tabIcon} size={32} color={tabColor} style={CORNER_ICON_SHADOW} />
+          <View style={styles.cornerIconSlot}>
+            {renderIcon ? renderIcon(32) : <Ionicons name={tabIcon} size={32} color={tabColor} style={CORNER_ICON_SHADOW} />}
+          </View>
         )}
         {/* The page's own name below the icon, 2026-07-27 -- explicitly
             requested to match the same icon-then-label pairing every
@@ -1130,6 +1140,14 @@ const styles = StyleSheet.create({
   // was being reported, then put back: the label actually being reported was
   // Home's own Digest corner shortcut, which had a real fill. This one is
   // unchanged from how it has always looked.
+  // The exact footprint IridescentRingCircle occupies when the menu is open,
+  // held open when it is closed so the label below never moves.
+  cornerIconSlot: {
+    width: FLOATING_BUTTON_SIZE,
+    height: FLOATING_BUTTON_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   buttonLabel: {
     ...typography.caption,
     fontSize: 11,
