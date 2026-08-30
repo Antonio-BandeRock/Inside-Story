@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.11',
+    date: '2026-08-30',
+    changes: [
+      "Meals in Find a Meal now open up to show what is in them. Tap one and it expands to list its ingredients and amounts, with a Use this meal button underneath when you are ready to do something with it.",
+      "Picking a meal no longer jumps straight to the choices, so you can look at two similar ones and tell them apart before committing to either.",
+    ],
+  },
+  {
     version: '1.0.31.10',
     date: '2026-08-30',
     changes: [

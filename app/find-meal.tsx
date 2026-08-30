@@ -48,6 +48,9 @@ import { textShadow, typography } from '../constants/typography';
 import {
   createMealFromComponents,
   deleteMealPhotoDraft,
+  getIngredientLinesForCuratedRecipe,
+  getIngredientLinesForFavorite,
+  getIngredientLinesForLoggedMeal,
   getMealFavorite,
   listFavorites,
   listAllCuratedRecipes,
@@ -61,6 +64,7 @@ import {
   scheduleMeal,
   type BuilderFavoriteItemType,
   type CuratedRecipeListRow,
+  type MealIngredientLine,
   type RecentMealSummary,
   type ScheduleItemRecord,
 } from '../lib/db';
@@ -155,6 +159,18 @@ export default function FindMealScreen() {
   const [time, setTime] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
   const [dateText, setDateText] = useState(todayLocalDateString());
   const [plannedToday, setPlannedToday] = useState<ScheduleItemRecord[]>([]);
+  // 2026-08-30, direct request: "the meals listed need to be able to expand to
+  // show the ingredients, and then have a button to choose what to do with it."
+  // A name alone often will not separate two similar meals, and picking one
+  // blind then backing out is worse than being able to look first.
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  // Resolved on first expand and kept, keyed by row. Loading a meal's
+  // ingredients means several queries for a favorite (one per component), so
+  // re-resolving on every collapse and re-expand would be wasteful; the list
+  // itself is reloaded whenever the search or scope changes, which is when this
+  // could go stale.
+  const [ingredientsByKey, setIngredientsByKey] = useState<Record<string, MealIngredientLine[]>>({});
+  const [loadingIngredientsKey, setLoadingIngredientsKey] = useState<string | null>(null);
 
   const load = useCallback(async (search: string, currentScope: Scope) => {
     setLoading(true);
@@ -235,6 +251,10 @@ export default function FindMealScreen() {
         }
       }
       setMeals(entries);
+      // The rows themselves just changed, so anything resolved against the old
+      // ones is no longer addressable.
+      setExpandedKey(null);
+      setIngredientsByKey({});
     } catch (error) {
       console.error('[FindMealScreen] Failed to load meals', error);
       setMeals([]);
@@ -456,6 +476,36 @@ export default function FindMealScreen() {
     }
   }
 
+  async function toggleExpanded(entryKey: string, meal: PickableMeal) {
+    if (expandedKey === entryKey) {
+      setExpandedKey(null);
+      return;
+    }
+    setExpandedKey(entryKey);
+    if (ingredientsByKey[entryKey]) return;
+    setLoadingIngredientsKey(entryKey);
+    try {
+      // A scheduled meal keeps its components on the favorite the scheduling
+      // path created to carry them, so it resolves the same way a favorite does.
+      const lines =
+        meal.kind === 'meal'
+          ? await getIngredientLinesForLoggedMeal(meal.id)
+          : meal.kind === 'curated'
+            ? await getIngredientLinesForCuratedRecipe(meal.id)
+            : meal.kind === 'planned'
+              ? await getIngredientLinesForFavorite(meal.favoriteId)
+              : await getIngredientLinesForFavorite(meal.id);
+      setIngredientsByKey((current) => ({ ...current, [entryKey]: lines }));
+    } catch (error) {
+      console.error('[FindMealScreen] Failed to load ingredients', error);
+      // An empty list renders as "could not be read" below rather than as a
+      // spinner that never stops.
+      setIngredientsByKey((current) => ({ ...current, [entryKey]: [] }));
+    } finally {
+      setLoadingIngredientsKey(null);
+    }
+  }
+
   function openActionsFor(meal: PickableMeal) {
     setSelected(meal);
     // Seeded to now, so "log it earlier" starts somewhere sensible and only
@@ -580,31 +630,66 @@ export default function FindMealScreen() {
           item.type === 'header' ? (
             <Text style={styles.sectionHeader}>{item.label}</Text>
           ) : (
-            <TouchableOpacity style={styles.row} activeOpacity={0.8} onPress={() => openActionsFor(item.meal)}>
-              <Ionicons
-                name={
-                  item.meal.kind === 'favorite'
-                    ? 'star-outline'
-                    : item.meal.kind === 'curated'
-                      ? 'book-outline'
-                      : item.meal.kind === 'planned'
-                        ? 'calendar-outline'
-                        : 'restaurant-outline'
-                }
-                size={18}
-                color={colors.accent}
-                style={textShadow}
-              />
-              <View style={styles.rowTextWrap}>
-                <Text style={styles.rowName} numberOfLines={2}>
-                  {item.meal.name}
-                </Text>
-                <Text style={styles.rowMeta} numberOfLines={1}>
-                  {describeMeal(item.meal)}
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-            </TouchableOpacity>
+            (() => {
+              const expanded = expandedKey === item.key;
+              const lines = ingredientsByKey[item.key];
+              return (
+                <View style={styles.rowWrap}>
+                  <TouchableOpacity
+                    style={styles.row}
+                    activeOpacity={0.8}
+                    onPress={() => toggleExpanded(item.key, item.meal)}
+                  >
+                    <Ionicons
+                      name={
+                        item.meal.kind === 'favorite'
+                          ? 'star-outline'
+                          : item.meal.kind === 'curated'
+                            ? 'book-outline'
+                            : item.meal.kind === 'planned'
+                              ? 'calendar-outline'
+                              : 'restaurant-outline'
+                      }
+                      size={18}
+                      color={colors.accent}
+                      style={textShadow}
+                    />
+                    <View style={styles.rowTextWrap}>
+                      <Text style={styles.rowName} numberOfLines={2}>
+                        {item.meal.name}
+                      </Text>
+                      <Text style={styles.rowMeta} numberOfLines={1}>
+                        {describeMeal(item.meal)}
+                      </Text>
+                    </View>
+                    <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+                  </TouchableOpacity>
+                  {expanded ? (
+                    <View style={styles.expandedBlock}>
+                      {loadingIngredientsKey === item.key ? (
+                        <ActivityIndicator color={colors.accent} />
+                      ) : lines && lines.length > 0 ? (
+                        lines.map((line, index) => (
+                          <Text key={`${item.key}-ing-${index}`} style={styles.ingredientLine}>
+                            {line.amount ? `${line.foodName} · ${line.amount}` : line.foodName}
+                          </Text>
+                        ))
+                      ) : (
+                        <Text style={styles.rowMeta}>No ingredients are saved for this one.</Text>
+                      )}
+                      <TouchableOpacity
+                        style={styles.useButton}
+                        activeOpacity={0.85}
+                        onPress={() => openActionsFor(item.meal)}
+                      >
+                        <Ionicons name="checkmark-circle-outline" size={16} color={colors.background} />
+                        <Text style={styles.useButtonText}>Use this meal</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : null}
+                </View>
+              );
+            })()
           )
         }
       />
@@ -731,7 +816,7 @@ export default function FindMealScreen() {
         {plannedToday.map((planned) => (
           <TouchableOpacity
             key={planned.id}
-            style={styles.row}
+            style={[styles.rowWrap, styles.row]}
             activeOpacity={0.8}
             onPress={() => handleReplacePlanned(planned)}
             disabled={busy}
@@ -796,16 +881,48 @@ const styles = StyleSheet.create({
     padding: 12,
     ...textShadow,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    padding: 12,
+  // The border and fill moved to this wrapper so an expanded row reads as one
+  // card holding its own ingredients, rather than a card with a separate block
+  // floating under it.
+  rowWrap: {
     borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
     marginBottom: 8,
+    overflow: 'hidden',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    padding: 12,
+  },
+  expandedBlock: {
+    paddingHorizontal: 12,
+    paddingBottom: 12,
+    gap: 4,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: 10,
+  },
+  ingredientLine: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  useButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 8,
+    backgroundColor: colors.buttonColor,
+    ...BUTTON_SHADOW,
+    borderRadius: 10,
+    paddingVertical: 10,
+  },
+  useButtonText: {
+    ...typography.bodyEmphasis,
+    color: colors.textOnButton,
+    textShadowColor: 'transparent',
+    textShadowRadius: 0,
   },
   scopeRow: { flexDirection: 'row', gap: 8 },
   sectionHeader: {

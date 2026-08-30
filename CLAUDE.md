@@ -25,6 +25,26 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+
+
+**Most recent (2026-08-30, 1.0.31.11): rows in Find a Meal expand to show their ingredients before anything is chosen.** Direct request: "when I tap find a meal the meals listed need to be able to expand to show the ingredients, and then have a button to choose what to do with it as it does when you select it now." A name alone often will not separate two similar meals, and picking one blind then backing out is worse than being able to look first.
+
+
+
+**Three resolvers rather than one**, because the four things this list shows keep their ingredients in genuinely different places: a logged meal has its own flattened `meal_items` rows, a favorite has component references that each need resolving through `resolveMealComponent`, a scheduled meal resolves through the favorite carrying its components (so it reuses the favorite path), and a curated recipe comes from the bundled reference database. `getIngredientLinesForLoggedMeal`, `getIngredientLinesForFavorite` and `getIngredientLinesForCuratedRecipe` (`lib/db.ts`) all return the same shape so the screen renders one list.
+
+
+
+**One trap avoided by reading rather than assuming:** `meal_items` keeps an ingredient's real amount in `serving_size`/`serving_unit` and hardcodes its own `quantity` column to literal 1, so reading `quantity` would have shown every ingredient of every past meal as "1". Same trap `relogMeal` already had to avoid on 2026-08-30; worth remembering that this table reads backwards from how it looks.
+
+
+
+**Resolved on first expand and cached per row**, since a favorite costs one query per component, and cleared whenever the list itself is rebuilt (a search or a scope change), which is the only moment those rows stop being addressable. The card border and fill moved onto a wrapper so an expanded row reads as one card holding its own ingredients rather than a card with a loose block under it.
+
+
+
+`tsc` clean project-wide, `eslint` clean on the touched files, bare-text audit at 0. **Not yet confirmed on-device.**
+
 **Most recent (2026-08-30, 1.0.31.10): a correction to the previous release, right on both counts.** Direct: "The Find a meal you have had still refers to finding a past meal... You replaced what we had with only the system recipes. And you didn't rename the button."
 
 **The rename was half done.** The screen title, the route registration and the Food menu entry all became "Find a Meal"; the Home button, which is the one people actually tap and the whole reason the rename existed, still read "Find a meal you have had". Fixed. Worth noting how it slipped: the bundle grep that catches this class of miss was run for the strings that were ADDED, not for the stale one that should have disappeared. Grepping for what should be gone is the half that caught the route title and would have caught this too.

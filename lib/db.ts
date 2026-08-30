@@ -13435,6 +13435,71 @@ async function getCuratedRecipeBuilderType(recipeId: string): Promise<BuilderFav
 
 
 // ---------------------------------------------------------------------------
+// What is actually in a meal, for the Find a Meal list
+// ---------------------------------------------------------------------------
+// 2026-08-30, direct request: "when I tap find a meal the meals listed need to
+// be able to expand to show the ingredients, and then have a button to choose
+// what to do with it." A name alone is often not enough to tell two similar
+// meals apart, and picking one blind and then backing out is worse than looking
+// first.
+//
+// Three resolvers rather than one, because the four things that list can show
+// keep their ingredients in genuinely different places: a logged meal has its
+// own flattened meal_items rows, a favorite (and a scheduled meal, which
+// resolves through the favorite carrying its components) has component
+// references that each have to be resolved, and a curated recipe is reference
+// content resolved against the bundled database. Same shape comes back from all
+// of them so the caller renders one list.
+export type MealIngredientLine = { foodName: string; amount: string | null };
+
+function formatIngredientAmount(quantity: number | null | undefined, unit: string | null | undefined): string | null {
+  if (quantity == null || !Number.isFinite(quantity) || quantity <= 0) return null;
+  // Trailing zeros read as false precision on something someone typed as "2".
+  const rounded = Math.round(quantity * 100) / 100;
+  return unit ? `${rounded} ${unit}` : String(rounded);
+}
+
+export async function getIngredientLinesForLoggedMeal(mealId: string): Promise<MealIngredientLine[]> {
+  const items = await getMealItems(mealId);
+  // serving_size/serving_unit hold the real amount; the quantity column is
+  // always literal 1 (see insertMealItems, the one place that knows this).
+  return items.map((item) => ({
+    foodName: item.foodName,
+    amount: formatIngredientAmount(item.servingSize, item.servingUnit),
+  }));
+}
+
+export async function getIngredientLinesForFavorite(favoriteId: string): Promise<MealIngredientLine[]> {
+  const favorite = await getMealFavorite(favoriteId);
+  if (!favorite) return [];
+  const lines: MealIngredientLine[] = [];
+  for (const component of favorite.components) {
+    const resolved = await resolveMealComponent(component);
+    // A component whose saved record was deleted resolves to null. Skipping it
+    // shows a shorter list rather than failing the whole expand, which matches
+    // what the rest of the app does with a missing component.
+    if (!resolved) continue;
+    for (const ingredient of resolved.ingredients) {
+      lines.push({
+        foodName: ingredient.foodName,
+        amount: formatIngredientAmount(ingredient.quantity, ingredient.unit),
+      });
+    }
+  }
+  return lines;
+}
+
+export async function getIngredientLinesForCuratedRecipe(recipeId: string): Promise<MealIngredientLine[]> {
+  const recipe = await getCuratedRecipe(recipeId);
+  if (!recipe) return [];
+  return recipe.ingredients.map((ingredient) => ({
+    foodName: ingredient.foodName,
+    amount: formatIngredientAmount(ingredient.quantity, ingredient.unit),
+  }));
+}
+
+
+// ---------------------------------------------------------------------------
 // Quick-log, phase 4: photos taken before there is anything to attach them to
 // ---------------------------------------------------------------------------
 export type MealPhotoDraft = {
