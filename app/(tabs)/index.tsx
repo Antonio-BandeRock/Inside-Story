@@ -18,7 +18,14 @@ import { ProgressRing } from '../../components/ProgressRing';
 import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
 import { useBackgroundBottomInset } from '../../components/ScreenBackground';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
-import { BUTTON_SHADOW, colors } from '../../constants/colors';
+import {
+  BUTTON_SHADOW,
+  colors,
+  GAUGE_EMPTY,
+  GAUGE_OPTIMAL,
+  GAUGE_OVER_LIMIT,
+  mixHex,
+} from '../../constants/colors';
 import { FLOATING_BUTTON_SIZE, useBottomLeftHubPosition, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import {
   formatReleaseNotesMessage,
@@ -66,9 +73,7 @@ import {
   analyzeNutrientIntake,
   findExcessRisks,
   findNutrientGaps,
-  nutrientStatusSeverity,
   type NutrientGapEntry,
-  type NutrientStatus,
 } from '../../lib/nutrientAnalysis';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { getSixDimensionsFlagTrendSeries } from '../../lib/trendAnalysis';
@@ -330,15 +335,39 @@ function seededShuffleIndices(length: number, seed: number): number[] {
 // this app already tracks DRIs for that are most relevant here.
 export const CORE_NUTRIENT_CODES = ['iodine', 'selenium', 'zinc', 'iron', 'vitamin_d', 'calcium', 'magnesium', 'copper', 'vitamin_b12'];
 
-// Same green/yellow/red language as the Insights tab's Nutrients table
-// (see nutrientStatusSeverity in lib/nutrientAnalysis.ts) -- a nutrient
-// should read the same color here on Home as it does over there, not a
-// second, slightly different color scheme for the same status.
-function nutrientRingColor(status: NutrientStatus): string {
-  const severity = nutrientStatusSeverity(status);
-  if (severity === 'red') return colors.danger;
-  if (severity === 'yellow') return colors.statusYellow;
-  return colors.primary;
+// 2026-08-29, direct report: the ring colours "don't really mean
+// anything; pink brown and light blue. Can these colors be more apparent
+// of using a gradient maybe? like moving from this color to that color as
+// it is going around and getting closer to their optimal amount? If they
+// are getting way more than their optimal amount and it could be bad for
+// them, that should be visibly communicated somehow, too, but only if it
+// is a real problem."
+//
+// The old version reused the green/yellow/red status palette, which meant
+// a nutrient at 20% and one at 85% were drawn identically, and the tokens
+// it reached for (a light teal, a dark olive, a salmon) genuinely do read
+// as "pink brown and light blue" rather than as a scale.
+//
+// Now the colour travels with the fill: a cool receding slate at nothing
+// logged, blending to a clear green at the target, so the colour says the
+// same thing the arc length does. Past 100% it simply stays at the
+// optimal colour, because for these nine nutrients more is not a problem
+// on its own.
+//
+// The exception is a real one, not "over 100%": 'excess_risk' is set by
+// lib/nutrientAnalysis.ts only when intake passes a published upper
+// limit, and that function already knows which ULs apply to supplements
+// rather than food (magnesium, folate, niacin, vitamin E), so this fires
+// where there is genuinely something to act on and stays quiet otherwise.
+function nutrientRingColors(entry: NutrientGapEntry): { from: string; to: string } {
+  if (entry.status === 'excess_risk') {
+    return { from: GAUGE_OVER_LIMIT, to: GAUGE_OVER_LIMIT };
+  }
+  const progress = Number.isFinite(entry.percentOfTarget) ? entry.percentOfTarget / 100 : 0;
+  return {
+    from: GAUGE_EMPTY,
+    to: mixHex(GAUGE_EMPTY, GAUGE_OPTIMAL, progress),
+  };
 }
 
 type DashboardData = {
@@ -491,11 +520,15 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Fuel Gauges',
-    body: "Rings for iodine, selenium, zinc, iron, copper, vitamin D, calcium, magnesium, and B12: nutrients most directly tied to thyroid function and bone health. Green means on track, amber means low, red means deficient or over a safe limit. Filled from today's logged meals and supplements.",
+    body: "Rings for iodine, selenium, zinc, iron, copper, vitamin D, calcium, magnesium, and B12: nutrients most directly tied to thyroid function and bone health. Each shows the percent of your whole day's target reached by what you have logged so far today, food and supplements together, so they climb as the day goes on. Nothing here is projected forward.",
   },
   {
-    heading: 'The mood orb',
-    body: "Reflects the most severe flare or food reaction you've logged in Signals over the last 2 days: cool and calm with nothing recent, warmer the more severe. Gray means you haven't logged anything there yet, which is different from calm.",
+    heading: 'What the gauge colours mean',
+    body: "The colour moves with the fill rather than standing for a status word: a cool slate when little has been logged, blending toward green as a nutrient approaches its target. Going past 100% is not treated as a problem, because for these nine more is not harmful on its own. A ring only turns to the warning colour, with a line naming the nutrient underneath, when intake has actually passed a published safe upper limit, and for the few nutrients whose limit applies to supplements rather than food (magnesium, folate, niacin, vitamin E) only the supplement amount is counted toward it.",
+  },
+  {
+    heading: "How You're Feeling",
+    body: "Reflects the most severe flare or food reaction you've logged in Signals over the last 2 days: cool and calm with nothing recent, warmer the more severe. Gray means you haven't logged anything there yet, which is different from calm. Its job is to keep an ongoing flare visible on the first screen you open, instead of only inside Signals, so a bad stretch is obvious without going looking for it. Tapping it opens Signals to log one or read the full history.",
   },
   {
     heading: "Today's Check-In",
@@ -1104,6 +1137,11 @@ export default function HomeScreen() {
         (entry): entry is NutrientGapEntry => entry != null,
       )
     : [];
+  // Named in the gauges card only when there is genuinely something over a
+  // published upper limit, so the warning stays rare enough to mean
+  // something. See nutrientRingColors above for why 'excess_risk' is the
+  // right signal and "over 100%" is not.
+  const overLimitNutrients = coreNutrientRings.filter((entry) => entry.status === 'excess_risk');
 
   // Recomputed only when the person's own condition scope actually
   // changes (Profile's two condition pickers), not on every render --
@@ -1425,13 +1463,23 @@ export default function HomeScreen() {
     if (!isHomeSectionVisible(visualPrefs, 'statTiles')) return null;
     return (
       <View style={styles.statRow}>
+        {/* 2026-08-29, direct report: this "just goes to the My Foods
+            screen and the person doesn't know where to go from there."
+            Correct -- it navigated to /food, which rests on the Desktop
+            menu, so the count it had just shown led nowhere. The meals
+            behind this number are the ones already eaten today, which is
+            exactly what Schedule's Past Meals lens lists, so that is where
+            it goes now. Same fix as the "Worth a look" tile beside it. */}
         <TouchableOpacity
-          style={[styles.statTile, { borderColor: tabColorFor('/food') }]}
-          onPress={() => router.navigate('/food')}
+          style={[styles.statTile, { borderColor: tabColorFor('/schedule') }]}
+          onPress={() => router.navigate({ pathname: '/schedule', params: { openScheduleLens: 'pastMeals' } })}
           activeOpacity={0.75}
         >
-          <CardLabel tabPath="/food" text={mealsLoggedToday === 1 ? 'Meal logged today' : 'Meals logged today'} />
-          <Text style={[styles.statNumber, { color: tabColorFor('/food') }]}>{mealsLoggedToday}</Text>
+          {/* Carries Schedule's colour and icon rather than Food's, since
+              CardLabel draws the destination tab's own icon, and a Food
+              icon on a tile that opens Schedule would be its own small lie. */}
+          <CardLabel tabPath="/schedule" text={mealsLoggedToday === 1 ? 'Meal logged today' : 'Meals logged today'} />
+          <Text style={[styles.statNumber, { color: tabColorFor('/schedule') }]}>{mealsLoggedToday}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.statTile, { borderColor: tabColorFor('/insights') }]}
@@ -1559,6 +1607,18 @@ export default function HomeScreen() {
     return (
       <View style={[styles.orbCard, { borderColor: tabColorFor('/log') }]}>
         <CardLabel tabPath="/log" text="How You're Feeling" />
+        {/* 2026-08-29, direct question: "What is the How You're Feeling
+            card for exactly? What does it provide to the user?" A fair
+            question the card never answered: it showed a coloured orb and
+            a one-word severity with nothing saying where the reading came
+            from or what to do about it. It is a glance at the worst flare
+            or food reaction logged in Signals in the last two days, and
+            its real job is to make an ongoing flare visible on the first
+            screen rather than only inside Signals. Now it says so. */}
+        <Text style={[styles.orbCaption, { color: tabColorFor('/log') }]}>
+          The worst flare or food reaction you have logged in the last two days, so an ongoing one is visible
+          without going looking for it. Tap to log one or see the full history.
+        </Text>
         <EnergyOrb
           recentMaxSeverity={data?.recentMaxSeverity ?? null}
           hasAnyHistory={data?.hasAnyLogHistory ?? false}
@@ -1582,18 +1642,41 @@ export default function HomeScreen() {
     return (
       <View style={[styles.fuelGaugesCard, { borderColor: tabColorFor('/insights') }]}>
         <CardLabel tabPath="/insights" text="Today's Fuel Gauges" />
+        {/* 2026-08-29, direct report: "needs to explain what the
+            percentages represent. Is it so far today, or does it represent
+            how much they will have all day." Confirmed by reading
+            analyzeNutrientIntake: it is what has actually been logged so
+            far (food plus supplements) against the whole day's target, so
+            it climbs as the day goes on. Nothing is projected. */}
+        <Text style={[styles.fuelGaugesCaption, { color: tabColorFor('/insights') }]}>
+          Percent of your whole day&apos;s target, from what you have logged so far today. These climb as you log
+          more, so a low number early is normal.
+        </Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.ringRow}>
-          {coreNutrientRings.map((entry) => (
-            <TouchableOpacity key={entry.nutrientCode} onPress={() => router.navigate('/insights')} activeOpacity={0.75}>
-              <ProgressRing
-                percent={entry.percentOfTarget}
-                color={nutrientRingColor(entry.status)}
-                label={entry.displayName}
-                sublabel={`${Math.round(entry.percentOfTarget)}%`}
-              />
-            </TouchableOpacity>
-          ))}
+          {coreNutrientRings.map((entry) => {
+            const ringColors = nutrientRingColors(entry);
+            return (
+              <TouchableOpacity
+                key={entry.nutrientCode}
+                onPress={() => router.navigate({ pathname: '/insights', params: { openInsightsLens: 'nutrients' } })}
+                activeOpacity={0.75}
+              >
+                <ProgressRing
+                  percent={entry.percentOfTarget}
+                  color={ringColors.from}
+                  gradientTo={ringColors.to}
+                  label={entry.displayName}
+                  sublabel={`${Math.round(entry.percentOfTarget)}%`}
+                />
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
+        {overLimitNutrients.length > 0 ? (
+          <Text style={styles.fuelGaugesOverLimit}>
+            {`Over a safe upper limit today: ${overLimitNutrients.map((entry) => entry.displayName).join(', ')}. Tap through for the detail.`}
+          </Text>
+        ) : null}
       </View>
     );
   }
@@ -2287,6 +2370,33 @@ const styles = StyleSheet.create({
   // gap 10 (was 16), 2026-08-08 -- see content's own comment.
   ringRow: { flexDirection: 'row', gap: 10, paddingRight: 8 },
 
+  // The three explanatory lines added 2026-08-29, when the gauges and the
+  // mood orb were both reported as showing a number or a colour with
+  // nothing saying what it meant. fuelGaugesOverLimit is deliberately the
+  // one that carries a real warning colour, since it only ever renders
+  // when something is genuinely past a published upper limit.
+  fuelGaugesCaption: {
+    ...typography.caption,
+    ...textShadow,
+    lineHeight: 17,
+    marginTop: 4,
+    marginBottom: 12,
+  },
+  fuelGaugesOverLimit: {
+    ...typography.caption,
+    ...textShadow,
+    color: colors.danger,
+    lineHeight: 17,
+    marginTop: 12,
+  },
+  orbCaption: {
+    ...typography.caption,
+    ...textShadow,
+    lineHeight: 17,
+    marginTop: 4,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
   orbCard: {
     alignItems: 'center',
     paddingVertical: 16,

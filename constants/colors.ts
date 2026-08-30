@@ -789,3 +789,49 @@ export function popoverBackground(tabColor: string): string {
 export function inputBackground(tabColor: string): string {
   return hexToRgba(lighten(tabColor, INPUT_BACKGROUND_LIGHTEN_FRACTION), INPUT_BACKGROUND_ALPHA);
 }
+
+// The nutrient fuel gauges on Home, 2026-08-29. Direct report: the ring
+// colours "don't really mean anything; pink brown and light blue. Can
+// these colors be more apparent of using a gradient maybe? like moving
+// from this color to that color as it is going around and getting closer
+// to their optimal amount?"
+//
+// Fair, and the old scheme was worse than arbitrary: it reused the
+// green/yellow/red status palette, so a nutrient at 20% and one at 85%
+// were both drawn in the same single colour with nothing to separate
+// them, and the "green" token here (statusGood) is a deliberately muted
+// beige that never read as "you are there."
+//
+// So the ring's colour now moves continuously with how close the day's
+// intake is to the target: GAUGE_EMPTY at nothing logged through to
+// GAUGE_OPTIMAL at the target. The hue travel is real (a cool, receding
+// slate through to a clear green), so the colour carries the same
+// information as the arc length rather than repeating a status word.
+export const GAUGE_EMPTY = '#6E8CA0';
+export const GAUGE_OPTIMAL = '#7FC795';
+
+// Only used when a nutrient is genuinely over a published upper limit
+// (nutrientAnalysis's own 'excess_risk'), never merely over 100% of
+// target -- "only if it is a real problem," per the same report. Most
+// nutrients have no UL at all, and several ULs only apply to supplement
+// intake rather than food, both of which that status already accounts
+// for.
+export const GAUGE_OVER_LIMIT = colors.danger;
+
+// Blends two hex colours in plain RGB. Deliberately not the HSL path
+// lighten() above uses: this interpolates BETWEEN two arbitrary colours
+// rather than moving one toward white, and an HSL hue interpolation
+// between a blue and a green would swing through cyan on the way.
+export function mixHex(fromHex: string, toHex: string, fraction: number): string {
+  const clamped = Math.max(0, Math.min(1, fraction));
+  const parse = (hex: string) => [
+    parseInt(hex.slice(1, 3), 16),
+    parseInt(hex.slice(3, 5), 16),
+    parseInt(hex.slice(5, 7), 16),
+  ];
+  const [r1, g1, b1] = parse(fromHex);
+  const [r2, g2, b2] = parse(toHex);
+  const channel = (a: number, b: number) => Math.round(a + (b - a) * clamped);
+  const toHexPair = (value: number) => value.toString(16).padStart(2, '0');
+  return `#${toHexPair(channel(r1, r2))}${toHexPair(channel(g1, g2))}${toHexPair(channel(b1, b2))}`;
+}

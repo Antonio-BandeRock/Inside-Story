@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.30.24',
+    date: '2026-08-29',
+    changes: [
+      'A slow Insights lens now says what it is about to show you and what it tells you while it works, instead of just "Loading".',
+      'Home\'s "Meals logged today" tile opens Past Meals, where those meals actually are, instead of dropping you on the My Foods menu.',
+      "Today's Fuel Gauges say what the percentages are: your whole day's target, from what you have logged so far, so they climb as the day goes on. Nothing is projected.",
+      'The gauge colours mean something now. Each ring blends from a cool slate toward green as that nutrient approaches its target, and only turns to a warning colour, naming the nutrient underneath, when intake has genuinely passed a published safe upper limit. Simply going over 100% is not treated as a problem.',
+      "The How You're Feeling card now says what it is: the worst flare or food reaction logged in the last two days, kept on the first screen so an ongoing one is visible without going looking for it.",
+    ],
+  },
+  {
     version: '1.0.30.23',
     date: '2026-08-29',
     changes: [

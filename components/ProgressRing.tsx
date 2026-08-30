@@ -1,5 +1,6 @@
+import { useId } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 
@@ -12,6 +13,12 @@ import { textShadow, typography } from '../constants/typography';
 export function ProgressRing({
   percent,
   color,
+  // 2026-08-29: an optional second colour. When given, the arc is drawn
+  // as a gradient from `color` to `gradientTo` rather than one flat
+  // colour, so the ring visibly travels from where it started toward
+  // where it is heading as it fills. Callers that pass only `color` are
+  // unchanged and still draw a solid ring.
+  gradientTo,
   size = 64,
   strokeWidth = 7,
   label,
@@ -19,6 +26,7 @@ export function ProgressRing({
 }: {
   percent: number;
   color: string;
+  gradientTo?: string;
   size?: number;
   strokeWidth?: number;
   label: string;
@@ -28,10 +36,22 @@ export function ProgressRing({
   const circumference = 2 * Math.PI * radius;
   const clamped = Math.max(0, Math.min(100, percent));
   const strokeDashoffset = circumference * (1 - clamped / 100);
+  // Several rings render side by side in one row, and an SVG gradient is
+  // referenced by id, so a fixed id would make every ring after the first
+  // paint with the first one's colours.
+  const gradientId = `ring-${useId()}`;
 
   return (
     <View style={styles.container}>
       <Svg width={size} height={size}>
+        {gradientTo ? (
+          <Defs>
+            <LinearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+              <Stop offset="0" stopColor={color} />
+              <Stop offset="1" stopColor={gradientTo} />
+            </LinearGradient>
+          </Defs>
+        ) : null}
         <Circle
           cx={size / 2}
           cy={size / 2}
@@ -44,7 +64,7 @@ export function ProgressRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={color}
+          stroke={gradientTo ? `url(#${gradientId})` : color}
           strokeWidth={strokeWidth}
           fill="none"
           strokeLinecap="round"

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams } from 'expo-router';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
   classifyPrepStateGroup,
   classifyProteinSource,
@@ -1156,7 +1156,7 @@ export default function InsightsScreen() {
                 tabColor={TAB_COLOR}
               />
             ) : loading ? (
-              <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+              <LensLoadingCard lens={lens} />
             ) : errorMessage ? (
               <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
             ) : lens === 'nutrients' ? (
@@ -1310,6 +1310,33 @@ function contributorsForNutrient(
   }
 
   return contributors.sort((a, b) => b.amount - a.amount);
+}
+
+// 2026-08-29, direct report about Condition Scores: "It took about 5
+// seconds to load, which is fine but there should be something shown that
+// tells them what is going to be presented to them, and what they can do
+// with the information provided, or what it tells them."
+//
+// Correct, and the wait is real: that lens scores every ingredient in the
+// day against every sub-criterion relevant to each tracked condition.
+// Rather than write a second set of "here is what this lens does"
+// sentences that could drift from the ones already in LENSES, this shows
+// the lens's own name and its first help section, which is exactly that
+// explanation and is already maintained. Anyone wanting the rest taps the
+// Info button, same as always.
+function LensLoadingCard({ lens }: { lens: Lens }) {
+  const option = LENSES.find((entry) => entry.key === lens);
+  const first = option?.help?.[0];
+  return (
+    <View style={styles.panelStandalone}>
+      <Text style={styles.lensLoadingHeading}>{option?.label ?? 'Loading'}</Text>
+      {first ? <Text style={styles.lensLoadingBody}>{first.body}</Text> : null}
+      <View style={styles.lensLoadingSpinnerRow}>
+        <ActivityIndicator color={TAB_COLOR} />
+        <Text style={styles.lensLoadingNote}>Working this out from what you have logged today…</Text>
+      </View>
+    </View>
+  );
 }
 
 export function NutrientsTable({
@@ -3776,6 +3803,32 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     marginBottom: 8,
+  },
+  // The loading card shown while a slow lens computes -- see
+  // LensLoadingCard above for why it exists.
+  lensLoadingHeading: {
+    ...typography.eyebrow,
+    color: TAB_COLOR,
+    marginBottom: 8,
+    ...textShadow,
+  },
+  lensLoadingBody: {
+    ...typography.body,
+    color: colors.textSecondary,
+    lineHeight: 20,
+    ...textShadow,
+  },
+  lensLoadingSpinnerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingTop: 14,
+  },
+  lensLoadingNote: {
+    ...typography.caption,
+    color: colors.textMuted,
+    flexShrink: 1,
+    ...textShadow,
   },
   panelStandalone: {
     backgroundColor: colors.surface,

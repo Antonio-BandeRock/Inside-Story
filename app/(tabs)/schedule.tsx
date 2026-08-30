@@ -5318,8 +5318,15 @@ export default function ScheduleScreen() {
       // openDigestLens does -- without this, a real deep link from
       // Profile would still show the LensHub picker for a beat instead of
       // the lens it was actually sent to.
-      if (openScheduleLens === 'dailyMealPlan') {
-        setLens('dailyMealPlan');
+      // 2026-08-29: generalised from the single 'dailyMealPlan' case to
+      // any real lens key, so Home's "Meals logged today" tile can land on
+      // Past Meals instead of dropping someone on the lens picker. Matched
+      // against LENSES rather than cast, so a stale or mistyped link falls
+      // through to the ordinary resting picker instead of setting a lens
+      // that does not exist.
+      const requestedLens = LENSES.find((option) => option.key === openScheduleLens);
+      if (requestedLens) {
+        setLens(requestedLens.key);
         setRevealed(true);
         return;
       }
