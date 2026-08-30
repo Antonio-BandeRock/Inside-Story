@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.7',
+    date: '2026-08-30',
+    changes: [
+      "The row of past meals on Home is gone. It guessed at what you might be eating and only ever showed eight, so the meal you actually wanted was often not there at all.",
+      "In its place: Find a meal you have had. A plain scrollable list of everything you have logged or favorited, with a search box, so you can find something by any word in its name instead of remembering what you called it.",
+      "Pick one and you can log it now, log it earlier today if you are catching up, schedule it for another day, or use it instead of a meal you had planned. Replacing a planned meal logs it at that meal's own time and clears it off your schedule.",
+      "Finishing a photo now opens the same searchable list, rather than offering a few guessed names.",
+    ],
+  },
+  {
     version: '1.0.31.6',
     date: '2026-08-30',
     changes: [

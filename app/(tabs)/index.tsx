@@ -50,7 +50,6 @@ import {
 } from '../../lib/homeSky';
 import {
   createMealPhotoDraft,
-  deleteMeal,
   deleteMealPhotoDraft,
   getCheckinForDate,
   getCuriousAboutConditions,
@@ -62,11 +61,9 @@ import {
   listCheckins,
   listMealPhotoDrafts,
   listMealsForDate,
-  listRecentDistinctMeals,
   listScheduledMealsForDate,
   listSymptomAssessments,
   recordBodyMeasurement,
-  relogMeal,
   recordCheckin,
   recordExercise,
   setLastSeenAppVersion,
@@ -74,7 +71,6 @@ import {
   type CheckinValence,
   type MealPhotoDraft,
   type MealRecord,
-  type RecentMealSummary,
   type ScheduleItemRecord,
   type WellbeingCheckin,
 } from '../../lib/db';
@@ -109,20 +105,6 @@ function nowTimeString24(): string {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-}
-
-// One compact line under a Log Again tile's own name: what kind of meal it
-// is, and how established it is. Both values come straight from
-// listRecentDistinctMeals, so this costs no extra query. Meal types are
-// stored lowercase (breakfast, lunch, snack, beverage, and so on), so this
-// only has to lift the first letter rather than carry a lookup table that
-// would need updating every time a new type is added.
-function describeRecentMeal(meal: RecentMealSummary): string {
-  const mealType = meal.mealType
-    ? meal.mealType.charAt(0).toUpperCase() + meal.mealType.slice(1)
-    : 'Meal';
-  const timesLogged = meal.timesLogged === 1 ? 'logged once' : `${meal.timesLogged} times`;
-  return `${mealType} · ${timesLogged}`;
 }
 
 function timeGreeting(): string {
@@ -395,10 +377,6 @@ function nutrientRingColors(entry: NutrientGapEntry): { from: string; to: string
 
 type DashboardData = {
   todaysMeals: MealRecord[];
-  // Quick-log phase 1, 2026-08-30 -- one row per distinct meal name this
-  // person has already logged, most recent first. Powers the Log Again
-  // section; see renderLogAgain below.
-  recentMeals: RecentMealSummary[];
   // Quick-log phase 4, 2026-08-30 -- photos taken with the intent to log
   // something, not yet turned into a meal. See meal_photo_drafts in lib/db.ts.
   photoDrafts: MealPhotoDraft[];
@@ -618,20 +596,6 @@ export default function HomeScreen() {
   const [worthALookChoiceOpen, setWorthALookChoiceOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ScheduleItemRecord | null>(null);
   const [quickLogModal, setQuickLogModal] = useState<'bp' | 'exercise' | null>(null);
-  // Log Again, 2026-08-30. The banner is deliberately inline in the section
-  // rather than a modal or an alert: the whole promise of this feature is
-  // one tap, and something that has to be dismissed before the next tap
-  // breaks that. It clears itself on the next tap or the next Undo, and it
-  // is plain session state, so leaving Home and coming back clears it too.
-  const [relogBanner, setRelogBanner] = useState<{
-    mealId: string;
-    name: string;
-    at: string;
-    canUndo: boolean;
-  } | null>(null);
-  // Which tile is mid-save. Also gates every other tile, so a double tap
-  // across two different meals cannot start two writes at once.
-  const [relogBusyId, setRelogBusyId] = useState<string | null>(null);
   // Quick-log phase 4. Two sheets rather than one: picking where a photo comes
   // from, and deciding what an already-taken one actually was.
   const [photoSourceSheetOpen, setPhotoSourceSheetOpen] = useState(false);
@@ -809,7 +773,6 @@ export default function HomeScreen() {
       // Log Again, 2026-08-30. Appended last rather than slotted in beside
       // listMealsForDate above so the destructure below stays a stable
       // append-only list. One indexed query over meals, no per-row work.
-      listRecentDistinctMeals(8),
       // Quick-log phase 4, 2026-08-30.
       listMealPhotoDrafts(12),
     ]).then(
@@ -823,7 +786,6 @@ export default function HomeScreen() {
         profile,
         feelingCheckin,
         recentAssessments,
-        recentMeals,
         photoDrafts,
       ]) => {
         setFirstName(profile.firstName);
@@ -848,7 +810,6 @@ export default function HomeScreen() {
 
         setData({
           todaysMeals,
-          recentMeals,
           photoDrafts,
           scheduledToday,
           nutrientEntries,
@@ -1810,69 +1771,6 @@ export default function HomeScreen() {
     );
   }
 
-  // -------------------------------------------------------------------------
-  // Log Again (quick-log, phase 1) -- 2026-08-30
-  // -------------------------------------------------------------------------
-  // Opened as Open Next Steps item 21. Logging friction is this project's own
-  // named #1 risk, and the cheapest fix is not photo recognition: most logging
-  // is a REPEAT of something already logged, so making a repeat one tap buys
-  // most of the benefit for none of the privacy cost. Nothing here sends
-  // anything off the device.
-  //
-  // Logs at the current minute rather than asking when. Someone tapping this
-  // is eating now, and a time picker in the middle of it would put the
-  // friction straight back. Anything eaten earlier still goes through Food,
-  // which already asks properly.
-  async function handleLogAgain(meal: RecentMealSummary) {
-    if (relogBusyId) return;
-    setRelogBusyId(meal.id);
-    const loggedAtTime = nowTimeString24();
-    try {
-      const result = await relogMeal(meal.id, `${todayDateString()}T${loggedAtTime}`);
-      if ('error' in result) {
-        setRelogBanner(null);
-        showInfoAlert('That did not log', result.error);
-        return;
-      }
-      setRelogBanner({
-        mealId: result.id,
-        name: result.name,
-        at: loggedAtTime,
-        // See relogMeal in lib/db.ts: a re-log that started a food trial
-        // cannot be undone by deleting the meal alone, so Undo is withheld
-        // rather than offered and quietly half-working.
-        canUndo: !result.touchedFoodTrials,
-      });
-      await load();
-    } catch (error) {
-      console.error('[Home] Log Again failed', error);
-      setRelogBanner(null);
-      showInfoAlert(
-        'That did not log',
-        'Something went wrong saving it. Check Past Meals to see whether any of it was written before trying again.',
-      );
-    } finally {
-      setRelogBusyId(null);
-    }
-  }
-
-  // A brand new meal was created, so undoing it is a plain delete: meal_items
-  // and meal_components both cascade off it (see their own table definitions
-  // in lib/db.ts), and the meal this one was copied FROM is untouched either
-  // way.
-  async function handleUndoRelog() {
-    if (!relogBanner || !relogBanner.canUndo) return;
-    const target = relogBanner;
-    setRelogBanner(null);
-    try {
-      await deleteMeal(target.mealId);
-      await load();
-    } catch (error) {
-      console.error('[Home] Undo of a re-logged meal failed', error);
-      showInfoAlert('Undo did not work', `${target.name} is still logged. You can remove it from Past Meals.`);
-    }
-  }
-
   // Quick-log phase 4, 2026-08-30. A photo takes two seconds and can be taken
   // at a table with people waiting; working out what was in it and how much
   // cannot. So the photo is kept on its own until there is time, rather than
@@ -1907,26 +1805,6 @@ export default function HomeScreen() {
     }
   }
 
-  // Logs the draft as a repeat of an already-logged meal, at the time the photo
-  // was taken rather than now, since that is when the food was actually eaten.
-  async function handleDraftAsRecentMeal(draft: MealPhotoDraft, meal: RecentMealSummary) {
-    setActiveDraft(null);
-    try {
-      const result = await relogMeal(meal.id, draft.capturedAt, { photoUri: draft.photoUri });
-      if ('error' in result) {
-        showInfoAlert('That did not log', result.error);
-        return;
-      }
-      // The photo now belongs to the meal, so only the draft row goes; deleting
-      // the file here would take the photo off the meal that just got it.
-      await deleteMealPhotoDraft(draft.id);
-      await load();
-    } catch (error) {
-      console.error('[Home] Failed to log a photo draft as a recent meal', error);
-      showInfoAlert('That did not log', 'Something went wrong saving it. Check Past Meals before trying again.');
-    }
-  }
-
   async function handleDiscardDraft(draft: MealPhotoDraft) {
     setActiveDraft(null);
     try {
@@ -1942,34 +1820,15 @@ export default function HomeScreen() {
 
   function renderLogAgain() {
     if (!isHomeSectionVisible(visualPrefs, 'logAgain')) return null;
-    const recent = data?.recentMeals ?? [];
     const draftPhotos = data?.photoDrafts ?? [];
     const foodColor = tabColorFor('/food');
     return (
       <View style={[styles.logAgainCard, { borderColor: foodColor }]}>
-        <CardLabel tabPath="/food" text="Log Again" />
-        {relogBanner ? (
-          <View style={[styles.logAgainBanner, { borderColor: foodColor }]}>
-            <Text style={styles.logAgainBannerText}>
-              {`${relogBanner.name} is logged at ${formatTime12(relogBanner.at)}.`}
-            </Text>
-            {relogBanner.canUndo ? (
-              <TouchableOpacity onPress={handleUndoRelog} activeOpacity={0.75} style={styles.logAgainUndoButton}>
-                <Ionicons name="arrow-undo-outline" size={14} color={foodColor} style={textShadow} />
-                <Text style={[styles.logAgainUndoText, { color: foodColor }]}>Undo</Text>
-              </TouchableOpacity>
-            ) : (
-              <Text style={styles.logAgainBannerNote}>
-                This one started a food trial, so it stays. You can change it from Past Meals.
-              </Text>
-            )}
-          </View>
-        ) : null}
-        {/* Quick-log phase 3, 2026-08-30. Sits inside the Log Again card
-            rather than in Quick Actions on purpose: this and the tiles below
-            it are the same job (get a meal into the record without opening a
-            builder), and splitting them across the screen would hide the one
-            that covers anything not logged before. */}
+        <CardLabel tabPath="/food" text="Log a Meal" />
+        <Text style={styles.logAgainCaption}>
+          For anything that did not go to plan: a meal out, something eaten instead of what was scheduled, or
+          catching up after the fact.
+        </Text>
         <TouchableOpacity
           style={[styles.logAgainSpeakButton, { borderColor: foodColor }]}
           activeOpacity={0.8}
@@ -1978,7 +1837,6 @@ export default function HomeScreen() {
           <Ionicons name="mic-outline" size={18} color={foodColor} style={textShadow} />
           <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Ate out or off-plan? Say it</Text>
         </TouchableOpacity>
-        {/* Quick-log phase 4, 2026-08-30. */}
         <TouchableOpacity
           style={[styles.logAgainSpeakButton, { borderColor: foodColor }, capturingPhoto ? styles.logAgainTileDisabled : null]}
           activeOpacity={0.8}
@@ -1990,8 +1848,23 @@ export default function HomeScreen() {
             {capturingPhoto ? 'Keeping the photo…' : 'No time now? Photograph it'}
           </Text>
         </TouchableOpacity>
+        {/* 2026-08-30, replacing the tile strip that used to sit here. Direct
+            steer: "random meals being presented to possibly have them again
+            doesn't make sense... a standard scrollable list of meal names to
+            choose from, with a search field to filter by a specific word
+            rather than remembering what it was named in the app." Correct:
+            eight guessed tiles assumed the app knew someone was eating right
+            then, and a meal outside those eight was unreachable. */}
+        <TouchableOpacity
+          style={[styles.logAgainSpeakButton, { borderColor: foodColor }]}
+          activeOpacity={0.8}
+          onPress={() => router.push('/find-meal')}
+        >
+          <Ionicons name="restaurant-outline" size={18} color={foodColor} style={textShadow} />
+          <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Find a meal you have had</Text>
+        </TouchableOpacity>
         {draftPhotos.length > 0 ? (
-          <>
+          <Fragment>
             <Text style={styles.logAgainCaption}>
               {`${draftPhotos.length} ${draftPhotos.length === 1 ? 'photo is' : 'photos are'} waiting to be turned into a meal. Tap one when you have a minute.`}
             </Text>
@@ -2015,55 +1888,8 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               ))}
             </ScrollView>
-          </>
-        ) : null}
-        {recent.length === 0 ? (
-          <Text style={styles.logAgainCaption}>
-            Once you log a meal, it shows up here, so having it again takes one tap.
-          </Text>
-        ) : (
-          <Fragment>
-            <Text style={styles.logAgainCaption}>Had one of these again? Tap it to log it now.</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.logAgainScroll}
-              contentContainerStyle={styles.logAgainRow}
-            >
-              {recent.map((meal) => {
-                const busy = relogBusyId === meal.id;
-                return (
-                  <TouchableOpacity
-                    key={meal.id}
-                    style={[
-                      styles.logAgainTile,
-                      { borderColor: foodColor },
-                      relogBusyId ? styles.logAgainTileDisabled : null,
-                    ]}
-                    onPress={() => handleLogAgain(meal)}
-                    activeOpacity={0.8}
-                    disabled={relogBusyId !== null}
-                  >
-                    <View style={styles.logAgainTileTop}>
-                      <Ionicons
-                        name={busy ? 'hourglass-outline' : 'repeat-outline'}
-                        size={16}
-                        color={foodColor}
-                        style={textShadow}
-                      />
-                      <Text style={[styles.logAgainTileName, { color: foodColor }]} numberOfLines={2}>
-                        {meal.name}
-                      </Text>
-                    </View>
-                    <Text style={styles.logAgainTileMeta} numberOfLines={1}>
-                      {describeRecentMeal(meal)}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
           </Fragment>
-        )}
+        ) : null}
       </View>
     );
   }
@@ -2121,12 +1947,22 @@ export default function HomeScreen() {
         title="What was this?"
         message="Pick one of your usual meals, or say what it was. The photo goes onto whatever you log, at the time it was taken."
         actions={[
-          ...(data?.recentMeals ?? []).slice(0, 4).map((meal) => ({
-            label: meal.name,
+          {
+            // Routed to the searchable list rather than offering a few guessed
+            // names: someone looking at a photo has to identify it, and four
+            // guesses are noise next to a list they can actually search.
+            label: '🍽 Pick from your meals',
             onPress: () => {
-              if (activeDraft) void handleDraftAsRecentMeal(activeDraft, meal);
+              const draft = activeDraft;
+              setActiveDraft(null);
+              if (draft) {
+                router.push({
+                  pathname: '/find-meal',
+                  params: { draftId: draft.id, photoUri: draft.photoUri, capturedAt: draft.capturedAt },
+                });
+              }
             },
-          })),
+          },
           {
             label: '🎤 Say what it was',
             onPress: () => {
@@ -2761,17 +2597,6 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
   },
-  logAgainTile: {
-    width: 152,
-    minHeight: 76,
-    justifyContent: 'space-between',
-    gap: 6,
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
   logAgainTileDisabled: { opacity: 0.5 },
   draftTile: {
     width: 104,
@@ -2783,24 +2608,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   draftThumb: { width: 84, height: 84, borderRadius: 8, backgroundColor: colors.border },
-  logAgainTileTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
-  logAgainTileName: { ...typography.bodyEmphasis, ...textShadow, flex: 1 },
   logAgainTileMeta: { ...typography.caption, ...textShadow, color: colors.textMuted },
-  logAgainBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  logAgainBannerText: { ...typography.caption, ...textShadow, flex: 1 },
-  logAgainBannerNote: { ...typography.caption, ...textShadow, flex: 1, color: colors.textMuted },
-  logAgainUndoButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  logAgainUndoText: { ...typography.caption, ...textShadow },
 
   fuelGaugesCard: {
     backgroundColor: colors.surface,

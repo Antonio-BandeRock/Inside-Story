@@ -27,6 +27,30 @@ The app is under active development and substantially built. Current state:
 
 
 
+**Most recent (2026-08-30, 1.0.31.7): the Log Again tile strip removed and replaced with a searchable list, a few hours after it shipped.** Direct steer, and it was right: "random meals being presented to possibly have them again doesn't make sense. It could be a shortcut to reschedule a past meal and they then see a standard scrollable list of meal names to choose from, with a search field to filter by a specific word rather than remembering what it was named in the app."
+
+
+
+**What was wrong with it, stated plainly.** The premise behind phase 1 (most logging is a repeat of something already logged) still holds; the presentation built on it did not. Eight tiles assumed the app knew someone was eating right then, which it cannot, and capped at eight with no search meant the moment the wanted meal was not among them there was no way to reach it at all. That is a weak feature holding prime space on the one screen someone opens first.
+
+
+
+**New `app/find-meal.tsx`**: every distinct meal already logged, plus every meal favorite, in one scrollable list with a search box. Search runs in SQL (`listRecentDistinctMeals` gained an optional query) rather than over the loaded page, so a name past the 300-row load cap is still reachable by typing it. Favorites sort first, on the reasoning that someone who deliberately saved one is more likely to be reaching for it.
+
+
+
+**Four actions per pick, all of which name a moment that actually happens:** log it now, log it earlier today (for catching up after the fact, using the same `buildTime24`/`describeTimeInputProblem` entry pattern Schedule already uses), schedule it for a date and time, and use it instead of a planned meal. That last one logs at the planned meal's own time and calls `markScheduledMealLogged`, so the slot reads as covered by what was actually eaten rather than sitting unresolved. One shared `logSelectedAt` does the writing for all of them, so they cannot drift apart: a past meal is copied by `relogMeal`, a favorite has no meal of its own to copy and goes through `createMealFromComponents`.
+
+
+
+**Home shed more than it gained.** The tiles, their undo banner, `handleLogAgain`, `handleUndoRelog`, `describeRecentMeal` and eight styles are gone, along with the `recentMeals` fetch on every Home load, which is one less query on the screen that opens first. The card is now three buttons (say it, photograph it, find it) and the waiting-photo strip. Finishing a photo routes to the same searchable list rather than offering four guessed names, which was the same wrong idea in miniature: someone looking at a photo has to identify it, and four guesses are noise next to a list they can search. The `logAgain` section key is deliberately unchanged despite the card being renamed, since saved preferences on real devices already carry that value and renaming it would silently reset the section for anyone who had moved or hidden it.
+
+
+
+`tsc` clean project-wide, `eslint` clean on every touched file (the one pre-existing unescaped-apostrophe error in `index.tsx` unchanged), bare-text audit at 0, spoken-parser test 19 of 19. **Not yet confirmed on-device**, and the checks that matter: search for a meal by a word in the middle of its name and confirm it comes back; log one earlier today and confirm it lands at the time entered rather than now; schedule one and confirm it appears on that date; and with something planned today, use a meal instead of it and confirm the planned one stops showing as still waiting.
+
+
+
 **Most recent (2026-08-30, 1.0.31.6): "Say What You Ate" pointed at what it is actually for, and quick-log phase 4, photograph now and log later. Item 21 is now closed in full.**
 
 

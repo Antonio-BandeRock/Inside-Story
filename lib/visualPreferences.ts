@@ -220,9 +220,12 @@ export type HomeSectionKey =
   | 'weather'
   | 'symptomCheckinReminder'
   | 'todaysCheckin'
-  // Quick-log phase 1, 2026-08-30 -- see Home's own renderLogAgain for
-  // why this sits high in the default order: it exists to make a repeat
-  // meal one tap, and a shortcut buried below the fold is not a shortcut.
+  // Quick-log, 2026-08-30 -- see Home's own renderLogAgain for why this sits
+  // high in the default order: it exists to get a meal logged in seconds, and
+  // a shortcut buried below the fold is not a shortcut. The key still reads
+  // logAgain because saved preferences on real devices already use that value;
+  // renaming it would silently reset the section for anyone who had moved or
+  // hidden it. Only the label people actually see has changed.
   | 'logAgain'
   | 'yourDay'
   | 'statTiles'
@@ -266,7 +269,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weather: 'Weather & Sunrise/Sunset',
   symptomCheckinReminder: 'Symptom Check-In Reminder',
   todaysCheckin: "Today's Check-In",
-  logAgain: 'Log Again (Repeat a Meal)',
+  logAgain: 'Log a Meal (Voice, Photo, Past Meals)',
   yourDay: 'Your Day (Schedule)',
   statTiles: 'Meals & Worth-a-Look Tiles',
   quickActions: 'Quick Action Shortcuts',

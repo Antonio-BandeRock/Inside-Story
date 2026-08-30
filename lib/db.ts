@@ -13109,8 +13109,17 @@ export type RecentMealSummary = {
 // because two meals sharing a name AND the same eaten_at minute (an easy
 // thing to do when re-logging quickly) would produce duplicate rows out of
 // that join, and a window function has no such tie problem.
-export async function listRecentDistinctMeals(limit = 8): Promise<RecentMealSummary[]> {
+// query, 2026-08-30: added when the Home tile strip this was built for was
+// replaced by a searchable list. Direct steer: "random meals being presented
+// to possibly have them again doesn't make sense... a standard scrollable
+// list of meal names to choose from, with a search field to filter by a
+// specific word rather than remembering what it was named in the app."
+// Filtering by name inside the window subquery is safe because the filter is
+// on the very column the partition groups by, so every row of a name group is
+// kept or dropped together and timesLogged stays a true lifetime count.
+export async function listRecentDistinctMeals(limit = 8, query?: string): Promise<RecentMealSummary[]> {
   const db = await getDatabase();
+  const trimmedQuery = query?.trim() ?? '';
   const rows = await db.getAllAsync<{
     id: string;
     name: string;
@@ -13131,11 +13140,13 @@ export async function listRecentDistinctMeals(limit = 8): Promise<RecentMealSumm
           ROW_NUMBER() OVER (PARTITION BY m.name ORDER BY m.eaten_at DESC, m.created_at DESC) AS rn,
           EXISTS (SELECT 1 FROM meal_components mc WHERE mc.meal_id = m.id) AS hasComponents
         FROM meals m
+        ${trimmedQuery ? 'WHERE m.name LIKE ?' : ''}
       )
       WHERE rn = 1
       ORDER BY eatenAt DESC
       LIMIT ?
     `,
+    ...(trimmedQuery ? [`%${trimmedQuery}%`] : []),
     limit,
   );
 

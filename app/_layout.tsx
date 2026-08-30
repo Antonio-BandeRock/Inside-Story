@@ -474,8 +474,17 @@ export default function RootLayout() {
               {/* 2026-08-16, the real barcode-scanning feature -- reached from
                   Food's own "My Foods" hub. Themed the same as every other
                   Stack screen. */}
-              {/* Quick-log phase 3, 2026-08-30 -- reached from Home's own Log
-                  Again card. Themed the same as every other Stack screen. */}
+              {/* Quick-log, 2026-08-30 -- both reached from Home's own Log a
+                  Meal card. Themed the same as every other Stack screen. */}
+              <Stack.Screen
+                name="find-meal"
+                options={{
+                  headerShown: true,
+                  title: "Find a Meal You've Had",
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
               <Stack.Screen
                 name="voice-log"
                 options={{
