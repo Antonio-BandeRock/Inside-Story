@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.31.12',
+    date: '2026-08-30',
+    changes: [
+      "The version number in the corner has lost its little background box, moved up 5 pixels, and now sits centred under the icon above it rather than off to its left.",
+      "The label under the corner menu icon looked like it had a dark patch behind it. It never had one: the drop shadow it used was built for the icon, and at that text size the blur pooled behind the letters instead of sitting under them. It now uses the ordinary shadow.",
+    ],
+  },
+  {
     version: '1.0.31.11',
     date: '2026-08-30',
     changes: [

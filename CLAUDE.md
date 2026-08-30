@@ -27,6 +27,26 @@ The app is under active development and substantially built. Current state:
 
 
 
+**Most recent (2026-08-30, 1.0.31.12): two corner-label backgrounds removed, and only one of them was actually a background.** Direct report: "a background was added behind the Digest tab LensHub menu name under the icon in the bottom left corner. It was also added to the version. Please remove both backgrounds and move the version number up by 5 pixels, and center it vertically on the tab icons that sit above it."
+
+
+
+**The version label genuinely had one.** It was added by the 2026-08-29 no-bare-text sweep, which was correct by that rule and wrong in effect: a fill on a 9px label floating in the corner reads as a badge. Removed, moved up 5px, and centred on the hub button's own axis. That last part fixed a latent bug worth noting: this label hardcoded `SECONDARY_HUB_CARD_LEFT_MARGIN` for its left edge, but the hub itself computes its real left through `useBottomLeftHubPosition`, which pulls further left on a narrow screen so the secondary hubs still clear the centre button. So on a narrow phone the version number was not under the icon it belongs to at all. It now reads both numbers from that same hook.
+
+
+
+**The corner menu label never had a background to remove.** What reads as one is `CORNER_ICON_SHADOW`, `rgba(0, 0, 0, 0.9)` at a 5px radius: right for the 32px icon above it, but on 11px text that blur pools into a dark patch behind the glyphs rather than sitting under them. This is the identical phenomenon as the 2026-08-29 report where `menuLabelShadow`'s own 4px blur on 11px text was called "bold and blurred" and turned out to be the shadow rather than the weight. Third time this class of thing has come up, and the pattern is now clear enough to state plainly: **a shadow tuned for a large glyph stops looking like a shadow on small text.** The icon keeps it; the label takes the ordinary `textShadow`.
+
+
+
+**The audit gained an allowlist rather than losing a rule.** Removing the version label's fill puts it in direct conflict with the standing no-bare-text rule and would have made `scripts/audit_bare_text_on_background.js` report 1 forever, which is how a check quietly stops being a check. It now carries a named `ALLOWED` list: an entry still gets counted and printed under "Allowed by name" with its reason, it just does not fail. The bar for adding one is written into the script itself: the text must already be legible without a fill, and the exception must have been asked for specifically.
+
+
+
+`tsc` clean project-wide, `eslint` clean on both touched components, bare-text audit back at 0 with 1 named exception. **Not yet confirmed on-device.**
+
+
+
 **Most recent (2026-08-30, 1.0.31.11): rows in Find a Meal expand to show their ingredients before anything is chosen.** Direct request: "when I tap find a meal the meals listed need to be able to expand to show the ingredients, and then have a button to choose what to do with it as it does when you select it now." A name alone often will not separate two similar meals, and picking one blind then backing out is worse than being able to look first.
 
 

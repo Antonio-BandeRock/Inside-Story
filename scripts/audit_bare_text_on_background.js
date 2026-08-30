@@ -53,6 +53,30 @@ const SURFACE_COMPONENTS = new Set([
 
 const ROOTS = ['app', 'components'];
 
+// Deliberate, named exceptions to the rule, each granted directly and each
+// carrying its own reason. An allowlist rather than deleting the finding,
+// because a check with silent holes in it stops being a check: anything here
+// still gets counted and printed under "allowed", it just does not fail.
+//
+// The bar for adding one: the text must already be legible without a fill (a
+// real drop shadow doing the work), and it must have been asked for
+// specifically. "It looked cluttered to me" is not enough on its own; that is
+// what the rule exists to prevent.
+const ALLOWED = [
+  {
+    file: 'components/VersionLabel.tsx',
+    reason:
+      '2026-08-30, direct request: "remove both backgrounds". The version label floats over every screen at 9px and a fill read as a badge in the corner. Legibility rests on textShadow, the same thing the two hub labels beside it rely on.',
+  },
+];
+
+function isAllowed(file) {
+  // Findings carry whatever separator the platform produced, so both sides are
+  // normalized before comparing rather than assuming forward slashes.
+  const normalized = String(file).split('\\').join('/');
+  return ALLOWED.some((entry) => normalized === entry.file || normalized.endsWith(entry.file));
+}
+
 function collectFiles(dir, out) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
@@ -274,16 +298,29 @@ for (const { file, sourceFile } of parsed) {
   visit(sourceFile);
 }
 
+const allowedFindings = findings.filter((finding) => isAllowed(finding.file));
+const findingsToReport = findings.filter((finding) => !isAllowed(finding.file));
+
 const byFile = new Map();
-for (const finding of findings) {
+for (const finding of findingsToReport) {
   if (!byFile.has(finding.file)) byFile.set(finding.file, []);
   byFile.get(finding.file).push(finding);
 }
 
 const sorted = [...byFile.entries()].sort((a, b) => b[1].length - a[1].length);
-console.log(`Bare <Text> on the tab background: ${findings.length} across ${sorted.length} files\n`);
+console.log(`Bare <Text> on the tab background: ${findingsToReport.length} across ${sorted.length} files\n`);
 for (const [file, list] of sorted) {
   console.log(`${list.length.toString().padStart(4)}  ${file}`);
+}
+
+if (allowedFindings.length > 0) {
+  console.log(`\nAllowed by name (${allowedFindings.length}), each granted directly:`);
+  for (const entry of ALLOWED) {
+    const count = allowedFindings.filter((finding) => finding.file.endsWith(entry.file)).length;
+    if (count === 0) continue;
+    console.log(`  ${entry.file}  (${count})`);
+    console.log(`      ${entry.reason}`);
+  }
 }
 
 if (process.argv[2]) {
