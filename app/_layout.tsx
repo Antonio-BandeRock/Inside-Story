@@ -494,6 +494,19 @@ export default function RootLayout() {
                   headerTintColor: colors.textPrimary,
                 }}
               />
+              {/* The Grocery List, 2026-09-01 -- reached from Home, from
+                  Schedule's own Shopping List lens, and from a barcode scan
+                  started inside a list. Themed like every other Stack
+                  screen. */}
+              <Stack.Screen
+                name="grocery-list"
+                options={{
+                  headerShown: true,
+                  title: 'Grocery List',
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
               <Stack.Screen
                 name="scan-product"
                 options={{

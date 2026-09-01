@@ -2531,6 +2531,7 @@ function capitalizeFirst(value: string): string {
 }
 
 function ShoppingListLens() {
+  const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [daysAhead, setDaysAhead] = useState(4);
   const [sections, setSections] = useState<ShoppingListSection[]>([]);
@@ -2557,6 +2558,22 @@ function ShoppingListLens() {
 
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {/* The Grocery List, 2026-09-01. This lens answers "what is coming
+          up" and recomputes every time it is opened, which is right for a
+          glance and wrong for a store: it keeps nothing, so it cannot be
+          checked off or priced. That is what the Grocery List screen is
+          for, and this is the door into it from the place someone is
+          already looking at the same ingredients. */}
+      <View style={styles.formCard}>
+        <Text style={styles.label}>Taking this shopping?</Text>
+        <Text style={styles.helperText}>
+          A grocery list writes this down and keeps it, so you can say how many people are eating, check things off in the aisle, and record what they cost.
+        </Text>
+        <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={() => router.push('/grocery-list')}>
+          <Text style={styles.primaryButtonText}>Make a Grocery List</Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.pillRow}>
         {SHOPPING_LIST_WINDOW_OPTIONS.map((option) => (
           <TouchableOpacity

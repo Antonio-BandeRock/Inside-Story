@@ -7,6 +7,13 @@ import { GatedTabContent } from '../../components/GatedTabContent';
 import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { LensHub, type LensOption } from '../../components/LensHub';
+import {
+  getGroceryPriceHistory,
+  listGroceryFoodSummaries,
+  type GroceryFoodSummary,
+  type GroceryPricePoint,
+} from '../../lib/groceryDb';
+import { formatMoney, groceryPriceUnitLabel } from '../../lib/groceryList';
 import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
@@ -60,7 +67,7 @@ import { CORE_NUTRIENT_CODES } from './index';
 // identity. Matches the same rule applied there, 2026-07-27.
 const TAB_COLOR = colors.tabTrends;
 
-type TrendsLens = 'nutrients' | 'sixDs' | 'symptoms' | 'eatingWindow' | 'weight' | 'labs' | 'patterns';
+type TrendsLens = 'nutrients' | 'sixDs' | 'symptoms' | 'eatingWindow' | 'weight' | 'labs' | 'groceries' | 'patterns';
 
 // Shared across all three lenses' own Info content below -- the same
 // caveat applies regardless of which chart you're looking at. Reworded
@@ -155,6 +162,29 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: 'Labs',
         body: "Pick a test to see every result you've logged for it, over time, with a dashed line at the midpoint of its typical reference range where one exists. Log new results from Insights' own Labs lens.",
+      },
+    ],
+  },
+  // The Grocery List, 2026-09-01. The half of that feature that was asked
+  // to feed Trends: what things cost, and how often they actually get
+  // bought. Both come straight out of grocery lists already shopped, so
+  // there is nothing extra to record for this to work.
+  {
+    key: 'groceries',
+    label: 'Grocery Prices',
+    icon: 'pricetag-outline',
+    help: [
+      {
+        heading: 'Where these numbers come from',
+        body: 'Every price you entered on a grocery list, plotted by the day you bought it. Nothing is estimated and nothing is looked up: if a price is here, you typed it or scanned it.',
+      },
+      {
+        heading: 'Foods are matched by name',
+        body: 'A grocery line is identified only by what it is called, so two spellings of the same food read as two separate foods here. That is deliberate rather than a limit worth papering over: guessing that two names mean the same thing would quietly merge two different price histories.',
+      },
+      {
+        heading: 'Prices per pound and per kilo',
+        body: 'A price entered per weight is charted as that unit price, not as what the line came to, since what you paid depends on how much you bought. A package price is charted as the package price. The unit is named under the chart so the two are never confused.',
       },
     ],
   },
@@ -359,6 +389,10 @@ export default function TrendsScreen() {
   const [labTests, setLabTests] = useState<LabTest[]>([]);
   const [selectedTestCode, setSelectedTestCode] = useState<string | null>(null);
   const [labSeries, setLabSeries] = useState<LabResultRecord[] | null>(null);
+  // The Grocery List, 2026-09-01.
+  const [groceryFoods, setGroceryFoods] = useState<GroceryFoodSummary[]>([]);
+  const [selectedGroceryFood, setSelectedGroceryFood] = useState<string | null>(null);
+  const [groceryPrices, setGroceryPrices] = useState<GroceryPricePoint[] | null>(null);
   const [patternWindow, setPatternWindow] = useState<PatternWindowHours>(24);
   const [patternResult, setPatternResult] = useState<PatternFinderResult | null>(null);
   const [startingTrialKey, setStartingTrialKey] = useState<string | null>(null);
@@ -469,6 +503,19 @@ export default function TrendsScreen() {
         setPatternResult(result);
         setLoading(false);
       });
+    } else if (lens === 'groceries') {
+      // The food list is loaded every time this lens opens rather than
+      // once per visit: a shopping trip finished a minute ago is exactly
+      // when someone comes looking, and a stale list would be missing the
+      // prices they just entered.
+      Promise.all([
+        listGroceryFoodSummaries(),
+        selectedGroceryFood ? getGroceryPriceHistory(selectedGroceryFood) : Promise.resolve(null),
+      ]).then(([foods, prices]) => {
+        setGroceryFoods(foods);
+        setGroceryPrices(prices);
+        setLoading(false);
+      });
     } else if (!selectedTestCode) {
       // Labs with nothing picked yet -- nothing real to fetch, matches the
       // same "loading" -> real empty-state shape the other lenses use once
@@ -484,7 +531,7 @@ export default function TrendsScreen() {
         setLoading(false);
       });
     }
-  }, [lens, days, resolvedRange, selectedNutrient, selectedTestCode, patternWindow, personalizationProfile]);
+  }, [lens, days, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, personalizationProfile]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
@@ -558,6 +605,14 @@ export default function TrendsScreen() {
   // focus effect above), so a fresh array on every render would otherwise
   // break PopoverSelect's own memo() bailout for no reason.
   const labTestOptions = useMemo(() => labTests.map((test) => ({ label: test.displayName, value: test.code })), [labTests]);
+  // Ordered by how often each food has actually been bought (see
+  // listGroceryFoodSummaries), so the things someone buys every week sit
+  // at the top of the picker rather than being alphabetized among
+  // one-off purchases.
+  const groceryFoodOptions = useMemo(
+    () => groceryFoods.map((food) => ({ label: food.foodName, value: food.foodName })),
+    [groceryFoods],
+  );
 
   const showsRangePicker = lens === 'nutrients' || lens === 'sixDs';
 
@@ -883,6 +938,65 @@ export default function TrendsScreen() {
                   );
                 })()
               )
+            ) : lens === 'groceries' ? (
+              <>
+                <PopoverSelect
+                  options={groceryFoodOptions}
+                  selected={selectedGroceryFood}
+                  onSelect={setSelectedGroceryFood}
+                  tabColor={TAB_COLOR}
+                  searchable
+                  placeholder="Pick a food..."
+                  minWidth={220}
+                />
+                {groceryFoods.length === 0 && !loading ? (
+                  <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>
+                    Nothing to chart yet. Prices show up here once you have entered some on a grocery list.
+                  </Text>
+                ) : !selectedGroceryFood ? (
+                  <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>Pick a food above to see what it has cost over time.</Text>
+                ) : loading ? (
+                  <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>Loading…</Text>
+                ) : (
+                  (() => {
+                    const summary = groceryFoods.find((food) => food.foodName === selectedGroceryFood);
+                    const rows = groceryPrices ?? [];
+                    const points = rows.map((row) => ({ date: row.date.slice(0, 10), value: row.price }));
+                    const { yMin, yMax } = paddedTrendRange(points.map((point) => point.value));
+                    const latest = rows.length > 0 ? rows[rows.length - 1] : null;
+                    // Named rather than assumed: a food priced per pound
+                    // on one trip and per package on another has two kinds
+                    // of number on one line, and saying so is more honest
+                    // than silently plotting them together as though they
+                    // were comparable.
+                    const units = Array.from(new Set(rows.map((row) => row.priceUnit ?? 'total')));
+                    return (
+                      <View style={[styles.chartCard, styles.spaced]}>
+                        <TrendLineChart
+                          points={points}
+                          yMin={yMin}
+                          yMax={yMax}
+                          valueFormatter={(value) => formatMoney(value)}
+                          emptyMessage="No prices recorded for this one yet. Enter what it cost on a grocery list and it will start charting here."
+                        />
+                        {latest ? (
+                          <Text style={styles.caption}>
+                            {`Most recently ${formatMoney(latest.price)} ${groceryPriceUnitLabel(latest.priceUnit ?? 'total')}`}
+                            {latest.storeName ? ` at ${latest.storeName}` : ''}
+                            {summary ? ` · on ${summary.timesListed} ${summary.timesListed === 1 ? 'list' : 'lists'} so far` : ''}
+                          </Text>
+                        ) : null}
+                        {units.length > 1 ? (
+                          <Text style={styles.caption}>
+                            These prices were not all entered the same way ({units.map((unit) => groceryPriceUnitLabel(unit)).join(', ')}), so the line mixes
+                            unit prices with package prices. Worth reading point by point rather than as one trend.
+                          </Text>
+                        ) : null}
+                      </View>
+                    );
+                  })()
+                )}
+              </>
             ) : lens === 'labs' ? (
               <>
                 <PopoverSelect

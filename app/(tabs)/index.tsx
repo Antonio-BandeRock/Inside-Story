@@ -80,6 +80,7 @@ import {
   findNutrientGaps,
   type NutrientGapEntry,
 } from '../../lib/nutrientAnalysis';
+import { getActiveGroceryListSummary, type GroceryListSummary } from '../../lib/groceryDb';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { getSixDimensionsFlagTrendSeries } from '../../lib/trendAnalysis';
 import { ALL_HOME_SECTION_KEYS, getOrderedHomeSectionKeys, isHomeSectionVisible, type HomeSectionKey } from '../../lib/visualPreferences';
@@ -407,6 +408,9 @@ type DashboardData = {
   // Quick-log phase 4, 2026-08-30 -- photos taken with the intent to log
   // something, not yet turned into a meal. See meal_photo_drafts in lib/db.ts.
   photoDrafts: MealPhotoDraft[];
+  // The Grocery List, 2026-09-01. Null when no list is being shopped,
+  // which is the ordinary state most days.
+  grocerySummary: GroceryListSummary | null;
   scheduledToday: ScheduleItemRecord[];
   nutrientEntries: NutrientGapEntry[];
   sixDsFlagCount: number;
@@ -808,6 +812,9 @@ export default function HomeScreen() {
       // append-only list. One indexed query over meals, no per-row work.
       // Quick-log phase 4, 2026-08-30.
       listMealPhotoDrafts(12),
+      // The Grocery List, 2026-09-01. One row plus one count, see
+      // getActiveGroceryListSummary.
+      getActiveGroceryListSummary(),
     ]).then(
       ([
         todaysMeals,
@@ -820,6 +827,7 @@ export default function HomeScreen() {
         feelingCheckin,
         recentAssessments,
         photoDrafts,
+        grocerySummary,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -844,6 +852,7 @@ export default function HomeScreen() {
         setData({
           todaysMeals,
           photoDrafts,
+          grocerySummary,
           scheduledToday,
           nutrientEntries,
           sixDsFlagCount,
@@ -1939,6 +1948,44 @@ export default function HomeScreen() {
     );
   }
 
+  // The Grocery List, 2026-09-01. Home is where this was asked to be
+  // reachable from, and it is the right place: a grocery list is opened on
+  // the way out the door, not by picking a tab and then a lens first.
+  //
+  // The card deliberately says almost nothing when there is no list being
+  // shopped, because most days there is not one. It grows into a real
+  // progress line only while a trip is actually underway.
+  function renderGroceryList() {
+    if (!isHomeSectionVisible(visualPrefs, 'groceryList')) return null;
+    const summary = data?.grocerySummary ?? null;
+    const scheduleColor = tabColorFor('/schedule');
+    const remaining = summary ? summary.itemCount - summary.checkedCount : 0;
+    return (
+      <View style={[styles.logAgainCard, { borderColor: scheduleColor }]}>
+        <CardLabel tabPath="/schedule" text="Grocery List" />
+        <Text style={styles.logAgainCaption}>
+          {summary
+            ? `${summary.checkedCount} of ${summary.itemCount} in the cart${remaining > 0 ? `, ${remaining} to go` : ''}.${
+                summary.list.storeName ? ` At ${summary.list.storeName}.` : ''
+              }`
+            : 'Turn the next few days of scheduled meals into a list you can shop from, priced and checked off as you go.'}
+        </Text>
+        <TouchableOpacity
+          style={[styles.logAgainSpeakButton, { borderColor: scheduleColor }]}
+          activeOpacity={0.8}
+          onPress={() =>
+            router.push(summary ? `/grocery-list?listId=${encodeURIComponent(summary.list.id)}` : '/grocery-list')
+          }
+        >
+          <Ionicons name="cart-outline" size={18} color={scheduleColor} style={textShadow} />
+          <Text style={[styles.logAgainSpeakText, { color: scheduleColor }]}>
+            {summary ? 'Open my grocery list' : 'Build a grocery list'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   // Single dispatcher rather than a Record<HomeSectionKey, fn> object --
   // this only ever gets called with a REORDERABLE_HOME_SECTION_KEYS
   // member (see getOrderedHomeSectionKeys), never 'weather' (which stays
@@ -1953,6 +2000,8 @@ export default function HomeScreen() {
         return renderTodaysCheckin();
       case 'logAgain':
         return renderLogAgain();
+      case 'groceryList':
+        return renderGroceryList();
       case 'yourDay':
         return renderYourDay();
       case 'statTiles':

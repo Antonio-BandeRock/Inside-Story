@@ -5359,6 +5359,72 @@ async function runDatabaseInitialization() {
         FOREIGN KEY (scanned_product_id) REFERENCES scanned_products(id) ON DELETE CASCADE
       );
 
+      -- --- Grocery list (2026-09-01) ------------------------------------
+      --
+      -- Named on 2026-08-30 as "our first real report". Deliberately its
+      -- own stored thing rather than an extension of the Schedule tab's
+      -- Shopping List lens, which recomputes from the schedule on every
+      -- focus and keeps nothing at all. That is right for a glance at
+      -- what is coming up and wrong for the job this does: a grocery list
+      -- is used standing in a shop, where the schedule behind it no
+      -- longer matters and a list that quietly rewrote itself mid-aisle
+      -- would be worse than no list. So it is written down once, then
+      -- lived with until it is done.
+      --
+      -- start_date/days_ahead/people_count record what the list was BUILT
+      -- from rather than being re-read later, so a list still says what it
+      -- was for after the schedule it came from has moved on.
+      -- people_count is a plain multiplier over every resolved quantity,
+      -- which is the correct model rather than a guess: every curated
+      -- recipe in this app was deliberately rescaled to a single person on
+      -- 2026-08-24, for exactly this reason ("The app can do the math to
+      -- increase the ingredients to accommodate for additional people").
+      CREATE TABLE IF NOT EXISTS grocery_lists (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        start_date TEXT NOT NULL,
+        days_ahead INTEGER NOT NULL,
+        people_count INTEGER NOT NULL,
+        store_name TEXT,
+        status TEXT NOT NULL DEFAULT 'active',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        completed_at TEXT
+      );
+
+      -- One row per thing to buy. quantity is what the scheduled dishes
+      -- actually need, already multiplied by people_count, kept in the
+      -- ingredient's own natural unit rather than converted to grams -- a
+      -- shopping list wants "3 apples", only the nutrient math wants grams
+      -- (see shoppingListItemsForMeal's own comment).
+      --
+      -- price/price_unit are what was actually paid, entered or scanned in
+      -- the shop, never estimated: 'each' or 'total' means the price
+      -- covers the whole line, 'lb'/'kg' means it is a unit price and the
+      -- line total depends on how much was actually bought. That is why
+      -- purchased_quantity is its own column rather than reusing quantity:
+      -- what a recipe needs and what a shop sells are routinely different
+      -- amounts, and overwriting the needed amount with the bought amount
+      -- would destroy the only number the list was built to carry.
+      CREATE TABLE IF NOT EXISTS grocery_list_items (
+        id TEXT PRIMARY KEY,
+        list_id TEXT NOT NULL,
+        category TEXT NOT NULL,
+        food_name TEXT NOT NULL,
+        unit TEXT NOT NULL,
+        quantity REAL NOT NULL,
+        checked INTEGER NOT NULL DEFAULT 0,
+        checked_at TEXT,
+        price REAL,
+        price_unit TEXT,
+        purchased_quantity REAL,
+        scanned_product_id INTEGER,
+        note TEXT,
+        added_manually INTEGER NOT NULL DEFAULT 0,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (list_id) REFERENCES grocery_lists(id) ON DELETE CASCADE,
+        FOREIGN KEY (scanned_product_id) REFERENCES scanned_products(id) ON DELETE SET NULL
+      );
+
       CREATE INDEX IF NOT EXISTS idx_meals_eaten_at ON meals(eaten_at);
       -- 2026-08-16, a real, confirmed gap found while chasing a still-slow
       -- Cooking & Prep report even after the N+1 fix above and a genuine
@@ -5384,6 +5450,10 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_garden_harvests_remaining ON garden_harvests(quantity_remaining);
       CREATE INDEX IF NOT EXISTS idx_garden_harvests_planting ON garden_harvests(planting_id);
       CREATE INDEX IF NOT EXISTS idx_scanned_product_prices_product ON scanned_product_prices(scanned_product_id);
+      CREATE INDEX IF NOT EXISTS idx_grocery_list_items_list ON grocery_list_items(list_id);
+      -- The price/usage trend reads every list ever made for one food by
+      -- name, so this is the index that query actually turns on.
+      CREATE INDEX IF NOT EXISTS idx_grocery_list_items_food ON grocery_list_items(food_name);
       CREATE INDEX IF NOT EXISTS idx_fermentation_batches_stage ON fermentation_batches(stage);
       CREATE INDEX IF NOT EXISTS idx_fermentation_harvests_remaining ON fermentation_harvests(quantity_remaining);
       CREATE INDEX IF NOT EXISTS idx_fermentation_harvests_batch ON fermentation_harvests(fermentation_batch_id);

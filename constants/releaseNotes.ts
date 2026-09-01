@@ -41,6 +41,19 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.1',
+    date: '2026-09-01',
+    changes: [
+      "New: a Grocery List, on the Home screen. Say how many days you are shopping for and how many people are eating, and it works out how much of every ingredient your scheduled meals need, then writes it down as a list you can take into a store.",
+      "The list stays put. It does not rebuild itself while you are shopping, so what you read in the aisle is what you read when you left the house.",
+      "Check things off as they go in the cart, and record what each one cost, either as a package price or per pound or kilo. A running total adds up as you go, and says plainly when a per-weight price is still waiting on a weight rather than guessing at one.",
+      "Scan a barcode from inside the list to add a product and its price, or to attach one to something already on the list.",
+      "Anything you remember in the aisle can be added by hand, and it groups together at the end rather than getting lost among the scheduled ingredients.",
+      "New Trends lens, Grocery Prices: pick a food and see what it has cost over time, and how often you have actually bought it. Built entirely from prices you entered yourself.",
+      "Schedule's own Shopping List now has a button to turn what it is showing into a real grocery list.",
+    ],
+  },
+  {
     version: '1.0.31.15',
     date: '2026-08-30',
     changes: [

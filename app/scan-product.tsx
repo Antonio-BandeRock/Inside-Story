@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Canvas, ColorMatrix, Image as SkiaImage, ImageFormat, useCanvasRef, useImage } from '@shopify/react-native-skia';
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import * as Speech from 'expo-speech';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -41,6 +41,7 @@ import {
   saveScannedProduct,
   type UserProfile,
 } from '../lib/db';
+import { addGroceryListItem, updateGroceryItemPurchase } from '../lib/groceryDb';
 import {
   inferMealTypeForTime,
   QUICK_LOG_MEAL_TYPES,
@@ -199,6 +200,14 @@ function chunkIntoRows<T>(items: T[], columns: number): T[][] {
 
 export default function ScanProductScreen() {
   const router = useRouter();
+  // A scan started from inside a grocery list (2026-09-01). Both are absent
+  // for every other way this screen is reached, which is what keeps the
+  // ordinary scan flow unchanged. groceryItemId names the line that asked
+  // for this product; without it the product becomes a new line of its own.
+  const { groceryListId, groceryItemId } = useLocalSearchParams<{
+    groceryListId?: string;
+    groceryItemId?: string;
+  }>();
   const scrollPadding = useFloatingButtonScrollPadding();
   // Real, device-measured bottom/top inset -- see the photo-capture render
   // branch below for why the shutter button needs this directly rather
@@ -840,6 +849,38 @@ export default function ScanProductScreen() {
     }
   }
 
+  // A scan started from inside a grocery list, 2026-09-01. The product is
+  // saved to My Processed Foods exactly as any other scan is; this is the
+  // extra step that puts it on the list that sent us here, either onto the
+  // line that asked for it or as a new line of its own.
+  //
+  // The price is recorded as 'total' because a scanned package carries one
+  // price for the package. A per-pound price is a shelf label, not a
+  // barcode, and is entered on the list itself where the weight can go with
+  // it.
+  async function applyToGroceryList(productId: number, price: number | null) {
+    if (!groceryListId) return;
+    if (groceryItemId) {
+      await updateGroceryItemPurchase(groceryItemId, {
+        scannedProductId: productId,
+        // Left alone rather than cleared when no price was entered, so
+        // skipping the price step never wipes one already on the line.
+        ...(price != null ? { price, priceUnit: 'total' as const } : {}),
+      });
+    } else {
+      await addGroceryListItem(groceryListId, {
+        foodName: name,
+        quantity: 1,
+        scannedProductId: productId,
+        price,
+        priceUnit: price != null ? 'total' : null,
+      });
+    }
+    // replace rather than push: the scanner has done its job, and leaving it
+    // on the stack would put a camera between the list and the back button.
+    router.replace(`/grocery-list?listId=${encodeURIComponent(groceryListId)}`);
+  }
+
   async function handleSavePrice() {
     const productId = savedProductId ?? existingProductId;
     if (productId == null) return;
@@ -848,10 +889,23 @@ export default function ScanProductScreen() {
     setSavingPrice(true);
     try {
       await recordScannedProductPrice({ scannedProductId: productId, price: parsed, photoUri: pricePhotoUri });
+      await applyToGroceryList(productId, parsed);
       setStatus('saved');
     } finally {
       setSavingPrice(false);
     }
+  }
+
+  // Skipping the price still puts the product on the list when the scan
+  // came from one. Someone scanning to remember which brand they picked up
+  // has done something worth keeping even without a number attached.
+  async function handleSkipPrice() {
+    const productId = savedProductId ?? existingProductId;
+    if (groceryListId && productId != null) {
+      await applyToGroceryList(productId, null);
+      return;
+    }
+    setStatus('saved');
   }
 
   // --- Render ---------------------------------------------------------
@@ -1468,7 +1522,11 @@ export default function ScanProductScreen() {
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
         <Ionicons name="checkmark-circle-outline" size={40} color={colors.accent} />
         <Text style={styles.title}>Added to My Processed Foods</Text>
-        <Text style={styles.text}>Take a photo of the price to track it here next time, so you can watch how it changes over time.</Text>
+        <Text style={styles.text}>
+          {groceryListId
+            ? 'Enter what it cost and it goes onto your grocery list with the price attached. The price is also kept here, so you can watch how it changes over time.'
+            : 'Take a photo of the price to track it here next time, so you can watch how it changes over time.'}
+        </Text>
         <TouchableOpacity
           style={[styles.primaryButton, capturingPrice ? styles.disabled : null]}
           activeOpacity={0.85}
@@ -1504,8 +1562,8 @@ export default function ScanProductScreen() {
         >
           <Text style={styles.primaryButtonText}>{savingPrice ? 'Saving…' : 'Save Price'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => setStatus('saved')}>
-          <Text style={styles.secondaryButtonText}>Skip for Now</Text>
+        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={handleSkipPrice}>
+          <Text style={styles.secondaryButtonText}>{groceryListId ? 'Add to My List Without a Price' : 'Skip for Now'}</Text>
         </TouchableOpacity>
       </ScrollView>
     );

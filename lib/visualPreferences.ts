@@ -227,6 +227,11 @@ export type HomeSectionKey =
   // renaming it would silently reset the section for anyone who had moved or
   // hidden it. Only the label people actually see has changed.
   | 'logAgain'
+  // The Grocery List, 2026-09-01. Sits beside the quick-log shortcut
+  // because both are things done in the moment rather than read: this
+  // one is opened standing in a store, and a shortcut below the fold is
+  // no shortcut at all.
+  | 'groceryList'
   | 'yourDay'
   | 'statTiles'
   | 'quickActions'
@@ -240,6 +245,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'symptomCheckinReminder',
   'todaysCheckin',
   'logAgain',
+  'groceryList',
   'yourDay',
   'statTiles',
   'quickActions',
@@ -270,6 +276,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   symptomCheckinReminder: 'Symptom Check-In Reminder',
   todaysCheckin: "Today's Check-In",
   logAgain: 'Log a Meal (Voice, Photo, Past Meals)',
+  groceryList: 'Grocery List',
   yourDay: 'Your Day (Schedule)',
   statTiles: 'Meals & Worth-a-Look Tiles',
   quickActions: 'Quick Action Shortcuts',

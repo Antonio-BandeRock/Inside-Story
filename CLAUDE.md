@@ -21,9 +21,29 @@ This file is the standing brief a new session reads automatically: current statu
 
 **Keep this file lean.** When a session finishes work, update the Status snapshot below in place and put the long-form account in the Notion log. Do not append to this file. That append-only habit is what grew the original to 2.05M characters and stopped Claude Code from responding at all.
 
-## Status snapshot (2026-08-30)
+## Status snapshot (2026-09-01)
 
 The app is under active development and substantially built. Current state:
+
+**Most recent (2026-09-01, 1.0.32.1): the Grocery List, the first item off the "named and not started" list from 2026-08-30.**
+
+**What was already there, and why it was not enough.** Schedule's Shopping List lens (2026-08-24) already aggregated ingredients across scheduled meals through `getUpcomingShoppingList`, and that function needed no changes. What it could not do is be shopped from: it recomputes on every focus and stores nothing, so there is nowhere to check anything off, nowhere to put a price, and no way to stop it rewriting itself between the house and the store. That lens is deliberately left exactly as it was, with one button added into the new screen, since "what is coming up" is a genuinely different question from "what am I buying right now".
+
+**Two new tables** (`grocery_lists`, `grocery_list_items`, both in `initializeDatabase`). A list records what it was BUILT from (start date, days, people) rather than re-reading the schedule later, so it still says what it was for after the schedule has moved on. `people_count` is a plain multiplier over every quantity, which is correct rather than a guess: every curated recipe was deliberately rescaled to one person on 2026-08-24 for exactly this reason.
+
+**`purchased_quantity` is its own column, separate from `quantity`.** What a recipe needs and what a store sells are routinely different amounts, and overwriting the needed amount with the bought amount would destroy the only number the list was built to carry.
+
+**The honesty rule this feature turns on:** a price the app cannot resolve returns null and is reported as missing, never guessed. A per-pound price with no weight entered is genuinely unknowable, and counting it as one pound would put a wrong number into a total someone is reading in a store to decide what they can afford. The running total says how many lines are still waiting on a weight. `scripts/test_grocery_list_math.js` (30 checks) gates this and every other money case, and its own failure output was verified by deliberately breaking the per-weight branch and confirming it reports and exits non-zero.
+
+**Three files rather than one:** `lib/groceryList.ts` is pure arithmetic with no database at all (which is what makes it testable), `lib/groceryDb.ts` is the reading and writing, kept out of `lib/db.ts` at 18,000 lines the same way `lib/dailyMealPlan.ts` already is, and `app/grocery-list.tsx` is the screen. The schema stays in `lib/db.ts`, since that is where the database is created.
+
+**Barcode scanning reuses the real scanner** rather than a second camera flow: `scan-product.tsx` takes two new optional params and, when they are present, puts the product either onto the line that asked for it or onto the list as a new line, then replaces the route back to the list. Skipping the price still adds the product, since scanning to remember which brand was picked up is worth keeping without a number attached. Every other way into that screen is unchanged.
+
+**Trends gained a Grocery Prices lens**, the "price and usage over time" half of the specification. Prices are matched by food NAME, which is the only identity a grocery line has (lines come from resolved recipe ingredients, a barcode, or someone typing in an aisle), and the match is exact rather than fuzzy so two spellings read as two foods. A food priced per pound on one trip and per package on another says so on screen rather than plotting two kinds of number as one trend.
+
+`tsc` clean project-wide, `eslint` clean on every new file and confirmed unchanged from the pre-existing baseline on the touched ones, bare-text audit at 0 with 2 named exceptions, both parser tests passing (30 and 30). Every new user-facing string confirmed present in the real exported bundle. **Not yet confirmed on-device**, and the checks that matter: build a list for 2 people and confirm the amounts are double what one person's schedule needs; check something off, close the app, reopen and confirm it is still checked; enter a per-pound price with no weight and confirm the total says it is waiting rather than counting it.
+
+**Named and not done:** the list does not yet know anything about what is already in the kitchen, so something bought two days ago appears again. Garden and fermentation harvests are both already tracked with a real remaining quantity, which is the obvious place that would come from.
 
 
 
