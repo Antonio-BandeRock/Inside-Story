@@ -194,11 +194,24 @@ export default function GroceryListScreen() {
 
   async function handleToggleChecked(item: GroceryListItemRecord) {
     if (!list) return;
+    const nowChecked = !item.checked;
+    // 2026-09-01, reported from a real shop: ticking something off never
+    // asked what it cost, and being asked at the end of the trip is no use
+    // because by then nobody remembers. The moment something goes in the
+    // cart is the one moment its price is known, so ticking it opens the
+    // price entry right there. Ignoring it and carrying on is fine; the tick
+    // is already saved either way.
+    if (nowChecked) {
+      setExpandedId(item.id);
+      setEditor(editorFromItem(item));
+    } else if (expandedId === item.id) {
+      setExpandedId(null);
+    }
     // Flipped locally first so a checkbox in a store responds to the thumb
     // rather than to the database, then reconciled from the real rows.
-    setItems((current) => current.map((row) => (row.id === item.id ? { ...row, checked: !row.checked } : row)));
+    setItems((current) => current.map((row) => (row.id === item.id ? { ...row, checked: nowChecked } : row)));
     try {
-      await setGroceryItemChecked(item.id, !item.checked);
+      await setGroceryItemChecked(item.id, nowChecked);
       await refreshItems(list.id);
     } catch {
       await refreshItems(list.id);
@@ -634,12 +647,21 @@ export default function GroceryListScreen() {
                       ) : null}
                       {item.note ? <Text style={styles.rowMeta}>{item.note}</Text> : null}
                     </TouchableOpacity>
-                    <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />
+                    <TouchableOpacity
+                      style={styles.expandHit}
+                      activeOpacity={0.85}
+                      onPress={() => handleExpand(item)}
+                      accessibilityLabel={expanded ? `Hide details for ${item.foodName}` : `Price or edit ${item.foodName}`}
+                    >
+                      <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={colors.textSecondary} />
+                    </TouchableOpacity>
                   </View>
 
                   {expanded ? (
                     <View style={styles.editorBlock}>
-                      <Text style={styles.editorLabel}>What did it cost?</Text>
+                      <Text style={styles.editorLabel}>
+                        {item.checked ? 'In the cart. What did it cost?' : 'What did it cost?'}
+                      </Text>
                       <View style={styles.priceRow}>
                         <Text style={styles.currency}>$</Text>
                         <AppTextInput
@@ -651,6 +673,9 @@ export default function GroceryListScreen() {
                           placeholderTextColor={colors.textMuted}
                         />
                       </View>
+                      <Text style={styles.editorLabel}>
+                        {item.soldAs ? `Sold ${item.soldAs}. If this one is priced differently, say so here:` : 'What does that price cover?'}
+                      </Text>
                       <View style={styles.pillRow}>
                         {GROCERY_PRICE_UNITS.map((unit) => (
                           <TouchableOpacity
@@ -697,8 +722,8 @@ export default function GroceryListScreen() {
                         <Text style={styles.secondaryButtonText}>Scan This Product</Text>
                       </TouchableOpacity>
                       <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => handleRemoveItem(item)}>
-                        <Ionicons name="trash-outline" size={18} color={colors.textSecondary} />
-                        <Text style={styles.secondaryButtonText}>Remove From List</Text>
+                        <Ionicons name="trash-outline" size={18} color={colors.danger} />
+                        <Text style={[styles.secondaryButtonText, { color: colors.danger }]}>Remove From List</Text>
                       </TouchableOpacity>
                     </View>
                   ) : null}
@@ -824,6 +849,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   itemRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10 },
+  // A real target rather than the glyph itself: this gets tapped one-handed,
+  // in an aisle, often while holding something.
+  expandHit: { paddingVertical: 8, paddingHorizontal: 6 },
   itemTextWrap: { flex: 1, gap: 2 },
   checkbox: {
     width: 26,

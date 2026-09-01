@@ -25,6 +25,20 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-01, 1.0.32.7): four things reported from using the grocery list in a real shop.**
+
+**The count never appeared, and the reasoning behind that was wrong.** Reported directly: "it says loose, by the piece, but it doesn't say, about 1, or about 2 or 3 of them. People don't know what 240 g of avocado is." The cause was a deliberate choice made on 1.0.32.4: the approximate count was stored only when the list was for one person, on the reasoning that multiplying "about 2 avocados" by four is arithmetic on an already-rounded number. That reasoning was right and the conclusion was wrong. Dividing the SCALED weight by the unit weight gives the answer directly with nothing rounded on the way: 480 g over a 150 g avocado is three. `ShoppingListItem` now carries the pieces the count is worked out from, and both insert paths recompute after scaling. Traced against the reported case: 240 g reads as about 2 avocados, 480 g as about 3.
+
+**The arrow did nothing, and that explains two of the other three reports.** It was a bare `Ionicons` sitting outside the row's touchable, so it looked like a control and was not one. Everything behind it (the price entry, the price-unit choice, Remove From List) was therefore unreachable, which is why the report also said there was no way to remove an item. It is now a real target with its own padding, sized for a thumb in an aisle rather than the glyph alone.
+
+**Pricing moved to the moment it happens.** "They need to add the price per unit right then as they are crossing it off." Correct, and the old flow was worse than merely inconvenient: a price is known for about two seconds, while the thing is in your hand. Ticking an item now opens the price entry immediately; ignoring it and carrying on is fine, since the tick is saved either way.
+
+**Priced differently from what the app assumed** was already handled by the price-unit pills and was simply behind the dead arrow. They now carry a line naming what the app expected ("Sold by the head. If this one is priced differently, say so here") rather than sitting unlabelled.
+
+`tsc` clean project-wide, `eslint` clean on every touched file, bare-text audit at 0, all three suites passing (30, 52, 29).
+
+**The honest limit, unchanged and worth restating:** only **6 of the 212** ingredients can show a count, because `food_unit_weights` covers apple, avocado, banana, orange, pear and egg and nothing else. Broccoli still reads "340 g, by the head" rather than "about 1 head". Closing that is the unit-weight batch already named as open, and every row of it needs a real source rather than a plausible number.
+
 **Most recent (2026-09-01, 1.0.32.6): deleting a grocery list, and the retroactive correction of saved dishes.** Two direct requests in one message.
 
 **Delete, with the warning spelled out rather than gestured at.** The confirm names three things, and the second is the one nobody could guess from the word "delete": the list cannot be recovered; any prices recorded on it go too, and those points disappear from the Grocery Prices lens in Trends, because that lens is built entirely out of `grocery_list_items`; and a finished list is the only record of that shopping trip. The count of priced lines is read from the list itself, so the warning states the real number rather than a general caution. Built on the existing `AppActionSheet` destructive-confirm pattern rather than a new one.

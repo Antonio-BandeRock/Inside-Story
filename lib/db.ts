@@ -11593,9 +11593,18 @@ export type ShoppingListItem = {
   // bottle"), from food_purchase_forms. Empty for anything the batch does not
   // cover, which is every ingredient outside the curated recipes.
   soldAs: string;
-  // "about 2 avocados", where a cited unit weight exists to divide by. Null
-  // otherwise, rather than a guess: see describeApproximateCount.
+  // "about 2 avocados", for a single-person list. Null where no cited unit
+  // weight exists to divide by, rather than a guess.
   approxAmount: string | null;
+  // The pieces the count is worked out FROM, carried through so a list built
+  // for more than one person can work it out again from its own scaled
+  // amount. 2026-09-01: the first version stored only the finished string and
+  // dropped it entirely once head count was above one, so a list for two
+  // people said "loose, by the piece" and never said how many. The fix is to
+  // divide the scaled weight, not to multiply a number already rounded.
+  unitLabel: string;
+  unitLabelPlural: string;
+  gramsPerUnit: number | null;
 };
 
 export type ShoppingListSection = {
@@ -11805,6 +11814,9 @@ export async function getUpcomingShoppingList(daysAhead: number = 4): Promise<Sh
             extraAmounts: merged.extras,
             mealNames: Array.from(group.meals),
             soldAs: form?.soldAs ?? '',
+            unitLabel: form?.unitLabel ?? '',
+            unitLabelPlural: form?.unitLabelPlural ?? '',
+            gramsPerUnit: form?.gramsPerUnit ?? null,
             approxAmount: form
               ? describeApproximateCount(
                   merged.primary.quantity,

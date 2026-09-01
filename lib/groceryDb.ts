@@ -12,7 +12,12 @@
 // lib/groceryList.ts, separately again, so it can be reasoned about and
 // tested with no database at all.
 import { getDatabase, getUpcomingShoppingList } from './db';
-import { defaultGroceryListName, GROCERY_PRICE_UNITS, type GroceryPriceUnit } from './groceryList';
+import {
+  defaultGroceryListName,
+  describeApproximateCount,
+  GROCERY_PRICE_UNITS,
+  type GroceryPriceUnit,
+} from './groceryList';
 
 // Its own category so anything added in the store groups together at the
 // end of the list rather than being scattered through categories that came
@@ -179,12 +184,22 @@ export async function createGroceryListFromSchedule(input: {
         JSON.stringify(item.extraAmounts.map((extra) => ({ ...extra, quantity: extra.quantity * peopleCount }))),
         JSON.stringify(item.mealNames),
         item.soldAs || null,
-        // Deliberately not scaled by head count. It was worked out from the
-        // one-person amount, and multiplying "about 2 avocados" by four people
-        // would be arithmetic on a rounded number. The gram figure beside it is
-        // the one that scales, so a wrong-looking count is better avoided than
-        // computed twice.
-        peopleCount === 1 ? item.approxAmount : null,
+        // Worked out from the SCALED weight rather than by multiplying the
+        // one-person count. 2026-09-01: the first version dropped the count
+        // entirely above one person, on the reasoning that multiplying a
+        // rounded number is bad arithmetic. That reasoning was right and the
+        // conclusion was wrong: dividing 480 g by a 150 g avocado gives three
+        // directly, with nothing rounded on the way. Reported plainly from a
+        // real list: "it says loose, by the piece, but it doesn't say, about 1,
+        // or about 2 or 3 of them."
+        describeApproximateCount(
+          item.quantity * peopleCount,
+          item.unit,
+          item.foodName,
+          item.unitLabel,
+          item.unitLabelPlural,
+          item.gramsPerUnit,
+        ),
       );
       sortOrder += 1;
     }
@@ -586,7 +601,14 @@ export async function rebuildGroceryListFromSchedule(listId: string): Promise<Gr
         JSON.stringify(item.extraAmounts.map((extra) => ({ ...extra, quantity: extra.quantity * list.peopleCount }))),
         JSON.stringify(item.mealNames),
         item.soldAs || null,
-        list.peopleCount === 1 ? item.approxAmount : null,
+        describeApproximateCount(
+          item.quantity * list.peopleCount,
+          item.unit,
+          item.foodName,
+          item.unitLabel,
+          item.unitLabelPlural,
+          item.gramsPerUnit,
+        ),
         prior?.checked ? 1 : 0,
         prior?.checkedAt ?? null,
         prior?.price ?? null,

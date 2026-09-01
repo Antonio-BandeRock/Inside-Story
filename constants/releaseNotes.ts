@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.7',
+    date: '2026-09-01',
+    changes: [
+      "Fixed: a list built for more than one person showed no count at all, so it said \"loose, by the piece\" without saying how many. It now works the count out from the full amount, so 480 g of avocado reads as about 3 avocados.",
+      "The arrow on the right of each item works now. It opened nothing before, which is why there seemed to be no way to price or remove anything.",
+      "Ticking something off now opens the price entry straight away, while you are standing there with it. Being asked at the end of the trip was no use. Ignore it and carry on if you would rather; the tick is saved either way.",
+      "If something is priced differently from what the app expected, say so on that same panel: for all of it, each, per pound or per kilo.",
+      "Remove From List is on the same panel, and now reads as a removal rather than an ordinary button.",
+    ],
+  },
+  {
     version: '1.0.32.6',
     date: '2026-09-01',
     changes: [
