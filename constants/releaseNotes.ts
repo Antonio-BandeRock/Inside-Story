@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.8',
+    date: '2026-09-01',
+    changes: [
+      "The grocery list now tells you how many to pick up for 29 more foods. About 2 stalks of broccoli, about 3 cloves of garlic, about 2 onions, about 1 bunch of spinach, about 6 spears of asparagus.",
+      "Every weight comes from USDA's published portion data and is stored with the exact food and portion it came from, so nothing here is a guess. Where the wording differs from what you might expect, it is because it matches the source: broccoli is counted in stalks rather than heads.",
+      "Four foods were looked at and deliberately left without a count, because the only figures published for them are for the wrong thing: sun-dried tomatoes, baby zucchini, fried tofu, and a single 2 g rocket leaf.",
+      "This update reloads the food database, so the first launch after it will take longer than usual. Only once.",
+    ],
+  },
+  {
     version: '1.0.32.7',
     date: '2026-09-01',
     changes: [

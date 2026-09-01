@@ -25,6 +25,24 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-01, 1.0.32.8): the unit-weight batch, so the list can say how many to pick up.** Closes the piece named as open since 1.0.32.4, asked for directly after a real shop: "People don't know what 240 g of avocado is... Is it 1 avocado, 1 large avocado, or?"
+
+**The source was already on disk.** USDA FoodData Central's SR Legacy release sits in `ClaudeWork/` from the original database build, and its `food_portion.csv` is exactly this: a portion description and its gram weight. Better still, the join is EXACT rather than fuzzy: this app's reference database keeps USDA rows under their original description ("Broccoli, raw"), which is the same string `food.csv` carries. No name guessing anywhere.
+
+**A dead end recorded before that.** The FDA's raw-produce chart looked like one authoritative source for many weights at once; its URLs 404 after a site reorganization, and its figures are SERVING sizes rather than "one item you buy" (broccoli 148 g is a stalk-sized serving, not a head). Precise and wrong, so abandoned.
+
+**`scripts/extract_usda_unit_weights.py` reports candidates and writes nothing**, deliberately, so the picks are made by eye rather than by whichever regex matched first. **That review is the part that earned its keep:** the only tomato portion in the entire release is a 2 g piece of SUN-DRIED tomato, and the only zucchini is a BABY zucchini at 11 g. Taking those automatically would have told someone to buy 120 tomatoes.
+
+**29 weights added by `scripts/add_usda_unit_weights.py`**, each carrying the exact USDA food description and portion label in its citation. Three rules shaped every pick: the raw row wins where there is one, since that is the state a thing is bought in; medium wins over small and large; and **USDA's own word becomes the unit label**, so broccoli is counted in "stalks" rather than "heads" because that is what the source says and a citation should name the thing it cites. Garlic is counted in cloves rather than bulbs, since a recipe asks for cloves even though a bulb is what gets bought.
+
+**Four foods were reviewed and deliberately left without a weight**, recorded in the script itself so the reasoning survives rather than reading as an oversight: Arugula (a 2 g leaf), Tomato, Squash zucchini, Tofu.
+
+**36 of 212 ingredients can now show a count**, up from 6. Traced against real amounts: 340 g of broccoli reads "about 2 stalks", 9 g of garlic "about 3 cloves", 170 g of spinach "about 1 bunch", 96 g of asparagus "about 6 spears".
+
+`tsc` clean project-wide, all three suites passing (30, 52, 29), bare-text audit at 0. **`REFERENCE_DB_VERSION` bumped again**, so this forces another one-time re-import. That is the second today, and worth saying plainly rather than letting a slow launch look like a fault.
+
+**Still open:** the remaining 176 have no whole-item portion in SR Legacy at all, which is a real limit of that release rather than a gap in the work. Most are things nobody counts anyway (flour, oats, spices, fish), but some genuinely countable ones are missing and would need a different source.
+
 **Most recent (2026-09-01, 1.0.32.7): four things reported from using the grocery list in a real shop.**
 
 **The count never appeared, and the reasoning behind that was wrong.** Reported directly: "it says loose, by the piece, but it doesn't say, about 1, or about 2 or 3 of them. People don't know what 240 g of avocado is." The cause was a deliberate choice made on 1.0.32.4: the approximate count was stored only when the list was for one person, on the reasoning that multiplying "about 2 avocados" by four is arithmetic on an already-rounded number. That reasoning was right and the conclusion was wrong. Dividing the SCALED weight by the unit weight gives the answer directly with nothing rounded on the way: 480 g over a 150 g avocado is three. `ShoppingListItem` now carries the pieces the count is worked out from, and both insert paths recompute after scaling. Traced against the reported case: 240 g reads as about 2 avocados, 480 g as about 3.

@@ -138,4 +138,4 @@
 // not just theoretically available. Back to "20260827080000" -- the same
 // real value batch3 originally set, restoring the genuine version bump
 // this catalog's own real content has always needed, not a new number.
-export const REFERENCE_DB_VERSION = "20260901120000";
+export const REFERENCE_DB_VERSION = "20260901180000";
