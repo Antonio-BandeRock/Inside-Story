@@ -1507,6 +1507,12 @@ export function MealBuilder({
             dimensionBreakdown={reportData.dimensionBreakdown}
             declaredStages={declaredStages}
             conditionsWithStagingModel={conditionsWithStagingModel}
+            // Empty on purpose: every component of a meal was built in one of
+            // the ingredient builders, where this same check already ran and
+            // was already shown. The flattened list a meal works from no longer
+            // carries which reference row each ingredient resolved to, so
+            // recomputing it here would mean guessing.
+            prepMismatchNotes={[]}
             onSetStage={(code, name) => setStagePickerFor({ code, name })}
             stageNotes={reportData.stageNotes}
             tabColor={tabColor}

@@ -16,6 +16,12 @@ import {
   mergeShoppingAmounts,
   type AmountEntry,
 } from './groceryList';
+import {
+  cookingMethodIntent,
+  describePrepMismatch,
+  isRawPrepMethod,
+  preferredPrepMethodFor,
+} from './cookingMethodResolution';
 // Type-only -- lib/recipeDepth.ts imports several real functions FROM this
 // file (getFoodScores, getFoodScoresForCondition, getConditionStages), so
 // this stays a type-only import specifically to avoid a real circular
@@ -1716,6 +1722,108 @@ async function resolveNonRawPrepMethodMatch(category: string, baseName: string, 
   const lowerCooking = cookingMethod.toLowerCase();
   const exact = rows.find((r) => r.prep_method && lowerCooking.includes(r.prep_method.toLowerCase()));
   return toFoodOption(exact ?? rows[0]);
+}
+
+
+// 2026-09-01 -- makes a builder ingredient's stated cooking method decide
+// which reference row it is actually scored against, rather than leaving that
+// to a separate answer given earlier in FoodLookup's own prep picker.
+//
+// See lib/cookingMethodResolution.ts for the full account of the bug. In
+// short: every builder asks about preparation twice and only the first answer
+// reached the data, so an ingredient picked raw and then marked Boiled kept
+// raw nutrients on a boiled dish.
+//
+// This is the live counterpart of what resolveNonRawPrepMethodMatch above
+// already does for curated recipes (2026-08-27). Same reasoning, same
+// fallback: an exact prep match where one exists, any cooked row otherwise,
+// and the row left exactly as it is when the database has nothing better,
+// with a note saying so rather than a silent shrug.
+export type CookingMethodResolution = {
+  foodId: number;
+  source: string;
+  prepMethod: string | null;
+  // True only when this actually points at a different row than it was given,
+  // so a caller can leave its own state alone in the common case.
+  changed: boolean;
+  // Set only when the database has no row matching the stated method, so the
+  // numbers genuinely describe a different preparation. Null when they agree.
+  mismatchNote: string | null;
+};
+
+export async function resolveFoodForCookingMethod(
+  current: {
+    category: string;
+    subcategory: string | null;
+    baseName: string;
+    prepMethod: string | null;
+    foodId: number;
+    source: string;
+  },
+  cookingMethod: string | null,
+): Promise<CookingMethodResolution> {
+  const unchanged = (mismatchNote: string | null = null): CookingMethodResolution => ({
+    foodId: current.foodId,
+    source: current.source,
+    prepMethod: current.prepMethod,
+    changed: false,
+    mismatchNote,
+  });
+
+  const intent = cookingMethodIntent(cookingMethod);
+  if (intent === 'unconstrained') return unchanged();
+
+  const db = await getReferenceDatabase();
+  // Scoped by category and base name only, deliberately not subcategory: a
+  // food's cooked row is not always filed under the same subcategory as its
+  // raw one, and losing the match over that would send every such ingredient
+  // down the "no cooked version exists" path wrongly.
+  const rows = await db.getAllAsync<{
+    food_id: number;
+    source: string;
+    prep_method: string | null;
+  }>(
+    `SELECT food_id, source, prep_method FROM foods
+     WHERE category = ? AND base_name = ? AND hidden = 0
+     ORDER BY CASE WHEN source IN ('USDA', 'Derived') THEN 0 ELSE 1 END, food_id`,
+    current.category,
+    current.baseName,
+  );
+  if (rows.length === 0) return unchanged();
+
+  const pick = (row: { food_id: number; source: string; prep_method: string | null }): CookingMethodResolution => ({
+    foodId: row.food_id,
+    source: row.source,
+    prepMethod: row.prep_method,
+    changed: row.food_id !== current.foodId || row.source !== current.source,
+    mismatchNote: null,
+  });
+
+  if (intent === 'raw') {
+    if (isRawPrepMethod(current.prepMethod)) return unchanged();
+    const raw = rows.find((row) => isRawPrepMethod(row.prep_method));
+    if (raw) return pick(raw);
+    return unchanged(describePrepMismatch(current.baseName, current.prepMethod, cookingMethod));
+  }
+
+  const cookedRows = rows.filter((row) => !isRawPrepMethod(row.prep_method));
+  if (cookedRows.length === 0) {
+    // The honest case: this food has no cooked row at all. The ingredient
+    // keeps the row it has, and the note is what stops the two answers
+    // contradicting each other in silence.
+    return unchanged(describePrepMismatch(current.baseName, current.prepMethod, cookingMethod));
+  }
+
+  const preferred = preferredPrepMethodFor(cookingMethod);
+  const exact = preferred
+    ? cookedRows.find((row) => (row.prep_method ?? '').toLowerCase().includes(preferred.toLowerCase()))
+    : undefined;
+  // An exact match wins. Failing that, a cooked row this ingredient is
+  // already on is kept rather than swapped for a different cooked row for no
+  // reason, since the two score the same and churning the id would make an
+  // edited dish look changed when nothing about it was.
+  const alreadyCooked = cookedRows.find((row) => row.food_id === current.foodId && row.source === current.source);
+  return pick(exact ?? alreadyCooked ?? cookedRows[0]);
 }
 
 async function resolveCuratedRecipeIngredient(

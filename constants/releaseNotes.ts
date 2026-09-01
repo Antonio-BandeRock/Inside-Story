@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.3',
+    date: '2026-09-01',
+    changes: [
+      "Fixed a real problem with nutrition numbers: how you said you were going to cook an ingredient had no effect on the nutrients counted for it. Every builder asked about preparation twice, once in the ingredient search and once as Cook Prep, and only the first answer reached the data. Pick broccoli raw, set it to Boiled, and you got raw broccoli's numbers on a boiled dish.",
+      "The Cook Prep you choose now decides which version of the food gets counted. Boiled means the boiled version, raw means the raw one. This changes nutrients, condition scores and everything built on them, in all eleven Food builders.",
+      "Where the food database has no cooked version of something, the report now says so plainly instead of leaving two answers quietly disagreeing.",
+    ],
+  },
+  {
     version: '1.0.32.2',
     date: '2026-09-01',
     changes: [

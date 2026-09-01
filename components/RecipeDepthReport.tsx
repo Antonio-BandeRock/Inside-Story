@@ -55,6 +55,15 @@ export type RecipeDepthReportProps = {
   // a condition with a real model but nothing declared yet gets a real
   // prompt instead of just missing information.
   conditionsWithStagingModel: Set<string>;
+  // 2026-09-01. One line per ingredient whose scored reference row
+  // describes a different preparation from the one stated for it, which
+  // happens when this database has no row for that food cooked. Empty in
+  // the ordinary case, where the row and the stated method agree.
+  //
+  // Here rather than on the ingredient list itself because this screen is
+  // the one that explains what the numbers above it are actually based on,
+  // and a caveat about the numbers belongs with them.
+  prepMismatchNotes: string[];
   // Opens a real, in-place stage picker (see SideBuilder.tsx's own
   // stagePickerFor) rather than sending the person to Profile -- this
   // screen has no way to know whether a real navigation away and back
@@ -100,6 +109,7 @@ export function RecipeDepthReport({
   dimensionBreakdown,
   declaredStages,
   conditionsWithStagingModel,
+  prepMismatchNotes,
   onSetStage,
   stageNotes,
   tabColor,
@@ -189,6 +199,23 @@ export function RecipeDepthReport({
         </View>
       ) : null}
 
+
+      {/* 2026-09-01. Only rendered when something actually disagrees, so a
+          dish whose ingredients all resolved cleanly says nothing extra. */}
+      {prepMismatchNotes.length > 0 ? (
+        <View style={styles.card}>
+          <Text style={styles.cardLabel}>What These Numbers Are Based On</Text>
+          <Text style={styles.bodyText}>
+            The rest of this report uses the closest match this food database has. For these, that is a different
+            preparation from the one you chose:
+          </Text>
+          {prepMismatchNotes.map((note, index) => (
+            <Text key={index} style={styles.bodyText}>
+              {note}
+            </Text>
+          ))}
+        </View>
+      ) : null}
       <View style={styles.buttonRow}>
         <TouchableOpacity style={[styles.secondaryButton, styles.buttonHalf, { borderColor: tabColor }]} onPress={onGoBack} disabled={saving}>
           <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Go Back and Adjust</Text>

@@ -15,6 +15,7 @@ import {
   getCuratedRecipe,
   getFoodIdentity,
   getFoodScores,
+  resolveFoodForCookingMethod,
   getNutrientChartDataForIngredients,
   getNutritionHighlightsForIngredients,
   getBakedGoods,
@@ -48,6 +49,7 @@ import { DimensionFlags } from './DimensionFlags';
 import { SourceFallbackNote } from './SourceFallbackNote';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useConfirmSheet } from './ConfirmSheet';
+import { describePrepMismatch } from '../lib/cookingMethodResolution';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { StepsEditor } from './StepsEditor';
@@ -1173,7 +1175,7 @@ export function BakedGoodsBuilder({
   //                again, indefinitely, until the person chooses 'finish'.
   //   'finish'  -> saves the whole baked good (see finishBakedGoods above) and resets
   //                the builder to a blank new baked good.
-  function saveIngredient(then: 'add-new' | 'finish') {
+  async function saveIngredient(then: 'add-new' | 'finish') {
     if (!pendingResolved || !quantity || !unit || !ingredientCutPrep || !ingredientCookingMethod) {
       // Names only what's actually still missing, in the order the fields
       // appear on screen -- same approach as the baked good form's own Continue.
@@ -1187,8 +1189,28 @@ export function BakedGoodsBuilder({
       return;
     }
     dismissKeyboard();
+    // 2026-09-01 -- the cooking method stated for this ingredient is what
+    // decides which reference row it gets scored against, rather than that
+    // being settled earlier and separately by the prep answer given in the
+    // ingredient search. See lib/cookingMethodResolution.ts for why both
+    // questions existed and only one of them ever reached the data.
+    const reconciled = await resolveFoodForCookingMethod(pendingResolved, ingredientCookingMethod);
+    const resolvedForIngredient = reconciled.changed
+      ? {
+          ...pendingResolved,
+          foodId: reconciled.foodId,
+          source: reconciled.source,
+          prepMethod: reconciled.prepMethod,
+        }
+      : pendingResolved;
+    // The scores on screen were fetched for the row picked in the search.
+    // If the row moved, they describe a different food and have to be
+    // fetched again rather than carried across with it.
+    const scoresForIngredient = reconciled.changed
+      ? await getFoodScores(reconciled.foodId, reconciled.source)
+      : pendingScores;
     const newIngredient: BakedGoodsIngredient = {
-      resolved: pendingResolved,
+      resolved: resolvedForIngredient,
       quantity,
       unit,
       cookingMethod: ingredientCookingMethod,
@@ -1198,7 +1220,7 @@ export function BakedGoodsBuilder({
       // ingredientPrepSteps' own comment above for why no schema change
       // was needed for this.
       prepNote: ingredientPrepSteps.join('\n'),
-      scores: pendingScores,
+      scores: scoresForIngredient,
     };
     const allIngredients = [...ingredients, newIngredient];
     setIngredients(allIngredients);
@@ -1473,6 +1495,11 @@ export function BakedGoodsBuilder({
             dimensionBreakdown={reportData.dimensionBreakdown}
             declaredStages={declaredStages}
             conditionsWithStagingModel={conditionsWithStagingModel}
+            prepMismatchNotes={ingredients
+              .map((ingredient) =>
+                describePrepMismatch(ingredient.resolved.baseName, ingredient.resolved.prepMethod, ingredient.cookingMethod),
+              )
+              .filter((note): note is string => note !== null)}
             onSetStage={(code, name) => setStagePickerFor({ code, name })}
             stageNotes={reportData.stageNotes}
             tabColor={tabColor}
