@@ -1744,6 +1744,10 @@ export type CookingMethodResolution = {
   foodId: number;
   source: string;
   prepMethod: string | null;
+  // What a saved ingredient should be called once it points here. Short name
+  // where the database has one, base name otherwise, the same choice
+  // resolveCuratedRecipeIngredientUncached already makes for a built recipe.
+  displayName: string;
   // True only when this actually points at a different row than it was given,
   // so a caller can leave its own state alone in the common case.
   changed: boolean;
@@ -1767,6 +1771,7 @@ export async function resolveFoodForCookingMethod(
     foodId: current.foodId,
     source: current.source,
     prepMethod: current.prepMethod,
+    displayName: current.baseName,
     changed: false,
     mismatchNote,
   });
@@ -1783,8 +1788,10 @@ export async function resolveFoodForCookingMethod(
     food_id: number;
     source: string;
     prep_method: string | null;
+    short_name: string | null;
+    base_name: string;
   }>(
-    `SELECT food_id, source, prep_method FROM foods
+    `SELECT food_id, source, prep_method, short_name, base_name FROM foods
      WHERE category = ? AND base_name = ? AND hidden = 0
      ORDER BY CASE WHEN source IN ('USDA', 'Derived') THEN 0 ELSE 1 END, food_id`,
     current.category,
@@ -1792,10 +1799,17 @@ export async function resolveFoodForCookingMethod(
   );
   if (rows.length === 0) return unchanged();
 
-  const pick = (row: { food_id: number; source: string; prep_method: string | null }): CookingMethodResolution => ({
+  const pick = (row: {
+    food_id: number;
+    source: string;
+    prep_method: string | null;
+    short_name: string | null;
+    base_name: string;
+  }): CookingMethodResolution => ({
     foodId: row.food_id,
     source: row.source,
     prepMethod: row.prep_method,
+    displayName: row.short_name ?? row.base_name,
     changed: row.food_id !== current.foodId || row.source !== current.source,
     mismatchNote: null,
   });
@@ -1825,6 +1839,181 @@ export async function resolveFoodForCookingMethod(
   // edited dish look changed when nothing about it was.
   const alreadyCooked = cookedRows.find((row) => row.food_id === current.foodId && row.source === current.source);
   return pick(exact ?? alreadyCooked ?? cookedRows[0]);
+}
+
+
+// --- Correcting dishes saved before the cooking method decided the row ------
+//
+// 2026-09-01, asked for directly after the fix shipped: "Yes, re-resolve the
+// existing saved dishes."
+//
+// 1.0.32.3 made an ingredient's stated Cook Prep decide which reference row it
+// is scored against, but only as an ingredient is ADDED. Every dish saved
+// before that kept the row chosen by the separate prep answer in the
+// ingredient search, so a side marked Boiled has gone on being scored against
+// raw broccoli. This is the one-time pass that corrects them.
+//
+// Deliberately scoped to SAVED DISHES, the eleven builder tables. meal_items,
+// the record of what was actually eaten, is left alone: correcting it would
+// rewrite past days' nutrient totals and trends that someone may already have
+// read and acted on, and that is a decision to put to a person rather than
+// make on their behalf during a launch.
+const COOKING_METHOD_REPAIR_KEY = 'cooking_method_reresolve_v1';
+
+const INGREDIENT_TABLES = [
+  'side_ingredients',
+  'salad_ingredients',
+  'smoothie_ingredients',
+  'fermentation_ingredients',
+  'beverage_ingredients',
+  'snack_ingredients',
+  'baked_goods_ingredients',
+  'soup_ingredients',
+  'sauce_ingredients',
+  'handheld_ingredients',
+  'dessert_ingredients',
+] as const;
+
+export type CookingMethodRepairResult = {
+  corrected: number;
+  checked: number;
+  alreadyDone: boolean;
+};
+
+// Runs at most once. Guarded through app_meta rather than a schema check,
+// since nothing about the schema changes here, only the rows.
+//
+// Every failure is swallowed rather than thrown: this is a correction running
+// behind an app someone is trying to open, and a database hiccup here must
+// never be the reason the app will not start. See this project's own 2026-08-28
+// cold-start investigation for why that matters more than it sounds.
+export async function reresolveSavedDishCookingMethods(): Promise<CookingMethodRepairResult> {
+  const db = await getDatabase();
+  const done = await db.getFirstAsync<{ value: string }>(
+    'SELECT value FROM app_meta WHERE key = ?',
+    COOKING_METHOD_REPAIR_KEY,
+  );
+  if (done) return { corrected: 0, checked: 0, alreadyDone: true };
+
+  let corrected = 0;
+  let checked = 0;
+  try {
+    type Candidate = {
+      table: string;
+      id: string;
+      foodId: string;
+      foodName: string;
+      category: string | null;
+      cookingMethod: string;
+    };
+
+    const candidates: Candidate[] = [];
+    for (const table of INGREDIENT_TABLES) {
+      const rows = await db.getAllAsync<{
+        id: string;
+        food_id: string | null;
+        food_name: string;
+        category: string | null;
+        cooking_method: string;
+      }>(
+        `SELECT id, food_id, food_name, category, cooking_method FROM ${table} WHERE food_id IS NOT NULL`,
+      );
+      for (const row of rows) {
+        // Only rows whose stated method actually implies something. 'N/A' and
+        // the handful with no counterpart in this database's prep vocabulary
+        // leave the row alone, exactly as they do for a newly added
+        // ingredient.
+        if (cookingMethodIntent(row.cooking_method) === 'unconstrained') continue;
+        if (!row.food_id) continue;
+        candidates.push({
+          table,
+          id: row.id,
+          foodId: row.food_id,
+          foodName: row.food_name,
+          category: row.category,
+          cookingMethod: row.cooking_method,
+        });
+      }
+    }
+    if (candidates.length === 0) {
+      await db.runAsync(
+        `INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+         ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+        COOKING_METHOD_REPAIR_KEY,
+        '0',
+        new Date().toISOString(),
+      );
+      return { corrected: 0, checked: 0, alreadyDone: false };
+    }
+
+    // Each distinct food resolved once, not once per row: a household's dishes
+    // repeat the same handful of ingredients many times over.
+    const identities = new Map<string, { baseName: string; prepMethod: string | null; category: string } | null>();
+    const reference = await getReferenceDatabase();
+    for (const candidate of candidates) {
+      if (identities.has(candidate.foodId)) continue;
+      const [idPart, source] = candidate.foodId.split('|');
+      const numericId = Number(idPart);
+      if (!source || Number.isNaN(numericId) || source === 'Scanned') {
+        // A scanned product has no prep variants to choose between at all.
+        identities.set(candidate.foodId, null);
+        continue;
+      }
+      const row = await reference.getFirstAsync<{ baseName: string; prepMethod: string | null; category: string }>(
+        'SELECT base_name AS baseName, prep_method AS prepMethod, category FROM foods WHERE food_id = ? AND source = ?',
+        numericId,
+        source,
+      );
+      identities.set(candidate.foodId, row ?? null);
+    }
+
+    const resolutions = new Map<string, CookingMethodResolution | null>();
+    for (const candidate of candidates) {
+      const identity = identities.get(candidate.foodId);
+      if (!identity) continue;
+      checked += 1;
+      const [idPart, source] = candidate.foodId.split('|');
+      const key = `${identity.category}|${identity.baseName}|${candidate.cookingMethod}|${candidate.foodId}`;
+      let resolution = resolutions.get(key);
+      if (resolution === undefined) {
+        resolution = await resolveFoodForCookingMethod(
+          {
+            category: identity.category,
+            subcategory: null,
+            baseName: identity.baseName,
+            prepMethod: identity.prepMethod,
+            foodId: Number(idPart),
+            source,
+          },
+          candidate.cookingMethod,
+        );
+        resolutions.set(key, resolution);
+      }
+      if (!resolution || !resolution.changed) continue;
+      await db.runAsync(
+        `UPDATE ${candidate.table} SET food_id = ?, food_name = ? WHERE id = ?`,
+        `${resolution.foodId}|${resolution.source}`,
+        resolution.displayName,
+        candidate.id,
+      );
+      corrected += 1;
+    }
+
+    await db.runAsync(
+      `INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+      COOKING_METHOD_REPAIR_KEY,
+      String(corrected),
+      new Date().toISOString(),
+    );
+  } catch (error) {
+    console.warn('[db] Could not re-resolve saved dish cooking methods', error);
+    // Deliberately NOT marked done, so a run that failed part way through gets
+    // another attempt next launch rather than leaving dishes half corrected
+    // forever. The update itself is idempotent: a row already pointing at the
+    // right food resolves to the same one and reports no change.
+  }
+  return { corrected, checked, alreadyDone: false };
 }
 
 async function resolveCuratedRecipeIngredient(

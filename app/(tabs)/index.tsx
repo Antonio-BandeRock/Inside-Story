@@ -81,6 +81,7 @@ import {
   type NutrientGapEntry,
 } from '../../lib/nutrientAnalysis';
 import { getActiveGroceryListSummary, type GroceryListSummary } from '../../lib/groceryDb';
+import { reresolveSavedDishCookingMethods } from '../../lib/db';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { getSixDimensionsFlagTrendSeries } from '../../lib/trendAnalysis';
 import { ALL_HOME_SECTION_KEYS, getOrderedHomeSectionKeys, isHomeSectionVisible, type HomeSectionKey } from '../../lib/visualPreferences';
@@ -922,6 +923,31 @@ export default function HomeScreen() {
   // components/InfoAlert.tsx's own comment on exactly this), so adding
   // this to the focus effect's dependency array below cannot reintroduce
   // the refetch loop fixed there on 2026-08-28.
+  // 2026-09-01, asked for directly: "Yes, re-resolve the existing saved
+  // dishes." The 1.0.32.3 fix made Cook Prep decide which food row an
+  // ingredient is scored against, but only as one is added, so dishes saved
+  // before it kept the wrong row. This runs the one-time correction and says
+  // what it changed, because it is a change to records someone made
+  // themselves and going quiet about that would be the wrong call.
+  //
+  // Placed alongside announceAppliedUpdate for the same reason: this is the
+  // one moment per launch that is already past the loading gate.
+  const repairSavedDishes = useCallback(async () => {
+    try {
+      const result = await reresolveSavedDishCookingMethods();
+      if (result.alreadyDone || result.corrected === 0) return;
+      showInfoAlert(
+        'Saved dishes corrected',
+        `${result.corrected} ingredient${result.corrected === 1 ? '' : 's'} across your saved dishes ` +
+          `${result.corrected === 1 ? 'was' : 'were'} being counted as the wrong preparation, and ${result.corrected === 1 ? 'has' : 'have'} been corrected to match the Cook Prep you chose. ` +
+          'Nutrients and condition scores for those dishes will read differently from now on, because they are now reading the right food. ' +
+          'Meals already logged are untouched: correcting those would rewrite days you have already seen.',
+      );
+    } catch (error) {
+      console.warn('repairSavedDishes failed', error);
+    }
+  }, [showInfoAlert]);
+
   const announceAppliedUpdate = useCallback(async () => {
     try {
       const previousVersion = await getLastSeenAppVersion();
@@ -955,6 +981,7 @@ export default function HomeScreen() {
         // What's New popup lands over a ready Home screen instead of
         // racing the loading gate and appearing behind it.
         void announceAppliedUpdate();
+        void repairSavedDishes();
         // 2026-08-16: the real fix for "the loading bar... was put in
         // place to hide the loading time of the home screen." Signals
         // app/_layout.tsx's own startup gate that Home's own first real
@@ -964,7 +991,7 @@ export default function HomeScreen() {
         markHomeDataReady();
         scrollRef.current?.scrollTo({ y: 0, animated: false });
       });
-    }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope, announceAppliedUpdate]),
+    }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope, announceAppliedUpdate, repairSavedDishes]),
   );
 
   // Plain useEffect (mount-once), not useFocusEffect -- this is meant to

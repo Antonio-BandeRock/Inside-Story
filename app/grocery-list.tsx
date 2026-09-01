@@ -18,6 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppActionSheet } from '../components/AppActionSheet';
 import { AppTextInput } from '../components/AppTextInput';
 import { useInfoAlert } from '../components/InfoAlert';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -26,6 +27,7 @@ import { textShadow, typography } from '../constants/typography';
 import {
   addGroceryListItem,
   createGroceryListFromSchedule,
+  deleteGroceryList,
   deleteGroceryListItem,
   getActiveGroceryList,
   getGroceryList,
@@ -103,6 +105,7 @@ export default function GroceryListScreen() {
   const [storeName, setStoreName] = useState('');
 
   // Per-item editor
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editor, setEditor] = useState<EditorState>(BLANK_EDITOR);
 
@@ -292,6 +295,50 @@ export default function GroceryListScreen() {
     } finally {
       setBusy(false);
     }
+  }
+
+  // 2026-09-01, asked for directly, including the warning: a list cannot be
+  // recovered, and a finished one takes its whole record with it.
+  //
+  // That second part is the one worth spelling out rather than gesturing at.
+  // Prices live on the list itself (see grocery_list_items), and the Grocery
+  // Prices lens in Trends is built entirely out of them, so deleting a
+  // shopped list also removes those points from the price history. Someone
+  // tidying up old lists would have no way to know that from the word
+  // "delete" alone.
+  async function handleDeleteList() {
+    if (!list) return;
+    setConfirmDeleteOpen(false);
+    setBusy(true);
+    try {
+      await deleteGroceryList(list.id);
+      setList(null);
+      setItems([]);
+      setExpandedId(null);
+      setMode('setup');
+      setHistory(await listGroceryLists());
+    } catch (error) {
+      setErrorMessage(`Could not delete the list: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function deleteWarningMessage(): string {
+    const priced = items.filter((item) => item.price != null).length;
+    const parts = [
+      'This cannot be undone. The list and everything on it goes for good.',
+    ];
+    if (priced > 0) {
+      parts.push(
+        `The ${priced} price${priced === 1 ? '' : 's'} recorded on it will go too, and ${priced === 1 ? 'that point' : 'those points'} will disappear from Grocery Prices in Trends.`,
+      );
+    }
+    if (list?.status === 'completed') {
+      parts.push('This list is already finished, so this is the only record of that shopping trip.');
+    }
+    parts.push('Building a new list does not bring any of it back.');
+    return parts.join(' ');
   }
 
   async function handleFinish() {
@@ -526,6 +573,15 @@ export default function GroceryListScreen() {
             <Ionicons name="barcode-outline" size={18} color={colors.textSecondary} />
             <Text style={styles.secondaryButtonText}>Scan a Product</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.secondaryButton, busy && styles.disabled]}
+            activeOpacity={0.85}
+            onPress={() => setConfirmDeleteOpen(true)}
+            disabled={busy}
+          >
+            <Ionicons name="trash-outline" size={18} color={colors.danger} />
+            <Text style={[styles.secondaryButtonText, { color: colors.danger }]}>Delete List</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={[styles.secondaryButton, busy && styles.disabled]} activeOpacity={0.85} onPress={handleFinish} disabled={busy}>
             <Ionicons name={list?.status === 'active' ? 'checkmark-done-outline' : 'refresh-outline'} size={18} color={colors.textSecondary} />
             <Text style={styles.secondaryButtonText}>{list?.status === 'active' ? 'Finish Shopping' : 'Reopen List'}</Text>
@@ -689,6 +745,16 @@ export default function GroceryListScreen() {
           <Text style={styles.secondaryButtonText}>Start a New List</Text>
         </TouchableOpacity>
       </ScrollView>
+      <AppActionSheet
+        visible={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
+        title={`Delete ${list?.name ?? 'this list'}?`}
+        message={deleteWarningMessage()}
+        actions={[
+          { label: 'Delete It', onPress: handleDeleteList, destructive: true },
+          { label: 'Keep It', onPress: () => setConfirmDeleteOpen(false) },
+        ]}
+      />
       {infoAlertElement}
     </View>
   );

@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.6',
+    date: '2026-09-01',
+    changes: [
+      "You can delete a grocery list now. It asks first, and it tells you exactly what goes with it: the list cannot be recovered, any prices recorded on it go too and disappear from Grocery Prices in Trends, and if the list was already finished it is the only record of that shopping trip.",
+      "Dishes you saved before the Cook Prep fix have been corrected. An ingredient marked Boiled but counted as raw is now counted as boiled, across every saved side, salad, soup and the rest. The app tells you once, on opening, how many were corrected.",
+      "Meals you have already logged are left exactly as they are. Correcting those would rewrite days you have already seen and acted on, which is not something to do without asking.",
+    ],
+  },
+  {
     version: '1.0.32.5',
     date: '2026-09-01',
     changes: [
