@@ -444,6 +444,19 @@ export default function GroceryListScreen() {
     router.push(`/scan-product?groceryListId=${encodeURIComponent(list.id)}&groceryItemId=${encodeURIComponent(item.id)}`);
   }
 
+  // 2026-09-01: opened from the line it is about, so the comparison knows
+  // what is being compared and can put the winner straight back on the list.
+  function handleComparePrices(item: GroceryListItemRecord) {
+    if (!list) return;
+    const params = new URLSearchParams({
+      listId: list.id,
+      itemId: item.id,
+      foodName: item.foodName,
+      form: item.purchaseForm ?? '',
+    });
+    router.push(`/price-compare?${params.toString()}`);
+  }
+
   function handleScanNewItem() {
     if (!list) return;
     router.push(`/scan-product?groceryListId=${encodeURIComponent(list.id)}`);
@@ -845,6 +858,10 @@ export default function GroceryListScreen() {
                       <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => handleScanForItem(item)}>
                         <Ionicons name="barcode-outline" size={18} color={colors.textSecondary} />
                         <Text style={styles.secondaryButtonText}>Scan This Product</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => handleComparePrices(item)}>
+                        <Ionicons name="swap-horizontal-outline" size={18} color={colors.textSecondary} />
+                        <Text style={styles.secondaryButtonText}>Compare Brands</Text>
                       </TouchableOpacity>
                       <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => handleRemoveItem(item)}>
                         <Ionicons name="trash-outline" size={18} color={colors.danger} />

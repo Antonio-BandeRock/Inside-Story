@@ -65,6 +65,8 @@ const {
   parsePriceInput,
   describeUnitPrice,
   purchaseSizeUnitFor,
+  comparePrices,
+  unitPriceLabelFor,
 } = loadModule('groceryList');
 
 let failures = 0;
@@ -384,6 +386,61 @@ check('volume sizes are millilitres', purchaseSizeUnitFor('volume', 'metric'), '
 check('volume sizes are fluid ounces in imperial', purchaseSizeUnitFor('volume', 'imperial'), 'fl oz');
 check('weight sizes are grams', purchaseSizeUnitFor('weight', 'metric'), 'g');
 check('weight sizes are ounces in imperial', purchaseSizeUnitFor('weight', 'imperial'), 'oz');
+
+// --- Two bottles on a shelf -------------------------------------------------
+//
+// 2026-09-01: the sum people try to do in their head and mostly get wrong,
+// because the bigger bottle is not reliably the cheaper one.
+
+const OIL = [
+  { label: 'Big bottle', price: 15.9, size: 750 },
+  { label: 'Small bottle', price: 8.0, size: 250 },
+];
+check('the cheaper one per litre is found', comparePrices(OIL, 'volume', 'metric').map((r) => r.isBest), [true, false]);
+check('both are quoted per litre', comparePrices(OIL, 'volume', 'metric').map((r) => r.display), [
+  '$21.20 per litre',
+  '$32.00 per litre',
+]);
+check('and it says how much dearer', comparePrices(OIL, 'volume', 'metric')[1].dearerByPercent, 51);
+
+// The case the tool exists for: the bigger one is NOT the better buy.
+const TRAP = [
+  { label: 'Family size', price: 12.0, size: 1000 },
+  { label: 'Regular', price: 5.0, size: 500 },
+];
+check('a bigger bottle is not always cheaper', comparePrices(TRAP, 'volume', 'metric').map((r) => r.isBest), [false, true]);
+
+// Nothing is called best until there is something to be better than.
+check(
+  'one filled row wins nothing',
+  comparePrices([{ label: '', price: 4, size: 500 }, { label: '', price: null, size: null }], 'volume', 'metric').map((r) => r.isBest),
+  [false, false],
+);
+check(
+  'an empty comparison is not a crash',
+  comparePrices([], 'volume', 'metric'),
+  [],
+);
+// A genuine tie: both are the best buy, since neither is worse.
+check(
+  'a tie makes both best',
+  comparePrices([{ label: 'a', price: 4, size: 400 }, { label: 'b', price: 8, size: 800 }], 'volume', 'metric').map((r) => r.isBest),
+  [true, true],
+);
+// Weight, and imperial, use the same machinery.
+check(
+  'cheese compares per kilo',
+  comparePrices([{ label: 'a', price: 6, size: 500 }, { label: 'b', price: 10, size: 1000 }], 'weight', 'metric').map((r) => r.display),
+  ['$12.00 per kg', '$10.00 per kg'],
+);
+check(
+  'imperial compares per fluid ounce',
+  comparePrices([{ label: 'a', price: 12, size: 25 }], 'volume', 'imperial')[0].display,
+  '$0.48 per fl oz',
+);
+
+check('the comparison unit is named for metric volume', unitPriceLabelFor('volume', 'metric'), 'per litre');
+check('and for imperial weight', unitPriceLabelFor('weight', 'imperial'), 'per oz');
 if (failures > 0) {
   console.error(`\nGrocery list math: ${failures} of ${checks} checks failed.`);
   process.exit(1);

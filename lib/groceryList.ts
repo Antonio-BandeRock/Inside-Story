@@ -478,15 +478,11 @@ export function describeUnitPrice(
     return `${formatMoney(line.price)} each`;
   }
   // Priced for all of it, so the size is what turns it into a comparison.
-  const size = line.purchasedQuantity;
-  if (size == null || size <= 0) return null;
-  const perSmallUnit = line.price / size;
-  if (system === 'imperial') {
-    const unit = form === 'volume' ? 'per fl oz' : 'per oz';
-    return `${formatMoney(perSmallUnit)} ${unit}`;
-  }
-  const unit = form === 'volume' ? 'per litre' : 'per kg';
-  return `${formatMoney(perSmallUnit * 1000)} ${unit}`;
+  // The same sum the shelf comparison tool does, so the two can never
+  // disagree about what a thing works out to.
+  const unitPrice = unitPriceFor(line.price, line.purchasedQuantity, form, system);
+  if (unitPrice == null) return null;
+  return `${formatMoney(unitPrice)} ${unitPriceLabelFor(form, system)}`;
 }
 
 // --- Sale prices ------------------------------------------------------------
@@ -502,4 +498,86 @@ export function describeUnitPrice(
 // it keeps both facts: what was paid, and that it was not the usual price.
 export function describeSaleLabel(onSale: boolean): string {
   return onSale ? 'On sale' : 'Normal price';
+}
+
+// --- Comparing two brands on the shelf --------------------------------------
+//
+// 2026-09-01, and the reasoning behind the request is the point of it: "I like
+// the advice on pricing it per liter, but they won't know that unless they
+// have a tool they can use to compare pricing per amount. That could be very
+// useful in comparing pricing between competitive brands."
+//
+// Right. Quoting a price per litre on a line already priced is useful after
+// the fact; it does nothing at the moment of choosing, standing in front of
+// two bottles of different sizes at different prices. This is the sum people
+// try to do in their head and mostly get wrong, because the bigger bottle is
+// not reliably the cheaper one.
+
+// The comparable number: price per litre or per kilo in metric, per fluid
+// ounce or per ounce in imperial. Null wherever it cannot honestly be worked
+// out, which is any row still being filled in.
+export function unitPriceFor(
+  price: number | null,
+  size: number | null,
+  form: PurchaseForm | null | undefined,
+  system: 'metric' | 'imperial',
+): number | null {
+  if (price == null || size == null || size <= 0 || price < 0) return null;
+  const perSmallUnit = price / size;
+  // Metric sizes are entered in millilitres and grams, so the readable
+  // comparison is a thousand of them. Imperial units are already the size
+  // people compare on and are left alone. See describeUnitPrice.
+  return system === 'imperial' ? perSmallUnit : perSmallUnit * 1000;
+}
+
+export function unitPriceLabelFor(
+  form: PurchaseForm | null | undefined,
+  system: 'metric' | 'imperial',
+): string {
+  if (system === 'imperial') return form === 'volume' ? 'per fl oz' : 'per oz';
+  return form === 'volume' ? 'per litre' : 'per kg';
+}
+
+export type PriceComparisonInput = {
+  label: string;
+  price: number | null;
+  size: number | null;
+};
+
+export type PriceComparisonRow = {
+  label: string;
+  unitPrice: number | null;
+  display: string | null;
+  // True for the cheapest per unit, and for a genuine tie. Only ever set once
+  // at least two rows can actually be compared, since being the cheapest of
+  // one thing means nothing.
+  isBest: boolean;
+  // How much dearer than the cheapest, as a percentage. Null for the cheapest
+  // itself and for anything not yet comparable.
+  dearerByPercent: number | null;
+};
+
+export function comparePrices(
+  rows: PriceComparisonInput[],
+  form: PurchaseForm | null | undefined,
+  system: 'metric' | 'imperial',
+): PriceComparisonRow[] {
+  const label = unitPriceLabelFor(form, system);
+  const unitPrices = rows.map((row) => unitPriceFor(row.price, row.size, form, system));
+  const comparable = unitPrices.filter((value): value is number => value != null && value > 0);
+  const cheapest = comparable.length >= 2 ? Math.min(...comparable) : null;
+
+  return rows.map((row, index) => {
+    const unitPrice = unitPrices[index];
+    return {
+      label: row.label,
+      unitPrice,
+      display: unitPrice == null ? null : `${formatMoney(unitPrice)} ${label}`,
+      isBest: cheapest != null && unitPrice != null && unitPrice === cheapest,
+      dearerByPercent:
+        cheapest != null && unitPrice != null && unitPrice > cheapest
+          ? Math.round(((unitPrice - cheapest) / cheapest) * 100)
+          : null,
+    };
+  });
 }

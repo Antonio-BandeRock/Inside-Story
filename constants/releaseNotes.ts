@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.11',
+    date: '2026-09-01',
+    changes: [
+      "New: Compare Brands, on every grocery list item. Put in what two or more of them cost and how big each one is, and it works out the price per litre or per kilo for each and marks the best value, with how much dearer the others are.",
+      "It exists because a bigger bottle is not reliably the cheaper one, and that is a sum most people get wrong standing in an aisle. A $12 litre is dearer per litre than a $5 half-litre.",
+      "Prices can be said or photographed off the shelf label there too, the same as on the list itself.",
+      "Opened from a list item, it comes back with the winner's price and size already on your list, so a comparison ends with the list being right rather than a number to remember.",
+    ],
+  },
+  {
     version: '1.0.32.10',
     date: '2026-09-01',
     changes: [

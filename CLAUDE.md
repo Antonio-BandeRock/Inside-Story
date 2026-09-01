@@ -25,6 +25,20 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-01, 1.0.32.11): Compare Brands, the tool that makes the per-litre advice usable.** Asked for with its own reasoning attached: "I like the advice on pricing it per liter, but they won't know that unless they have a tool they can use to compare pricing per amount. That could be very useful in comparing pricing between competitive brands."
+
+**That is the right criticism of what shipped in 1.0.32.10.** Quoting a price per litre on a line already bought is useful after the fact. It does nothing at the moment that matters, which is standing in front of two bottles at different prices in different sizes, and that is a sum most people get wrong: **a $12 litre is dearer per litre than a $5 half-litre**, and the bigger bottle is not reliably the cheaper one.
+
+**New `app/price-compare.tsx`**, reached from Compare Brands on any list line. Two rows to start since a comparison needs two, more addable since a shelf often has four. Each takes an optional brand name, a price, and a size; every row is quoted per litre or per kilo, the cheapest is marked Best value, and everything else says how much dearer it is as a percentage. Prices can be said or photographed there too, reusing exactly what the list itself uses.
+
+**The comparison ends on the list rather than in someone's memory.** Opened from a line, "Put the Best Value on My List" writes the winner's price and size straight back to it, with the brand kept as the line's note.
+
+**Two honesty rules, both tested.** Nothing is called best until at least two rows can actually be compared, since being the cheapest of one thing means nothing. And a genuine tie marks both as best rather than picking one arbitrarily, because neither is worse than the other.
+
+**One deduplication worth noting:** `describeUnitPrice` on the list and the comparison tool now run the same `unitPriceFor`, so the two can never disagree about what a bottle works out to. They were briefly two copies of the same sum, which is exactly the drift this project keeps having to unpick elsewhere.
+
+`scripts/test_grocery_list_math.js` grew from 83 checks to 94. Failure output verified by letting a single filled row call itself best, and confirming it reports and exits non-zero. `tsc` clean project-wide, `eslint` clean on every touched file, bare-text audit at 0, all three suites passing (30, 94, 29). No reference-database change, so no re-import.
+
 **Most recent (2026-09-01, 1.0.32.10): sale prices recorded as sales, and a bottle that can finally be compared against another bottle.** Two reports.
 
 **"There needs to be an indicator they can select noting it was a sale, and not normal price. This goes in to the trends for pricing of things over time."** The reason this matters is that without it a price history quietly lies: one week at half price pulls an average down and reads as a thing getting cheaper, when what happened is it was on offer once. New `on_sale` column, a tick in the price panel, an "on sale" tag on the line itself, and the flag carried through `GroceryPricePoint` into Trends, where a sale plots in its own colour with a legend saying how many of the points were offers. Also carried across a Refresh, since it is a fact about a price and the price survives.

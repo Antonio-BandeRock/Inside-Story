@@ -494,6 +494,17 @@ export default function RootLayout() {
                   headerTintColor: colors.textPrimary,
                 }}
               />
+              {/* Which of two brands is actually cheaper, 2026-09-01. Reached
+                  from a grocery list line, or on its own. */}
+              <Stack.Screen
+                name="price-compare"
+                options={{
+                  headerShown: true,
+                  title: 'Compare Prices',
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
               {/* The Grocery List, 2026-09-01 -- reached from Home, from
                   Schedule's own Shopping List lens, and from a barcode scan
                   started inside a list. Themed like every other Stack
