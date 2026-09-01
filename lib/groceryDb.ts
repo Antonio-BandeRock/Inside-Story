@@ -54,6 +54,12 @@ export type GroceryListItemRecord = {
   // The scheduled meals this line is for, so a line can be traced back to
   // what needs it before it is struck off.
   mealNames: string[];
+  // 2026-09-01. How a store sells this, and roughly how many to pick up where
+  // that can be worked out. Both are resolved when the list is built and then
+  // kept, so a list still reads the same way in an aisle even if the reference
+  // database changes underneath it.
+  soldAs: string;
+  approxAmount: string | null;
   addedManually: boolean;
   sortOrder: number;
 };
@@ -62,13 +68,14 @@ type GroceryListRow = Omit<GroceryListRecord, 'status'> & { status: string };
 
 type GroceryListItemRow = Omit<
   GroceryListItemRecord,
-  'checked' | 'addedManually' | 'priceUnit' | 'extraAmounts' | 'mealNames'
+  'checked' | 'addedManually' | 'priceUnit' | 'extraAmounts' | 'mealNames' | 'soldAs'
 > & {
   checked: number;
   addedManually: number;
   priceUnit: string | null;
   extraAmountsJson: string | null;
   mealNamesJson: string | null;
+  soldAs: string | null;
 };
 
 const GROCERY_LIST_COLUMNS = `
@@ -80,7 +87,8 @@ const GROCERY_ITEM_COLUMNS = `
   id, list_id AS listId, category, food_name AS foodName, unit, quantity, checked,
   checked_at AS checkedAt, price, price_unit AS priceUnit, purchased_quantity AS purchasedQuantity,
   scanned_product_id AS scannedProductId, note, added_manually AS addedManually, sort_order AS sortOrder,
-  extra_amounts_json AS extraAmountsJson, meal_names_json AS mealNamesJson
+  extra_amounts_json AS extraAmountsJson, meal_names_json AS mealNamesJson,
+  sold_as AS soldAs, approx_amount AS approxAmount
 `;
 
 function toPriceUnit(value: string | null | undefined): GroceryPriceUnit | null {
@@ -116,6 +124,7 @@ function mapGroceryItem(row: GroceryListItemRow): GroceryListItemRecord {
     priceUnit: toPriceUnit(row.priceUnit),
     extraAmounts: parseJsonArray<{ quantity: number; unit: string }>(extraAmountsJson),
     mealNames: parseJsonArray<string>(mealNamesJson),
+    soldAs: row.soldAs ?? '',
   };
 }
 
@@ -156,8 +165,8 @@ export async function createGroceryListFromSchedule(input: {
     for (const item of section.items) {
       await db.runAsync(
         `INSERT INTO grocery_list_items
-           (id, list_id, category, food_name, unit, quantity, sort_order, extra_amounts_json, meal_names_json)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           (id, list_id, category, food_name, unit, quantity, sort_order, extra_amounts_json, meal_names_json, sold_as, approx_amount)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         `grocery_item_${Date.now()}_${sortOrder}`,
         id,
         section.category,
@@ -169,6 +178,13 @@ export async function createGroceryListFromSchedule(input: {
         // that had to be kept separate from the main figure.
         JSON.stringify(item.extraAmounts.map((extra) => ({ ...extra, quantity: extra.quantity * peopleCount }))),
         JSON.stringify(item.mealNames),
+        item.soldAs || null,
+        // Deliberately not scaled by head count. It was worked out from the
+        // one-person amount, and multiplying "about 2 avocados" by four people
+        // would be arithmetic on a rounded number. The gram figure beside it is
+        // the one that scales, so a wrong-looking count is better avoided than
+        // computed twice.
+        peopleCount === 1 ? item.approxAmount : null,
       );
       sortOrder += 1;
     }

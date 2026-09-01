@@ -2604,6 +2604,8 @@ function ShoppingListLens() {
                 {[{ quantity: item.quantity, unit: item.unit }, ...item.extraAmounts]
                   .map((amount) => `${roundForDisplay(amount.quantity)} ${amount.unit}`.trim())
                   .join(' + ')}
+                {item.approxAmount ? ` (${item.approxAmount})` : ''}
+                {item.soldAs ? `, ${item.soldAs}` : ''}
               </Text>
             ))}
           </View>

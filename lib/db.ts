@@ -12,6 +12,7 @@ import { isFlaggedTier } from './sixDimensionsReference';
 import { buildPerConditionSummaries, type ConditionDimensionSummary } from './conditionDimensions';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
 import {
+  describeApproximateCount,
   isNonPurchasableIngredient,
   mergeShoppingAmounts,
   type AmountEntry,
@@ -5538,6 +5539,8 @@ async function runDatabaseInitialization() {
         -- queried across rows.
         extra_amounts_json TEXT,
         meal_names_json TEXT,
+        sold_as TEXT,
+        approx_amount TEXT,
         added_manually INTEGER NOT NULL DEFAULT 0,
         sort_order INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY (list_id) REFERENCES grocery_lists(id) ON DELETE CASCADE,
@@ -5626,6 +5629,12 @@ async function runDatabaseInitialization() {
       }
       if (!groceryItemColumns.some((column) => column.name === 'meal_names_json')) {
         await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN meal_names_json TEXT;');
+      }
+      if (!groceryItemColumns.some((column) => column.name === 'sold_as')) {
+        await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN sold_as TEXT;');
+      }
+      if (!groceryItemColumns.some((column) => column.name === 'approx_amount')) {
+        await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN approx_amount TEXT;');
       }
     }
 
@@ -11391,6 +11400,13 @@ export type ShoppingListItem = {
   // Which scheduled meals need this, so a line can be traced back to what it
   // is for, and so something can be struck off with the consequence visible.
   mealNames: string[];
+  // 2026-09-01. How a store actually sells this ("by the head", "in a
+  // bottle"), from food_purchase_forms. Empty for anything the batch does not
+  // cover, which is every ingredient outside the curated recipes.
+  soldAs: string;
+  // "about 2 avocados", where a cited unit weight exists to divide by. Null
+  // otherwise, rather than a guess: see describeApproximateCount.
+  approxAmount: string | null;
 };
 
 export type ShoppingListSection = {
@@ -11492,6 +11508,46 @@ async function resolvePurchasableNames(entries: RawShoppingEntry[]): Promise<Map
   return byFoodId;
 }
 
+type PurchaseFormRow = {
+  category: string;
+  baseName: string;
+  form: string;
+  unitLabel: string;
+  unitLabelPlural: string;
+  soldAs: string;
+  gramsPerUnit: number | null;
+};
+
+// How each food on the list is sold, in one pass rather than a query per
+// line. The unit weight comes from food_unit_weights, which carries its own
+// citation per row, rather than being duplicated into the purchase-form table:
+// one number, one source, no second copy to drift.
+//
+// A LEFT JOIN because the two tables cover different things. Every curated
+// ingredient has a purchase form; only a handful have a cited unit weight.
+async function resolvePurchaseForms(): Promise<Map<string, PurchaseFormRow>> {
+  const db = await getReferenceDatabase();
+  const byKey = new Map<string, PurchaseFormRow>();
+  try {
+    const rows = await db.getAllAsync<PurchaseFormRow>(
+      `SELECT pf.category AS category, pf.base_name AS baseName, pf.form AS form,
+              pf.unit_label AS unitLabel, pf.unit_label_plural AS unitLabelPlural,
+              pf.sold_as AS soldAs, fuw.grams_per_unit AS gramsPerUnit
+       FROM food_purchase_forms pf
+       LEFT JOIN food_unit_weights fuw ON fuw.base_name = pf.base_name`,
+    );
+    for (const row of rows) {
+      byKey.set(`${row.category}|${row.baseName.toLowerCase()}`, row);
+    }
+  } catch {
+    // A device still on a reference database from before this table existed.
+    // The list works without it, just without the shop wording, which is a
+    // better outcome than refusing to build a list at all.
+    return byKey;
+  }
+  return byKey;
+}
+
 // daysAhead counts today as day 1 of the window, matching how "every 3 to 4
 // days" reads in normal speech (today plus the next 2-3, not today plus 4
 // more).
@@ -11520,6 +11576,7 @@ export async function getUpcomingShoppingList(daysAhead: number = 4): Promise<Sh
   }
 
   const purchasableNames = await resolvePurchasableNames(allEntries);
+  const purchaseForms = await resolvePurchaseForms();
 
   // Grouped on the purchasable name alone, case-insensitively, so the same
   // food needed by four different meals in three different units comes out as
@@ -11550,6 +11607,7 @@ export async function getUpcomingShoppingList(daysAhead: number = 4): Promise<Sh
       items: Array.from(byName.values())
         .map((group) => {
           const merged = mergeShoppingAmounts(group.entries);
+          const form = purchaseForms.get(`${category}|${group.name.toLowerCase()}`);
           return {
             category,
             foodName: group.name,
@@ -11557,6 +11615,17 @@ export async function getUpcomingShoppingList(daysAhead: number = 4): Promise<Sh
             quantity: merged.primary.quantity,
             extraAmounts: merged.extras,
             mealNames: Array.from(group.meals),
+            soldAs: form?.soldAs ?? '',
+            approxAmount: form
+              ? describeApproximateCount(
+                  merged.primary.quantity,
+                  merged.primary.unit,
+                  group.name,
+                  form.unitLabel,
+                  form.unitLabelPlural,
+                  form.gramsPerUnit,
+                )
+              : null,
           };
         })
         .sort((a, b) => a.foodName.localeCompare(b.foodName)),

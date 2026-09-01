@@ -528,6 +528,11 @@ export default function GroceryListScreen() {
                           : ''}
                         {lineTotal != null && item.priceUnit !== 'total' ? ` = ${formatMoney(lineTotal)}` : ''}
                       </Text>
+                      {item.soldAs || item.approxAmount ? (
+                        <Text style={styles.rowMeta}>
+                          {[item.approxAmount, item.soldAs].filter(Boolean).join(' · ')}
+                        </Text>
+                      ) : null}
                       {item.mealNames.length > 0 ? (
                         <Text style={styles.rowMeta} numberOfLines={2}>
                           {`For ${item.mealNames.join(', ')}`}

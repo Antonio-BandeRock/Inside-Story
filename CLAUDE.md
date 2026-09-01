@@ -25,6 +25,26 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-01, 1.0.32.4): purchase forms, so the grocery list speaks in what a store sells.** The deferred half of the 2026-08-30 specification, taken on after the four correctness fixes shipped first.
+
+**The problem it closes:** the list reports what the recipes CONSUME, and 1,714 of the 2,320 curated ingredient rows are in grams, because that is how those amounts were written. "340 g of broccoli" is not how anyone shops.
+
+**New `food_purchase_forms` table** (`scripts/add_food_purchase_forms.py`, idempotent), covering **all 212 ingredients** the 300 curated recipes actually use, tap water excluded since it never reaches a list. Three forms (count, weight, volume) plus a noun and a `sold_as` phrase: broccoli by the head, garlic by the bulb (about 10 cloves), corn by the ear, salmon by weight as fillets, olive oil in a bottle, beans in a can or dried by weight.
+
+**Nothing was invented, and that was the shaping constraint.** No gram-per-unit weight is written into this table at all. `food_unit_weights` already holds those, one citation per row, and the list reads that table through a LEFT JOIN rather than keeping a second copy that could drift. So an ingredient either gets a cited count ("about 2 avocados") or it gets its amount plus how the thing is sold, which is honest and still shoppable. **Six of the 212 currently resolve to a cited weight**, which is the real state of that table rather than a number talked up.
+
+**A research detour worth recording as a dead end.** The FDA's raw-vegetables poster looked like a single authoritative source for many produce weights at once; its URLs have been reorganized and 404, and more importantly its figures are SERVING sizes, not "one item you buy" (broccoli 148 g is a stalk-sized serving, not a head). Using them as purchase weights would have been precise and wrong. Abandoned rather than forced.
+
+**One near-miss closed deliberately:** the curated recipes name it `Chicken Egg (Raw)` while `food_unit_weights` was written with `Chicken egg`, `Egg, whole` and `Egg, chicken`. Same food, same 50 g, and the new row carries the existing citation verbatim rather than asserting anything new. An egg is the most countable thing on any list.
+
+**Also honest about scaling:** the approximate count is stored only for a one-person list. Multiplying "about 2 avocados" by four people would be arithmetic on an already-rounded number, so a larger list shows the gram figure, which scales correctly, and the sold-as phrase.
+
+`scripts/test_grocery_list_math.js` grew from 43 checks to 52, covering both the counts and every case where the app refuses to compute one. Failure output verified by removing the never-below-one floor and confirming it reports "about 0 avocados" and exits non-zero. `tsc` clean project-wide, `eslint` unchanged from baseline, bare-text audit at 0, all three suites passing (30, 52, 29).
+
+**`REFERENCE_DB_VERSION` bumped**, so this forces a one-time re-import of the reference database on next launch. That is the cost named in advance on 2026-08-30 when this batch was deferred, and it is why the four correctness fixes went out separately first.
+
+**Named and not done:** unit weights for the remaining ~206 ingredients. The mechanism now exists and reads from a citation-bearing table; filling it in is a research batch of its own, and every row added needs a real source rather than a plausible number.
+
 **Most recent (2026-09-01, 1.0.32.3): the cooking method a person states now decides which food row their dish is actually scored against.** Direct observation: "Broccoli (boiled) nutrients aren't going to be tallied the same as raw. It can't be used for their nutrient value unless they actually boil it and tell the app that they boiled it."
 
 **The bug underneath it, and it is a design fault rather than a slip:** every builder asks about preparation TWICE, in two different vocabularies, and only one of the two answers reaches any data. `FoodLookup`'s own prep picker chooses the reference row, which is what `getFoodNutrients`/`getFoodScores` read. The builder's separate per-ingredient Cook Prep field is stored beside it as description and read by nothing. So an ingredient picked as "Broccoli (raw)" and then marked Boiled kept raw nutrients on a boiled dish, silently, with both answers sitting visibly on screen contradicting each other. Verified directly against the database: Broccoli in Veg carries both Raw and Boiled rows, so the right answer existed the whole time and was simply not asked for.

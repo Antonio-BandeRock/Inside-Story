@@ -272,3 +272,44 @@ export function formatMergedAmounts(merged: MergedAmounts): string {
   const parts = [merged.primary, ...merged.extras].map((entry) => formatGroceryAmount(entry.quantity, entry.unit));
   return parts.join(' + ');
 }
+
+// --- How a store actually sells it ------------------------------------------
+//
+// 2026-09-01. The amount on a grocery list is what the recipes consume, and
+// for most ingredients that is a gram figure, because that is how curated
+// recipe amounts are written. "340 g of broccoli" is not how anyone shops.
+// food_purchase_forms (see scripts/add_food_purchase_forms.py) says how each
+// ingredient is actually sold, so a line can lead with something shoppable.
+
+export type PurchaseForm = 'count' | 'weight' | 'volume';
+
+// Turns a weight into a number of things to pick up, but only where a unit
+// weight genuinely exists to divide by. Those weights come from
+// food_unit_weights, which carries a citation per row and currently covers a
+// deliberately small set of common foods; everything else returns null and
+// the line shows its amount plus how the thing is sold, which is honest and
+// still useful.
+//
+// Rounded to whole units and never below one, because a shop does not sell
+// two thirds of an avocado. "About" is in the wording for the same reason:
+// this is a real division of one average weight, not a promise about the
+// particular avocado someone picks up.
+export function describeApproximateCount(
+  quantity: number,
+  unit: string,
+  foodName: string,
+  unitLabel: string,
+  unitLabelPlural: string,
+  gramsPerUnit: number | null | undefined,
+): string | null {
+  if (!gramsPerUnit || gramsPerUnit <= 0) return null;
+  const key = unit.trim().toLowerCase();
+  const grams = key === 'g' ? quantity : key === 'kg' ? quantity * 1000 : null;
+  if (grams == null || grams <= 0) return null;
+  const count = Math.max(1, Math.round(grams / gramsPerUnit));
+  // An empty unit label means the food is the unit: 3 avocados, not 3 units
+  // of avocado. Lower-cased so it reads as prose next to "about".
+  const singular = unitLabel || foodName.toLowerCase();
+  const plural = unitLabelPlural || `${foodName.toLowerCase()}s`;
+  return `about ${count} ${count === 1 ? singular : plural}`;
+}

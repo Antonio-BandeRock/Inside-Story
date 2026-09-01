@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.4',
+    date: '2026-09-01',
+    changes: [
+      "The grocery list now says how each thing is actually sold. Broccoli by the head, garlic by the bulb, salmon by weight, olive oil in a bottle, beans in a can. Covers every ingredient the recipe library uses.",
+      "Where the amount can honestly be turned into a number of things to pick up, it says so: about 2 avocados, about 3 eggs. Only for foods with a properly sourced weight per item, so it is never a guess.",
+      "This update reloads the food database, so the first launch after it will take longer than usual. Only once.",
+    ],
+  },
+  {
     version: '1.0.32.3',
     date: '2026-09-01',
     changes: [

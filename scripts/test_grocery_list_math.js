@@ -60,6 +60,7 @@ const {
   groceryPriceUnitLabel,
   mergeShoppingAmounts,
   isNonPurchasableIngredient,
+  describeApproximateCount,
 } = loadModule('groceryList');
 
 let failures = 0;
@@ -260,6 +261,28 @@ check('the check ignores casing', isNonPurchasableIngredient('  water, TAP  '), 
 // is why it matches whole base names rather than searching for "water".
 check('coconut water is a real purchase', isNonPurchasableIngredient('Coconut water'), false);
 check('watermelon is a real purchase', isNonPurchasableIngredient('Watermelon'), false);
+
+// --- Turning a weight into something you can pick up ------------------------
+//
+// 2026-09-01. Only ever attempted where a cited unit weight exists to divide
+// by (food_unit_weights, which carries a citation per row). Everywhere else
+// this returns null and the line falls back to its amount plus how the thing
+// is sold, which is honest and still shoppable.
+
+// An empty unit label means the food is the unit: 3 avocados, not 3 units.
+check('a weight becomes a count', describeApproximateCount(300, 'g', 'Avocado', '', '', 150), 'about 2 avocados');
+check('one of something stays singular', describeApproximateCount(150, 'g', 'Avocado', '', '', 150), 'about 1 avocado');
+check('a named unit is used when there is one', describeApproximateCount(100, 'g', 'Chicken Egg (Raw)', 'egg', 'eggs', 50), 'about 2 eggs');
+check('kilos convert too', describeApproximateCount(1, 'kg', 'Apple', '', '', 182), 'about 5 apples');
+// Never zero: a shop does not sell a third of an avocado, and a list saying
+// "about 0" would be worse than saying nothing.
+check('a small amount still rounds up to one', describeApproximateCount(40, 'g', 'Avocado', '', '', 150), 'about 1 avocado');
+
+// The refusals, which are most of the table.
+check('no unit weight, no count', describeApproximateCount(300, 'g', 'Broccoli', 'head', 'heads', null), null);
+check('a volume is not divided by a weight', describeApproximateCount(300, 'ml', 'Olive Oil', '', '', 150), null);
+check('a count of things is not re-counted', describeApproximateCount(3, 'each', 'Avocado', '', '', 150), null);
+check('a zero unit weight is refused', describeApproximateCount(300, 'g', 'Avocado', '', '', 0), null);
 if (failures > 0) {
   console.error(`\nGrocery list math: ${failures} of ${checks} checks failed.`);
   process.exit(1);
