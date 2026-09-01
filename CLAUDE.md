@@ -25,6 +25,16 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-01, 1.0.32.10): sale prices recorded as sales, and a bottle that can finally be compared against another bottle.** Two reports.
+
+**"There needs to be an indicator they can select noting it was a sale, and not normal price. This goes in to the trends for pricing of things over time."** The reason this matters is that without it a price history quietly lies: one week at half price pulls an average down and reads as a thing getting cheaper, when what happened is it was on offer once. New `on_sale` column, a tick in the price panel, an "on sale" tag on the line itself, and the flag carried through `GroceryPricePoint` into Trends, where a sale plots in its own colour with a legend saying how many of the points were offers. Also carried across a Refresh, since it is a fact about a price and the price survives.
+
+**"The olive oil can't just be purchased by the bottle, it must also have a selection for how many ml... This should be able to calculate the price per ml."** Right, and the gap was real rather than cosmetic: a bottle priced for all of it told the app nothing about value, because a bottle is not a size. Anything sold by volume or weight now asks how much was in it whatever the price unit, and `describeUnitPrice` shows the comparison as it is typed.
+
+**One judgment call, named because it is a deliberate departure from what was asked.** The request said price per ml; it is quoted per litre. Two cents a millilitre is not a number anyone can hold two bottles up against, and per litre is both the same fact and what shelf labels compare on. A 750 ml bottle at $15.90 reads "Works out to $21.20 per litre", against $32.00 per litre for a 250 ml at $8. Imperial is quoted per fluid ounce and per ounce, which are already sensibly sized and need no scaling. Easy to change to per ml if that reads better in a real shop.
+
+`scripts/test_grocery_list_math.js` grew from 70 checks to 83, covering both the sums and every case where the app refuses to do one. Failure output verified by dropping the per-litre scaling and confirming the cheese case reports "$0.01 per kg" and exits non-zero. `tsc` clean project-wide, `eslint` clean on every touched file, bare-text audit at 0, all three suites passing (30, 83, 29). No reference-database change, so no re-import.
+
 **Most recent (2026-09-01, 1.0.32.9): price units stopped asking a question the app already had the answer to, and a price can now be spoken or photographed.** Four reports in one message.
 
 **"Per kg and Per lb should rely on them having set their units up in Preferences."** Right, and `getStoredMeasurementSystem()` has existed in `lib/db.ts` all along. The price panel offered every unit on every line, which both asked again and left room to answer inconsistently across a single trip.

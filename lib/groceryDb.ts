@@ -71,6 +71,9 @@ export type GroceryListItemRecord = {
   // Kept on the line so the price-unit choices stay right even after the
   // reference database moves on, the same reason soldAs is kept.
   purchaseForm: PurchaseForm | null;
+  // A sale price rather than the usual one. See describeSaleLabel for why the
+  // distinction is kept rather than folded into the number.
+  onSale: boolean;
   addedManually: boolean;
   sortOrder: number;
 };
@@ -79,9 +82,17 @@ type GroceryListRow = Omit<GroceryListRecord, 'status'> & { status: string };
 
 type GroceryListItemRow = Omit<
   GroceryListItemRecord,
-  'checked' | 'addedManually' | 'priceUnit' | 'extraAmounts' | 'mealNames' | 'soldAs' | 'purchaseForm'
+  | 'checked'
+  | 'addedManually'
+  | 'priceUnit'
+  | 'extraAmounts'
+  | 'mealNames'
+  | 'soldAs'
+  | 'purchaseForm'
+  | 'onSale'
 > & {
   purchaseForm: string | null;
+  onSale: number;
   checked: number;
   addedManually: number;
   priceUnit: string | null;
@@ -100,7 +111,7 @@ const GROCERY_ITEM_COLUMNS = `
   checked_at AS checkedAt, price, price_unit AS priceUnit, purchased_quantity AS purchasedQuantity,
   scanned_product_id AS scannedProductId, note, added_manually AS addedManually, sort_order AS sortOrder,
   extra_amounts_json AS extraAmountsJson, meal_names_json AS mealNamesJson,
-  sold_as AS soldAs, approx_amount AS approxAmount, purchase_form AS purchaseForm
+  sold_as AS soldAs, approx_amount AS approxAmount, purchase_form AS purchaseForm, on_sale AS onSale
 `;
 
 function toPriceUnit(value: string | null | undefined): GroceryPriceUnit | null {
@@ -140,6 +151,7 @@ function mapGroceryItem(row: GroceryListItemRow): GroceryListItemRecord {
     purchaseForm: PURCHASE_FORMS.includes(row.purchaseForm as PurchaseForm)
       ? (row.purchaseForm as PurchaseForm)
       : null,
+    onSale: row.onSale === 1,
   };
 }
 
@@ -292,6 +304,7 @@ export async function updateGroceryItemPurchase(
     purchasedQuantity?: number | null;
     scannedProductId?: number | null;
     note?: string | null;
+    onSale?: boolean;
   },
 ): Promise<void> {
   const db = await getDatabase();
@@ -316,6 +329,10 @@ export async function updateGroceryItemPurchase(
   if (input.note !== undefined) {
     fields.push('note = ?');
     params.push(input.note);
+  }
+  if (input.onSale !== undefined) {
+    fields.push('on_sale = ?');
+    params.push(input.onSale ? 1 : 0);
   }
   if (fields.length === 0) return;
   await db.runAsync(`UPDATE grocery_list_items SET ${fields.join(', ')} WHERE id = ?`, ...params, itemId);
@@ -417,9 +434,14 @@ export type GroceryPricePoint = {
   priceUnit: GroceryPriceUnit | null;
   quantity: number;
   purchasedQuantity: number | null;
+  // So a chart can show an offer as an offer rather than as the price falling.
+  onSale: boolean;
 };
 
-type GroceryPricePointRow = Omit<GroceryPricePoint, 'priceUnit'> & { priceUnit: string | null };
+type GroceryPricePointRow = Omit<GroceryPricePoint, 'priceUnit' | 'onSale'> & {
+  priceUnit: string | null;
+  onSale: number;
+};
 
 // Every price ever recorded for one food, oldest first, matching the point
 // order TrendLineChart already expects everywhere else in this app.
@@ -442,7 +464,8 @@ export async function getGroceryPriceHistory(foodName: string): Promise<GroceryP
         i.price AS price,
         i.price_unit AS priceUnit,
         i.quantity AS quantity,
-        i.purchased_quantity AS purchasedQuantity
+        i.purchased_quantity AS purchasedQuantity,
+        i.on_sale AS onSale
       FROM grocery_list_items i
       JOIN grocery_lists l ON l.id = i.list_id
       WHERE i.food_name = ? COLLATE NOCASE AND i.price IS NOT NULL
@@ -450,7 +473,7 @@ export async function getGroceryPriceHistory(foodName: string): Promise<GroceryP
     `,
     foodName,
   );
-  return rows.map((row) => ({ ...row, priceUnit: toPriceUnit(row.priceUnit) }));
+  return rows.map((row) => ({ ...row, priceUnit: toPriceUnit(row.priceUnit), onSale: row.onSale === 1 }));
 }
 
 export type GroceryFoodSummary = {
@@ -600,8 +623,8 @@ export async function rebuildGroceryListFromSchedule(listId: string): Promise<Gr
       await db.runAsync(
         `INSERT INTO grocery_list_items
            (id, list_id, category, food_name, unit, quantity, sort_order, extra_amounts_json, meal_names_json,
-            sold_as, approx_amount, purchase_form, checked, checked_at, price, price_unit, purchased_quantity, scanned_product_id, note)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            sold_as, approx_amount, purchase_form, checked, checked_at, price, price_unit, purchased_quantity, scanned_product_id, note, on_sale)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         `grocery_item_${Date.now()}_${sortOrder}`,
         listId,
         section.category,
@@ -628,6 +651,7 @@ export async function rebuildGroceryListFromSchedule(listId: string): Promise<Gr
         prior?.purchasedQuantity ?? null,
         prior?.scannedProductId ?? null,
         prior?.note ?? null,
+        prior?.onSale ? 1 : 0,
       );
       previous.delete(key);
       sortOrder += 1;

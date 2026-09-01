@@ -431,3 +431,75 @@ export function describeApproximateCount(
   const plural = unitLabelPlural || `${foodName.toLowerCase()}s`;
   return `about ${count} ${count === 1 ? singular : plural}`;
 }
+
+// --- What a thing actually costs per unit -----------------------------------
+//
+// 2026-09-01, reported directly: "The olive oil can't just be purchased by the
+// bottle, it must also have a selection for how many ml or the imperial
+// version. It will come in different sizes. This should be able to calculate
+// the price per ml."
+//
+// Right, and the gap was real: a bottle priced for all of it told the app
+// nothing about value, because a bottle is not a size. Once the size is known
+// the comparison number falls out of it, and that number is the one people
+// actually shop on.
+
+// The unit a size is entered in for this kind of food, which is also the unit
+// the derived price is quoted against.
+export function purchaseSizeUnitFor(
+  form: PurchaseForm | null | undefined,
+  system: 'metric' | 'imperial',
+): 'ml' | 'fl oz' | 'g' | 'oz' {
+  if (form === 'volume') return system === 'imperial' ? 'fl oz' : 'ml';
+  return system === 'imperial' ? 'oz' : 'g';
+}
+
+// "$21.20 per litre", "$4.99 per lb", "$0.60 each".
+//
+// Quoted per litre and per kilo rather than per millilitre and per gram, even
+// though the size is entered in the smaller unit: a bottle of oil works out to
+// about two cents a millilitre, and a price nobody can read is no use for
+// comparing two bottles. Imperial already has sensibly sized units and is
+// quoted as entered.
+//
+// Returns null wherever the sum cannot honestly be done, which is most of the
+// time until someone fills both fields in.
+export function describeUnitPrice(
+  line: GroceryLineForTotal,
+  form: PurchaseForm | null | undefined,
+  system: 'metric' | 'imperial',
+): string | null {
+  if (line.price == null || line.priceUnit == null) return null;
+  // Already a unit price: it is what it says it is.
+  if (line.priceUnit !== 'total' && line.priceUnit !== 'each') {
+    return `${formatMoney(line.price)} ${groceryPriceUnitLabel(line.priceUnit)}`;
+  }
+  if (line.priceUnit === 'each') {
+    return `${formatMoney(line.price)} each`;
+  }
+  // Priced for all of it, so the size is what turns it into a comparison.
+  const size = line.purchasedQuantity;
+  if (size == null || size <= 0) return null;
+  const perSmallUnit = line.price / size;
+  if (system === 'imperial') {
+    const unit = form === 'volume' ? 'per fl oz' : 'per oz';
+    return `${formatMoney(perSmallUnit)} ${unit}`;
+  }
+  const unit = form === 'volume' ? 'per litre' : 'per kg';
+  return `${formatMoney(perSmallUnit * 1000)} ${unit}`;
+}
+
+// --- Sale prices ------------------------------------------------------------
+//
+// 2026-09-01, reported directly: "If there is a sale like that, there needs to
+// be an indicator they can select noting it was a sale, and not normal price.
+// This goes in to the trends for pricing of things over time, and might be
+// seen as a little drop on the timeline."
+//
+// The reason this matters is that without it a price history quietly lies. One
+// week at half price pulls an average down and reads as though a thing got
+// cheaper, when what actually happened is that it was on offer once. Marking
+// it keeps both facts: what was paid, and that it was not the usual price.
+export function describeSaleLabel(onSale: boolean): string {
+  return onSale ? 'On sale' : 'Normal price';
+}

@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.10',
+    date: '2026-09-01',
+    changes: [
+      "You can mark a price as a sale price. Tick it while you are pricing the item, and it shows on the line as on sale.",
+      "Grocery Prices in Trends now plots a sale in its own colour and says how many of the points were offers. Without that, one half-price week reads as the thing getting cheaper rather than as a sale.",
+      "Anything sold by volume or weight now asks how much was in it, so a bottle priced for all of it can still be compared. A 750 ml bottle at $15.90 works out to $21.20 per litre, and it says so under the price while you type.",
+      "Quoted per litre and per kilo rather than per millilitre and per gram, because two cents a millilitre is not a number anyone can compare two bottles with. Imperial is quoted per fluid ounce and per ounce.",
+    ],
+  },
+  {
     version: '1.0.32.9',
     date: '2026-09-01',
     changes: [

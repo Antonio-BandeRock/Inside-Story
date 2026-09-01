@@ -54,7 +54,9 @@ import {
   groceryPriceUnitLabel,
   groceryPriceUnitShortLabel,
   GROCERY_DAY_OPTIONS,
+  describeUnitPrice,
   groceryPriceUnitsFor,
+  purchaseSizeUnitFor,
   isEncouragedGroceryWindow,
   parsePriceInput,
   type GroceryPriceUnit,
@@ -70,9 +72,10 @@ type EditorState = {
   priceUnit: GroceryPriceUnit;
   purchasedText: string;
   noteText: string;
+  onSale: boolean;
 };
 
-const BLANK_EDITOR: EditorState = { priceText: '', priceUnit: 'total', purchasedText: '', noteText: '' };
+const BLANK_EDITOR: EditorState = { priceText: '', priceUnit: 'total', purchasedText: '', noteText: '', onSale: false };
 
 function editorFromItem(item: GroceryListItemRecord): EditorState {
   return {
@@ -80,6 +83,7 @@ function editorFromItem(item: GroceryListItemRecord): EditorState {
     priceUnit: item.priceUnit ?? 'total',
     purchasedText: item.purchasedQuantity != null ? String(item.purchasedQuantity) : '',
     noteText: item.note ?? '',
+    onSale: item.onSale,
   };
 }
 
@@ -302,6 +306,9 @@ export default function GroceryListScreen() {
         priceUnit: price == null ? null : editor.priceUnit,
         purchasedQuantity: purchased,
         note: editor.noteText.trim() || null,
+        // Cleared alongside the price, since "it was on sale" means nothing
+        // once there is no price it was a sale on.
+        onSale: price == null ? false : editor.onSale,
       });
       await refreshItems(list.id);
       setExpandedId(null);
@@ -695,6 +702,7 @@ export default function GroceryListScreen() {
                         {item.price != null
                           ? ` · ${formatMoney(item.price)} ${groceryPriceUnitShortLabel(item.priceUnit ?? 'total')}`
                           : ''}
+                        {item.onSale ? ' · on sale' : ''}
                         {lineTotal != null && item.priceUnit !== 'total' ? ` = ${formatMoney(lineTotal)}` : ''}
                       </Text>
                       {item.soldAs || item.approxAmount ? (
@@ -763,10 +771,20 @@ export default function GroceryListScreen() {
                         ))}
                       </View>
 
-                      {editor.priceUnit !== 'total' ? (
+                      {/* 2026-09-01: a bottle priced for all of it told the app
+                          nothing about value, because a bottle is not a size.
+                          Reported directly: "It will come in different sizes.
+                          This should be able to calculate the price per ml."
+                          So the size is asked for whenever the thing is sold by
+                          weight or volume, not only when the price is per unit. */}
+                      {editor.priceUnit !== 'total' || item.purchaseForm === 'volume' || item.purchaseForm === 'weight' ? (
                         <>
                           <Text style={styles.editorLabel}>
-                            {editor.priceUnit === 'each' ? 'How many did you buy?' : `How many ${editor.priceUnit} did you buy?`}
+                            {editor.priceUnit === 'total'
+                              ? `How much was in it? (${purchaseSizeUnitFor(item.purchaseForm, measurementSystem)})`
+                              : editor.priceUnit === 'each'
+                                ? 'How many did you buy?'
+                                : `How many ${editor.priceUnit} did you buy?`}
                           </Text>
                           <AppTextInput
                             style={styles.input}
@@ -778,6 +796,39 @@ export default function GroceryListScreen() {
                           />
                         </>
                       ) : null}
+
+                      {/* The comparison number, shown as soon as it can honestly
+                          be worked out. This is what tells one bottle from
+                          another when the bottles are different sizes. */}
+                      {(() => {
+                        const unitPrice = describeUnitPrice(
+                          {
+                            price: parseNumberOrNull(editor.priceText),
+                            priceUnit: editor.priceUnit,
+                            purchasedQuantity: parseNumberOrNull(editor.purchasedText),
+                            quantity: item.quantity,
+                          },
+                          item.purchaseForm,
+                          measurementSystem,
+                        );
+                        return unitPrice ? <Text style={styles.unitPriceText}>{`Works out to ${unitPrice}`}</Text> : null;
+                      })()}
+
+                      {/* 2026-09-01, asked for directly: an offer has to be
+                          recorded as an offer. Without it a price history reads a
+                          single half-price week as the thing getting cheaper. */}
+                      <TouchableOpacity
+                        style={styles.saleRow}
+                        activeOpacity={0.85}
+                        onPress={() => setEditor((current) => ({ ...current, onSale: !current.onSale }))}
+                      >
+                        <View style={[styles.checkbox, editor.onSale && styles.checkboxSale]}>
+                          {editor.onSale ? <Ionicons name="pricetag" size={14} color={colors.background} /> : null}
+                        </View>
+                        <Text style={styles.editorLabel}>
+                          {editor.onSale ? 'On sale, not the usual price' : 'Was this a sale price?'}
+                        </Text>
+                      </TouchableOpacity>
 
                       <Text style={styles.editorLabel}>A note (optional)</Text>
                       <AppTextInput
@@ -937,6 +988,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxChecked: { backgroundColor: colors.statusGood, borderColor: colors.statusGood },
+  checkboxSale: { backgroundColor: colors.accent, borderColor: colors.accent },
+  saleRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
+  unitPriceText: { ...typography.bodyEmphasis, color: colors.accent, ...textShadow },
   rowTextWrap: { flex: 1, gap: 2 },
   rowName: { ...typography.body, color: colors.textPrimary, ...textShadow },
   rowNameChecked: { color: colors.textMuted, textDecorationLine: 'line-through' },

@@ -63,6 +63,8 @@ const {
   describeApproximateCount,
   groceryPriceUnitsFor,
   parsePriceInput,
+  describeUnitPrice,
+  purchaseSizeUnitFor,
 } = loadModule('groceryList');
 
 let failures = 0;
@@ -320,6 +322,68 @@ check('fifty cents is not fifty dollars', parsePriceInput('fifty cents'), 0.5);
 // Refusals, so a wrong number never lands in the field on its own.
 check('words that are not a price', parsePriceInput('banana'), null);
 check('nothing at all', parsePriceInput(''), null);
+
+// --- What a thing works out to per unit -------------------------------------
+//
+// 2026-09-01: a bottle priced for all of it said nothing about value, because
+// a bottle is not a size. These check the sum that turns one into the other.
+
+// The case reported: olive oil, priced for the bottle, with the bottle's size.
+check(
+  'a bottle becomes a price per litre',
+  describeUnitPrice({ price: 15.9, priceUnit: 'total', purchasedQuantity: 750, quantity: 100 }, 'volume', 'metric'),
+  '$21.20 per litre',
+);
+// Quoted per litre rather than per millilitre on purpose: two cents a
+// millilitre is a number nobody can compare two bottles with.
+check(
+  'a smaller bottle compares against it',
+  describeUnitPrice({ price: 8.0, priceUnit: 'total', purchasedQuantity: 250, quantity: 100 }, 'volume', 'metric'),
+  '$32.00 per litre',
+);
+check(
+  'imperial volume quotes per fluid ounce',
+  describeUnitPrice({ price: 12.0, priceUnit: 'total', purchasedQuantity: 25, quantity: 100 }, 'volume', 'imperial'),
+  '$0.48 per fl oz',
+);
+check(
+  'a block of cheese becomes a price per kilo',
+  describeUnitPrice({ price: 6.0, priceUnit: 'total', purchasedQuantity: 500, quantity: 200 }, 'weight', 'metric'),
+  '$12.00 per kg',
+);
+// A price that is already per unit is simply itself.
+check(
+  'a per-pound price needs no sum',
+  describeUnitPrice({ price: 4.99, priceUnit: 'lb', purchasedQuantity: 2, quantity: 900 }, 'weight', 'imperial'),
+  '$4.99 per lb',
+);
+check(
+  'an each price needs no sum',
+  describeUnitPrice({ price: 0.6, priceUnit: 'each', purchasedQuantity: 4, quantity: 4 }, 'count', 'metric'),
+  '$0.60 each',
+);
+// Refusals, so no number appears until it can honestly be worked out.
+check(
+  'no size, no comparison',
+  describeUnitPrice({ price: 15.9, priceUnit: 'total', purchasedQuantity: null, quantity: 100 }, 'volume', 'metric'),
+  null,
+);
+check(
+  'no price, no comparison',
+  describeUnitPrice({ price: null, priceUnit: null, purchasedQuantity: 750, quantity: 100 }, 'volume', 'metric'),
+  null,
+);
+check(
+  'a zero size is refused rather than divided by',
+  describeUnitPrice({ price: 15.9, priceUnit: 'total', purchasedQuantity: 0, quantity: 100 }, 'volume', 'metric'),
+  null,
+);
+
+// The unit a size is entered in follows the same two things the price units do.
+check('volume sizes are millilitres', purchaseSizeUnitFor('volume', 'metric'), 'ml');
+check('volume sizes are fluid ounces in imperial', purchaseSizeUnitFor('volume', 'imperial'), 'fl oz');
+check('weight sizes are grams', purchaseSizeUnitFor('weight', 'metric'), 'g');
+check('weight sizes are ounces in imperial', purchaseSizeUnitFor('weight', 'imperial'), 'oz');
 if (failures > 0) {
   console.error(`\nGrocery list math: ${failures} of ${checks} checks failed.`);
   process.exit(1);

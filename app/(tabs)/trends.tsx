@@ -961,7 +961,16 @@ export default function TrendsScreen() {
                   (() => {
                     const summary = groceryFoods.find((food) => food.foodName === selectedGroceryFood);
                     const rows = groceryPrices ?? [];
-                    const points = rows.map((row) => ({ date: row.date.slice(0, 10), value: row.price }));
+                    // 2026-09-01: a sale is plotted in its own colour rather than
+                    // silently pulling the line down. Reported directly: an offer
+                    // "might be seen as a little drop on the timeline", and it should
+                    // read as an offer rather than as the thing getting cheaper.
+                    const points = rows.map((row) => ({
+                      date: row.date.slice(0, 10),
+                      value: row.price,
+                      color: row.onSale ? colors.statusGood : undefined,
+                    }));
+                    const saleCount = rows.filter((row) => row.onSale).length;
                     const { yMin, yMax } = paddedTrendRange(points.map((point) => point.value));
                     const latest = rows.length > 0 ? rows[rows.length - 1] : null;
                     // Named rather than assumed: a food priced per pound
@@ -985,6 +994,16 @@ export default function TrendsScreen() {
                             {latest.storeName ? ` at ${latest.storeName}` : ''}
                             {summary ? ` · on ${summary.timesListed} ${summary.timesListed === 1 ? 'list' : 'lists'} so far` : ''}
                           </Text>
+                        ) : null}
+                        {saleCount > 0 ? (
+                          <View style={styles.legendRow}>
+                            <View style={styles.legendItem}>
+                              <View style={[styles.legendDot, { backgroundColor: colors.statusGood }]} />
+                              <Text style={styles.legendText}>
+                                {`${saleCount} of these ${saleCount === 1 ? 'was' : 'were'} a sale price, not the usual one`}
+                              </Text>
+                            </View>
+                          </View>
                         ) : null}
                         {units.length > 1 ? (
                           <Text style={styles.caption}>
