@@ -40,7 +40,7 @@ import {
 } from '../lib/groceryDb';
 import {
   describeGroceryWindow,
-  formatGroceryAmount,
+  formatMergedAmounts,
   formatMoney,
   groceryLineTotal,
   groceryListTotals,
@@ -146,6 +146,18 @@ export default function GroceryListScreen() {
   );
 
   const totals = useMemo(() => groceryListTotals(items), [items]);
+
+  // 2026-09-01, direct request: the list should say which meals it was
+  // built for. Derived from the lines rather than stored on the list,
+  // since removing the last line that needed a meal should stop the list
+  // claiming to cover it.
+  const coveredMeals = useMemo(() => {
+    const names = new Set<string>();
+    for (const item of items) {
+      for (const meal of item.mealNames) names.add(meal);
+    }
+    return Array.from(names);
+  }, [items]);
 
   const sections = useMemo(() => {
     const grouped = new Map<string, GroceryListItemRecord[]>();
@@ -457,6 +469,11 @@ export default function GroceryListScreen() {
               {totals.unresolvedPriceCount} {totals.unresolvedPriceCount === 1 ? 'line needs' : 'lines need'} a weight before the price can be counted.
             </Text>
           ) : null}
+          {coveredMeals.length > 0 ? (
+            <Text style={styles.muted}>
+              {`Covers ${coveredMeals.length} scheduled ${coveredMeals.length === 1 ? 'meal' : 'meals'}: ${coveredMeals.join(', ')}.`}
+            </Text>
+          ) : null}
           {list?.status === 'completed' ? <Text style={styles.doneText}>This list is finished.</Text> : null}
         </View>
 
@@ -505,12 +522,17 @@ export default function GroceryListScreen() {
                     <TouchableOpacity style={styles.itemTextWrap} activeOpacity={0.85} onPress={() => handleExpand(item)}>
                       <Text style={[styles.rowName, item.checked && styles.rowNameChecked]}>{item.foodName}</Text>
                       <Text style={styles.rowMeta}>
-                        {formatGroceryAmount(item.quantity, item.unit)}
+                        {formatMergedAmounts({ primary: { quantity: item.quantity, unit: item.unit }, extras: item.extraAmounts })}
                         {item.price != null
                           ? ` · ${formatMoney(item.price)} ${groceryPriceUnitShortLabel(item.priceUnit ?? 'total')}`
                           : ''}
                         {lineTotal != null && item.priceUnit !== 'total' ? ` = ${formatMoney(lineTotal)}` : ''}
                       </Text>
+                      {item.mealNames.length > 0 ? (
+                        <Text style={styles.rowMeta} numberOfLines={2}>
+                          {`For ${item.mealNames.join(', ')}`}
+                        </Text>
+                      ) : null}
                       {item.note ? <Text style={styles.rowMeta}>{item.note}</Text> : null}
                     </TouchableOpacity>
                     <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textMuted} />

@@ -20,21 +20,31 @@ const fs = require('fs');
 const path = require('path');
 const ts = require('typescript');
 
-const SOURCE = path.join(__dirname, '..', 'lib', 'groceryList.ts');
+const LIB = path.join(__dirname, '..', 'lib');
 
-// Transpiled in memory rather than shelling out to tsc and writing files: this
-// module imports nothing at all, so the plain transpiler is enough and the
-// script stays a single, side-effect-free run. Same approach as
-// scripts/test_spoken_food_parsing.js.
-function loadGroceryList() {
-  const source = fs.readFileSync(SOURCE, 'utf8');
+// Transpiled in memory rather than shelling out to tsc and writing files.
+// groceryList.ts imports lib/unitConversion.ts for the real conversion
+// factors (deliberately, rather than keeping a second copy of them), so this
+// resolves that one sibling import the same way, recursively. Same approach
+// as scripts/test_spoken_food_parsing.js, one step further.
+function loadModule(name, cache = new Map()) {
+  if (cache.has(name)) return cache.get(name);
+  const source = fs.readFileSync(path.join(LIB, `${name}.ts`), 'utf8');
   const { outputText } = ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
-    fileName: 'groceryList.ts',
+    fileName: `${name}.ts`,
   });
   const module = { exports: {} };
+  cache.set(name, module.exports);
+  const localRequire = (request) => {
+    if (!request.startsWith('./')) {
+      throw new Error(`This harness only resolves sibling lib modules, got: ${request}`);
+    }
+    return loadModule(request.slice(2), cache);
+  };
   // eslint-disable-next-line no-new-func
-  new Function('exports', 'module', outputText)(module.exports, module);
+  new Function('exports', 'module', 'require', outputText)(module.exports, module, localRequire);
+  cache.set(name, module.exports);
   return module.exports;
 }
 
@@ -48,7 +58,9 @@ const {
   describeGroceryWindow,
   isEncouragedGroceryWindow,
   groceryPriceUnitLabel,
-} = loadGroceryList();
+  mergeShoppingAmounts,
+  isNonPurchasableIngredient,
+} = loadModule('groceryList');
 
 let failures = 0;
 let checks = 0;
@@ -62,6 +74,17 @@ function check(label, actual, expected) {
     console.error(`      expected ${JSON.stringify(expected)}`);
     console.error(`      got      ${JSON.stringify(actual)}`);
   }
+}
+
+// Amounts come out of real conversion factors, so they carry ordinary
+// floating-point noise (a cup is 236.588 ml, and 236.588 + 100 lands a
+// fifteenth decimal place away from where arithmetic on paper does). Rounded
+// before comparing, since the question here is whether the merging is right,
+// not whether IEEE 754 is.
+function checkAmounts(label, actual, expected) {
+  const round = (entry) => ({ quantity: Math.round(entry.quantity * 10000) / 10000, unit: entry.unit });
+  const normalize = (merged) => ({ primary: round(merged.primary), extras: merged.extras.map(round) });
+  check(label, normalize(actual), normalize(expected));
 }
 
 // --- One line's total -------------------------------------------------------
@@ -176,6 +199,67 @@ check('a week is allowed but not encouraged', isEncouragedGroceryWindow(7), fals
 check('a package price says so plainly', groceryPriceUnitLabel('total'), 'for all of it');
 check('a weight price names its unit', groceryPriceUnitLabel('lb'), 'per lb');
 
+
+// --- Adding one food up across every meal that needs it ---------------------
+//
+// 2026-09-01. The list used to key on a name that encoded preparation, so one
+// head of broccoli roasted in a side and shredded raw into a salad came out as
+// two lines. These check that the arithmetic behind the fix adds up.
+
+// Weights add to weights with no knowledge of the food.
+checkAmounts('grams add to grams', mergeShoppingAmounts([{ quantity: 200, unit: 'g' }, { quantity: 140, unit: 'g' }]), {
+  primary: { quantity: 340, unit: 'g' },
+  extras: [],
+});
+// Mixed weight units still add, through the app's own conversion factors.
+checkAmounts('ounces fold into grams', mergeShoppingAmounts([{ quantity: 100, unit: 'g' }, { quantity: 1, unit: 'oz' }]), {
+  primary: { quantity: 128.3495, unit: 'g' },
+  extras: [],
+});
+// Past a kilo it reads as kilos, since that is what a person would say.
+checkAmounts('a big weight reads in kilos', mergeShoppingAmounts([{ quantity: 900, unit: 'g' }, { quantity: 300, unit: 'g' }]), {
+  primary: { quantity: 1.2, unit: 'kg' },
+  extras: [],
+});
+// Volumes add to volumes, also without needing a density.
+checkAmounts('cups fold into millilitres', mergeShoppingAmounts([{ quantity: 1, unit: 'cup' }, { quantity: 100, unit: 'ml' }]), {
+  primary: { quantity: 336.588, unit: 'ml' },
+  extras: [],
+});
+// Counts merge only with the identical word: 3 eggs and 2 eggs are 5 eggs.
+checkAmounts('counts add up', mergeShoppingAmounts([{ quantity: 3, unit: 'each' }, { quantity: 2, unit: 'each' }]), {
+  primary: { quantity: 5, unit: 'each' },
+  extras: [],
+});
+
+// The line this deliberately does not cross: a weight and a volume of the same
+// food cannot be added without a density the app does not have, so both are
+// kept rather than one being folded into the other or dropped.
+checkAmounts('a weight and a volume stay separate', mergeShoppingAmounts([{ quantity: 200, unit: 'g' }, { quantity: 1, unit: 'cup' }]), {
+  primary: { quantity: 200, unit: 'g' },
+  extras: [{ quantity: 236.588, unit: 'ml' }],
+});
+// Whichever way the food was measured most often leads the line.
+checkAmounts(
+  'the most common measure leads',
+  mergeShoppingAmounts([{ quantity: 1, unit: 'each' }, { quantity: 2, unit: 'each' }, { quantity: 50, unit: 'g' }]),
+  { primary: { quantity: 3, unit: 'each' }, extras: [{ quantity: 50, unit: 'g' }] },
+);
+// Weight settles a tie, because a scale in a store can settle it too.
+checkAmounts('weight wins a tie', mergeShoppingAmounts([{ quantity: 1, unit: 'each' }, { quantity: 50, unit: 'g' }]), {
+  primary: { quantity: 50, unit: 'g' },
+  extras: [{ quantity: 1, unit: 'each' }],
+});
+check('nothing to merge is not a crash', mergeShoppingAmounts([]), { primary: { quantity: 0, unit: '' }, extras: [] });
+
+// --- What never reaches the list --------------------------------------------
+
+check('tap water is not shopped for', isNonPurchasableIngredient('Water, tap'), true);
+check('the check ignores casing', isNonPurchasableIngredient('  water, TAP  '), true);
+// The exclusion is exact, so foods that merely contain the word survive. This
+// is why it matches whole base names rather than searching for "water".
+check('coconut water is a real purchase', isNonPurchasableIngredient('Coconut water'), false);
+check('watermelon is a real purchase', isNonPurchasableIngredient('Watermelon'), false);
 if (failures > 0) {
   console.error(`\nGrocery list math: ${failures} of ${checks} checks failed.`);
   process.exit(1);

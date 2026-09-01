@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.2',
+    date: '2026-09-01',
+    changes: [
+      "The grocery list now names what you actually buy. It was listing prep versions like \"Broccoli (boiled)\", which no store sells. Preparation belongs to the recipe, so the list shows the raw ingredient.",
+      "Fixed: a food needed by more than one meal was listed more than once, because a raw version and a cooked version counted as two different foods. Everything for one food is now added together into a single line covering all the days you are shopping for.",
+      "Amounts measured different ways are added together properly. Ounces fold into grams, cups into millilitres. A weight and a volume of the same food are shown side by side rather than being wrongly added, since converting between them needs a density the app does not have for most foods.",
+      "Tap water no longer appears on the list. It stays in the recipes, where it counts toward your daily water, but there is no reason to shop for it.",
+      "Each line now says which meals need it, and the top of the list names every meal it was built to cover.",
+    ],
+  },
+  {
     version: '1.0.32.1',
     date: '2026-09-01',
     changes: [

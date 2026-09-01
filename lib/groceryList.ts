@@ -8,6 +8,7 @@
 // out how much of each ingredient every scheduled dish needs. Then it is
 // carried into a shop, checked off, and priced.
 
+import { convertToGrams, MASS_UNITS, VOLUME_UNITS, volumeToMl, type MeasurementUnit } from './unitConversion';
 // 2 to 4 days is what the original request encouraged, on the reasoning
 // that produce bought for a whole week stops being fresh long before the
 // week is over. Up to 7 is allowed rather than blocked, because someone
@@ -145,4 +146,129 @@ export function describeGroceryWindow(daysAhead: number, peopleCount: number): s
   const days = daysAhead === 1 ? '1 day' : `${daysAhead} days`;
   const people = peopleCount === 1 ? '1 person' : `${peopleCount} people`;
   return `${days} of meals for ${people}`;
+}
+
+// --- What never belongs on a shopping list ---------------------------------
+//
+// 2026-09-01, direct instruction: "if it is tap water, it shouldn't even
+// appear on the list at all."
+//
+// Tap water is on 67 curated recipe ingredient rows, and it belongs there:
+// it was added deliberately on 2026-08-26 so soups and simmered grains
+// count toward the day's real water intake. It is the shopping list, not
+// the recipe data, that has no use for it. So it is filtered at this
+// boundary rather than removed from the recipes, which would break
+// hydration tracking to fix a display problem.
+//
+// Matched on the base name, which is the raw purchasable identity, so this
+// stays a short list of exact things rather than a keyword search that
+// would also catch coconut water and watermelon.
+const NON_PURCHASABLE_BASE_NAMES = new Set(['water, tap', 'water, municipal', 'water, well', 'water, drinking']);
+
+export function isNonPurchasableIngredient(baseName: string): boolean {
+  return NON_PURCHASABLE_BASE_NAMES.has(baseName.trim().toLowerCase());
+}
+
+// --- Adding up one food across every meal that needs it ---------------------
+
+export type AmountEntry = { quantity: number; unit: string };
+
+export type MergedAmounts = {
+  // The one amount that leads the line.
+  primary: AmountEntry;
+  // Anything that genuinely could not be folded into it. A volume and a
+  // weight of the same food cannot be added without a density the app does
+  // not have for most foods, so both are shown rather than one being
+  // dropped or guessed into the other.
+  extras: AmountEntry[];
+};
+
+// The conversion factors themselves live in lib/unitConversion.ts and are
+// reached through its own two functions rather than copied here: a second
+// table of grams per ounce is exactly the kind of duplication that drifts
+// silently once one of the two gets corrected.
+//
+// Weights convert among themselves and volumes convert among themselves,
+// both without knowing anything about the food. Only crossing between the
+// two needs a density, which is the line this deliberately does not cross.
+// Everything else (each, slice, clove) is a count and merges only with the
+// exact same word.
+function familyFor(unit: string): 'mass' | 'volume' | string {
+  const key = unit.trim().toLowerCase();
+  if ((MASS_UNITS as readonly string[]).includes(key)) return 'mass';
+  if ((VOLUME_UNITS as readonly string[]).includes(key)) return 'volume';
+  return `count:${key}`;
+}
+
+// Returns null only where a unit claimed a family it cannot actually be
+// converted within, which should not happen, but is handled rather than
+// assumed away.
+function toFamilyBase(family: string, quantity: number, unit: string): number | null {
+  const key = unit.trim().toLowerCase() as MeasurementUnit;
+  if (family === 'mass') {
+    const converted = convertToGrams(quantity, key);
+    return converted.ok ? converted.grams : null;
+  }
+  if (family === 'volume') return volumeToMl(quantity, key);
+  return quantity;
+}
+
+export function mergeShoppingAmounts(entries: AmountEntry[]): MergedAmounts {
+  if (entries.length === 0) return { primary: { quantity: 0, unit: '' }, extras: [] };
+
+  const buckets = new Map<string, { total: number; count: number; unit: string }>();
+  for (const entry of entries) {
+    const family = familyFor(entry.unit);
+    const existing = buckets.get(family);
+    const value = toFamilyBase(family, entry.quantity, entry.unit);
+    if (value == null) continue;
+    if (existing) {
+      existing.total += value;
+      existing.count += 1;
+    } else {
+      buckets.set(family, { total: value, count: 1, unit: entry.unit.trim() });
+    }
+  }
+
+  const rendered = Array.from(buckets.entries()).map(([family, bucket]) => ({
+    family,
+    count: bucket.count,
+    amount: renderBucket(family, bucket.total, bucket.unit),
+  }));
+
+  // The amount that leads is whichever way this food was measured most
+  // often across the meals that need it, since that is the reading most of
+  // the list already agrees on. Weight wins a tie, because it is the one a
+  // scale in a store can settle.
+  rendered.sort((a, b) => {
+    if (b.count !== a.count) return b.count - a.count;
+    return familyRank(a.family) - familyRank(b.family);
+  });
+
+  return { primary: rendered[0].amount, extras: rendered.slice(1).map((entry) => entry.amount) };
+}
+
+function familyRank(family: string): number {
+  if (family === 'mass') return 0;
+  if (family === 'volume') return 1;
+  return 2;
+}
+
+// Kept in the unit a person would actually say out loud: grams up to a
+// kilo, millilitres up to a litre, and the original word for a count.
+function renderBucket(family: string, total: number, originalUnit: string): AmountEntry {
+  if (family === 'mass') {
+    return total >= 1000 ? { quantity: total / 1000, unit: 'kg' } : { quantity: total, unit: 'g' };
+  }
+  if (family === 'volume') {
+    return total >= 1000 ? { quantity: total / 1000, unit: 'L' } : { quantity: total, unit: 'ml' };
+  }
+  return { quantity: total, unit: originalUnit };
+}
+
+// "340 g" on its own, or "340 g + 2 cups" where the two genuinely cannot be
+// added together.
+export function formatMergedAmounts(merged: MergedAmounts): string {
+  const parts = [merged.primary, ...merged.extras].map((entry) => formatGroceryAmount(entry.quantity, entry.unit));
+  return parts.join(' + ');
 }

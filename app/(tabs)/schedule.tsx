@@ -2600,7 +2600,10 @@ function ShoppingListLens() {
             <Text style={styles.label}>{section.category}</Text>
             {section.items.map((item) => (
               <Text key={`${item.foodName}|${item.unit}`} style={styles.mealPlanSlotText}>
-                {item.foodName}: {roundForDisplay(item.quantity)} {item.unit}
+                {item.foodName}:{' '}
+                {[{ quantity: item.quantity, unit: item.unit }, ...item.extraAmounts]
+                  .map((amount) => `${roundForDisplay(amount.quantity)} ${amount.unit}`.trim())
+                  .join(' + ')}
               </Text>
             ))}
           </View>

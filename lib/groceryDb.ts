@@ -47,16 +47,28 @@ export type GroceryListItemRecord = {
   purchasedQuantity: number | null;
   scannedProductId: number | null;
   note: string | null;
+  // Amounts that genuinely could not be added to the one above, because a
+  // weight and a volume of the same food need a density the app does not
+  // have. Shown beside it rather than dropped or guessed into it.
+  extraAmounts: { quantity: number; unit: string }[];
+  // The scheduled meals this line is for, so a line can be traced back to
+  // what needs it before it is struck off.
+  mealNames: string[];
   addedManually: boolean;
   sortOrder: number;
 };
 
 type GroceryListRow = Omit<GroceryListRecord, 'status'> & { status: string };
 
-type GroceryListItemRow = Omit<GroceryListItemRecord, 'checked' | 'addedManually' | 'priceUnit'> & {
+type GroceryListItemRow = Omit<
+  GroceryListItemRecord,
+  'checked' | 'addedManually' | 'priceUnit' | 'extraAmounts' | 'mealNames'
+> & {
   checked: number;
   addedManually: number;
   priceUnit: string | null;
+  extraAmountsJson: string | null;
+  mealNamesJson: string | null;
 };
 
 const GROCERY_LIST_COLUMNS = `
@@ -67,7 +79,8 @@ const GROCERY_LIST_COLUMNS = `
 const GROCERY_ITEM_COLUMNS = `
   id, list_id AS listId, category, food_name AS foodName, unit, quantity, checked,
   checked_at AS checkedAt, price, price_unit AS priceUnit, purchased_quantity AS purchasedQuantity,
-  scanned_product_id AS scannedProductId, note, added_manually AS addedManually, sort_order AS sortOrder
+  scanned_product_id AS scannedProductId, note, added_manually AS addedManually, sort_order AS sortOrder,
+  extra_amounts_json AS extraAmountsJson, meal_names_json AS mealNamesJson
 `;
 
 function toPriceUnit(value: string | null | undefined): GroceryPriceUnit | null {
@@ -81,12 +94,28 @@ function mapGroceryList(row: GroceryListRow): GroceryListRecord {
   return { ...row, status: row.status === 'completed' ? 'completed' : 'active' };
 }
 
+// Malformed JSON reads as "none recorded" rather than throwing. A stored
+// list is something someone is standing in a store holding; one bad row
+// must not stop the whole list from opening.
+function parseJsonArray<T>(value: string | null): T[] {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? (parsed as T[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 function mapGroceryItem(row: GroceryListItemRow): GroceryListItemRecord {
+  const { extraAmountsJson, mealNamesJson, ...rest } = row;
   return {
-    ...row,
+    ...rest,
     checked: row.checked === 1,
     addedManually: row.addedManually === 1,
     priceUnit: toPriceUnit(row.priceUnit),
+    extraAmounts: parseJsonArray<{ quantity: number; unit: string }>(extraAmountsJson),
+    mealNames: parseJsonArray<string>(mealNamesJson),
   };
 }
 
@@ -126,8 +155,9 @@ export async function createGroceryListFromSchedule(input: {
   for (const section of sections) {
     for (const item of section.items) {
       await db.runAsync(
-        `INSERT INTO grocery_list_items (id, list_id, category, food_name, unit, quantity, sort_order)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO grocery_list_items
+           (id, list_id, category, food_name, unit, quantity, sort_order, extra_amounts_json, meal_names_json)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         `grocery_item_${Date.now()}_${sortOrder}`,
         id,
         section.category,
@@ -135,6 +165,10 @@ export async function createGroceryListFromSchedule(input: {
         item.unit,
         item.quantity * peopleCount,
         sortOrder,
+        // Every amount scales by the same head count, including the ones
+        // that had to be kept separate from the main figure.
+        JSON.stringify(item.extraAmounts.map((extra) => ({ ...extra, quantity: extra.quantity * peopleCount }))),
+        JSON.stringify(item.mealNames),
       );
       sortOrder += 1;
     }
