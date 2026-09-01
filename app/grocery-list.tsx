@@ -31,6 +31,7 @@ import {
   getGroceryList,
   getGroceryListItems,
   listGroceryLists,
+  rebuildGroceryListFromSchedule,
   setGroceryItemChecked,
   setGroceryListStatus,
   updateGroceryItemPurchase,
@@ -265,6 +266,34 @@ export default function GroceryListScreen() {
     }
   }
 
+  // 2026-09-01. A list stores its lines when it is built, so a list made
+  // before a fix keeps the old ones. This is how one catches up without
+  // being thrown away and rebuilt from nothing.
+  async function handleRefresh() {
+    if (!list) return;
+    setBusy(true);
+    setErrorMessage('');
+    try {
+      const result = await rebuildGroceryListFromSchedule(list.id);
+      await refreshItems(list.id);
+      const parts = [`${result.carriedOver} kept as they were`];
+      if (result.added > 0) parts.push(`${result.added} rewritten or new`);
+      if (result.removed > 0) parts.push(`${result.removed} no longer on the schedule`);
+      if (result.keptByHand > 0) parts.push(`${result.keptByHand} you added by hand, untouched`);
+      showInfoAlert(
+        'Refreshed from your schedule',
+        `${parts.join(', ')}.` +
+          (result.added > 0
+            ? ' Anything rewritten starts without its tick or price, because its name changed and the app will not pretend two different names are the same thing.'
+            : ''),
+      );
+    } catch (error) {
+      setErrorMessage(`Could not refresh the list: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleFinish() {
     if (!list) return;
     setBusy(true);
@@ -484,6 +513,15 @@ export default function GroceryListScreen() {
         ) : null}
 
         <View style={styles.buttonRow}>
+          <TouchableOpacity
+            style={[styles.secondaryButton, busy && styles.disabled]}
+            activeOpacity={0.85}
+            onPress={handleRefresh}
+            disabled={busy}
+          >
+            <Ionicons name="sync-outline" size={18} color={colors.textSecondary} />
+            <Text style={styles.secondaryButtonText}>Refresh</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={handleScanNewItem}>
             <Ionicons name="barcode-outline" size={18} color={colors.textSecondary} />
             <Text style={styles.secondaryButtonText}>Scan a Product</Text>
@@ -757,7 +795,10 @@ const styles = StyleSheet.create({
     ...textShadow,
   },
   historyRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10 },
-  buttonRow: { flexDirection: 'row', gap: 10 },
+  // Wraps rather than squeezing: three labelled buttons do not fit across a
+  // phone, and a button whose text is cut in half is worse than one on its own
+  // second line.
+  buttonRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   disabled: { opacity: 0.6 },
   primaryButton: {
     flexDirection: 'row',
@@ -785,6 +826,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: 10,
     paddingVertical: 12,
+    paddingHorizontal: 10,
+    minWidth: 132,
     backgroundColor: colors.surface,
   },
   secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary, ...textShadow },

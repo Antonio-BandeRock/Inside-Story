@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.5',
+    date: '2026-09-01',
+    changes: [
+      "Added Refresh to the grocery list. A list stores its lines when you build it, which is what stops it rewriting itself while you are shopping, but it also meant a list made before the recent fixes kept the old wording and the duplicates forever. Refresh rebuilds it from your schedule as it stands now.",
+      "Refreshing keeps your ticks and prices wherever the line still matches, and keeps anything you added by hand untouched. It tells you how many lines had to start fresh, which happens when a name changed, rather than quietly losing a tick you had already made.",
+    ],
+  },
+  {
     version: '1.0.32.4',
     date: '2026-09-01',
     changes: [

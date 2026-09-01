@@ -25,6 +25,20 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-01, 1.0.32.5): a Refresh action, after a direct on-device report that the fixes were not visible.** "A lot of this looks the same as it did before the update." Correct, and the fault was in what was delivered rather than in what was seen.
+
+**Why everything looked unchanged.** A grocery list stores its lines when it is BUILT: names, merged amounts, sold-as phrases, meal names, all written once and read back thereafter. That is deliberate and still right, since a list must not rewrite itself while someone is holding it in an aisle. What was missing is any way for an existing list to pick up a later fix, so a list built before the prep-name and duplicate fixes still read "Broccoli (boiled)" and still listed it twice, permanently. The same shape applies to the cooking-method fix: it runs when an ingredient is ADDED, so a dish saved earlier keeps the row it already had.
+
+**Stated as a general lesson worth keeping:** every fix shipped this day changes how new data is created, and none of them reach data that already exists. Whenever a fix is to stored, user-visible records rather than to a live computation, decide in the same pass how existing records catch up, and say so plainly at handoff rather than leaving someone to find that nothing changed.
+
+**`rebuildGroceryListFromSchedule`** rebuilds the schedule-derived lines from the schedule as it stands now, keeping the list itself, everything added by hand, and every price and tick that still has a line to belong to. Old lines are cleared and rewritten rather than reconciled row by row, because the shape can genuinely change: two old lines are now one.
+
+**The matching is imperfect on purpose, and says so.** Old lines are matched to new by name, and the lines most changed by these fixes are exactly the ones whose names changed, so "Broccoli (boiled)" cannot be matched to "Broccoli" without pretending to know they are the same thing. Those start fresh, and the result reports how many did, so someone is told at the time rather than discovering a missing tick in a shop.
+
+The button row wraps rather than squeezing three labelled buttons across a phone. `tsc` clean project-wide, `eslint` clean on both touched files, bare-text audit at 0, all three suites passing (30, 52, 29).
+
+**The check that matters, and the one thing to try first:** open the existing grocery list, tap Refresh, and confirm the prep words and duplicates are gone. A list built fresh after 1.0.32.4 would already have been correct; this is for the one already there.
+
 **Most recent (2026-09-01, 1.0.32.4): purchase forms, so the grocery list speaks in what a store sells.** The deferred half of the 2026-08-30 specification, taken on after the four correctness fixes shipped first.
 
 **The problem it closes:** the list reports what the recipes CONSUME, and 1,714 of the 2,320 curated ingredient rows are in grams, because that is how those amounts were written. "340 g of broccoli" is not how anyone shops.

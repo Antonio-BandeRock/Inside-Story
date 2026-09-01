@@ -519,3 +519,89 @@ export async function getActiveGroceryListSummary(): Promise<GroceryListSummary 
     checkedCount: counts?.checkedCount ?? 0,
   };
 }
+
+export type GroceryRebuildResult = {
+  carriedOver: number;
+  added: number;
+  removed: number;
+  keptByHand: number;
+};
+
+// Rebuilds a list's schedule-derived lines from the schedule as it stands now,
+// keeping the list itself, anything added by hand, and every price and tick
+// that still has a line to belong to.
+//
+// 2026-09-01, from a direct on-device report: "A lot of this looks the same as
+// it did before the update." Correct, and the fault was mine. A list stores
+// its lines when it is built, which is right for shopping (a list must not
+// rewrite itself while someone is holding it) and leaves no way to pick up a
+// later fix. A list built before the prep-name and duplicate fixes still read
+// "Broccoli (boiled)" and still listed it twice, permanently.
+//
+// Matching old lines to new ones is by name, case-insensitively, and it is
+// imperfect on purpose rather than by oversight: the lines most changed by
+// those fixes are exactly the ones whose names changed, so a line that used to
+// say "Broccoli (boiled)" cannot be matched to "Broccoli" without pretending
+// to know they are the same. Those start fresh, and the result says how many
+// did, so the caller can tell someone plainly rather than letting them notice
+// a missing tick in a shop.
+export async function rebuildGroceryListFromSchedule(listId: string): Promise<GroceryRebuildResult> {
+  const db = await getDatabase();
+  const list = await getGroceryList(listId);
+  if (!list) throw new Error('That grocery list no longer exists.');
+
+  const existing = await getGroceryListItems(listId);
+  const byHand = existing.filter((item) => item.addedManually);
+  const fromSchedule = existing.filter((item) => !item.addedManually);
+  const previous = new Map(fromSchedule.map((item) => [item.foodName.trim().toLowerCase(), item]));
+
+  const sections = await getUpcomingShoppingList(list.daysAhead);
+
+  // Cleared and rewritten rather than reconciled row by row: the whole point
+  // is that the shape of the list may have changed, with two old lines now
+  // being one. Anything added by hand is untouched by this delete.
+  await db.runAsync('DELETE FROM grocery_list_items WHERE list_id = ? AND added_manually = 0', listId);
+
+  let carriedOver = 0;
+  let added = 0;
+  let sortOrder = 0;
+  for (const section of sections) {
+    for (const item of section.items) {
+      const key = item.foodName.trim().toLowerCase();
+      const prior = previous.get(key);
+      if (prior) carriedOver += 1;
+      else added += 1;
+      await db.runAsync(
+        `INSERT INTO grocery_list_items
+           (id, list_id, category, food_name, unit, quantity, sort_order, extra_amounts_json, meal_names_json,
+            sold_as, approx_amount, checked, checked_at, price, price_unit, purchased_quantity, scanned_product_id, note)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `grocery_item_${Date.now()}_${sortOrder}`,
+        listId,
+        section.category,
+        item.foodName,
+        item.unit,
+        item.quantity * list.peopleCount,
+        sortOrder,
+        JSON.stringify(item.extraAmounts.map((extra) => ({ ...extra, quantity: extra.quantity * list.peopleCount }))),
+        JSON.stringify(item.mealNames),
+        item.soldAs || null,
+        list.peopleCount === 1 ? item.approxAmount : null,
+        prior?.checked ? 1 : 0,
+        prior?.checkedAt ?? null,
+        prior?.price ?? null,
+        prior?.priceUnit ?? null,
+        prior?.purchasedQuantity ?? null,
+        prior?.scannedProductId ?? null,
+        prior?.note ?? null,
+      );
+      previous.delete(key);
+      sortOrder += 1;
+    }
+  }
+
+  // Whatever the schedule no longer calls for. Counted rather than silently
+  // dropped, since a line disappearing from under someone is worth saying.
+  const removed = previous.size;
+  return { carriedOver, added, removed, keptByHand: byHand.length };
+}
