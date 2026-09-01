@@ -17,7 +17,10 @@ import {
   describeApproximateCount,
   GROCERY_PRICE_UNITS,
   type GroceryPriceUnit,
+  type PurchaseForm,
 } from './groceryList';
+
+const PURCHASE_FORMS: PurchaseForm[] = ['count', 'weight', 'volume'];
 
 // Its own category so anything added in the store groups together at the
 // end of the list rather than being scattered through categories that came
@@ -65,6 +68,9 @@ export type GroceryListItemRecord = {
   // database changes underneath it.
   soldAs: string;
   approxAmount: string | null;
+  // Kept on the line so the price-unit choices stay right even after the
+  // reference database moves on, the same reason soldAs is kept.
+  purchaseForm: PurchaseForm | null;
   addedManually: boolean;
   sortOrder: number;
 };
@@ -73,8 +79,9 @@ type GroceryListRow = Omit<GroceryListRecord, 'status'> & { status: string };
 
 type GroceryListItemRow = Omit<
   GroceryListItemRecord,
-  'checked' | 'addedManually' | 'priceUnit' | 'extraAmounts' | 'mealNames' | 'soldAs'
+  'checked' | 'addedManually' | 'priceUnit' | 'extraAmounts' | 'mealNames' | 'soldAs' | 'purchaseForm'
 > & {
+  purchaseForm: string | null;
   checked: number;
   addedManually: number;
   priceUnit: string | null;
@@ -93,7 +100,7 @@ const GROCERY_ITEM_COLUMNS = `
   checked_at AS checkedAt, price, price_unit AS priceUnit, purchased_quantity AS purchasedQuantity,
   scanned_product_id AS scannedProductId, note, added_manually AS addedManually, sort_order AS sortOrder,
   extra_amounts_json AS extraAmountsJson, meal_names_json AS mealNamesJson,
-  sold_as AS soldAs, approx_amount AS approxAmount
+  sold_as AS soldAs, approx_amount AS approxAmount, purchase_form AS purchaseForm
 `;
 
 function toPriceUnit(value: string | null | undefined): GroceryPriceUnit | null {
@@ -130,6 +137,9 @@ function mapGroceryItem(row: GroceryListItemRow): GroceryListItemRecord {
     extraAmounts: parseJsonArray<{ quantity: number; unit: string }>(extraAmountsJson),
     mealNames: parseJsonArray<string>(mealNamesJson),
     soldAs: row.soldAs ?? '',
+    purchaseForm: PURCHASE_FORMS.includes(row.purchaseForm as PurchaseForm)
+      ? (row.purchaseForm as PurchaseForm)
+      : null,
   };
 }
 
@@ -170,8 +180,8 @@ export async function createGroceryListFromSchedule(input: {
     for (const item of section.items) {
       await db.runAsync(
         `INSERT INTO grocery_list_items
-           (id, list_id, category, food_name, unit, quantity, sort_order, extra_amounts_json, meal_names_json, sold_as, approx_amount)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           (id, list_id, category, food_name, unit, quantity, sort_order, extra_amounts_json, meal_names_json, sold_as, approx_amount, purchase_form)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         `grocery_item_${Date.now()}_${sortOrder}`,
         id,
         section.category,
@@ -184,6 +194,7 @@ export async function createGroceryListFromSchedule(input: {
         JSON.stringify(item.extraAmounts.map((extra) => ({ ...extra, quantity: extra.quantity * peopleCount }))),
         JSON.stringify(item.mealNames),
         item.soldAs || null,
+        item.purchaseForm,
         // Worked out from the SCALED weight rather than by multiplying the
         // one-person count. 2026-09-01: the first version dropped the count
         // entirely above one person, on the reasoning that multiplying a
@@ -589,8 +600,8 @@ export async function rebuildGroceryListFromSchedule(listId: string): Promise<Gr
       await db.runAsync(
         `INSERT INTO grocery_list_items
            (id, list_id, category, food_name, unit, quantity, sort_order, extra_amounts_json, meal_names_json,
-            sold_as, approx_amount, checked, checked_at, price, price_unit, purchased_quantity, scanned_product_id, note)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            sold_as, approx_amount, purchase_form, checked, checked_at, price, price_unit, purchased_quantity, scanned_product_id, note)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         `grocery_item_${Date.now()}_${sortOrder}`,
         listId,
         section.category,
@@ -609,6 +620,7 @@ export async function rebuildGroceryListFromSchedule(listId: string): Promise<Gr
           item.unitLabelPlural,
           item.gramsPerUnit,
         ),
+        item.purchaseForm,
         prior?.checked ? 1 : 0,
         prior?.checkedAt ?? null,
         prior?.price ?? null,

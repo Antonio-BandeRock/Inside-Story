@@ -28,9 +28,38 @@ export function isEncouragedGroceryWindow(days: number): boolean {
 // per unit. 'lb' and 'kg' are unit prices, where the line total genuinely
 // cannot be known without a weight, which is why groceryLineTotal below
 // returns null rather than inventing one.
-export type GroceryPriceUnit = 'total' | 'each' | 'lb' | 'kg';
+export type GroceryPriceUnit = 'total' | 'each' | 'lb' | 'kg' | 'l' | 'fl_oz';
 
-export const GROCERY_PRICE_UNITS: GroceryPriceUnit[] = ['total', 'each', 'lb', 'kg'];
+// Every unit that can be stored. What is OFFERED for a given line is a much
+// shorter list: see groceryPriceUnitsFor.
+export const GROCERY_PRICE_UNITS: GroceryPriceUnit[] = ['total', 'each', 'lb', 'kg', 'l', 'fl_oz'];
+
+// 2026-09-01, from two reports in one breath: "Per kg and Per lb should rely
+// on them having set their units up in Preferences. They shouldn't need to
+// choose that here for each item, and I'm seeing this on Olive Oil, so that's
+// wrong to begin with anyway. Olive oil isn't sold by the weight."
+//
+// Both are right, and the second is the deeper one. Offering every unit on
+// every line made the list ask a question it already had the answer to, and
+// offered answers that were wrong for the thing being priced. A bottle of oil
+// has no price per pound.
+//
+// So: one weight-or-volume unit, picked by which system the person already
+// set, and which of the two it is decided by how the food is sold rather than
+// by asking again.
+export function groceryPriceUnitsFor(
+  form: PurchaseForm | null | undefined,
+  system: 'metric' | 'imperial',
+): GroceryPriceUnit[] {
+  // Sold by volume: a per-weight price would be meaningless, so it is not
+  // offered at all.
+  if (form === 'volume') {
+    return ['total', 'each', system === 'imperial' ? 'fl_oz' : 'l'];
+  }
+  // Everything else can be priced by weight, including things sold loose and
+  // counted: onions are commonly counted AND priced by the pound.
+  return ['total', 'each', system === 'imperial' ? 'lb' : 'kg'];
+}
 
 export function groceryPriceUnitLabel(unit: GroceryPriceUnit): string {
   switch (unit) {
@@ -42,6 +71,10 @@ export function groceryPriceUnitLabel(unit: GroceryPriceUnit): string {
       return 'per lb';
     case 'kg':
       return 'per kg';
+    case 'l':
+      return 'per litre';
+    case 'fl_oz':
+      return 'per fl oz';
   }
 }
 
@@ -55,6 +88,10 @@ export function groceryPriceUnitShortLabel(unit: GroceryPriceUnit): string {
       return '/lb';
     case 'kg':
       return '/kg';
+    case 'l':
+      return '/L';
+    case 'fl_oz':
+      return '/fl oz';
   }
 }
 
@@ -80,8 +117,89 @@ export function groceryLineTotal(line: GroceryLineForTotal): number | null {
     const count = line.purchasedQuantity ?? line.quantity;
     return line.price * count;
   }
+  // Everything left is a price per unit of weight or volume, and all of them
+  // need to know how much was actually bought before they mean anything.
   if (line.purchasedQuantity == null) return null;
   return line.price * line.purchasedQuantity;
+}
+
+// --- Reading a price someone said, or photographed --------------------------
+//
+// 2026-09-01, asked for directly: "they should be able to scan OCR trace the
+// price of the item rather than only having the option to type it in by hand,
+// and they should be able to say it."
+//
+// One parser for both, since a shelf label read by OCR and a price said out
+// loud arrive as the same thing: a short string that may or may not contain a
+// number. Returns null rather than a guess whenever it cannot tell, so the
+// field stays empty and waits rather than filling itself with something wrong.
+const SPOKEN_PRICE_WORDS: Record<string, number> = {
+  zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7,
+  eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13,
+  fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18,
+  nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60,
+  seventy: 70, eighty: 80, ninety: 90,
+};
+
+// "ninety nine cents" is 0.99, not 99. Applied only to a lone number, and
+// only when cents is mentioned without dollars, so "three dollars and ninety
+// nine cents" is untouched by it.
+function saidInCents(cleaned: string, value: number): number {
+  const mentionsCents = /\bcents?\b/.test(cleaned);
+  const mentionsDollars = /\bdollars?\b|\bpesos?\b|\beuros?\b/.test(cleaned);
+  if (mentionsCents && !mentionsDollars && value < 100) return Math.round(value) / 100;
+  return value;
+}
+
+export function parsePriceInput(text: string): number | null {
+  if (!text) return null;
+  const cleaned = text.toLowerCase().replace(/[$£€]/g, ' ').replace(/,/g, '');
+
+  // A written number wins outright, since it is unambiguous.
+  //
+  // A number carrying cents beats a bare one, and the largest of those wins.
+  // That rule is for photographed shelf labels, which are full of numbers that
+  // are not the price: "SALE 2/$5.00" has a 2 in it, and taking the first
+  // number found would price the item at two dollars.
+  const withCents = [...cleaned.matchAll(/(\d{1,4})[.:](\d{1,2})/g)].map(
+    (match) => Number(match[1]) + Number(match[2].padEnd(2, '0')) / 100,
+  );
+  if (withCents.length > 0) {
+    const value = Math.max(...withCents);
+    return Number.isFinite(value) ? Math.round(value * 100) / 100 : null;
+  }
+  // No cents anywhere, so a bare number is the price. A shelf label reading
+  // "4" is a real price, not a broken one.
+  const bare = cleaned.match(/\b(\d{1,4})\b/);
+  if (bare) {
+    const value = Number(bare[1]);
+    return Number.isFinite(value) && value >= 0 ? saidInCents(cleaned, value) : null;
+  }
+
+  // Spoken, where "four ninety nine" means 4.99 and "three fifty" means 3.50.
+  // The first number is dollars and whatever follows is cents, which is how
+  // people actually say a price out loud.
+  const words = cleaned.split(/[^a-z]+/).filter(Boolean);
+  const numbers: number[] = [];
+  for (const word of words) {
+    const value = SPOKEN_PRICE_WORDS[word];
+    if (value == null) continue;
+    // "ninety nine" is one number, not two: a tens word followed by a units
+    // word combines rather than starting again.
+    const last = numbers.length > 0 ? numbers[numbers.length - 1] : null;
+    if (last != null && last >= 20 && last % 10 === 0 && value < 10 && numbers.length >= 2) {
+      numbers[numbers.length - 1] = last + value;
+    } else if (last != null && last >= 20 && last % 10 === 0 && value < 10 && numbers.length === 1) {
+      numbers[0] = last + value;
+    } else {
+      numbers.push(value);
+    }
+  }
+  if (numbers.length === 0) return null;
+  if (numbers.length === 1) return saidInCents(cleaned, numbers[0]);
+  const cents = numbers[1];
+  if (cents > 99) return numbers[0];
+  return Math.round((numbers[0] + cents / 100) * 100) / 100;
 }
 
 export type GroceryListTotals = {

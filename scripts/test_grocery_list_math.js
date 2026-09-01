@@ -61,6 +61,8 @@ const {
   mergeShoppingAmounts,
   isNonPurchasableIngredient,
   describeApproximateCount,
+  groceryPriceUnitsFor,
+  parsePriceInput,
 } = loadModule('groceryList');
 
 let failures = 0;
@@ -283,6 +285,41 @@ check('no unit weight, no count', describeApproximateCount(300, 'g', 'Broccoli',
 check('a volume is not divided by a weight', describeApproximateCount(300, 'ml', 'Olive Oil', '', '', 150), null);
 check('a count of things is not re-counted', describeApproximateCount(3, 'each', 'Avocado', '', '', 150), null);
 check('a zero unit weight is refused', describeApproximateCount(300, 'g', 'Avocado', '', '', 0), null);
+
+// --- Which price units are worth offering ----------------------------------
+//
+// 2026-09-01, from two reports at once: the list asked which weight unit to
+// use on every line, when the app already knows from Preferences, and it
+// offered per-pound on olive oil, which no store sells that way.
+
+check('a bottle is never priced by weight', groceryPriceUnitsFor('volume', 'metric'), ['total', 'each', 'l']);
+check('and in imperial it is fluid ounces', groceryPriceUnitsFor('volume', 'imperial'), ['total', 'each', 'fl_oz']);
+// Only ever ONE weight unit, the one the person already chose.
+check('metric offers kilos and not pounds', groceryPriceUnitsFor('weight', 'metric'), ['total', 'each', 'kg']);
+check('imperial offers pounds and not kilos', groceryPriceUnitsFor('weight', 'imperial'), ['total', 'each', 'lb']);
+// Counted things can still be priced by weight: onions are sold loose AND
+// priced by the pound, so excluding weight here would be wrong.
+check('counted things can still be weighed', groceryPriceUnitsFor('count', 'imperial'), ['total', 'each', 'lb']);
+check('an unknown form still offers something sensible', groceryPriceUnitsFor(null, 'metric'), ['total', 'each', 'kg']);
+
+// --- Reading a price that was said or photographed --------------------------
+
+check('a typed price', parsePriceInput('3.99'), 3.99);
+check('a currency symbol is ignored', parsePriceInput('$3.99'), 3.99);
+check('a whole number is a real price', parsePriceInput('4'), 4);
+// The rule that matters for a photographed shelf label: a number carrying
+// cents beats a bare one, so "SALE 2/$5.00" is five dollars and not two.
+check('a shelf label is not priced at its multibuy', parsePriceInput('SALE 2/$5.00'), 5);
+check('a label with other text still reads', parsePriceInput('Organic Broccoli $2.49 /lb'), 2.49);
+// Spoken, in the shapes people actually use.
+check('spoken dollars and cents', parsePriceInput('three ninety nine'), 3.99);
+check('spoken with a round number of cents', parsePriceInput('four fifty'), 4.5);
+check('spoken the long way', parsePriceInput('three dollars and ninety nine cents'), 3.99);
+check('spoken cents alone are cents', parsePriceInput('ninety nine cents'), 0.99);
+check('fifty cents is not fifty dollars', parsePriceInput('fifty cents'), 0.5);
+// Refusals, so a wrong number never lands in the field on its own.
+check('words that are not a price', parsePriceInput('banana'), null);
+check('nothing at all', parsePriceInput(''), null);
 if (failures > 0) {
   console.error(`\nGrocery list math: ${failures} of ${checks} checks failed.`);
   process.exit(1);

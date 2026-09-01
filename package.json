@@ -1,7 +1,7 @@
 {
   "name": "hashimotos-app",
   "main": "expo-router/entry",
-  "version": "1.0.32.8",
+  "version": "1.0.32.9",
   "scripts": {
     "start": "node ./scripts/start-with-qr.js",
     "reset-project": "node ./scripts/reset-project.js",

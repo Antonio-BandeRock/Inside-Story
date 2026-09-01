@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.9',
+    date: '2026-09-01',
+    changes: [
+      "The price panel no longer asks whether you mean pounds or kilos. It uses whichever you already set in Profile, and offers only that one.",
+      "It also stopped offering a price per pound on things nobody sells by weight. Olive oil is priced for the bottle or per litre now, not per pound.",
+      "You can say the price instead of typing it. \"Three ninety nine\", \"four fifty\", or \"ninety nine cents\" all work.",
+      "You can photograph the shelf label and let the app read the price off it. Whatever it reads is put in the box for you to check, never saved on its own, and a label reading SALE 2/$5.00 is read as five dollars rather than two.",
+    ],
+  },
+  {
     version: '1.0.32.8',
     date: '2026-09-01',
     changes: [

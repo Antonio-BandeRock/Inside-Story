@@ -25,6 +25,20 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-01, 1.0.32.9): price units stopped asking a question the app already had the answer to, and a price can now be spoken or photographed.** Four reports in one message.
+
+**"Per kg and Per lb should rely on them having set their units up in Preferences."** Right, and `getStoredMeasurementSystem()` has existed in `lib/db.ts` all along. The price panel offered every unit on every line, which both asked again and left room to answer inconsistently across a single trip.
+
+**"I'm seeing this on Olive Oil, so that's wrong to begin with anyway. Olive oil isn't sold by the weight."** The deeper of the two, and the reason the fix is not simply "hide one pill". A bottle of oil has no price per pound at all, so the units offered have to follow how the thing is SOLD. New `groceryPriceUnitsFor(form, system)`: a volume-form line offers per litre or per fluid ounce and never a weight; everything else offers the one weight unit the person already picked. Counted things keep weight on purpose, since onions are sold loose AND priced by the pound.
+
+**One parser for both new ways in.** A shelf label read by OCR and a price said out loud arrive as the same thing: a short string that may or may not hold a number. `parsePriceInput` handles digits with or without cents, and the spoken shapes people actually use ("three ninety nine", "four fifty", "three dollars and ninety nine cents"). Two rules in it came from thinking about what a real label looks like: a number carrying cents beats a bare one and the largest wins, so **"SALE 2/$5.00" reads as five dollars rather than two**; and "ninety nine cents" is 0.99 rather than 99, applied only to a lone number and only when cents is mentioned without dollars.
+
+**Nothing read is ever saved on its own.** Both the photo and the spoken price land in the field to be checked, matching how this app already treats an OCR price everywhere else. A failure to read says so and leaves the field alone rather than filling it with a wrong number.
+
+**A tooling lesson worth keeping, found by testing rather than by reading.** Two regexes were written into the file through a shell-quoted Node one-liner and came out carrying a literal backspace byte where `\b` was meant, so `/\bcents?\b/` was silently `/‹BS›cents?‹BS›/` and never matched. The behaviour looked almost right, which is exactly why it survived a read-through. Found by tracing real inputs, fixed by splicing the lines from a quoted heredoc instead, and every other file touched today was then swept for the same damage (all clean). **When writing a regex into a file through a shell, use a quoted heredoc rather than an escaped string, and test the behaviour rather than reading the diff.**
+
+`scripts/test_grocery_list_math.js` grew from 52 checks to 70, covering the unit filtering and every price shape above. Failure output verified by making a volume item offer weight units, the exact olive oil bug, and confirming it reports and exits non-zero. `tsc` clean project-wide, `eslint` at the pre-existing baseline, bare-text audit at 0, all three suites passing (30, 70, 29). No reference-database change this time, so no re-import.
+
 **Most recent (2026-09-01, 1.0.32.8): the unit-weight batch, so the list can say how many to pick up.** Closes the piece named as open since 1.0.32.4, asked for directly after a real shop: "People don't know what 240 g of avocado is... Is it 1 avocado, 1 large avocado, or?"
 
 **The source was already on disk.** USDA FoodData Central's SR Legacy release sits in `ClaudeWork/` from the original database build, and its `food_portion.csv` is exactly this: a portion description and its gram weight. Better still, the join is EXACT rather than fuzzy: this app's reference database keeps USDA rows under their original description ("Broccoli, raw"), which is the same string `food.csv` carries. No name guessing anywhere.

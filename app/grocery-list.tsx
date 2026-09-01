@@ -18,12 +18,16 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { AppActionSheet } from '../components/AppActionSheet';
 import { AppTextInput } from '../components/AppTextInput';
 import { useInfoAlert } from '../components/InfoAlert';
+import { VoiceInputButton } from '../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { recognizeTextFromImage } from '../lib/ocr';
+import { getStoredMeasurementSystem } from '../lib/db';
 import {
   addGroceryListItem,
   createGroceryListFromSchedule,
@@ -50,8 +54,9 @@ import {
   groceryPriceUnitLabel,
   groceryPriceUnitShortLabel,
   GROCERY_DAY_OPTIONS,
-  GROCERY_PRICE_UNITS,
+  groceryPriceUnitsFor,
   isEncouragedGroceryWindow,
+  parsePriceInput,
   type GroceryPriceUnit,
 } from '../lib/groceryList';
 
@@ -105,6 +110,12 @@ export default function GroceryListScreen() {
   const [storeName, setStoreName] = useState('');
 
   // Per-item editor
+  // 2026-09-01, reported directly: "Per kg and Per lb should rely on them
+  // having set their units up in Preferences. They shouldn't need to choose
+  // that here for each item." Right: the app already knows this, and asking
+  // again on every line was asking a question it had the answer to.
+  const [measurementSystem, setMeasurementSystem] = useState<'metric' | 'imperial'>('metric');
+  const [readingPrice, setReadingPrice] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editor, setEditor] = useState<EditorState>(BLANK_EDITOR);
@@ -123,6 +134,9 @@ export default function GroceryListScreen() {
       // happens to be active.
       const target = listId ? await getGroceryList(listId) : await getActiveGroceryList();
       const past = await listGroceryLists();
+      // Null when nobody has set one, which is not an error: metric is this
+      // app's own default everywhere else it asks.
+      setMeasurementSystem((await getStoredMeasurementSystem()) ?? 'metric');
       setHistory(past);
       if (target) {
         setList(target);
@@ -225,6 +239,54 @@ export default function GroceryListScreen() {
     }
     setExpandedId(item.id);
     setEditor(editorFromItem(item));
+  }
+
+  // 2026-09-01, asked for directly: "they should be able to scan OCR trace
+  // the price of the item rather than only having the option to type it in
+  // by hand, and they should be able to say it."
+  //
+  // Both land in the same place: a short string that may or may not hold a
+  // number, read by one parser (parsePriceInput). Whatever it finds is put
+  // into the field to be checked, never saved on its own. A shelf label
+  // photographed at arm's length is not something to trust silently, and
+  // this app already treats an OCR price that way everywhere else.
+  async function handleScanPrice() {
+    setReadingPrice(true);
+    try {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permission.granted) {
+        showInfoAlert(
+          'Camera access needed',
+          'Inside Story needs your camera to read a price off the shelf label. You can still type the price in by hand.',
+        );
+        return;
+      }
+      const shot = await ImagePicker.launchCameraAsync({ quality: 0.7 });
+      if (shot.canceled || shot.assets.length === 0) return;
+      const text = await recognizeTextFromImage(shot.assets[0].uri);
+      const price = text ? parsePriceInput(text) : null;
+      if (price == null) {
+        showInfoAlert(
+          'Could not read a price',
+          'Nothing on that photo looked like a price. Try again closer to the label, or type it in.',
+        );
+        return;
+      }
+      setEditor((current) => ({ ...current, priceText: String(price) }));
+    } catch {
+      showInfoAlert('Could not read a price', 'Something went wrong reading that photo. You can type the price in instead.');
+    } finally {
+      setReadingPrice(false);
+    }
+  }
+
+  function handleSpokenPrice(text: string) {
+    const price = parsePriceInput(text);
+    if (price == null) {
+      showInfoAlert('Did not catch a price', `Heard "${text}". Try saying it like "three ninety nine", or type it in.`);
+      return;
+    }
+    setEditor((current) => ({ ...current, priceText: String(price) }));
   }
 
   async function handleSavePrice(item: GroceryListItemRecord) {
@@ -672,12 +734,24 @@ export default function GroceryListScreen() {
                           placeholder="0.00"
                           placeholderTextColor={colors.textMuted}
                         />
+                        <VoiceInputButton onResult={handleSpokenPrice} size={22} color={colors.textSecondary} />
+                        <TouchableOpacity
+                          style={[styles.priceCameraButton, readingPrice && styles.disabled]
+                          }
+                          activeOpacity={0.85}
+                          onPress={handleScanPrice}
+                          disabled={readingPrice}
+                          accessibilityLabel="Read the price from the shelf label"
+                        >
+                          <Ionicons name={readingPrice ? 'hourglass-outline' : 'camera-outline'} size={22} color={colors.textSecondary} />
+                        </TouchableOpacity>
                       </View>
+                      <Text style={styles.muted}>Say it, photograph the shelf label, or type it. Anything read is put here to check first.</Text>
                       <Text style={styles.editorLabel}>
                         {item.soldAs ? `Sold ${item.soldAs}. If this one is priced differently, say so here:` : 'What does that price cover?'}
                       </Text>
                       <View style={styles.pillRow}>
-                        {GROCERY_PRICE_UNITS.map((unit) => (
+                        {groceryPriceUnitsFor(item.purchaseForm, measurementSystem).map((unit) => (
                           <TouchableOpacity
                             key={unit}
                             style={[styles.pill, editor.priceUnit === unit && styles.pillActive]}
@@ -878,6 +952,7 @@ const styles = StyleSheet.create({
   editorLabel: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   priceRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   currency: { ...typography.sectionTitle, color: colors.textSecondary, ...textShadow },
+  priceCameraButton: { paddingHorizontal: 6, paddingVertical: 4 },
   priceInput: {
     flex: 1,
     ...typography.body,

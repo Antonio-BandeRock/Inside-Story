@@ -16,6 +16,7 @@ import {
   isNonPurchasableIngredient,
   mergeShoppingAmounts,
   type AmountEntry,
+  type PurchaseForm,
 } from './groceryList';
 import {
   cookingMethodIntent,
@@ -5730,6 +5731,7 @@ async function runDatabaseInitialization() {
         meal_names_json TEXT,
         sold_as TEXT,
         approx_amount TEXT,
+        purchase_form TEXT,
         added_manually INTEGER NOT NULL DEFAULT 0,
         sort_order INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY (list_id) REFERENCES grocery_lists(id) ON DELETE CASCADE,
@@ -5824,6 +5826,9 @@ async function runDatabaseInitialization() {
       }
       if (!groceryItemColumns.some((column) => column.name === 'approx_amount')) {
         await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN approx_amount TEXT;');
+      }
+      if (!groceryItemColumns.some((column) => column.name === 'purchase_form')) {
+        await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN purchase_form TEXT;');
       }
     }
 
@@ -11605,6 +11610,9 @@ export type ShoppingListItem = {
   unitLabel: string;
   unitLabelPlural: string;
   gramsPerUnit: number | null;
+  // How the thing is sold, which decides which price units are worth
+  // offering. A bottle of oil has no price per pound.
+  purchaseForm: PurchaseForm | null;
 };
 
 export type ShoppingListSection = {
@@ -11814,6 +11822,7 @@ export async function getUpcomingShoppingList(daysAhead: number = 4): Promise<Sh
             extraAmounts: merged.extras,
             mealNames: Array.from(group.meals),
             soldAs: form?.soldAs ?? '',
+            purchaseForm: (form?.form as PurchaseForm | undefined) ?? null,
             unitLabel: form?.unitLabel ?? '',
             unitLabelPlural: form?.unitLabelPlural ?? '',
             gramsPerUnit: form?.gramsPerUnit ?? null,
