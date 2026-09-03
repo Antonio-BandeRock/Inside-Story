@@ -16,6 +16,7 @@ import { DessertBuilderIcon } from './FoodBuilderIcons';
 import { GENERIC_BACKGROUND_PALETTES } from './GenericBackground';
 import { HelpSheet } from './HelpButton';
 import { IridescentRingCircle } from './IridescentRingCircle';
+import { TabHubPointer, TabHubWelcome, useTabHubOnboarding } from './TabHubOnboarding';
 import { PurpleRibbonIcon } from './PurpleRibbonIcon';
 
 // Thickness of the line around the popup menu card, below -- matches the
@@ -380,6 +381,10 @@ export function TabHub() {
   // back to the same muted treatment Info always used before this.
   const activeRoute = TAB_ROUTES.find((route) => route.path === activeTabPath);
 
+  // 2026-09-03: says what this button is to someone who has never seen the
+  // app. See TabHubOnboarding.tsx for why it is two pieces rather than one.
+  const onboarding = useTabHubOnboarding();
+
   const buttonBottom = insets.bottom + BOTTOM_OFFSET;
   // Independent of buttonBottom -- the button itself stays anchored inside
   // the footer band; only the popup card floats clear above it (see
@@ -388,9 +393,19 @@ export function TabHub() {
 
   return (
     <>
+      {/* Both render BEFORE the button and at a lower zIndex, which is what
+          leaves the button lit above the dim with no masking involved. Hidden
+          while the menu is open, since neither has anything to say then. */}
+      {onboarding.showWelcome && !open ? (
+        <TabHubWelcome buttonBottom={buttonBottom} onDismiss={onboarding.dismissWelcome} />
+      ) : null}
+      {onboarding.showPointer && !open ? <TabHubPointer buttonBottom={buttonBottom} /> : null}
       <TouchableOpacity
         style={[styles.button, { bottom: buttonBottom }]}
         onPress={() => {
+          // Clears the pointer for good. Tapping is the only thing that does:
+          // reading about a button is not the same as knowing where it is.
+          onboarding.markUsed();
           dropTimingOpenedAtRef.current = Date.now();
           logDropTiming('tap (setOpen(true) about to run)');
           setCardReady(false);

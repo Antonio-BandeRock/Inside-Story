@@ -370,6 +370,30 @@ export type VisualPreferences = {
   // than reading this field directly, the same discipline
   // isHomeSectionVisible() already establishes for its own sibling field.
   homeSectionOrder: HomeSectionKey[];
+  // 2026-09-03, reported through a first-time reader of the app: the TabHub
+  // button is the way to reach all nine tabs and nothing on screen says so.
+  // It carries no circle, fill, border or label at rest, deliberately (see
+  // components/TabHub.tsx), so to someone who has never used the app it reads
+  // as artwork sitting at the bottom of the screen rather than as the control
+  // everything else is behind.
+  //
+  // Two flags rather than one, because they answer two different questions and
+  // the second outlives the first. The welcome overlay is shown once ever; the
+  // pointer above the button then stays until the button has actually been
+  // used, so someone who dismissed the overlay without reading it is not left
+  // with nothing.
+  //
+  // Both default to false, which means a device upgrading into this version
+  // sees the welcome once even though its owner already knows the app. That is
+  // deliberate rather than a gap: there is no way to tell a fresh install from
+  // an existing one here, the same limit constants/releaseNotes.ts already
+  // documents for last_seen_app_version, and one dismissible overlay is the
+  // harmless side of that trade.
+  hasSeenTabHubWelcome: boolean;
+  // Set the first time the TabHub button is actually tapped. Tapping is the
+  // only thing that clears the pointer: dismissing the welcome does not, since
+  // reading about a button is not the same as knowing where it is.
+  hasUsedTabHub: boolean;
 };
 
 // Absence of `key` in `prefs.homeSectionVisibility` means visible -- see
@@ -415,6 +439,8 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   homeSectionVisibility: {},
   growthVineEnabled: true,
   homeSectionOrder: [],
+  hasSeenTabHubWelcome: false,
+  hasUsedTabHub: false,
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';

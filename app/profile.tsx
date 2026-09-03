@@ -14,7 +14,7 @@ import { usePasswordPrompt } from '../components/PasswordPrompt';
 import { useBusyOverlay } from '../components/BusyOverlay';
 import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
-import { colors, GROUND_THEME_LABELS, GROUND_THEMES, type GroundTheme } from '../constants/colors';
+import { BUTTON_SHADOW, colors, GROUND_THEME_LABELS, GROUND_THEMES, type GroundTheme } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
@@ -3179,6 +3179,30 @@ export default function ProfileScreen() {
         {renderCardHeader('appearance', 'Appearance & Navigation')}
         {!collapsedSections.has('appearance') ? (
           <View style={styles.cardBody}>
+            {/* 2026-09-03. The welcome and the pointer both clear themselves for
+                good once the button has been used, which is right for the
+                person who learned it and wrong for the phone being handed to
+                someone who has not. This puts them back. Also the only way to
+                see either of them a second time, which is what makes them
+                checkable at all. */}
+            <View style={styles.subLabelDivided}>
+              <Text style={styles.subLabel}>Getting Started</Text>
+            </View>
+            <Text style={styles.helpText}>
+              The first time this app is opened it says what the button below is for, and keeps a small
+              pointer above it until the button has been used once. Both are gone for good after that.
+              Bring them back when setting this up for someone new.
+            </Text>
+            <TouchableOpacity
+              style={styles.replayWelcomeButton}
+              activeOpacity={0.85}
+              onPress={() => {
+                void setVisualPreferences({ hasSeenTabHubWelcome: false, hasUsedTabHub: false });
+              }}
+            >
+              <Text style={styles.replayWelcomeButtonText}>Show the Welcome Again</Text>
+            </TouchableOpacity>
+
             {renderAppearanceSubsectionHeader('tabHubIcon', 'TabHub Icon', true)}
             {!collapsedAppearanceSubsections.has('tabHubIcon') ? (
               <>
@@ -4052,6 +4076,23 @@ const styles = StyleSheet.create({
   // footprint (fits inline next to a text input, unlike checkinButton's
   // full-width style), colors.primary instead of colors.danger since "Add
   // a food allergy" isn't a destructive action.
+  replayWelcomeButton: {
+    alignSelf: 'flex-start',
+    marginTop: 6,
+    marginBottom: 4,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: colors.buttonColor,
+    ...BUTTON_SHADOW,
+  },
+  replayWelcomeButtonText: {
+    ...typography.label,
+    color: colors.textOnButton,
+    // Dark text on a light fill: cancel any inherited shadow, the same as
+    // addAllergyButtonText just below.
+    textShadowColor: 'transparent',
+  },
   addAllergyButton: {
     paddingHorizontal: 14,
     paddingVertical: 10,

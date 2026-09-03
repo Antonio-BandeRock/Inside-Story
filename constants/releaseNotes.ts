@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.16',
+    date: '2026-09-03',
+    changes: [
+      "New: the app now says what the main button at the bottom of the screen is for. Opening it for the first time dims the screen, leaves that button lit, and explains that everything in the app is behind it.",
+      "After that, a small pointer sits above the button until it has been tapped once, then goes away for good. So anyone who skipped past the welcome still has something telling them where to go.",
+      "Prompted by watching someone open the app for the first time: the button has no outline and no label by design, which looks clean and gives a newcomer nothing to go on.",
+      "Profile > Appearance & Navigation has a Show the Welcome Again button, for handing the app to someone new.",
+    ],
+  },
+  {
     version: '1.0.32.15',
     date: '2026-09-03',
     changes: [
