@@ -36,6 +36,7 @@ import {
   type LocalBackupFile,
 } from '../lib/dataBackup';
 import { clearSeededTestData, seedTest90Days } from '../lib/devSeed';
+import { seedKitchenSources } from '../lib/testData';
 import { shareFileIfAvailable } from '../lib/nativeSharing';
 import { ACTIVITY_LEVEL_INFO, ACTIVITY_LEVELS, type ActivityLevel } from '../lib/energyNeeds';
 import { GENERAL_HEALTH_RULES } from '../lib/generalHealthRules';
@@ -115,6 +116,15 @@ import {
 // background to individually toggle; it always shows the shared resting
 // layer (see the "Shared background" card below), never a GatedTabContent
 // reveal.
+// 2026-09-03. The Developer Tools card used to be gated on __DEV__ alone,
+// which is false in an EAS build, so it has been invisible on both phones
+// since this app moved to standalone preview builds on 2026-08-28. That is why
+// nobody could reach the 90-day seeder, and part of why so much of this app has
+// never run against any data at all. A preview build is a testing build by
+// definition and should have it; a production build still must not, which is
+// what the channel check preserves.
+const SHOW_DEVELOPER_TOOLS = __DEV__ || Updates.channel === 'preview';
+
 const BACKGROUND_TAB_ROUTES = TAB_ROUTES.filter((route) => route.path !== '/');
 
 const BACKGROUND_STYLE_OPTIONS: { value: BackgroundStyle; label: string }[] = [
@@ -720,6 +730,7 @@ export default function ProfileScreen() {
   // Developer Tools card, 2026-08-14, __DEV__-gated, see that card's JSX
   // below for the "never in a production build" reasoning.
   const [seedingTestWeek, setSeedingTestWeek] = useState(false);
+  const [seedingKitchen, setSeedingKitchen] = useState(false);
   const [clearingSeededData, setClearingSeededData] = useState(false);
 
   // Backup & Restore card, 2026-08-16, see lib/dataBackup.ts's header
@@ -3471,7 +3482,7 @@ export default function ProfileScreen() {
           past, 30 future), cycling through several breakfast/lunch/dinner/
           snack combinations instead of repeating one fixed set every day.
           See devSeed.ts's *_TEMPLATES arrays for the rotation. */}
-      {__DEV__ ? (
+      {SHOW_DEVELOPER_TOOLS ? (
         <View style={styles.card}>
           {renderCardHeader('developer', 'Developer Tools')}
           {!collapsedSections.has('developer') ? (
@@ -3485,6 +3496,37 @@ export default function ProfileScreen() {
                 to look at. This can take a while to finish given the scale. Clear
                 removes exactly what this tool itself created, nothing else.
               </Text>
+              <TouchableOpacity
+                style={styles.addAllergyButton}
+                disabled={seedingKitchen}
+                onPress={async () => {
+                  setSeedingKitchen(true);
+                  try {
+                    const seeded = await seedKitchenSources();
+                    const lines = [
+                      `${seeded.gardenHarvests} garden harvest(s), ${seeded.fermentationHarvests} fermentation harvest(s), ${seeded.purchasedLines} line(s) on a past shopping trip.`,
+                    ];
+                    if (seeded.matchedFoods.length > 0) {
+                      lines.push(`Open your grocery list and look at: ${seeded.matchedFoods.join(', ')}.`);
+                    }
+                    // Whatever could not be seeded is said plainly rather than
+                    // left to look like the feature failing later.
+                    for (const note of seeded.skipped) lines.push(note);
+                    showBackupAlert('Seeded', lines.join('\n\n'));
+                  } catch (error) {
+                    showBackupAlert(
+                      'Something went wrong',
+                      error instanceof Error ? error.message : 'Failed to seed kitchen sources.',
+                    );
+                  } finally {
+                    setSeedingKitchen(false);
+                  }
+                }}
+              >
+                <Text style={styles.addAllergyButtonText}>
+                  {seedingKitchen ? 'Seeding…' : 'Seed Kitchen Sources (Garden, Ferments, Past Shop)'}
+                </Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.addAllergyButton}
                 disabled={seedingTestWeek}

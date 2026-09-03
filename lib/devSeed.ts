@@ -29,6 +29,7 @@
 // Reached only from Profile's own __DEV__-gated "Developer Tools" card
 // (see app/profile.tsx) -- never reachable in a real production build.
 
+import { removeKitchenSourceTestData } from './testData';
 import {
   createFoodTrial,
   createMealFromComponents,
@@ -648,6 +649,15 @@ export async function clearSeededTestData(): Promise<{ deletedCount: number }> {
   }
 
   await db.runAsync('DELETE FROM dev_seed_records');
+
+  // 2026-09-03. The kitchen-source seeder (lib/testData.ts) keeps its rows out
+  // of this manifest deliberately: several are parent/child pairs that have to
+  // come out children-first, and this manifest is walked in insertion order,
+  // which is parents-first. Rather than make the order of one list carry a
+  // constraint it was never built for, that file removes its own rows in its
+  // own order and reports how many. One Clear button, two modules each
+  // responsible for what they created.
+  deletedCount += await removeKitchenSourceTestData();
 
   return { deletedCount };
 }

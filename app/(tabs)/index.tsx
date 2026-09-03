@@ -37,6 +37,7 @@ import { textShadow, typography } from '../../constants/typography';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
 import { getMoonPhase, getUpcomingSeasonalMarker } from '../../lib/celestialEvents';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
+import { isTestDataPresent } from '../../lib/testData';
 import { ALL_DIGEST_ENTRIES, isProblemFoodEntry, type DigestCategoryKey } from '../../lib/digest';
 import { markHomeDataReady } from '../../lib/homeReadySignal';
 import { deleteMealPhotoFile, pickAndSaveMealPhoto } from '../../lib/mealPhotos';
@@ -620,6 +621,12 @@ export default function HomeScreen() {
   // want" reasoning. Read the same live way every other visual preference
   // already is, so a toggle flipped on Profile reaches Home immediately.
   const visualPrefs = useVisualPreferences();
+  // 2026-09-03. Seeded test data is indistinguishable from real data once it
+  // is in, and the whole point of it is that the app is being used for testing
+  // rather than for real. A standing line saying so is what stops a seeded
+  // harvest or a seeded shopping trip being read later as something that
+  // actually happened.
+  const [testDataPresent, setTestDataPresent] = useState(false);
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -948,6 +955,16 @@ export default function HomeScreen() {
     }
   }, [showInfoAlert]);
 
+  const refreshTestDataBanner = useCallback(async () => {
+    try {
+      setTestDataPresent(await isTestDataPresent());
+    } catch {
+      // A check that fails must not put a "test data is loaded" claim on Home
+      // for someone who has none. Silence is the safe direction here.
+      setTestDataPresent(false);
+    }
+  }, []);
+
   const announceAppliedUpdate = useCallback(async () => {
     try {
       const previousVersion = await getLastSeenAppVersion();
@@ -971,7 +988,7 @@ export default function HomeScreen() {
     useCallback(() => {
       const isFirstLoad = !hasLoadedOnceRef.current;
       if (isFirstLoad) setLoading(true);
-      Promise.all([load(), loadWeekTrend(), loadSkyData(), loadDigestConditionScope()]).then(() => {
+      Promise.all([load(), loadWeekTrend(), loadSkyData(), loadDigestConditionScope(), refreshTestDataBanner()]).then(() => {
         if (!isFirstLoad) return;
         hasLoadedOnceRef.current = true;
         setLoading(false);
@@ -991,7 +1008,7 @@ export default function HomeScreen() {
         markHomeDataReady();
         scrollRef.current?.scrollTo({ y: 0, animated: false });
       });
-    }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope, announceAppliedUpdate, repairSavedDishes]),
+    }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope, announceAppliedUpdate, repairSavedDishes, refreshTestDataBanner]),
   );
 
   // Plain useEffect (mount-once), not useFocusEffect -- this is meant to
@@ -2138,6 +2155,20 @@ export default function HomeScreen() {
             <View style={styles.greetingCard}>{renderGreetingCardFull()}</View>
           ) : null}
 
+          {/* Above the loading gate on purpose: whether test data is loaded
+              is true regardless of what else has finished fetching, and it is
+              the one thing that changes how everything below it should be
+              read. Deliberately not a toggleable Home section either, since a
+              warning that can be switched off stops being a warning. */}
+          {testDataPresent ? (
+            <View style={styles.testDataBanner}>
+              <Text style={styles.testDataBannerText}>
+                Test data is loaded. Some harvests, ferments and past shopping here are not real. Remove it from Profile
+                &gt; Developer Tools.
+              </Text>
+            </View>
+          ) : null}
+
           {loading ? (
             <View style={styles.loadingCard}>
               <Text style={styles.loadingText}>Loading today…</Text>
@@ -2491,6 +2522,20 @@ const styles = StyleSheet.create({
   },
   allSectionsHiddenText: { ...typography.body, ...textShadow, color: colors.textSecondary },
 
+  testDataBanner: {
+    backgroundColor: colors.statusYellowBg,
+    borderRadius: 12,
+    borderWidth: TAB_BORDER_WIDTH,
+    borderColor: colors.statusYellowStandalone,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginBottom: 12,
+  },
+  testDataBannerText: {
+    ...typography.caption,
+    ...textShadow,
+    color: colors.statusYellowStandalone,
+  },
   greetingCard: {
     backgroundColor: colors.surface,
     borderRadius: 16,

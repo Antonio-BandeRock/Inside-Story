@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.17',
+    date: '2026-09-03',
+    changes: [
+      "Developer Tools is now reachable in this build. It was there all along but only ever showed in a dev build, so on your phone it has been invisible since the app moved to standalone builds. That is why the 90-day test data seeder could never be reached.",
+      "New: Seed Kitchen Sources, which creates a garden with harvests, a fermentation with a harvest, and a completed shopping trip from three days ago. It draws its foods from your current grocery list, so the kitchen inventory has something to actually match against.",
+      "One of the seeded harvests covers its grocery line outright and the rest fall short, so both readings can be seen in one pass.",
+      "While any test data is loaded, Home says so. Clear removes everything seeded, by either tool, and nothing else.",
+    ],
+  },
+  {
     version: '1.0.32.16',
     date: '2026-09-03',
     changes: [
