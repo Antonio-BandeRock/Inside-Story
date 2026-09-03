@@ -25,6 +25,20 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-03, 1.0.32.18): using what the kitchen has, rather than only being told about it.** Reported directly: "There is no way to choose that you are going to take from your harvest instead of having to purchase. It is still just one selection for purchasing."
+
+**Correct, and the kitchen inventory was half a feature without it.** Knowing a harvest covers a line is only useful if the harvest can then be used, and the whole reason `garden_harvests` and `fermentation_harvests` carry a `quantity_remaining` is so it can be drawn down as it goes. The list could say "that covers this line" and then still only offer to price it.
+
+**Two outcomes, and the difference matters standing in a shop.** Fully covered: the harvests are drawn down by what the line needs, and the line is marked sourced from the kitchen and ticked, carrying no price because nothing was spent, so it never reaches the running total or the price history. Partly covered: the harvests are emptied, the line's quantity drops by what was taken, and it stays on the list needing the remainder, which is the honest state rather than a tick that overstates what happened.
+
+**Allocation is oldest-harvest-first**, and each amount is converted back into that harvest's own unit, since that is what `quantity_remaining` is counted in. Proportional rather than converted a second time, so rounding cannot leave a harvest stuck at 0.0001 remaining. A purchase is never drawn down and offers no button at all: nothing tracks how much of it is left, which is exactly why it was a reminder and not an amount.
+
+**`sourced_from_kitchen` is its own column** rather than reusing `checked`, which means "dealt with" and says nothing about how, or `price`, which stays null because nothing was spent. Added with the established conditional `ALTER TABLE` pattern, so no reference-database change and no re-import.
+
+12 new checks on the allocation, since this decrements stored inventory and getting it wrong quietly destroys the record of what someone actually has. Failure output verified by making it take the whole harvest regardless of what the line needed: reports "expected 340, got 500" and exits non-zero. One rename on the way in, worth noting because the lint rule was right: the action was briefly `useKitchenStockForLine`, which `react-hooks/rules-of-hooks` reads as a React hook. It is `takeKitchenStockForLine`.
+
+`tsc` clean, `eslint` clean on every touched file, suites 30/142/29, bare-text audit at 0. **Not yet confirmed on-device.**
+
 **Most recent (2026-09-03, 1.0.32.17): test data for the kitchen sources, and a Developer Tools card that can actually be reached.** Asked for directly: "We need test data for everything in order to see what the app can or should do with it once it is in there." The app changes many times a day, so nobody is using it for real, so most of it has never run against anything. **That gap has a visible cost already**: the kitchen inventory shipped on 1.0.32.12 and has never been seen working, and three grocery bugs reached a shopping trip before anyone noticed.
 
 **The most useful finding came before any code was written, and it is worth knowing on its own.** A seeder already exists. `lib/devSeed.ts` covers 90 days of meals, saved dishes across the builders, and food trials, with its own manifest table for exact removal. It has been gated on `__DEV__`, **which is false in an EAS build**, so it has been invisible on both phones since this app moved to standalone preview builds on 2026-08-28. Nobody could reach it. That is a large part of why so much of this app has never run against data. Now gated on `__DEV__ || Updates.channel === 'preview'`, so a testing build has it and a production build still does not.
