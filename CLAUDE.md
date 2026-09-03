@@ -25,6 +25,14 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-03, 1.0.32.14): Imperial is respected on the grocery list, like every other screen already did.** Reported directly: "in my profile I have imperial selected, so it isn't showing me the correct unit either way." Both halves of that report were right, and the second half is a separate bug from the transposition below.
+
+**The grocery list resolved the measurement system as `stored ?? 'metric'`, on a comment claiming metric was "this app's own default everywhere else it asks". That claim was false**, and checking rather than trusting it is what found this: **twelve** other files (Profile and all eleven builders) resolve it as `stored ?? detectMeasurementSystemFromLocale()`. Only `app/grocery-list.tsx` and `app/price-compare.tsx` did not, and both came from this same feature.
+
+**Nobody had to set anything wrong for this to bite, which is why it shipped.** `app_meta` only holds a value once someone has tapped that setting; until then Profile reads Imperial off the phone's region while the grocery list assumed metric. So Profile said Imperial and the shelf offered per kg. Combined with the lost `purchase_form` below, olive oil was being offered a price per kilo twice over: wrong unit for a liquid, and wrong system.
+
+**A source scan in the test suite now holds all fourteen files to the same resolution**, using plain string matching rather than a regex: the first attempt at that check was written through two layers of shell escaping and arrived mangled, which is the lesson already recorded on 1.0.32.9 about writing a regex into a file through a shell. Verified by reintroducing the fallback and confirming the check names the offending file and exits non-zero. Suites 30/130/29, `tsc` clean, `eslint` clean on every touched file, bare-text audit at 0.
+
 **Most recent (2026-09-03, 1.0.32.13): the lists already built, repaired.** Reported directly, on olive oil: the price panel offered per kg for something sold in a bottle. Checked rather than assumed: `food_purchase_forms` has Olive Oil (Extra Virgin) as `form = 'volume'`, and `groceryPriceUnitsFor` correctly returns per litre for a volume form, so the line's stored `purchase_form` had been lost. That is the 1.0.32.12 transposition, on a list built before it was fixed.
 
 **This is this project's own standing lesson arriving again, and it should have been handled in the same pass.** Fixing the INSERT stops NEW lines being written wrong and does nothing for lines already in someone's list. The rule from 1.0.32.5 says exactly this: "Whenever a fix is to stored, user-visible records rather than to a live computation, decide in the same pass how existing records catch up." It was not decided, and the person holding the list found it first.
