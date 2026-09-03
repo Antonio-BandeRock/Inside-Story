@@ -40,7 +40,25 @@ function loadModule(name, cache = new Map()) {
     if (!request.startsWith('./')) {
       throw new Error(`This harness only resolves sibling lib modules, got: ${request}`);
     }
-    return loadModule(request.slice(2), cache);
+    const target = request.slice(2);
+    // lib/db.ts is the app's whole 18,000-line database layer and pulls in
+    // expo-sqlite, which cannot load outside a React Native runtime. Stubbed
+    // rather than loaded, because the one thing this harness takes from
+    // groceryDb.ts (scheduleLineValues) touches no database at all. If a test
+    // ever reaches for something here that does, this throws by name rather
+    // than silently returning undefined and failing somewhere further on.
+    if (target === 'db') {
+      return new Proxy(
+        {},
+        {
+          get(_unused, prop) {
+            if (prop === '__esModule') return true;
+            throw new Error(`This harness stubs lib/db.ts; it cannot provide ${String(prop)}.`);
+          },
+        },
+      );
+    }
+    return loadModule(target, cache);
   };
   // eslint-disable-next-line no-new-func
   new Function('exports', 'module', 'require', outputText)(module.exports, module, localRequire);
@@ -67,6 +85,7 @@ const {
   purchaseSizeUnitFor,
   comparePrices,
   unitPriceLabelFor,
+  kitchenCoverageFor,
 } = loadModule('groceryList');
 
 let failures = 0;
@@ -441,6 +460,163 @@ check(
 
 check('the comparison unit is named for metric volume', unitPriceLabelFor('volume', 'metric'), 'per litre');
 check('and for imperial weight', unitPriceLabelFor('weight', 'imperial'), 'per oz');
+// --------------------------------------------------------------------------
+// A stored grocery line's columns and its values, held against each other.
+//
+// 2026-09-03. Not arithmetic, but it belongs here for the same reason
+// everything above does: it goes wrong silently. createGroceryListFromSchedule
+// and rebuildGroceryListFromSchedule each hand-maintained their own positional
+// INSERT, and from 1.0.32.9 they disagreed: the create path bound the purchase
+// form where approx_amount belongs and the count string where purchase_form
+// belongs. SQLite accepts that happily, TypeScript cannot see it, and the
+// result was a freshly built list reading "count" instead of "about 2 stalks"
+// while a Refresh of the same list read correctly. There is one builder now,
+// and these hold it to its column list.
+const { SCHEDULE_LINE_COLUMNS, SCHEDULE_LINE_PLACEHOLDERS, scheduleLineValues } = loadModule('groceryDb');
+
+const lineColumns = SCHEDULE_LINE_COLUMNS.split(',').map((column) => column.trim());
+
+// One broccoli line, for two people, with a cited unit weight to divide by.
+const sampleItem = {
+  category: 'Veg',
+  foodName: 'Broccoli',
+  unit: 'g',
+  quantity: 170,
+  extraAmounts: [{ quantity: 100, unit: 'ml' }],
+  mealNames: ['Roasted Vegetables'],
+  soldAs: 'by the head',
+  approxAmount: null,
+  unitLabel: 'stalk',
+  unitLabelPlural: 'stalks',
+  gramsPerUnit: 148,
+  purchaseForm: 'count',
+};
+const lineValues = scheduleLineValues('item_1', 'list_1', 'Veg', sampleItem, 2, 0);
+const valueFor = (column) => lineValues[lineColumns.indexOf(column)];
+
+check('every column gets exactly one value', lineValues.length, lineColumns.length);
+check('and one placeholder', SCHEDULE_LINE_PLACEHOLDERS.split(',').length, lineColumns.length);
+
+// The two that were transposed. Checked by name rather than by position, so
+// this still holds if a column is ever added in the middle.
+check('approx_amount holds the count, not the form', valueFor('approx_amount'), 'about 2 stalks');
+check('purchase_form holds the form, not the count', valueFor('purchase_form'), 'count');
+
+// The rest of the line, so a future reordering cannot quietly shift anything
+// else either.
+check('sold_as holds how a store sells it', valueFor('sold_as'), 'by the head');
+check('food_name holds the purchasable name', valueFor('food_name'), 'Broccoli');
+check('quantity is scaled by head count', valueFor('quantity'), 340);
+check('unit is untouched by scaling', valueFor('unit'), 'g');
+check('extra amounts scale by the same head count', JSON.parse(valueFor('extra_amounts_json')), [
+  { quantity: 200, unit: 'ml' },
+]);
+check('meal names are carried through', JSON.parse(valueFor('meal_names_json')), ['Roasted Vegetables']);
+check('sort order is carried through', valueFor('sort_order'), 0);
+check('the list id lands in list_id', valueFor('list_id'), 'list_1');
+
+// A food with no cited unit weight gets no count rather than a guessed one,
+// and must not leave the form field carrying the gap.
+const noWeightValues = scheduleLineValues(
+  'item_2',
+  'list_1',
+  'Fats',
+  { ...sampleItem, foodName: 'Olive Oil', unit: 'ml', quantity: 250, gramsPerUnit: null, purchaseForm: 'volume' },
+  1,
+  1,
+);
+check('no unit weight means no count', noWeightValues[lineColumns.indexOf('approx_amount')], null);
+check('and the form still lands correctly', noWeightValues[lineColumns.indexOf('purchase_form')], 'volume');
+
+// --------------------------------------------------------------------------
+// What is already in the kitchen.
+//
+// The rule these exist to hold: a harvest is a measured amount and may be
+// subtracted, a past purchase is a date and may not. Getting that backwards
+// sends someone home without the thing they went out for, which is the same
+// class of silent, plausible-looking wrongness as every price case above.
+const TODAY = '2026-09-03';
+const garden = (quantity, unit, date) => ({ source: 'garden', quantity, unit, date });
+const ferment = (quantity, unit, date) => ({ source: 'fermentation', quantity, unit, date });
+const bought = (quantity, unit, date) => ({ source: 'purchase', quantity, unit, date });
+
+check('nothing in the kitchen says nothing', kitchenCoverageFor(340, 'g', [], TODAY).level, 'none');
+check('and offers no note', kitchenCoverageFor(340, 'g', [], TODAY).note, null);
+
+// Enough in the garden to cover the line outright.
+const covered = kitchenCoverageFor(340, 'g', [garden(400, 'g', '2026-09-01')], TODAY);
+check('a harvest that covers the line reads covered', covered.level, 'covered');
+check('and says so plainly', covered.note, 'Already in your kitchen: 400 g from the garden. That covers this line.');
+check('and reports only what the line needed', covered.coveredQuantity, 340);
+
+// Not enough: the shortfall is what someone actually has to buy.
+const partial = kitchenCoverageFor(340, 'g', [garden(200, 'g', '2026-09-01')], TODAY);
+check('a harvest short of the line reads some', partial.level, 'some');
+check('and names the shortfall', partial.note, 'Already in your kitchen: 200 g from the garden. You still need about 140 g.');
+check('and reports what is covered', partial.coveredQuantity, 200);
+
+// Units convert within a family, using the same factors mergeShoppingAmounts uses.
+check(
+  'a harvest in kilos counts against a line in grams',
+  kitchenCoverageFor(340, 'g', [garden(0.5, 'kg', '2026-09-01')], TODAY).level,
+  'covered',
+);
+// ...and never across one. A litre of something is not 400 g of it without a
+// density this app does not have.
+check(
+  'a volume never counts against a weight',
+  kitchenCoverageFor(340, 'g', [garden(1, 'l', '2026-09-01')], TODAY).level,
+  'none',
+);
+
+// Two sources add up, and the note names both so it can be checked.
+const both = kitchenCoverageFor(1000, 'ml', [garden(400, 'ml', '2026-09-01'), ferment(700, 'ml', '2026-09-02')], TODAY);
+check('two measured sources add together', both.level, 'covered');
+check('and both are named', both.note, 'Already in your kitchen: 400 ml from the garden and 700 ml from what you fermented. That covers this line.');
+
+// The honesty rule, stated as a test: a purchase never becomes a quantity.
+const purchased = kitchenCoverageFor(340, 'g', [bought(340, 'g', '2026-09-01')], TODAY);
+check('a past purchase is never measured', purchased.level, 'unmeasured');
+check('and never claims an amount', purchased.coveredQuantity, null);
+check('it asks to be checked instead', purchased.note, 'You bought this 2 days ago. Worth checking before buying more.');
+check(
+  'a purchase yesterday says yesterday',
+  kitchenCoverageFor(340, 'g', [bought(340, 'g', '2026-09-02')], TODAY).note,
+  'You bought this yesterday. Worth checking before buying more.',
+);
+check(
+  'and one today says today',
+  kitchenCoverageFor(340, 'g', [bought(340, 'g', TODAY)], TODAY).note,
+  'You bought this today. Worth checking before buying more.',
+);
+
+// A measured harvest outranks a purchase: it is the one that can be trusted
+// as an amount, so it is the one that gets reported.
+check(
+  'a harvest wins over a purchase of the same food',
+  kitchenCoverageFor(340, 'g', [bought(340, 'g', '2026-09-01'), garden(400, 'g', '2026-09-02')], TODAY).level,
+  'covered',
+);
+
+// A harvest with nothing left must not read as coverage.
+check(
+  'an empty harvest covers nothing',
+  kitchenCoverageFor(340, 'g', [garden(0, 'g', '2026-09-01')], TODAY).level,
+  'none',
+);
+
+// Counts merge only with the identical word, matching mergeShoppingAmounts.
+check(
+  'a count matches the same count word',
+  kitchenCoverageFor(3, 'each', [garden(4, 'each', '2026-09-01')], TODAY).level,
+  'covered',
+);
+check(
+  'and not a different one',
+  kitchenCoverageFor(3, 'each', [garden(4, 'clove', '2026-09-01')], TODAY).level,
+  'none',
+);
+
 if (failures > 0) {
   console.error(`\nGrocery list math: ${failures} of ${checks} checks failed.`);
   process.exit(1);

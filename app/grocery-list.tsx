@@ -36,6 +36,7 @@ import {
   getActiveGroceryList,
   getGroceryList,
   getGroceryListItems,
+  getKitchenCoverageForItems,
   listGroceryLists,
   rebuildGroceryListFromSchedule,
   setGroceryItemChecked,
@@ -60,6 +61,7 @@ import {
   isEncouragedGroceryWindow,
   parsePriceInput,
   type GroceryPriceUnit,
+  type KitchenCoverage,
 } from '../lib/groceryList';
 
 const DEFAULT_DAYS = 3;
@@ -121,6 +123,11 @@ export default function GroceryListScreen() {
   const [measurementSystem, setMeasurementSystem] = useState<'metric' | 'imperial'>('metric');
   const [readingPrice, setReadingPrice] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  // What the kitchen already has, per line. Recomputed on every focus rather
+  // than stored with the list: a stored list must not rewrite itself in an
+  // aisle, but a harvest gets used up between opening the app and shopping, so
+  // this one part should be current every time it is read.
+  const [kitchen, setKitchen] = useState<Map<string, KitchenCoverage>>(new Map());
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editor, setEditor] = useState<EditorState>(BLANK_EDITOR);
 
@@ -144,7 +151,9 @@ export default function GroceryListScreen() {
       setHistory(past);
       if (target) {
         setList(target);
-        setItems(await getGroceryListItems(target.id));
+        const listItems = await getGroceryListItems(target.id);
+        setItems(listItems);
+        setKitchen(await getKitchenCoverageForItems(target.id, listItems));
         setPeopleCount(target.peopleCount);
         setDaysAhead(target.daysAhead);
         setStoreName(target.storeName ?? '');
@@ -152,6 +161,7 @@ export default function GroceryListScreen() {
       } else {
         setList(null);
         setItems([]);
+        setKitchen(new Map());
         setMode('setup');
       }
     } catch (error) {
@@ -697,6 +707,9 @@ export default function GroceryListScreen() {
             {section.items.map((item) => {
               const lineTotal = groceryLineTotal(item);
               const expanded = expandedId === item.id;
+              // Undefined for most lines: nothing is said unless the app
+              // knows something about already having this.
+              const kitchenNote = kitchen.get(item.id);
               return (
                 <View key={item.id} style={styles.itemWrap}>
                   <View style={styles.itemRow}>
@@ -721,6 +734,24 @@ export default function GroceryListScreen() {
                       {item.soldAs || item.approxAmount ? (
                         <Text style={styles.rowMeta}>
                           {[item.approxAmount, item.soldAs].filter(Boolean).join(' · ')}
+                        </Text>
+                      ) : null}
+                      {kitchenNote ? (
+                        <Text
+                          style={[
+                            styles.rowMeta,
+                            // statusGood is deliberately unsaturated (see its
+                            // own comment in constants/colors.ts: colour is
+                            // reserved for what needs action), which is right
+                            // here. "You already have this" separates itself
+                            // from the line above without competing with a
+                            // flag. A purchase reminder asks someone to
+                            // go and look rather than telling them anything,
+                            // so it stays in the ordinary muted weight.
+                            kitchenNote.level === 'covered' ? styles.rowKitchenCovered : styles.rowKitchenNote,
+                          ]}
+                        >
+                          {kitchenNote.note}
                         </Text>
                       ) : null}
                       {item.mealNames.length > 0 ? (
@@ -1011,6 +1042,12 @@ const styles = StyleSheet.create({
   rowTextWrap: { flex: 1, gap: 2 },
   rowName: { ...typography.body, color: colors.textPrimary, ...textShadow },
   rowNameChecked: { color: colors.textMuted, textDecorationLine: 'line-through' },
+  rowKitchenNote: {
+    color: colors.textSecondary,
+  },
+  rowKitchenCovered: {
+    color: colors.statusGood,
+  },
   rowMeta: { ...typography.caption, color: colors.textMuted, ...textShadow },
   editorBlock: {
     paddingHorizontal: 10,

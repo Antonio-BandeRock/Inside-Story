@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.12',
+    date: '2026-09-03',
+    changes: [
+      "New: your grocery list now knows what you already have at home, so you stop buying a second one of something sitting in the kitchen.",
+      "Anything picked from the garden or poured off a fermentation shows on the line with how much of it is left, because the app tracks that as it gets used. If a harvest covers the whole line, it says so; if it covers part of it, it says how much you still need.",
+      "Anything you bought in the last week shows as a reminder to check rather than an amount. The app knows you bought it and has no way to know how much is left, so it asks you to look instead of guessing a number and sending you home without it.",
+      "Fixed: a freshly built list was showing \"count\" or \"weight\" where it should have said \"about 2 stalks\", and was losing the sold-by information that decides which price units a line offers. Refreshing a list had always worked correctly, which is why this went unnoticed. Both are now built the same way and cannot drift apart again.",
+    ],
+  },
+  {
     version: '1.0.32.11',
     date: '2026-09-01',
     changes: [

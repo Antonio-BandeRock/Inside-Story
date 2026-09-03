@@ -11,12 +11,22 @@
 // The pure arithmetic (what a price means, what a line comes to) is in
 // lib/groceryList.ts, separately again, so it can be reasoned about and
 // tested with no database at all.
-import { getDatabase, getUpcomingShoppingList } from './db';
+import {
+  getDatabase,
+  getUpcomingShoppingList,
+  listAvailableFermentationHarvests,
+  listAvailableHarvests,
+  type ShoppingListItem,
+} from './db';
 import {
   defaultGroceryListName,
   describeApproximateCount,
   GROCERY_PRICE_UNITS,
+  KITCHEN_PURCHASE_RECENT_DAYS,
+  kitchenCoverageFor,
   type GroceryPriceUnit,
+  type KitchenCoverage,
+  type KitchenStockEntry,
   type PurchaseForm,
 } from './groceryList';
 
@@ -155,6 +165,67 @@ function mapGroceryItem(row: GroceryListItemRow): GroceryListItemRecord {
   };
 }
 
+// One place where a schedule-derived line becomes columns and values, so the
+// two paths that write one cannot disagree about the order.
+//
+// 2026-09-03: they had disagreed since 1.0.32.9. createGroceryListFromSchedule
+// bound item.purchaseForm where approx_amount belongs and the count string
+// where purchase_form belongs, so every freshly built list read "count" where
+// it should have read "about 2 stalks", and lost the purchase form that
+// decides which price units a line offers, taking the olive-oil fix and the
+// bottle-size field down with it. The rebuild path had it right, which is both
+// why Refresh corrected a list and why this survived: the count was traced and
+// confirmed before purchase_form existed, and adding that column underneath it
+// is what transposed the two. Positional binding across two hand-maintained
+// copies is what made it possible, so there is now one copy.
+export const SCHEDULE_LINE_COLUMNS =
+  'id, list_id, category, food_name, unit, quantity, sort_order, extra_amounts_json, ' +
+  'meal_names_json, sold_as, approx_amount, purchase_form';
+
+export const SCHEDULE_LINE_PLACEHOLDERS = '?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?';
+
+export function scheduleLineValues(
+  id: string,
+  listId: string,
+  category: string,
+  item: ShoppingListItem,
+  peopleCount: number,
+  sortOrder: number,
+): (string | number | null)[] {
+  const scaledQuantity = item.quantity * peopleCount;
+  return [
+    id,
+    listId,
+    category,
+    item.foodName,
+    item.unit,
+    scaledQuantity,
+    sortOrder,
+    // Every amount scales by the same head count, including the ones that had
+    // to be kept separate from the main figure.
+    JSON.stringify(item.extraAmounts.map((extra) => ({ ...extra, quantity: extra.quantity * peopleCount }))),
+    JSON.stringify(item.mealNames),
+    item.soldAs || null,
+    // Worked out from the SCALED weight rather than by multiplying the
+    // one-person count. 2026-09-01: the first version dropped the count
+    // entirely above one person, on the reasoning that multiplying a rounded
+    // number is bad arithmetic. That reasoning was right and the conclusion
+    // was wrong: dividing 480 g by a 150 g avocado gives three directly, with
+    // nothing rounded on the way. Reported plainly from a shopping trip: "it says
+    // loose, by the piece, but it doesn't say, about 1, or about 2 or 3 of
+    // them."
+    describeApproximateCount(
+      scaledQuantity,
+      item.unit,
+      item.foodName,
+      item.unitLabel,
+      item.unitLabelPlural,
+      item.gramsPerUnit,
+    ),
+    item.purchaseForm,
+  ];
+}
+
 // Builds a list from whatever is actually scheduled in the window, then
 // stores it. peopleCount multiplies every quantity: see grocery_lists' own
 // CREATE TABLE comment for why that is the right model rather than a guess.
@@ -191,37 +262,15 @@ export async function createGroceryListFromSchedule(input: {
   for (const section of sections) {
     for (const item of section.items) {
       await db.runAsync(
-        `INSERT INTO grocery_list_items
-           (id, list_id, category, food_name, unit, quantity, sort_order, extra_amounts_json, meal_names_json, sold_as, approx_amount, purchase_form)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        `grocery_item_${Date.now()}_${sortOrder}`,
-        id,
-        section.category,
-        item.foodName,
-        item.unit,
-        item.quantity * peopleCount,
-        sortOrder,
-        // Every amount scales by the same head count, including the ones
-        // that had to be kept separate from the main figure.
-        JSON.stringify(item.extraAmounts.map((extra) => ({ ...extra, quantity: extra.quantity * peopleCount }))),
-        JSON.stringify(item.mealNames),
-        item.soldAs || null,
-        item.purchaseForm,
-        // Worked out from the SCALED weight rather than by multiplying the
-        // one-person count. 2026-09-01: the first version dropped the count
-        // entirely above one person, on the reasoning that multiplying a
-        // rounded number is bad arithmetic. That reasoning was right and the
-        // conclusion was wrong: dividing 480 g by a 150 g avocado gives three
-        // directly, with nothing rounded on the way. Reported plainly from a
-        // real list: "it says loose, by the piece, but it doesn't say, about 1,
-        // or about 2 or 3 of them."
-        describeApproximateCount(
-          item.quantity * peopleCount,
-          item.unit,
-          item.foodName,
-          item.unitLabel,
-          item.unitLabelPlural,
-          item.gramsPerUnit,
+        `INSERT INTO grocery_list_items (${SCHEDULE_LINE_COLUMNS})
+         VALUES (${SCHEDULE_LINE_PLACEHOLDERS})`,
+        ...scheduleLineValues(
+          `grocery_item_${Date.now()}_${sortOrder}`,
+          id,
+          section.category,
+          item,
+          peopleCount,
+          sortOrder,
         ),
       );
       sortOrder += 1;
@@ -569,6 +618,103 @@ export async function getActiveGroceryListSummary(): Promise<GroceryListSummary 
   };
 }
 
+
+// --- What is already in the kitchen -----------------------------------------
+//
+// Gathers the three things the app knows about already having a food, and
+// hands them to kitchenCoverageFor, which decides what may be said about
+// each. See that function's comment for why a harvest is a
+// measured amount and a past purchase is not.
+//
+// Matched on food name, exactly and case-insensitively, the same as
+// getGroceryPriceHistory: a grocery line's only identity is its name, and a
+// fuzzy match here would tell someone they already have something they do
+// not.
+
+// Everything currently in the kitchen, keyed by lower-cased food name.
+async function loadKitchenStock(excludeListId: string): Promise<Map<string, KitchenStockEntry[]>> {
+  const db = await getDatabase();
+  const stock = new Map<string, KitchenStockEntry[]>();
+  const add = (name: string, entry: KitchenStockEntry) => {
+    const key = name.trim().toLowerCase();
+    if (!key) return;
+    const existing = stock.get(key);
+    if (existing) existing.push(entry);
+    else stock.set(key, [entry]);
+  };
+
+  // Both of these already return only what still has something left
+  // (quantity_remaining > 0), drawn down as it gets used.
+  for (const harvest of await listAvailableHarvests()) {
+    add(harvest.foodName, {
+      source: 'garden',
+      quantity: harvest.quantityRemaining,
+      unit: harvest.unit,
+      date: harvest.harvestedAt.slice(0, 10),
+    });
+  }
+  for (const harvest of await listAvailableFermentationHarvests()) {
+    add(harvest.drinkName, {
+      source: 'fermentation',
+      quantity: harvest.quantityRemaining,
+      unit: harvest.unit,
+      date: harvest.readyAt.slice(0, 10),
+    });
+  }
+
+  // A purchase is a date, not an amount. The current list is excluded: ticking
+  // something off the list being shopped must not then report it back as
+  // already in the kitchen.
+  const since = new Date(Date.now() - KITCHEN_PURCHASE_RECENT_DAYS * 86400000).toISOString().slice(0, 10);
+  const rows = await db.getAllAsync<{ foodName: string; unit: string; quantity: number; date: string }>(
+    `
+      SELECT i.food_name AS foodName, i.unit AS unit, i.quantity AS quantity,
+             COALESCE(i.checked_at, l.created_at) AS date
+      FROM grocery_list_items i
+      JOIN grocery_lists l ON l.id = i.list_id
+      WHERE i.checked = 1 AND i.list_id != ? AND COALESCE(i.checked_at, l.created_at) >= ?
+    `,
+    excludeListId,
+    since,
+  );
+  for (const row of rows) {
+    add(row.foodName, {
+      source: 'purchase',
+      quantity: row.quantity,
+      unit: row.unit,
+      date: (row.date ?? '').slice(0, 10),
+    });
+  }
+
+  return stock;
+}
+
+// One coverage verdict per line, keyed by grocery_list_items.id.
+//
+// Computed on demand rather than stored: a stored list must not rewrite itself
+// in an aisle, but what is in the kitchen changes as things get used, so this
+// is the one part of a line that should be current every time it is read.
+//
+// Takes the lines it should work from rather than re-reading them, since every
+// caller already has them on screen. A second read of the same rows on every
+// focus is exactly the kind of quiet duplicated query this app has had to
+// track down before.
+export async function getKitchenCoverageForItems(
+  listId: string,
+  items: GroceryListItemRecord[],
+): Promise<Map<string, KitchenCoverage>> {
+  const stock = await loadKitchenStock(listId);
+  const today = new Date().toISOString().slice(0, 10);
+  const coverage = new Map<string, KitchenCoverage>();
+  for (const item of items) {
+    const entries = stock.get(item.foodName.trim().toLowerCase());
+    if (!entries || entries.length === 0) continue;
+    const result = kitchenCoverageFor(item.quantity, item.unit, entries, today);
+    if (result.level !== 'none') coverage.set(item.id, result);
+  }
+  return coverage;
+}
+
 export type GroceryRebuildResult = {
   carriedOver: number;
   added: number;
@@ -622,28 +768,17 @@ export async function rebuildGroceryListFromSchedule(listId: string): Promise<Gr
       else added += 1;
       await db.runAsync(
         `INSERT INTO grocery_list_items
-           (id, list_id, category, food_name, unit, quantity, sort_order, extra_amounts_json, meal_names_json,
-            sold_as, approx_amount, purchase_form, checked, checked_at, price, price_unit, purchased_quantity, scanned_product_id, note, on_sale)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        `grocery_item_${Date.now()}_${sortOrder}`,
-        listId,
-        section.category,
-        item.foodName,
-        item.unit,
-        item.quantity * list.peopleCount,
-        sortOrder,
-        JSON.stringify(item.extraAmounts.map((extra) => ({ ...extra, quantity: extra.quantity * list.peopleCount }))),
-        JSON.stringify(item.mealNames),
-        item.soldAs || null,
-        describeApproximateCount(
-          item.quantity * list.peopleCount,
-          item.unit,
-          item.foodName,
-          item.unitLabel,
-          item.unitLabelPlural,
-          item.gramsPerUnit,
+           (${SCHEDULE_LINE_COLUMNS}, checked, checked_at, price, price_unit, purchased_quantity,
+            scanned_product_id, note, on_sale)
+         VALUES (${SCHEDULE_LINE_PLACEHOLDERS}, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ...scheduleLineValues(
+          `grocery_item_${Date.now()}_${sortOrder}`,
+          listId,
+          section.category,
+          item,
+          list.peopleCount,
+          sortOrder,
         ),
-        item.purchaseForm,
         prior?.checked ? 1 : 0,
         prior?.checkedAt ?? null,
         prior?.price ?? null,

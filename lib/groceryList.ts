@@ -391,6 +391,141 @@ export function formatMergedAmounts(merged: MergedAmounts): string {
   return parts.join(' + ');
 }
 
+// --- What is already in the kitchen -----------------------------------------
+//
+// 2026-09-03. Named as open when the Grocery List first shipped: "the list
+// does not yet know anything about what is already in the kitchen, so
+// something bought two days ago appears again."
+//
+// The line this draws, and the whole reason the shape below is what it is:
+// the app knows two different things, and only one of them is a number.
+//
+// A garden or fermentation harvest carries a quantity_remaining that is
+// drawn down every time some is used, so "you have 400 g of broccoli" is a
+// measured fact and can be subtracted from what the list asks for.
+//
+// A grocery purchase carries nothing of the kind. Ticking broccoli off a list
+// records that it was bought; nothing anywhere decrements it as it gets
+// eaten, because logging a meal does not reach back into a past shopping
+// trip. So the app knows it was bought and cannot know whether any is left.
+// Turning that into a subtraction would be inventing the number, and someone
+// would come home without broccoli. It surfaces as a reminder to look, never
+// as an amount, for the same reason a price the app cannot resolve is
+// reported as missing rather than guessed.
+export type KitchenStockSource = 'garden' | 'fermentation' | 'purchase';
+
+export type KitchenStockEntry = {
+  source: KitchenStockSource;
+  // For 'garden' and 'fermentation' this is the remaining amount. For
+  // 'purchase' it is what was bought, which is NOT what is left, and is never
+  // read as a quantity by anything below.
+  quantity: number;
+  unit: string;
+  // ISO date (YYYY-MM-DD) the stock came in, for saying how long ago.
+  date: string;
+};
+
+export type KitchenCoverageLevel = 'covered' | 'some' | 'unmeasured' | 'none';
+
+export type KitchenCoverage = {
+  level: KitchenCoverageLevel;
+  // A plain sentence for the line, or null when there is nothing worth
+  // saying. Never states an amount for a purchase.
+  note: string | null;
+  // How much of what the line asks for is accounted for, in the line's own
+  // unit. Null whenever no measured stock could be converted into that unit,
+  // which includes every purchase-only case.
+  coveredQuantity: number | null;
+};
+
+// How far back a purchase is still worth mentioning. Groceries perish, and a
+// reminder about something bought a month ago is noise that trains someone to
+// ignore the line. Seven days matches the longest window a list can be built
+// for, so anything still plausibly in the house from the last shop is caught.
+export const KITCHEN_PURCHASE_RECENT_DAYS = 7;
+
+function describeDaysAgo(date: string, today: string): string {
+  const then = Date.parse(`${date}T00:00:00Z`);
+  const now = Date.parse(`${today}T00:00:00Z`);
+  if (Number.isNaN(then) || Number.isNaN(now)) return 'recently';
+  const days = Math.round((now - then) / 86400000);
+  if (days <= 0) return 'today';
+  if (days === 1) return 'yesterday';
+  return `${days} days ago`;
+}
+
+function describeSource(source: KitchenStockSource): string {
+  if (source === 'garden') return 'from the garden';
+  if (source === 'fermentation') return 'from what you fermented';
+  return 'bought';
+}
+
+// Measured stock only, and only what shares a unit family with the line. A
+// weight of something cannot be counted against a volume of it without a
+// density this app does not have for most foods, which is the same line
+// mergeShoppingAmounts already refuses to cross.
+export function kitchenCoverageFor(
+  neededQuantity: number,
+  neededUnit: string,
+  stock: KitchenStockEntry[],
+  today: string = new Date().toISOString().slice(0, 10),
+): KitchenCoverage {
+  const family = familyFor(neededUnit);
+  const neededBase = toFamilyBase(family, neededQuantity, neededUnit);
+
+  const measured = stock.filter((entry) => entry.source !== 'purchase');
+  const purchases = stock.filter((entry) => entry.source === 'purchase');
+
+  // Grouped by source so the note can name where it came from, which is what
+  // makes it checkable: someone can go and look in the right place.
+  const bySource = new Map<KitchenStockSource, number>();
+  let totalBase = 0;
+  for (const entry of measured) {
+    if (familyFor(entry.unit) !== family) continue;
+    const value = toFamilyBase(family, entry.quantity, entry.unit);
+    if (value == null || value <= 0) continue;
+    totalBase += value;
+    bySource.set(entry.source, (bySource.get(entry.source) ?? 0) + value);
+  }
+
+  if (totalBase > 0 && neededBase != null && neededBase > 0) {
+    const parts = Array.from(bySource.entries()).map(([source, base]) => {
+      const amount = renderBucket(family, base, neededUnit);
+      return `${formatGroceryAmount(amount.quantity, amount.unit)} ${describeSource(source)}`;
+    });
+    const have = parts.join(' and ');
+    const coveredBase = Math.min(totalBase, neededBase);
+    const coveredAmount = renderBucket(family, coveredBase, neededUnit);
+
+    if (totalBase >= neededBase) {
+      return {
+        level: 'covered',
+        note: `Already in your kitchen: ${have}. That covers this line.`,
+        coveredQuantity: coveredAmount.quantity,
+      };
+    }
+    const shortfall = renderBucket(family, neededBase - totalBase, neededUnit);
+    return {
+      level: 'some',
+      note: `Already in your kitchen: ${have}. You still need about ${formatGroceryAmount(shortfall.quantity, shortfall.unit)}.`,
+      coveredQuantity: coveredAmount.quantity,
+    };
+  }
+
+  if (purchases.length > 0) {
+    // Deliberately no amount. See this section's comment for why: what
+    // was bought is not what is left, and nothing tracks the difference.
+    const mostRecent = purchases.reduce((latest, entry) => (entry.date > latest.date ? entry : latest));
+    return {
+      level: 'unmeasured',
+      note: `You bought this ${describeDaysAgo(mostRecent.date, today)}. Worth checking before buying more.`,
+      coveredQuantity: null,
+    };
+  }
+
+  return { level: 'none', note: null, coveredQuantity: null };
+}
+
 // --- How a store actually sells it ------------------------------------------
 //
 // 2026-09-01. The amount on a grocery list is what the recipes consume, and
