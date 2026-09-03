@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.15',
+    date: '2026-09-03',
+    changes: [
+      "Fixed, properly this time: olive oil now offers a price per fluid ounce rather than per pound. The last two updates each fixed a real part of this and neither reached the line you were actually looking at.",
+      "The cause: your list was built before the app started recording how a thing is sold, so that line had nothing stored at all, and a line with nothing stored falls back to offering a weight. The repair in the last update only covered lists where the value was recorded wrongly, not lists where it was never recorded.",
+      "Opening your grocery list now fills that in from the food reference for every line missing it, once, without touching a tick, price or note. Anything you added by hand in a shop is left alone.",
+    ],
+  },
+  {
     version: '1.0.32.14',
     date: '2026-09-03',
     changes: [

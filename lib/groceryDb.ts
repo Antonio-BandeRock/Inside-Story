@@ -14,6 +14,7 @@
 import {
   getDatabase,
   getUpcomingShoppingList,
+  resolvePurchaseForms,
   listAvailableFermentationHarvests,
   listAvailableHarvests,
   type ShoppingListItem,
@@ -638,7 +639,7 @@ export async function getActiveGroceryListSummary(): Promise<GroceryListSummary 
 // purchase form, so it holds one of the three form words; a true
 // approx_amount is always a phrase ("about 2 stalks") and can never be
 // exactly 'count', 'weight' or 'volume'. Anything else is left alone.
-const GROCERY_LINE_TRANSPOSE_REPAIR_KEY = 'grocery_line_transpose_repair_v1';
+const GROCERY_LINE_TRANSPOSE_REPAIR_KEY = 'grocery_line_transpose_repair_v2';
 
 export async function repairTransposedGroceryLines(): Promise<{ corrected: number; alreadyDone: boolean }> {
   const db = await getDatabase();
@@ -658,11 +659,46 @@ export async function repairTransposedGroceryLines(): Promise<{ corrected: numbe
               purchase_form = approx_amount
         WHERE approx_amount IN ('count', 'weight', 'volume')`,
     );
+    // Second, the case the swap above cannot reach: a line written before
+    // purchase_form existed at all (1.0.32.9 added the column, and every row
+    // already in a list got NULL). Those rows carry no form word to swap, so
+    // the WHERE above skips them and they keep offering a weight for a bottle.
+    //
+    // Found from a screenshot rather than guessed: the line read "in a bottle
+    // (one lasts many recipes)" with no prefix in front of it, which means
+    // approx_amount was already NULL rather than holding a transposed form
+    // word, while the price units were still the weight set. Both NULL is the
+    // only state that produces exactly that.
+    //
+    // Resolved from food_purchase_forms rather than inferred from the unit on
+    // the line: the reference database is what a newly built line reads, so a
+    // repaired line and a fresh one end up saying the same thing.
+    const forms = await resolvePurchaseForms();
+    let backfilled = 0;
+    if (forms.size > 0) {
+      const stale = await db.getAllAsync<{ id: string; category: string; foodName: string; soldAs: string | null }>(
+        `SELECT id, category, food_name AS foodName, sold_as AS soldAs
+           FROM grocery_list_items
+          WHERE purchase_form IS NULL AND added_manually = 0`,
+      );
+      for (const row of stale) {
+        const match = forms.get(`${row.category}|${row.foodName.trim().toLowerCase()}`);
+        if (!match) continue;
+        await db.runAsync(
+          "UPDATE grocery_list_items SET purchase_form = ?, sold_as = COALESCE(NULLIF(sold_as, ''), ?) WHERE id = ?",
+          match.form,
+          match.soldAs || null,
+          row.id,
+        );
+        backfilled += 1;
+      }
+    }
+
     await db.runAsync(
       "INSERT OR REPLACE INTO app_meta (key, value) VALUES (?, datetime('now'))",
       GROCERY_LINE_TRANSPOSE_REPAIR_KEY,
     );
-    return { corrected: result.changes ?? 0, alreadyDone: false };
+    return { corrected: (result.changes ?? 0) + backfilled, alreadyDone: false };
   } catch {
     // Deliberately not marked done, so a run that failed part way through
     // tries again next time rather than leaving lines half repaired. The

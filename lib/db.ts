@@ -11721,7 +11721,7 @@ async function resolvePurchasableNames(entries: RawShoppingEntry[]): Promise<Map
   return byFoodId;
 }
 
-type PurchaseFormRow = {
+export type PurchaseFormRow = {
   category: string;
   baseName: string;
   form: string;
@@ -11738,7 +11738,7 @@ type PurchaseFormRow = {
 //
 // A LEFT JOIN because the two tables cover different things. Every curated
 // ingredient has a purchase form; only a handful have a cited unit weight.
-async function resolvePurchaseForms(): Promise<Map<string, PurchaseFormRow>> {
+export async function resolvePurchaseForms(): Promise<Map<string, PurchaseFormRow>> {
   const db = await getReferenceDatabase();
   const byKey = new Map<string, PurchaseFormRow>();
   try {
