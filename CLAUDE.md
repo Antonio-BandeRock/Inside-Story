@@ -25,6 +25,14 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-03, 1.0.32.13): the lists already built, repaired.** Reported directly, on olive oil: the price panel offered per kg for something sold in a bottle. Checked rather than assumed: `food_purchase_forms` has Olive Oil (Extra Virgin) as `form = 'volume'`, and `groceryPriceUnitsFor` correctly returns per litre for a volume form, so the line's stored `purchase_form` had been lost. That is the 1.0.32.12 transposition, on a list built before it was fixed.
+
+**This is this project's own standing lesson arriving again, and it should have been handled in the same pass.** Fixing the INSERT stops NEW lines being written wrong and does nothing for lines already in someone's list. The rule from 1.0.32.5 says exactly this: "Whenever a fix is to stored, user-visible records rather than to a live computation, decide in the same pass how existing records catch up." It was not decided, and the person holding the list found it first.
+
+**Repaired in place rather than by rebuilding.** Refresh would also correct it, but it matches lines by name and deliberately starts fresh where a name changed, so it can drop a tick or a price recorded in a shop. `repairTransposedGroceryLines` touches nothing a person entered. **The signature is exact rather than a guess:** `approx_amount` was given the purchase form, so it holds one of the three form words, and a true `approx_amount` is always a phrase ("about 2 stalks") that can never be exactly 'count', 'weight' or 'volume'. Guarded through `app_meta` to run once, and not marked done on failure so a partial run tries again. Runs from the grocery list screen's own load rather than at startup, per this project's cold-start rule.
+
+**Verified against a scratch database rather than by reading the SQL:** three corrupted rows corrected, a correct row from the rebuild path and an empty row both untouched, every tick and price preserved, and a second run changes nothing. `tsc` clean, `eslint` clean on every touched file, suites 30/129/29, bare-text audit at 0. **Not yet confirmed on-device**, and the check is the reported case: open the existing list and confirm olive oil offers per litre rather than per kg.
+
 **Most recent (2026-09-03, 1.0.32.12): the grocery list knows what is already in the kitchen.** Closes the piece named as open since 1.0.32.1: "the list does not yet know anything about what is already in the kitchen, so something bought two days ago appears again."
 
 **The line this draws is the whole design, and it is the same honesty rule this feature already turns on elsewhere.** The app knows two different things about already having a food, and only one of them is a number.
