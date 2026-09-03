@@ -653,6 +653,45 @@ const walkForFallback = (dir) => {
 for (const root of ['app', 'components']) walkForFallback(path.join(__dirname, '..', root));
 check('no screen falls back to a flat metric default', offenders, []);
 
+// --------------------------------------------------------------------------
+// Taking what the kitchen has: which harvest to draw down, and by how much.
+//
+// 2026-09-03, reported directly: "There is no way to choose that you are going
+// to take from your harvest instead of having to purchase." These gate the
+// arithmetic behind that action, and it decrements real stored inventory, so
+// getting it wrong quietly destroys a record of what someone actually has.
+//
+// The amounts below are in each HARVEST's own unit, not the line's, because
+// that is what quantity_remaining is counted in.
+const g2 = (id, quantity, unit, date) => ({ id, source: 'garden', quantity, unit, date });
+
+// One harvest, more than enough: take only what the line asks for.
+const partialTake = kitchenCoverageFor(340, 'g', [g2('h1', 500, 'g', '2026-09-01')], TODAY);
+check('takes from the one harvest', partialTake.draws.length, 1);
+check('and only what the line needs', partialTake.draws[0].quantity, 340);
+check('naming which harvest', partialTake.draws[0].id, 'h1');
+
+// Not enough: take all of it, and the line keeps needing the rest.
+const fullTake = kitchenCoverageFor(340, 'g', [g2('h1', 200, 'g', '2026-09-01')], TODAY);
+check('an insufficient harvest is emptied', fullTake.draws[0].quantity, 200);
+check('and the line is only partly covered', fullTake.level, 'some');
+
+// Two harvests, oldest first, and the second only for the shortfall.
+const spread = kitchenCoverageFor(340, 'g', [g2('h1', 200, 'g', '2026-09-01'), g2('h2', 500, 'g', '2026-09-02')], TODAY);
+check('the first harvest is emptied', spread.draws[0].quantity, 200);
+check('and the second covers only the shortfall', spread.draws[1].quantity, 140);
+check('nothing is taken from a third', spread.draws.length, 2);
+
+// Units convert, and the amount taken is in the HARVEST's unit, not the line's.
+const kilos = kitchenCoverageFor(340, 'g', [g2('h1', 1, 'kg', '2026-09-01')], TODAY);
+check('a kilo harvest gives back kilos to draw down', kilos.draws[0].quantity, 0.34);
+
+// A purchase is never drawn down: nothing tracks how much of it is left.
+check('a purchase offers nothing to take', kitchenCoverageFor(340, 'g', [bought(340, 'g', '2026-09-01')], TODAY).draws, []);
+check('and neither does an empty kitchen', kitchenCoverageFor(340, 'g', [], TODAY).draws, []);
+
+// A harvest in the wrong family is not taken from at all.
+check('a volume harvest is never drawn for a weight line', kitchenCoverageFor(340, 'g', [g2('h1', 1, 'l', '2026-09-01')], TODAY).draws, []);
 if (failures > 0) {
   console.error(`\nGrocery list math: ${failures} of ${checks} checks failed.`);
   process.exit(1);

@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.18',
+    date: '2026-09-03',
+    changes: [
+      "New: Use What I Have, on any grocery line your garden or a ferment already covers. Until now the list would tell you what you had and still only offer to buy it.",
+      "Taking it draws that harvest down by what you used, so what is left stays accurate, and the line is marked as taken from your kitchen rather than bought. It carries no price, so it never reaches your running total or your price history.",
+      "If a harvest covers only part of a line, it takes what there is, reduces the line to what you still need, and leaves it on the list to buy.",
+      "Where two harvests of the same food exist, the older one is used up first.",
+    ],
+  },
+  {
     version: '1.0.32.17',
     date: '2026-09-03',
     changes: [

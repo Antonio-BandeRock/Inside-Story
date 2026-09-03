@@ -38,6 +38,7 @@ import {
   getGroceryList,
   getGroceryListItems,
   getKitchenCoverageForItems,
+  takeKitchenStockForLine,
   repairTransposedGroceryLines,
   listGroceryLists,
   rebuildGroceryListFromSchedule,
@@ -137,6 +138,31 @@ export default function GroceryListScreen() {
   const [newName, setNewName] = useState('');
   const [newQuantity, setNewQuantity] = useState('');
   const [newUnit, setNewUnit] = useState('');
+
+  // Takes what is already in the kitchen instead of buying it: draws the
+  // harvest down and either ticks the line off or reduces it to what is still
+  // needed. Reloads afterwards rather than patching state by hand, since both
+  // the line and every other line's coverage can move as a result.
+  const handleUseFromKitchen = useCallback(
+    async (item: GroceryListItemRecord) => {
+      const coverage = kitchen.get(item.id);
+      if (!coverage || coverage.draws.length === 0) return;
+      setBusy(true);
+      try {
+        await takeKitchenStockForLine(item.id, coverage);
+        await load();
+      } catch (error) {
+        setErrorMessage(
+          `Could not use what you have: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      } finally {
+        setBusy(false);
+      }
+    },
+    // load is declared below and is stable; see its useCallback.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [kitchen],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -753,6 +779,11 @@ export default function GroceryListScreen() {
                           {[item.approxAmount, item.soldAs].filter(Boolean).join(' · ')}
                         </Text>
                       ) : null}
+                      {item.sourcedFromKitchen ? (
+                        <Text style={[styles.rowMeta, styles.rowKitchenCovered]}>
+                          Taken from your kitchen, not bought.
+                        </Text>
+                      ) : null}
                       {kitchenNote ? (
                         <Text
                           style={[
@@ -770,6 +801,23 @@ export default function GroceryListScreen() {
                         >
                           {kitchenNote.note}
                         </Text>
+                      ) : null}
+                      {/* Only where there is measured stock to take. A past
+                          purchase offers nothing to draw down: the app cannot
+                          know how much of it is left, which is why it is a
+                          reminder rather than an amount. */}
+                      {kitchenNote && kitchenNote.draws.length > 0 && !item.sourcedFromKitchen ? (
+                        <TouchableOpacity
+                          style={styles.useKitchenButton}
+                          activeOpacity={0.85}
+                          disabled={busy}
+                          onPress={() => handleUseFromKitchen(item)}
+                        >
+                          <Ionicons name="leaf-outline" size={14} color={colors.textOnButton} />
+                          <Text style={styles.useKitchenButtonText}>
+                            {kitchenNote.level === 'covered' ? 'Use what I have' : 'Use what I have, buy the rest'}
+                          </Text>
+                        </TouchableOpacity>
                       ) : null}
                       {item.mealNames.length > 0 ? (
                         <Text style={styles.rowMeta} numberOfLines={2}>
@@ -1059,6 +1107,24 @@ const styles = StyleSheet.create({
   rowTextWrap: { flex: 1, gap: 2 },
   rowName: { ...typography.body, color: colors.textPrimary, ...textShadow },
   rowNameChecked: { color: colors.textMuted, textDecorationLine: 'line-through' },
+  useKitchenButton: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 6,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    backgroundColor: colors.buttonColor,
+    ...BUTTON_SHADOW,
+  },
+  useKitchenButtonText: {
+    ...typography.caption,
+    color: colors.textOnButton,
+    // Dark text on a light fill: no shadow, matching every other button.
+    textShadowColor: 'transparent',
+  },
   rowKitchenNote: {
     color: colors.textSecondary,
   },

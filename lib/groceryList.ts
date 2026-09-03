@@ -415,6 +415,10 @@ export function formatMergedAmounts(merged: MergedAmounts): string {
 export type KitchenStockSource = 'garden' | 'fermentation' | 'purchase';
 
 export type KitchenStockEntry = {
+  // The harvest row this came from, so taking some of it can draw the right
+  // one down. Empty for a purchase, which is never drawn down: nothing tracks
+  // how much of it is left, which is the whole reason it is not a quantity.
+  id: string;
   source: KitchenStockSource;
   // For 'garden' and 'fermentation' this is the remaining amount. For
   // 'purchase' it is what was bought, which is NOT what is left, and is never
@@ -436,6 +440,18 @@ export type KitchenCoverage = {
   // unit. Null whenever no measured stock could be converted into that unit,
   // which includes every purchase-only case.
   coveredQuantity: number | null;
+  // What to take, and from where, if someone says they are using this rather
+  // than buying it. Each amount is in that harvest's OWN unit, because that is
+  // what quantity_remaining is measured in and what has to be decremented.
+  // Empty unless there is measured stock to take.
+  draws: KitchenDraw[];
+};
+
+export type KitchenDraw = {
+  id: string;
+  source: KitchenStockSource;
+  // In the harvest's own unit, not the line's.
+  quantity: number;
 };
 
 // How far back a purchase is still worth mentioning. Groceries perish, and a
@@ -479,13 +495,36 @@ export function kitchenCoverageFor(
   // Grouped by source so the note can name where it came from, which is what
   // makes it checkable: someone can go and look in the right place.
   const bySource = new Map<KitchenStockSource, number>();
+  const usable: { entry: KitchenStockEntry; base: number }[] = [];
   let totalBase = 0;
   for (const entry of measured) {
     if (familyFor(entry.unit) !== family) continue;
     const value = toFamilyBase(family, entry.quantity, entry.unit);
     if (value == null || value <= 0) continue;
     totalBase += value;
+    usable.push({ entry, base: value });
     bySource.set(entry.source, (bySource.get(entry.source) ?? 0) + value);
+  }
+
+  // Allocated oldest-first, in the order the caller supplied, so the stock
+  // that has been sitting longest is used before a fresher harvest. Each
+  // amount is converted back into that harvest's own unit, since that is what
+  // its remaining quantity is counted in.
+  const draws: KitchenDraw[] = [];
+  if (neededBase != null && neededBase > 0) {
+    let outstanding = neededBase;
+    for (const { entry, base } of usable) {
+      if (outstanding <= 0) break;
+      const takeBase = Math.min(base, outstanding);
+      outstanding -= takeBase;
+      draws.push({
+        id: entry.id,
+        source: entry.source,
+        // Proportional rather than converted a second time, so a rounding
+        // difference cannot leave a harvest at a stubborn 0.0001 remaining.
+        quantity: takeBase >= base ? entry.quantity : (entry.quantity * takeBase) / base,
+      });
+    }
   }
 
   if (totalBase > 0 && neededBase != null && neededBase > 0) {
@@ -502,6 +541,7 @@ export function kitchenCoverageFor(
         level: 'covered',
         note: `Already in your kitchen: ${have}. That covers this line.`,
         coveredQuantity: coveredAmount.quantity,
+        draws,
       };
     }
     const shortfall = renderBucket(family, neededBase - totalBase, neededUnit);
@@ -509,6 +549,7 @@ export function kitchenCoverageFor(
       level: 'some',
       note: `Already in your kitchen: ${have}. You still need about ${formatGroceryAmount(shortfall.quantity, shortfall.unit)}.`,
       coveredQuantity: coveredAmount.quantity,
+      draws,
     };
   }
 
@@ -520,10 +561,11 @@ export function kitchenCoverageFor(
       level: 'unmeasured',
       note: `You bought this ${describeDaysAgo(mostRecent.date, today)}. Worth checking before buying more.`,
       coveredQuantity: null,
+      draws: [],
     };
   }
 
-  return { level: 'none', note: null, coveredQuantity: null };
+  return { level: 'none', note: null, coveredQuantity: null, draws: [] };
 }
 
 // --- How a store actually sells it ------------------------------------------

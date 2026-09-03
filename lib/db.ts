@@ -5732,6 +5732,14 @@ async function runDatabaseInitialization() {
         sold_as TEXT,
         approx_amount TEXT,
         purchase_form TEXT,
+        -- 2026-09-03. Set when a line was satisfied out of the kitchen rather
+        -- than bought: a garden or fermentation harvest was drawn down to
+        -- cover it. Kept separate from checked, which means "dealt with" and
+        -- says nothing about how, and separate from price, which stays null
+        -- because nothing was spent. Reported directly: "There is no way to
+        -- choose that you are going to take from your harvest instead of
+        -- having to purchase."
+        sourced_from_kitchen INTEGER NOT NULL DEFAULT 0,
         -- Whether the price paid was a sale price rather than the usual one.
         -- Kept because a price history without it quietly lies: one week at
         -- half price reads as a thing getting cheaper rather than as an offer.
@@ -5833,6 +5841,11 @@ async function runDatabaseInitialization() {
       }
       if (!groceryItemColumns.some((column) => column.name === 'purchase_form')) {
         await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN purchase_form TEXT;');
+      }
+      if (!groceryItemColumns.some((column) => column.name === 'sourced_from_kitchen')) {
+        await db.execAsync(
+          'ALTER TABLE grocery_list_items ADD COLUMN sourced_from_kitchen INTEGER NOT NULL DEFAULT 0;',
+        );
       }
       if (!groceryItemColumns.some((column) => column.name === 'on_sale')) {
         await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN on_sale INTEGER NOT NULL DEFAULT 0;');

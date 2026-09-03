@@ -14,6 +14,8 @@
 import {
   getDatabase,
   getUpcomingShoppingList,
+  recordFermentationHarvestUsage,
+  recordHarvestUsage,
   resolvePurchaseForms,
   listAvailableFermentationHarvests,
   listAvailableHarvests,
@@ -85,6 +87,9 @@ export type GroceryListItemRecord = {
   // A sale price rather than the usual one. See describeSaleLabel for why the
   // distinction is kept rather than folded into the number.
   onSale: boolean;
+  // Satisfied out of the kitchen rather than bought. See the column's own
+  // comment in lib/db.ts for why this is separate from checked and from price.
+  sourcedFromKitchen: boolean;
   addedManually: boolean;
   sortOrder: number;
 };
@@ -101,9 +106,11 @@ type GroceryListItemRow = Omit<
   | 'soldAs'
   | 'purchaseForm'
   | 'onSale'
+  | 'sourcedFromKitchen'
 > & {
   purchaseForm: string | null;
   onSale: number;
+  sourcedFromKitchen: number;
   checked: number;
   addedManually: number;
   priceUnit: string | null;
@@ -122,7 +129,8 @@ const GROCERY_ITEM_COLUMNS = `
   checked_at AS checkedAt, price, price_unit AS priceUnit, purchased_quantity AS purchasedQuantity,
   scanned_product_id AS scannedProductId, note, added_manually AS addedManually, sort_order AS sortOrder,
   extra_amounts_json AS extraAmountsJson, meal_names_json AS mealNamesJson,
-  sold_as AS soldAs, approx_amount AS approxAmount, purchase_form AS purchaseForm, on_sale AS onSale
+  sold_as AS soldAs, approx_amount AS approxAmount, purchase_form AS purchaseForm, on_sale AS onSale,
+  sourced_from_kitchen AS sourcedFromKitchen
 `;
 
 function toPriceUnit(value: string | null | undefined): GroceryPriceUnit | null {
@@ -163,6 +171,7 @@ function mapGroceryItem(row: GroceryListItemRow): GroceryListItemRecord {
       ? (row.purchaseForm as PurchaseForm)
       : null,
     onSale: row.onSale === 1,
+    sourcedFromKitchen: row.sourcedFromKitchen === 1,
   };
 }
 
@@ -620,6 +629,57 @@ export async function getActiveGroceryListSummary(): Promise<GroceryListSummary 
 }
 
 
+
+// Takes what the kitchen already has, instead of buying it.
+//
+// 2026-09-03, reported directly: "There is no way to choose that you are going
+// to take from your harvest instead of having to purchase. It is still just one
+// selection for purchasing." Correct, and the feature was half a feature
+// without it. Knowing a harvest covers a line is only useful if the harvest can
+// then actually be used, and the whole reason those rows carry a remaining
+// quantity is so it can be drawn down as it goes.
+//
+// Two outcomes, and the difference matters in a shop:
+//
+//   Fully covered  the harvests are drawn down by what the line needs, and the
+//                  line is marked as sourced from the kitchen and ticked. It
+//                  carries no price, because nothing was spent, so it never
+//                  reaches the running total or the price history.
+//   Partly covered the harvests are emptied, and the line's own quantity drops
+//                  by what was taken. It stays on the list, still needing the
+//                  remainder, which is the honest state: some of it still has
+//                  to be bought.
+export async function takeKitchenStockForLine(
+  itemId: string,
+  coverage: KitchenCoverage,
+): Promise<{ drewDown: number; fullyCovered: boolean }> {
+  const db = await getDatabase();
+  const item = await getGroceryListItem(itemId);
+  if (!item) throw new Error('That line is no longer on the list.');
+  if (coverage.draws.length === 0) return { drewDown: 0, fullyCovered: false };
+
+  for (const draw of coverage.draws) {
+    if (!draw.id || draw.quantity <= 0) continue;
+    if (draw.source === 'garden') await recordHarvestUsage(draw.id, draw.quantity);
+    else if (draw.source === 'fermentation') await recordFermentationHarvestUsage(draw.id, draw.quantity);
+  }
+
+  const fullyCovered = coverage.level === 'covered';
+  if (fullyCovered) {
+    await db.runAsync(
+      "UPDATE grocery_list_items SET sourced_from_kitchen = 1, checked = 1, checked_at = datetime('now') WHERE id = ?",
+      itemId,
+    );
+  } else {
+    // Only ever reduced, never below zero. coveredQuantity is already in the
+    // line's own unit, which is what makes this subtraction valid.
+    const remaining = Math.max(0, item.quantity - (coverage.coveredQuantity ?? 0));
+    await db.runAsync('UPDATE grocery_list_items SET quantity = ? WHERE id = ?', remaining, itemId);
+  }
+
+  return { drewDown: coverage.draws.length, fullyCovered };
+}
+
 // --- Repairing lines written by the transposed INSERT -----------------------
 //
 // 2026-09-03. Fixing createGroceryListFromSchedule stops NEW lines being
@@ -735,6 +795,7 @@ async function loadKitchenStock(excludeListId: string): Promise<Map<string, Kitc
   // (quantity_remaining > 0), drawn down as it gets used.
   for (const harvest of await listAvailableHarvests()) {
     add(harvest.foodName, {
+      id: harvest.id,
       source: 'garden',
       quantity: harvest.quantityRemaining,
       unit: harvest.unit,
@@ -743,6 +804,7 @@ async function loadKitchenStock(excludeListId: string): Promise<Map<string, Kitc
   }
   for (const harvest of await listAvailableFermentationHarvests()) {
     add(harvest.drinkName, {
+      id: harvest.id,
       source: 'fermentation',
       quantity: harvest.quantityRemaining,
       unit: harvest.unit,
@@ -767,6 +829,8 @@ async function loadKitchenStock(excludeListId: string): Promise<Map<string, Kitc
   );
   for (const row of rows) {
     add(row.foodName, {
+      // A purchase is never drawn down, so it needs no addressable row.
+      id: '',
       source: 'purchase',
       quantity: row.quantity,
       unit: row.unit,
