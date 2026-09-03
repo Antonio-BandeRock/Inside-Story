@@ -27,6 +27,7 @@ import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { recognizeTextFromImage } from '../lib/ocr';
+import { detectMeasurementSystemFromLocale } from '../lib/measurement';
 import { getStoredMeasurementSystem } from '../lib/db';
 import {
   addGroceryListItem,
@@ -151,9 +152,19 @@ export default function GroceryListScreen() {
       await repairTransposedGroceryLines();
       const target = listId ? await getGroceryList(listId) : await getActiveGroceryList();
       const past = await listGroceryLists();
-      // Null when nobody has set one, which is not an error: metric is this
-      // app's own default everywhere else it asks.
-      setMeasurementSystem((await getStoredMeasurementSystem()) ?? 'metric');
+      // Null when nobody has touched the setting, which is the common case
+      // rather than an edge one. It falls back to the locale, the same as
+      // Profile and all eleven builders.
+      //
+      // 2026-09-03: this used to fall back to a flat 'metric', on a comment
+      // claiming that was "this app's own default everywhere else it asks".
+      // That was wrong. Twelve other files resolve it as
+      // "stored ?? detectMeasurementSystemFromLocale()", and only this screen
+      // and price-compare did not, so someone whose Profile read Imperial
+      // from their locale was offered a price per kg on the grocery list.
+      // Reported directly: "in my profile I have imperial selected, so it
+      // isn't showing me the correct unit either way."
+      setMeasurementSystem((await getStoredMeasurementSystem()) ?? detectMeasurementSystemFromLocale());
       setHistory(past);
       if (target) {
         setList(target);

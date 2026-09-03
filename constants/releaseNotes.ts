@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.14',
+    date: '2026-09-03',
+    changes: [
+      "Fixed: the grocery list and the brand comparison ignored your Imperial setting and offered metric units, unless you had tapped that setting in Profile at least once. If you had never touched it, Profile read Imperial off your phone's region while the grocery list assumed metric, so you were offered a price per kg.",
+      "Every other screen in the app already did this correctly. These two were the exception, and both are now fixed, with a check that stops it happening again.",
+      "Reported directly, and both halves of that report were right: the unit was wrong for a liquid, and it was the wrong system as well.",
+    ],
+  },
+  {
     version: '1.0.32.13',
     date: '2026-09-03',
     changes: [

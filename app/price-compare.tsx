@@ -25,6 +25,7 @@ import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { getStoredMeasurementSystem } from '../lib/db';
+import { detectMeasurementSystemFromLocale } from '../lib/measurement';
 import { updateGroceryItemPurchase } from '../lib/groceryDb';
 import {
   comparePrices,
@@ -70,7 +71,11 @@ export default function PriceCompareScreen() {
   useEffect(() => {
     // Null when nobody has set one, which is not an error: metric is this
     // app's own default everywhere else it asks.
-    void getStoredMeasurementSystem().then((system) => setMeasurementSystem(system ?? 'metric'));
+    // Falls back to the locale, not to a flat 'metric'. See the same load in
+    // app/grocery-list.tsx for what that mistake looked like on a shelf.
+    void getStoredMeasurementSystem().then((system) =>
+      setMeasurementSystem(system ?? detectMeasurementSystemFromLocale()),
+    );
   }, []);
 
   const sizeUnit = purchaseSizeUnitFor(purchaseForm, measurementSystem);

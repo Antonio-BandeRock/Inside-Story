@@ -617,6 +617,42 @@ check(
   'none',
 );
 
+// --------------------------------------------------------------------------
+// Nothing resolves the measurement system by falling back to a flat 'metric'.
+//
+// 2026-09-03, reported directly: "in my profile I have imperial selected, so
+// it isn't showing me the correct unit either way." Twelve files resolve this
+// as "stored ?? detectMeasurementSystemFromLocale()"; the grocery list and the
+// price comparison fell back to 'metric' instead, so anyone who had never
+// touched the setting was offered a price per kg while their Profile read
+// Imperial off their locale. Nobody had to set anything wrong for this to
+// happen, which is what made it easy to ship and easy to miss.
+//
+// Plain string matching rather than a regex, and a source scan rather than a
+// unit test: the mistake is in how a value is resolved at a call site, not in
+// any function's arithmetic.
+const METRIC_FALLBACKS = [
+  "getStoredMeasurementSystem()) ?? 'metric'",
+  "system ?? 'metric'",
+  "stored ?? 'metric'",
+];
+const offenders = [];
+const walkForFallback = (dir) => {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walkForFallback(full);
+    else if (entry.name.endsWith('.ts') || entry.name.endsWith('.tsx')) {
+      const text = fs.readFileSync(full, 'utf8');
+      // A useState initialiser of 'metric' is fine: it is a placeholder
+      // replaced the moment the stored value resolves. Only a FALLBACK from
+      // the stored value is the bug.
+      if (METRIC_FALLBACKS.some((pattern) => text.includes(pattern))) offenders.push(entry.name);
+    }
+  }
+};
+for (const root of ['app', 'components']) walkForFallback(path.join(__dirname, '..', root));
+check('no screen falls back to a flat metric default', offenders, []);
+
 if (failures > 0) {
   console.error(`\nGrocery list math: ${failures} of ${checks} checks failed.`);
   process.exit(1);
