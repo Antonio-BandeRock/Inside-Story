@@ -37,6 +37,7 @@ import {
   getGroceryList,
   getGroceryListItems,
   getKitchenCoverageForItems,
+  repairTransposedGroceryLines,
   listGroceryLists,
   rebuildGroceryListFromSchedule,
   setGroceryItemChecked,
@@ -143,6 +144,11 @@ export default function GroceryListScreen() {
       // A list named in the route wins, so returning from a barcode scan
       // always lands back on the same list rather than on whichever one
       // happens to be active.
+      // Corrects lines written by the transposed INSERT before anything is
+      // read, so a list already built reads right without anyone having to
+      // know to press Refresh. Guarded to run at most once; a no-op query
+      // after that.
+      await repairTransposedGroceryLines();
       const target = listId ? await getGroceryList(listId) : await getActiveGroceryList();
       const past = await listGroceryLists();
       // Null when nobody has set one, which is not an error: metric is this

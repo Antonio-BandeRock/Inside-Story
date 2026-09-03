@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.32.13',
+    date: '2026-09-03',
+    changes: [
+      "Fixed: a grocery list built before this update was offering a price per kilo for things sold by volume, so olive oil could be priced per kg rather than per litre. Reported directly, and the list was right to look wrong.",
+      "The cause was the column mix-up fixed in the last update, which stopped new lists being written wrong but left the lists you already had still carrying it. Opening your grocery list now corrects those lines in place, once, without touching a single tick, price or note you have entered.",
+      "You do not need to press Refresh or rebuild anything. Open the list and olive oil will offer per litre.",
+    ],
+  },
+  {
     version: '1.0.32.12',
     date: '2026-09-03',
     changes: [

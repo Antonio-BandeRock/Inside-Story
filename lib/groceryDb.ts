@@ -619,6 +619,58 @@ export async function getActiveGroceryListSummary(): Promise<GroceryListSummary 
 }
 
 
+// --- Repairing lines written by the transposed INSERT -----------------------
+//
+// 2026-09-03. Fixing createGroceryListFromSchedule stops NEW lines being
+// written wrong. It does nothing for the lines already sitting in someone's
+// list, which is the standing lesson this project has already had to learn
+// once: a fix to how records are CREATED never reaches records that already
+// exist, and whoever is holding the list finds out before anyone else does.
+// Reported directly, on olive oil: the price panel offered per kg for
+// something sold in a bottle, because the line's purchase_form had been lost.
+//
+// Repaired in place rather than by rebuilding the list. Refresh would also
+// fix it, but it matches lines by name and deliberately starts fresh where a
+// name changed, so it can drop a tick or a price someone recorded in a shop.
+// Nothing here touches anything a person entered.
+//
+// The signature is exact rather than a guess. approx_amount was given the
+// purchase form, so it holds one of the three form words; a true
+// approx_amount is always a phrase ("about 2 stalks") and can never be
+// exactly 'count', 'weight' or 'volume'. Anything else is left alone.
+const GROCERY_LINE_TRANSPOSE_REPAIR_KEY = 'grocery_line_transpose_repair_v1';
+
+export async function repairTransposedGroceryLines(): Promise<{ corrected: number; alreadyDone: boolean }> {
+  const db = await getDatabase();
+  const done = await db.getFirstAsync<{ value: string }>(
+    'SELECT value FROM app_meta WHERE key = ?',
+    GROCERY_LINE_TRANSPOSE_REPAIR_KEY,
+  );
+  if (done) return { corrected: 0, alreadyDone: true };
+
+  try {
+    // Swapped back in one statement. purchase_form may legitimately end up
+    // NULL (a food with a form but no count), which is the correct outcome
+    // for that row rather than a failure.
+    const result = await db.runAsync(
+      `UPDATE grocery_list_items
+          SET approx_amount = CASE WHEN purchase_form IN ('count', 'weight', 'volume') THEN NULL ELSE purchase_form END,
+              purchase_form = approx_amount
+        WHERE approx_amount IN ('count', 'weight', 'volume')`,
+    );
+    await db.runAsync(
+      "INSERT OR REPLACE INTO app_meta (key, value) VALUES (?, datetime('now'))",
+      GROCERY_LINE_TRANSPOSE_REPAIR_KEY,
+    );
+    return { corrected: result.changes ?? 0, alreadyDone: false };
+  } catch {
+    // Deliberately not marked done, so a run that failed part way through
+    // tries again next time rather than leaving lines half repaired. The
+    // same choice reresolveSavedDishCookingMethods makes.
+    return { corrected: 0, alreadyDone: false };
+  }
+}
+
 // --- What is already in the kitchen -----------------------------------------
 //
 // Gathers the three things the app knows about already having a food, and
