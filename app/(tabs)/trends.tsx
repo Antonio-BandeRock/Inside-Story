@@ -22,6 +22,8 @@ import { TrendLineChart } from '../../components/TrendLineChart';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
+import { describeTherapyResponse, summarizeTherapyResponse, type TherapyResponseResult } from '../../lib/therapyResponse';
+import { therapyTypeLabel } from '../../lib/therapyTypes';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import {
   getDietaryReferenceIntakesForCurrentUser,
@@ -29,6 +31,7 @@ import {
   getLabResultTrend,
   getLabTests,
   getStoredMeasurementSystem,
+  getTherapyResponseInputs,
   getUserProfile,
   type LabResultRecord,
   type LabTest,
@@ -67,7 +70,7 @@ import { CORE_NUTRIENT_CODES } from './index';
 // identity. Matches the same rule applied there, 2026-07-27.
 const TAB_COLOR = colors.tabTrends;
 
-type TrendsLens = 'nutrients' | 'sixDs' | 'symptoms' | 'eatingWindow' | 'weight' | 'labs' | 'groceries' | 'patterns';
+type TrendsLens = 'nutrients' | 'sixDs' | 'symptoms' | 'eatingWindow' | 'weight' | 'labs' | 'groceries' | 'patterns' | 'therapyResponse';
 
 // Shared across all three lenses' own Info content below -- the same
 // caveat applies regardless of which chart you're looking at. Reworded
@@ -185,6 +188,29 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: 'Prices per pound and per kilo',
         body: 'A price entered per weight is charted as that unit price, not as what the line came to, since what you paid depends on how much you bought. A package price is charted as the package price. The unit is named under the chart so the two are never confused.',
+      },
+    ],
+  },
+  {
+    key: 'therapyResponse',
+    label: 'Therapy Response',
+    icon: 'hand-left-outline',
+    help: [
+      {
+        heading: 'Therapy Response',
+        body: 'For each hands-on therapy you have logged, this looks at your own check-ins on the days after each session and compares them against your days away from any session. It answers the question that actually matters about a session: not whether it felt good at the time, but how many days it held.',
+      },
+      {
+        heading: 'What it needs before it will say anything',
+        body: 'At least three sessions of the same therapy, and enough check-ins both after those sessions and on ordinary days to compare them against. Below that it says so instead of showing a percentage worked out from one good afternoon. Log sessions under Schedules > Hands-On Therapies and keep doing your ordinary check-ins on Signals.',
+      },
+      {
+        heading: 'What the baseline is',
+        body: 'Your baseline is every check-in on a day that is not within a week of any logged session, of any kind. If you had a massage on Tuesday and an adjustment on Friday, neither of those weeks counts as an ordinary week, and letting them would quietly compare one therapy against another while calling it a baseline. The number of baseline check-ins is always shown, so you can see how much it rests on.',
+      },
+      {
+        heading: 'This is a count, not a verdict',
+        body: 'Nothing here says a session caused anything. It reports what you logged, next to what you usually log. A therapy that reads no different from your ordinary days is a real answer, and so is one where the days after read worse. Both are worth raising with whoever is treating you.',
       },
     ],
   },
@@ -395,6 +421,7 @@ export default function TrendsScreen() {
   const [groceryPrices, setGroceryPrices] = useState<GroceryPricePoint[] | null>(null);
   const [patternWindow, setPatternWindow] = useState<PatternWindowHours>(24);
   const [patternResult, setPatternResult] = useState<PatternFinderResult | null>(null);
+  const [therapyResponse, setTherapyResponse] = useState<TherapyResponseResult | null>(null);
   const [startingTrialKey, setStartingTrialKey] = useState<string | null>(null);
   const router = useRouter();
 
@@ -503,6 +530,12 @@ export default function TrendsScreen() {
         setPatternResult(result);
         setLoading(false);
       });
+    } else if (lens === 'therapyResponse') {
+      getTherapyResponseInputs(days)
+        .then(({ sessions, checkins }) => {
+          setTherapyResponse(summarizeTherapyResponse(sessions, checkins));
+        })
+        .finally(() => setLoading(false));
     } else if (lens === 'groceries') {
       // The food list is loaded every time this lens opens rather than
       // once per visit: a shopping trip finished a minute ago is exactly
@@ -1014,6 +1047,65 @@ export default function TrendsScreen() {
                       </View>
                     );
                   })()
+                )}
+              </>
+            ) : lens === 'therapyResponse' ? (
+              <>
+                <View style={styles.disclaimerCard}>
+                  <Text style={styles.disclaimerText}>
+                    {
+                      'This compares your check-ins on the days after each hands-on session against your check-ins on days away from any session. It is a count from your own data, not a verdict on the therapy, and nothing here says a session caused anything.'
+                    }
+                  </Text>
+                </View>
+
+                {loading ? (
+                  <Text style={[styles.loadingText, styles.panelStandalone]}>Reading your sessions and check-ins…</Text>
+                ) : !therapyResponse || therapyResponse.totalSessions === 0 ? (
+                  <Text style={[styles.loadingText, styles.panelStandalone]}>
+                    {
+                      'No hands-on sessions logged in this range yet. Log one under Schedules > Hands-On Therapies after your next appointment.'
+                    }
+                  </Text>
+                ) : (
+                  therapyResponse.summaries.map((summary) => {
+                    const label = therapyTypeLabel(summary.therapyType);
+                    return (
+                      <View key={summary.therapyType} style={[styles.chartCard, styles.spaced]}>
+                        <Text style={styles.patternSectionHeading}>
+                          {label} · {summary.sessionCount} {summary.sessionCount === 1 ? 'session' : 'sessions'}
+                        </Text>
+                        <Text style={styles.patternRowCaption}>{describeTherapyResponse(summary, label.toLowerCase())}</Text>
+
+                        {summary.hasEnoughData ? (
+                          <>
+                            {summary.byDayOffset.map((day) => (
+                              <View key={day.dayOffset} style={styles.patternRow}>
+                                <View style={styles.patternRowText}>
+                                  <Text style={styles.patternRowTitle}>
+                                    {day.dayOffset === 0 ? 'Same day' : `${day.dayOffset} ${day.dayOffset === 1 ? 'day' : 'days'} after`}
+                                  </Text>
+                                  <Text style={styles.patternRowCaption}>
+                                    {day.checkinCount === 0
+                                      ? 'No check-ins logged on these days.'
+                                      : day.negativeShare === null
+                                        ? `Only ${day.checkinCount} check-${day.checkinCount === 1 ? 'in' : 'ins'} here, too few to work out a share from.`
+                                        : `${day.negativeCount} of ${day.checkinCount} check-ins reported something off (${Math.round(
+                                            day.negativeShare * 100,
+                                          )}%).`}
+                                  </Text>
+                                </View>
+                              </View>
+                            ))}
+                            <Text style={styles.patternRowCaption}>
+                              Baseline: {Math.round((summary.baselineNegativeShare ?? 0) * 100)}% of{' '}
+                              {summary.baselineCheckinCount} check-ins on days away from any session.
+                            </Text>
+                          </>
+                        ) : null}
+                      </View>
+                    );
+                  })
                 )}
               </>
             ) : lens === 'labs' ? (

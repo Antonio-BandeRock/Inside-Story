@@ -61,6 +61,10 @@ import {
   setTreatmentActive,
   setUpMealPlan,
   unlinkScheduleItemFromDeviceCalendarEvent,
+  createTherapySession,
+  deleteTherapySession,
+  listTherapySessions,
+  updateTherapySession,
   updateAppointment,
   updateOtcTreatment,
   updateScheduledMeal,
@@ -83,6 +87,7 @@ import {
   type TrackedNutrient,
   type TreatmentNutrientRecord,
   type TreatmentRecord,
+  type TherapySessionRecord,
   type UserProfile,
 } from '../../lib/db';
 import type { RecipeDietTag } from '../../lib/digest';
@@ -125,6 +130,7 @@ import { WhyExplainer } from '../../components/WhyExplainer';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
+import { getTherapyTypesByCategory, therapyTypeLabel } from '../../lib/therapyTypes';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -163,6 +169,7 @@ type Lens =
   | 'supplements'
   | 'prescriptions'
   | 'appointments'
+  | 'therapies'
   | 'exercise';
 
 // A repeat picker exists on Meals, Supplements' own reminder times, and
@@ -414,6 +421,29 @@ const LENSES: LensOption<Lens>[] = [
     ],
   },
   {
+    key: 'therapies',
+    label: 'Hands-On Therapies',
+    icon: 'hand-left-outline',
+    help: [
+      {
+        heading: 'What this is for',
+        body: 'A record of hands-on sessions that actually happened: chiropractic adjustments, acupuncture, deep tissue massage, pelvic floor physical therapy, and the rest. Log each one as you have it, with who did it, what they worked on, how long it took, and what it cost.',
+      },
+      {
+        heading: 'Why the date matters more than anything else here',
+        body: 'The useful question about a hands-on session is almost never "did it feel good at the time." It is "how long did it last." Answering that needs two things: the date a session happened, and your own check-ins on the days after it. Log the session here, keep doing your ordinary check-ins on Signals, and Trends > Therapy Response works out the rest.',
+      },
+      {
+        heading: 'This is separate from appointments on purpose',
+        body: 'An appointment is something coming up that you need reminding about. A session here is something that already happened, and it stays in your record so it can be looked at later. Book the next visit under Doctor Appointments and log the visit itself here once it is done.',
+      },
+      {
+        heading: 'What the Digest says about these therapies',
+        body: 'The evidence behind chiropractic care, acupuncture, and deep tissue massage is uneven, and it is stronger for some things than others. Digest > Basic Health > Hands-On & Complementary Therapies covers what the research actually shows for each one, including where it shows nothing at all.',
+      },
+    ],
+  },
+  {
     key: 'exercise',
     label: 'Exercise',
     icon: 'barbell-outline',
@@ -422,7 +452,7 @@ const LENSES: LensOption<Lens>[] = [
 ];
 
 const COMING_SOON_COPY: Record<
-  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>,
+  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments' | 'therapies'>,
   string
 > = {
   exercise: 'Schedule planned workouts and activity. Not built yet.',
@@ -5475,13 +5505,387 @@ function AppointmentsLens() {
   );
 }
 
+type TherapyFormState = {
+  editingId: string | null;
+  therapyType: string;
+  date: string;
+  time: TimeOfDayInput;
+  practitioner: string;
+  bodyFocus: string;
+  durationMinutes: string;
+  cost: string;
+  notes: string;
+};
+
+function blankTherapyForm(): TherapyFormState {
+  return {
+    editingId: null,
+    therapyType: 'chiropractic',
+    date: todayDateString(),
+    time: { hour: '10', minute: '00', ampm: 'AM' },
+    practitioner: '',
+    bodyFocus: '',
+    durationMinutes: '',
+    cost: '',
+    notes: '',
+  };
+}
+
+// Hands-on therapy sessions, 2026-09-04. The collecting half of the
+// tracker; the reading half is Trends > Therapy Response, per this
+// project's own standing "tool areas collect data, Trends reports it"
+// split.
+function TherapiesLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [sessions, setSessions] = useState<TherapySessionRecord[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState<TherapyFormState>(blankTherapyForm());
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(
+    null,
+  );
+
+  const load = useCallback(() => {
+    setLoading(true);
+    listTherapySessions({ limit: 200 })
+      .then(setSessions)
+      .catch((error) => {
+        setErrorMessage(`Could not load sessions: ${error instanceof Error ? error.message : String(error)}`);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
+
+  function openAddForm() {
+    setForm(blankTherapyForm());
+    setShowForm(true);
+  }
+
+  function openEditForm(session: TherapySessionRecord) {
+    setForm({
+      editingId: session.id,
+      therapyType: session.therapyType,
+      date: session.performedAt.slice(0, 10),
+      time: splitTime24(session.performedAt.split('T')[1] ?? null),
+      practitioner: session.practitioner ?? '',
+      bodyFocus: session.bodyFocus ?? '',
+      durationMinutes: session.durationMinutes != null ? String(session.durationMinutes) : '',
+      cost: session.cost != null ? String(session.cost) : '',
+      notes: session.notes ?? '',
+    });
+    setShowForm(true);
+  }
+
+  function closeForm() {
+    setShowForm(false);
+    setForm(blankTherapyForm());
+  }
+
+  async function handleSaveForm() {
+    if (!isValidDateString(form.date)) {
+      showInfoAlert('Almost there', 'Enter a valid date (YYYY-MM-DD).');
+      return;
+    }
+    const time24 = buildTime24(form.time.hour, form.time.minute, form.time.ampm);
+    if (!time24) {
+      showInfoAlert('Almost there', describeTimeInputProblem(form.time.hour, form.time.minute, form.time.ampm));
+      return;
+    }
+
+    // A blank optional number stays null rather than becoming 0. A
+    // session recorded as costing zero and one where nobody typed a cost
+    // are different facts, and averaging the second into a spend total as
+    // if it were the first would quietly understate what this is costing.
+    const parseOptionalNumber = (raw: string): number | undefined => {
+      const trimmed = raw.trim();
+      if (!trimmed) return undefined;
+      const value = Number(trimmed);
+      return Number.isFinite(value) && value >= 0 ? value : undefined;
+    };
+
+    if (form.durationMinutes.trim() && parseOptionalNumber(form.durationMinutes) === undefined) {
+      showInfoAlert('Almost there', 'Length has to be a number of minutes, or left empty.');
+      return;
+    }
+    if (form.cost.trim() && parseOptionalNumber(form.cost) === undefined) {
+      showInfoAlert('Almost there', 'Cost has to be a number, or left empty.');
+      return;
+    }
+
+    const payload = {
+      performedAt: `${form.date}T${time24}`,
+      therapyType: form.therapyType,
+      practitioner: form.practitioner,
+      bodyFocus: form.bodyFocus,
+      durationMinutes: parseOptionalNumber(form.durationMinutes),
+      cost: parseOptionalNumber(form.cost),
+      notes: form.notes,
+    };
+
+    try {
+      if (form.editingId) await updateTherapySession(form.editingId, payload);
+      else await createTherapySession(payload);
+      closeForm();
+      load();
+    } catch (error) {
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  function handleRemove(session: TherapySessionRecord) {
+    setRemovePrompt({
+      title: 'Remove this session?',
+      // Names the real consequence rather than a generic warning: the
+      // whole point of these rows is the follow-up reading built on them,
+      // so deleting one changes a figure elsewhere in the app.
+      message: `This deletes the ${therapyTypeLabel(session.therapyType)} on ${formatShortDate(
+        session.performedAt.slice(0, 10),
+      )}. Trends > Therapy Response is worked out from these sessions, so removing one changes what it shows.`,
+      actions: [
+        {
+          label: 'Remove',
+          destructive: true,
+          onPress: async () => {
+            setRemovePrompt(null);
+            try {
+              await deleteTherapySession(session.id);
+              load();
+            } catch (error) {
+              showInfoAlert('Could not remove', error instanceof Error ? error.message : String(error));
+            }
+          },
+        },
+        { label: 'Keep it', onPress: () => setRemovePrompt(null) },
+      ],
+    });
+  }
+
+  const therapyGroups = getTherapyTypesByCategory();
+  const selectedTherapy = therapyGroups
+    .flatMap((group) => group.types)
+    .find((type) => type.code === form.therapyType);
+
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
+      <AppActionSheet
+        visible={removePrompt !== null}
+        onClose={() => setRemovePrompt(null)}
+        title={removePrompt?.title}
+        message={removePrompt?.message}
+        actions={removePrompt?.actions ?? []}
+      />
+      {loading ? (
+        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+      ) : errorMessage ? (
+        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
+      ) : (
+        <>
+          {!showForm ? (
+            <TouchableOpacity style={styles.addButton} onPress={openAddForm}>
+              <Text style={styles.addButtonText}>+ Log a session</Text>
+            </TouchableOpacity>
+          ) : null}
+
+          {showForm ? (
+            <View style={styles.formCard}>
+              <Text style={styles.label}>What kind of session</Text>
+              {therapyGroups.map((group) => (
+                <View key={group.category}>
+                  <Text style={styles.helperText}>{group.label}</Text>
+                  <View style={styles.pillRow}>
+                    {group.types.map((type) => (
+                      <TouchableOpacity
+                        key={type.code}
+                        style={[styles.pill, form.therapyType === type.code && styles.pillActive]}
+                        onPress={() => setForm((current) => ({ ...current, therapyType: type.code }))}
+                      >
+                        <Text style={[styles.pillText, form.therapyType === type.code && styles.pillTextActive]}>
+                          {type.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              ))}
+              {selectedTherapy ? <Text style={styles.helperText}>{selectedTherapy.description}</Text> : null}
+
+              <Text style={styles.label}>Date</Text>
+              <View style={styles.timeRow}>
+                <AppTextInput
+                  style={[styles.input, styles.dateInput]}
+                  placeholder="YYYY-MM-DD"
+                  value={form.date}
+                  onChangeText={(text) => setForm((current) => ({ ...current, date: text }))}
+                />
+                <TouchableOpacity
+                  style={styles.pillSmall}
+                  onPress={() => setForm((current) => ({ ...current, date: todayDateString() }))}
+                >
+                  <Text style={styles.pillTextSmall}>Today</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.label}>Time</Text>
+              <View style={styles.timeRow}>
+                <AppTextInput
+                  style={[styles.input, styles.timeInput]}
+                  placeholder="10"
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  value={form.time.hour}
+                  onChangeText={(text) => setForm((current) => ({ ...current, time: { ...current.time, hour: text } }))}
+                />
+                <Text style={styles.timeSeparator}>:</Text>
+                <AppTextInput
+                  style={[styles.input, styles.timeInput]}
+                  placeholder="00"
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  value={form.time.minute}
+                  onChangeText={(text) => setForm((current) => ({ ...current, time: { ...current.time, minute: text } }))}
+                />
+                <View style={styles.pillRow}>
+                  {(['AM', 'PM'] as const).map((option) => (
+                    <TouchableOpacity
+                      key={option}
+                      style={[styles.pillSmall, form.time.ampm === option && styles.pillActive]}
+                      onPress={() => setForm((current) => ({ ...current, time: { ...current.time, ampm: option } }))}
+                    >
+                      <Text style={[styles.pillTextSmall, form.time.ampm === option && styles.pillTextActive]}>{option}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Who did it (optional)</Text>
+                <VoiceInputButton
+                  onResult={(text) => setForm((current) => ({ ...current, practitioner: text }))}
+                  color={TAB_COLOR}
+                />
+              </View>
+              <AppTextInput
+                style={styles.input}
+                placeholder="e.g. Dr. Alvarez"
+                value={form.practitioner}
+                onChangeText={(text) => setForm((current) => ({ ...current, practitioner: text }))}
+              />
+
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>What they worked on (optional)</Text>
+                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, bodyFocus: text }))} color={TAB_COLOR} />
+              </View>
+              <AppTextInput
+                style={styles.input}
+                placeholder="e.g. sacrum and lower back"
+                value={form.bodyFocus}
+                onChangeText={(text) => setForm((current) => ({ ...current, bodyFocus: text }))}
+              />
+
+              <Text style={styles.label}>Length in minutes (optional)</Text>
+              <AppTextInput
+                style={[styles.input, styles.dateInput]}
+                placeholder="e.g. 45"
+                keyboardType="number-pad"
+                value={form.durationMinutes}
+                onChangeText={(text) => setForm((current) => ({ ...current, durationMinutes: text }))}
+              />
+
+              <Text style={styles.label}>Cost (optional)</Text>
+              <AppTextInput
+                style={[styles.input, styles.dateInput]}
+                placeholder="e.g. 60"
+                keyboardType="decimal-pad"
+                value={form.cost}
+                onChangeText={(text) => setForm((current) => ({ ...current, cost: text }))}
+              />
+
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Notes (optional)</Text>
+                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, notes: text }))} color={TAB_COLOR} />
+              </View>
+              <AppTextInput
+                style={styles.input}
+                placeholder="e.g. felt looser right after, sore that evening"
+                value={form.notes}
+                onChangeText={(text) => setForm((current) => ({ ...current, notes: text }))}
+              />
+
+              <View style={styles.formActions}>
+                <TouchableOpacity style={styles.secondaryButton} onPress={closeForm}>
+                  <Text style={styles.secondaryButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.primaryButton} onPress={handleSaveForm}>
+                  <Text style={styles.primaryButtonText}>{form.editingId ? 'Save changes' : 'Log session'}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : null}
+
+          {sessions.length === 0 ? (
+            <Text style={[styles.emptyText, styles.panelStandalone]}>
+              No sessions logged yet. Log one after your next appointment, then keep doing your ordinary check-ins on Signals.
+              Once there are a few of each, Trends {'>'} Therapy Response can show how long the effect lasted.
+            </Text>
+          ) : (
+            <View style={styles.table}>
+              {sessions.map((session) => (
+                <View key={session.id} style={styles.row}>
+                  <View style={styles.rowMain}>
+                    <Text style={[styles.rowTime, styles.appointmentRowTime]}>
+                      {formatShortDate(session.performedAt.slice(0, 10))}
+                      {'\n'}
+                      {formatTime12(session.performedAt.split('T')[1] ?? '')}
+                    </Text>
+                    <View style={styles.rowTextCol}>
+                      <Text style={styles.rowTitle}>{therapyTypeLabel(session.therapyType)}</Text>
+                      <Text style={styles.rowMeta}>
+                        {[
+                          session.practitioner,
+                          session.bodyFocus,
+                          session.durationMinutes != null ? `${session.durationMinutes} min` : null,
+                          session.cost != null ? `${session.cost}` : null,
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </Text>
+                      {session.notes ? <Text style={styles.rowMeta}>{session.notes}</Text> : null}
+                    </View>
+                  </View>
+
+                  <View style={styles.rowActions}>
+                    <TouchableOpacity onPress={() => openEditForm(session)}>
+                      <Text style={styles.actionText}>Edit</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleRemove(session)}>
+                      <Text style={styles.actionTextRemove}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+        </>
+      )}
+    </ScrollView>
+  );
+}
+
 // A short, honest placeholder for the remaining schedule type not built
 // yet -- same "coming soon" pattern already used for the Trends/Reports
 // bottom tabs, one level deeper inside Schedule.
 function ComingSoonLens({
   lens,
 }: {
-  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>;
+  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments' | 'therapies'>;
 }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
@@ -5605,6 +6009,8 @@ export default function ScheduleScreen() {
             <PrescriptionsLens />
           ) : lens === 'appointments' ? (
             <AppointmentsLens />
+          ) : lens === 'therapies' ? (
+            <TherapiesLens />
           ) : (
             <ComingSoonLens lens={lens} />
           )}

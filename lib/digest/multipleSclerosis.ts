@@ -590,4 +590,56 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['chrono-circadian-clock-biology', 'chrono-cortisol-awakening-response'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04. Both entries here
+  // are tiered weak, and both say so in their own text: the underlying
+  // trials are small and the reviews themselves flag risk of bias.
+  {
+    id: 'complementary-ms-massage-pain-fatigue',
+    category: 'multipleSclerosis',
+    title: 'Massage for MS Pain and Fatigue: Small Trials, Consistent Direction',
+    teaser:
+      'In one pilot trial, massage improved pain, balance, and walking speed more than a supervised exercise program did.',
+    summary:
+      "Pain and fatigue are among the most common and least well-treated symptoms in multiple sclerosis, and massage is one of the few approaches that has been put into randomized trials for them. A pilot randomized controlled trial assigned 48 people with MS to massage therapy, exercise therapy, both together, or a control group, with fifteen supervised sessions over five weeks. The massage group improved more than the exercise group on pain, on dynamic balance, and on walking speed. A systematic review and meta-analysis pooling the available massage trials in MS reached the same broad conclusion for pain and fatigue. Three things keep this at a weak tier despite pointing consistently in one direction. The trials are small, a few dozen participants each. Massage cannot be blinded, so nobody in these studies was unaware of which group they were in, and both fatigue and pain are self-reported. And the comparison groups vary so much across trials that pooling them is questionable. The practical reading is that massage is a low-risk addition for MS symptoms rather than a treatment for the disease itself, that nothing here touches relapse rate or disability progression, and that heat sensitivity is worth mentioning to the therapist beforehand since a hot room can temporarily worsen MS symptoms.",
+    citations: [
+      {
+        source:
+          'Negahban H, Rezaie S, Goharpey S 2013: Massage therapy and exercise therapy in patients with multiple sclerosis: a randomized controlled pilot study (Clin Rehabil 27(12):1126-1136)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/23828184/',
+      },
+      {
+        source: 'Effectiveness of massage therapy on fatigue and pain in patients with multiple sclerosis: A systematic review and meta-analysis',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8209836/',
+      },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'complementary-ms-acupuncture-fatigue',
+      'handson-deep-tissue-massage-evidence',
+      'handson-tracking-whether-it-works',
+    ],
+  },
+  {
+    id: 'complementary-ms-acupuncture-fatigue',
+    category: 'multipleSclerosis',
+    title: 'Acupuncture for MS Fatigue: A Signal, on Studies That Flag Their Own Weaknesses',
+    teaser:
+      'A 2024 meta-analysis found fatigue improved after acupuncture, and said plainly that the studies behind that finding carry a high risk of bias.',
+    summary:
+      "MS-related fatigue is not ordinary tiredness and responds poorly to most treatments, which keeps interest in alternatives high. A 2024 systematic review and meta-analysis assessed acupuncture for fatigue in multiple sclerosis and found a notable improvement, both against control groups and against participants' own pre-treatment levels. The review pooled six studies, and two of those six were observational rather than randomized, meaning only four contributed trial-level evidence. The authors did not soften the limitation: they described a prevalent risk of bias across the included studies and called for larger, higher-quality research before acupuncture's effectiveness in MS could be considered established. That assessment is worth taking at face value rather than reading past. A treatment cannot be judged by whether a review found a positive number, only by whether the studies producing that number were built to give a trustworthy one, and here the reviewers themselves said they were not. Acupuncture is low-risk when performed by a licensed practitioner, and someone with disabling MS fatigue who wants to try it is making a reasonable choice. Doing so alongside the approaches that do have stronger evidence for MS fatigue, particularly graded exercise and treating any sleep disorder, is more likely to help than choosing between them.",
+    citations: [
+      {
+        source:
+          'Haider S, et al. 2024: Assessment of acupuncture\'s effectiveness in mitigating fatigue among patients afflicted with multiple sclerosis: A systematic review and meta-analysis (Complement Ther Clin Pract 57:101902)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/39260078/',
+      },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'complementary-ms-massage-pain-fatigue',
+      'handson-acupuncture-chronic-pain',
+      'handson-safety-and-what-to-ask',
+    ],
+  },
 ];

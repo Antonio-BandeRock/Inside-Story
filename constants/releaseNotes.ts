@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.33.1',
+    date: '2026-09-04',
+    changes: [
+      'New: Hands-On Therapies, under Schedules. Log a chiropractic adjustment, an acupuncture session, a massage, or a physical therapy visit, with the date, who did it, what they worked on, how long it took, and what it cost.',
+      'New: Therapy Response, under Trends. Compares your check-ins in the days after each session against your check-ins on days away from any session, and tells you how many days the difference held. It says nothing until there are at least three sessions and enough check-ins to compare, rather than showing a percentage worked out from one good afternoon.',
+      'New in The Digest: Hands-On & Complementary Therapies, under Basic Health. Nine entries on what the research actually shows for chiropractic care, acupuncture, and deep tissue massage, including the places it shows nothing, plus what to tell a practitioner before a session.',
+      'New in The Digest: six entries under Prostate Health on the sacral nerve route to the bladder, why an adjustment has never been tested against urinary symptoms, and the hands-on and needling approaches that do have trial evidence.',
+      'New in The Digest: entries on these therapies for Migraine, IBS, Rheumatoid Arthritis, and Multiple Sclerosis, each reporting whatever the trials found, including where acupuncture did not beat a sham comparison.',
+    ],
+  },
+  {
     version: '1.0.32.18',
     date: '2026-09-03',
     changes: [

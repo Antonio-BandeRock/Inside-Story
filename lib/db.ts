@@ -4712,6 +4712,43 @@ async function runDatabaseInitialization() {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- One hands-on therapy session that actually happened: a
+      -- chiropractic adjustment, an acupuncture appointment, a deep
+      -- tissue massage, a pelvic floor physical therapy visit. Added
+      -- 2026-09-04, direct request for a tracker "like those that are
+      -- named such as Bearable."
+      --
+      -- Deliberately its own table rather than a fourth treatment_type on
+      -- the treatments table, and this is a real distinction rather than
+      -- tidiness. That table describes a SUBSTANCE that is currently
+      -- being taken: it carries a dose, a unit, a frequency, and an
+      -- active flag, and every query against it asks "what is this person
+      -- on right now." A session is an EVENT that occurred once, on a
+      -- date, for a length of time, and the whole question the tracker
+      -- exists to answer is what the days AFTER it looked like. None of
+      -- treatments' own columns carry that, and the ones it does carry
+      -- (dose_amount, active) would sit permanently null and meaningless.
+      --
+      -- performed_at uses the same local 'YYYY-MM-DDTHH:mm' shape
+      -- wellbeing_checkins.logged_at and meals.eaten_at already use, NOT
+      -- toISOString() -- lib/therapyResponse.ts compares the two directly
+      -- when working out which check-ins followed which session, and a
+      -- UTC timestamp on one side would silently shift days for anyone
+      -- west of Greenwich.
+      CREATE TABLE IF NOT EXISTS therapy_sessions (
+        id TEXT PRIMARY KEY,
+        performed_at TEXT NOT NULL,
+        therapy_type TEXT NOT NULL,
+        practitioner TEXT,
+        body_focus TEXT,
+        duration_minutes REAL,
+        cost REAL,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_therapy_sessions_performed_at ON therapy_sessions(performed_at);
+
       CREATE TABLE IF NOT EXISTS treatments (
         id TEXT PRIMARY KEY,
         treatment_type TEXT NOT NULL,
@@ -16691,6 +16728,177 @@ export async function listCheckins(
 export async function deleteCheckin(id: string) {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM wellbeing_checkins WHERE id = ?', id);
+}
+
+// --- Hands-on therapy sessions ---------------------------------------------
+// 2026-09-04. See the therapy_sessions CREATE TABLE above for why these
+// are not treatments rows. The type vocabulary lives in
+// lib/therapyTypes.ts and the analysis in lib/therapyResponse.ts; this
+// section is only the reading and writing.
+
+export type TherapySessionRecord = {
+  id: string;
+  performedAt: string;
+  therapyType: string;
+  practitioner: string | null;
+  bodyFocus: string | null;
+  durationMinutes: number | null;
+  cost: number | null;
+  notes: string | null;
+};
+
+export async function createTherapySession(input: {
+  performedAt: string;
+  therapyType: string;
+  practitioner?: string;
+  bodyFocus?: string;
+  durationMinutes?: number;
+  cost?: number;
+  notes?: string;
+}): Promise<string> {
+  const db = await getDatabase();
+  const id = `therapy_${Date.now()}`;
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      INSERT INTO therapy_sessions
+        (id, performed_at, therapy_type, practitioner, body_focus, duration_minutes, cost, notes, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+    id,
+    input.performedAt,
+    input.therapyType,
+    input.practitioner?.trim() || null,
+    input.bodyFocus?.trim() || null,
+    input.durationMinutes ?? null,
+    input.cost ?? null,
+    input.notes?.trim() || null,
+    now,
+    now,
+  );
+
+  return id;
+}
+
+export async function updateTherapySession(
+  id: string,
+  input: {
+    performedAt: string;
+    therapyType: string;
+    practitioner?: string;
+    bodyFocus?: string;
+    durationMinutes?: number;
+    cost?: number;
+    notes?: string;
+  },
+): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    `
+      UPDATE therapy_sessions
+      SET performed_at = ?, therapy_type = ?, practitioner = ?, body_focus = ?,
+          duration_minutes = ?, cost = ?, notes = ?, updated_at = ?
+      WHERE id = ?
+    `,
+    input.performedAt,
+    input.therapyType,
+    input.practitioner?.trim() || null,
+    input.bodyFocus?.trim() || null,
+    input.durationMinutes ?? null,
+    input.cost ?? null,
+    input.notes?.trim() || null,
+    new Date().toISOString(),
+    id,
+  );
+}
+
+export async function deleteTherapySession(id: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM therapy_sessions WHERE id = ?', id);
+}
+
+// Newest first, matching how every other "what have I logged" list in this
+// app reads. `sinceDate` takes a plain 'YYYY-MM-DD' and compares directly
+// against performed_at, which works because both sides share the sortable
+// 'YYYY-MM-DD...' prefix and a bare date sorts before every time on that
+// same day.
+export async function listTherapySessions(
+  filters: { sinceDate?: string; limit?: number } = {},
+): Promise<TherapySessionRecord[]> {
+  const db = await getDatabase();
+  const where = filters.sinceDate ? 'WHERE performed_at >= ?' : '';
+  const params: (string | number)[] = filters.sinceDate ? [filters.sinceDate] : [];
+
+  const rows = await db.getAllAsync<{
+    id: string;
+    performedAt: string;
+    therapyType: string;
+    practitioner: string | null;
+    bodyFocus: string | null;
+    durationMinutes: number | null;
+    cost: number | null;
+    notes: string | null;
+  }>(
+    `
+      SELECT id, performed_at AS performedAt, therapy_type AS therapyType, practitioner,
+             body_focus AS bodyFocus, duration_minutes AS durationMinutes, cost, notes
+      FROM therapy_sessions
+      ${where}
+      ORDER BY performed_at DESC
+      LIMIT ?
+    `,
+    ...params,
+    filters.limit ?? 200,
+  );
+
+  return rows;
+}
+
+// Both halves of what lib/therapyResponse.ts needs, fetched together so a
+// screen never ends up comparing sessions from one window against
+// check-ins from another. Returns the raw shapes that module expects
+// rather than this file's own richer record types: the analysis reads
+// only dates and valence, and handing it whole rows would invite a future
+// change to start reaching for fields the arithmetic has no business
+// seeing.
+//
+// Every check-in type counts, deliberately. A 'general' daily check-in
+// saying the day went fine is exactly as much evidence about whether an
+// adjustment held as a 'flare' entry is, and filtering to flares alone
+// would leave the baseline made only of bad days, which would make every
+// therapy look effective.
+export async function getTherapyResponseInputs(days: number): Promise<{
+  sessions: { performedAt: string; therapyType: string }[];
+  checkins: { loggedAt: string; valence: CheckinValence; severity: number | null }[];
+}> {
+  const db = await getDatabase();
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const sinceDate = `${since.getFullYear()}-${pad(since.getMonth() + 1)}-${pad(since.getDate())}`;
+
+  const sessions = await db.getAllAsync<{ performedAt: string; therapyType: string }>(
+    `
+      SELECT performed_at AS performedAt, therapy_type AS therapyType
+      FROM therapy_sessions
+      WHERE performed_at >= ?
+      ORDER BY performed_at ASC
+    `,
+    sinceDate,
+  );
+
+  const checkins = await db.getAllAsync<{ loggedAt: string; valence: CheckinValence; severity: number | null }>(
+    `
+      SELECT logged_at AS loggedAt, valence, severity
+      FROM wellbeing_checkins
+      WHERE logged_at >= ?
+      ORDER BY logged_at ASC
+    `,
+    sinceDate,
+  );
+
+  return { sessions, checkins };
 }
 
 // The one check-in of a given type for a given LOCAL calendar date, if any

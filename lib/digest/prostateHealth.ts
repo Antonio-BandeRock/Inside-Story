@@ -854,4 +854,159 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['chrono-circadian-clock-biology', 'chrono-cortisol-awakening-response', 'prostate-behavioral-nocturia-reduction'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04 after a shared
+  // conversation that opened with "I got my sacrum adjusted and now I can
+  // pee easier." The 'complementary-' id prefix is deliberate:
+  // classifyConditionTopic (app/(tabs)/purple-digest.tsx) already routes
+  // that prefix to its own topic shelf, so these six land together rather
+  // than scattering across Core Science and Whole-Body Effects.
+  //
+  // The sequence is built to answer the question in the order it actually
+  // arises: the anatomy is real, the adjustment is untested, here is the
+  // hands-on approach that does have trial evidence, here is where
+  // needling has been tested, and here is what to say before a massage.
+  {
+    id: 'complementary-prostate-sacral-nerves-bladder',
+    category: 'prostateHealth',
+    title: 'The Sacrum Really Does Control the Bladder',
+    teaser:
+      'Medicine takes the sacral nerve route to the bladder seriously enough to implant a device that stimulates it. That is the strongest evidence that the pathway exists.',
+    summary:
+      "Anyone who has been told that the nerves running the bladder pass through the sacrum has been told something correct. The parasympathetic fibers that make the bladder wall contract leave the spinal cord at the second, third, and fourth sacral levels and reach the bladder through the pelvic splanchnic nerves; the same sacral region supplies the pudendal nerve, which controls the muscle holding urine in. Coordinated urination depends on both working together, and damage anywhere along that route produces recognizable bladder problems. Medicine acts on this pathway directly. Sacral neuromodulation places a thin electrode alongside the third sacral nerve root and delivers a mild continuous current, and it is an established treatment for overactive bladder, for urgency incontinence, and for urinary retention with no physical blockage, in people who have not responded to medication. Long-term follow-up reports symptom relief in a substantial majority of patients over years rather than weeks. So the sacrum-to-bladder connection is not folklore, and someone whose urination changed after their sacrum was worked on is not describing something anatomically impossible. What the anatomy does not settle is whether a manual adjustment moves anything along that pathway, which is a separate question with a much emptier answer. The next entry covers it.",
+    citations: [
+      {
+        source: 'Sacral Neuromodulation: Device Improvement and Current Applications in Urology (review)',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10972000/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'complementary-prostate-chiropractic-luts',
+      'complementary-prostate-pelvic-floor-therapy',
+      'handson-chiropractic-organ-claims',
+      'prostate-nocturia-circadian-vasopressin',
+    ],
+  },
+  {
+    id: 'complementary-prostate-chiropractic-luts',
+    category: 'prostateHealth',
+    title: 'Chiropractic Care and Urinary Symptoms: Nothing Has Been Tested',
+    teaser:
+      'A search for trials of spinal manipulation against the urinary symptoms of an enlarged prostate returns nothing at all. That is different from finding it does not work.',
+    summary:
+      "The urinary symptoms that come with an enlarged prostate are measured with well-established tools: the International Prostate Symptom Score for how much trouble someone is having, the maximum urinary flow rate for how fast urine actually leaves, and post-void residual volume for how much stays behind. Those measures exist so that a treatment can be tested rather than argued about. Searching the peer-reviewed literature for any trial applying spinal manipulation or osteopathic manipulative treatment to those outcomes turns up nothing. Not a negative trial, not a small pilot, nothing indexed at all. The American Urological Association guidelines on managing these symptoms cover drugs and surgery and do not mention manipulation, and the alternative approaches that have reached trials for this problem are needling, herbal preparations, and device-based therapies rather than manual adjustment. This matters most for someone deciding what to spend money and hope on. An untested treatment is not a disproven one, and a person who noticed a change after an adjustment noticed something. But there is no body of evidence to appeal to here, so anyone claiming an adjustment reliably improves urine flow is going beyond what has been shown. If urinary symptoms are getting worse, the approaches that do have evidence behind them deserve to be pursued alongside rather than afterward.",
+    citations: [
+      {
+        source:
+          'Lerner LB, McVary KT, Barry MJ, et al. 2021: Management of Lower Urinary Tract Symptoms Attributed to Benign Prostatic Hyperplasia: AUA GUIDELINE PART I (J Urol)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/34384237/',
+      },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'complementary-prostate-sacral-nerves-bladder',
+      'handson-chiropractic-organ-claims',
+      'complementary-chiropractic',
+      'complementary-prostate-acupuncture-bph',
+    ],
+  },
+  {
+    id: 'complementary-prostate-pelvic-floor-therapy',
+    category: 'prostateHealth',
+    title: 'The Hands-On Approach to Pelvic Symptoms That Does Have Trial Evidence',
+    teaser:
+      'Focused pelvic floor myofascial work was tested head to head against a full-body massage in people with urinary pelvic pain, and responded more than twice as often.',
+    summary:
+      "Among hands-on approaches to urinary and pelvic symptoms, the one with controlled trial evidence behind it is targeted pelvic floor work. A multicenter randomized trial run through the National Institutes of Health urologic pelvic pain network compared myofascial physical therapy, meaning focused internal and external treatment of the specific tight or tender pelvic floor tissue, against global therapeutic massage, meaning a traditional full-body Western massage. Both arms received up to ten weekly one-hour sessions from trained therapists, so the amount of time, touch, and professional attention was matched. In the trial reported in 2012, covering 81 women with interstitial cystitis or painful bladder syndrome plus pelvic floor tenderness, 59% of the targeted group rated themselves moderately or markedly improved at twelve weeks against 26% of the full-body massage group. The earlier feasibility stage of the same program included men with chronic prostatitis and chronic pelvic pain syndrome alongside women. Two practical points come out of this. Where a specific tight pelvic floor structure is contributing to urinary or pelvic symptoms, a therapist trained to work on that structure is doing something a general massage does not. And pelvic floor physical therapy is a recognized referral, so a urologist can be asked for one by name rather than it being something to arrange alone.",
+    citations: [
+      {
+        source:
+          'FitzGerald MP, Payne CK, Lukacz ES, et al. 2012: Randomized multicenter clinical trial of myofascial physical therapy in women with interstitial cystitis/painful bladder syndrome and pelvic floor tenderness (J Urol 187(6):2113-2118)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/22503015/',
+      },
+      {
+        source:
+          'FitzGerald MP, Anderson RU, Potts J, et al.: Randomized multicenter feasibility trial of myofascial physical therapy for the treatment of urological chronic pelvic pain syndromes (J Urol)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/23234638/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'complementary-prostate-acupuncture-cpps',
+      'handson-targeted-versus-general-massage',
+      'prostate-prostatitis-distinct-condition',
+    ],
+  },
+  {
+    id: 'complementary-prostate-acupuncture-cpps',
+    category: 'prostateHealth',
+    title: 'Acupuncture for Chronic Prostatitis: One of the Better Trials in This Field',
+    teaser:
+      'Twenty sessions over eight weeks beat sham acupuncture for chronic pelvic pain syndrome, and the difference was still there six months later.',
+    summary:
+      "Chronic prostatitis and chronic pelvic pain syndrome is a stubborn condition with few treatments that hold up, which makes the quality of this particular trial notable. Ten tertiary hospitals in China randomized men with moderate to severe symptoms to twenty sessions of either acupuncture or sham acupuncture over eight weeks, then followed them for a further twenty-four weeks. The primary measure was demanding by the standards of this literature: the proportion of participants achieving a drop of at least six points on the National Institutes of Health Chronic Prostatitis Symptom Index, required to hold at week 8 and again at week 32, with the difference between groups statistically significant at both points before the trial would count as positive. Acupuncture met that bar. Improvements covered pain, voiding difficulty, anxiety, depression, and quality of life, and they persisted through the twenty-four weeks after treatment stopped rather than fading once the sessions ended. Results were published in Annals of Internal Medicine in 2021. Two qualifications keep this in proportion. It was conducted entirely in China, where acupuncture is more familiar and expectations of it may run higher than elsewhere. And it addresses chronic prostatitis, a distinct condition from an enlarged prostate, so the result does not transfer to the urinary symptoms of BPH.",
+    citations: [
+      {
+        source:
+          'Sun Y, Liu Y, Liu B, et al. 2021: Efficacy of Acupuncture for Chronic Prostatitis/Chronic Pelvic Pain Syndrome: A Randomized Trial (Ann Intern Med 174(10):1357-1366)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/34399062/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: [
+      'complementary-prostate-acupuncture-bph',
+      'complementary-prostate-pelvic-floor-therapy',
+      'prostate-prostatitis-distinct-condition',
+      'handson-acupuncture-chronic-pain',
+    ],
+  },
+  {
+    id: 'complementary-prostate-acupuncture-bph',
+    category: 'prostateHealth',
+    title: 'Acupuncture for an Enlarged Prostate: Two Trials That Disagree in Opposite Directions',
+    teaser:
+      'One found symptoms improved while measured urine flow did not. The other found flow improved while symptoms did not. Both results belong in the same answer.',
+    summary:
+      "Electroacupuncture, which passes a small current between the needles, has been tested against the urinary symptoms of an enlarged prostate more than once, and the two clearest trials point in ways that do not line up. The larger one randomized 100 men with moderate to severe symptoms to electroacupuncture at traditional points or at deliberately chosen non-points. By week six the treatment group had dropped about 4.5 points further on the International Prostate Symptom Score, a difference unlikely to be chance. But maximum urinary flow rate showed no difference between the groups at all, and neither did the volume of urine left behind after voiding. A smaller single-blinded trial of 42 men comparing electroacupuncture against sham found close to the mirror image: voiding volume and flow rates improved more in the treatment group, while the symptom score did not separate. Putting those side by side gives a more useful answer than either alone. There is something here, the effect is small, and it has not been pinned to a specific measurable change in how urine leaves the body. Someone considering it should know that the better-supported outcome is feeling less bothered rather than measurably emptying better, and that neither trial studied prostate size or long-term progression.",
+    citations: [
+      {
+        source:
+          'Wang Y, Liu B, Yu J, et al. 2013: Electroacupuncture for moderate and severe benign prostatic hyperplasia: a randomized controlled trial (PLoS One 8(4):e59449)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/23593139/',
+      },
+      {
+        source:
+          'Yu J, et al. 2011: Effects of Electroacupuncture on Benign Prostate Hyperplasia Patients with Lower Urinary Tract Symptoms: A Single-Blinded, Randomized Controlled Trial (Evid Based Complement Alternat Med)',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3092516/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'complementary-prostate-acupuncture-cpps',
+      'complementary-prostate-chiropractic-luts',
+      'handson-acupuncture-chronic-pain',
+    ],
+  },
+  {
+    id: 'complementary-prostate-massage-safety',
+    category: 'prostateHealth',
+    title: 'What a Massage Therapist Needs to Be Told About a Prostate Diagnosis',
+    teaser:
+      'Prostate cancer spreads to bone more often than to anywhere else, and that changes how someone should be worked on.',
+    summary:
+      "Massage is low-risk for most people, and the exceptions matter here more than usual. Prostate cancer that spreads does so most often to bone, particularly the spine and pelvis, and bone weakened by a deposit can fracture under pressure that healthy bone would shrug off. A therapist who has been told can work around the area and lighten pressure over it; a therapist who has not been told cannot. Treatment adds further considerations. Anyone on a blood thinner bruises and bleeds more readily from deep pressure. Anyone whose cancer treatment has lowered platelet counts is in the same position. Someone with a known or suspected clot in a leg vein should not have that leg massaged at all, because pressure can dislodge a clot into the lungs. None of this is a reason to avoid massage, and there is reasonable evidence that massage helps with pain and anxiety during cancer treatment. It is a reason to open the conversation rather than to book and say nothing. Name the diagnosis, say whether it has spread and where, list every medication including blood thinners, and mention any recent radiation site so it can be left alone. A therapist who works with cancer patients will expect all of it and will ask if you do not offer it.",
+    citations: [
+      {
+        source: 'National Center for Complementary and Integrative Health: Massage Therapy for Health, What the Science Says',
+        url: 'https://www.nccih.nih.gov/health/providers/digest/massage-therapy-for-health-science',
+      },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'handson-safety-and-what-to-ask',
+      'handson-deep-tissue-massage-evidence',
+      'complementary-prostate-pelvic-floor-therapy',
+    ],
+  },
 ];

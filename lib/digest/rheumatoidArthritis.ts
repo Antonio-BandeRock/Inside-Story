@@ -685,4 +685,33 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['chrono-circadian-clock-biology', 'chrono-cortisol-awakening-response'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04.
+  {
+    id: 'complementary-ra-acupuncture',
+    category: 'rheumatoidArthritis',
+    title: 'Acupuncture Alongside Medication in Rheumatoid Arthritis',
+    teaser:
+      'A meta-analysis found disease activity scores fell further when acupuncture was added to standard treatment, on a small and uneven set of trials.',
+    summary:
+      "Rheumatoid arthritis is measured with the Disease Activity Score in 28 joints, which combines tender and swollen joint counts with an inflammatory blood marker and the patient's own rating. That it is a composite measure rather than a symptom report makes it a harder outcome to move, which is why trials reporting a change in it deserve attention. A 2023 systematic review and meta-analysis of yoga and acupuncture in rheumatoid arthritis pooled seven randomized trials covering 550 patients and found a significant reduction in disease activity score across the four trials contributing to that particular comparison. Separate reviews of electroacupuncture added to disease-modifying antirheumatic drugs point the same direction, with the combination outperforming the drugs alone. Three qualifications sit on top of that. The trials are small. The review's authors flagged concerns about how randomization was carried out and about deviations from the intended intervention in roughly a third of the studies. And the pooled analysis combines yoga with acupuncture, so the figure attributed to acupuncture alone rests on fewer studies than the headline number suggests. What this supports is acupuncture as an addition to standard rheumatology care for someone whose pain and stiffness are not fully controlled, discussed with the rheumatologist. It does not support replacing a disease-modifying drug, and nothing in this literature shows acupuncture slowing joint damage.",
+    citations: [
+      {
+        source:
+          'Cortés-Ladino CA, Arias-Ortiz WA, Porras-Ramírez A 2023: Effectiveness of Yoga and Acupuncture in Rheumatoid Arthritis: A Systematic Review and Meta-Analysis (Evid Based Complement Alternat Med 2023)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/37842334/',
+      },
+      {
+        source:
+          'Efficacy and safety of electroacupuncture combined with medication for rheumatoid arthritis: A systematic review and meta-analysis',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10006842/',
+      },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'handson-acupuncture-chronic-pain',
+      'handson-safety-and-what-to-ask',
+      'handson-tracking-whether-it-works',
+    ],
+  },
 ];

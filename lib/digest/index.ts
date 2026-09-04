@@ -38,6 +38,7 @@ import { NEUROGENESIS_ENTRIES } from './neurogenesis';
 import { NUTRIENT_INTERACTIONS_ENTRIES } from './nutrientInteractions';
 import { NUTRIENTS_ENTRIES } from './nutrients';
 import { COMPLEMENTARY_THERAPIES_ENTRIES } from './complementaryTherapies';
+import { HANDS_ON_THERAPIES_ENTRIES } from './handsOnTherapies';
 import { ORGAN_SYSTEMS_ENTRIES } from './organSystems';
 import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
 import { PCOS_ENTRIES } from './pcos';
@@ -98,6 +99,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...SELF_ADVOCACY_ENTRIES,
   ...PREGNANCY_FAMILY_PLANNING_ENTRIES,
   ...COMPLEMENTARY_THERAPIES_ENTRIES,
+  ...HANDS_ON_THERAPIES_ENTRIES,
   ...RHEUMATOID_ARTHRITIS_ENTRIES,
   ...PSORIASIS_ENTRIES,
   ...GRAVES_ENTRIES,

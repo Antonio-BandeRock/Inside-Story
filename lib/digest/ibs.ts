@@ -588,4 +588,31 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['chrono-circadian-clock-biology', 'chrono-gut-microbiome-diurnal-rhythm', 'ibd-circadian-clock-disruption'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04. IBS is the
+  // clearest negative result in this whole batch, and it is included for
+  // exactly that reason: a topic that only ever reported the therapies
+  // working would be an advertisement rather than a reference.
+  {
+    id: 'complementary-ibs-acupuncture',
+    category: 'ibs',
+    title: 'Acupuncture for IBS: Tested Properly, and It Did Not Beat Sham',
+    teaser:
+      'Not one trial comparing acupuncture against sham found it better for IBS symptoms or quality of life, and pooling them did not change that.',
+    summary:
+      "Acupuncture is offered widely for irritable bowel syndrome, and it has been tested well enough to give a clear answer. A Cochrane review of acupuncture for IBS found moderate certainty evidence of no important benefit over sham acupuncture, for symptom severity or for quality of life. None of the individual sham-controlled trials found acupuncture better, and combining their results did not produce a benefit either. The same review surfaced the finding that explains why acupuncture nonetheless has a reputation for helping IBS. In trials comparing acupuncture against antispasmodic drugs rather than against sham, participants reported greater improvement with acupuncture, and those drugs themselves offer only a modest benefit in IBS. When a treatment beats an active drug but not a convincing placebo, what is being measured is largely the encounter rather than the needles. That is a meaningful distinction for someone with IBS, because it points toward where the leverage actually is. IBS symptoms respond strongly to the gut-brain axis, to stress, and to expectation, which is why psychological therapies and gut-directed hypnotherapy have better evidence in IBS than most drugs do. Someone who finds acupuncture sessions calming is getting something from them that matters. Choosing them over a dietary approach with trial evidence, or over a therapy aimed at the gut-brain connection directly, would be trading a stronger option for a weaker one.",
+    citations: [
+      {
+        source:
+          'Manheimer E, Cheng K, Wieland LS, et al. 2012: Acupuncture for treatment of irritable bowel syndrome (Cochrane Database Syst Rev 2012(5):CD005111)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/22592702/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'handson-acupuncture-where-it-does-nothing',
+      'handson-acupuncture-chronic-pain',
+      'handson-tracking-whether-it-works',
+    ],
+  },
 ];

@@ -889,6 +889,18 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
     prefixes: ['lifestyle-'],
   },
   {
+    // 2026-09-04: chiropractic care, acupuncture, and deep tissue massage
+    // covered on their own terms, separate from lib/digest/
+    // complementaryTherapies.ts, which asks the different question of
+    // whether they help Hashimoto's specifically. Nine entries, so one
+    // flat shelf is still the right shape here; if this grows past
+    // roughly a dozen it needs subtopics, per the standing rule.
+    label: 'Hands-On & Complementary Therapies',
+    description:
+      'What the research actually shows for chiropractic care, acupuncture, and deep tissue massage, including where it shows nothing at all. Also what can go wrong, what to tell a practitioner before a session, and how to work out whether any of it is helping you specifically rather than helping people on average.',
+    prefixes: ['handson-'],
+  },
+  {
     label: 'Mitochondria & Metabolism',
     description: 'How your cells produce energy, and how diet and lifestyle affect that process.',
     prefixes: ['mito-'],
