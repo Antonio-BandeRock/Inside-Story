@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.33.2',
+    date: '2026-09-04',
+    changes: [
+      'The Digest now covers hands-on therapies for all 19 tracked conditions, not just six. Fourteen new entries across Cardiovascular Disease, Celiac, Chronic Kidney Disease, Fatty Liver Disease, Gout, Graves’, IBD, Lupus, PCOS, Psoriasis, Sjögren’s, and both types of diabetes.',
+      'Several of them report that a therapy did not work, because that is what the trials found. The largest study anywhere in this area randomized 1,000 women with PCOS and acupuncture made no difference to live births. A 2007 chiropractic blood pressure result that is still quoted in clinics failed to replicate in 2016, in a study run at a chiropractic college.',
+      'Where nothing has been tested, the entry says so rather than filling the gap. Celiac disease has no controlled trial of any of these therapies at all.',
+      'Practical additions: massage over a recent insulin injection site speeds absorption, so plan where the day’s injections go before a session. Neuropathy changes what is safe below the knee. Prostate cancer that has spread to bone changes how a therapist should work.',
+    ],
+  },
+  {
     version: '1.0.33.1',
     date: '2026-09-04',
     changes: [

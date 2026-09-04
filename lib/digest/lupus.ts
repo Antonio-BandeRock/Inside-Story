@@ -594,4 +594,36 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['chrono-circadian-clock-biology', 'chrono-shift-work-metabolic-cardiovascular-risk'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04. Named as a
+  // feasibility study in its own title, and reported that way here rather
+  // than promoted into evidence of benefit.
+  {
+    id: 'complementary-lupus-acupuncture-pilot',
+    category: 'lupus',
+    title: 'Acupuncture in Lupus: A Safety Study, Not Yet an Effectiveness One',
+    teaser:
+      'Twenty-four people, three groups, and a question the trial was actually built to answer: can this be done safely in lupus at all.',
+    summary:
+      "Over half of people with lupus try some form of complementary treatment, and until recently almost none of it had been tested in this population at all. The most-cited attempt assigned 24 people with systemic lupus erythematosus to ten sessions of acupuncture, ten sessions of minimal needling, or usual care, measuring pain, fatigue, and disease activity. Its own title calls it a feasibility and safety study, and that is the right way to read it. What it established is that acupuncture can be delivered to people with lupus without serious adverse events; reported effects were transient needling pain and lightheadedness. Twenty-four people across three arms leaves roughly eight per group, which is far too few to establish whether it helps. A separate study looked at acupuncture and massage together for pain, sleep quality, and quality of life in lupus, and it is similarly small. Two things about lupus specifically deserve saying alongside this. Lupus fluctuates on its own, with flares and quiet stretches that arrive without an obvious cause, which makes it unusually easy to credit whatever was tried most recently for an improvement that was going to happen anyway. And lupus treatment frequently involves immune suppression and sometimes blood thinners, both of which change what is safe: needling needs a licensed practitioner using clean technique, and deep pressure carries more bruising and bleeding risk than it otherwise would.",
+    citations: [
+      {
+        source:
+          'Greco CM, Kao AH, Maksimowicz-McKinnon K, et al. 2008: Acupuncture for systemic lupus erythematosus: a pilot RCT feasibility and safety study (Lupus 17(12):1108-1116)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/19029279/',
+      },
+      {
+        source:
+          'Effects of acupuncture and massage on pain, quality of sleep and health related quality of life in patient with systemic lupus erythematosus',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/25336852/',
+      },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'handson-acupuncture-chronic-pain',
+      'handson-safety-and-what-to-ask',
+      'handson-tracking-whether-it-works',
+      'complementary-ra-acupuncture',
+    ],
+  },
 ];

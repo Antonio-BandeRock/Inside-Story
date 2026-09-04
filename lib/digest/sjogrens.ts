@@ -590,4 +590,37 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     relatedIds: ['chrono-circadian-clock-biology'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04. The reporting-bias
+  // observation from the Sjogren's systematic review is the part most
+  // worth carrying across: measuring saliva volume and measuring whether
+  // a mouth feels dry are not the same thing, and most of these trials
+  // reported only the first.
+  {
+    id: 'complementary-sjogrens-acupuncture-dry-mouth',
+    category: 'sjogrens',
+    title: 'Acupuncture for Dry Mouth: A Little More Saliva, and Almost Nobody Asked About Dryness',
+    teaser:
+      'Trials measured how much saliva came out. Only two of them asked whether the mouth still felt dry, which is the thing people actually live with.',
+    summary:
+      "Dry mouth in Sjögren's is more than discomfort. Saliva protects teeth, and losing it brings rapid decay, difficulty swallowing and speaking, and a raised risk of oral infection, so anything that increases it is worth examining. Acupuncture has been studied for this, mostly in dry mouth after head and neck radiotherapy rather than in Sjögren's, and the pooled picture is modest and shaky: low-quality evidence for a very small increase in unstimulated whole saliva after four to six weeks across three trials with 71 participants, persisting at twelve months across two trials with 54 participants. A broader review of acupuncture for dry mouth included ten randomized trials and judged the evidence inconclusive on quality grounds. In Sjögren's specifically, a randomized parallel-group trial gave 120 people with primary Sjögren's acupuncture or sham acupuncture for eight weeks with sixteen weeks of follow-up, and is the largest direct test available. The sharpest observation in this literature is about what was measured. Reviewers noted that dry mouth remains troubling for many people even when saliva production rises, and yet only two of the acupuncture trials reported dry mouth symptoms at all, which they described as a worrying reporting bias. A therapy tested mainly on the number that is easy to collect rather than the complaint that brought someone in has not really been tested on the complaint. Dental review stays the priority here regardless.",
+    citations: [
+      {
+        source:
+          "Zhou X, et al. 2022: Efficacy and Safety of Acupuncture on Symptomatic Improvement in Primary Sjögren's Syndrome: A Randomized Controlled Trial (Front Med 9:878218)",
+        url: 'https://pubmed.ncbi.nlm.nih.gov/35602489/',
+      },
+      {
+        source:
+          "Al Hamad A, Lodi G, Porter S, et al. 2019: Interventions for dry mouth and hyposalivation in Sjögren's syndrome: A systematic review and meta-analysis (Oral Dis 25(4):1027-1047)",
+        url: 'https://pubmed.ncbi.nlm.nih.gov/30086205/',
+      },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'handson-acupuncture-chronic-pain',
+      'handson-acupuncture-where-it-does-nothing',
+      'handson-tracking-whether-it-works',
+    ],
+  },
 ];

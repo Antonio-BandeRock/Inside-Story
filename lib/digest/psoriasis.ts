@@ -644,4 +644,33 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['chrono-circadian-clock-biology'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04.
+  {
+    id: 'complementary-psoriasis-acupuncture',
+    category: 'psoriasis',
+    title: 'Acupuncture for Psoriasis: Studies That Contradict Each Other',
+    teaser:
+      'Six trials, 522 people, and results too inconsistent to combine. The one trial with a blinded design was titled "no convincing effect."',
+    summary:
+      "Psoriasis is easier to assess than most conditions here, because severity is scored on the skin with the Psoriasis Area and Severity Index rather than asked about. That should make trials cleaner, and the results are still a mess. A systematic review of randomized controlled trials of acupuncture for psoriasis vulgaris identified six eligible studies covering 522 participants and could not perform a meta-analysis at all, because the interventions, comparators, and reported outcomes differed too much to combine. Single studies produced conflicting results on PASI reduction, on lesion reduction measured other ways, on PASI score, and on relapse rate. A later review of acupuncture-related techniques pooled 13 trials with 1,060 participants and described their methodological quality as not rigorous. Against that, one older trial deserves naming because it is the closest thing here to a clean test: a controlled trial of acupuncture in psoriasis published in Acta Dermato-Venereologica in 1997, titled, in its own words, no convincing effect. When the pooled body of work cannot be combined and the study with the tightest design finds nothing, the fair summary is that this has not been shown to work rather than that opinion is divided. Psoriasis has treatments that reliably clear skin, from topicals through phototherapy to biologics, and it is also a systemic inflammatory condition that raises cardiovascular risk, so leaving it undertreated costs more than clear skin.",
+    citations: [
+      {
+        source:
+          'Coyle M, Deng J, Zhang AL, et al. 2015: Acupuncture therapies for psoriasis vulgaris: a systematic review of randomized controlled trials (Forsch Komplementmed 22(2):102-109)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/26021960/',
+      },
+      {
+        source:
+          'Jerner B, Skogh M, Vahlquist A 1997: A controlled trial of acupuncture in psoriasis: no convincing effect (Acta Derm Venereol 77(2):154-156)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/9111831/',
+      },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'handson-acupuncture-where-it-does-nothing',
+      'handson-acupuncture-chronic-pain',
+      'handson-tracking-whether-it-works',
+    ],
+  },
 ];

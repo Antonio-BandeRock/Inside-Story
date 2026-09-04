@@ -608,4 +608,28 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     relatedIds: ['chrono-circadian-clock-biology', 'ibd-circadian-clock-disruption'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04. A flat null,
+  // reported as one. Two prior entries in this app already set the
+  // precedent for a citations: [] entry whose whole content is "this has
+  // not been studied" (complementary-chiropractic, handson-chiropractic-
+  // organ-claims), and inventing a citation to avoid an empty array would
+  // be exactly the failure this app's evidence discipline exists to stop.
+  {
+    id: 'complementary-celiac-nothing-tested',
+    category: 'celiac',
+    title: 'Hands-On Therapies and Celiac Disease: Searched For, and Not Found',
+    teaser:
+      'No controlled trial has tested chiropractic care, acupuncture, or massage against celiac disease. The only published material is a single case report.',
+    summary:
+      "Celiac disease is one of the few conditions in this app where the answer to the complementary therapy question is nothing at all. A search of the peer-reviewed literature for controlled trials of chiropractic care, acupuncture, or massage against celiac disease, against the intestinal damage that defines it, or against the antibodies used to diagnose it, returns no trials. What exists is a single case report describing one person whose skin symptoms improved on acupuncture alongside a gluten-free diet, which cannot separate the two and was never designed to. Absence of evidence is not evidence a therapy fails, and this app says so everywhere else. Celiac disease is a case where it matters more than usual anyway, for a reason specific to the condition. There is one treatment, removing gluten completely and permanently, and it works. The damage from continued exposure is silent for a long time and cumulative, and the recognized complications of poorly controlled celiac disease include osteoporosis, persistent nutrient deficiencies, and a raised risk of certain cancers. Nothing hands-on substitutes for the diet or shortens how strictly it has to be followed. Where these therapies can help someone with celiac disease is with things celiac disease brings along, joint pain and the low mood and anxiety that show up more often in this population, and those are covered under Basic Health on their own terms.",
+    citations: [],
+    overallTier: 'weak',
+    relatedIds: [
+      'handson-three-therapies-compared',
+      'handson-chiropractic-organ-claims',
+      'handson-tracking-whether-it-works',
+      'celiac-depression-anxiety-mental-health',
+    ],
+  },
 ];

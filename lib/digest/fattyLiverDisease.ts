@@ -598,4 +598,29 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['chrono-circadian-clock-biology', 'chrono-late-eating-cardiovascular-risk', 'masld-time-restricted-eating'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04.
+  {
+    id: 'complementary-fatty-liver-acupuncture',
+    category: 'fattyLiverDisease',
+    title: 'Acupuncture for Fatty Liver: Positive Numbers From Studies Too Weak to Rest On',
+    teaser:
+      'The pooled trials report improved liver enzymes and blood lipids. Their own authors say the methods and sample sizes are not strong enough to conclude from.',
+    summary:
+      "Acupuncture for fatty liver disease has been through several systematic reviews, and the pattern across them is consistent in both directions. The pooled results report acupuncture improving overall clinical response against conventional treatment, along with liver enzymes, blood lipids, and glucose and insulin measures. And the reviewers state, in their own conclusions, that insufficient methodological quality and small sample sizes mean higher-quality studies are needed before any of it can be relied on. When the people who assembled the evidence say that, it is the finding, not a footnote to it. Three specific problems sit underneath these numbers. Most of the trials come from a single research tradition and compare acupuncture against a drug rather than against a sham, so nothing separates the needling from the attention and the expectation. Overall clinical response rate, the outcome most often reported, is a composite defined differently from trial to trial rather than a fixed measurement. And a liver enzyme falling is not the same as fat leaving the liver, which is what actually needs to happen. Set against that, what does work for this condition is unusually well established and unusually undramatic: losing weight. Around 7 to 10% of body weight reliably reduces liver fat and can reverse the inflammation, and no complementary therapy in this literature comes close to that. Acupuncture is reasonable alongside it, and a poor substitute for it.",
+    citations: [
+      {
+        source:
+          'Chen P, et al. 2021: The efficacy and safety of acupuncture in nonalcoholic fatty liver disease: A systematic review and meta-analysis of randomized controlled trials (Medicine (Baltimore) 100(38):e27050)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/34559098/',
+      },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'handson-acupuncture-chronic-pain',
+      'handson-acupuncture-where-it-does-nothing',
+      'handson-tracking-whether-it-works',
+      'masld-time-restricted-eating',
+    ],
+  },
 ];

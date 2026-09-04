@@ -679,4 +679,60 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['chrono-late-eating-cardiovascular-risk', 'chrono-shift-work-metabolic-cardiovascular-risk', 'cvd-mediterranean-diet-predimed'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04, second pass of the
+  // hands-on batch covering the remaining 13 conditions. Cardiovascular
+  // disease gets two entries because it holds both halves of the story at
+  // once: a well-designed trial where acupuncture helped a symptom, and
+  // the clearest failed-replication case in this whole field.
+  {
+    id: 'complementary-cvd-acupuncture-angina',
+    category: 'cardiovascularDisease',
+    title: 'Acupuncture for Angina: Fewer Episodes, No Change in the Underlying Ischemia',
+    teaser:
+      'A four-armed trial found acupuncture on disease-affected points reduced angina frequency. Earlier pooled evidence found no change in ECG ischemia or nitroglycerin use.',
+    summary:
+      "Chronic stable angina is chest pain from a heart muscle not getting enough blood, and it is a good test case because it can be measured two ways: how often the pain happens, and whether the underlying blood supply problem changes. A 20-week randomized trial across five centers in China assigned 404 participants to one of four arms, which is unusually careful: acupuncture on points belonging to the meridian said to correspond to the heart, acupuncture on points on a non-affected meridian, sham acupuncture, and a wait list with no acupuncture at all. The disease-affected group had a significant reduction in how often angina struck and how severe it was, along with lower anxiety and depression scores and better physical functioning. Published in JAMA Internal Medicine in 2019. The qualification is the second measurement. Systematic reviews pooling the earlier angina trials found symptom relief without a reduction in ischemia on electrocardiography and without a drop in how much nitroglycerin people needed. Those two findings together describe something specific: an intervention that changed how much the chest pain intruded on daily life without evidence that it changed the blood supply causing it. For someone with angina that is still limiting despite treatment, that is a reasonable thing to want. It is not a reason to defer the treatments that address the artery itself, and chest pain that is new, worsening, or happening at rest is an emergency rather than something to book a session for.",
+    citations: [
+      {
+        source:
+          'Zhao L, Li D, Zheng H, et al. 2019: Acupuncture as Adjunctive Therapy for Chronic Stable Angina: A Randomized Clinical Trial (JAMA Intern Med 179(10):1388-1397)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/31355870/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'complementary-cvd-blood-pressure-replication',
+      'handson-acupuncture-chronic-pain',
+      'handson-safety-and-what-to-ask',
+    ],
+  },
+  {
+    id: 'complementary-cvd-blood-pressure-replication',
+    category: 'cardiovascularDisease',
+    title: 'The Blood Pressure Study That Chiropractors Themselves Could Not Reproduce',
+    teaser:
+      'A 2007 trial reported a 17-point drop in systolic pressure from one neck adjustment. A 2016 replication run at a chiropractic college found nothing.',
+    summary:
+      "This is the clearest example in this whole area of why one striking result is not an answer, and it is worth knowing because the original study is still quoted in clinics today. In 2007 the Journal of Human Hypertension published a double-blind, placebo-controlled pilot in 50 people with stage 1 hypertension, comparing a specific upper-neck chiropractic procedure against a sham. At eight weeks the treatment group's systolic pressure had fallen about 17 mmHg against about 3 mmHg for placebo, and diastolic about 10 against 2. A drop that size is larger than most single blood pressure drugs achieve, and the result was reported widely. In 2016 a follow-up ran at the Palmer Center for Chiropractic Research, funded through the National Center for Complementary and Alternative Medicine, in 51 people with prehypertension or stage 1 hypertension: six weeks of upper cervical manipulation twice weekly against a sham procedure. It did not lower systolic or diastolic pressure. The authors concluded the results did not support a larger trial. Two things make this instructive. The replication was run by chiropractic researchers at a chiropractic institution, so it cannot be waved away as hostile. And the first study was a pilot, which is what pilots are for: a promising number that has to survive being tested again, and this one did not. High blood pressure is treatable, damages arteries and kidneys silently for years, and is not a reasonable thing to manage with an adjustment.",
+    citations: [
+      {
+        source:
+          'Bakris G, Dickholtz M Sr, Meyer PM, et al. 2007: Atlas vertebra realignment and achievement of arterial pressure goal in hypertensive patients: a pilot study (J Hum Hypertens 21(5):347-352)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/17252032/',
+      },
+      {
+        source:
+          'Goertz CM, Salsbury SA, Long CR, et al. 2016: Effect of Spinal Manipulation of Upper Cervical Vertebrae on Blood Pressure: Results of a Pilot Sham-Controlled Trial (J Manipulative Physiol Ther 39(5):369-380)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/27157678/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'complementary-cvd-acupuncture-angina',
+      'handson-chiropractic-organ-claims',
+      'handson-chiropractic-back-pain-evidence',
+      'handson-safety-and-what-to-ask',
+    ],
+  },
 ];

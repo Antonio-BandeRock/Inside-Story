@@ -621,4 +621,34 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['chrono-circadian-clock-biology', 'gout-overview'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04. Gout is the case
+  // where the comparison arm is the tell: trials reporting acupuncture
+  // beating colchicine and NSAIDs are claiming something implausible
+  // about drugs whose effect in an acute flare is dramatic and well
+  // documented, which is a reason to look harder at the trials rather
+  // than to accept the result.
+  {
+    id: 'complementary-gout-acupuncture',
+    category: 'gout',
+    title: 'Acupuncture for Gout: Trials That Claim to Beat Drugs That Already Work Very Well',
+    teaser:
+      'The pooled analyses report acupuncture outperforming standard gout drugs on pain and uric acid, on evidence graded very low quality.',
+    summary:
+      "Systematic reviews of acupuncture for acute gouty arthritis report favourable numbers: electroacupuncture lowering serum uric acid more than conventional drug treatment, better pain relief than conventional drug treatment, and further improvement when acupuncture is added on top of usual care. The same reviews grade that evidence very low quality for pain, citing high risk of bias and imprecision. Reading those two statements together is the whole entry. The comparison arm is what should give someone pause. An acute gout flare treated with colchicine, an anti-inflammatory, or a steroid usually settles within a day or two, and that response is among the most reliable in medicine, distinctive enough that it was once used diagnostically. A trial reporting that acupuncture beats those drugs is claiming something that would be remarkable if true, which is a reason to examine how the trial was run rather than to accept the number. Most of these studies come from one research tradition, few use a sham comparison, and effective rate, their most common outcome, is a composite defined differently in each one. The stakes are specific to gout. Uric acid that stays high keeps depositing crystals whether or not a flare is happening, and untreated gout goes on to erode joints and damage kidneys over years. Urate-lowering treatment is cheap, taken by mouth, and prevents that. Acupuncture alongside it during a painful flare is a reasonable thing to try; in place of it is a trade with a long bill.",
+    citations: [
+      {
+        source:
+          'Ni Z, et al. 2023: Electroacupuncture for acute gouty arthritis: a systematic review and meta-analysis of randomized controlled trials (Front Immunol 14:1295154)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/38239361/',
+      },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'handson-acupuncture-chronic-pain',
+      'handson-acupuncture-where-it-does-nothing',
+      'handson-tracking-whether-it-works',
+      'gout-overview',
+    ],
+  },
 ];

@@ -584,4 +584,37 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['chrono-insulin-sensitivity-diurnal-rhythm', 'chrono-circadian-clock-biology'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04. Type 1 has almost
+  // no trial evidence for these therapies against the disease, so the
+  // entry is built around the one concrete, measured, actionable thing
+  // this literature does establish: massage over a recent injection site
+  // changes how fast that insulin is absorbed.
+  {
+    id: 'complementary-type1-massage-insulin-absorption',
+    category: 'type1Diabetes',
+    title: 'Massage Can Change How Fast Your Insulin Absorbs',
+    teaser:
+      'Rubbing a recent injection site speeds absorption. In one study glucose ran 8.3% lower half an hour later than on a day without it.',
+    summary:
+      "There is essentially no controlled trial evidence for chiropractic care, acupuncture, or massage against type 1 diabetes itself, which is unsurprising: the immune system has destroyed the cells that make insulin, and nothing hands-on brings them back. Insulin is not optional and no complementary therapy substitutes for any part of it. What this literature does establish for type 1 is narrower and more useful, and it is a practical fact rather than a treatment. Massage over a site where insulin was recently injected speeds how fast that insulin reaches the bloodstream. In one study of eight people with well-controlled type 1 diabetes who massaged their injection site with a vibrator for three minutes at fifteen minutes post-injection, serum glucose ran 8.3% lower thirty minutes later than on a control day without massage. Heat and exercise do the same thing to a limb: an arm about to lift weights or a leg about to run absorbs its injected insulin faster than usual. None of that makes massage unsafe. It makes the timing and the location worth planning. If a massage is booked, put the day's injections somewhere the therapist will not be working, mention the diagnosis so nobody is startled by a pump or a sensor, keep fast-acting glucose within reach, and check afterward rather than assuming. The same reasoning applies to a heated table or a sauna. Where these therapies do earn a place in type 1 is for painful neuropathy, covered under Type 2 Diabetes since that is where the trials were run.",
+    citations: [
+      {
+        source:
+          'Ezzo J, Donner T, Nickols D, Cox M 2001: Is Massage Useful in the Management of Diabetes? A Systematic Review (Diabetes Spectrum 14(4):218-224)',
+        url: 'https://diabetesjournals.org/spectrum/article/14/4/218/693/Is-Massage-Useful-in-the-Management-of-Diabetes-A',
+      },
+      {
+        source: 'Factors Influencing Insulin Absorption Around Exercise in Type 1 Diabetes',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7609903/',
+      },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'complementary-type2-acupuncture-neuropathy',
+      'handson-deep-tissue-massage-evidence',
+      'handson-safety-and-what-to-ask',
+      'chrono-insulin-sensitivity-diurnal-rhythm',
+    ],
+  },
 ];

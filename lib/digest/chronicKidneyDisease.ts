@@ -638,4 +638,39 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-overview', 'body-kidney-stones-real-causes', 'body-kidney-stones-cooking-reduces-oxalate', 'calcium-oxalate-binding-kidney-stones'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04. The line drawn
+  // here matters: the trial evidence is about SYMPTOMS in people on
+  // dialysis, and several narrative reviews in this literature go much
+  // further than that, claiming acupuncture improves renal function and
+  // reduces proteinuria. Those claims are not carried across, because the
+  // controlled trials behind them do not exist at that strength.
+  {
+    id: 'complementary-ckd-dialysis-symptoms',
+    category: 'chronicKidneyDisease',
+    title: 'Acupressure and Acupuncture for Dialysis Symptoms, Not for Kidney Function',
+    teaser:
+      'The trial evidence covers fatigue and relentless itching in people on dialysis. It does not cover kidney function, whatever some reviews claim.',
+    summary:
+      "Two symptoms dominate life on dialysis and respond poorly to standard treatment: exhaustion that rest does not fix, and uremic pruritus, an itch that is not a skin problem and does not answer to skin creams. Both have been studied. A 2024 systematic review and meta-analysis of acupressure for fatigue in people receiving hemodialysis pooled eight randomized trials covering 725 participants and found a substantial effect on general fatigue and on its behavioral, emotional, sensory, and cognitive components. Acupressure is a useful thing to have evidence for here, because it uses no needles, can be taught to a family member, and can be done during a dialysis session when someone is sitting still for hours anyway. For uremic pruritus, a network meta-analysis of 27 randomized trials covering 1,969 patients found acupuncture and related point-stimulation methods improved itching against control. Now the line that matters. Several review articles in this literature go on to state that acupuncture improves renal function, reduces proteinuria, and corrects anemia in chronic kidney disease. Those are narrative reviews rather than controlled trials, they are a far larger claim than symptom relief, and nothing here supports them. Treat these therapies as something to raise with a nephrology team for symptoms that are not otherwise controlled, and expect no effect on the kidneys themselves.",
+    citations: [
+      {
+        source:
+          'Chang KM, et al. 2024: Effectiveness of Acupressure for Fatigue Alleviation in Patients Receiving Hemodialysis: A Systematic Review and Meta-Analysis of Randomized Controlled Trials (J Nurs Res 32(3):e334)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/38814999/',
+      },
+      {
+        source:
+          'Comparative efficacy of acupuncture point stimulation treatments for dialysis patients with uremic pruritus: a systematic review and network meta-analysis',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11003387/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'handson-acupuncture-chronic-pain',
+      'handson-safety-and-what-to-ask',
+      'handson-tracking-whether-it-works',
+      'ckd-overview',
+    ],
+  },
 ];

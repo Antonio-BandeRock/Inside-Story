@@ -606,4 +606,32 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     stageNote: 'A real randomized trial with a real, honestly-reported statistical nuance: the primary between-group comparison did not reach standard significance, only a secondary analysis excluding those who changed medications did.',
     relatedIds: ['pbn-ornish-lifestyle-heart-trial'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04. Scoped to painful
+  // neuropathy deliberately: that is where the trials are, and the
+  // separate claim that acupuncture improves blood glucose control does
+  // not hold up at the same strength.
+  {
+    id: 'complementary-type2-acupuncture-neuropathy',
+    category: 'type2Diabetes',
+    title: 'Acupuncture for Diabetic Nerve Pain, and What It Does Not Touch',
+    teaser:
+      'The trials cluster around painful neuropathy, where existing drugs work poorly and are hard to tolerate. Blood sugar control is a separate claim on weaker ground.',
+    summary:
+      "Painful diabetic peripheral neuropathy is a good reason to look at alternatives, because the standard drugs for it help a minority of people and many stop taking them over drowsiness, dizziness, or swelling. Acupuncture has been studied here more than for anything else in diabetes. A 2023 systematic review and meta-analysis of acupuncture for painful diabetic peripheral neuropathy found benefit on pain, and a larger network meta-analysis pulled together 62 randomized trials covering 5,942 participants across acupuncture-based interventions for this condition. The reviewers are consistent that trial quality is the limiting factor: small samples, single centres, short follow-up, few sham comparisons, and inconsistent reporting of harms. So the fair summary is a reasonable option to try for nerve pain that is not otherwise controlled, on evidence that is suggestive rather than settled. Two boundaries matter more here than usual. Acupuncture is also promoted for blood glucose control in type 2 diabetes, and that claim rests on weaker evidence than the neuropathy one; nothing in this literature justifies reducing medication, and HbA1c is the measure to judge that by. And neuropathy itself changes the safety picture. A foot that cannot feel properly can be injured without the person noticing, so needling and firm massage below the knee need a practitioner who knows about the neuropathy, and any redness, blister, or break in the skin afterward needs looking at quickly rather than waiting.",
+    citations: [
+      {
+        source:
+          'Zhou L, et al. 2023: Acupuncture for painful diabetic peripheral neuropathy: a systematic review and meta-analysis (Front Neurol 14:1281485)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/38046594/',
+      },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'complementary-type1-massage-insulin-absorption',
+      'handson-acupuncture-chronic-pain',
+      'handson-safety-and-what-to-ask',
+      'handson-tracking-whether-it-works',
+    ],
+  },
 ];

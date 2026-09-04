@@ -604,4 +604,38 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibd-overview', 'body-kidney-stones-real-causes', 'body-kidney-stones-cooking-reduces-oxalate', 'calcium-oxalate-binding-kidney-stones', 'ckd-oxalate-kidney-stone-risk'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04. IBD is one of the
+  // better cases in this batch: a German trial run outside the research
+  // tradition that produces most of this literature, and a recent trial
+  // that measured inflammation and gut bacteria rather than only asking
+  // how people felt.
+  {
+    id: 'complementary-ibd-acupuncture-moxibustion',
+    category: 'ibd',
+    title: 'Acupuncture in IBD: Measured Against Inflammation, Not Just Against Symptoms',
+    teaser:
+      'A German trial found disease activity fell further with acupuncture than with sham. A 2022 trial went further and measured inflammatory markers and gut bacteria.',
+    summary:
+      "Inflammatory bowel disease is a stronger test than most conditions in this area, because it has objective markers. Someone can report feeling better while their gut is still inflamed, and blood and stool tests will say so. A randomized controlled study from a German university gastroenterology department gave people with active Crohn's disease ten sessions of traditional acupuncture with moxibustion or a sham procedure over four weeks. Crohn's Disease Activity Index scores fell significantly further in the acupuncture group. The same group ran a parallel trial in mild to moderately active ulcerative colitis with the same design. Both are small, and in both the sham group also improved, which is the pattern that recurs throughout this field. A 2022 randomized controlled trial published in eClinicalMedicine went past symptom scores in mild to moderate Crohn's disease, reporting improvement in symptoms alongside changes in intestinal microbiota and in inflammatory markers. Measuring inflammation directly is what separates a treatment doing something biological from a treatment making someone feel better about the same disease. Two boundaries belong with this. None of these trials tested acupuncture as a replacement for the drugs that induce and maintain remission, and stopping those is how flares and complications happen. And IBD treatment often involves immune suppression, which makes clean needling technique and a licensed practitioner more than a formality.",
+    citations: [
+      {
+        source:
+          "Joos S, Brinkhaus B, Maluche C, et al. 2004: Acupuncture and moxibustion in the treatment of active Crohn's disease: a randomized controlled study (Digestion 69(3):131-139)",
+        url: 'https://pubmed.ncbi.nlm.nih.gov/15114043/',
+      },
+      {
+        source:
+          "Bao C, Wu L, Wang D, et al. 2022: Acupuncture improves the symptoms, intestinal microbiota, and inflammation of patients with mild to moderate Crohn's disease: A randomized controlled trial (eClinicalMedicine 45:101300)",
+        url: 'https://pubmed.ncbi.nlm.nih.gov/35198926/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'handson-acupuncture-chronic-pain',
+      'handson-safety-and-what-to-ask',
+      'complementary-ibs-acupuncture',
+      'ibd-overview',
+    ],
+  },
 ];

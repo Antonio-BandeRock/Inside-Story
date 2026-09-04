@@ -90,6 +90,7 @@ export const HANDS_ON_THERAPIES_ENTRIES: DigestEntry[] = [
       'complementary-chiropractic',
       'complementary-prostate-sacral-nerves-bladder',
       'complementary-prostate-chiropractic-luts',
+      'complementary-cvd-blood-pressure-replication',
     ],
   },
   {
@@ -139,6 +140,9 @@ export const HANDS_ON_THERAPIES_ENTRIES: DigestEntry[] = [
       'handson-acupuncture-chronic-pain',
       'complementary-migraine-acupuncture',
       'complementary-ibs-acupuncture',
+      'complementary-pcos-acupuncture-live-birth',
+      'complementary-graves-ophthalmopathy-trial',
+      'complementary-psoriasis-acupuncture',
     ],
   },
   {

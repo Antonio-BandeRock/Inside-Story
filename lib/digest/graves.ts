@@ -713,4 +713,33 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     relatedIds: ['chrono-circadian-clock-biology', 'hashimoto-circadian-clock-disruption'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04. Graves' is the
+  // one autoimmune thyroid condition where a direct trial exists, and it
+  // is negative on every measure it took. Worth pairing against
+  // complementary-acupuncture (Hashimoto's), where a trial was designed
+  // and its results have still not surfaced.
+  {
+    id: 'complementary-graves-ophthalmopathy-trial',
+    category: 'graves',
+    title: "Acupuncture Was Tested on Graves' Eye Disease, and Measured Nothing",
+    teaser:
+      'A blinded trial took eye muscle volume, eye protrusion, lid opening, and eye pressure before and after two months of acupuncture. None of them moved.',
+    summary:
+      "Thyroid eye disease is one of the most distressing parts of Graves' disease and one of the hardest to treat, so it draws attention from every direction. It also has an advantage most autoimmune symptoms lack: it can be measured objectively rather than asked about. A blinded randomized study published in Acta Endocrinologica in 1991 gave 17 patients with Graves' ophthalmopathy acupuncture twice a week for two months and measured eye muscle volume, Hertel exophthalmometry for how far the eyes protrude, palpebral aperture for lid opening, intraocular pressure, and Hess chart testing for eye movement. None of them changed significantly. Nor did the irritative conjunctival symptoms improve to a statistically significant degree. Seventeen people is small, and a small trial can miss a modest effect. But the measures here are hard numbers taken by an examiner rather than self-reports, and a therapy producing no movement in any of five objective measures is a different kind of null from one that simply has not been studied. This sits alongside a useful contrast in the sibling condition. For Hashimoto's, a randomized controlled trial was registered in 2021 to study acupuncture specifically, and its results have not surfaced, so the answer there is pending rather than negative. Where these therapies may still earn a place in Graves' is for anxiety, sleep, and muscle tension, which are separate targets from the eyes and the thyroid.",
+    citations: [
+      {
+        source:
+          "Rogvi-Hansen B, Perrild H, Christensen T, et al. 1991: Acupuncture in the treatment of Graves' ophthalmopathy. A blinded randomized study (Acta Endocrinol 124(2):143-145)",
+        url: 'https://pubmed.ncbi.nlm.nih.gov/2003373/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'complementary-acupuncture',
+      'complementary-chiropractic',
+      'handson-acupuncture-where-it-does-nothing',
+      'handson-tracking-whether-it-works',
+    ],
+  },
 ];

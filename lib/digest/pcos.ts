@@ -613,4 +613,32 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['chrono-early-time-restricted-eating', 'chrono-time-restricted-eating-nuance', 'pcos-insulin-resistance-mechanism'],
   },
+
+  // Complementary & Manual Therapies, added 2026-09-04. The largest and
+  // best-powered trial anywhere in this batch, and it is negative. That
+  // is precisely why it leads: a 1,000-woman properly controlled null
+  // result is more informative than a dozen small positive ones.
+  {
+    id: 'complementary-pcos-acupuncture-live-birth',
+    category: 'pcos',
+    title: 'A Thousand Women, Four Groups, and Acupuncture Made No Difference to Live Births',
+    teaser:
+      'The largest trial of acupuncture in PCOS was designed to detect a benefit on live birth. Active acupuncture did no better than sham, and the drug did all the work.',
+    summary:
+      "Acupuncture is widely offered for PCOS-related infertility, and it has been tested about as rigorously as anything in this field. A trial published in JAMA in 2017 randomized 1,000 women with PCOS across 27 hospitals in mainland China in a factorial design: active or control acupuncture, twice weekly, crossed with clomiphene or placebo for up to four cycles. Active acupuncture used deep needling with manual and electrical stimulation; control acupuncture used superficial insertion, no manual stimulation, and mock electricity. The primary outcome was live birth, which is the outcome that actually matters rather than a hormone level or an ovulation count. Live births occurred in 29.4% with active acupuncture plus clomiphene, 28.0% with control acupuncture plus clomiphene, 13.9% with active acupuncture plus placebo, and 16.8% with control acupuncture plus placebo. Reading down that list shows the shape clearly. Clomiphene roughly doubled live births. Acupuncture changed nothing, in either the presence or the absence of the drug, and in the placebo arms the sham group did slightly better than the active one. Over 92% of participants completed the trial, so this is not a null produced by dropouts. This is a well-powered, properly controlled negative result, and it is worth more than a shelf of small positive studies. Someone offered acupuncture for PCOS fertility is entitled to know it has been tested at this scale and did not work.",
+    citations: [
+      {
+        source:
+          'Wu XK, Stener-Victorin E, Kuang HY, et al. 2017: Effect of Acupuncture and Clomiphene in Chinese Women With Polycystic Ovary Syndrome: A Randomized Clinical Trial (JAMA 317(24):2502-2514)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/28655015/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: [
+      'handson-acupuncture-where-it-does-nothing',
+      'handson-acupuncture-chronic-pain',
+      'handson-tracking-whether-it-works',
+      'pcos-insulin-resistance-mechanism',
+    ],
+  },
 ];
