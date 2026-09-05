@@ -26,7 +26,15 @@
 import { getDatabase } from './db';
 import { groceryLineTotal, type GroceryPriceUnit } from './groceryList';
 import type { TrackedSpending } from './financeCore';
-import type { FinanceCadence, FinanceDirection } from './financeCategories';
+import type { FinanceDirection } from './financeCategories';
+import { parseDueRule, serializeDueRule, type DueRule } from './financeSchedule';
+
+// finance_recurring.cadence is NOT NULL and predates the rule model. Every
+// row written from now on stores this marker in it, meaning "the real
+// answer is in due_rule_json". Nothing reads it back except the legacy
+// fallback in financeCore, which deliberately does not recognize this
+// value, so a current row always resolves through its rule.
+const CADENCE_SUPERSEDED = 'rule';
 
 export type FinanceRecurringRecord = {
   id: string;
@@ -34,8 +42,10 @@ export type FinanceRecurringRecord = {
   name: string;
   category: string;
   amount: number;
-  cadence: FinanceCadence;
-  dueDay: number | null;
+  rule: DueRule | null;
+  // Only ever non-null on a row written before 2026-09-05. See the
+  // migration in lib/db.ts and LEGACY_CADENCE_MONTHLY in financeCore.
+  legacyCadence: string | null;
   autopay: boolean;
   active: boolean;
   notes: string | null;
@@ -58,8 +68,7 @@ export async function createRecurring(input: {
   name: string;
   category: string;
   amount: number;
-  cadence: FinanceCadence;
-  dueDay?: number | null;
+  rule: DueRule;
   autopay?: boolean;
   notes?: string;
 }): Promise<string> {
@@ -69,7 +78,7 @@ export async function createRecurring(input: {
   await db.runAsync(
     `
       INSERT INTO finance_recurring
-        (id, direction, name, category, amount, cadence, due_day, autopay, active, notes, created_at, updated_at)
+        (id, direction, name, category, amount, cadence, due_rule_json, autopay, active, notes, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
     `,
     id,
@@ -77,8 +86,8 @@ export async function createRecurring(input: {
     input.name.trim(),
     input.category,
     input.amount,
-    input.cadence,
-    input.dueDay ?? null,
+    CADENCE_SUPERSEDED,
+    serializeDueRule(input.rule),
     input.autopay ? 1 : 0,
     input.notes?.trim() || null,
     now,
@@ -94,8 +103,7 @@ export async function updateRecurring(
     name: string;
     category: string;
     amount: number;
-    cadence: FinanceCadence;
-    dueDay?: number | null;
+    rule: DueRule;
     autopay?: boolean;
     notes?: string;
   },
@@ -105,15 +113,15 @@ export async function updateRecurring(
     `
       UPDATE finance_recurring
       SET direction = ?, name = ?, category = ?, amount = ?, cadence = ?,
-          due_day = ?, autopay = ?, notes = ?, updated_at = ?
+          due_rule_json = ?, autopay = ?, notes = ?, updated_at = ?
       WHERE id = ?
     `,
     input.direction,
     input.name.trim(),
     input.category,
     input.amount,
-    input.cadence,
-    input.dueDay ?? null,
+    CADENCE_SUPERSEDED,
+    serializeDueRule(input.rule),
     input.autopay ? 1 : 0,
     input.notes?.trim() || null,
     new Date().toISOString(),
@@ -149,20 +157,36 @@ export async function listRecurring(): Promise<FinanceRecurringRecord[]> {
     name: string;
     category: string;
     amount: number;
-    cadence: FinanceCadence;
-    dueDay: number | null;
+    cadence: string;
+    dueRuleJson: string | null;
     autopay: number;
     active: number;
     notes: string | null;
   }>(
     `
       SELECT id, direction, name, category, amount, cadence,
-             due_day AS dueDay, autopay, active, notes
+             due_rule_json AS dueRuleJson, autopay, active, notes
       FROM finance_recurring
       ORDER BY direction DESC, active DESC, amount DESC
     `,
   );
-  return rows.map((row) => ({ ...row, autopay: row.autopay === 1, active: row.active === 1 }));
+  return rows.map((row) => {
+    const rule = parseDueRule(row.dueRuleJson);
+    return {
+      id: row.id,
+      direction: row.direction,
+      name: row.name,
+      category: row.category,
+      amount: row.amount,
+      rule,
+      // Once a rule is present the cadence word is irrelevant, so it is
+      // dropped here rather than carried around as a second answer.
+      legacyCadence: rule ? null : row.cadence === CADENCE_SUPERSEDED ? null : row.cadence,
+      autopay: row.autopay === 1,
+      active: row.active === 1,
+      notes: row.notes,
+    };
+  });
 }
 
 // --- Entries: what actually happened ---------------------------------------

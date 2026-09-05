@@ -16,31 +16,28 @@
 import {
   SET_ASIDE_GROUP,
   financeCategoryGroup,
-  type FinanceCadence,
   type FinanceCategoryGroup,
   type FinanceDirection,
 } from './financeCategories';
+import { daysBetween, monthlyFactor, nextOccurrence, occurrencesPerYear, type DueRule } from './financeSchedule';
 
-// --- Cadence, and the one piece of arithmetic most worth getting right ------
+// --- Frequency ------------------------------------------------------------
 //
-// A month is not four weeks. There are 52 weeks in a year and 12 months,
-// so something paid weekly costs 52/12 = 4.333 times its amount per month,
-// not 4. Treating it as 4 understates the year by four whole payments,
-// roughly 8%, and that error compounds across every weekly line someone
-// has. It is the single most common way a household budget quietly runs
-// short, so it is worth stating plainly rather than leaving in a constant.
+// How often a thing repeats is DERIVED from its due rule (see
+// lib/financeSchedule.ts) rather than stored beside it, so the two can
+// never disagree. The arithmetic that matters, and the traps in it, are
+// documented there: a month is not four weeks, every 2 weeks is not twice
+// a month, and every 4 weeks is not monthly.
 //
-// Biweekly and semimonthly look interchangeable and are not. Every two
-// weeks is 26 payments a year (26/12 = 2.167 a month); twice a month is 24
-// (exactly 2 a month). Anyone paid every second Friday gets three
-// paychecks in two months of the year, and a budget built on "twice a
-// month" misses them.
-//
-// Quarterly, semiannual and annual divide cleanly and carry no such trap,
-// but they carry a different one the UI handles rather than this file: a
-// large annual bill looks small spread over twelve months and still has to
-// be paid all at once on one day.
-export const MONTHLY_FACTOR: Record<FinanceCadence, number> = {
+// The one exception below is a row that predates the rule model. Finances
+// shipped in 1.0.34.1 storing a plain cadence word plus an optional day of
+// the month, and most of those cannot be migrated into a rule because they
+// never carried enough to place them on a calendar (see the migration in
+// lib/db.ts). Their frequency IS known, though, because their owner chose
+// it, so this keeps them counting correctly in monthly totals until the
+// missing piece is filled in. It exists to be deleted once no row needs
+// it, and nothing new ever writes these values.
+export const LEGACY_CADENCE_MONTHLY: Record<string, number> = {
   weekly: 52 / 12,
   biweekly: 26 / 12,
   semimonthly: 2,
@@ -50,92 +47,6 @@ export const MONTHLY_FACTOR: Record<FinanceCadence, number> = {
   annual: 1 / 12,
 };
 
-export const ANNUAL_FACTOR: Record<FinanceCadence, number> = {
-  weekly: 52,
-  biweekly: 26,
-  semimonthly: 24,
-  monthly: 12,
-  quarterly: 4,
-  semiannual: 2,
-  annual: 1,
-};
-
-export function toMonthly(amount: number, cadence: FinanceCadence): number {
-  return amount * MONTHLY_FACTOR[cadence];
-}
-
-export function toAnnual(amount: number, cadence: FinanceCadence): number {
-  return amount * ANNUAL_FACTOR[cadence];
-}
-
-// --- Dates ------------------------------------------------------------------
-//
-// Plain local 'YYYY-MM-DD' throughout, and deliberately never
-// `new Date(str)`, which parses a bare date as UTC midnight and shifts the
-// day for anyone west of Greenwich. Same convention and same reasoning as
-// lib/therapyResponse.ts and lib/patternFinder.ts.
-
-export function daysInMonth(year: number, month1to12: number): number {
-  return new Date(year, month1to12, 0).getDate();
-}
-
-function parseLocalDate(dateStr: string): { y: number; m: number; d: number } | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr.slice(0, 10));
-  if (!match) return null;
-  const y = Number(match[1]);
-  const m = Number(match[2]);
-  const d = Number(match[3]);
-  if (m < 1 || m > 12) return null;
-  if (d < 1 || d > daysInMonth(y, m)) return null;
-  return { y, m, d };
-}
-
-function formatLocalDate(y: number, m: number, d: number): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${y}-${pad(m)}-${pad(d)}`;
-}
-
-/**
- * The next date a day-of-month bill lands on, at or after `fromDate`.
- *
- * Clamps to the length of whatever month it lands in, which is the whole
- * reason this is a function rather than a template string: a bill due on
- * the 31st is due on the 30th in April and on the 28th in February. Left
- * unclamped it would produce 2026-02-31, which every date parser in the
- * app then either rejects or silently rolls forward into March.
- *
- * Returns null for a cadence that has no day-of-month at all (weekly,
- * every two weeks, twice a month), rather than inventing one.
- */
-export function nextDueDate(dueDay: number | null, fromDate: string): string | null {
-  if (dueDay == null) return null;
-  const from = parseLocalDate(fromDate);
-  if (!from) return null;
-  if (dueDay < 1 || dueDay > 31) return null;
-
-  const thisMonthDay = Math.min(dueDay, daysInMonth(from.y, from.m));
-  if (thisMonthDay >= from.d) return formatLocalDate(from.y, from.m, thisMonthDay);
-
-  const nextM = from.m === 12 ? 1 : from.m + 1;
-  const nextY = from.m === 12 ? from.y + 1 : from.y;
-  return formatLocalDate(nextY, nextM, Math.min(dueDay, daysInMonth(nextY, nextM)));
-}
-
-export function daysBetween(fromDate: string, toDate: string): number | null {
-  const a = parseLocalDate(fromDate);
-  const b = parseLocalDate(toDate);
-  if (!a || !b) return null;
-  const MS_PER_DAY = 24 * 60 * 60 * 1000;
-  return Math.round((new Date(b.y, b.m - 1, b.d).getTime() - new Date(a.y, a.m - 1, a.d).getTime()) / MS_PER_DAY);
-}
-
-/** 'YYYY-MM' for the month a date falls in. */
-export function monthKey(dateStr: string): string | null {
-  const parsed = parseLocalDate(dateStr);
-  if (!parsed) return null;
-  return dateStr.slice(0, 7);
-}
-
 // --- What repeats ----------------------------------------------------------
 
 export type RecurringItem = {
@@ -144,11 +55,43 @@ export type RecurringItem = {
   name: string;
   category: string;
   amount: number;
-  cadence: FinanceCadence;
-  dueDay: number | null;
+  // How often AND when, in one value. Null means it has not been set up
+  // yet, which is a real state: an every-2-weeks bill with no date it last
+  // landed on genuinely cannot be placed, and so does a yearly one with no
+  // month. Such a bill still counts toward monthly totals via
+  // legacyCadence, and Coming Up names it rather than dropping it.
+  rule: DueRule | null;
+  // Only ever set on a row written before the rule model. See
+  // LEGACY_CADENCE_MONTHLY.
+  legacyCadence: string | null;
   autopay: boolean;
   active: boolean;
 };
+
+/**
+ * How many times a year this repeats, from its rule where it has one and
+ * from the legacy cadence where it does not. Returns null when neither is
+ * known, so a total can leave it out rather than counting it as zero and
+ * quietly understating a month.
+ */
+export function itemMonthlyFactor(item: RecurringItem): number | null {
+  if (item.rule) return monthlyFactor(item.rule);
+  if (item.legacyCadence && LEGACY_CADENCE_MONTHLY[item.legacyCadence] != null) {
+    return LEGACY_CADENCE_MONTHLY[item.legacyCadence];
+  }
+  return null;
+}
+
+export function itemMonthly(item: RecurringItem): number {
+  const factor = itemMonthlyFactor(item);
+  return factor == null ? 0 : item.amount * factor;
+}
+
+export function itemAnnual(item: RecurringItem): number {
+  if (item.rule) return item.amount * occurrencesPerYear(item.rule);
+  const factor = itemMonthlyFactor(item);
+  return factor == null ? 0 : item.amount * factor * 12;
+}
 
 export type GroupTotal = { group: FinanceCategoryGroup; monthly: number };
 export type CategoryTotal = { category: string; monthly: number };
@@ -184,8 +127,8 @@ export function summarizeRecurring(items: RecurringItem[]): RecurringSummary {
   const groupTotals = new Map<FinanceCategoryGroup, number>();
 
   for (const item of active) {
-    const monthly = toMonthly(item.amount, item.cadence);
-    const annual = toAnnual(item.amount, item.cadence);
+    const monthly = itemMonthly(item);
+    const annual = itemAnnual(item);
 
     if (item.direction === 'income') {
       monthlyIncome += monthly;
@@ -229,25 +172,44 @@ export type UpcomingBill = {
   daysAway: number;
 };
 
+export type UpcomingResult = {
+  bills: UpcomingBill[];
+  total: number;
+  // Bills that cannot be put on a calendar yet, because their rule is
+  // missing the piece that says where it lands: which weekday, which week
+  // it last fell in, or which month a longer cycle counts from. Returned
+  // rather than filtered away, because a bill silently absent from Coming
+  // Up is worse than one shown as needing attention. The shipped version
+  // dropped these without saying so.
+  needsSetup: RecurringItem[];
+};
+
 /**
- * Bills landing within `withinDays` of `fromDate`, soonest first.
+ * Bills landing within `withinDays` of `fromDate`, soonest first, plus
+ * the ones that could not be placed at all.
  *
- * Only items with a real day-of-month appear. A weekly or every-two-weeks
- * item is left out rather than guessed at, and the screen says so, because
- * the honest answer for "when is my every-2-weeks bill next due" needs an
- * anchor date this app does not ask for yet.
+ * Placement is entirely the rule's job (lib/financeSchedule.ts); this
+ * decides only what is in range and what to say about the rest.
  */
-export function upcomingBills(items: RecurringItem[], fromDate: string, withinDays: number): UpcomingBill[] {
-  const out: UpcomingBill[] = [];
+export function upcomingBills(items: RecurringItem[], fromDate: string, withinDays: number): UpcomingResult {
+  const bills: UpcomingBill[] = [];
+  const needsSetup: RecurringItem[] = [];
+
   for (const item of items) {
     if (!item.active || item.direction !== 'expense') continue;
-    const dueDate = nextDueDate(item.dueDay, fromDate);
-    if (!dueDate) continue;
+
+    const dueDate = item.rule ? nextOccurrence(item.rule, fromDate) : null;
+    if (!dueDate) {
+      needsSetup.push(item);
+      continue;
+    }
     const daysAway = daysBetween(fromDate, dueDate);
     if (daysAway == null || daysAway > withinDays) continue;
-    out.push({ item, dueDate, daysAway });
+    bills.push({ item, dueDate, daysAway });
   }
-  return out.sort((a, b) => a.daysAway - b.daysAway || b.item.amount - a.item.amount);
+
+  bills.sort((a, b) => a.daysAway - b.daysAway || b.item.amount - a.item.amount);
+  return { bills, total: bills.reduce((sum, entry) => sum + entry.item.amount, 0), needsSetup };
 }
 
 // --- What actually went out ------------------------------------------------

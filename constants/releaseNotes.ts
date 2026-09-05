@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.2',
+    date: '2026-09-05',
+    changes: [
+      'Bills can now be due when they are actually due. On a date, on the second Tuesday of the month, every Friday, or every 2, 3 or 4 weeks.',
+      'Setting one up shows you what it worked out, in words, plus the next date it lands on, before you save.',
+      'Fixed: a yearly or quarterly bill with only a day of the month was showing up as due every single month, because nothing told it which month it belonged to. It now asks, and a bill that cannot be placed yet is listed under "Needs a due date" instead of quietly vanishing from Coming Up.',
+      'Every 4 weeks is counted as 13 payments a year, not 12. It is not the same as monthly, and treating it as monthly hides a whole extra payment every year.',
+      'Bills you already entered are kept. Anything that could be read exactly was carried over; anything that never had enough detail to place on a calendar still counts toward your monthly totals and is listed as needing a date.',
+    ],
+  },
+  {
     version: '1.0.34.1',
     date: '2026-09-05',
     changes: [

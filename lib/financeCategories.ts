@@ -21,66 +21,11 @@
 
 export type FinanceDirection = 'income' | 'expense';
 
-// --- How often something repeats -------------------------------------------
-//
-// The arithmetic that turns these into a monthly figure lives in
-// lib/financeCore.ts, and it is the single most consequential piece of
-// math in this feature. See MONTHLY_FACTOR's own comment there for why
-// weekly is not four times a month and why biweekly and semimonthly are
-// genuinely different from each other.
-export type FinanceCadence =
-  | 'weekly'
-  | 'biweekly'
-  | 'semimonthly'
-  | 'monthly'
-  | 'quarterly'
-  | 'semiannual'
-  | 'annual';
-
-export const FINANCE_CADENCES: FinanceCadence[] = [
-  'weekly',
-  'biweekly',
-  'semimonthly',
-  'monthly',
-  'quarterly',
-  'semiannual',
-  'annual',
-];
-
-export const CADENCE_LABELS: Record<FinanceCadence, string> = {
-  weekly: 'Every week',
-  biweekly: 'Every 2 weeks',
-  semimonthly: 'Twice a month',
-  monthly: 'Every month',
-  quarterly: 'Every 3 months',
-  semiannual: 'Every 6 months',
-  annual: 'Once a year',
-};
-
-// Short forms for a list row, where the full phrase would crowd out the
-// thing being described.
-export const CADENCE_SHORT_LABELS: Record<FinanceCadence, string> = {
-  weekly: 'weekly',
-  biweekly: 'every 2wk',
-  semimonthly: '2x/month',
-  monthly: 'monthly',
-  quarterly: 'quarterly',
-  semiannual: 'twice a year',
-  annual: 'yearly',
-};
-
-// A day-of-month due date only means something for cadences that land on a
-// date. "Every 2 weeks" drifts through the month by design, so asking for
-// a day number would invite an answer that is wrong most months.
-export const CADENCE_HAS_DUE_DAY: Record<FinanceCadence, boolean> = {
-  weekly: false,
-  biweekly: false,
-  semimonthly: false,
-  monthly: true,
-  quarterly: true,
-  semiannual: true,
-  annual: true,
-};
+// How often something repeats, and where in the month or week it lands,
+// both live in lib/financeSchedule.ts as a single DueRule. They used to be
+// a FinanceCadence here plus a due_day on the row, which is the same fact
+// written twice and could not express "the 2nd Tuesday" or "every 3
+// weeks" at all. See that file's header for why it replaced this.
 
 // --- Categories -------------------------------------------------------------
 

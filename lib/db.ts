@@ -5928,6 +5928,34 @@ async function runDatabaseInitialization() {
       );
     `);
 
+    // Finances' due-rule column, 2026-09-05. finance_recurring shipped in
+    // 1.0.34.1 with a `cadence` plus a `due_day`, which turned out unable to
+    // express real bills (the 2nd Tuesday of the month, every Friday, every
+    // 2 or 3 weeks) and to carry a real bug: an annual bill with only a day
+    // of the month does not say WHICH month, so it appeared as due every
+    // month. Both are replaced by one JSON rule that says how often AND
+    // where it lands. See lib/financeSchedule.ts for the full reasoning.
+    //
+    // Only the unambiguous case is migrated: a monthly bill with a day of
+    // the month becomes exactly that rule. Everything else (weekly, every 2
+    // weeks, twice a month, and anything quarterly or longer) never carried
+    // enough to place it on a calendar, so it is left null rather than
+    // guessed at, and the screen asks for the missing piece by name. The
+    // old columns are deliberately left in place rather than dropped: they
+    // are the fallback that keeps a not-yet-completed bill counting toward
+    // monthly totals at the frequency its owner already told us.
+    const financeColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(finance_recurring)');
+    if (financeColumns.length > 0 && !financeColumns.some((column) => column.name === 'due_rule_json')) {
+      await db.execAsync('ALTER TABLE finance_recurring ADD COLUMN due_rule_json TEXT;');
+      await db.runAsync(
+        `
+          UPDATE finance_recurring
+          SET due_rule_json = '{"kind":"dayOfMonth","months":1,"day":' || due_day || '}'
+          WHERE cadence = 'monthly' AND due_day IS NOT NULL AND due_day BETWEEN 1 AND 31
+        `,
+      );
+    }
+
     // The Grocery List's own two later columns, 2026-09-01. The table shipped
     // in 1.0.32.1, so it can already exist on a device with neither of these:
     // same conditional pattern every other added column in this file uses.

@@ -18,14 +18,9 @@ import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import {
-  CADENCE_LABELS,
-  CADENCE_SHORT_LABELS,
-  CADENCE_HAS_DUE_DAY,
-  FINANCE_CADENCES,
   expenseCategoriesByGroup,
   financeCategoriesFor,
   financeCategoryLabel,
-  type FinanceCadence,
   type FinanceDirection,
 } from '../../lib/financeCategories';
 import {
@@ -33,11 +28,23 @@ import {
   describeDaysAway,
   describeMonthPicture,
   formatFinanceMoney,
+  itemMonthly,
   summarizeRecurring,
-  toAnnual,
   upcomingBills,
   type RecurringItem,
 } from '../../lib/financeCore';
+import {
+  WEEKDAY_NAMES,
+  WEEK_OF_MONTH_LABELS,
+  describeDueRule,
+  describeDueRuleShort,
+  describeMissingPiece,
+  nextOccurrence,
+  parseDate,
+  type DueRule,
+  type WeekOfMonth,
+  type Weekday,
+} from '../../lib/financeSchedule';
 import {
   createEntry,
   createRecurring,
@@ -132,10 +139,43 @@ const LIFE_LENSES: LensOption<LifeLens>[] = [
   { key: 'finances', label: 'Finances', icon: 'wallet-outline', help: LIFE_HELP_SECTIONS },
 ];
 
-const CADENCE_OPTIONS = FINANCE_CADENCES.map((cadence) => ({ label: CADENCE_LABELS[cadence], value: cadence }));
 const DIRECTION_OPTIONS = [
   { label: 'Money going out', value: 'expense' },
   { label: 'Money coming in', value: 'income' },
+];
+
+// One picker answers "how often", and the shape of the answer decides what
+// else the form needs to ask. Keeping frequency as a single opaque key
+// here, rather than an interval plus a unit, keeps the form from being
+// able to represent a combination the rule type does not allow.
+type Frequency = 'w1' | 'w2' | 'w3' | 'w4' | 'twice' | 'm1' | 'm3' | 'm6' | 'm12';
+
+const FREQUENCY_OPTIONS: { label: string; value: Frequency }[] = [
+  { label: 'Every week', value: 'w1' },
+  { label: 'Every 2 weeks', value: 'w2' },
+  { label: 'Every 3 weeks', value: 'w3' },
+  { label: 'Every 4 weeks', value: 'w4' },
+  { label: 'Twice a month', value: 'twice' },
+  { label: 'Every month', value: 'm1' },
+  { label: 'Every 3 months', value: 'm3' },
+  { label: 'Every 6 months', value: 'm6' },
+  { label: 'Once a year', value: 'm12' },
+];
+
+const WEEKS_FOR: Record<string, 1 | 2 | 3 | 4> = { w1: 1, w2: 2, w3: 3, w4: 4 };
+const MONTHS_FOR: Record<string, 1 | 3 | 6 | 12> = { m1: 1, m3: 3, m6: 6, m12: 12 };
+
+const WEEKDAY_OPTIONS = WEEKDAY_NAMES.map((name, index) => ({ label: name, value: String(index) }));
+const WEEK_OPTIONS = [
+  { label: WEEK_OF_MONTH_LABELS['1'], value: '1' },
+  { label: WEEK_OF_MONTH_LABELS['2'], value: '2' },
+  { label: WEEK_OF_MONTH_LABELS['3'], value: '3' },
+  { label: WEEK_OF_MONTH_LABELS['4'], value: '4' },
+  { label: WEEK_OF_MONTH_LABELS.last, value: 'last' },
+];
+const MONTH_MODE_OPTIONS = [
+  { label: 'On a date', value: 'date' },
+  { label: 'On a weekday', value: 'weekday' },
 ];
 
 function todayLocal(): string {
@@ -166,8 +206,20 @@ type RecurringForm = {
   name: string;
   category: string;
   amount: string;
-  cadence: FinanceCadence;
-  dueDay: string;
+  frequency: Frequency;
+  // Which day of the week, for anything repeating in weeks and for the
+  // "2nd Tuesday" shape.
+  weekday: Weekday;
+  // The date it last landed on, which is what makes "every 2 weeks"
+  // answerable at all.
+  weekAnchor: string;
+  // For month-based rules: land on a date, or on a weekday.
+  monthMode: 'date' | 'weekday';
+  day: string;
+  day2: string;
+  week: WeekOfMonth;
+  // Which month a cycle longer than a month counts from.
+  anchorMonth: string;
   notes: string;
 };
 
@@ -178,10 +230,86 @@ function blankRecurringForm(): RecurringForm {
     name: '',
     category: 'housing',
     amount: '',
-    cadence: 'monthly',
-    dueDay: '',
+    frequency: 'm1',
+    weekday: 5,
+    weekAnchor: todayLocal(),
+    monthMode: 'date',
+    day: '1',
+    day2: '15',
+    week: 1,
+    anchorMonth: currentMonth(),
     notes: '',
   };
+}
+
+/**
+ * The form's answers as a rule, or a plain sentence saying what is still
+ * missing. Returning the reason rather than just null is what lets the
+ * screen tell someone which field to fix instead of refusing silently.
+ */
+function buildRule(form: RecurringForm): { rule: DueRule } | { problem: string } {
+  const dayNumber = (raw: string): number | null => {
+    const n = Number(raw.trim());
+    return Number.isInteger(n) && n >= 1 && n <= 31 ? n : null;
+  };
+
+  if (form.frequency in WEEKS_FOR) {
+    if (!parseDate(form.weekAnchor)) {
+      return { problem: 'Enter a valid date it last landed on (YYYY-MM-DD), so the app knows which week it falls in.' };
+    }
+    return {
+      rule: { kind: 'everyNWeeks', weeks: WEEKS_FOR[form.frequency], weekday: form.weekday, anchor: form.weekAnchor },
+    };
+  }
+
+  if (form.frequency === 'twice') {
+    const a = dayNumber(form.day);
+    const b = dayNumber(form.day2);
+    if (a == null || b == null) return { problem: 'Both days have to be whole numbers from 1 to 31.' };
+    if (a === b) return { problem: 'The two days need to be different, or this happens once a month rather than twice.' };
+    return { rule: { kind: 'twiceMonthly', day1: a, day2: b } };
+  }
+
+  const months = MONTHS_FOR[form.frequency];
+  const anchorMonth = months > 1 ? form.anchorMonth.trim() : null;
+  if (months > 1 && !parseDate(`${anchorMonth?.slice(0, 7)}-01`)) {
+    return { problem: 'Enter the month the next one falls in (YYYY-MM), since this only comes round a few times a year.' };
+  }
+
+  if (form.monthMode === 'weekday') {
+    return { rule: { kind: 'nthWeekday', months, week: form.week, weekday: form.weekday, anchorMonth } };
+  }
+  const day = dayNumber(form.day);
+  if (day == null) return { problem: 'The day of the month has to be a whole number from 1 to 31.' };
+  return { rule: { kind: 'dayOfMonth', months, day, anchorMonth } };
+}
+
+/** The reverse, so editing an existing bill opens on its own answers. */
+function formFromRule(rule: DueRule | null, base: RecurringForm): RecurringForm {
+  if (!rule) return base;
+  switch (rule.kind) {
+    case 'everyNWeeks':
+      return { ...base, frequency: (`w${rule.weeks}` as Frequency), weekday: rule.weekday, weekAnchor: rule.anchor };
+    case 'twiceMonthly':
+      return { ...base, frequency: 'twice', day: String(rule.day1), day2: String(rule.day2) };
+    case 'dayOfMonth':
+      return {
+        ...base,
+        frequency: (`m${rule.months}` as Frequency),
+        monthMode: 'date',
+        day: String(rule.day),
+        anchorMonth: rule.anchorMonth ?? base.anchorMonth,
+      };
+    case 'nthWeekday':
+      return {
+        ...base,
+        frequency: (`m${rule.months}` as Frequency),
+        monthMode: 'weekday',
+        week: rule.week,
+        weekday: rule.weekday,
+        anchorMonth: rule.anchorMonth ?? base.anchorMonth,
+      };
+  }
 }
 
 type EntryForm = { occurredOn: string; direction: FinanceDirection; amount: string; category: string; description: string };
@@ -247,10 +375,6 @@ export default function LifeScreen() {
     [month, recurringItems, entries, tracked],
   );
   const soon = useMemo(() => upcomingBills(recurringItems, todayLocal(), UPCOMING_WINDOW_DAYS), [recurringItems]);
-  const driftingCount = useMemo(
-    () => recurringItems.filter((item) => item.active && item.direction === 'expense' && !CADENCE_HAS_DUE_DAY[item.cadence]).length,
-    [recurringItems],
-  );
 
   const activeLensLabel = LIFE_LENSES.find((option) => option.key === lens)?.label;
 
@@ -269,16 +393,17 @@ export default function LifeScreen() {
   }
 
   function openEditRecurring(row: FinanceRecurringRecord) {
-    setRecurringForm({
-      editingId: row.id,
-      direction: row.direction,
-      name: row.name,
-      category: row.category,
-      amount: String(row.amount),
-      cadence: row.cadence,
-      dueDay: row.dueDay != null ? String(row.dueDay) : '',
-      notes: row.notes ?? '',
-    });
+    setRecurringForm(
+      formFromRule(row.rule, {
+        ...blankRecurringForm(),
+        editingId: row.id,
+        direction: row.direction,
+        name: row.name,
+        category: row.category,
+        amount: String(row.amount),
+        notes: row.notes ?? '',
+      }),
+    );
     setEntryForm(null);
   }
 
@@ -298,14 +423,10 @@ export default function LifeScreen() {
       showInfoAlert('Almost there', 'Enter an amount greater than zero.');
       return;
     }
-    let dueDay: number | null = null;
-    if (CADENCE_HAS_DUE_DAY[form.cadence] && form.dueDay.trim()) {
-      const parsed = Number(form.dueDay.trim());
-      if (!Number.isInteger(parsed) || parsed < 1 || parsed > 31) {
-        showInfoAlert('Almost there', 'The day of the month has to be a whole number from 1 to 31, or left empty.');
-        return;
-      }
-      dueDay = parsed;
+    const built = buildRule(form);
+    if ('problem' in built) {
+      showInfoAlert('Almost there', built.problem);
+      return;
     }
 
     try {
@@ -314,8 +435,7 @@ export default function LifeScreen() {
         name: form.name,
         category: form.category,
         amount,
-        cadence: form.cadence,
-        dueDay,
+        rule: built.rule,
         notes: form.notes,
       };
       if (form.editingId) await updateRecurring(form.editingId, payload);
@@ -516,7 +636,7 @@ export default function LifeScreen() {
   }
 
   function renderRecurringRow(row: FinanceRecurringRecord) {
-    const monthly = row.active ? toAnnual(row.amount, row.cadence) / 12 : 0;
+    const monthly = row.active ? itemMonthly({ ...row }) : 0;
     return (
       <View key={row.id} style={[styles.listRow, !row.active && styles.listRowPaused]}>
         <View style={styles.listMain}>
@@ -525,10 +645,16 @@ export default function LifeScreen() {
             {row.active ? '' : ' · paused'}
           </Text>
           <Text style={styles.listMeta}>
-            {financeCategoryLabel(row.category)} · {CADENCE_SHORT_LABELS[row.cadence]}
-            {row.dueDay != null ? ` · day ${row.dueDay}` : ''}
+            {financeCategoryLabel(row.category)}
+            {row.rule ? ` · ${describeDueRuleShort(row.rule)}` : ''}
           </Text>
-          {row.cadence !== 'monthly' && row.active ? (
+          {row.rule ? <Text style={styles.listMeta}>{describeDueRule(row.rule)}</Text> : null}
+          {!row.rule && row.active ? (
+            <Text style={styles.listNeedsSetup}>Needs a due date before it can show under Coming Up.</Text>
+          ) : null}
+          {row.rule && row.rule.kind !== 'dayOfMonth' && row.active ? (
+            <Text style={styles.listMeta}>{formatFinanceMoney(monthly)} a month</Text>
+          ) : row.rule && row.rule.kind === 'dayOfMonth' && row.rule.months !== 1 && row.active ? (
             <Text style={styles.listMeta}>{formatFinanceMoney(monthly)} a month</Text>
           ) : null}
         </View>
@@ -558,7 +684,13 @@ export default function LifeScreen() {
   function renderRecurringForm() {
     if (!recurringForm) return null;
     const form = recurringForm;
-    const showsDueDay = CADENCE_HAS_DUE_DAY[form.cadence];
+    const isWeekBased = form.frequency in WEEKS_FOR;
+    // Built as the form is filled in, so the preview is the real rule
+    // rather than a second description of it that could drift from what
+    // actually gets saved.
+    const built = buildRule(form);
+    const previewRule = 'rule' in built ? built.rule : null;
+    const previewNext = previewRule ? nextOccurrence(previewRule, todayLocal()) : null;
     return (
       <View style={styles.formCard}>
         <Text style={styles.label}>What kind</Text>
@@ -606,33 +738,140 @@ export default function LifeScreen() {
 
         <Text style={styles.label}>How often</Text>
         <PopoverSelect
-          options={CADENCE_OPTIONS}
-          selected={form.cadence}
-          onSelect={(value) => setRecurringForm({ ...form, cadence: value as FinanceCadence })}
+          options={FREQUENCY_OPTIONS}
+          selected={form.frequency}
+          onSelect={(value) => setRecurringForm({ ...form, frequency: value as Frequency })}
           tabColor={TAB_COLOR}
         />
 
-        {showsDueDay ? (
+        {isWeekBased ? (
           <>
-            <Text style={styles.label}>Day of the month (optional)</Text>
-            <AppTextInput
-              style={[styles.input, styles.shortInput]}
-              placeholder="e.g. 1"
-              keyboardType="number-pad"
-              maxLength={2}
-              value={form.dueDay}
-              onChangeText={(text) => setRecurringForm({ ...form, dueDay: text })}
+            <Text style={styles.label}>Which day</Text>
+            <PopoverSelect
+              options={WEEKDAY_OPTIONS}
+              selected={String(form.weekday)}
+              onSelect={(value) => setRecurringForm({ ...form, weekday: Number(value) as Weekday })}
+              tabColor={TAB_COLOR}
             />
+            <Text style={styles.label}>A date it landed on</Text>
+            <View style={styles.inlineRow}>
+              <AppTextInput
+                style={[styles.input, styles.shortInput]}
+                placeholder="YYYY-MM-DD"
+                value={form.weekAnchor}
+                onChangeText={(text) => setRecurringForm({ ...form, weekAnchor: text })}
+              />
+              <TouchableOpacity style={styles.pillSmall} onPress={() => setRecurringForm({ ...form, weekAnchor: todayLocal() })}>
+                <Text style={styles.pillTextSmall}>Today</Text>
+              </TouchableOpacity>
+            </View>
             <Text style={styles.helperText}>
-              A bill set to the 31st lands on the last day of shorter months rather than being skipped.
+              {form.frequency === 'w1'
+                ? 'Any recent one will do, since it happens every week.'
+                : 'This is what tells the app which weeks it falls in. Any date in the right week works, and it will be moved onto the day you picked above.'}
+            </Text>
+          </>
+        ) : form.frequency === 'twice' ? (
+          <>
+            <Text style={styles.label}>Which two days</Text>
+            <View style={styles.inlineRow}>
+              <AppTextInput
+                style={[styles.input, styles.tinyInput]}
+                placeholder="1"
+                keyboardType="number-pad"
+                maxLength={2}
+                value={form.day}
+                onChangeText={(text) => setRecurringForm({ ...form, day: text })}
+              />
+              <Text style={styles.bodyText}>and</Text>
+              <AppTextInput
+                style={[styles.input, styles.tinyInput]}
+                placeholder="15"
+                keyboardType="number-pad"
+                maxLength={2}
+                value={form.day2}
+                onChangeText={(text) => setRecurringForm({ ...form, day2: text })}
+              />
+            </View>
+            <Text style={styles.helperText}>
+              The 1st and 15th is the usual pair. Either day set to 31 lands on the last day of shorter months.
             </Text>
           </>
         ) : (
-          <Text style={styles.helperText}>
-            {CADENCE_LABELS[form.cadence]} does not land on the same date each month, so there is no day to set. It
-            still counts toward your monthly figures, it just will not appear under Coming Up.
-          </Text>
+          <>
+            <Text style={styles.label}>Lands on</Text>
+            <PopoverSelect
+              options={MONTH_MODE_OPTIONS}
+              selected={form.monthMode}
+              onSelect={(value) => setRecurringForm({ ...form, monthMode: value as 'date' | 'weekday' })}
+              tabColor={TAB_COLOR}
+            />
+
+            {form.monthMode === 'date' ? (
+              <>
+                <Text style={styles.label}>Day of the month</Text>
+                <AppTextInput
+                  style={[styles.input, styles.shortInput]}
+                  placeholder="e.g. 1"
+                  keyboardType="number-pad"
+                  maxLength={2}
+                  value={form.day}
+                  onChangeText={(text) => setRecurringForm({ ...form, day: text })}
+                />
+                <Text style={styles.helperText}>
+                  Set to 31 and it lands on the last day of shorter months rather than being skipped.
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.label}>Which one</Text>
+                <View style={styles.inlineRow}>
+                  <PopoverSelect
+                    options={WEEK_OPTIONS}
+                    selected={String(form.week)}
+                    onSelect={(value) =>
+                      setRecurringForm({ ...form, week: (value === 'last' ? 'last' : Number(value)) as WeekOfMonth })
+                    }
+                    tabColor={TAB_COLOR}
+                  />
+                  <PopoverSelect
+                    options={WEEKDAY_OPTIONS}
+                    selected={String(form.weekday)}
+                    onSelect={(value) => setRecurringForm({ ...form, weekday: Number(value) as Weekday })}
+                    tabColor={TAB_COLOR}
+                  />
+                </View>
+                <Text style={styles.helperText}>
+                  For a bill that falls on something like the second Tuesday rather than a fixed date.
+                </Text>
+              </>
+            )}
+
+            {MONTHS_FOR[form.frequency] > 1 ? (
+              <>
+                <Text style={styles.label}>The next one falls in</Text>
+                <AppTextInput
+                  style={[styles.input, styles.shortInput]}
+                  placeholder="YYYY-MM"
+                  maxLength={7}
+                  value={form.anchorMonth}
+                  onChangeText={(text) => setRecurringForm({ ...form, anchorMonth: text })}
+                />
+                <Text style={styles.helperText}>
+                  Without this the app cannot tell which months are in the cycle, and would show it every month.
+                </Text>
+              </>
+            ) : null}
+          </>
         )}
+
+        {previewRule ? (
+          <View style={styles.previewBox}>
+            <Text style={styles.previewLabel}>This will be due</Text>
+            <Text style={styles.previewText}>{describeDueRule(previewRule)}</Text>
+            {previewNext ? <Text style={styles.previewText}>Next: {shortDate(previewNext)}</Text> : null}
+          </View>
+        ) : null}
 
         <View style={styles.formActions}>
           <TouchableOpacity style={styles.secondaryButton} onPress={() => setRecurringForm(null)}>
@@ -785,40 +1024,50 @@ export default function LifeScreen() {
       <>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Next {UPCOMING_WINDOW_DAYS} days</Text>
-          {soon.length === 0 ? (
+          {soon.bills.length === 0 ? (
             <Text style={styles.bodyText}>
               Nothing with a set date is due in the next {UPCOMING_WINDOW_DAYS} days. Adding a day of the month to a
               bill is what puts it here.
             </Text>
           ) : (
-            soon.map(({ item, dueDate, daysAway }) => (
+            soon.bills.map(({ item, dueDate, daysAway }) => (
               <View key={item.id} style={styles.listRow}>
                 <View style={styles.listMain}>
                   <Text style={styles.listTitle}>{item.name}</Text>
                   <Text style={styles.listMeta}>
                     {shortDate(dueDate)} · {describeDaysAway(daysAway)}
                   </Text>
+                  {item.rule ? <Text style={styles.listMeta}>{describeDueRule(item.rule)}</Text> : null}
                 </View>
                 <Text style={styles.listAmount}>{formatFinanceMoney(item.amount)}</Text>
               </View>
             ))
           )}
-          {soon.length > 0 ? (
-            <Text style={styles.footnote}>
-              Total due in this window: {formatFinanceMoney(soon.reduce((sum, b) => sum + b.item.amount, 0))}
-            </Text>
+          {soon.bills.length > 0 ? (
+            <Text style={styles.footnote}>Total due in this window: {formatFinanceMoney(soon.total)}</Text>
           ) : null}
         </View>
 
-        {driftingCount > 0 ? (
+        {soon.needsSetup.length > 0 ? (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Not shown here</Text>
+            <Text style={styles.cardTitle}>Needs a due date</Text>
             <Text style={styles.bodyText}>
-              {driftingCount} of your bills {driftingCount === 1 ? 'repeats' : 'repeat'} weekly, every two weeks, or
-              twice a month. Those drift through the month rather than landing on a set date, so working out the next
-              one would need a starting date this app does not ask for yet. They still count toward your monthly
-              figures.
+              These still count toward your monthly figures. They cannot be put on a calendar yet, because each one is
+              missing the piece that says when it lands.
             </Text>
+            {soon.needsSetup.map((item) => (
+              <View key={item.id} style={styles.listRow}>
+                <View style={styles.listMain}>
+                  <Text style={styles.listTitle}>{item.name}</Text>
+                  <Text style={styles.listMeta}>
+                    {item.rule
+                      ? describeMissingPiece(item.rule)
+                      : 'No schedule set yet. Open it under Bills & Income and choose how often it repeats.'}
+                  </Text>
+                </View>
+                <Text style={styles.listAmount}>{formatFinanceMoney(item.amount)}</Text>
+              </View>
+            ))}
           </View>
         ) : null}
       </>
@@ -970,6 +1219,18 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   shortInput: { maxWidth: 160 },
+  tinyInput: { maxWidth: 72 },
+  previewBox: {
+    marginTop: 16,
+    padding: 12,
+    borderRadius: 10,
+    backgroundColor: colors.surfaceMuted,
+    borderLeftWidth: 3,
+    borderLeftColor: TAB_COLOR,
+  },
+  previewLabel: { ...typography.caption, color: colors.textMuted, marginBottom: 4, ...textShadow },
+  previewText: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  listNeedsSetup: { ...typography.caption, color: colors.statusYellowStandalone, marginTop: 2, ...textShadow },
   inlineRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
 
   statRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingVertical: 4, gap: 12 },
