@@ -469,18 +469,22 @@ export const colors = {
   // tabTrends or tabSchedules, because the pastel band's blue region is
   // already full. #4A90D9 was tried first and fails both at 4.34:1 and 2.08:1.
   //
-  // Life's old orchid was tried next and bettered again on 2026-09-05. This is
-  // a rose from the one hue arc the palette leaves open (roughly 330-360; every
-  // other region is taken, see the hue list further down). Of the whole arc,
-  // exactly three values clear both floors AND stay 0.10 clear of everything
-  // else, and this is the best of them: 6.4:1 as a fill, 3.1:1 as text, nearest
-  // neighbour 0.130 against the orchid's 0.094.
+  // So it took Life's orchid, the two exchanging colours. A rose (#EA90BD) was
+  // tried over it briefly the same day and reverted within the hour: it came
+  // from the one hue arc the palette leaves open (roughly 330-360) and measured
+  // better on paper, 0.130 from its nearest neighbour against the orchid's
+  // 0.094, but read as too bright on a real screen. Reported plainly: "a little
+  // too bright or dayglo." Separation is only worth having if the result is
+  // something someone wants to look at, and 0.094 is close enough to the 0.10
+  // line to be the better trade.
+  //
+  // The orchid clears both floors comfortably: 6.9:1 as a fill, 3.3:1 as text.
   //
   // Trends keeps the sky blue rather than trading for it. Both tabs have a
-  // claim on blue, one of the two has to wear the rose, and charts over time is
+  // claim on blue, one of the two has to wear the pink, and charts over time is
   // the stronger claim: Insights is closer to a reference library (Food Lookup,
   // Nutrient Ranking, Safe Foods, Labs) than to analytics.
-  tabInsights: '#EA90BD',
+  tabInsights: '#DE9CE2',
   // Schedules and Trends both got a further saturation bump on top of the
   // shared formula (55% -> 65% and 70% respectively) once the background
   // fix above was in place and confirmed working, purely to stand out

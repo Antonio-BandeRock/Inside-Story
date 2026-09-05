@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.12',
+    date: '2026-09-05',
+    changes: [
+      "Insights goes back to the softer pink. The brighter one separated better on paper but read as too bright on a real screen.",
+    ],
+  },
+  {
     version: '1.0.34.11',
     date: '2026-09-05',
     changes: [
