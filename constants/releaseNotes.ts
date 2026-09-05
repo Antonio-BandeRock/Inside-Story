@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.8',
+    date: '2026-09-05',
+    changes: [
+      "Home has its own corner menu now, instead of a shortcut to The Digest. It lists whichever Home sections you have turned on, in the order you put them, and picking one goes straight to the thing it is a view of. You can use the card on Home or the menu, whichever you reach first.",
+      "Insights is a rose now rather than the orchid it briefly had. Trends keeps its blue.",
+      "Garden and Digest swapped places in the menu, so Garden's green and Life's green are no longer side by side.",
+      "The line around the TabHub menu follows the ground colour picked in Profile, the same as the circle inside it.",
+    ],
+  },
+  {
     version: '1.0.34.7',
     date: '2026-09-05',
     changes: [

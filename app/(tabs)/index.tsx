@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter, type Href } from 'expo-router';
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
 import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeOut, ZoomIn } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
@@ -26,7 +26,7 @@ import {
   GAUGE_OVER_LIMIT,
   mixHex,
 } from '../../constants/colors';
-import { FLOATING_BUTTON_SIZE, useBottomLeftHubPosition, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
+import { FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import {
   formatReleaseNotesMessage,
   getReleaseNotesSince,
@@ -85,6 +85,7 @@ import { getActiveGroceryListSummary, type GroceryListSummary } from '../../lib/
 import { reresolveSavedDishCookingMethods } from '../../lib/db';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { getSixDimensionsFlagTrendSeries } from '../../lib/trendAnalysis';
+import { LensHub, type LensOption } from '../../components/LensHub';
 import { ALL_HOME_SECTION_KEYS, getOrderedHomeSectionKeys, isHomeSectionVisible, type HomeSectionKey } from '../../lib/visualPreferences';
 import { useVisualPreferences } from '../../hooks/useVisualPreferences';
 
@@ -504,6 +505,44 @@ function CardLabel({ tabPath, text }: { tabPath: Href; text: string }) {
   );
 }
 
+// What each Home section is a window INTO, 2026-09-05.
+//
+// Home's corner used to hold a shortcut to The Digest, which made the corner
+// button mean "pick what you want to see here" on nine tabs and "go to The
+// Digest" on one. Home now has its own, and this is what fills it.
+//
+// The point is not to scroll to a card. Every section on Home is a view onto a
+// function that lives in another tab, so picking one from the menu goes to the
+// function itself, exactly as tapping the card does. Direct instruction: it
+// should "be used to select, not just jump to something listed on the Home
+// screen... The user should be able to use one or the other, and not forced to
+// use the things on the home screen to access them."
+//
+// The menu reflects the person's own choices, since it is built from whichever
+// sections they have turned on and in the order they put them (Profile > Home
+// Screen), the same way The Digest's own lens list reflects the conditions
+// picked in Profile.
+//
+// Two keys are deliberately absent rather than overlooked. 'weather' renders
+// inside the greeting card rather than as a section of its own, so there is
+// nothing to select. 'quickActions' is already a row of shortcuts into other
+// tabs; putting a menu entry in front of a menu of shortcuts would add a step
+// and reach nothing new.
+const HOME_LENS_DESTINATIONS: Partial<
+  Record<HomeSectionKey, { label: string; icon: ComponentProps<typeof Ionicons>['name']; href: Href }>
+> = {
+  symptomCheckinReminder: { label: 'Symptom Check-In', icon: 'pulse', href: '/assessment' as Href },
+  todaysCheckin: { label: "Today's Check-In", icon: 'checkmark-circle', href: '/log' as Href },
+  logAgain: { label: 'Log a Meal', icon: 'restaurant', href: '/find-meal' as Href },
+  groceryList: { label: 'Grocery List', icon: 'cart', href: '/grocery-list' as Href },
+  yourDay: { label: 'Your Day', icon: 'calendar', href: '/schedule' as Href },
+  statTiles: { label: 'Worth a Look', icon: 'sparkles', href: '/insights' as Href },
+  howYoureFeeling: { label: "How You're Feeling", icon: 'heart', href: '/log' as Href },
+  fuelGauges: { label: "Today's Fuel", icon: 'speedometer', href: '/insights' as Href },
+  weekTrend: { label: "This Week's Trend", icon: 'trending-up', href: '/trends' as Href },
+  digestCards: { label: 'From The Digest', icon: 'ribbon', href: '/purple-digest' as Href },
+};
+
 // The Digest's own corner shortcut, 2026-07-27 -- explicitly
 // requested: Home is the one page with no LensHub of its own (nothing to
 // switch between), so its own bottom-left corner sits unused; this gives
@@ -614,13 +653,26 @@ export default function HomeScreen() {
   // uses internally, called here directly since this button is now a plain
   // TouchableOpacity rather than a LensHub instance (see that button's own
   // render/comment below).
-  const purpleDigestShortcutPosition = useBottomLeftHubPosition();
   // Which of this screen's own content sections the person has chosen to
   // keep visible -- see HomeSectionKey's own comment in
   // lib/visualPreferences.ts for the full "let them dial in what they
   // want" reasoning. Read the same live way every other visual preference
   // already is, so a toggle flipped on Profile reaches Home immediately.
   const visualPrefs = useVisualPreferences();
+
+  // Built from what is actually on Home, in the order it is on Home, so the
+  // menu and the page can never disagree about what exists.
+  const homeLensOptions = useMemo<LensOption<HomeSectionKey>[]>(
+    () =>
+      getOrderedHomeSectionKeys(visualPrefs)
+        .filter((key) => isHomeSectionVisible(visualPrefs, key) && HOME_LENS_DESTINATIONS[key])
+        .map((key) => {
+          const entry = HOME_LENS_DESTINATIONS[key]!;
+          return { key, label: entry.label, icon: entry.icon };
+        }),
+    [visualPrefs],
+  );
+
   // 2026-09-03. Seeded test data is indistinguishable from real data once it
   // is in, and the whole point of it is that the app is being used for testing
   // rather than for real. A standing line saying so is what stops a seeded
@@ -2246,29 +2298,20 @@ export default function HomeScreen() {
         </View>
       </SwipeableTabScreen>
 
-      <TouchableOpacity
-        style={[styles.purpleDigestShortcut, purpleDigestShortcutPosition]}
-        // openLensHub query param, 2026-08-08 -- same mechanism TabHub's
-        // own go() now uses (see that file's comment), so this shortcut
-        // lands on Digest with its own LensHub already open too,
-        // exactly like tapping "Digest" from TabHub itself would.
-        onPress={() => router.push(`/purple-digest?openLensHub=${Date.now()}` as Href)}
-        activeOpacity={0.85}
-        accessibilityLabel="Open The Digest"
-      >
-        {/* 2026-08-30: the same icon slot LensHub's own corner button now
-            reserves. Every other tab's corner label sits below a 60px slot
-            (whether or not the ring is showing), so this one rendering a bare
-            32px glyph left "Digest" sitting higher than the label on every
-            other tab. Direct report: "You missed the Digest icon on the Home
-            screen for the label jump problem." */}
-        <View style={styles.purpleDigestIconSlot}>
-          <PurpleRibbonIcon size={32} color={colors.tabPurpleDigest} />
-        </View>
-        <Text style={[styles.purpleDigestShortcutLabel, { color: colors.tabPurpleDigest }]} numberOfLines={1}>
-          Digest
-        </Text>
-      </TouchableOpacity>
+      {/* Home's own lens menu, replacing the Digest shortcut that used to sit
+          here. PurpleRibbonIcon is untouched and still in use on the Digest tab
+          itself; only this one call site goes away. Nothing is ever "selected":
+          picking an option navigates, so passing undefined keeps the ring off,
+          which is what it is for (see LensHub's own note on that prop). */}
+      <LensHub
+        pageTitle="Home"
+        options={homeLensOptions}
+        selected={undefined}
+        onSelect={(key) => {
+          const entry = HOME_LENS_DESTINATIONS[key];
+          if (entry) router.push(entry.href);
+        }}
+      />
 
       <Modal visible={selectedItem != null} transparent animationType="fade" onRequestClose={() => setSelectedItem(null)}>
           <View style={styles.modalBackdrop}>
@@ -2430,37 +2473,6 @@ const TAB_BORDER_WIDTH = 2;
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  // Same footprint/shadow treatment as LensHub's own corner button at rest
-  // (components/LensHub.tsx's own `button`/`buttonLabel` styles) -- this
-  // replaced a real LensHub instance, 2026-08-05, so it should still read
-  // as "the same kind of button," just without a popup behind it.
-  purpleDigestShortcut: {
-    position: 'absolute',
-    width: FLOATING_BUTTON_SIZE,
-    height: FLOATING_BUTTON_SIZE,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  purpleDigestIconSlot: {
-    width: FLOATING_BUTTON_SIZE,
-    height: FLOATING_BUTTON_SIZE,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  // No fill, 2026-08-30, direct request: "It is the Digest icon located on the
-  // Home tab that the name Digest has a background behind it... remove both
-  // backgrounds." It had carried one since the 2026-08-29 no-bare-text sweep,
-  // which was right by that rule and wrong in effect: a pill behind a corner
-  // control's own one-word label reads as a badge stuck to the screen. This is a
-  // named exception in scripts/audit_bare_text_on_background.js rather than a
-  // silent one. Legibility rests on textShadow, the same as the hub labels
-  // beside it.
-  purpleDigestShortcutLabel: {
-    ...typography.caption,
-    ...textShadow,
-    fontSize: 11,
-    marginTop: 2,
-  },
   // position: 'relative' so bottomMask (position: 'absolute' inside it)
   // places relative to this box, not the whole screen.
   contentArea: { flex: 1, position: 'relative' },

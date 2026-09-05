@@ -30,7 +30,13 @@ export type TabRoute = {
 //
 //   Food, Schedules, Signals     what you do daily
 //   Insights, Trends, Reports    what it tells you
-//   Digest, Garden, Life         the wider world
+//   Garden, Digest, Life         the wider world
+//
+// Garden sits ahead of Digest inside that last group for a colour reason
+// rather than a meaning one: Garden's emerald and Life's mint were the closest
+// pair left in the grid at 0.134, and they were side by side. Putting Digest's
+// purple between them roughly doubles the separation, to 0.270 and 0.302, and
+// "the wider world" reads the same in either order.
 //
 // One correctness fix falls out of it: Signals is where symptoms and flares
 // are logged and Trends is the patterns drawn FROM them, so having Trends
@@ -60,12 +66,12 @@ export const TAB_ROUTES: TabRoute[] = [
   // the real PurpleRibbonIcon instead, since a bare Ionicons "ribbon" glyph
   // was already tried and rejected once (see LensHub.tsx's own history: it
   // read as a race/award rosette, not an awareness ribbon).
-  { path: '/purple-digest', title: 'Digest', icon: 'ribbon', color: colors.tabPurpleDigest },
+  { path: '/garden', title: 'Garden', icon: 'leaf', color: colors.tabGarden },
   // The 9th real tab, added 2026-08-13 for home-gardening tracking (a real
   // Growing Zone lookup, plots/plantings/harvests, and harvest-as-ingredient
   // sourcing into the Food builders) -- placed by meaning since 2026-09-05,
   // see the block comment above.
-  { path: '/garden', title: 'Garden', icon: 'leaf', color: colors.tabGarden },
+  { path: '/purple-digest', title: 'Digest', icon: 'ribbon', color: colors.tabPurpleDigest },
   // The 10th real tab, added 2026-09-04. Direct request: "A new tab needs
   // to be added and available through TabHub menu. The name of the new tab
   // is Life... This will deal with the user's life, all aspects." Same

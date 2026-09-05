@@ -13,7 +13,6 @@ import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import type { TabHubIconChoice } from '../lib/visualPreferences';
 import { useCurrentPageHelp } from './CurrentPageHelp';
 import { DessertBuilderIcon } from './FoodBuilderIcons';
-import { GENERIC_BACKGROUND_PALETTES } from './GenericBackground';
 import { HelpSheet } from './HelpButton';
 import { ActiveRingCircle } from './ActiveRingCircle';
 import { TabHubPointer, TabHubWelcome, useTabHubOnboarding } from './TabHubOnboarding';
@@ -29,6 +28,9 @@ import { PurpleRibbonIcon } from './PurpleRibbonIcon';
 // opened -- this value is what actually fixed that, not just a
 // coincidentally close number.
 const CARD_RING_WIDTH = 1;
+// Matches ActiveRingCircle's own fraction: raw buttonColor is under the 3:1
+// floor against this card on four of the five themes.
+const CARD_RING_LIGHTEN_FRACTION = 0.35;
 
 const BUTTON_SIZE = FLOATING_BUTTON_SIZE;
 const BOTTOM_OFFSET = FLOATING_BUTTON_BOTTOM_OFFSET;
@@ -144,13 +146,24 @@ function TabRouteIcon({ route, size }: { route: TabRoute; size: number }) {
 // app-name text and ScreenBackground's footer line used), removed entirely
 // as a real, confirmed, continuous battery drain (see constants/colors.ts's
 // own header note). Replaced with a flat, static border in whichever
-// "lighter" color belongs to the person's own currently-chosen generic
-// color combination -- the same accent ScreenHeader/ScreenBackground now
-// use, so this card's own edge matches the header/footer lines rather than
-// being a separately-computed color.
+// Took the generic background palette's own "lighter" accent until 2026-09-05,
+// deliberately, so this card's edge matched the header and footer lines rather
+// than being separately computed.
+//
+// It now follows the GROUND theme instead. Direct request: "The line around the
+// TabHub menu should also follow the ground color." Worth naming what that
+// costs, because it undoes the match above: ScreenHeader and ScreenBackground
+// still draw their own edges from the generic palette, so the menu's border and
+// the header/footer lines no longer come from the same setting. Moving those
+// two as well was not asked for and is not done here.
 function TabHubCardRing({ children }: { children: ReactNode }) {
-  const { genericPalette } = useVisualPreferences();
-  const accentColor = GENERIC_BACKGROUND_PALETTES[genericPalette].lighter;
+  // 2026-09-05, direct request: "The line around the TabHub menu should also
+  // follow the ground color." It did already follow something, just not that:
+  // it took the GENERIC BACKGROUND palette, which is a separate Profile picker
+  // from the ground theme, so the border and the active ring inside it moved
+  // with two different settings. Same derivation as the ring now (see
+  // ActiveRingCircle) so the two read as one system.
+  const accentColor = lighten(colors.buttonColor, CARD_RING_LIGHTEN_FRACTION);
   return <View style={[styles.cardRing, { borderColor: accentColor }]}>{children}</View>;
 }
 
