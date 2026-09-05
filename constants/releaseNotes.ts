@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.7',
+    date: '2026-09-05',
+    changes: [
+      "The TabHub menu is reordered. Home, Profile and Info sit across the top row now, and the ten tabs below read in groups of three: what you do daily, what it tells you, and the wider world.",
+      "Signals and Trends swapped. Signals is where you log how you feel and Trends is the patterns drawn from it, so the output had been sitting ahead of its own input.",
+      "Swiping between tabs and the dots under the header both follow the new order, and Home now has a dot of its own.",
+      "The circle marking the tab you are on follows the ground colour picked in Profile, instead of always being the same teal whichever theme was chosen.",
+      "Insights and Life traded colours. Insights was a mint green sitting right beside Food's green and hard to tell apart from it.",
+      "A little more room under the bottom row of the menu, so it matches the space above the top row.",
+    ],
+  },
+  {
     version: '1.0.34.6',
     date: '2026-09-05',
     changes: [

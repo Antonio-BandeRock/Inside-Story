@@ -14,7 +14,7 @@ import { TAB_ROUTES } from '../constants/tabs';
 import { TAB_REVEAL_DURATION_MS } from '../constants/tabReveal';
 import { menuLabelShadow, textShadow, typography } from '../constants/typography';
 import { HelpSheet, type HelpSection } from './HelpButton';
-import { IridescentRingCircle } from './IridescentRingCircle';
+import { ActiveRingCircle } from './ActiveRingCircle';
 
 export type LensOption<T extends string> = {
   key: T;
@@ -153,7 +153,7 @@ const CORNER_ICON_SHADOW = {
 // GRID_ITEM_PILL_SIZE (34) and GRID_ITEM_ICON_SIZE (20) match TabHub's own
 // ICON_PILL_SIZE/icon size exactly -- explicitly requested so this popup's
 // own option icons get the same treatment as the butterfly menu's: a
-// plain icon at rest, the same IridescentRingCircle ring when selected
+// plain icon at rest, the same ActiveRingCircle ring when selected
 // (see the grid's own render below). The row height below is driven by
 // the PILL's footprint (34), not the bare icon's (20), since every row
 // reserves that same 34px regardless of which item in it happens to be
@@ -176,7 +176,7 @@ const GRID_ITEM_ICON_SIZE = 20;
 // Raised from 28 to 30, its real technical ceiling given the current pill
 // size, same day: "they could be a little bigger still." 30 is the actual
 // max this geometry allows without restructuring the pill/ring itself --
-// IridescentRingCircle's own inner white circle (what an active item's
+// ActiveRingCircle's own inner white circle (what an active item's
 // icon sits inside) is `size - ringWidth * 2`, and with GRID_ITEM_PILL_SIZE
 // (34) and the ring's own default 2px width, that's exactly 34 - 4 = 30;
 // anything larger would visually spill past that inner circle's own edge
@@ -336,7 +336,7 @@ export function LensHub<T extends string>({
   // Ionicons glyph would have rendered at, so custom icons line up with
   // the rest of this button's layout automatically. Takes over the icon
   // slot entirely when passed (still inside the same open/closed
-  // IridescentRingCircle treatment as the Ionicons path) -- `icon`/`color`
+  // ActiveRingCircle treatment as the Ionicons path) -- `icon`/`color`
   // themselves are ignored for the corner button in that case, but every
   // other page keeps using plain `icon` as before.
   renderIcon?: (size: number) => ReactNode;
@@ -694,7 +694,7 @@ export function LensHub<T extends string>({
         {/* Plain icon at rest -- same treatment as GatedTabContent.tsx's
             own resting-prompt icon (no circle/background at all). The
             circle + animated ring only appear once the popup is actually
-            open, as the "this is open" cue -- see IridescentRingCircle's
+            open, as the "this is open" cue -- see ActiveRingCircle's
             own comment for why it's a ring, not the flat sheen fill this
             used before.
             Uses CORNER_ICON_SHADOW, not the shared textShadow every other
@@ -716,9 +716,9 @@ export function LensHub<T extends string>({
             reserves the ring's own footprint, so only the ring appears and
             disappears; nothing moves. */}
         {open ? (
-          <IridescentRingCircle size={FLOATING_BUTTON_SIZE}>
+          <ActiveRingCircle size={FLOATING_BUTTON_SIZE}>
             {renderIcon ? renderIcon(32) : <Ionicons name={tabIcon} size={32} color={tabColor} style={CORNER_ICON_SHADOW} />}
-          </IridescentRingCircle>
+          </ActiveRingCircle>
         ) : (
           <View style={styles.cornerIconSlot}>
             {renderIcon ? renderIcon(32) : <Ionicons name={tabIcon} size={32} color={tabColor} style={CORNER_ICON_SHADOW} />}
@@ -928,13 +928,13 @@ export function LensHub<T extends string>({
                         activeOpacity={0.7}
                       >
                         {active ? (
-                          <IridescentRingCircle size={gridPillSize}>
+                          <ActiveRingCircle size={gridPillSize}>
                             {option.renderIcon ? (
                               option.renderIcon(gridCustomIconSize, tabColor)
                             ) : (
                               <Ionicons name={option.icon} size={gridIconSize} color={tabColor} style={textShadow} />
                             )}
-                          </IridescentRingCircle>
+                          </ActiveRingCircle>
                         ) : (
                           <View style={[styles.itemIconPillPlain, { width: gridPillSize, height: gridPillSize }]}>
                             {option.renderIcon ? (
@@ -983,9 +983,9 @@ export function LensHub<T extends string>({
                     accessibilityLabel={selectedOption ? `About ${selectedOption.label}` : 'Select a function to see information about it'}
                   >
                     {selectedOption ? (
-                      <IridescentRingCircle size={gridPillSize}>
+                      <ActiveRingCircle size={gridPillSize}>
                         <Ionicons name="information-circle" size={gridIconSize} color={tabColor} style={textShadow} />
-                      </IridescentRingCircle>
+                      </ActiveRingCircle>
                     ) : (
                       <View style={[styles.itemIconPillPlain, { width: gridPillSize, height: gridPillSize }]}>
                         <Ionicons name="information-circle" size={gridIconSize} color={colors.textMuted} style={textShadow} />
@@ -1071,9 +1071,9 @@ export function LensHub<T extends string>({
                 accessibilityLabel={selectedOption ? `About ${selectedOption.label}` : 'Select a function to see information about it'}
               >
                 {selectedOption ? (
-                  <IridescentRingCircle size={GRID_ITEM_PILL_SIZE}>
+                  <ActiveRingCircle size={GRID_ITEM_PILL_SIZE}>
                     <Ionicons name="information-circle" size={GRID_ITEM_ICON_SIZE} color={tabColor} style={textShadow} />
-                  </IridescentRingCircle>
+                  </ActiveRingCircle>
                 ) : (
                   <View style={styles.itemIconPillPlain}>
                     <Ionicons name="information-circle" size={GRID_ITEM_ICON_SIZE} color={colors.textMuted} style={textShadow} />
@@ -1114,7 +1114,7 @@ export function LensHub<T extends string>({
 const styles = StyleSheet.create({
   // Just a touch-target box now -- no background/border/shadow of its own
   // at rest, since the plain icon (JSX) has nothing to sit on, matching
-  // GatedTabContent.tsx's resting-prompt icon. IridescentRingCircle
+  // GatedTabContent.tsx's resting-prompt icon. ActiveRingCircle
   // supplies its own circle/ring/shadow-free look once open; this box only
   // needs to keep that content centered within the same footprint every
   // other floating hub button uses.
@@ -1140,7 +1140,7 @@ const styles = StyleSheet.create({
   // was being reported, then put back: the label actually being reported was
   // Home's own Digest corner shortcut, which had a real fill. This one is
   // unchanged from how it has always looked.
-  // The exact footprint IridescentRingCircle occupies when the menu is open,
+  // The exact footprint ActiveRingCircle occupies when the menu is open,
   // held open when it is closed so the label below never moves.
   cornerIconSlot: {
     width: FLOATING_BUTTON_SIZE,
@@ -1288,7 +1288,7 @@ const styles = StyleSheet.create({
   // icon itself lines up center-to-center with the grid's right-column
   // icons above it, not just flush with the card's own edge inset.
   infoCorner: { position: 'absolute', right: INFO_CORNER_RIGHT, bottom: 8, alignItems: 'center', gap: 2 },
-  // The inactive/plain state -- same footprint as IridescentRingCircle's
+  // The inactive/plain state -- same footprint as ActiveRingCircle's
   // own `size` (GRID_ITEM_PILL_SIZE), just centering a bare icon with no
   // circle or ring, so every item in the grid lines up at the same height
   // either way -- mirrors TabHub.tsx's own iconPillPlain exactly.

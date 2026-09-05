@@ -8,7 +8,7 @@ import { AppTextInput } from '../components/AppTextInput';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { GenericBackground } from '../components/GenericBackground';
 import { HelpButton, type HelpSection } from '../components/HelpButton';
-import { IridescentRingCircle } from '../components/IridescentRingCircle';
+import { ActiveRingCircle } from '../components/ActiveRingCircle';
 import { PopoverSelect } from '../components/PopoverSelect';
 import { usePasswordPrompt } from '../components/PasswordPrompt';
 import { useBusyOverlay } from '../components/BusyOverlay';
@@ -1684,9 +1684,9 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               {active ? (
-                <IridescentRingCircle size={ICON_GRID_PILL_SIZE}>
+                <ActiveRingCircle size={ICON_GRID_PILL_SIZE}>
                   <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
-                </IridescentRingCircle>
+                </ActiveRingCircle>
               ) : (
                 <View style={styles.iconGridPillPlain}>
                   <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
@@ -4021,7 +4021,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  // The inactive/plain state, same footprint as IridescentRingCircle's
+  // The inactive/plain state, same footprint as ActiveRingCircle's
   // `size` (ICON_GRID_PILL_SIZE), just centering the icon with no ring,
   // matching the identical iconPillPlain/itemIconPillPlain pattern
   // TabHub.tsx/LensHub.tsx already use for their own grid items.

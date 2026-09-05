@@ -33,7 +33,17 @@ import { TAB_ROUTES } from '../constants/tabs';
 // Exported (2026-08-21, Phase 2) so GrowthMarksRow can align its own
 // per-tab marks directly under these same dots -- one shared list and one
 // shared edge padding, not two copies that could quietly drift apart.
-export const DOT_ROUTES = TAB_ROUTES.filter((route) => route.path.toString() !== '/');
+// Every tab, Home included. 2026-08-21 excluded Home on the reasoning that it
+// "is sort of a completely different screen"; reversed 2026-09-05, direct
+// request: "many things happen from the Home screen even though they are
+// mostly just due to quick access being available for the other Tabs
+// functions." It is a place you swipe to and from like any other, so it gets a
+// dot like any other.
+//
+// Profile and Info are still absent, and that is not the same decision: they
+// are Stack screens outside the tabs group, so they cannot be swiped to at
+// all. Nothing to mark a position for.
+export const DOT_ROUTES = TAB_ROUTES;
 
 export function TabPositionDots() {
   const pathname = usePathname();

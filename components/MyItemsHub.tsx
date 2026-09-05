@@ -13,7 +13,7 @@ import {
 import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
-import { IridescentRingCircle } from './IridescentRingCircle';
+import { ActiveRingCircle } from './ActiveRingCircle';
 
 // 2026-07-28: fills the gap deliberately left between the LensHub button
 // and the butterfly -- a "My Foods"/"My Insights"/"My Schedules"/etc.
@@ -175,9 +175,9 @@ export function MyItemsHub({
           accessibilityLabel={`${label}, your saved items`}
         >
           {open ? (
-            <IridescentRingCircle size={RING_SIZE}>
+            <ActiveRingCircle size={RING_SIZE}>
               <Ionicons name="bookmarks-outline" size={ICON_SIZE} color={tabColor} style={CORNER_ICON_SHADOW} />
-            </IridescentRingCircle>
+            </ActiveRingCircle>
           ) : (
             <Ionicons name="bookmarks-outline" size={ICON_SIZE} color={tabColor} style={CORNER_ICON_SHADOW} />
           )}

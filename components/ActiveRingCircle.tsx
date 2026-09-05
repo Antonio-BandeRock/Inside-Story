@@ -1,6 +1,33 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { colors } from '../constants/colors';
+import { colors, lighten } from '../constants/colors';
+
+// Renamed from IridescentRingCircle, 2026-09-05. It stopped being iridescent
+// some time ago (see the note further down: the rotating rainbow was replaced
+// with one flat colour) and the old name had been describing something the
+// component no longer did, which is worse than no name at all.
+//
+// The ring now takes RING_COLOR, which is defined per ground theme
+// (#8D9EC4 Navy, #87B8C2 Teal, #AE88C0 Purple, and so on) rather than the
+// fixed teal it used before. Direct request: "Make the selection circle follow
+// the ground color chosen." It was previously colors.primary, a single hex
+// that stayed the same whichever theme was picked, so the one element marking
+// "you are here" was the one element ignoring the chosen palette.
+//
+// The ring is the ground theme's own button colour, lightened. Taking
+// buttonColor raw does not work: this ring is drawn on colors.menuSurface
+// (#545A63), a fairly light mid grey, and against it buttonColor measures
+// 2.26:1 (Burgundy) to 3.20:1 (Teal) -- under the 3:1 floor for a non-text UI
+// element on four of the five themes, and WORSE than the fixed teal it
+// replaces, which managed 3.60:1. A "you are here" marker that is harder to
+// see than before would be a regression dressed up as a feature.
+//
+// 0.35 of the remaining headroom to white is what clears it everywhere:
+// 3.50:1 at worst (Burgundy) up to roughly 4.3:1, so every theme is past the
+// floor while keeping enough of its own hue to still read as that theme.
+// Measured across all five, not estimated.
+const RING_LIGHTEN_FRACTION = 0.35;
+const RING_COLOR = lighten(colors.buttonColor, RING_LIGHTEN_FRACTION);
 
 // A solid colors.menuSurface circle with a thin ring around its own edge --
 // the shared "this is currently selected/this is where you are" cue behind
@@ -17,7 +44,7 @@ import { colors } from '../constants/colors';
 // rotation ScreenHeader's app-name text and ScreenBackground's footer line
 // used) -- removed entirely, a real, confirmed continuous battery drain
 // (see constants/colors.ts's own header note). Replaced with a flat,
-// static colors.primary ring -- this app's own single already-established
+// static RING_COLOR ring -- this app's own single already-established
 // "this is tapped/active/interactive" color (see that token's own comment
 // in constants/colors.ts), not a per-tab color, matching what the ring's
 // own real job always was: per the comment history on TabHub.tsx's own use
@@ -31,7 +58,7 @@ import { colors } from '../constants/colors';
 // circle on top" trick, since a plain View border can't take a gradient
 // directly in React Native. A single flat color needs none of that -- a
 // plain View with a real borderColor does the identical job in one layer.
-export function IridescentRingCircle({
+export function ActiveRingCircle({
   size,
   ringWidth = 2,
   innerColor = colors.menuSurface,
@@ -59,7 +86,7 @@ export function IridescentRingCircle({
           height: size,
           borderRadius: size / 2,
           borderWidth: ringWidth,
-          borderColor: colors.primary,
+          borderColor: RING_COLOR,
           backgroundColor: innerColor,
         },
       ]}

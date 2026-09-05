@@ -458,7 +458,23 @@ export const colors = {
   // up to ~5.3:1 (Food, nÃ©e Meals).
   tabHome: '#E2D19C',
   tabFood: '#B9E29C',
-  tabInsights: '#9CE2BF',
+  // 2026-09-05. Was mint (#9CE2BF), which was wrong twice over. Mint reads as
+  // fresh and growing, which is Food's and Garden's meaning rather than
+  // analysis, and it measured 0.051 from tabFood in OKLab -- the closest pair
+  // in the whole palette, sitting directly beside it in the menu.
+  //
+  // Blue was the obvious answer and turned out to be unreachable: every blue
+  // light enough to clear this app's own contrast floors (4.5:1 as a fill
+  // under textOnPrimary, 3:1 as text on the darkest surface) lands on top of
+  // tabTrends or tabSchedules, because the pastel band's blue region is
+  // already full. #4A90D9 was tried first and fails both at 4.34:1 and 2.08:1.
+  //
+  // So Insights and Life exchanged colours instead. This is Life's old orchid:
+  // it clears both floors (6.9:1 and 3.3:1) and its nearest neighbour moves
+  // from 0.051 to 0.094. The cost is that orchid says less about "analysis"
+  // than blue would have, which is a real loss and the better trade of the two
+  // available.
+  tabInsights: '#DE9CE2',
   // Schedules and Trends both got a further saturation bump on top of the
   // shared formula (55% -> 65% and 70% respectively) once the background
   // fix above was in place and confirmed working, purely to stand out
@@ -675,7 +691,12 @@ export const colors = {
   // Schedules (229) already keeps from the Digest (262) and reads as
   // distinct in the menu. Verified at ~3.30:1 against `menuSurface`,
   // clearing the same 3:1 floor every tab color here is held to.
-  tabLife: '#DE9CE2',
+  // 2026-09-05. Takes the mint Insights gave up. Life is not a wellness
+  // category (its icon is deliberately abstract among nine concrete ones --
+  // see constants/tabs.ts), so mint's "vitality" reading is a slight pull in
+  // the wrong direction; it is accepted because the exchange is what gets the
+  // third green off the tile next to Food, which mattered more.
+  tabLife: '#9CE2BF',
 };
 
 // 2026-08-24, direct report, same request as `buttonColor`/`textOnButton`
@@ -787,7 +808,7 @@ export const MENU_LABEL_LIGHTEN_FRACTION = 0.45;
 // and the app's floating hub icon (Home included) are now flat, static
 // colors -- see components/GenericBackground.tsx's own GENERIC_BACKGROUND_
 // PALETTES (each combination now carries an explicit `lighter` accent used
-// for exactly this) and components/IridescentRingCircle.tsx (the "this is
+// for exactly this) and components/ActiveRingCircle.tsx (the "this is
 // selected" ring, now a flat colors.primary border, no animation, no
 // gradient trick needed since it's one color). "Features that stay active
 // but not animated" -- the explicit direction this replacement follows.

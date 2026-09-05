@@ -15,7 +15,7 @@ import { useCurrentPageHelp } from './CurrentPageHelp';
 import { DessertBuilderIcon } from './FoodBuilderIcons';
 import { GENERIC_BACKGROUND_PALETTES } from './GenericBackground';
 import { HelpSheet } from './HelpButton';
-import { IridescentRingCircle } from './IridescentRingCircle';
+import { ActiveRingCircle } from './ActiveRingCircle';
 import { TabHubPointer, TabHubWelcome, useTabHubOnboarding } from './TabHubOnboarding';
 import { PurpleRibbonIcon } from './PurpleRibbonIcon';
 
@@ -197,8 +197,18 @@ const ITEMS_BEFORE_INFO = TAB_ROUTES.length + 1;
 // same as any other real grid item, rather than always forcing a shared
 // row.
 const CARD_ROW_COUNT = Math.ceil((ITEMS_BEFORE_INFO + 1) / CARD_GRID_COLUMNS);
-const CARD_PADDING_VERTICAL = 4; // matches `card`'s own paddingVertical below, top + bottom
-const CARD_HEIGHT = CARD_ROW_COUNT * CARD_ROW_HEIGHT + CARD_PADDING_VERTICAL * 2;
+const CARD_PADDING_TOP = 4; // matches `card`'s own paddingTop below
+// 2026-09-05, reported directly: the bottom row sits closer to the card's edge
+// than the top row does, and should match it. It was not a padding bug so much
+// as an asymmetry in what sits at each end. Above the top row the first thing
+// drawn is an ICON, centred in a 34px pill around a 20px glyph, so it carries
+// (34-20)/2 = 7px of its own breathing room. Below the bottom row the last
+// thing drawn is a LABEL, which carries none. So 4+4+7 = 15px above against
+// 4+4 = 8px below, at identical padding. Adding the missing 7 to the bottom
+// makes the two read as equal.
+const CARD_ICON_PILL_INTERNAL_SPACE = (ICON_PILL_SIZE - 20) / 2;
+const CARD_PADDING_BOTTOM = CARD_PADDING_TOP + CARD_ICON_PILL_INTERNAL_SPACE;
+const CARD_HEIGHT = CARD_ROW_COUNT * CARD_ROW_HEIGHT + CARD_PADDING_TOP + CARD_PADDING_BOTTOM;
 
 // The single floating "hub" button that replaced the old 7-icon bottom tab
 // bar -- stays bottom-center. The picker it opens is deliberately NOT
@@ -359,6 +369,13 @@ export function TabHub() {
   // comment). usePathname() directly is a fine, self-contained substitute
   // for this one exception rather than threading Profile through machinery
   // that's meant to stay scoped to actual tabs.
+  // Always false in practice, and worth saying so rather than leaving the next
+  // reader to work it out: TabHub mounts inside app/(tabs)/_layout.tsx, and
+  // Profile is a Stack screen pushed OUTSIDE that group, so this menu is not
+  // mounted while Profile is open and cannot be. The active branch below is
+  // therefore unreachable today. It is kept rather than deleted because it
+  // costs nothing and becomes correct the moment this menu is ever rendered
+  // over Profile too.
   const profileActive = pathname === '/profile';
 
   function openProfile() {
@@ -390,6 +407,134 @@ export function TabHub() {
   // the footer band; only the popup card floats clear above it (see
   // useMenuCardBottom's own comment in constants/floatingButton.ts).
   const cardBottom = useMenuCardBottom();
+
+  // 2026-09-05. The three tile kinds render through these rather than inline,
+  // because the grid's order is no longer TAB_ROUTES' order: Home leads, then
+  // Profile and Info (neither is a tab), then the remaining nine.
+  const renderTabTile = (route: TabRoute) => {                
+              // activeTabPath (see CurrentPageHelp.tsx), not the router's
+              // own usePathname() -- kept as a direct, router-independent
+              // tracking mechanism (see CurrentPageHelp.tsx's own comment
+              // for the cold-launch ambiguity this was originally built to
+              // avoid, since fixed at the routing level).
+              const active = activeTabPath === route.path;
+              // 2026-07-26: the icon itself is now always shown in its own
+              // full identity color, active or not -- the same plain,
+              // colored-icon-no-background treatment GatedTabContent.tsx's
+              // resting prompt already uses ("Tap the [icon] button...").
+              // The label still dims when inactive (menuLabelMuted); the
+              // ring below (ActiveRingCircle, active only) is now the
+              // real "you are here" signal, a shape-based cue independent
+              // of color the same way the pill used to be, just a ring
+              // instead of a filled circle.
+              // lighten(): 2026-08-21, direct request -- see
+              // MENU_LABEL_LIGHTEN_FRACTION's own comment for why this
+              // wraps the color at the point of use rather than touching
+              // route.color/menuLabelMuted themselves.
+              const labelColor = lighten(active ? route.color : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION);
+              return (
+                <TouchableOpacity
+                  key={route.title}
+                  style={styles.item}
+                  onPress={() => go(route.path)}
+                  activeOpacity={0.7}
+                >
+                  {active ? (
+                    <ActiveRingCircle size={ICON_PILL_SIZE}>
+                      <TabRouteIcon route={route} size={20} />
+                    </ActiveRingCircle>
+                  ) : (
+                    <View style={styles.iconPillPlain}>
+                      <TabRouteIcon route={route} size={20} />
+                    </View>
+                  )}
+                  <Text style={[styles.itemLabel, { color: labelColor }]} numberOfLines={1} ellipsizeMode="tail">
+                    {route.title}
+                  </Text>
+                </TouchableOpacity>
+              );
+  };
+
+  /* Rendered right after every real TAB_ROUTES tab -- Profile used to be reached from a
+     person-icon in every screen's own top-right header (see
+     ScreenHeader.tsx); it lives here instead now, with its own
+     identity color (colors.tabProfile) like a real tab, rather
+     than permanently muted like Info. It still isn't a real tab
+     in constants/tabs.ts -- see profileActive's comment above
+     for why -- so it doesn't participate in the swipe order.
+     Rendered before Info (was the reverse), 2026-07-27,
+     explicitly requested so Info lands in the true last grid
+     cell (bottom-right) instead of the middle of the last row
+     -- see Info's own comment just below for why that spot was
+     asked for specifically, matching LensHub's own Info tile
+     moving to the same corner the same day. */
+  const renderProfileTile = () => (
+    <TouchableOpacity key="profile" style={styles.item} onPress={openProfile} activeOpacity={0.7}>
+              {profileActive ? (
+                <ActiveRingCircle size={ICON_PILL_SIZE}>
+                  <Ionicons name="person-circle" size={20} color={colors.tabProfile} style={textShadow} />
+                </ActiveRingCircle>
+              ) : (
+                <View style={styles.iconPillPlain}>
+                  <Ionicons name="person-circle" size={20} color={colors.menuIconMuted} style={textShadow} />
+                </View>
+              )}
+              <Text
+                style={[styles.itemLabel, { color: lighten(profileActive ? colors.tabProfile : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
+                numberOfLines={1}
+              >
+                Profile
+              </Text>
+            </TouchableOpacity>
+
+  );
+
+  /* No blank spacers -- 2026-08-13, direct request, Info moved to
+     sit immediately right of Profile in the middle column of
+     Profile's own row, rather than centered alone on its own
+     final row (see CARD_ROW_COUNT's own comment above for why
+     this lands there with zero padding needed). */
+  /* Opens the help sheet for whichever page
+     is currently open (see CurrentPageHelp) -- lets someone
+     check "what does this page do" from the same picker they'd
+     use to navigate, without first closing it and hunting for
+     the info icon in the header. Colored in that page's own
+     identity color (2026-07-25) rather than permanently muted --
+     unlike the tab items above, this one has no "inactive"
+     state at all: it's always about whichever page you're
+     already on, so it always shows that page's color.
+     2026-07-26, twice over: first the ring was made
+     unconditional (wrong -- Info was never really "selected"
+     the way a real tab is), then removed entirely to fix that.
+     Explicitly corrected again: the ring belongs back, but
+     gated on activeRoute specifically (not unconditional) --
+     its whole point is to visually PAIR with whichever tab item
+     above is showing its own ring right now, both the same
+     color, so the two read as connected ("this info is about
+     that highlighted page") -- not "Info itself is selected."
+     No activeRoute match (e.g. a cold launch) means nothing to
+     pair with, so no ring, same as the tab items' own inactive
+     state. */
+  const renderInfoTile = () => (
+    <TouchableOpacity style={styles.item} onPress={openHelpForCurrentPage} activeOpacity={0.7}>
+              {activeRoute ? (
+                <ActiveRingCircle size={ICON_PILL_SIZE}>
+                  <Ionicons name="information-circle" size={20} color={activeRoute.color} style={textShadow} />
+                </ActiveRingCircle>
+              ) : (
+                <View style={styles.iconPillPlain}>
+                  <Ionicons name="information-circle" size={20} color={colors.menuIconMuted} style={textShadow} />
+                </View>
+              )}
+              <Text
+                style={[styles.itemLabel, { color: lighten(activeRoute ? activeRoute.color : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
+                numberOfLines={1}
+              >
+                Info
+              </Text>
+            </TouchableOpacity>
+  );
+
 
   return (
     <>
@@ -572,123 +717,15 @@ export function TabHub() {
           >
             <TabHubCardRing>
               <View style={styles.card}>
-                {TAB_ROUTES.map((route) => {
-              // activeTabPath (see CurrentPageHelp.tsx), not the router's
-              // own usePathname() -- kept as a direct, router-independent
-              // tracking mechanism (see CurrentPageHelp.tsx's own comment
-              // for the cold-launch ambiguity this was originally built to
-              // avoid, since fixed at the routing level).
-              const active = activeTabPath === route.path;
-              // 2026-07-26: the icon itself is now always shown in its own
-              // full identity color, active or not -- the same plain,
-              // colored-icon-no-background treatment GatedTabContent.tsx's
-              // resting prompt already uses ("Tap the [icon] button...").
-              // The label still dims when inactive (menuLabelMuted); the
-              // ring below (IridescentRingCircle, active only) is now the
-              // real "you are here" signal, a shape-based cue independent
-              // of color the same way the pill used to be, just a ring
-              // instead of a filled circle.
-              // lighten(): 2026-08-21, direct request -- see
-              // MENU_LABEL_LIGHTEN_FRACTION's own comment for why this
-              // wraps the color at the point of use rather than touching
-              // route.color/menuLabelMuted themselves.
-              const labelColor = lighten(active ? route.color : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION);
-              return (
-                <TouchableOpacity
-                  key={route.title}
-                  style={styles.item}
-                  onPress={() => go(route.path)}
-                  activeOpacity={0.7}
-                >
-                  {active ? (
-                    <IridescentRingCircle size={ICON_PILL_SIZE}>
-                      <TabRouteIcon route={route} size={20} />
-                    </IridescentRingCircle>
-                  ) : (
-                    <View style={styles.iconPillPlain}>
-                      <TabRouteIcon route={route} size={20} />
-                    </View>
-                  )}
-                  <Text style={[styles.itemLabel, { color: labelColor }]} numberOfLines={1} ellipsizeMode="tail">
-                    {route.title}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-            {/* Rendered right after every real TAB_ROUTES tab -- Profile used to be reached from a
-                person-icon in every screen's own top-right header (see
-                ScreenHeader.tsx); it lives here instead now, with its own
-                identity color (colors.tabProfile) like a real tab, rather
-                than permanently muted like Info. It still isn't a real tab
-                in constants/tabs.ts -- see profileActive's comment above
-                for why -- so it doesn't participate in the swipe order.
-                Rendered before Info (was the reverse), 2026-07-27,
-                explicitly requested so Info lands in the true last grid
-                cell (bottom-right) instead of the middle of the last row
-                -- see Info's own comment just below for why that spot was
-                asked for specifically, matching LensHub's own Info tile
-                moving to the same corner the same day. */}
-            <TouchableOpacity key="profile" style={styles.item} onPress={openProfile} activeOpacity={0.7}>
-              {profileActive ? (
-                <IridescentRingCircle size={ICON_PILL_SIZE}>
-                  <Ionicons name="person-circle" size={20} color={colors.tabProfile} style={textShadow} />
-                </IridescentRingCircle>
-              ) : (
-                <View style={styles.iconPillPlain}>
-                  <Ionicons name="person-circle" size={20} color={colors.menuIconMuted} style={textShadow} />
-                </View>
-              )}
-              <Text
-                style={[styles.itemLabel, { color: lighten(profileActive ? colors.tabProfile : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
-                numberOfLines={1}
-              >
-                Profile
-              </Text>
-            </TouchableOpacity>
-
-            {/* No blank spacers -- 2026-08-13, direct request, Info moved to
-                sit immediately right of Profile in the middle column of
-                Profile's own row, rather than centered alone on its own
-                final row (see CARD_ROW_COUNT's own comment above for why
-                this lands there with zero padding needed). */}
-            {/* Opens the help sheet for whichever page
-                is currently open (see CurrentPageHelp) -- lets someone
-                check "what does this page do" from the same picker they'd
-                use to navigate, without first closing it and hunting for
-                the info icon in the header. Colored in that page's own
-                identity color (2026-07-25) rather than permanently muted --
-                unlike the tab items above, this one has no "inactive"
-                state at all: it's always about whichever page you're
-                already on, so it always shows that page's color.
-                2026-07-26, twice over: first the ring was made
-                unconditional (wrong -- Info was never really "selected"
-                the way a real tab is), then removed entirely to fix that.
-                Explicitly corrected again: the ring belongs back, but
-                gated on activeRoute specifically (not unconditional) --
-                its whole point is to visually PAIR with whichever tab item
-                above is showing its own ring right now, both the same
-                color, so the two read as connected ("this info is about
-                that highlighted page") -- not "Info itself is selected."
-                No activeRoute match (e.g. a cold launch) means nothing to
-                pair with, so no ring, same as the tab items' own inactive
-                state. */}
-            <TouchableOpacity style={styles.item} onPress={openHelpForCurrentPage} activeOpacity={0.7}>
-              {activeRoute ? (
-                <IridescentRingCircle size={ICON_PILL_SIZE}>
-                  <Ionicons name="information-circle" size={20} color={activeRoute.color} style={textShadow} />
-                </IridescentRingCircle>
-              ) : (
-                <View style={styles.iconPillPlain}>
-                  <Ionicons name="information-circle" size={20} color={colors.menuIconMuted} style={textShadow} />
-                </View>
-              )}
-              <Text
-                style={[styles.itemLabel, { color: lighten(activeRoute ? activeRoute.color : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
-                numberOfLines={1}
-              >
-                Info
-              </Text>
-            </TouchableOpacity>
+                {/* Home leads, then the two tiles that are not tabs at all,
+                    then the remaining nine in TAB_ROUTES' own order. That puts
+                    what the app IS (a landing screen, the person, help) across
+                    the top row, and leaves three clean rows of three domains
+                    beneath it. */}
+                {renderTabTile(TAB_ROUTES[0])}
+                {renderProfileTile()}
+                {renderInfoTile()}
+                {TAB_ROUTES.slice(1).map(renderTabTile)}
               </View>
             </TabHubCardRing>
           </View>
@@ -845,7 +882,8 @@ const styles = StyleSheet.create({
     // kept blending in, not a lack of darkness/lightness.
     backgroundColor: colors.menuSurface,
     borderRadius: 14 - CARD_RING_WIDTH,
-    paddingVertical: CARD_PADDING_VERTICAL,
+    paddingTop: CARD_PADDING_TOP,
+    paddingBottom: CARD_PADDING_BOTTOM,
     paddingHorizontal: 2,
     // Fixed, not auto-sized from flexWrap content -- see CARD_HEIGHT's own
     // comment above for the "drops in a few pixels on every open" bug this
@@ -856,7 +894,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   item: { width: '33.33%', alignItems: 'center', gap: 1, paddingVertical: 4 },
-  // The inactive/plain state -- same footprint as IridescentRingCircle's
+  // The inactive/plain state -- same footprint as ActiveRingCircle's
   // own `size` (ICON_PILL_SIZE), just centering a bare icon with no circle
   // or ring, so every item in the grid lines up at the same height either
   // way.

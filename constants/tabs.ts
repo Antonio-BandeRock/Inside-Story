@@ -21,19 +21,39 @@ export type TabRoute = {
   color: string;
 };
 
+// 2026-09-05. The order below is deliberate and means something, which it did
+// not before: every tab after the original seven had been APPENDED last,
+// each for the sound reason that appending changes no existing tab's swipe
+// adjacency. Ten tabs later that had produced a sequence nobody chose.
+//
+// It now reads in three groups of three, after Home:
+//
+//   Food, Schedules, Signals     what you do daily
+//   Insights, Trends, Reports    what it tells you
+//   Digest, Garden, Life         the wider world
+//
+// One correctness fix falls out of it: Signals is where symptoms and flares
+// are logged and Trends is the patterns drawn FROM them, so having Trends
+// ahead of Signals put an output before its own input.
+//
+// This list drives three things at once, so changing it moves all three
+// together and that is the point: TabHub's grid, SwipeableTabScreen's own
+// left/right order, and the position dots under the header. TabHub lays out
+// its own rows separately, since Profile and Info sit in the top row and
+// neither is a tab (see TAB_HUB_MENU_ORDER there).
 export const TAB_ROUTES: TabRoute[] = [
   { path: '/', title: 'Home', icon: 'home', color: colors.tabHome },
   { path: '/food', title: 'Food', icon: 'restaurant', color: colors.tabFood },
-  { path: '/insights', title: 'Insights', icon: 'medical', color: colors.tabInsights },
   { path: '/schedule', title: 'Schedules', icon: 'calendar', color: colors.tabSchedules },
-  { path: '/trends', title: 'Trends', icon: 'trending-up', color: colors.tabTrends },
   { path: '/log', title: 'Signals', icon: 'compass', color: colors.tabBioCompass },
+  { path: '/insights', title: 'Insights', icon: 'medical', color: colors.tabInsights },
+  { path: '/trends', title: 'Trends', icon: 'trending-up', color: colors.tabTrends },
   { path: '/reports', title: 'Reports', icon: 'document-text', color: colors.tabReports },
   // Promoted from a Stack-push-only screen (like Profile) to a real swipeable
   // tab, 2026-08-05 -- explicitly requested so it has "a real location for
   // the aggregator to exist full time" rather than being reached only via a
-  // shortcut. Appended last (not interleaved among the existing seven) so no
-  // other tab's own swipe-adjacency changes. `icon: 'ribbon'` is a plain
+  // shortcut. Originally appended last so no other tab's swipe adjacency changed;
+  // placed by meaning since 2026-09-05, see the block comment above. `icon: 'ribbon'` is a plain
   // Ionicons fallback for any generic consumer of this list that doesn't
   // know about the real custom mark -- TabHub's own TabRouteIcon helper
   // special-cases this path (same way it already does for Home) to render
@@ -43,8 +63,8 @@ export const TAB_ROUTES: TabRoute[] = [
   { path: '/purple-digest', title: 'Digest', icon: 'ribbon', color: colors.tabPurpleDigest },
   // The 9th real tab, added 2026-08-13 for home-gardening tracking (a real
   // Growing Zone lookup, plots/plantings/harvests, and harvest-as-ingredient
-  // sourcing into the Food builders) -- same "append last" precedent Purple
-  // Digest set above, so no earlier tab's own swipe-adjacency changes.
+  // sourcing into the Food builders) -- placed by meaning since 2026-09-05,
+  // see the block comment above.
   { path: '/garden', title: 'Garden', icon: 'leaf', color: colors.tabGarden },
   // The 10th real tab, added 2026-09-04. Direct request: "A new tab needs
   // to be added and available through TabHub menu. The name of the new tab
