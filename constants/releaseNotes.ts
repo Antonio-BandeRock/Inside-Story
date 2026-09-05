@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.9',
+    date: '2026-09-05',
+    changes: [
+      "The tab's name no longer sits in the top left of every lens menu. The corner button, the header and the page box all say it already.",
+      "Home's lens menu is three columns wide now, matching every other tab, and a name too long for one line wraps onto two rather than being cut off.",
+      "The Digest ribbon is a little shorter in the TabHub menu, so it stops standing taller than the icons around it. Everywhere else it is unchanged.",
+    ],
+  },
+  {
     version: '1.0.34.8',
     date: '2026-09-05',
     changes: [

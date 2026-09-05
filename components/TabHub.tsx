@@ -65,7 +65,20 @@ const ICON_PILL_SIZE = 34;
 // A bit bigger than the 20px the Ionicons "ribbon" glyph this replaced
 // rendered at (2026-07-28, explicitly asked for -- see PurpleRibbonIcon.tsx
 // for the full history of what this replaced and why).
-const PURPLE_RIBBON_SIZE = 26;
+// 2026-09-05: 26 -> 23. The ribbon is genuinely 1.71x taller than it is wide,
+// so at a shared height it can never look like the square Ionicons beside it.
+// 26 was the size where its bounding box matched a 20px icon's AREA (395px2
+// against 400), which is the right way to match visual weight and had the side
+// effect of making it the tallest thing in the grid: 26 x 15.2 against 20 x 20.
+// Reported as looking stretched, which it is not (the aspect is true to the
+// traced shape, and a past bug that really did distort it is long fixed), but
+// it is 30% taller and 24% narrower than its neighbours, which reads the same
+// way. 23 gives 23 x 13.4 at 77% of their area: less tall, still present.
+//
+// This constant is read in exactly one place, TabRouteIcon below, so it moves
+// the TabHub grid alone. Every other caller passes its own size: 28 for Home's
+// Digest cards, 22 and the LensHub corner on the Digest tab itself.
+const PURPLE_RIBBON_SIZE = 23;
 
 // 2026-07-26: replaced the traced iridescent outline that used to render
 // here -- explicitly asked to remove it in favor of a shadow that reads as

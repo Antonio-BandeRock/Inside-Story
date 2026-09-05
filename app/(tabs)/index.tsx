@@ -2307,6 +2307,22 @@ export default function HomeScreen() {
         pageTitle="Home"
         options={homeLensOptions}
         selected={undefined}
+        // 3, matching all eight other tabs. Home was the one left on the
+        // 2-column default, from when it had no menu of its own to size.
+        columns={3}
+        // Without this a label longer than one line is TRUNCATED rather than
+        // wrapped, which is what makes it necessary: three of these
+        // ("Symptom Check-In", "How You're Feeling", "This Week's Trend") run
+        // past a ~95px tile at 11px.
+        //
+        // Deliberately no explicit gridLabel breaks. Word wrap already lands
+        // every one of them on a sensible boundary ("How You're" / "Feeling",
+        // "This Week's" / "Trend"), so a hand-placed newline would only be
+        // restating where the break already falls. Direct instruction: "only
+        // if they need it. Don't do it just to do it." The mechanism is there
+        // (LensOption.gridLabel) the moment one genuinely breaks badly, which
+        // is the same place Digest landed: its own break map is empty.
+        itemLabelLines={2}
         onSelect={(key) => {
           const entry = HOME_LENS_DESTINATIONS[key];
           if (entry) router.push(entry.href);

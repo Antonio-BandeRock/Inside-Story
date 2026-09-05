@@ -782,9 +782,21 @@ export function LensHub<T extends string>({
             ]}
             pointerEvents={cardReady ? 'auto' : 'none'}
           >
-            <Text style={styles.cardHeader} maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}>
-              {headerLabel ?? pageTitle}
-            </Text>
+            {/* The tab's name used to sit here, top left of the popup. Removed
+                2026-09-05, direct request: "The header labels on all of the
+                LensHub menus for each tab do not need to have the name of the
+                Tab in the top left corner. Remove it from all of them." It was
+                saying what the corner button beneath it, the page identity box,
+                and the header at the top of the screen all already say.
+
+                CARD_HEADER_HEIGHT stays in CARD_HEIGHT's own sum rather than
+                being subtracted with it: the grid was laid out inside the space
+                that remained, and reclaiming those 20px would move every option
+                on every tab up by that much. This buys the grid a little air at
+                the top instead, which is the smaller change.
+
+                headerLabel is still read: it feeds the corner button's own
+                label (see buttonLabel's fallback chain above). */}
             {/* ScrollView, not a plain View, 2026-08-07 -- Digest
                 grew past what CARD_HEIGHT's own shared row budget (sized to
                 Food's 9-option worst case) can show at once, and explicitly
