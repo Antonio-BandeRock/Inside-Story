@@ -645,6 +645,37 @@ export const colors = {
   // against `menuSurface` rises from ~1.6:1 to ~3.3:1, clearing the same
   // 3:1 floor every other tab color here is held to.
   tabGarden: '#50C878',
+  // Life's own identity color, added 2026-09-04 with the tenth tab. Back on
+  // the shared pastel formula every hued tab above uses (55% saturation,
+  // 75% lightness), at hue 296: an orchid, or light magenta.
+  //
+  // 296 was picked by measuring every hex in this block, and the measuring
+  // mattered. `tabProfile`'s comment above still describes the palette as
+  // it stood the day that color was placed, including "Reports (280,
+  // purple)" for a hue that has since moved to the Digest and then been
+  // rotated again to 262 (see `tabPurpleDigest`'s own comment, which is
+  // correct). Nothing there is false; it is history written in the present
+  // tense, and reading it as the current layout produced a first
+  // suggestion of hue 255, which would have landed 7 degrees from the
+  // Digest and read as the same purple in the menu. The lesson is narrow
+  // and worth keeping: when placing a color against its neighbors, compute
+  // the neighbors from the hex values, never from the comments describing
+  // them.
+  //
+  // Measured from the real hex values, the hues actually in use are 25
+  // (Signals), 45 (Home), 95 (Food), 140 (Garden), 150 (Insights), 195
+  // (Trends), 229 (Schedules), 262 (Digest) and 330 (Profile), plus
+  // Reports at zero saturation. That leaves exactly one wide gap: 262 to
+  // 330, 68 degrees, whose midpoint is 296. Every other gap is 45-55
+  // degrees and sits between two tabs that already read as similar at
+  // small size, so filling one would have produced a fourth green, a
+  // second teal, or a red (which means danger everywhere else in this app).
+  //
+  // 34 degrees of clearance on both sides, which is the same separation
+  // Schedules (229) already keeps from the Digest (262) and reads as
+  // distinct in the menu. Verified at ~3.30:1 against `menuSurface`,
+  // clearing the same 3:1 floor every tab color here is held to.
+  tabLife: '#DE9CE2',
 };
 
 // 2026-08-24, direct report, same request as `buttonColor`/`textOnButton`

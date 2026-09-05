@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.33.4',
+    date: '2026-09-04',
+    changes: [
+      'New tab: Life, the tenth. Open it from the navigation button like any other tab, or swipe to it from Garden. Its mark is the infinity symbol and its color is a light orchid.',
+      'Life is where the parts of your life that are not food, not a symptom, and not a lab result will live. It is deliberately empty right now: the tab is finished and working, and what goes inside it has not been decided yet.',
+      'There are no placeholder features on it and no buttons that do nothing. When something appears there it will be because it was built.',
+      'A side effect worth having: the navigation menu now comes out even at four full rows, instead of leaving two icons alone on the last one.',
+    ],
+  },
+  {
     version: '1.0.33.3',
     date: '2026-09-04',
     changes: [

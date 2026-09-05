@@ -46,4 +46,26 @@ export const TAB_ROUTES: TabRoute[] = [
   // sourcing into the Food builders) -- same "append last" precedent Purple
   // Digest set above, so no earlier tab's own swipe-adjacency changes.
   { path: '/garden', title: 'Garden', icon: 'leaf', color: colors.tabGarden },
+  // The 10th real tab, added 2026-09-04. Direct request: "A new tab needs
+  // to be added and available through TabHub menu. The name of the new tab
+  // is Life... This will deal with the user's life, all aspects." Same
+  // "append last" precedent Digest and Garden both set above, so no
+  // earlier tab's own swipe-adjacency changes.
+  //
+  // `infinite` was chosen deliberately over a concrete object. Seven of the
+  // nine tabs above are things (a house, a plate, a stethoscope, a
+  // calendar, a chart, a compass, a document), and Life is not another
+  // domain alongside them, it is the container the rest sit inside. An
+  // abstract mark among concrete ones signals that before the label is
+  // read. Candidates ruled out for specific reasons rather than taste: the
+  // butterfly (already a selectable TabHub BUTTON icon, see
+  // constants/tabHubIcons.ts, so it would appear twice on one screen),
+  // `diamond` (reads as "premium" in an app with a real paid-tier model),
+  // `person` (that is Profile), `planet`/`earth` (that is the Digest's own
+  // Earth Matters), and the solid twin of any outline a lens already uses.
+  //
+  // Adding this also makes TabHub's own grid come out even: it was at 11
+  // items (9 tabs, Profile, Info) in a 3-column grid, an awkward 3/3/3/2.
+  // Twelve is four full rows.
+  { path: '/life', title: 'Life', icon: 'infinite', color: colors.tabLife },
 ];
