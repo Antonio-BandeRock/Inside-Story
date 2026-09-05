@@ -57,6 +57,11 @@ export type LensOption<T extends string> = {
   // page. `icon` above is still required regardless -- it's the real
   // fallback for any option that doesn't set this, and stays what every
   // other page's own options render unchanged.
+  // Receives option.iconColor when one is set, falling back to the page's own
+  // tabColor. 2026-09-05: it used to always be handed tabColor, which was
+  // right while every option on a page shared one colour and wrong the moment
+  // iconColor arrived, since a custom-drawn icon would have stayed the page's
+  // colour while every glyph beside it took its own.
   renderIcon?: (size: number, color: string) => ReactNode;
   // Real, plain-text section label shown once, above the first option of
   // its own kind -- 2026-08-18, added for Insights specifically (13
@@ -950,7 +955,7 @@ export function LensHub<T extends string>({
                         {active ? (
                           <ActiveRingCircle size={gridPillSize}>
                             {option.renderIcon ? (
-                              option.renderIcon(gridCustomIconSize, tabColor)
+                              option.renderIcon(gridCustomIconSize, option.iconColor ?? tabColor)
                             ) : (
                               <Ionicons name={option.icon} size={gridIconSize} color={option.iconColor ?? tabColor} style={textShadow} />
                             )}
@@ -959,7 +964,7 @@ export function LensHub<T extends string>({
                           <View style={[styles.itemIconPillPlain, { width: gridPillSize, height: gridPillSize }]}>
                             {option.renderIcon ? (
                               <View style={styles.conditionIconInactive}>
-                                {option.renderIcon(gridCustomIconSize, tabColor)}
+                                {option.renderIcon(gridCustomIconSize, option.iconColor ?? tabColor)}
                               </View>
                             ) : (
                               <Ionicons name={option.icon} size={gridIconSize} color={option.iconColor ?? tabColor} style={textShadow} />

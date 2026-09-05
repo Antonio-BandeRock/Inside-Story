@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter, type Href } from 'expo-router';
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeOut, ZoomIn } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
@@ -546,7 +546,14 @@ function CardLabel({ tabPath, text }: { tabPath: Href; text: string }) {
 const HOME_LENS_DESTINATIONS: Partial<
   Record<
     HomeSectionKey,
-    { label: string; icon: ComponentProps<typeof Ionicons>['name']; color: string; href?: Href; scrollTo?: true }
+    {
+      label: string;
+      icon: ComponentProps<typeof Ionicons>['name'];
+      color: string;
+      renderIcon?: (size: number, color: string) => ReactNode;
+      href?: Href;
+      scrollTo?: true;
+    }
   >
 > = {
   // What you put in.
@@ -566,7 +573,22 @@ const HOME_LENS_DESTINATIONS: Partial<
   fuelGauges: { label: "Today's Fuel", icon: 'speedometer', color: colors.tabInsights, href: '/insights' as Href },
   weekTrend: { label: "This Week's Trend", icon: 'trending-up', color: colors.tabTrends, href: '/trends' as Href },
   // The wider world, and the one that stays here.
-  digestCards: { label: 'From The Digest', icon: 'ribbon', color: colors.tabPurpleDigest, scrollTo: true },
+  // The real awareness ribbon, not Ionicons' own "ribbon" glyph. That glyph is
+  // only ever a fallback for a generic consumer of TAB_ROUTES; it was tried for
+  // real once and rejected because it reads as a race or award rosette (see
+  // PurpleRibbonIcon.tsx's own history), which is why that component exists at
+  // all. This menu had been showing the rejected one.
+  //
+  // 23, not the 30 a custom icon is normally handed here: the ribbon is 1.71x
+  // taller than wide, so at 30 it would tower over the 20px glyphs beside it,
+  // the same thing just corrected in TabHub's own grid.
+  digestCards: {
+    label: 'From The Digest',
+    icon: 'ribbon',
+    color: colors.tabPurpleDigest,
+    renderIcon: (_size, color) => <PurpleRibbonIcon size={23} color={color} />,
+    scrollTo: true,
+  },
 };
 
 // Fixed order for the menu, independent of how the sections are stacked on the
@@ -708,7 +730,7 @@ export default function HomeScreen() {
     () =>
       HOME_LENS_ORDER.filter((key) => isHomeSectionVisible(visualPrefs, key)).map((key) => {
         const entry = HOME_LENS_DESTINATIONS[key]!;
-        return { key, label: entry.label, icon: entry.icon, iconColor: entry.color };
+        return { key, label: entry.label, icon: entry.icon, iconColor: entry.color, renderIcon: entry.renderIcon };
       }),
     [visualPrefs],
   );

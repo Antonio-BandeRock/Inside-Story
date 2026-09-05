@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.11',
+    date: '2026-09-05',
+    changes: [
+      "From The Digest wears the real awareness ribbon in Home's lens menu now, instead of the plain ribbon glyph that reads as a race rosette.",
+    ],
+  },
+  {
     version: '1.0.34.10',
     date: '2026-09-05',
     changes: [
