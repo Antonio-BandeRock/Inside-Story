@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.3',
+    date: '2026-09-05',
+    changes: [
+      'New in Finances: a Health section, and it is the part no ordinary budgeting app can do.',
+      'Where you stand against your deductible and out-of-pocket maximum, with the plan year starting whenever yours actually starts. Starting partway through the year is handled: enter what you had already met and the bars start where you really are.',
+      'HSA and FSA, with the difference that costs money. FSA funds are forfeited after your deadline and you get told before that happens. HSA funds roll over forever, so nothing warns you about them.',
+      'Medical bills checked against the Explanation of Benefits: what your plan allowed, minus what insurance paid, is what you owe. What the provider billed is deliberately not part of that, because the gap above allowed is written off, and treating it as owed is the most common way people overpay.',
+      'What each condition has cost you this year, pulled together from bills, repeating costs, one-offs and hands-on therapy sessions you have tagged. Anything untagged is shown on its own rather than divided between conditions, because splitting it would turn one honest figure into several invented ones.',
+    ],
+  },
+  {
     version: '1.0.34.2',
     date: '2026-09-05',
     changes: [

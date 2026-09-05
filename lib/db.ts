@@ -4818,6 +4818,83 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_finance_entries_occurred_on ON finance_entries(occurred_on);
 
+      -- --- Finances: the health-money layer (2026-09-05) -----------------
+      --
+      -- Pass 1 of a rebuild, after a direct challenge that the first
+      -- Finances build was "extremely minimal". It was: a generic
+      -- household budget any app does better. These three tables are the
+      -- part no general finance app does, and the reason Finances belongs
+      -- in this app at all.
+      --
+      -- See lib/financeHealth.ts for the arithmetic and the two rules it
+      -- does not bend (nothing is estimated, and untagged cost is never
+      -- divided across conditions).
+      CREATE TABLE IF NOT EXISTS finance_insurance_plans (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        -- Plan years often do not start in January, so this is stored
+        -- rather than assumed.
+        year_start TEXT NOT NULL,
+        deductible REAL,
+        out_of_pocket_max REAL,
+        -- What was already met before this app started tracking, so
+        -- someone starting in June is not told they have met nothing. One
+        -- honest offset rather than a second running total that could
+        -- disagree with the bills themselves.
+        deductible_met_at_start REAL NOT NULL DEFAULT 0,
+        out_of_pocket_met_at_start REAL NOT NULL DEFAULT 0,
+        active INTEGER NOT NULL DEFAULT 1,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- One line of an Explanation of Benefits. The four money columns are
+      -- deliberately separate rather than collapsed into "what I owe",
+      -- because the relationship between them is where billing errors show
+      -- up: allowed minus what insurance paid should equal what is owed,
+      -- and the provider's billed amount is NOT part of that equation.
+      -- Billed above allowed is written off under the plan's contract.
+      --
+      -- applied_to_deductible and applied_to_out_of_pocket are read off the
+      -- EOB rather than derived, because which services count toward which
+      -- limit is plan-specific and not something this app can work out.
+      CREATE TABLE IF NOT EXISTS finance_medical_bills (
+        id TEXT PRIMARY KEY,
+        service_date TEXT NOT NULL,
+        provider TEXT NOT NULL,
+        description TEXT,
+        billed REAL,
+        allowed REAL,
+        insurance_paid REAL,
+        you_owe REAL,
+        paid_amount REAL,
+        status TEXT NOT NULL DEFAULT 'unpaid',
+        applied_to_deductible REAL,
+        applied_to_out_of_pocket REAL,
+        condition_code TEXT,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_finance_medical_bills_service_date ON finance_medical_bills(service_date);
+
+      -- An HSA and an FSA look alike and differ in the one way that costs
+      -- money: FSA funds are forfeited after a deadline, HSA funds never
+      -- are. deadline is nullable for exactly that reason, and nothing
+      -- warns about an HSA.
+      CREATE TABLE IF NOT EXISTS finance_health_accounts (
+        id TEXT PRIMARY KEY,
+        kind TEXT NOT NULL,
+        plan_year TEXT NOT NULL,
+        contributed REAL NOT NULL DEFAULT 0,
+        spent REAL NOT NULL DEFAULT 0,
+        deadline TEXT,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       CREATE TABLE IF NOT EXISTS treatments (
         id TEXT PRIMARY KEY,
         treatment_type TEXT NOT NULL,
@@ -5954,6 +6031,26 @@ async function runDatabaseInitialization() {
           WHERE cadence = 'monthly' AND due_day IS NOT NULL AND due_day BETWEEN 1 AND 31
         `,
       );
+    }
+
+    // Condition tagging for money, 2026-09-05. Cost-per-condition is built
+    // by tagging, never by guessing: the app cannot know that a $240 clinic
+    // visit was for Hashimoto's rather than a broken wrist, so it asks, and
+    // anything left untagged is reported as untagged rather than divided
+    // across the conditions someone happens to track.
+    //
+    // therapy_sessions gets the same column so a chiropractic course booked
+    // for one condition counts toward that condition rather than sitting
+    // outside the picture.
+    for (const [table, column] of [
+      ['finance_recurring', 'condition_code'],
+      ['finance_entries', 'condition_code'],
+      ['therapy_sessions', 'condition_code'],
+    ] as const) {
+      const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
+      if (columns.length > 0 && !columns.some((entry) => entry.name === column)) {
+        await db.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} TEXT;`);
+      }
     }
 
     // The Grocery List's own two later columns, 2026-09-01. The table shipped

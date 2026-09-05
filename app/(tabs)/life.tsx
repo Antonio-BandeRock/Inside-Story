@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { AppTextInput } from '../../components/AppTextInput';
+import { FinanceHealthSection } from '../../components/FinanceHealthSection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import type { HelpSection } from '../../components/HelpButton';
@@ -101,10 +102,11 @@ import { parsePriceInput } from '../../lib/groceryList';
 const TAB_COLOR = colors.tabLife;
 
 type LifeLens = 'finances';
-type FinanceSection = 'overview' | 'recurring' | 'spending' | 'upcoming';
+type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
   { key: 'overview', label: 'Overview' },
+  { key: 'health', label: 'Health' },
   { key: 'recurring', label: 'Bills & Income' },
   { key: 'spending', label: 'Spending' },
   { key: 'upcoming', label: 'Coming Up' },
@@ -1104,6 +1106,8 @@ export default function LifeScreen() {
               <Text style={[styles.bodyText, styles.panelStandalone]}>Adding things up…</Text>
             ) : section === 'overview' ? (
               renderOverview()
+            ) : section === 'health' ? (
+              <FinanceHealthSection tabColor={TAB_COLOR} />
             ) : section === 'recurring' ? (
               renderRecurringSection()
             ) : section === 'spending' ? (
