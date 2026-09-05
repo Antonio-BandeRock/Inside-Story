@@ -4749,6 +4749,75 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_therapy_sessions_performed_at ON therapy_sessions(performed_at);
 
+      -- --- Finances (2026-09-05) ----------------------------------------
+      --
+      -- The Life tab's first area. Direct request: "Finances is much
+      -- larger than just tracking a few numbers. Match life against
+      -- finances in a logical way, setup for the average person and the
+      -- average things they would have for bills and charges."
+      --
+      -- Two tables, because a plan and a record are different things and
+      -- collapsing them is how a budget stops being useful. finance_recurring
+      -- is what is SUPPOSED to happen every month; finance_entries is what
+      -- DID happen on a particular day. Comparing the two is the point.
+      --
+      -- Income and expenses share finance_recurring rather than getting a
+      -- table each, because they are structurally identical: a name, an
+      -- amount, how often, and which day. The direction column is the
+      -- only thing that differs, and splitting on it would mean two of
+      -- every query.
+      --
+      -- What is deliberately NOT here: any copy of money this app already
+      -- holds. Grocery spending lives in grocery_list_items.price and
+      -- hands-on therapy spending in therapy_sessions.cost, and
+      -- lib/financeDb.ts reads both where they are rather than duplicating
+      -- them into finance_entries. Copying would create exactly the drift
+      -- this project keeps having to unpick elsewhere: correct a price on
+      -- the grocery list and the finance copy would quietly disagree.
+      --
+      -- No bank connection, and that is a stance rather than a gap. This
+      -- app holds health data on one device with no backend, and handing a
+      -- bank credential to anything would break that on the least
+      -- defensible possible grounds. Everything here is typed in or read
+      -- from what the app already collected.
+      CREATE TABLE IF NOT EXISTS finance_recurring (
+        id TEXT PRIMARY KEY,
+        direction TEXT NOT NULL,
+        name TEXT NOT NULL,
+        category TEXT NOT NULL,
+        amount REAL NOT NULL,
+        cadence TEXT NOT NULL,
+        -- Day of the month, 1-31, and null for any cadence that drifts
+        -- (weekly, every 2 weeks, twice a month). Stored unclamped: a bill
+        -- really is "the 31st", and which day that lands on in February is
+        -- worked out at read time by financeCore's nextDueDate rather than
+        -- baked into the row.
+        due_day INTEGER,
+        autopay INTEGER NOT NULL DEFAULT 0,
+        active INTEGER NOT NULL DEFAULT 1,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_finance_recurring_active ON finance_recurring(active);
+
+      -- One thing that actually happened on one day. occurred_on is a
+      -- plain local 'YYYY-MM-DD', the same convention the rest of this
+      -- app uses, so a month is a string prefix match rather than a
+      -- timezone conversion.
+      CREATE TABLE IF NOT EXISTS finance_entries (
+        id TEXT PRIMARY KEY,
+        occurred_on TEXT NOT NULL,
+        direction TEXT NOT NULL,
+        amount REAL NOT NULL,
+        category TEXT NOT NULL,
+        description TEXT,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_finance_entries_occurred_on ON finance_entries(occurred_on);
+
       CREATE TABLE IF NOT EXISTS treatments (
         id TEXT PRIMARY KEY,
         treatment_type TEXT NOT NULL,

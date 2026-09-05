@@ -21,9 +21,33 @@ This file is the standing brief a new session reads automatically: current statu
 
 **Keep this file lean.** When a session finishes work, update the Status snapshot below in place and put the long-form account in the Notion log. Do not append to this file. That append-only habit is what grew the original to 2.05M characters and stopped Claude Code from responding at all.
 
-## Status snapshot (2026-09-04)
+## Status snapshot (2026-09-05)
 
 The app is under active development and substantially built. Current state:
+
+**Most recent (2026-09-05, 1.0.34.1): Finances, the Life tab's first area.** Direct request: "Let's start with Finances, but think through everything, making sure to follow rules that other lenses already follow. Finances is much larger than just tracking a few numbers. Match life against finances in a logical way, setup for the average person and the average things they would have for bills and charges."
+
+**"Match life against finances" is the whole design, and it turned out to mean reading rather than asking.** This app has been recording real, dated, priced grocery trips since 2026-09-01 (`grocery_list_items.price`) and real hands-on therapy costs since 2026-09-04 (`therapy_sessions.cost`). A finance area that made someone retype all of that would be worse than useless. So `getTrackedSpending` reads both **where they already live and copies nothing**. Copying into `finance_entries` was the obvious shortcut and the wrong one: correcting a price on the grocery list would then leave a stale finance copy disagreeing with it, which is precisely the drift this project keeps having to unpick. Grocery lines are totalled with `groceryLineTotal`, the grocery list's own already-tested function, rather than a second copy of arithmetic that has to know when a per-pound price needs a weight before it means anything.
+
+**Two tables, because a plan and a record are different things.** `finance_recurring` is what is supposed to happen every month; `finance_entries` plus the tracked reads are what did. Collapsing them is how a budget stops being able to answer the only question worth asking, which is whether they match. Income and expenses share one table rather than getting one each: they are structurally identical (a name, an amount, how often, which day) and `direction` is the only difference, so splitting would mean two of every query.
+
+**The arithmetic is the part that earns the test suite, and it is not obvious.** A month is not four weeks. Weekly is 52/12 = **4.33** times a month, and treating it as 4 understates a year by four whole payments, roughly 8%, compounding across every weekly line. Every two weeks (26 payments a year) and twice a month (24) look interchangeable and differ by two whole paychecks. `scripts/test_finance_math.js` is **93 checks**, and its failure output was verified by setting weekly to 4 and biweekly to 2, which reports "expected ~433.33, got 400" across seven checks and exits non-zero. **The suite also caught my own arithmetic slip** while being written: a test asserted rent due on the 1st would appear in a 14-day window from the 5th, when it is 26 days out. The code was right and the expectation was wrong.
+
+**Due dates clamp to month length**, which is why `nextDueDate` is a function rather than a template string: a bill due on the 31st has to land on the 30th in April and the 28th in February, and unclamped it produces 2026-02-31, which downstream either rejects or silently rolls into March. Cadences that drift (weekly, every two weeks, twice a month) return null rather than a guessed date, and the Coming Up section says how many bills that leaves out rather than quietly dropping them.
+
+**Two honesty rules carried over from the grocery list.** A grocery line with no price or a therapy session with no cost is **counted, never estimated**, and any total built over them says how many are missing and calls itself a floor. And where the garden or a ferment covered a grocery line, that is reported as **a count of lines that did not have to be bought, never a dollar saving**: those lines carry `sourced_from_kitchen` and deliberately carry no price, so what the produce would have cost is genuinely unknown, and pricing it would be the invented number this app refuses everywhere else.
+
+**Structurally, Finances is one lens with four internal sections rather than four lenses**, and that is a decision about what comes next: Life is going to hold "a ton of things", so its lens list has to read as a list of AREAS. Four lenses named Overview / Bills / Spending / Coming Up would make Life look like a money tab and leave nowhere obvious for the second area. This follows Digest's lens-then-topic pattern, rendered with the pill row the app already uses for sub-navigation.
+
+**Categories are an ordinary household's, not an accountant's**: 33 expense categories across Home, Utilities, Health, Food, Getting Around, Money Owed, Everyday, Set Aside and Other, plus 7 income kinds. Health and Food are deliberately finer-grained, since those are the two the app already knows real things about. **Set Aside is its own group** so savings is subtracted from what is left without being reported as an expense, because saving more should not read as costs rising.
+
+**No bank connection, stated as a stance rather than a gap**, in the code and in the help text: this app holds health data on one device with no backend, and handing over a bank credential would give that up on the least defensible possible grounds.
+
+**The backtick trap bit again**, second day running: a SQL comment used `` `direction` `` inside the schema template literal and terminated the string. Caught by `tsc` immediately both times. The rule is now simply no backticks in that block at all, and the whole CREATE TABLE region was swept to confirm none remain.
+
+`tsc` clean, `eslint` clean on every new and touched file, bare-text audit 0, suites 30/142/29/55/93. **Not yet confirmed on-device.**
+
+**Named and not done:** `treatments` has no cost column, so a monthly supplement and prescription spend has to be entered as an ordinary recurring bill rather than being read from My Meds the way groceries and therapies are. That is the obvious next link and it needs a column plus a My Meds field, not a change here.
 
 **Most recent (2026-09-04, 1.0.33.4): Life, the tenth tab.** Direct request: "A new tab needs to be added and available through TabHub menu. The name of the new tab is Life. There will be a ton of things that will be included in Life... This will deal with the user's life, all aspects." Asked first, before building: which icon, and which are still free.
 

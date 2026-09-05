@@ -1,75 +1,232 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
+import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import type { HelpSection } from '../../components/HelpButton';
+import { useInfoAlert } from '../../components/InfoAlert';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
+import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
-import { colors } from '../../constants/colors';
+import { VoiceInputButton } from '../../components/VoiceInputButton';
+import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
+import {
+  CADENCE_LABELS,
+  CADENCE_SHORT_LABELS,
+  CADENCE_HAS_DUE_DAY,
+  FINANCE_CADENCES,
+  expenseCategoriesByGroup,
+  financeCategoriesFor,
+  financeCategoryLabel,
+  type FinanceCadence,
+  type FinanceDirection,
+} from '../../lib/financeCategories';
+import {
+  buildMonthPicture,
+  describeDaysAway,
+  describeMonthPicture,
+  formatFinanceMoney,
+  summarizeRecurring,
+  toAnnual,
+  upcomingBills,
+  type RecurringItem,
+} from '../../lib/financeCore';
+import {
+  createEntry,
+  createRecurring,
+  deleteEntry,
+  deleteRecurring,
+  getFinanceMonth,
+  setRecurringActive,
+  updateRecurring,
+  type FinanceEntryRecord,
+  type FinanceRecurringRecord,
+} from '../../lib/financeDb';
+import { parsePriceInput } from '../../lib/groceryList';
 
-// The 10th tab, added 2026-09-04. Direct request: "A new tab needs to be
-// added and available through TabHub menu. The name of the new tab is
-// Life. There will be a ton of things that will be included in Life...
-// This will deal with the user's life, all aspects."
+// The 10th tab, added 2026-09-04, and its first real area, added
+// 2026-09-05. Direct request: "Let's start with Finances... Finances is
+// much larger than just tracking a few numbers. Match life against
+// finances in a logical way, setup for the average person and the average
+// things they would have for bills and charges."
 //
-// What ships here is the shell, deliberately. The tab is real: it is in
-// TAB_ROUTES, it is in the TabHub grid, it swipes, it has its own identity
-// color and its own help, and it behaves like every other tab. What it
-// does NOT have is invented content. "A ton of things" was named without
-// naming which things, and guessing at a lens set would mean building
-// something to be torn out rather than the thing that was actually wanted.
+// STRUCTURE, AND WHY IT IS ONE LENS RATHER THAN FOUR.
 //
-// So the one lens below is an honest account of an empty room, written to
-// be read by the person who asked for the room. It states what the tab is
-// for, states plainly that nothing is in it yet, and says what deciding
-// its first area actually involves. That is the same treatment this app
-// already gives every other honest empty state (Pattern Finder with no
-// flares logged, Therapy Response below its reporting bar, MyItemsHub
-// with nothing saved), rather than a "coming soon" placeholder that tells
-// someone nothing.
+// Life is going to hold "a ton of things", so its lens list has to read as
+// a list of AREAS, not as a flat pile of every view every area needs. Four
+// lenses called Overview / Bills / Spending / Coming Up would make Life
+// look like a money tab, and would leave nowhere obvious for the second
+// area to go. So Finances is one lens with its own sections inside it,
+// which is the pattern Digest already uses (a lens picks a category, then
+// a menu picks a topic within it), rendered with the pill row this app
+// uses for sub-navigation everywhere else.
 //
-// Reports' own precedent is followed for the single-lens case: keep the
-// real LensHub anyway rather than skipping it, so the corner button and
-// the Info tile behave the same, consistent way every other tab does.
+// THE DESIGN, IN ONE LINE: a plan and a record are different things.
+//
+// finance_recurring is what is supposed to happen every month. Entries,
+// grocery lines and therapy sessions are what actually did. Every other
+// budgeting tool collapses those two and then cannot answer the only
+// question that matters, which is whether they match. Overview shows them
+// side by side and neither stands in for the other.
+//
+// WHAT IS NOT HERE, DELIBERATELY:
+//
+// No bank connection. This app holds health data on one device with no
+// backend, and handing a bank credential to anything would give that up on
+// the least defensible possible grounds. Money is typed in, or it is read
+// from what this app already collected.
+//
+// No invented savings figure for garden and ferment produce. The app knows
+// which grocery lines were covered from the kitchen instead of bought,
+// because those lines carry sourced_from_kitchen and deliberately carry no
+// price. What that produce would have cost is genuinely unknown, and
+// turning it into a dollar saving would be exactly the invented number
+// this app refuses everywhere else. It is reported as a count of lines
+// that did not have to be bought, which is a fact.
 
 const TAB_COLOR = colors.tabLife;
 
-type LifeLens = 'overview';
+type LifeLens = 'finances';
+type FinanceSection = 'overview' | 'recurring' | 'spending' | 'upcoming';
+
+const SECTIONS: { key: FinanceSection; label: string }[] = [
+  { key: 'overview', label: 'Overview' },
+  { key: 'recurring', label: 'Bills & Income' },
+  { key: 'spending', label: 'Spending' },
+  { key: 'upcoming', label: 'Coming Up' },
+];
+
+const UPCOMING_WINDOW_DAYS = 30;
 
 const LIFE_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this tab is for',
-    body: 'Everything about your life that is not food, not a symptom, and not a lab result. This app started with what you eat and grew outward from there, and the areas that do not fit under Food, Schedules, or Signals belong here.',
+    body: 'Everything about your life that is not food, not a symptom, and not a lab result. Finances is its first area; more will be added, and each one becomes its own entry on the corner button.',
   },
   {
-    heading: 'Why it is empty right now',
-    body: 'The tab exists before its contents do, on purpose. It is wired into navigation, it has its own color and its own place in the menu, and adding an area to it later is a small change rather than a restructuring. Nothing was invented to fill it in the meantime.',
+    heading: 'A plan and a record are different things',
+    body: 'Bills & Income is what is supposed to happen every month. Spending is what actually did. Overview shows them next to each other, and neither is allowed to stand in for the other, because whether they match is the only question worth asking.',
   },
   {
-    heading: 'How the rest of this app is built, for reference',
-    body: 'Every other tab is a set of lenses reached from the corner button: Schedules has meals, hydration, supplements, prescriptions, appointments and hands-on therapies; Trends has nutrients, symptoms, weight, labs and pattern finding. Life will work the same way once its first areas are decided.',
+    heading: 'Money this app already knows about',
+    body: 'Grocery trips you priced in the shop and hands-on therapy sessions you recorded a cost for are counted automatically. They are read from where they already live rather than copied here, so correcting a grocery price fixes it everywhere at once. Do not enter them again by hand.',
+  },
+  {
+    heading: 'Weekly is not four times a month',
+    body: 'There are 52 weeks in a year, so anything weekly costs 4.33 times its amount each month, not 4. Every two weeks is 26 payments a year and twice a month is 24, which is a genuine two-payment difference. The monthly figures here use the real numbers, which is why they may read slightly higher than you expect.',
+  },
+  {
+    heading: 'What is not here',
+    body: 'No bank connection, and that is a choice rather than a gap. This app keeps everything on your device with no server behind it, and asking for a bank login would give that up. Nothing here leaves your phone.',
   },
 ];
 
 const LIFE_LENSES: LensOption<LifeLens>[] = [
-  { key: 'overview', label: 'Overview', icon: 'infinite-outline', help: LIFE_HELP_SECTIONS },
+  { key: 'finances', label: 'Finances', icon: 'wallet-outline', help: LIFE_HELP_SECTIONS },
 ];
+
+const CADENCE_OPTIONS = FINANCE_CADENCES.map((cadence) => ({ label: CADENCE_LABELS[cadence], value: cadence }));
+const DIRECTION_OPTIONS = [
+  { label: 'Money going out', value: 'expense' },
+  { label: 'Money coming in', value: 'income' },
+];
+
+function todayLocal(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function currentMonth(): string {
+  return todayLocal().slice(0, 7);
+}
+
+function monthLabel(month: string): string {
+  const names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const [year, m] = month.split('-').map(Number);
+  return `${names[m - 1]} ${year}`;
+}
+
+function shortDate(dateStr: string): string {
+  const names = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const [, m, d] = dateStr.split('-').map(Number);
+  return `${names[m - 1]} ${d}`;
+}
+
+type RecurringForm = {
+  editingId: string | null;
+  direction: FinanceDirection;
+  name: string;
+  category: string;
+  amount: string;
+  cadence: FinanceCadence;
+  dueDay: string;
+  notes: string;
+};
+
+function blankRecurringForm(): RecurringForm {
+  return {
+    editingId: null,
+    direction: 'expense',
+    name: '',
+    category: 'housing',
+    amount: '',
+    cadence: 'monthly',
+    dueDay: '',
+    notes: '',
+  };
+}
+
+type EntryForm = { occurredOn: string; direction: FinanceDirection; amount: string; category: string; description: string };
+
+function blankEntryForm(): EntryForm {
+  return { occurredOn: todayLocal(), direction: 'expense', amount: '', category: 'dining_out', description: '' };
+}
 
 export default function LifeScreen() {
   useRegisterScreenHelp('Life', LIFE_HELP_SECTIONS, '/life');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
-  const [lens, setLens] = useState<LifeLens>('overview');
-  // Same pattern as every other tab -- see app/(tabs)/insights.tsx's own
-  // comment: a tab always returns to its lens picker on focus rather than
-  // reopening whatever was last looked at.
+  const [lens, setLens] = useState<LifeLens>('finances');
   const [revealed, setRevealed] = useState(false);
   const [myLifeOpen, setMyLifeOpen] = useState(false);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
+
+  const [section, setSection] = useState<FinanceSection>('overview');
+  const [recurring, setRecurring] = useState<FinanceRecurringRecord[]>([]);
+  const [entries, setEntries] = useState<FinanceEntryRecord[]>([]);
+  const [tracked, setTracked] = useState({
+    grocerySpend: 0,
+    groceryLinesWithoutPrice: 0,
+    therapySpend: 0,
+    therapySessionsWithoutCost: 0,
+    kitchenCoveredLines: 0,
+  });
+  const [loading, setLoading] = useState(false);
+  const [recurringForm, setRecurringForm] = useState<RecurringForm | null>(null);
+  const [entryForm, setEntryForm] = useState<EntryForm | null>(null);
+  const autoOpenLensHub = useAutoOpenLensHubSignal();
+
+  const month = currentMonth();
+
+  const load = useCallback(() => {
+    setLoading(true);
+    getFinanceMonth(month)
+      .then((data) => {
+        setRecurring(data.recurring);
+        setEntries(data.entries);
+        setTracked(data.tracked);
+      })
+      .catch((error) => showInfoAlert('Could not load Finances', error instanceof Error ? error.message : String(error)))
+      .finally(() => setLoading(false));
+  }, [month, showInfoAlert]);
 
   useFocusEffect(
     useCallback(() => {
@@ -78,49 +235,633 @@ export default function LifeScreen() {
     }, []),
   );
 
-  const autoOpenLensHub = useAutoOpenLensHubSignal();
+  useFocusEffect(useCallback(() => { if (revealed) load(); }, [revealed, load]));
+
+  const recurringItems: RecurringItem[] = useMemo(
+    () => recurring.map((row) => ({ ...row })),
+    [recurring],
+  );
+  const summary = useMemo(() => summarizeRecurring(recurringItems), [recurringItems]);
+  const picture = useMemo(
+    () => buildMonthPicture(month, recurringItems, entries, tracked),
+    [month, recurringItems, entries, tracked],
+  );
+  const soon = useMemo(() => upcomingBills(recurringItems, todayLocal(), UPCOMING_WINDOW_DAYS), [recurringItems]);
+  const driftingCount = useMemo(
+    () => recurringItems.filter((item) => item.active && item.direction === 'expense' && !CADENCE_HAS_DUE_DAY[item.cadence]).length,
+    [recurringItems],
+  );
+
   const activeLensLabel = LIFE_LENSES.find((option) => option.key === lens)?.label;
+
+  const categoryOptions = useMemo(() => {
+    if (recurringForm?.direction === 'income' || entryForm?.direction === 'income') {
+      return financeCategoriesFor('income').map((c) => ({ label: c.label, value: c.code }));
+    }
+    return expenseCategoriesByGroup().flatMap((group) =>
+      group.categories.map((c) => ({ label: `${group.label}: ${c.label}`, value: c.code })),
+    );
+  }, [recurringForm?.direction, entryForm?.direction]);
+
+  function openAddRecurring(direction: FinanceDirection) {
+    setRecurringForm({ ...blankRecurringForm(), direction, category: direction === 'income' ? 'wages' : 'housing' });
+    setEntryForm(null);
+  }
+
+  function openEditRecurring(row: FinanceRecurringRecord) {
+    setRecurringForm({
+      editingId: row.id,
+      direction: row.direction,
+      name: row.name,
+      category: row.category,
+      amount: String(row.amount),
+      cadence: row.cadence,
+      dueDay: row.dueDay != null ? String(row.dueDay) : '',
+      notes: row.notes ?? '',
+    });
+    setEntryForm(null);
+  }
+
+  async function saveRecurring() {
+    if (!recurringForm) return;
+    const form = recurringForm;
+    if (!form.name.trim()) {
+      showInfoAlert('Almost there', 'Give this a name you will recognize, like "Rent" or "Electric".');
+      return;
+    }
+    // Reuses the grocery list's own price parser rather than a second one:
+    // it already handles a typed amount, a spoken one, and the shapes
+    // people actually say. A second parser would be a second thing to keep
+    // correct.
+    const amount = parsePriceInput(form.amount);
+    if (amount == null || amount <= 0) {
+      showInfoAlert('Almost there', 'Enter an amount greater than zero.');
+      return;
+    }
+    let dueDay: number | null = null;
+    if (CADENCE_HAS_DUE_DAY[form.cadence] && form.dueDay.trim()) {
+      const parsed = Number(form.dueDay.trim());
+      if (!Number.isInteger(parsed) || parsed < 1 || parsed > 31) {
+        showInfoAlert('Almost there', 'The day of the month has to be a whole number from 1 to 31, or left empty.');
+        return;
+      }
+      dueDay = parsed;
+    }
+
+    try {
+      const payload = {
+        direction: form.direction,
+        name: form.name,
+        category: form.category,
+        amount,
+        cadence: form.cadence,
+        dueDay,
+        notes: form.notes,
+      };
+      if (form.editingId) await updateRecurring(form.editingId, payload);
+      else await createRecurring(payload);
+      setRecurringForm(null);
+      load();
+    } catch (error) {
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async function saveEntry() {
+    if (!entryForm) return;
+    const form = entryForm;
+    const amount = parsePriceInput(form.amount);
+    if (amount == null || amount <= 0) {
+      showInfoAlert('Almost there', 'Enter an amount greater than zero.');
+      return;
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(form.occurredOn)) {
+      showInfoAlert('Almost there', 'Enter a valid date (YYYY-MM-DD).');
+      return;
+    }
+    try {
+      await createEntry({
+        occurredOn: form.occurredOn,
+        direction: form.direction,
+        amount,
+        category: form.category,
+        description: form.description,
+      });
+      setEntryForm(null);
+      load();
+    } catch (error) {
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  function confirmDeleteRecurring(row: FinanceRecurringRecord) {
+    setConfirm({
+      title: `Remove ${row.name}?`,
+      message:
+        'This deletes it and everything it contributes to your monthly figures. If it has only stopped for a while, pause it instead and it keeps its amount for when it comes back.',
+      actions: [
+        {
+          label: 'Remove',
+          destructive: true,
+          onPress: async () => {
+            setConfirm(null);
+            await deleteRecurring(row.id);
+            load();
+          },
+        },
+        { label: 'Keep it', onPress: () => setConfirm(null) },
+      ],
+    });
+  }
+
+  // --- Renderers ------------------------------------------------------------
+
+  function renderStat(label: string, value: string, tone?: 'good' | 'warn') {
+    return (
+      <View style={styles.statRow}>
+        <Text style={styles.statLabel}>{label}</Text>
+        <Text style={[styles.statValue, tone === 'good' && styles.statGood, tone === 'warn' && styles.statWarn]}>{value}</Text>
+      </View>
+    );
+  }
+
+  function renderOverview() {
+    const nothingYet = recurring.length === 0 && entries.length === 0 && picture.knownSpendTotal === 0;
+    return (
+      <>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>{monthLabel(month)}</Text>
+          <Text style={styles.bodyText}>{describeMonthPicture(picture)}</Text>
+        </View>
+
+        {nothingYet ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Start with what repeats</Text>
+            <Text style={styles.bodyText}>
+              Add what comes in and the bills that go out every month under Bills & Income. That alone answers what is
+              left before anything else happens, which is the figure most worth knowing. Day-to-day spending can come
+              later, and groceries you priced in the shop are already counted.
+            </Text>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => setSection('recurring')}>
+              <Text style={styles.primaryButtonText}>Add a bill or income</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Every month, as things stand</Text>
+          {renderStat('Coming in', formatFinanceMoney(summary.monthlyIncome))}
+          {renderStat('Regular bills', formatFinanceMoney(summary.monthlyCommitted))}
+          {summary.monthlySetAside > 0 ? renderStat('Set aside', formatFinanceMoney(summary.monthlySetAside)) : null}
+          {renderStat(
+            'Left over',
+            formatFinanceMoney(summary.monthlyLeftOver),
+            summary.monthlyLeftOver < 0 ? 'warn' : 'good',
+          )}
+          <Text style={styles.footnote}>
+            Worked out from {summary.activeCount} active {summary.activeCount === 1 ? 'entry' : 'entries'}, with weekly
+            and every-two-weeks amounts converted using the real number of payments in a year rather than four a month.
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>What has actually gone out this month</Text>
+          {renderStat('Recorded spending', formatFinanceMoney(picture.knownSpendTotal))}
+          {tracked.grocerySpend > 0 ? renderStat('  from groceries', formatFinanceMoney(tracked.grocerySpend)) : null}
+          {tracked.therapySpend > 0 ? renderStat('  from therapies', formatFinanceMoney(tracked.therapySpend)) : null}
+          {picture.loggedIncome > 0 ? renderStat('Extra income logged', formatFinanceMoney(picture.loggedIncome)) : null}
+          {picture.incompleteRecords > 0 ? (
+            <Text style={styles.footnote}>
+              {picture.incompleteRecords} {picture.incompleteRecords === 1 ? 'record has' : 'records have'} no amount
+              recorded, so this is a floor rather than a total. Nothing is estimated to fill the gap.
+            </Text>
+          ) : null}
+          {tracked.kitchenCoveredLines > 0 ? (
+            <Text style={styles.footnote}>
+              Your garden and ferments covered {tracked.kitchenCoveredLines}{' '}
+              {tracked.kitchenCoveredLines === 1 ? 'line' : 'lines'} you would otherwise have bought. What that produce
+              would have cost is not something this app knows, so it is counted rather than priced.
+            </Text>
+          ) : null}
+        </View>
+
+        {summary.byGroup.length > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Where your regular money goes</Text>
+            {summary.byGroup.map((group) => {
+              const share = summary.monthlyCommitted + summary.monthlySetAside > 0
+                ? group.monthly / (summary.monthlyCommitted + summary.monthlySetAside)
+                : 0;
+              return (
+                <View key={group.group} style={styles.barRow}>
+                  <View style={styles.barLabelRow}>
+                    <Text style={styles.barLabel}>{financeGroupLabel(group.group)}</Text>
+                    <Text style={styles.barValue}>{formatFinanceMoney(group.monthly)}</Text>
+                  </View>
+                  <View style={styles.barTrack}>
+                    <View style={[styles.barFill, { width: `${Math.max(2, Math.round(share * 100))}%` }]} />
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        ) : null}
+      </>
+    );
+  }
+
+  function renderRecurringSection() {
+    const income = recurring.filter((row) => row.direction === 'income');
+    const expenses = recurring.filter((row) => row.direction === 'expense');
+
+    return (
+      <>
+        {!recurringForm ? (
+          <View style={styles.actionRow}>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => openAddRecurring('expense')}>
+              <Text style={styles.primaryButtonText}>+ Add a bill</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => openAddRecurring('income')}>
+              <Text style={styles.secondaryButtonText}>+ Add income</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+
+        {recurringForm ? renderRecurringForm() : null}
+
+        {income.length > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Coming in</Text>
+            {income.map((row) => renderRecurringRow(row))}
+          </View>
+        ) : null}
+
+        {expenses.length > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Going out</Text>
+            {expenses.map((row) => renderRecurringRow(row))}
+          </View>
+        ) : null}
+
+        {recurring.length === 0 && !recurringForm ? (
+          <View style={styles.card}>
+            <Text style={styles.bodyText}>
+              Nothing added yet. Rent or mortgage, power, phone, insurance and whatever comes in are the ones worth
+              adding first: between them they usually account for most of a month.
+            </Text>
+          </View>
+        ) : null}
+      </>
+    );
+  }
+
+  function renderRecurringRow(row: FinanceRecurringRecord) {
+    const monthly = row.active ? toAnnual(row.amount, row.cadence) / 12 : 0;
+    return (
+      <View key={row.id} style={[styles.listRow, !row.active && styles.listRowPaused]}>
+        <View style={styles.listMain}>
+          <Text style={styles.listTitle}>
+            {row.name}
+            {row.active ? '' : ' · paused'}
+          </Text>
+          <Text style={styles.listMeta}>
+            {financeCategoryLabel(row.category)} · {CADENCE_SHORT_LABELS[row.cadence]}
+            {row.dueDay != null ? ` · day ${row.dueDay}` : ''}
+          </Text>
+          {row.cadence !== 'monthly' && row.active ? (
+            <Text style={styles.listMeta}>{formatFinanceMoney(monthly)} a month</Text>
+          ) : null}
+        </View>
+        <View style={styles.listRight}>
+          <Text style={styles.listAmount}>{formatFinanceMoney(row.amount)}</Text>
+          <View style={styles.listActions}>
+            <TouchableOpacity onPress={() => openEditRecurring(row)}>
+              <Text style={styles.actionText}>Edit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={async () => {
+                await setRecurringActive(row.id, !row.active);
+                load();
+              }}
+            >
+              <Text style={styles.actionText}>{row.active ? 'Pause' : 'Resume'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => confirmDeleteRecurring(row)}>
+              <Text style={styles.actionTextRemove}>Remove</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  function renderRecurringForm() {
+    if (!recurringForm) return null;
+    const form = recurringForm;
+    const showsDueDay = CADENCE_HAS_DUE_DAY[form.cadence];
+    return (
+      <View style={styles.formCard}>
+        <Text style={styles.label}>What kind</Text>
+        <PopoverSelect
+          options={DIRECTION_OPTIONS}
+          selected={form.direction}
+          onSelect={(value) =>
+            setRecurringForm({
+              ...form,
+              direction: value as FinanceDirection,
+              category: value === 'income' ? 'wages' : 'housing',
+            })
+          }
+          tabColor={TAB_COLOR}
+        />
+
+        <View style={styles.labelRow}>
+          <Text style={styles.label}>Name</Text>
+          <VoiceInputButton onResult={(text) => setRecurringForm({ ...form, name: text })} color={TAB_COLOR} />
+        </View>
+        <AppTextInput
+          style={styles.input}
+          placeholder={form.direction === 'income' ? 'e.g. Paycheck' : 'e.g. Rent'}
+          value={form.name}
+          onChangeText={(text) => setRecurringForm({ ...form, name: text })}
+        />
+
+        <Text style={styles.label}>Category</Text>
+        <PopoverSelect
+          options={categoryOptions}
+          selected={form.category}
+          onSelect={(value) => setRecurringForm({ ...form, category: value })}
+          tabColor={TAB_COLOR}
+          searchable
+        />
+
+        <Text style={styles.label}>Amount</Text>
+        <AppTextInput
+          style={[styles.input, styles.shortInput]}
+          placeholder="0.00"
+          keyboardType="decimal-pad"
+          value={form.amount}
+          onChangeText={(text) => setRecurringForm({ ...form, amount: text })}
+        />
+
+        <Text style={styles.label}>How often</Text>
+        <PopoverSelect
+          options={CADENCE_OPTIONS}
+          selected={form.cadence}
+          onSelect={(value) => setRecurringForm({ ...form, cadence: value as FinanceCadence })}
+          tabColor={TAB_COLOR}
+        />
+
+        {showsDueDay ? (
+          <>
+            <Text style={styles.label}>Day of the month (optional)</Text>
+            <AppTextInput
+              style={[styles.input, styles.shortInput]}
+              placeholder="e.g. 1"
+              keyboardType="number-pad"
+              maxLength={2}
+              value={form.dueDay}
+              onChangeText={(text) => setRecurringForm({ ...form, dueDay: text })}
+            />
+            <Text style={styles.helperText}>
+              A bill set to the 31st lands on the last day of shorter months rather than being skipped.
+            </Text>
+          </>
+        ) : (
+          <Text style={styles.helperText}>
+            {CADENCE_LABELS[form.cadence]} does not land on the same date each month, so there is no day to set. It
+            still counts toward your monthly figures, it just will not appear under Coming Up.
+          </Text>
+        )}
+
+        <View style={styles.formActions}>
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => setRecurringForm(null)}>
+            <Text style={styles.secondaryButtonText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.primaryButton} onPress={saveRecurring}>
+            <Text style={styles.primaryButtonText}>{form.editingId ? 'Save changes' : 'Add it'}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  function renderSpending() {
+    return (
+      <>
+        {!entryForm ? (
+          <TouchableOpacity style={styles.primaryButton} onPress={() => setEntryForm(blankEntryForm())}>
+            <Text style={styles.primaryButtonText}>+ Record something</Text>
+          </TouchableOpacity>
+        ) : null}
+
+        {entryForm ? (
+          <View style={styles.formCard}>
+            <Text style={styles.label}>What kind</Text>
+            <PopoverSelect
+              options={DIRECTION_OPTIONS}
+              selected={entryForm.direction}
+              onSelect={(value) =>
+                setEntryForm({
+                  ...entryForm,
+                  direction: value as FinanceDirection,
+                  category: value === 'income' ? 'other_income' : 'dining_out',
+                })
+              }
+              tabColor={TAB_COLOR}
+            />
+
+            <Text style={styles.label}>Amount</Text>
+            <AppTextInput
+              style={[styles.input, styles.shortInput]}
+              placeholder="0.00"
+              keyboardType="decimal-pad"
+              value={entryForm.amount}
+              onChangeText={(text) => setEntryForm({ ...entryForm, amount: text })}
+            />
+
+            <Text style={styles.label}>Category</Text>
+            <PopoverSelect
+              options={categoryOptions}
+              selected={entryForm.category}
+              onSelect={(value) => setEntryForm({ ...entryForm, category: value })}
+              tabColor={TAB_COLOR}
+              searchable
+            />
+
+            <Text style={styles.label}>Date</Text>
+            <View style={styles.inlineRow}>
+              <AppTextInput
+                style={[styles.input, styles.shortInput]}
+                placeholder="YYYY-MM-DD"
+                value={entryForm.occurredOn}
+                onChangeText={(text) => setEntryForm({ ...entryForm, occurredOn: text })}
+              />
+              <TouchableOpacity style={styles.pillSmall} onPress={() => setEntryForm({ ...entryForm, occurredOn: todayLocal() })}>
+                <Text style={styles.pillTextSmall}>Today</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.labelRow}>
+              <Text style={styles.label}>Note (optional)</Text>
+              <VoiceInputButton onResult={(text) => setEntryForm({ ...entryForm, description: text })} color={TAB_COLOR} />
+            </View>
+            <AppTextInput
+              style={styles.input}
+              placeholder="e.g. lunch with Ana"
+              value={entryForm.description}
+              onChangeText={(text) => setEntryForm({ ...entryForm, description: text })}
+            />
+
+            <View style={styles.formActions}>
+              <TouchableOpacity style={styles.secondaryButton} onPress={() => setEntryForm(null)}>
+                <Text style={styles.secondaryButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.primaryButton} onPress={saveEntry}>
+                <Text style={styles.primaryButtonText}>Record it</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : null}
+
+        {tracked.grocerySpend > 0 || tracked.therapySpend > 0 || tracked.groceryLinesWithoutPrice > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Already counted for you</Text>
+            {tracked.grocerySpend > 0 ? renderStat('Groceries', formatFinanceMoney(tracked.grocerySpend)) : null}
+            {tracked.therapySpend > 0 ? renderStat('Hands-on therapies', formatFinanceMoney(tracked.therapySpend)) : null}
+            <Text style={styles.footnote}>
+              Read from your grocery lists and therapy sessions rather than copied here, so a price corrected there is
+              corrected everywhere. Do not enter these again by hand.
+              {picture.incompleteRecords > 0
+                ? ` ${picture.incompleteRecords} of them have no amount recorded and are left out rather than guessed at.`
+                : ''}
+            </Text>
+          </View>
+        ) : null}
+
+        {entries.length > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Recorded in {monthLabel(month)}</Text>
+            {entries.map((row) => (
+              <View key={row.id} style={styles.listRow}>
+                <View style={styles.listMain}>
+                  <Text style={styles.listTitle}>{row.description || financeCategoryLabel(row.category)}</Text>
+                  <Text style={styles.listMeta}>
+                    {shortDate(row.occurredOn)} · {financeCategoryLabel(row.category)}
+                  </Text>
+                </View>
+                <View style={styles.listRight}>
+                  <Text style={[styles.listAmount, row.direction === 'income' && styles.statGood]}>
+                    {row.direction === 'income' ? '+' : ''}
+                    {formatFinanceMoney(row.amount)}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={async () => {
+                      await deleteEntry(row.id);
+                      load();
+                    }}
+                  >
+                    <Text style={styles.actionTextRemove}>Remove</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : !entryForm ? (
+          <View style={styles.card}>
+            <Text style={styles.bodyText}>
+              Nothing recorded by hand this month. This is for the things that are not already tracked somewhere else:
+              a meal out, a repair, fuel. Groceries and therapy sessions you have already priced are counted without
+              being entered again.
+            </Text>
+          </View>
+        ) : null}
+      </>
+    );
+  }
+
+  function renderUpcoming() {
+    return (
+      <>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Next {UPCOMING_WINDOW_DAYS} days</Text>
+          {soon.length === 0 ? (
+            <Text style={styles.bodyText}>
+              Nothing with a set date is due in the next {UPCOMING_WINDOW_DAYS} days. Adding a day of the month to a
+              bill is what puts it here.
+            </Text>
+          ) : (
+            soon.map(({ item, dueDate, daysAway }) => (
+              <View key={item.id} style={styles.listRow}>
+                <View style={styles.listMain}>
+                  <Text style={styles.listTitle}>{item.name}</Text>
+                  <Text style={styles.listMeta}>
+                    {shortDate(dueDate)} · {describeDaysAway(daysAway)}
+                  </Text>
+                </View>
+                <Text style={styles.listAmount}>{formatFinanceMoney(item.amount)}</Text>
+              </View>
+            ))
+          )}
+          {soon.length > 0 ? (
+            <Text style={styles.footnote}>
+              Total due in this window: {formatFinanceMoney(soon.reduce((sum, b) => sum + b.item.amount, 0))}
+            </Text>
+          ) : null}
+        </View>
+
+        {driftingCount > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Not shown here</Text>
+            <Text style={styles.bodyText}>
+              {driftingCount} of your bills {driftingCount === 1 ? 'repeats' : 'repeat'} weekly, every two weeks, or
+              twice a month. Those drift through the month rather than landing on a set date, so working out the next
+              one would need a starting date this app does not ask for yet. They still count toward your monthly
+              figures.
+            </Text>
+          </View>
+        ) : null}
+      </>
+    );
+  }
 
   return (
     <View style={styles.screen}>
-      {/* enabled={!revealed} -- see food.tsx's own comment: swipe-to-
-          change-tab only works from a lens's own picker, not once a real
-          lens's content is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
-        {/* variant="field" -- the shared resting scene, the same choice
-            Garden and Digest both make. A tab gets its own background image
-            when it has earned one; generating one for a tab with no content
-            yet would be decorating an empty room. */}
         <GatedTabContent pageTitle="Life" variant="field" revealed={revealed}>
           <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
-            <Text style={[styles.sectionHeading, styles.groupHeadingChip]}>{activeLensLabel}</Text>
+            {infoAlertElement}
+            <AppActionSheet
+              visible={confirm !== null}
+              onClose={() => setConfirm(null)}
+              title={confirm?.title}
+              message={confirm?.message}
+              actions={confirm?.actions ?? []}
+            />
 
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>This tab is ready and empty</Text>
-              <Text style={styles.bodyText}>
-                Life is where the parts of your life that are not food, not a symptom, and not a lab result will live.
-                The tab itself is finished: it has its own place in the menu, its own color, and it works like every
-                other tab. What goes inside it has not been decided yet.
-              </Text>
+            <View style={styles.sectionPillRow}>
+              {SECTIONS.map((entry) => (
+                <TouchableOpacity
+                  key={entry.key}
+                  style={[styles.pill, section === entry.key && styles.pillActive]}
+                  onPress={() => setSection(entry.key)}
+                >
+                  <Text style={[styles.pillText, section === entry.key && styles.pillTextActive]}>{entry.label}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
 
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>What happens next</Text>
-              <Text style={styles.bodyText}>
-                Each area added here becomes its own lens on the corner button, the same way Schedules holds meals,
-                hydration, supplements, prescriptions, appointments and hands-on therapies behind one button. Adding the
-                first one is a small change now that the tab exists, which is why it was built first and left empty
-                rather than held back until everything was planned.
-              </Text>
-            </View>
-
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Nothing here is pretending to work</Text>
-              <Text style={styles.bodyText}>
-                There are no placeholder features on this screen and no buttons that do nothing. When something appears
-                here, it will be because it was built, not because a space was reserved for it.
-              </Text>
-            </View>
+            {loading ? (
+              <Text style={[styles.bodyText, styles.panelStandalone]}>Adding things up…</Text>
+            ) : section === 'overview' ? (
+              renderOverview()
+            ) : section === 'recurring' ? (
+              renderRecurringSection()
+            ) : section === 'spending' ? (
+              renderSpending()
+            ) : (
+              renderUpcoming()
+            )}
           </ScrollView>
         </GatedTabContent>
       </SwipeableTabScreen>
@@ -143,21 +884,58 @@ export default function LifeScreen() {
   );
 }
 
+// Kept here rather than exported from financeCategories, since it is only
+// ever a display concern for this one screen's own bar chart.
+function financeGroupLabel(group: string): string {
+  const labels: Record<string, string> = {
+    home: 'Home',
+    utilities: 'Utilities',
+    health: 'Health',
+    food: 'Food',
+    transport: 'Getting Around',
+    debt: 'Money Owed',
+    everyday: 'Everyday',
+    setAside: 'Set Aside',
+    other: 'Other',
+  };
+  return labels[group] ?? group;
+}
+
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { flex: 1 },
   content: { paddingHorizontal: 20, paddingBottom: 32 },
 
-  // A heading introducing a group of separate cards gets its own surface,
-  // per the standing no-text-on-the-tab-background rule.
-  groupHeadingChip: {
+  // Every standalone line of text gets a surface, per the standing
+  // no-text-on-the-tab-background rule.
+  panelStandalone: {
     backgroundColor: colors.surface,
     borderRadius: 10,
-    paddingVertical: 8,
+    paddingVertical: 12,
     paddingHorizontal: 12,
-    alignSelf: 'flex-start',
   },
-  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 16, ...textShadow },
+
+  sectionPillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
+  pill: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  pillActive: { backgroundColor: TAB_COLOR, borderColor: TAB_COLOR },
+  pillText: { ...typography.caption, color: colors.textPrimary, ...textShadow },
+  pillTextActive: { color: colors.textOnPrimary, textShadowColor: 'transparent', textShadowRadius: 0 },
+  pillSmall: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  pillTextSmall: { ...typography.caption, color: colors.textPrimary, ...textShadow },
 
   card: {
     backgroundColor: colors.surface,
@@ -167,6 +945,86 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: TAB_COLOR,
   },
-  cardTitle: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 8, ...textShadow },
+  formCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
+  },
+  cardTitle: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10, ...textShadow },
   bodyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
+  footnote: { ...typography.caption, color: colors.textMuted, marginTop: 10, ...textShadow },
+  helperText: { ...typography.caption, color: colors.textMuted, marginTop: 6, marginBottom: 4, ...textShadow },
+
+  label: { ...typography.label, color: colors.menuLabelMuted, marginTop: 12, marginBottom: 4, ...textShadow },
+  labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 },
+  input: {
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    color: colors.textPrimary,
+  },
+  shortInput: { maxWidth: 160 },
+  inlineRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+
+  statRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingVertical: 4, gap: 12 },
+  statLabel: { ...typography.body, color: colors.textSecondary, flex: 1, ...textShadow },
+  statValue: { ...typography.body, color: colors.textPrimary, fontVariant: ['tabular-nums'], ...textShadow },
+  statGood: { color: colors.statusGood },
+  statWarn: { color: colors.danger },
+
+  barRow: { marginBottom: 12 },
+  barLabelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4, gap: 12 },
+  barLabel: { ...typography.caption, color: colors.textSecondary, flex: 1, ...textShadow },
+  barValue: { ...typography.caption, color: colors.textPrimary, fontVariant: ['tabular-nums'], ...textShadow },
+  barTrack: { height: 8, borderRadius: 4, backgroundColor: colors.border, overflow: 'hidden' },
+  barFill: { height: 8, borderRadius: 4, backgroundColor: TAB_COLOR },
+
+  listRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 12,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  listRowPaused: { opacity: 0.55 },
+  listMain: { flex: 1 },
+  listRight: { alignItems: 'flex-end' },
+  listTitle: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  listMeta: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
+  listAmount: { ...typography.body, color: colors.textPrimary, fontVariant: ['tabular-nums'], ...textShadow },
+  listActions: { flexDirection: 'row', gap: 12, marginTop: 4 },
+  actionText: { ...typography.caption, color: TAB_COLOR, ...textShadow },
+  actionTextRemove: { ...typography.caption, color: colors.danger, ...textShadow },
+
+  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 },
+  formActions: { flexDirection: 'row', gap: 10, marginTop: 16 },
+  primaryButton: {
+    backgroundColor: colors.buttonColor,
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    alignItems: 'center',
+    marginTop: 12,
+    ...BUTTON_SHADOW,
+  },
+  primaryButtonText: { ...typography.body, color: colors.textOnButton, textShadowColor: 'transparent', textShadowRadius: 0 },
+  secondaryButton: {
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  secondaryButtonText: { ...typography.body, color: colors.textPrimary, ...textShadow },
 });

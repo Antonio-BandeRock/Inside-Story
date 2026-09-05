@@ -41,6 +41,19 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.1',
+    date: '2026-09-05',
+    changes: [
+      'Life has its first area: Finances. Four sections behind one lens — Overview, Bills & Income, Spending, and Coming Up.',
+      'Bills & Income is what is supposed to happen each month; Spending is what actually did. Overview puts them side by side, because whether they match is the real question.',
+      'Groceries you priced in the shop and therapy sessions you costed are counted automatically. They are read from where they already live rather than copied, so fixing a grocery price fixes it everywhere. Do not enter them twice.',
+      'Weekly bills are counted at 4.33 a month, not 4, and every-two-weeks at 26 payments a year rather than 24. Those are the real numbers, and using the round ones is how a budget quietly runs short by a month a year.',
+      'A bill due on the 31st lands on the last day of shorter months instead of being skipped.',
+      'Where the garden or a ferment covered a grocery line, that is reported as lines you did not have to buy, not as a dollar saving. What that produce would have cost is not something this app knows, and it will not invent it.',
+      'No bank connection, by choice. Everything stays on your phone.',
+    ],
+  },
+  {
     version: '1.0.33.4',
     date: '2026-09-04',
     changes: [
