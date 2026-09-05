@@ -4871,6 +4871,29 @@ async function runDatabaseInitialization() {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- The same history, per account, added 2026-09-05. The aggregate
+      -- table above cannot answer how one account has done, and it has a
+      -- flaw that shows up the moment you try: adding a NEW account jumps
+      -- the total, and that jump is not growth. Measuring one account
+      -- against itself has no such problem.
+      --
+      -- contribution is what was paid in or taken out since the previous
+      -- point, and it is optional on purpose. Without it a balance that
+      -- rose cannot be told apart from money that was added, so anything
+      -- computed from these rows is a change and not a return. With it,
+      -- the two can be separated. The screen says which one it is showing
+      -- rather than calling both a return.
+      CREATE TABLE IF NOT EXISTS finance_account_balance_history (
+        id TEXT PRIMARY KEY,
+        account_id TEXT NOT NULL,
+        recorded_on TEXT NOT NULL,
+        balance REAL NOT NULL,
+        contribution REAL NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE(account_id, recorded_on),
+        FOREIGN KEY (account_id) REFERENCES finance_accounts(id) ON DELETE CASCADE
+      );
+
       -- --- Finances: the health-money layer (2026-09-05) -----------------
       --
       -- Pass 1 of a rebuild, after a direct challenge that the first

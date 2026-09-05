@@ -51,6 +51,9 @@ const {
   netWorth, isLiability, accountKindLabel, ACCOUNT_KINDS,
   budgetProgress, sinkingFund,
   simulatePayoff, comparePayoffStrategies, describePayoff,
+  accountKind, carriesMinimumPayment, rateKindFor,
+  carryCost, totalMonthlyInterest, measuredChange, describeMeasuredChange,
+  MIN_DAYS_FOR_MEASURED_CHANGE,
   formatAccountMoney, isSetAsideCategory,
 } = A;
 
@@ -112,8 +115,16 @@ function debt(over = {}) {
   check('nothing at all is zero, not NaN', netWorth([]).net, 0);
 }
 
-checkTrue('every debt kind is a liability', ACCOUNT_KINDS.filter((k) => k.carriesDebtTerms).every((k) => k.side === 'liability'));
-checkTrue('no asset kind asks for an interest rate', ACCOUNT_KINDS.filter((k) => k.side === 'asset').every((k) => !k.carriesDebtTerms));
+// The rate line is NOT the asset/liability line, and the two cases that
+// prove it are the ones most likely to get quietly re-conflated: savings
+// is an asset WITH a stated rate, and retirement is an asset with none.
+check('savings has a stated rate even though it is an asset', accountKind('savings').rateKind, 'stated');
+check('retirement has no rate to enter', accountKind('retirement').rateKind, 'market');
+check('checking has no rate at all', accountKind('checking').rateKind, 'none');
+checkTrue('every liability is asked for a rate', ACCOUNT_KINDS.filter((k) => k.side === 'liability').every((k) => k.rateKind === 'stated'));
+checkTrue('no market-rate account is ever asked for one', ACCOUNT_KINDS.filter((k) => k.rateKind === 'market').every((k) => k.side === 'asset'));
+checkTrue('only liabilities carry a minimum payment', ACCOUNT_KINDS.every((k) => carriesMinimumPayment(k.code) === (k.side === 'liability')));
+check('an unknown kind is not assumed to have a rate', rateKindFor('nonsense'), 'none');
 check('a card is a liability', isLiability('credit_card'), true);
 check('savings is not', isLiability('savings'), false);
 check('an unknown kind is not assumed to be debt', isLiability('nonsense'), false);
@@ -311,6 +322,107 @@ check('groceries is not', isSetAsideCategory('groceries'), false);
   // A zero balance is not a debt.
   const r = simulatePayoff([debt({ balance: 0, minimumPayment: 50 })], 100, 'avalanche');
   check('an already-cleared debt is ignored', r.months, 0);
+}
+
+// --- 6. What a rate is doing right now --------------------------------------
+
+{
+  // A card at 24.99% on 4,200. This is the number that turns a balance into
+  // a bill, so it has to match a statement's own simple monthly finance
+  // charge rather than a compounded effective rate. A figure that argued
+  // with the paper in someone's hand would be worse than none.
+  const cost = carryCost({ balance: 4200, apr: 24.99, side: 'liability' });
+  checkTrue('a card with a rate has a carry cost', cost !== null);
+  check('the yearly figure is balance times rate', Math.round(cost.yearly * 100) / 100, 1049.58);
+  check('and the monthly figure is that over twelve', Math.round(cost.monthly * 100) / 100, 87.46);
+  check('a debt costs rather than earns', cost.direction, 'costs');
+
+  const earns = carryCost({ balance: 10000, apr: 4.5, side: 'asset' });
+  check('savings earns rather than costs', earns.direction, 'earns');
+  check('and the amount is a plain positive number', Math.round(earns.monthly * 100) / 100, 37.5);
+}
+{
+  // Every refusal. Each of these would otherwise produce a confident wrong
+  // number instead of an obviously missing one.
+  check('no rate means no figure rather than zero interest', carryCost({ balance: 4200, apr: null, side: 'liability' }), null);
+  check('a zero rate is not reported as a cost', carryCost({ balance: 4200, apr: 0, side: 'liability' }), null);
+  check('a cleared balance costs nothing', carryCost({ balance: 0, apr: 24.99, side: 'liability' }), null);
+  check('a card in credit is not reported as earning interest', carryCost({ balance: -100, apr: 24.99, side: 'liability' }), null);
+}
+{
+  const accounts = [
+    acct({ id: 'a', kind: 'credit_card', balance: 4200, apr: 24.99 }),
+    acct({ id: 'b', kind: 'auto_loan', balance: 12000, apr: 6 }),
+    acct({ id: 'c', kind: 'medical_debt', balance: 800, apr: null }),
+    acct({ id: 'd', kind: 'savings', balance: 9000, apr: 4.5 }),
+    acct({ id: 'e', kind: 'credit_card', balance: 3000, apr: 20, active: false }),
+  ];
+  const total = totalMonthlyInterest(accounts);
+  check('two debts have a rate to count', total.countedAccounts, 2);
+  check('the one without a rate is named rather than counted as free', total.missingRate, 1);
+  check('the total is those two and nothing else', Math.round(total.monthly * 100) / 100, 147.46);
+  checkTrue(
+    'a paused debt is left out',
+    total.monthly === totalMonthlyInterest(accounts.filter((a) => a.id !== 'e')).monthly,
+  );
+  checkTrue(
+    'savings interest never lands in the debt total',
+    total.monthly === totalMonthlyInterest(accounts.filter((a) => a.id !== 'd')).monthly,
+  );
+}
+
+// --- 7. Measured change, for accounts with no stated rate -------------------
+
+const point = (date, balance, contribution = 0) => ({ date, balance, contribution });
+
+{
+  // The case the whole thing exists for, and the one most likely to be
+  // reported wrongly: money paid in looks exactly like growth.
+  const raw = measuredChange([point('2026-03-01', 40000), point('2026-09-01', 46000)]);
+  checkTrue('two points a few months apart can be measured', raw !== null);
+  check('and the span is counted in real days', raw.days, 184);
+  check('with no contribution recorded it is not called a return', raw.isReturn, false);
+  check('so the whole rise is reported as the change', raw.gain, 6000);
+  checkTrue('and the wording says contributions are in it', describeMeasuredChange(raw).includes('anything you paid in'));
+  checkTrue('it never calls itself a return', !/a return\b/.test(describeMeasuredChange(raw).replace('rather than a return', '')));
+
+  // Same balances, but 5,000 of the rise was money paid in. The real return
+  // is a sixth of what the raw change suggests.
+  const real = measuredChange([point('2026-03-01', 40000), point('2026-09-01', 46000, 5000)]);
+  check('a recorded contribution makes it a return', real.isReturn, true);
+  check('and it is taken out of the growth', real.gain, 1000);
+  checkTrue('so the rate is far below the raw change', real.annualizedPercent < raw.annualizedPercent / 4);
+  checkTrue('the wording says what was put in', describeMeasuredChange(real).includes('you put in'));
+}
+{
+  // A withdrawal is the same mechanism in reverse: a balance that fell can
+  // still have grown.
+  const drawn = measuredChange([point('2026-01-01', 20000), point('2026-07-01', 18000, -4000)]);
+  check('money taken out is added back before measuring', drawn.gain, 2000);
+  checkTrue('so a falling balance can still read as growth', drawn.annualizedPercent > 0);
+  checkTrue('and the wording says it was taken out', describeMeasuredChange(drawn).includes('you took out'));
+}
+{
+  const loss = measuredChange([point('2026-01-01', 20000), point('2026-07-01', 17000)]);
+  checkTrue('a real loss is reported as a loss', loss.gain < 0 && loss.annualizedPercent < 0);
+  checkTrue('and the rate carries the direction too', describeMeasuredChange(loss).includes('a fall of about'));
+  checkTrue('so it is never dressed up as a rise', !describeMeasuredChange(loss).includes('a rise'));
+}
+{
+  // Every refusal. Each would otherwise produce a number that looks
+  // authoritative and means nothing.
+  check('one point is not a trend', measuredChange([point('2026-03-01', 40000)]), null);
+  check('no points at all', measuredChange([]), null);
+  check('a few days cannot be annualized', measuredChange([point('2026-03-01', 40000), point('2026-03-08', 41000)]), null);
+  check('a starting balance of zero has no ratio to grow by', measuredChange([point('2026-03-01', 0), point('2026-09-01', 5000)]), null);
+  checkTrue('the day floor is a real month rather than a token gap', MIN_DAYS_FOR_MEASURED_CHANGE >= 28);
+}
+{
+  // Points arriving out of order must not invert the measurement, since
+  // the first and last are what the whole calculation rests on.
+  const shuffled = measuredChange([point('2026-09-01', 46000), point('2026-03-01', 40000), point('2026-06-01', 43000)]);
+  check('the earliest point is the start whatever order they arrive in', shuffled.startBalance, 40000);
+  check('and the latest is the end', shuffled.endBalance, 46000);
 }
 
 // --- 5. Money formatting ----------------------------------------------------

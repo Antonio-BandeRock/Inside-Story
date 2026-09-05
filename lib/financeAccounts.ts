@@ -39,25 +39,52 @@ export type AccountKindDefinition = {
   // which is why it lives on the kind rather than being re-decided at each
   // call site.
   side: 'asset' | 'liability';
-  // Liabilities carry an interest rate and a minimum payment; assets do
-  // not, and asking for them would be noise.
-  carriesDebtTerms: boolean;
+  // Whether this kind of account has a rate at all, and if so whether it
+  // is a knowable one. This is deliberately NOT the same line as asset
+  // against liability, which is where the first version had it.
+  //
+  //   'stated'  A rate written in a contract: a card's APR, a loan's
+  //             rate, a savings account's APY. It is printed on the
+  //             statement, so what it does each month is arithmetic.
+  //
+  //   'market'  No rate exists. Investments, retirement and property
+  //             change by whatever the market did. A long-run average
+  //             return is a description of the past, not a rate anything
+  //             is growing at, and applying it forward would put an
+  //             invented number beside real balances.
+  //
+  //   'none'    Checking and cash. Nothing to ask for.
+  //
+  // A savings account is the case that proves the old line was wrong: an
+  // asset with a stated rate. So was medical debt in reverse, a liability
+  // that often carries no rate at all, which is why 'stated' here means
+  // "ask for it", not "there must be one".
+  rateKind: 'stated' | 'market' | 'none';
 };
 
 export const ACCOUNT_KINDS: AccountKindDefinition[] = [
-  { code: 'checking', label: 'Checking', side: 'asset', carriesDebtTerms: false },
-  { code: 'savings', label: 'Savings', side: 'asset', carriesDebtTerms: false },
-  { code: 'cash', label: 'Cash', side: 'asset', carriesDebtTerms: false },
-  { code: 'investment', label: 'Investments', side: 'asset', carriesDebtTerms: false },
-  { code: 'retirement', label: 'Retirement', side: 'asset', carriesDebtTerms: false },
-  { code: 'property', label: 'Property or vehicle', side: 'asset', carriesDebtTerms: false },
-  { code: 'credit_card', label: 'Credit card', side: 'liability', carriesDebtTerms: true },
-  { code: 'auto_loan', label: 'Car loan', side: 'liability', carriesDebtTerms: true },
-  { code: 'student_loan', label: 'Student loan', side: 'liability', carriesDebtTerms: true },
-  { code: 'mortgage', label: 'Mortgage', side: 'liability', carriesDebtTerms: true },
-  { code: 'medical_debt', label: 'Medical debt', side: 'liability', carriesDebtTerms: true },
-  { code: 'other_loan', label: 'Other loan', side: 'liability', carriesDebtTerms: true },
+  { code: 'checking', label: 'Checking', side: 'asset', rateKind: 'none' },
+  { code: 'savings', label: 'Savings', side: 'asset', rateKind: 'stated' },
+  { code: 'cash', label: 'Cash', side: 'asset', rateKind: 'none' },
+  { code: 'investment', label: 'Investments', side: 'asset', rateKind: 'market' },
+  { code: 'retirement', label: 'Retirement', side: 'asset', rateKind: 'market' },
+  { code: 'property', label: 'Property or vehicle', side: 'asset', rateKind: 'market' },
+  { code: 'credit_card', label: 'Credit card', side: 'liability', rateKind: 'stated' },
+  { code: 'auto_loan', label: 'Car loan', side: 'liability', rateKind: 'stated' },
+  { code: 'student_loan', label: 'Student loan', side: 'liability', rateKind: 'stated' },
+  { code: 'mortgage', label: 'Mortgage', side: 'liability', rateKind: 'stated' },
+  { code: 'medical_debt', label: 'Medical debt', side: 'liability', rateKind: 'stated' },
+  { code: 'other_loan', label: 'Other loan', side: 'liability', rateKind: 'stated' },
 ];
+
+/** Only a liability has a minimum payment. An APY does not come with one. */
+export function carriesMinimumPayment(code: string): boolean {
+  return accountKind(code)?.side === 'liability';
+}
+
+export function rateKindFor(code: string): 'stated' | 'market' | 'none' {
+  return accountKind(code)?.rateKind ?? 'none';
+}
 
 export function accountKind(code: string): AccountKindDefinition | undefined {
   return ACCOUNT_KINDS.find((entry) => entry.code === code);
@@ -116,6 +143,159 @@ export function netWorth(accounts: Account[]): NetWorth {
   }
 
   return { assets, liabilities, net: assets - liabilities, assetCount, liabilityCount };
+}
+
+// --- What a rate is doing right now -----------------------------------------
+
+export type CarryCost = {
+  // What the rate adds each month at the balance as it stands. Positive
+  // for a debt (it costs) and positive for savings too (it earns); which
+  // one is meant is carried by `direction` rather than by the sign, since
+  // a negative number here would read as the rate being negative.
+  monthly: number;
+  yearly: number;
+  direction: 'costs' | 'earns';
+};
+
+/**
+ * What an interest rate is doing to an account this month, from the two
+ * things someone typed in and nothing else.
+ *
+ * There is deliberately no assumption about payments here. Once you assume
+ * a payment you are forecasting, and this is meant to be a fact: at this
+ * balance and this rate, this much accrues. It is the number that turns a
+ * card from a balance into a bill, and it is the one figure about a debt
+ * most likely to change what someone does.
+ *
+ * Simple monthly interest (rate / 12) rather than a compounded effective
+ * rate, because that is how a card statement computes a monthly finance
+ * charge, and a figure that disagrees with the statement in the person's
+ * hand would be worse than useless even if it were more precise.
+ */
+export function carryCost(input: { balance: number; apr: number | null; side: 'asset' | 'liability' }): CarryCost | null {
+  if (input.apr == null || input.apr <= 0) return null;
+  if (input.balance <= 0) return null;
+  const yearly = input.balance * (input.apr / 100);
+  return {
+    monthly: yearly / 12,
+    yearly,
+    direction: input.side === 'liability' ? 'costs' : 'earns',
+  };
+}
+
+/**
+ * Every debt's interest added up. This exists because a card at 24.99% is
+ * a bill in every sense that matters, it is just not one anybody sends
+ * you, and before this it appeared nowhere outside the payoff comparison.
+ */
+export function totalMonthlyInterest(accounts: Account[]): { monthly: number; countedAccounts: number; missingRate: number } {
+  let monthly = 0;
+  let countedAccounts = 0;
+  let missingRate = 0;
+  for (const account of accounts) {
+    if (!account.active || !isLiability(account.kind) || account.balance <= 0) continue;
+    const cost = carryCost({ balance: account.balance, apr: account.apr, side: 'liability' });
+    if (cost) {
+      monthly += cost.monthly;
+      countedAccounts += 1;
+    } else {
+      missingRate += 1;
+    }
+  }
+  return { monthly, countedAccounts, missingRate };
+}
+
+// --- What actually happened, for accounts with no stated rate ---------------
+
+export type BalancePoint = { date: string; balance: number; contribution: number };
+
+export type MeasuredChange = {
+  from: string;
+  to: string;
+  days: number;
+  startBalance: number;
+  endBalance: number;
+  // What went in or came out between the two, when it was recorded. Null
+  // when it was not, which changes what the figure is allowed to be called.
+  netContribution: number | null;
+  // The change once contributions are taken out of it. Equal to the plain
+  // change when no contribution was recorded.
+  gain: number;
+  annualizedPercent: number;
+  // False when contributions were never recorded, in which case this is
+  // the change in the balance and NOT a return: money paid in looks
+  // exactly like growth from a balance alone.
+  isReturn: boolean;
+};
+
+/** Below this a rate cannot honestly be annualized: a week's move scaled
+ *  up by 52 produces a number that is arithmetic but not information. */
+export const MIN_DAYS_FOR_MEASURED_CHANGE = 30;
+
+/**
+ * The measured change in an account between the first and last balance
+ * recorded for it. This is a measurement of what happened, not a forecast,
+ * which is the whole reason it is allowed to exist for an account whose
+ * rate is unknowable.
+ *
+ * It refuses rather than guesses in three cases, each of which would
+ * otherwise produce a confident wrong number: fewer than two points, too
+ * short a span to annualize, and a starting balance of zero or less, which
+ * has no ratio to grow by.
+ */
+export function measuredChange(points: BalancePoint[]): MeasuredChange | null {
+  if (points.length < 2) return null;
+  const sorted = [...points].sort((a, b) => a.date.localeCompare(b.date));
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+  if (first.balance <= 0) return null;
+
+  const days = Math.round((Date.parse(`${last.date}T00:00:00Z`) - Date.parse(`${first.date}T00:00:00Z`)) / 86400000);
+  if (!Number.isFinite(days) || days < MIN_DAYS_FOR_MEASURED_CHANGE) return null;
+
+  // Contributions recorded after the first point are the ones that landed
+  // inside the span. The first point's own contribution belongs to
+  // whatever came before it.
+  const recorded = sorted.slice(1);
+  const anyRecorded = recorded.some((point) => point.contribution !== 0);
+  const netContribution = anyRecorded ? recorded.reduce((sum, point) => sum + point.contribution, 0) : null;
+
+  const gain = last.balance - first.balance - (netContribution ?? 0);
+  // Measured against the starting balance plus what was put in, since
+  // money added part way through was not working for the whole span but
+  // still has to be in the base or a large contribution reads as a loss.
+  const base = first.balance + Math.max(0, netContribution ?? 0);
+  const annualizedPercent = base > 0 ? (gain / base) * (365 / days) * 100 : 0;
+
+  return {
+    from: first.date,
+    to: last.date,
+    days,
+    startBalance: first.balance,
+    endBalance: last.balance,
+    netContribution,
+    gain,
+    annualizedPercent,
+    isReturn: netContribution != null,
+  };
+}
+
+export function describeMeasuredChange(change: MeasuredChange): string {
+  const fell = change.gain < 0;
+  const span = `${formatAccountMoney(change.startBalance)} to ${formatAccountMoney(change.endBalance)} over ${change.days} days`;
+  const amount = formatAccountMoney(Math.abs(change.gain));
+  // The direction has to be attached to the rate and not only to the
+  // amount. An account that lost money still produces a positive
+  // percentage out of the arithmetic, and "about 8.3% a year" sitting under
+  // a balance that fell reads as a gain.
+  const rate = `${fell ? 'a fall' : 'a rise'} of about ${Math.abs(change.annualizedPercent).toFixed(1)}% a year`;
+
+  if (!change.isReturn) {
+    return `${span}, ${fell ? 'down' : 'up'} ${amount}, ${rate}. That is the change in the balance rather than a return: anything you paid in over that time is in it too. Record what you added when you update a balance and the two can be told apart.`;
+  }
+  const put = change.netContribution ?? 0;
+  const moved = put >= 0 ? `you put in ${formatAccountMoney(put)}` : `you took out ${formatAccountMoney(Math.abs(put))}`;
+  return `${span}, and ${moved}. That leaves ${amount} ${fell ? 'of loss' : 'of growth'}, ${rate}. Measured from what you entered, not from an assumed rate.`;
 }
 
 // --- Budget limits ----------------------------------------------------------

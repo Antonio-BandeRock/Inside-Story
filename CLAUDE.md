@@ -25,6 +25,30 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-05, 1.0.34.5): interest, and the discovery that the rate line was drawn in the wrong place.** Direct question: "Should things like Own: Investments, and Own: Retirement also be capable of tracking interest or compounded interest... Same would be for interest on a car loan or credit card."
+
+**The answer splits three ways rather than two, and `carriesDebtTerms` was conflating two different things.** It meant "is a liability", so Savings could not hold an APY despite that rate being printed on a statement, while Investments would have been offered a field it has no honest value for. The real distinction is not asset against liability:
+
+- **`stated`**: a rate written in a contract. Card APR, loan rate, savings APY. Interest is arithmetic.
+- **`market`**: no rate exists. Investments, retirement, property. "7% average" describes decades of the past, not a rate anything is growing at, and applying it forward would put an invented number beside real balances.
+- **`none`**: checking, cash.
+
+Savings is the case that proves it: an asset with a stated rate. `rateKind` replaces `carriesDebtTerms`, and `carriesMinimumPayment` is derived separately from `side`, since an APY does not come with one.
+
+**A gap in what shipped an hour earlier.** `apr` was stored but read ONLY inside the payoff simulation. A $4,200 card at 24.99% costs about $87 a month to sit there, and that appeared nowhere in Finances. `carryCost` and `totalMonthlyInterest` put it on the net-worth card, framed as what it is: **a bill in every sense except that nobody sends it to you.** Simple monthly interest (rate over 12) rather than a compounded effective rate, deliberately, because that is how a statement computes a finance charge and a figure arguing with the paper in someone's hand would be worse than none.
+
+**For market accounts, measurement rather than projection**, which was the user's own call when asked ("Measured only, for now"). New `finance_account_balance_history`, per account, because **the aggregate net-worth table cannot answer how one account did and has a flaw that shows the moment you try: adding a NEW account jumps the total, and that jump is not growth.** `measuredChange` reports the annualized change between the first and last balance recorded, refusing in three cases that would each produce a confident wrong number: fewer than two points, under 30 days (a week's move scaled by 52 is arithmetic but not information), and a starting balance of zero, which has no ratio to grow by.
+
+**The subtlety that decides whether the figure may be called a return at all: money paid in looks exactly like growth.** A balance rising from 40,000 to 46,000 could be a 30% return or a 5,000 deposit and 1,000 of growth. So updating a balance takes an optional "paid in or taken out", and the wording changes on it: with contributions recorded it is a return, without them it says plainly it is the change in the balance and that anything paid in is inside it. Both are tested with identical balances and a sixfold difference in the reported rate.
+
+**A bug the tests caught in the wording.** A losing account reported its rate through `Math.abs`, so a 3,000 loss read as "about 8.3% a year" with nothing saying it fell. The direction now attaches to the rate itself ("a fall of about 8.3% a year"), not only to the amount. Two of my own rounding expectations were wrong in the same run and the code was right.
+
+**One thing ruled out regardless: nothing auto-accrues a stored balance.** What was typed on a date is a fact with a date, and growing it silently would turn a record into a guess with no way to tell which was which. Computed figures sit beside the balance, marked, which is also the nudge to go update it.
+
+`tsc` clean, `eslint` clean on every touched file, bare-text audit 0, suites 72/108/69/123/55/142/29/30. Four mutations confirmed to break the new gates. **Not yet confirmed on-device.**
+
+**Named and not built:** forward projection ("where will this be in 20 years"), deliberately deferred rather than dropped. Doing it honestly needs the rate to be an input the person picks and the output labelled a scenario that never mixes into net worth, and it belongs with Goals, since a projection is how someone knows whether a goal is reachable.
+
 **Most recent (2026-09-05, 1.0.34.4): the budgeting core, pass 2 of the Finances rebuild.** The ordinary ground pass 1 deliberately skipped, since the health-money layer was the half nothing else could replace. This half is the reason someone would not simply use Monarch instead.
 
 **Accounts and net worth.** `lib/financeAccounts.ts` (pure, no database) plus `lib/financeAccountsDb.ts` and three tables. Balances are typed in, because the standing no-bank-connection rule is the point rather than a gap. **A net-worth point is recorded when a balance changes, not on a timer**, so the line only moves when something real did; a nightly snapshot would draw a flat line through months of nothing happening and make it look like data.

@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.5',
+    date: '2026-09-05',
+    changes: [
+      'Accounts now handle interest, and which accounts get asked for a rate has changed.',
+      'A savings account can hold its APY, because that rate is printed on the statement. Investments, retirement and property are no longer offered a rate field at all: those move with the market, and a long-run average return is a description of the past rather than a rate anything is growing at.',
+      'Every debt now shows what it costs each month just to sit there. A $4,200 card at 24.99% is about $87 a month before you pay anything off it. Net worth totals that up, because it is a bill in every sense except that nobody sends it to you.',
+      'Investments and retirement report what actually happened instead: update a balance now and then and the app measures the change across your own history, rather than applying an assumed rate.',
+      'When you update a balance you can record what you paid in or took out. It is optional, and it decides whether the figure can be called a return at all, since a balance that went up looks exactly like money you added.',
+      'Nothing grows a stored balance on its own. What you typed on a date stays what you typed; anything computed is shown beside it and marked as computed.',
+    ],
+  },
+  {
     version: '1.0.34.4',
     date: '2026-09-05',
     changes: [

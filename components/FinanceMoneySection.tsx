@@ -9,18 +9,25 @@ import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
   ACCOUNT_KINDS,
-  accountKind,
   accountKindLabel,
+  carriesMinimumPayment,
+  carryCost,
   comparePayoffStrategies,
+  describeMeasuredChange,
   describePayoff,
   formatAccountMoney,
   isLiability,
+  measuredChange,
   netWorth,
+  rateKindFor,
+  totalMonthlyInterest,
+  type BalancePoint,
   type Debt,
 } from '../lib/financeAccounts';
 import {
   deleteAccount,
   listAccounts,
+  listAllBalanceHistory,
   listNetWorthHistory,
   upsertAccount,
   type AccountRecord,
@@ -58,14 +65,18 @@ export function FinanceMoneySection({ tabColor }: Props) {
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [accounts, setAccounts] = useState<AccountRecord[]>([]);
   const [history, setHistory] = useState<NetWorthPoint[]>([]);
+  const [balanceHistory, setBalanceHistory] = useState<Record<string, BalancePoint[]>>({});
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState<{ id: string | null; name: string; kind: string; balance: string; apr: string; minimumPayment: string } | null>(null);
+  const [form, setForm] = useState<{
+    id: string | null; name: string; kind: string; balance: string;
+    apr: string; minimumPayment: string; contribution: string;
+  } | null>(null);
   const [extra, setExtra] = useState('0');
 
   const load = useCallback(() => {
     setLoading(true);
-    Promise.all([listAccounts(), listNetWorthHistory()])
-      .then(([rows, points]) => { setAccounts(rows); setHistory(points); })
+    Promise.all([listAccounts(), listNetWorthHistory(), listAllBalanceHistory()])
+      .then(([rows, points, perAccount]) => { setAccounts(rows); setHistory(points); setBalanceHistory(perAccount); })
       .catch((error) => showInfoAlert('Could not load', error instanceof Error ? error.message : String(error)))
       .finally(() => setLoading(false));
   }, [showInfoAlert]);
@@ -101,7 +112,16 @@ export function FinanceMoneySection({ tabColor }: Props) {
     return { change: last.net - first.net, from: first.date, points: history.length };
   }, [history]);
 
-  const showsDebtTerms = form ? accountKind(form.kind)?.carriesDebtTerms === true : false;
+  // What the rate field is called, and whether it is asked for at all,
+  // follows the kind of rate the account actually has. A savings account
+  // has an APY worth entering; a retirement account has no rate to enter,
+  // and offering the field would invite a made-up number straight into the
+  // one place this screen refuses to guess.
+  const rateKind = form ? rateKindFor(form.kind) : 'none';
+  const showsRate = rateKind === 'stated';
+  const showsMinimum = form ? carriesMinimumPayment(form.kind) : false;
+
+  const interest = useMemo(() => totalMonthlyInterest(accounts), [accounts]);
 
   async function save() {
     if (!form) return;
@@ -115,8 +135,9 @@ export function FinanceMoneySection({ tabColor }: Props) {
       name: form.name,
       kind: form.kind,
       balance: negative ? -balance : balance,
-      apr: showsDebtTerms && form.apr.trim() ? Number(form.apr) : null,
-      minimumPayment: showsDebtTerms && form.minimumPayment.trim() ? parsePriceInput(form.minimumPayment) : null,
+      apr: showsRate && form.apr.trim() ? Number(form.apr) : null,
+      minimumPayment: showsMinimum && form.minimumPayment.trim() ? parsePriceInput(form.minimumPayment) : null,
+      contribution: form.contribution.trim() ? (parsePriceInput(form.contribution.replace('-', '')) ?? 0) * (form.contribution.trim().startsWith('-') ? -1 : 1) : 0,
     });
     setForm(null);
     load();
@@ -149,6 +170,16 @@ export function FinanceMoneySection({ tabColor }: Props) {
               <Text style={styles.statLabelStrong}>Net worth</Text>
               <Text style={[styles.statValueStrong, totals.net < 0 && styles.negative]}>{formatAccountMoney(totals.net)}</Text>
             </View>
+            {interest.monthly > 0 ? (
+              <Text style={styles.footnote}>
+                Your debts are costing about {formatAccountMoney(interest.monthly)} a month in interest, roughly{' '}
+                {formatAccountMoney(interest.monthly * 12)} a year, before you pay a penny off them. That is a bill in
+                every sense that matters. It is just not one anybody sends you.
+                {interest.missingRate > 0
+                  ? ` ${interest.missingRate} more ${interest.missingRate === 1 ? 'debt has' : 'debts have'} no rate recorded and ${interest.missingRate === 1 ? 'is' : 'are'} not in that figure.`
+                  : ''}
+              </Text>
+            ) : null}
             {trend ? (
               <Text style={styles.footnote}>
                 {trend.change >= 0 ? 'Up' : 'Down'} {formatAccountMoney(Math.abs(trend.change))} since {trend.from},
@@ -161,7 +192,7 @@ export function FinanceMoneySection({ tabColor }: Props) {
           </>
         )}
         {!form ? (
-          <TouchableOpacity style={styles.primaryButton} onPress={() => setForm({ id: null, name: '', kind: 'checking', balance: '', apr: '', minimumPayment: '' })}>
+          <TouchableOpacity style={styles.primaryButton} onPress={() => setForm({ id: null, name: '', kind: 'checking', balance: '', apr: '', minimumPayment: '', contribution: '' })}>
             <Text style={styles.primaryButtonText}>+ Add an account</Text>
           </TouchableOpacity>
         ) : null}
@@ -189,16 +220,42 @@ export function FinanceMoneySection({ tabColor }: Props) {
               : 'Enter the balance as it reads. Put a minus in front only if the account is actually overdrawn.'}
           </Text>
 
-          {showsDebtTerms ? (
+          {showsRate ? (
             <>
-              <Text style={styles.label}>Interest rate and minimum payment</Text>
+              <Text style={styles.label}>
+                {showsMinimum ? 'Interest rate and minimum payment' : 'Interest rate'}
+              </Text>
               <View style={styles.inlineRow}>
-                <AppTextInput style={[styles.input, styles.tinyInput]} placeholder="APR %" keyboardType="decimal-pad"
-                  value={form.apr} onChangeText={(t) => setForm({ ...form, apr: t })} />
-                <AppTextInput style={[styles.input, styles.tinyInput]} placeholder="Min pay" keyboardType="decimal-pad"
-                  value={form.minimumPayment} onChangeText={(t) => setForm({ ...form, minimumPayment: t })} />
+                <AppTextInput style={[styles.input, styles.tinyInput]} placeholder={showsMinimum ? 'APR %' : 'APY %'}
+                  keyboardType="decimal-pad" value={form.apr} onChangeText={(t) => setForm({ ...form, apr: t })} />
+                {showsMinimum ? (
+                  <AppTextInput style={[styles.input, styles.tinyInput]} placeholder="Min pay" keyboardType="decimal-pad"
+                    value={form.minimumPayment} onChangeText={(t) => setForm({ ...form, minimumPayment: t })} />
+                ) : null}
               </View>
-              <Text style={styles.helperText}>Both are needed before a payoff plan can be worked out for this debt.</Text>
+              <Text style={styles.helperText}>
+                {showsMinimum
+                  ? 'The rate on its own shows what this costs you each month. Both together are what a payoff plan needs.'
+                  : 'The rate printed on the statement. This shows what the account earns each month at its current balance.'}
+              </Text>
+            </>
+          ) : rateKind === 'market' ? (
+            <Text style={styles.helperText}>
+              No rate is asked for here, on purpose. This kind of account moves with the market, so there is no rate to
+              enter. Update the balance now and then and the app reports what actually happened instead of applying an
+              average that is a description of the past rather than a rate anything is growing at.
+            </Text>
+          ) : null}
+
+          {form.id ? (
+            <>
+              <Text style={styles.label}>Paid in or taken out since last time (optional)</Text>
+              <AppTextInput style={[styles.input, styles.shortInput]} placeholder="0.00" keyboardType="numbers-and-punctuation"
+                value={form.contribution} onChangeText={(t) => setForm({ ...form, contribution: t })} />
+              <Text style={styles.helperText}>
+                A minus in front for money taken out. Worth filling in: without it a balance that went up cannot be told
+                apart from money you added, so the change can only be called a change rather than a return.
+              </Text>
             </>
           ) : null}
 
@@ -216,20 +273,37 @@ export function FinanceMoneySection({ tabColor }: Props) {
       {accounts.length > 0 ? (
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Accounts</Text>
-          {accounts.map((account) => (
+          {accounts.map((account) => {
+            const liability = isLiability(account.kind);
+            const cost = carryCost({ balance: account.balance, apr: account.apr, side: liability ? 'liability' : 'asset' });
+            const change = rateKindFor(account.kind) === 'market' ? measuredChange(balanceHistory[account.id] ?? []) : null;
+            return (
             <View key={account.id} style={[styles.listRow, !account.active && styles.paused]}>
               <View style={styles.listMain}>
                 <Text style={styles.listTitle}>{account.name}</Text>
                 <Text style={styles.listMeta}>
                   {accountKindLabel(account.kind)}
-                  {account.apr != null ? ` · ${account.apr}% APR` : ''}
+                  {account.apr != null ? ` · ${account.apr}% ${liability ? 'APR' : 'APY'}` : ''}
                   {account.minimumPayment != null ? ` · min ${formatAccountMoney(account.minimumPayment)}` : ''}
                 </Text>
+                {cost ? (
+                  <Text style={[styles.listMeta, cost.direction === 'costs' && styles.negative]}>
+                    {cost.direction === 'costs' ? 'Costs' : 'Earns'} about {formatAccountMoney(cost.monthly)} a month at
+                    this balance, {formatAccountMoney(cost.yearly)} a year.
+                  </Text>
+                ) : null}
+                {change ? <Text style={styles.listMeta}>{describeMeasuredChange(change)}</Text> : null}
+                {!change && rateKindFor(account.kind) === 'market' ? (
+                  <Text style={styles.listMeta}>
+                    Update this balance again in a month or so and the app can say what it actually did.
+                  </Text>
+                ) : null}
                 <View style={styles.listActions}>
                   <TouchableOpacity onPress={() => setForm({
                     id: account.id, name: account.name, kind: account.kind, balance: String(account.balance),
                     apr: account.apr != null ? String(account.apr) : '',
                     minimumPayment: account.minimumPayment != null ? String(account.minimumPayment) : '',
+                    contribution: '',
                   })}>
                     <Text style={styles.actionText}>Update balance</Text>
                   </TouchableOpacity>
@@ -238,11 +312,12 @@ export function FinanceMoneySection({ tabColor }: Props) {
                   </TouchableOpacity>
                 </View>
               </View>
-              <Text style={[styles.listAmount, isLiability(account.kind) && styles.negative]}>
-                {isLiability(account.kind) ? '-' : ''}{formatAccountMoney(Math.abs(account.balance))}
+              <Text style={[styles.listAmount, liability && styles.negative]}>
+                {liability ? '-' : ''}{formatAccountMoney(Math.abs(account.balance))}
               </Text>
             </View>
-          ))}
+            );
+          })}
         </View>
       ) : null}
 

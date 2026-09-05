@@ -6,7 +6,7 @@
 // and the reading and writing here.
 
 import { getDatabase } from './db';
-import { netWorth, type Account } from './financeAccounts';
+import { netWorth, type Account, type BalancePoint } from './financeAccounts';
 
 export type AccountRecord = Account & { notes: string | null };
 
@@ -24,6 +24,10 @@ export async function upsertAccount(input: {
   apr?: number | null;
   minimumPayment?: number | null;
   notes?: string;
+  // What was paid in or taken out since the last time this balance was
+  // recorded. Optional, and the difference it makes is whether the
+  // measured figure can be called a return at all.
+  contribution?: number;
 }): Promise<string> {
   const db = await getDatabase();
   const now = new Date().toISOString();
@@ -44,15 +48,74 @@ export async function upsertAccount(input: {
       id, input.name.trim(), input.kind, input.balance, input.apr ?? null, input.minimumPayment ?? null,
       input.notes?.trim() || null, now, now,
     );
+    await recordBalancePoint(id, input.balance, 0);
     await recordNetWorthSnapshot();
     return id;
   }
 
-  // A balance changing is the only moment the net-worth line has anything
-  // new to say, so that is when a point is recorded. See the table's own
-  // comment for why this is not on a timer.
+  // A balance changing is the only moment either history has anything new
+  // to say, so that is when a point is recorded. See the tables' own
+  // comments for why this is not on a timer.
+  await recordBalancePoint(input.id, input.balance, input.contribution ?? 0);
   await recordNetWorthSnapshot();
   return input.id;
+}
+
+// --- One account's own balance history ---------------------------------------
+
+function todayIso(): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+async function recordBalancePoint(accountId: string, balance: number, contribution: number): Promise<void> {
+  const db = await getDatabase();
+  // One row per account per day, replaced if the same balance is corrected
+  // again the same day. A contribution recorded twice in one day is added
+  // rather than replaced, since two deposits on one day are two deposits.
+  await db.runAsync(
+    `
+      INSERT INTO finance_account_balance_history (id, account_id, recorded_on, balance, contribution)
+      VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT(account_id, recorded_on) DO UPDATE SET
+        balance = excluded.balance,
+        contribution = finance_account_balance_history.contribution + excluded.contribution
+    `,
+    `fin_bal_${accountId}_${todayIso()}`, accountId, todayIso(), balance, contribution,
+  );
+}
+
+export async function listBalanceHistory(accountId: string): Promise<BalancePoint[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ date: string; balance: number; contribution: number }>(
+    `
+      SELECT recorded_on AS date, balance, contribution
+      FROM finance_account_balance_history
+      WHERE account_id = ?
+      ORDER BY recorded_on
+    `,
+    accountId,
+  );
+  return rows;
+}
+
+/** Every account's history at once, keyed by account id, so a screen
+ *  showing a list of accounts needs one query rather than one per row. */
+export async function listAllBalanceHistory(): Promise<Record<string, BalancePoint[]>> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ accountId: string; date: string; balance: number; contribution: number }>(
+    `
+      SELECT account_id AS accountId, recorded_on AS date, balance, contribution
+      FROM finance_account_balance_history
+      ORDER BY account_id, recorded_on
+    `,
+  );
+  const byAccount: Record<string, BalancePoint[]> = {};
+  for (const row of rows) {
+    (byAccount[row.accountId] ??= []).push({ date: row.date, balance: row.balance, contribution: row.contribution });
+  }
+  return byAccount;
 }
 
 export async function setAccountActive(id: string, active: boolean): Promise<void> {
