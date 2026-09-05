@@ -66,6 +66,12 @@ const EXTRA_OPTIONS = [
   { label: '$500 a month extra', value: '500' },
 ];
 
+function todayLocalIso(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 export function FinanceMoneySection({ tabColor }: Props) {
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [accounts, setAccounts] = useState<AccountRecord[]>([]);
@@ -331,6 +337,31 @@ export function FinanceMoneySection({ tabColor }: Props) {
                   </Text>
                 ) : null}
                 {change ? <Text style={styles.listMeta}>{describeMeasuredChange(change)}</Text> : null}
+                {(() => {
+                  const points = balanceHistory[account.id] ?? [];
+                  const activity = accountActivity({
+                    account,
+                    asOf: points.length > 0 ? points[points.length - 1].date : null,
+                    entries: entries.map((entry) => ({
+                      occurredOn: entry.occurredOn,
+                      direction: entry.direction as 'expense' | 'income',
+                      amount: entry.amount,
+                      paidFromAccountId: entry.paidFromAccountId,
+                    })),
+                    upcoming: upcomingByAccount,
+                  });
+                  const text = describeAccountActivity(activity, liability);
+                  return text ? (
+                    <Text
+                      style={[
+                        styles.listMeta,
+                        activity.leftAfterUpcoming != null && activity.leftAfterUpcoming < 0 && styles.negative,
+                      ]}
+                    >
+                      {text}
+                    </Text>
+                  ) : null;
+                })()}
                 {!change && rateKindFor(account.kind) === 'market' ? (
                   <Text style={styles.listMeta}>
                     Update this balance again in a month or so and the app can say what it actually did.
@@ -356,6 +387,33 @@ export function FinanceMoneySection({ tabColor }: Props) {
             </View>
             );
           })}
+        </View>
+      ) : null}
+
+      {duplicated.length > 0 ? (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Counted twice</Text>
+          <Text style={styles.bodyText}>
+            The same payment looks like it is recorded in two places. Your monthly bills count it once, and the payoff
+            plan counts it again as that debt&apos;s minimum payment, so between them one payment is being treated as
+            two.
+          </Text>
+          {duplicated.map((row) => (
+            <View key={`${row.accountId}-${row.billName}`} style={styles.listRow}>
+              <View style={styles.listMain}>
+                <Text style={styles.listTitle}>{row.billName}</Text>
+                <Text style={styles.listMeta}>
+                  {formatAccountMoney(row.billAmount)} as a bill, and {formatAccountMoney(row.minimumPayment)} as the
+                  minimum on {row.accountName}.
+                </Text>
+              </View>
+            </View>
+          ))}
+          <Text style={styles.footnote}>
+            Nothing is changed for you, because which one to keep is your call. Clearing the minimum payment on the
+            account leaves the bill as the single record, and clearing the bill&apos;s link leaves the debt plan as the
+            single record.
+          </Text>
         </View>
       ) : null}
 

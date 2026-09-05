@@ -25,6 +25,24 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-05, 1.0.34.6): the two halves of Finances connected, after a one-line question that found a real hole.** Asked directly: "When they pay out, it needs to come from an account somewhere. Does it?"
+
+**It did not.** Bills, income and recorded spending were a flow with no source; accounts were a stock nothing ever touched. Paying rent left checking exactly as it was, getting paid left it exactly as it was, and buying groceries on a card left that card's balance where it stood, which quietly made the payoff plan wrong. The two tables predate accounts (`finance_recurring` from 1.0.34.1, `finance_accounts` from 1.0.34.4) and nothing had ever joined them.
+
+**The obvious fix is to decrement the balance, and it is the wrong one.** A balance here is typed by hand, and the app only ever sees the transactions someone bothered to record: not the coffee, not the bank fee, not a direct debit nobody set up as a recurring bill. Subtracting what it knows from a real balance produces a number that is confidently wrong within a month, and worse, one nobody can tell apart from a real one afterwards. This is the same call already made twice today for interest, and it holds harder here.
+
+**So the balance stays exactly what was entered, on the date it was entered, and what the records say has happened since is reported beside it.** The gap between the two is not an error to resolve. It is the most useful thing on the screen: it says how much spending is going unrecorded.
+
+**Three nullable columns** (`paid_from_account_id` on recurring and entries, `paid_to_account_id` on recurring), added with the established conditional `ALTER TABLE` pattern, so no reference-database change and no re-import. **Nullable and staying that way:** requiring an account would make the form worse for someone who only wants a monthly total, and would turn a bill someone knows about into one they cannot record until they have set up an account.
+
+**The cutoff is where a wrong number was easiest to produce, and it is tested from both sides.** An entry dated BEFORE the balance was last confirmed is already inside that balance, and counting it again would report money as unaccounted for when it was accounted for. A liability also moves the other way: spending on a card increases what is owed while the same figures reduce an asset, and getting that backwards would show a card being paid down while it was being run up.
+
+**A duplication this exposed, worth more than the feature that found it.** A car payment recorded as a bill AND as the loan account's minimum payment is one payment described in two places: the monthly total counted it, and the payoff plan counted it again. `duplicatedDebtPayments` reports it and **changes nothing**, since which of the two to keep is not the app's call and silently ignoring one would make a figure someone can see disagree with a figure they cannot. This is the same fault the due-date model was restarted over in 1.0.34.2, arriving from a different direction.
+
+**Grocery lines and therapy sessions are deliberately not linked**, and the screen says so by omission rather than guessing: they are read where they live and carry no account of their own, so they count toward spending and not toward any one account's reconciliation. Adding an account column to `grocery_list_items` would be a reach into another feature for a figure that is already honest without it.
+
+`tsc` clean, `eslint` clean on every touched file, bare-text audit 0, suites 72/108/69/142/55/142/29/30. Four mutations confirmed to break the new gates. **Not yet confirmed on-device.**
+
 **Most recent (2026-09-05, 1.0.34.5): interest, and the discovery that the rate line was drawn in the wrong place.** Direct question: "Should things like Own: Investments, and Own: Retirement also be capable of tracking interest or compounded interest... Same would be for interest on a car loan or credit card."
 
 **The answer splits three ways rather than two, and `carriesDebtTerms` was conflating two different things.** It meant "is a liability", so Savings could not hold an APY despite that rate being printed on a statement, while Investments would have been offered a field it has no honest value for. The real distinction is not asset against liability:

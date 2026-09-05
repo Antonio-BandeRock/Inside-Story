@@ -53,6 +53,7 @@ const {
   simulatePayoff, comparePayoffStrategies, describePayoff,
   accountKind, carriesMinimumPayment, rateKindFor,
   carryCost, totalMonthlyInterest, measuredChange, describeMeasuredChange,
+  accountActivity, describeAccountActivity, duplicatedDebtPayments,
   MIN_DAYS_FOR_MEASURED_CHANGE,
   formatAccountMoney, isSetAsideCategory,
 } = A;
@@ -423,6 +424,119 @@ const point = (date, balance, contribution = 0) => ({ date, balance, contributio
   const shuffled = measuredChange([point('2026-09-01', 46000), point('2026-03-01', 40000), point('2026-06-01', 43000)]);
   check('the earliest point is the start whatever order they arrive in', shuffled.startBalance, 40000);
   check('and the latest is the end', shuffled.endBalance, 46000);
+}
+
+// --- 8. Tying spending to the account it came out of ------------------------
+
+const ent = (over = {}) => ({ occurredOn: '2026-09-10', direction: 'expense', amount: 100, paidFromAccountId: 'chk', ...over });
+
+{
+  // The cutoff is the part most likely to produce a wrong number: an entry
+  // dated BEFORE the balance was confirmed is already inside that balance,
+  // and counting it again reports money as unaccounted for when it was
+  // accounted for.
+  const a = accountActivity({
+    account: acct({ id: 'chk', kind: 'checking', balance: 2000 }),
+    asOf: '2026-09-01',
+    entries: [
+      ent({ occurredOn: '2026-08-20', amount: 500 }),
+      ent({ occurredOn: '2026-09-05', amount: 300 }),
+      ent({ occurredOn: '2026-09-12', amount: 120 }),
+    ],
+    upcoming: [],
+  });
+  check('entries before the balance date are already in it', a.entryCount, 2);
+  check('so only what came after is counted', a.recordedOut, 420);
+  check('and the implied balance follows from that', a.impliedBalance, 1580);
+}
+{
+  // Another account's spending must never land on this one.
+  const a = accountActivity({
+    account: acct({ id: 'chk', kind: 'checking', balance: 2000 }),
+    asOf: '2026-09-01',
+    entries: [ent({ paidFromAccountId: 'sav', amount: 900 }), ent({ paidFromAccountId: null, amount: 400 }), ent({ amount: 50 })],
+    upcoming: [],
+  });
+  check('spending from another account is not counted here', a.recordedOut, 50);
+  check('and unlinked spending is not silently attributed', a.entryCount, 1);
+}
+{
+  // A liability moves the other way. Spending on a card increases what is
+  // owed; a payment reduces it. Getting this backwards would report a card
+  // being paid down while it was being run up.
+  const card = accountActivity({
+    account: acct({ id: 'card', kind: 'credit_card', balance: 1000 }),
+    asOf: '2026-09-01',
+    entries: [
+      ent({ paidFromAccountId: 'card', amount: 250 }),
+      ent({ paidFromAccountId: 'card', amount: 400, direction: 'income' }),
+    ],
+    upcoming: [],
+  });
+  check('spending on a card increases what is owed', card.impliedBalance, 1000 + 250 - 400);
+  check('and nothing is left over on a debt', card.leftAfterUpcoming, null);
+
+  const checking = accountActivity({
+    account: acct({ id: 'chk', kind: 'checking', balance: 1000 }),
+    asOf: '2026-09-01',
+    entries: [ent({ amount: 250 }), ent({ amount: 400, direction: 'income' })],
+    upcoming: [],
+  });
+  check('the same numbers move an asset the other way', checking.impliedBalance, 1000 - 250 + 400);
+}
+{
+  // Nothing recorded means no implied balance at all, rather than one that
+  // happens to equal the real balance and looks confirmed.
+  const a = accountActivity({
+    account: acct({ id: 'chk', kind: 'checking', balance: 2000 }),
+    asOf: '2026-09-01',
+    entries: [],
+    upcoming: [],
+  });
+  check('no records means no implied figure', a.impliedBalance, null);
+  check('and nothing is described', describeAccountActivity(a, false), null);
+}
+{
+  // The case the whole link is worth having for: more due out than is in.
+  const short = accountActivity({
+    account: acct({ id: 'chk', kind: 'checking', balance: 340 }),
+    asOf: '2026-09-01',
+    entries: [],
+    upcoming: [
+      { accountId: 'chk', amount: 1200, direction: 'expense' },
+      { accountId: 'chk', amount: 90, direction: 'expense' },
+      { accountId: 'sav', amount: 500, direction: 'expense' },
+      { accountId: 'chk', amount: 2000, direction: 'income' },
+    ],
+  });
+  check('only this account is bills are counted', short.upcomingCount, 2);
+  check('income due in is not netted off what is due out', short.upcomingOut, 1290);
+  check('and the shortfall is reported', short.leftAfterUpcoming, 340 - 1290);
+  checkTrue('the wording names the shortfall', describeAccountActivity(short, false).includes('more than the balance'));
+}
+
+{
+  // The same payment described twice, once as a bill and once as a debt's
+  // minimum payment. Nothing linked them before, so the monthly total
+  // counted it and the payoff plan counted it again.
+  const accounts = [
+    acct({ id: 'loan', name: 'Car loan', kind: 'auto_loan', balance: 12000, apr: 6, minimumPayment: 280 }),
+    acct({ id: 'card', name: 'Visa', kind: 'credit_card', balance: 900, apr: 20, minimumPayment: null }),
+  ];
+  const dup = duplicatedDebtPayments({
+    accounts,
+    recurring: [
+      { id: 'r1', name: 'Car payment', amount: 280, paidToAccountId: 'loan', active: true },
+      { id: 'r2', name: 'Visa payment', amount: 60, paidToAccountId: 'card', active: true },
+      { id: 'r3', name: 'Old car payment', amount: 280, paidToAccountId: 'loan', active: false },
+      { id: 'r4', name: 'Rent', amount: 1400, paidToAccountId: null, active: true },
+    ],
+  });
+  check('exactly the one real duplicate is found', dup.length, 1);
+  check('and it names the bill', dup[0].billName, 'Car payment');
+  check('and the account it collides with', dup[0].accountName, 'Car loan');
+  checkTrue('a debt with no minimum recorded is not a duplicate', !dup.some((d) => d.accountId === 'card'));
+  checkTrue('a paused bill is not a duplicate', !dup.some((d) => d.billName === 'Old car payment'));
 }
 
 // --- 5. Money formatting ----------------------------------------------------

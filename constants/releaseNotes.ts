@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.6',
+    date: '2026-09-05',
+    changes: [
+      'Bills and spending can now say which account they come out of, which nothing in Finances did before. Money went out and no account was any different for it.',
+      'Optional, always. A bill you know about is worth recording before you have set up a single account.',
+      'What it buys: an account can tell you when more is due out of it than is in it. Rent due on the 1st against $340 in checking is the warning worth having.',
+      'Nothing is deducted automatically, and that is deliberate. The app only sees what you record, never the coffee or the bank fee, so a balance it worked out for you would be confidently wrong within a month and impossible to tell apart from a real one. What you typed stays what you typed, and what your records say has happened since is shown next to it.',
+      'A difference between the two is not an error. It is a measure of how much of your spending never got written down.',
+      'A card or loan payment can say which debt it pays down, and the app now spots the same payment being counted twice: once as a bill, once as that debt’s minimum payment. It says so and changes nothing, because which one to keep is your call.',
+    ],
+  },
+  {
     version: '1.0.34.5',
     date: '2026-09-05',
     changes: [
