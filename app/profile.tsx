@@ -248,18 +248,29 @@ const NUTRIENT_TARGET_FIELDS: { nutrientCode: string; label: string; unit: strin
   { nutrientCode: 'sodium', label: 'Sodium', unit: 'mg', isCeiling: true },
 ];
 
+// Kept in the same order the cards actually render in, 2026-09-04. Nothing
+// here depends on that order (this list only seeds the all-collapsed Set
+// and derives CardSectionKey), but a list that disagrees with the screen
+// is a trap for whoever reads it next, and the grouping below is the
+// clearest statement of what this screen is organized around.
 const ALL_CARD_SECTION_KEYS = [
+  // About You
   'personal-info',
+  // Your Health
   'conditions',
+  'general-health',
+  // How You Eat
   'diet-preferences',
+  'meal-schedule',
   'meal-plan',
   'nutrient-targets',
-  'general-health',
+  // Growing Your Own
+  'garden-details',
+  // How the App Looks
   'home-screen',
   'header-growth',
   'appearance',
-  'garden-details',
-  'meal-schedule',
+  // Device & Account
   'connections',
   'backup',
   'app-updates',
@@ -506,6 +517,34 @@ export default function ProfileScreen() {
         <Text style={styles.label}>{title}</Text>
         <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={18} color={colors.menuIconMuted} />
       </TouchableOpacity>
+    );
+  }
+  // 2026-09-04, direct request: "the order of things in preferences needs
+  // to be reevaluated." The card order had grown by build history rather
+  // than by what each card affects, so Garden Details sat second (above
+  // every health and food setting) purely because it was built early,
+  // while Conditions & Check-In sat fourth despite driving condition
+  // scoring, Digest pinning, "Meals You Can Eat", recipe cautions,
+  // Insights personalization, Pattern Finder scoping and healing stages.
+  // The four food cards were also split apart by Conditions sitting in
+  // the middle of them.
+  //
+  // Reordered into six groups, and these headings make the grouping
+  // legible rather than leaving it implied. Deliberately NOT a seventh
+  // collapse layer: this screen already has three (cards, TabHub icon
+  // groups, Appearance sub-sections), and a heading that can be collapsed
+  // to hide the headings underneath it stops being a signpost. A plain
+  // label is all this needs to do its job.
+  //
+  // Carries its own surface per the standing no-bare-text-on-the-tab-
+  // background rule, and matches the groupHeadingChip shape already used
+  // on Schedules and Trends for exactly this case: a heading introducing
+  // a GROUP of separate cards rather than labelling one card.
+  function renderGroupHeading(title: string) {
+    return (
+      <View style={styles.groupHeadingChip}>
+        <Text style={styles.groupHeadingText}>{title}</Text>
+      </View>
     );
   }
   // 2026-08-14, direct request: "Is there a way to collapse each of the
@@ -2003,6 +2042,7 @@ export default function ProfileScreen() {
       </Text>
       {savedFlash ? <Text style={styles.savedFlash}>Saved</Text> : null}
 
+      {renderGroupHeading('About You')}
       {/* Personal Info, 2026-08-09, regrouped from 5 separate cards
           (Your name, Units, Sex, Birth date, Height) plus a new Weight
           field, all explicitly requested together. Every former card's
@@ -2269,250 +2309,7 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* Garden Details, 2026-08-29, direct request: move Growing Zone
-          into its own section named Garden Details, since "in future
-          versions there will be more to setup in here." Its own card
-          rather than a sub-heading inside Personal Info, so the further
-          garden settings that request anticipates have somewhere to land
-          without another reorganisation. */}
-      <View style={styles.card}>
-        {renderCardHeader('garden-details', 'Garden Details')}
-        {!collapsedSections.has('garden-details') ? (
-          <View style={styles.cardBody}>
-            <Text style={styles.subLabelDivided}>Growing Zone</Text>
-            <Text style={styles.helpText}>
-              Your USDA Plant Hardiness Zone (e.g. &quot;7a&quot;): powers the Garden tab&apos;s
-              cited crop guidance for your climate. Picking it here only sets the zone letter itself, not a
-              location, so Home&apos;s weather/sunrise/sunset section stays off until you set your postal code
-              in Garden&apos;s My Zone lens, which sets both at once.
-            </Text>
-            <View style={styles.dateRow}>
-              <PickerField label="Zone">
-                <PopoverSelect
-                  options={USDA_ZONES}
-                  selected={profile.growingZone}
-                  minWidth={64}
-                  tabColor={colors.menuIconMuted}
-                  groundSurface
-                  onSelect={(value) => {
-                    setProfile((current) => ({ ...current, growingZone: value }));
-                    setUserProfile({ growingZone: value });
-                  }}
-                />
-              </PickerField>
-              <TouchableOpacity
-                style={styles.growingZoneLinkButton}
-                onPress={() => router.push({ pathname: '/garden', params: { openGardenLens: 'myZone' } })}
-              >
-                <Text style={styles.growingZoneLinkText}>Find My Zone →</Text>
-              </TouchableOpacity>
-            </View>
-
-          </View>
-        ) : null}
-      </View>
-
-      {/* Meal Timing, 2026-08-09, regrouped from 2 separate cards (Usual
-          meal times, Fasting/eating window), explicitly requested
-          together. */}
-      <View style={styles.card}>
-        {renderCardHeader('meal-schedule', 'Meal Timing')}
-        {!collapsedSections.has('meal-schedule') ? (
-          <View style={styles.cardBody}>
-            <Text style={styles.subLabel}>Usual meal times</Text>
-            <Text style={styles.helpText}>
-              About what time you normally eat each one. Used to pre-fill the time when you schedule that meal type
-              on the Schedule tab; you can always change it there.
-            </Text>
-            {DAY_PARTS.map((dayPart) => (
-              <View key={dayPart} style={styles.mealTimeRow}>
-                <Text style={styles.mealTimeLabel}>{dayPart[0].toUpperCase() + dayPart.slice(1)}</Text>
-                <View style={styles.dateRow}>
-                  <PickerField label="Hour">
-                    <PopoverSelect
-                      options={HOUR_OPTIONS}
-                      selected={mealTimeBuffers[dayPart].hour || null}
-                      minWidth={48}
-                      tabColor={colors.menuIconMuted}
-                      groundSurface
-                      onSelect={(value) => {
-                        setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], hour: value } }));
-                        commitMealTime(dayPart, { hour: value });
-                      }}
-                    />
-                  </PickerField>
-                  <PickerField label="Minute">
-                    <PopoverSelect
-                      options={MINUTE_OPTIONS}
-                      selected={mealTimeBuffers[dayPart].minute || null}
-                      minWidth={52}
-                      tabColor={colors.menuIconMuted}
-                      groundSurface
-                      onSelect={(value) => {
-                        setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], minute: value } }));
-                        commitMealTime(dayPart, { minute: value });
-                      }}
-                    />
-                  </PickerField>
-                  <View style={styles.pillRow}>
-                    {(['AM', 'PM'] as const).map((option) => {
-                      const active = mealTimeBuffers[dayPart].ampm === option;
-                      return (
-                        <TouchableOpacity
-                          key={option}
-                          style={[styles.pillSmall, active && styles.pillActive]}
-                          onPress={() => {
-                            setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], ampm: option } }));
-                            commitMealTime(dayPart, { ampm: option });
-                          }}
-                        >
-                          <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                  <TouchableOpacity onPress={() => clearMealTime(dayPart)} style={styles.clearButton}>
-                    <Text style={styles.clearButtonText}>Clear</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))}
-
-            <Text style={styles.subLabelDivided}>Fasting / eating window</Text>
-            <Text style={styles.helpText}>
-              If you do intermittent fasting, set the window you actually eat within. Once both times are set here,
-              the Schedule tab won't let you schedule a meal outside that window.
-            </Text>
-            <View style={styles.pillRow}>
-              {([
-                { value: false, label: "I'm not fasting" },
-                { value: true, label: "I'm doing intermittent fasting" },
-              ]).map((option) => (
-                <TouchableOpacity
-                  key={option.label}
-                  style={[styles.pill, profile.fastingEnabled === option.value && styles.pillActive]}
-                  onPress={() => handleFastingToggle(option.value)}
-                >
-                  <Text style={[styles.pillText, profile.fastingEnabled === option.value && styles.pillTextActive]}>
-                    {option.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {profile.fastingEnabled ? (
-              <>
-                <Text style={styles.subLabel}>Eating window starts</Text>
-                <View style={styles.dateRow}>
-                  <PickerField label="Hour">
-                    <PopoverSelect
-                      options={HOUR_OPTIONS}
-                      selected={eatingWindowStartBuffer.hour || null}
-                      minWidth={48}
-                      tabColor={colors.menuIconMuted}
-                      groundSurface
-                      onSelect={(value) => {
-                        setEatingWindowStartBuffer((current) => ({ ...current, hour: value }));
-                        commitEatingWindow({ start: { hour: value } });
-                      }}
-                    />
-                  </PickerField>
-                  <PickerField label="Minute">
-                    <PopoverSelect
-                      options={MINUTE_OPTIONS}
-                      selected={eatingWindowStartBuffer.minute || null}
-                      minWidth={52}
-                      tabColor={colors.menuIconMuted}
-                      groundSurface
-                      onSelect={(value) => {
-                        setEatingWindowStartBuffer((current) => ({ ...current, minute: value }));
-                        commitEatingWindow({ start: { minute: value } });
-                      }}
-                    />
-                  </PickerField>
-                  <View style={styles.pillRow}>
-                    {(['AM', 'PM'] as const).map((option) => {
-                      const active = eatingWindowStartBuffer.ampm === option;
-                      return (
-                        <TouchableOpacity
-                          key={option}
-                          style={[styles.pillSmall, active && styles.pillActive]}
-                          onPress={() => {
-                            setEatingWindowStartBuffer((current) => ({ ...current, ampm: option }));
-                            commitEatingWindow({ start: { ampm: option } });
-                          }}
-                        >
-                          <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </View>
-
-                <Text style={styles.subLabel}>Eating window ends</Text>
-                <View style={styles.dateRow}>
-                  <PickerField label="Hour">
-                    <PopoverSelect
-                      options={HOUR_OPTIONS}
-                      selected={eatingWindowEndBuffer.hour || null}
-                      minWidth={48}
-                      tabColor={colors.menuIconMuted}
-                      groundSurface
-                      onSelect={(value) => {
-                        setEatingWindowEndBuffer((current) => ({ ...current, hour: value }));
-                        commitEatingWindow({ end: { hour: value } });
-                      }}
-                    />
-                  </PickerField>
-                  <PickerField label="Minute">
-                    <PopoverSelect
-                      options={MINUTE_OPTIONS}
-                      selected={eatingWindowEndBuffer.minute || null}
-                      minWidth={52}
-                      tabColor={colors.menuIconMuted}
-                      groundSurface
-                      onSelect={(value) => {
-                        setEatingWindowEndBuffer((current) => ({ ...current, minute: value }));
-                        commitEatingWindow({ end: { minute: value } });
-                      }}
-                    />
-                  </PickerField>
-                  <View style={styles.pillRow}>
-                    {(['AM', 'PM'] as const).map((option) => {
-                      const active = eatingWindowEndBuffer.ampm === option;
-                      return (
-                        <TouchableOpacity
-                          key={option}
-                          style={[styles.pillSmall, active && styles.pillActive]}
-                          onPress={() => {
-                            setEatingWindowEndBuffer((current) => ({ ...current, ampm: option }));
-                            commitEatingWindow({ end: { ampm: option } });
-                          }}
-                        >
-                          <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                  <TouchableOpacity onPress={clearEatingWindow} style={styles.clearButton}>
-                    <Text style={styles.clearButtonText}>Clear</Text>
-                  </TouchableOpacity>
-                </View>
-
-                {profile.eatingWindowStart && profile.eatingWindowEnd ? (
-                  <Text style={styles.derivedText}>
-                    Enforced window: {formatTime12(profile.eatingWindowStart)} - {formatTime12(profile.eatingWindowEnd)}
-                  </Text>
-                ) : (
-                  <Text style={styles.derivedText}>Set both times above to start enforcing this window.</Text>
-                )}
-              </>
-            ) : null}
-
-          </View>
-        ) : null}
-      </View>
-
+      {renderGroupHeading('Your Health')}
       {/* Conditions & Check-In, 2026-08-09, regrouped from 3 separate
           cards (Your conditions, Where you're at, plus a brand-new Food
           Allergies sub-section) explicitly requested together. */}
@@ -2860,6 +2657,42 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      {/* General Health Guidance, 2026-08-14, the general-health gradient's
+          per-topic mute list (lib/generalHealthRules.ts/
+          generalHealthPreferences.ts). Every topic starts shown (not
+          muted); turning one off only hides it while actively building a
+          meal. It never affects what Trends or a doctor-facing Report
+          shows, since neither ever reads this preference, only the
+          builders themselves do. */}
+      <View style={styles.card}>
+        {renderCardHeader('general-health', 'General Health Guidance')}
+        {!collapsedSections.has('general-health') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              These are condition-agnostic notes (glycemic impact, cooking method, portion size, and similar) that
+              can show up while building a meal, regardless of which conditions you track. Turn any one off below if
+              it&apos;s not useful to you. Your Trends and any report you generate still show the full picture
+              either way; this only affects what appears while you&apos;re actively cooking.
+            </Text>
+            <View style={styles.pillRow}>
+              {GENERAL_HEALTH_RULES.map((rule) => {
+                const shown = !generalHealthPrefs.mutedTopics[rule.topicId];
+                return (
+                  <TouchableOpacity
+                    key={rule.topicId}
+                    style={[styles.pill, shown && styles.pillActive]}
+                    onPress={() => toggleGeneralHealthTopic(rule.topicId)}
+                  >
+                    <Text style={[styles.pillText, shown && styles.pillTextActive]}>{rule.title}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
+      </View>
+
+      {renderGroupHeading('How You Eat')}
       {/* Diet Preferences, 2026-08-24, direct request: "the type of diet a
           person is trying to follow or is interested in trying should be
           in the Profile." A separate card from Conditions above rather
@@ -2898,6 +2731,207 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Meal Timing, 2026-08-09, regrouped from 2 separate cards (Usual
+          meal times, Fasting/eating window), explicitly requested
+          together. */}
+      <View style={styles.card}>
+        {renderCardHeader('meal-schedule', 'Meal Timing')}
+        {!collapsedSections.has('meal-schedule') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.subLabel}>Usual meal times</Text>
+            <Text style={styles.helpText}>
+              About what time you normally eat each one. Used to pre-fill the time when you schedule that meal type
+              on the Schedule tab; you can always change it there.
+            </Text>
+            {DAY_PARTS.map((dayPart) => (
+              <View key={dayPart} style={styles.mealTimeRow}>
+                <Text style={styles.mealTimeLabel}>{dayPart[0].toUpperCase() + dayPart.slice(1)}</Text>
+                <View style={styles.dateRow}>
+                  <PickerField label="Hour">
+                    <PopoverSelect
+                      options={HOUR_OPTIONS}
+                      selected={mealTimeBuffers[dayPart].hour || null}
+                      minWidth={48}
+                      tabColor={colors.menuIconMuted}
+                      groundSurface
+                      onSelect={(value) => {
+                        setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], hour: value } }));
+                        commitMealTime(dayPart, { hour: value });
+                      }}
+                    />
+                  </PickerField>
+                  <PickerField label="Minute">
+                    <PopoverSelect
+                      options={MINUTE_OPTIONS}
+                      selected={mealTimeBuffers[dayPart].minute || null}
+                      minWidth={52}
+                      tabColor={colors.menuIconMuted}
+                      groundSurface
+                      onSelect={(value) => {
+                        setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], minute: value } }));
+                        commitMealTime(dayPart, { minute: value });
+                      }}
+                    />
+                  </PickerField>
+                  <View style={styles.pillRow}>
+                    {(['AM', 'PM'] as const).map((option) => {
+                      const active = mealTimeBuffers[dayPart].ampm === option;
+                      return (
+                        <TouchableOpacity
+                          key={option}
+                          style={[styles.pillSmall, active && styles.pillActive]}
+                          onPress={() => {
+                            setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], ampm: option } }));
+                            commitMealTime(dayPart, { ampm: option });
+                          }}
+                        >
+                          <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                  <TouchableOpacity onPress={() => clearMealTime(dayPart)} style={styles.clearButton}>
+                    <Text style={styles.clearButtonText}>Clear</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+
+            <Text style={styles.subLabelDivided}>Fasting / eating window</Text>
+            <Text style={styles.helpText}>
+              If you do intermittent fasting, set the window you actually eat within. Once both times are set here,
+              the Schedule tab won't let you schedule a meal outside that window.
+            </Text>
+            <View style={styles.pillRow}>
+              {([
+                { value: false, label: "I'm not fasting" },
+                { value: true, label: "I'm doing intermittent fasting" },
+              ]).map((option) => (
+                <TouchableOpacity
+                  key={option.label}
+                  style={[styles.pill, profile.fastingEnabled === option.value && styles.pillActive]}
+                  onPress={() => handleFastingToggle(option.value)}
+                >
+                  <Text style={[styles.pillText, profile.fastingEnabled === option.value && styles.pillTextActive]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {profile.fastingEnabled ? (
+              <>
+                <Text style={styles.subLabel}>Eating window starts</Text>
+                <View style={styles.dateRow}>
+                  <PickerField label="Hour">
+                    <PopoverSelect
+                      options={HOUR_OPTIONS}
+                      selected={eatingWindowStartBuffer.hour || null}
+                      minWidth={48}
+                      tabColor={colors.menuIconMuted}
+                      groundSurface
+                      onSelect={(value) => {
+                        setEatingWindowStartBuffer((current) => ({ ...current, hour: value }));
+                        commitEatingWindow({ start: { hour: value } });
+                      }}
+                    />
+                  </PickerField>
+                  <PickerField label="Minute">
+                    <PopoverSelect
+                      options={MINUTE_OPTIONS}
+                      selected={eatingWindowStartBuffer.minute || null}
+                      minWidth={52}
+                      tabColor={colors.menuIconMuted}
+                      groundSurface
+                      onSelect={(value) => {
+                        setEatingWindowStartBuffer((current) => ({ ...current, minute: value }));
+                        commitEatingWindow({ start: { minute: value } });
+                      }}
+                    />
+                  </PickerField>
+                  <View style={styles.pillRow}>
+                    {(['AM', 'PM'] as const).map((option) => {
+                      const active = eatingWindowStartBuffer.ampm === option;
+                      return (
+                        <TouchableOpacity
+                          key={option}
+                          style={[styles.pillSmall, active && styles.pillActive]}
+                          onPress={() => {
+                            setEatingWindowStartBuffer((current) => ({ ...current, ampm: option }));
+                            commitEatingWindow({ start: { ampm: option } });
+                          }}
+                        >
+                          <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+
+                <Text style={styles.subLabel}>Eating window ends</Text>
+                <View style={styles.dateRow}>
+                  <PickerField label="Hour">
+                    <PopoverSelect
+                      options={HOUR_OPTIONS}
+                      selected={eatingWindowEndBuffer.hour || null}
+                      minWidth={48}
+                      tabColor={colors.menuIconMuted}
+                      groundSurface
+                      onSelect={(value) => {
+                        setEatingWindowEndBuffer((current) => ({ ...current, hour: value }));
+                        commitEatingWindow({ end: { hour: value } });
+                      }}
+                    />
+                  </PickerField>
+                  <PickerField label="Minute">
+                    <PopoverSelect
+                      options={MINUTE_OPTIONS}
+                      selected={eatingWindowEndBuffer.minute || null}
+                      minWidth={52}
+                      tabColor={colors.menuIconMuted}
+                      groundSurface
+                      onSelect={(value) => {
+                        setEatingWindowEndBuffer((current) => ({ ...current, minute: value }));
+                        commitEatingWindow({ end: { minute: value } });
+                      }}
+                    />
+                  </PickerField>
+                  <View style={styles.pillRow}>
+                    {(['AM', 'PM'] as const).map((option) => {
+                      const active = eatingWindowEndBuffer.ampm === option;
+                      return (
+                        <TouchableOpacity
+                          key={option}
+                          style={[styles.pillSmall, active && styles.pillActive]}
+                          onPress={() => {
+                            setEatingWindowEndBuffer((current) => ({ ...current, ampm: option }));
+                            commitEatingWindow({ end: { ampm: option } });
+                          }}
+                        >
+                          <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                  <TouchableOpacity onPress={clearEatingWindow} style={styles.clearButton}>
+                    <Text style={styles.clearButtonText}>Clear</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {profile.eatingWindowStart && profile.eatingWindowEnd ? (
+                  <Text style={styles.derivedText}>
+                    Enforced window: {formatTime12(profile.eatingWindowStart)} - {formatTime12(profile.eatingWindowEnd)}
+                  </Text>
+                ) : (
+                  <Text style={styles.derivedText}>Set both times above to start enforcing this window.</Text>
+                )}
+              </>
+            ) : null}
+
           </View>
         ) : null}
       </View>
@@ -3023,41 +3057,51 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* General Health Guidance, 2026-08-14, the general-health gradient's
-          per-topic mute list (lib/generalHealthRules.ts/
-          generalHealthPreferences.ts). Every topic starts shown (not
-          muted); turning one off only hides it while actively building a
-          meal. It never affects what Trends or a doctor-facing Report
-          shows, since neither ever reads this preference, only the
-          builders themselves do. */}
+      {renderGroupHeading('Growing Your Own')}
+      {/* Garden Details, 2026-08-29, direct request: move Growing Zone
+          into its own section named Garden Details, since "in future
+          versions there will be more to setup in here." Its own card
+          rather than a sub-heading inside Personal Info, so the further
+          garden settings that request anticipates have somewhere to land
+          without another reorganisation. */}
       <View style={styles.card}>
-        {renderCardHeader('general-health', 'General Health Guidance')}
-        {!collapsedSections.has('general-health') ? (
+        {renderCardHeader('garden-details', 'Garden Details')}
+        {!collapsedSections.has('garden-details') ? (
           <View style={styles.cardBody}>
+            <Text style={styles.subLabelDivided}>Growing Zone</Text>
             <Text style={styles.helpText}>
-              These are condition-agnostic notes (glycemic impact, cooking method, portion size, and similar) that
-              can show up while building a meal, regardless of which conditions you track. Turn any one off below if
-              it&apos;s not useful to you. Your Trends and any report you generate still show the full picture
-              either way; this only affects what appears while you&apos;re actively cooking.
+              Your USDA Plant Hardiness Zone (e.g. &quot;7a&quot;): powers the Garden tab&apos;s
+              cited crop guidance for your climate. Picking it here only sets the zone letter itself, not a
+              location, so Home&apos;s weather/sunrise/sunset section stays off until you set your postal code
+              in Garden&apos;s My Zone lens, which sets both at once.
             </Text>
-            <View style={styles.pillRow}>
-              {GENERAL_HEALTH_RULES.map((rule) => {
-                const shown = !generalHealthPrefs.mutedTopics[rule.topicId];
-                return (
-                  <TouchableOpacity
-                    key={rule.topicId}
-                    style={[styles.pill, shown && styles.pillActive]}
-                    onPress={() => toggleGeneralHealthTopic(rule.topicId)}
-                  >
-                    <Text style={[styles.pillText, shown && styles.pillTextActive]}>{rule.title}</Text>
-                  </TouchableOpacity>
-                );
-              })}
+            <View style={styles.dateRow}>
+              <PickerField label="Zone">
+                <PopoverSelect
+                  options={USDA_ZONES}
+                  selected={profile.growingZone}
+                  minWidth={64}
+                  tabColor={colors.menuIconMuted}
+                  groundSurface
+                  onSelect={(value) => {
+                    setProfile((current) => ({ ...current, growingZone: value }));
+                    setUserProfile({ growingZone: value });
+                  }}
+                />
+              </PickerField>
+              <TouchableOpacity
+                style={styles.growingZoneLinkButton}
+                onPress={() => router.push({ pathname: '/garden', params: { openGardenLens: 'myZone' } })}
+              >
+                <Text style={styles.growingZoneLinkText}>Find My Zone →</Text>
+              </TouchableOpacity>
             </View>
+
           </View>
         ) : null}
       </View>
 
+      {renderGroupHeading('How the App Looks')}
       {/* Home Screen, 2026-08-21, direct request: "make it capable of
           turning on and off whatever the user wants to from the home
           screen so they are able to dial in on what they want to have
@@ -3367,6 +3411,7 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      {renderGroupHeading('Device & Account')}
       {/* Step 4 of the device-pairing prerequisite list, 2026-08-15, see
           CLAUDE.md's "Sharing individual recipes between two people"
           security-requirement note. Management for this device's paired
@@ -3694,6 +3739,30 @@ const styles = StyleSheet.create({
 
     ...textShadow,
 
+  },
+  // The six group headings, 2026-09-04. Sits between cards rather than
+  // inside one, so it needs a surface of its own; same shape as the
+  // groupHeadingChip already defined on Schedules and Trends. Deliberately
+  // narrower padding and a tighter radius than `card` below, so a heading
+  // does not read as another empty card.
+  groupHeadingChip: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  groupHeadingText: {
+    ...typography.sectionTitle,
+    // Deliberately the brighter primary text rather than the muted
+    // menuLabelMuted the card headers below it use: a group heading has to
+    // read as a level ABOVE the card titles it introduces, and matching
+    // their color would flatten the two into one another.
+    color: colors.textPrimary,
+    letterSpacing: 0.5,
+    ...textShadow,
   },
   card: {
     backgroundColor: colors.surface,

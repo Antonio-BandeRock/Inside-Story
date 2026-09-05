@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.33.3',
+    date: '2026-09-04',
+    changes: [
+      'Profile is reordered, and the cards are now grouped under six headings: About You, Your Health, How You Eat, Growing Your Own, How the App Looks, and Device & Account.',
+      'Conditions & Check-In moves near the top, since it is the setting that changes the most elsewhere in the app: condition scoring, which meals read as safe, what the Digest pins, and what Trends looks for.',
+      'The four food cards now sit together as one run instead of being split apart by other settings.',
+      'Garden Details moves down out of second place. It was near the top because it was built early, not because it belonged there.',
+      'Nothing was renamed and no setting changed. Everything you had set is exactly where you left it, just further up or down the page.',
+    ],
+  },
+  {
     version: '1.0.33.2',
     date: '2026-09-04',
     changes: [
