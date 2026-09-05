@@ -528,20 +528,62 @@ function CardLabel({ tabPath, text }: { tabPath: Href; text: string }) {
 // nothing to select. 'quickActions' is already a row of shortcuts into other
 // tabs; putting a menu entry in front of a menu of shortcuts would add a step
 // and reach nothing new.
+// Ordered the same way TabHub's own grid is, by what you do with the thing
+// rather than by where it happens to sit on the page: what you put in, then
+// what it tells you, then the wider world. Grouping by destination tab also
+// makes the colours below read as blocks rather than a scatter.
+//
+// The ORDER is fixed here; which of these appear is still the person's own
+// choice, since the list is filtered to whichever Home sections they have
+// turned on.
+//
+// 'scrollTo' rather than an href marks the one option that stays on Home.
+// Direct correction: '"From the Digest" just takes me to the Digest. It is
+// really the only informational item that should just go to the entity it
+// represents on the Home screen.' That is the distinction: every other card
+// here is a shortcut to a function living in another tab, so selecting it goes
+// there. The Digest cards ARE the content, so selecting that goes to them.
 const HOME_LENS_DESTINATIONS: Partial<
-  Record<HomeSectionKey, { label: string; icon: ComponentProps<typeof Ionicons>['name']; href: Href }>
+  Record<
+    HomeSectionKey,
+    { label: string; icon: ComponentProps<typeof Ionicons>['name']; color: string; href?: Href; scrollTo?: true }
+  >
 > = {
-  symptomCheckinReminder: { label: 'Symptom Check-In', icon: 'pulse', href: '/assessment' as Href },
-  todaysCheckin: { label: "Today's Check-In", icon: 'checkmark-circle', href: '/log' as Href },
-  logAgain: { label: 'Log a Meal', icon: 'restaurant', href: '/find-meal' as Href },
-  groceryList: { label: 'Grocery List', icon: 'cart', href: '/grocery-list' as Href },
-  yourDay: { label: 'Your Day', icon: 'calendar', href: '/schedule' as Href },
-  statTiles: { label: 'Worth a Look', icon: 'sparkles', href: '/insights' as Href },
-  howYoureFeeling: { label: "How You're Feeling", icon: 'heart', href: '/log' as Href },
-  fuelGauges: { label: "Today's Fuel", icon: 'speedometer', href: '/insights' as Href },
-  weekTrend: { label: "This Week's Trend", icon: 'trending-up', href: '/trends' as Href },
-  digestCards: { label: 'From The Digest', icon: 'ribbon', href: '/purple-digest' as Href },
+  // What you put in.
+  logAgain: { label: 'Log a Meal', icon: 'restaurant', color: colors.tabFood, href: '/find-meal' as Href },
+  groceryList: { label: 'Grocery List', icon: 'cart', color: colors.tabFood, href: '/grocery-list' as Href },
+  yourDay: { label: 'Your Day', icon: 'calendar', color: colors.tabSchedules, href: '/schedule' as Href },
+  symptomCheckinReminder: {
+    label: 'Symptom Check-In',
+    icon: 'pulse',
+    color: colors.tabBioCompass,
+    href: '/assessment' as Href,
+  },
+  todaysCheckin: { label: "Today's Check-In", icon: 'checkmark-circle', color: colors.tabBioCompass, href: '/log' as Href },
+  howYoureFeeling: { label: "How You're Feeling", icon: 'heart', color: colors.tabBioCompass, href: '/log' as Href },
+  // What it tells you.
+  statTiles: { label: 'Worth a Look', icon: 'sparkles', color: colors.tabInsights, href: '/insights' as Href },
+  fuelGauges: { label: "Today's Fuel", icon: 'speedometer', color: colors.tabInsights, href: '/insights' as Href },
+  weekTrend: { label: "This Week's Trend", icon: 'trending-up', color: colors.tabTrends, href: '/trends' as Href },
+  // The wider world, and the one that stays here.
+  digestCards: { label: 'From The Digest', icon: 'ribbon', color: colors.tabPurpleDigest, scrollTo: true },
 };
+
+// Fixed order for the menu, independent of how the sections are stacked on the
+// page. Object key order would work today and would break silently the first
+// time someone reordered the literal above, so it is stated.
+const HOME_LENS_ORDER: HomeSectionKey[] = [
+  'logAgain',
+  'groceryList',
+  'yourDay',
+  'symptomCheckinReminder',
+  'todaysCheckin',
+  'howYoureFeeling',
+  'statTiles',
+  'fuelGauges',
+  'weekTrend',
+  'digestCards',
+];
 
 // The Digest's own corner shortcut, 2026-07-27 -- explicitly
 // requested: Home is the one page with no LensHub of its own (nothing to
@@ -664,12 +706,10 @@ export default function HomeScreen() {
   // menu and the page can never disagree about what exists.
   const homeLensOptions = useMemo<LensOption<HomeSectionKey>[]>(
     () =>
-      getOrderedHomeSectionKeys(visualPrefs)
-        .filter((key) => isHomeSectionVisible(visualPrefs, key) && HOME_LENS_DESTINATIONS[key])
-        .map((key) => {
-          const entry = HOME_LENS_DESTINATIONS[key]!;
-          return { key, label: entry.label, icon: entry.icon };
-        }),
+      HOME_LENS_ORDER.filter((key) => isHomeSectionVisible(visualPrefs, key)).map((key) => {
+        const entry = HOME_LENS_DESTINATIONS[key]!;
+        return { key, label: entry.label, icon: entry.icon, iconColor: entry.color };
+      }),
     [visualPrefs],
   );
 
@@ -768,6 +808,12 @@ export default function HomeScreen() {
   // person had scrolled to).
   const hasLoadedOnceRef = useRef(false);
   const scrollRef = useRef<ScrollView>(null);
+  // Where each section sits down the page, recorded as it lays out, so the
+  // lens menu can scroll to the one option that stays on Home. A ref rather
+  // than state on purpose: this changes on every layout pass and nothing
+  // renders from it, so storing it in state would re-render the whole screen
+  // for a number only a tap ever reads.
+  const sectionOffsets = useRef<Partial<Record<HomeSectionKey, number>>>({});
   // The greeting card's own collapse state, 2026-08-23 direct request:
   // full size for the first minute after Home first mounts ('initial',
   // in normal document flow, unchanged from before this), then
@@ -2228,7 +2274,17 @@ export default function HomeScreen() {
           ) : (
             <>
               {getOrderedHomeSectionKeys(visualPrefs).map((key) => (
-                <Fragment key={key}>{renderHomeSection(key)}</Fragment>
+                // A bare View, no style: React Native does not collapse
+                // margins, so wrapping changes nothing about the layout, and
+                // it is what gives each section a y to scroll to.
+                <View
+                  key={key}
+                  onLayout={(event) => {
+                    sectionOffsets.current[key] = event.nativeEvent.layout.y;
+                  }}
+                >
+                  {renderHomeSection(key)}
+                </View>
               ))}
             </>
           )}
@@ -2325,7 +2381,16 @@ export default function HomeScreen() {
         itemLabelLines={2}
         onSelect={(key) => {
           const entry = HOME_LENS_DESTINATIONS[key];
-          if (entry) router.push(entry.href);
+          if (!entry) return;
+          if (entry.href) {
+            router.push(entry.href);
+            return;
+          }
+          // Stays on Home. Falls back to the top rather than doing nothing if
+          // the section has not been measured yet, which can only happen if it
+          // is off-screen and has never been laid out.
+          const y = sectionOffsets.current[key];
+          scrollRef.current?.scrollTo({ y: y != null ? Math.max(0, y - 12) : 0, animated: true });
         }}
       />
 

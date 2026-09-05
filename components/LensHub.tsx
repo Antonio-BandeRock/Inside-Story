@@ -39,6 +39,14 @@ export type LensOption<T extends string> = {
   // page's options keep rendering plain `label` as before, letting it wrap
   // (or not) on its own.
   gridLabel?: string;
+  // Overrides just this option's own grid icon colour, 2026-09-05. Every other
+  // page's options are views of ONE tab, so one tabColor for all of them is
+  // right and stays the default. Home's are the exception: each of its options
+  // is a window into a different tab, so colouring each one with the colour of
+  // the tab it leads to says where it goes before the label is read. Direct
+  // request: "each of the icons in the Home LensHub menu to follow their own
+  // tab's color for easier identification of the area where it belongs."
+  iconColor?: string;
   // Overrides just this ONE grid item's own icon with a real, custom
   // component (react-native-svg or otherwise) instead of the plain
   // `icon` Ionicons glyph -- 2026-08-09, added for Digest's own 19
@@ -944,7 +952,7 @@ export function LensHub<T extends string>({
                             {option.renderIcon ? (
                               option.renderIcon(gridCustomIconSize, tabColor)
                             ) : (
-                              <Ionicons name={option.icon} size={gridIconSize} color={tabColor} style={textShadow} />
+                              <Ionicons name={option.icon} size={gridIconSize} color={option.iconColor ?? tabColor} style={textShadow} />
                             )}
                           </ActiveRingCircle>
                         ) : (
@@ -954,7 +962,7 @@ export function LensHub<T extends string>({
                                 {option.renderIcon(gridCustomIconSize, tabColor)}
                               </View>
                             ) : (
-                              <Ionicons name={option.icon} size={gridIconSize} color={tabColor} style={textShadow} />
+                              <Ionicons name={option.icon} size={gridIconSize} color={option.iconColor ?? tabColor} style={textShadow} />
                             )}
                           </View>
                         )}

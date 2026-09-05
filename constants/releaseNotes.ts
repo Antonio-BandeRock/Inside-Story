@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.10',
+    date: '2026-09-05',
+    changes: [
+      "Home's lens menu is ordered the way the main menu is: what you put in, then what it tells you, then the wider world.",
+      "Each icon now wears the colour of the tab it takes you to, so you can see where something goes before reading it. Grouped by tab, the menu reads as blocks of colour.",
+      "From The Digest now scrolls to the Digest cards on Home instead of leaving for the Digest tab. It is the one item there whose card is the thing itself rather than a shortcut to somewhere else.",
+    ],
+  },
+  {
     version: '1.0.34.9',
     date: '2026-09-05',
     changes: [
