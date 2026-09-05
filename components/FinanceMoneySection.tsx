@@ -9,12 +9,15 @@ import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
   ACCOUNT_KINDS,
+  accountActivity,
   accountKindLabel,
   carriesMinimumPayment,
   carryCost,
   comparePayoffStrategies,
+  describeAccountActivity,
   describeMeasuredChange,
   describePayoff,
+  duplicatedDebtPayments,
   formatAccountMoney,
   isLiability,
   measuredChange,
@@ -24,6 +27,8 @@ import {
   type BalancePoint,
   type Debt,
 } from '../lib/financeAccounts';
+import { listEntries, listRecurring, type FinanceEntryRecord, type FinanceRecurringRecord } from '../lib/financeDb';
+import { upcomingBills, type RecurringItem } from '../lib/financeCore';
 import {
   deleteAccount,
   listAccounts,
@@ -66,6 +71,8 @@ export function FinanceMoneySection({ tabColor }: Props) {
   const [accounts, setAccounts] = useState<AccountRecord[]>([]);
   const [history, setHistory] = useState<NetWorthPoint[]>([]);
   const [balanceHistory, setBalanceHistory] = useState<Record<string, BalancePoint[]>>({});
+  const [entries, setEntries] = useState<FinanceEntryRecord[]>([]);
+  const [recurring, setRecurring] = useState<FinanceRecurringRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<{
     id: string | null; name: string; kind: string; balance: string;
@@ -75,8 +82,11 @@ export function FinanceMoneySection({ tabColor }: Props) {
 
   const load = useCallback(() => {
     setLoading(true);
-    Promise.all([listAccounts(), listNetWorthHistory(), listAllBalanceHistory()])
-      .then(([rows, points, perAccount]) => { setAccounts(rows); setHistory(points); setBalanceHistory(perAccount); })
+    Promise.all([listAccounts(), listNetWorthHistory(), listAllBalanceHistory(), listEntries({ limit: 400 }), listRecurring()])
+      .then(([rows, points, perAccount, entryRows, recurringRows]) => {
+        setAccounts(rows); setHistory(points); setBalanceHistory(perAccount);
+        setEntries(entryRows); setRecurring(recurringRows);
+      })
       .catch((error) => showInfoAlert('Could not load', error instanceof Error ? error.message : String(error)))
       .finally(() => setLoading(false));
   }, [showInfoAlert]);
@@ -122,6 +132,34 @@ export function FinanceMoneySection({ tabColor }: Props) {
   const showsMinimum = form ? carriesMinimumPayment(form.kind) : false;
 
   const interest = useMemo(() => totalMonthlyInterest(accounts), [accounts]);
+
+  // The same payment described twice: once as a bill, once as a debt's
+  // minimum payment. Reported rather than resolved, since which one to
+  // keep is not the app's call.
+  const duplicated = useMemo(
+    () => duplicatedDebtPayments({
+      accounts,
+      recurring: recurring.map((row) => ({
+        id: row.id, name: row.name, amount: row.amount,
+        paidToAccountId: row.paidToAccountId, active: row.active,
+      })),
+    }),
+    [accounts, recurring],
+  );
+
+  // Bills due out of each account in the next month, so "rent is due and
+  // checking is short" is answerable. Uses the same upcomingBills the
+  // Coming Up section already uses rather than a second reading of the
+  // same rules.
+  const upcomingByAccount = useMemo(() => {
+    const items: RecurringItem[] = recurring.map((row) => ({ ...row }));
+    const soon = upcomingBills(items, todayLocalIso(), 30);
+    return soon.bills.map((bill) => ({
+      accountId: recurring.find((row) => row.id === bill.item.id)?.paidFromAccountId ?? null,
+      amount: bill.item.amount,
+      direction: bill.item.direction as 'expense' | 'income',
+    }));
+  }, [recurring]);
 
   async function save() {
     if (!form) return;

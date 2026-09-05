@@ -48,8 +48,15 @@ import {
   type WeekOfMonth,
   type Weekday,
 } from '../../lib/financeSchedule';
-import { budgetProgress, formatAccountMoney, sinkingFund } from '../../lib/financeAccounts';
-import { listBudgets, removeBudget, setBudget, type BudgetRecord } from '../../lib/financeAccountsDb';
+import { budgetProgress, formatAccountMoney, isLiability, sinkingFund } from '../../lib/financeAccounts';
+import {
+  listAccounts,
+  listBudgets,
+  removeBudget,
+  setBudget,
+  type AccountRecord,
+  type BudgetRecord,
+} from '../../lib/financeAccountsDb';
 import {
   createEntry,
   createRecurring,
@@ -232,6 +239,10 @@ type RecurringForm = {
   // Which month a cycle longer than a month counts from.
   anchorMonth: string;
   notes: string;
+  // Which account this leaves from, and for a debt payment, which account
+  // it pays down. Empty string means not linked, which is the default.
+  paidFromAccountId: string;
+  paidToAccountId: string;
 };
 
 function blankRecurringForm(): RecurringForm {
@@ -250,6 +261,8 @@ function blankRecurringForm(): RecurringForm {
     week: 1,
     anchorMonth: currentMonth(),
     notes: '',
+    paidFromAccountId: '',
+    paidToAccountId: '',
   };
 }
 
@@ -323,10 +336,13 @@ function formFromRule(rule: DueRule | null, base: RecurringForm): RecurringForm 
   }
 }
 
-type EntryForm = { occurredOn: string; direction: FinanceDirection; amount: string; category: string; description: string };
+type EntryForm = {
+  occurredOn: string; direction: FinanceDirection; amount: string; category: string;
+  description: string; paidFromAccountId: string;
+};
 
 function blankEntryForm(): EntryForm {
-  return { occurredOn: todayLocal(), direction: 'expense', amount: '', category: 'dining_out', description: '' };
+  return { occurredOn: todayLocal(), direction: 'expense', amount: '', category: 'dining_out', description: '', paidFromAccountId: '' };
 }
 
 export default function LifeScreen() {
@@ -352,6 +368,7 @@ export default function LifeScreen() {
   const [recurringForm, setRecurringForm] = useState<RecurringForm | null>(null);
   const [entryForm, setEntryForm] = useState<EntryForm | null>(null);
   const [budgets, setBudgets] = useState<BudgetRecord[]>([]);
+  const [accountList, setAccountList] = useState<AccountRecord[]>([]);
   const [budgetForm, setBudgetForm] = useState<{ category: string; limit: string } | null>(null);
   const autoOpenLensHub = useAutoOpenLensHubSignal();
 
@@ -359,12 +376,13 @@ export default function LifeScreen() {
 
   const load = useCallback(() => {
     setLoading(true);
-    Promise.all([getFinanceMonth(month), listBudgets()])
-      .then(([data, budgetRows]) => {
+    Promise.all([getFinanceMonth(month), listBudgets(), listAccounts()])
+      .then(([data, budgetRows, accountRows]) => {
         setRecurring(data.recurring);
         setEntries(data.entries);
         setTracked(data.tracked);
         setBudgets(budgetRows);
+        setAccountList(accountRows);
       })
       .catch((error) => showInfoAlert('Could not load Finances', error instanceof Error ? error.message : String(error)))
       .finally(() => setLoading(false));
@@ -437,6 +455,24 @@ export default function LifeScreen() {
     );
   }, [recurringForm?.direction, entryForm?.direction]);
 
+  // "No account" leads on purpose. Saying where money comes from is worth
+  // doing and is not worth blocking a bill over, so the picker opens on
+  // the answer that asks for nothing.
+  const accountOptions = useMemo(
+    () => [
+      { label: 'Not linked to an account', value: '' },
+      ...accountList.filter((a) => a.active).map((a) => ({ label: a.name, value: a.id })),
+    ],
+    [accountList],
+  );
+  const debtAccountOptions = useMemo(
+    () => [
+      { label: 'Not paying down a debt', value: '' },
+      ...accountList.filter((a) => a.active && isLiability(a.kind)).map((a) => ({ label: a.name, value: a.id })),
+    ],
+    [accountList],
+  );
+
   function openAddRecurring(direction: FinanceDirection) {
     setRecurringForm({ ...blankRecurringForm(), direction, category: direction === 'income' ? 'wages' : 'housing' });
     setEntryForm(null);
@@ -452,6 +488,8 @@ export default function LifeScreen() {
         category: row.category,
         amount: String(row.amount),
         notes: row.notes ?? '',
+        paidFromAccountId: row.paidFromAccountId ?? '',
+        paidToAccountId: row.paidToAccountId ?? '',
       }),
     );
     setEntryForm(null);
@@ -487,6 +525,8 @@ export default function LifeScreen() {
         amount,
         rule: built.rule,
         notes: form.notes,
+        paidFromAccountId: form.paidFromAccountId || null,
+        paidToAccountId: form.paidToAccountId || null,
       };
       if (form.editingId) await updateRecurring(form.editingId, payload);
       else await createRecurring(payload);
@@ -516,6 +556,7 @@ export default function LifeScreen() {
         amount,
         category: form.category,
         description: form.description,
+        paidFromAccountId: form.paidFromAccountId || null,
       });
       setEntryForm(null);
       load();
@@ -915,6 +956,42 @@ export default function LifeScreen() {
           </>
         )}
 
+        {accountList.length > 0 ? (
+          <>
+            <Text style={styles.label}>
+              {form.direction === 'income' ? 'Paid into (optional)' : 'Paid from (optional)'}
+            </Text>
+            <PopoverSelect
+              options={accountOptions}
+              selected={form.paidFromAccountId}
+              onSelect={(value) => setRecurringForm({ ...form, paidFromAccountId: value })}
+              tabColor={TAB_COLOR}
+              searchable
+            />
+            <Text style={styles.helperText}>
+              Saying which account this moves through lets the app warn you when more is due out of it than is in it.
+              Nothing is deducted automatically: what you typed as a balance stays what you typed.
+            </Text>
+
+            {form.direction === 'expense' && debtAccountOptions.length > 1 ? (
+              <>
+                <Text style={styles.label}>Paying down (optional)</Text>
+                <PopoverSelect
+                  options={debtAccountOptions}
+                  selected={form.paidToAccountId}
+                  onSelect={(value) => setRecurringForm({ ...form, paidToAccountId: value })}
+                  tabColor={TAB_COLOR}
+                  searchable
+                />
+                <Text style={styles.helperText}>
+                  For a card or loan payment. This is how the app spots the same payment being counted twice, once here
+                  and once as that debt&apos;s minimum payment under Accounts.
+                </Text>
+              </>
+            ) : null}
+          </>
+        ) : null}
+
         {previewRule ? (
           <View style={styles.previewBox}>
             <Text style={styles.previewLabel}>This will be due</Text>
@@ -990,6 +1067,21 @@ export default function LifeScreen() {
                 <Text style={styles.pillTextSmall}>Today</Text>
               </TouchableOpacity>
             </View>
+
+            {accountList.length > 0 ? (
+              <>
+                <Text style={styles.label}>
+                  {entryForm.direction === 'income' ? 'Paid into (optional)' : 'Paid from (optional)'}
+                </Text>
+                <PopoverSelect
+                  options={accountOptions}
+                  selected={entryForm.paidFromAccountId}
+                  onSelect={(value) => setEntryForm({ ...entryForm, paidFromAccountId: value })}
+                  tabColor={TAB_COLOR}
+                  searchable
+                />
+              </>
+            ) : null}
 
             <View style={styles.labelRow}>
               <Text style={styles.label}>Note (optional)</Text>

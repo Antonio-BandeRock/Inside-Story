@@ -298,6 +298,165 @@ export function describeMeasuredChange(change: MeasuredChange): string {
   return `${span}, and ${moved}. That leaves ${amount} ${fell ? 'of loss' : 'of growth'}, ${rate}. Measured from what you entered, not from an assumed rate.`;
 }
 
+// --- Tying the flow to the stock --------------------------------------------
+//
+// Money going out has to come from somewhere, and until 2026-09-05 nothing
+// in Finances said where. Bills, income and spending were a flow with no
+// source; accounts were a stock nothing ever touched. Paying rent left
+// checking exactly as it was.
+//
+// The obvious fix is to decrement the balance, and it is the wrong one.
+// A balance here is typed in by hand, and the app only ever sees the
+// transactions someone bothered to record. Not the coffee, not the bank
+// fee, not the direct debit nobody set up as a recurring bill. Subtracting
+// what it knows from a real balance produces a number that is confidently
+// wrong within a month, and worse, one nobody can tell apart from a real
+// one afterwards.
+//
+// So the balance stays exactly what was entered, on the date it was
+// entered, and what the records say has happened since is reported
+// beside it. The gap between the two is not an error to resolve. It is
+// the most useful thing on the screen: it says how much of your spending
+// is going unrecorded.
+
+export type AccountActivity = {
+  accountId: string;
+  // The balance as typed, and when.
+  balance: number;
+  asOf: string | null;
+  // Spending and income recorded against this account since that date.
+  recordedOut: number;
+  recordedIn: number;
+  entryCount: number;
+  // What the balance would be if the records were the whole story. This is
+  // deliberately NOT written anywhere: it is shown next to the real
+  // balance so the two can be compared, never in place of it.
+  impliedBalance: number | null;
+  // Bills due from this account inside the window asked for, whether or
+  // not they have been paid. A bill and a recorded payment are two
+  // different things and the app cannot match them up, so these are
+  // reported separately rather than netted.
+  upcomingOut: number;
+  upcomingCount: number;
+  // What is left if every upcoming bill from this account is paid out of
+  // the balance as it stands. Null for a liability, where "what is left"
+  // means nothing.
+  leftAfterUpcoming: number | null;
+};
+
+export function accountActivity(input: {
+  account: Account;
+  asOf: string | null;
+  entries: { occurredOn: string; direction: 'expense' | 'income'; amount: number; paidFromAccountId: string | null }[];
+  upcoming: { accountId: string | null; amount: number; direction: 'expense' | 'income' }[];
+}): AccountActivity {
+  const { account, asOf } = input;
+  let recordedOut = 0;
+  let recordedIn = 0;
+  let entryCount = 0;
+
+  for (const entry of input.entries) {
+    if (entry.paidFromAccountId !== account.id) continue;
+    // An entry dated before the balance was last confirmed is already
+    // inside that balance. Counting it again would report money as
+    // unaccounted for when it was in fact accounted for.
+    if (asOf && entry.occurredOn < asOf) continue;
+    entryCount += 1;
+    if (entry.direction === 'income') recordedIn += entry.amount;
+    else recordedOut += entry.amount;
+  }
+
+  let upcomingOut = 0;
+  let upcomingCount = 0;
+  for (const bill of input.upcoming) {
+    if (bill.accountId !== account.id || bill.direction !== 'expense') continue;
+    upcomingOut += bill.amount;
+    upcomingCount += 1;
+  }
+
+  const liability = isLiability(account.kind);
+  // A liability moves the other way: spending on a card increases what is
+  // owed, and a payment reduces it.
+  const impliedBalance =
+    entryCount === 0
+      ? null
+      : liability
+        ? account.balance + recordedOut - recordedIn
+        : account.balance - recordedOut + recordedIn;
+
+  return {
+    accountId: account.id,
+    balance: account.balance,
+    asOf,
+    recordedOut,
+    recordedIn,
+    entryCount,
+    impliedBalance,
+    upcomingOut,
+    upcomingCount,
+    leftAfterUpcoming: liability ? null : account.balance - upcomingOut,
+  };
+}
+
+export function describeAccountActivity(activity: AccountActivity, liability: boolean): string | null {
+  const parts: string[] = [];
+
+  if (activity.entryCount > 0) {
+    const since = activity.asOf ? `since you entered it on ${activity.asOf}` : 'since you entered it';
+    const moved =
+      activity.recordedIn > 0 && activity.recordedOut > 0
+        ? `${formatAccountMoney(activity.recordedOut)} out and ${formatAccountMoney(activity.recordedIn)} in`
+        : activity.recordedIn > 0
+          ? `${formatAccountMoney(activity.recordedIn)} in`
+          : `${formatAccountMoney(activity.recordedOut)} out`;
+    parts.push(
+      `You have recorded ${moved} ${since}, which would put it at about ${formatAccountMoney(activity.impliedBalance ?? 0)}. That is only what you logged, so treat a difference as spending that never got written down rather than as an error.`,
+    );
+  }
+
+  if (activity.upcomingCount > 0 && !liability) {
+    const left = activity.leftAfterUpcoming ?? 0;
+    parts.push(
+      left < 0
+        ? `${activity.upcomingCount} ${activity.upcomingCount === 1 ? 'bill comes' : 'bills come'} out of this account soon, totalling ${formatAccountMoney(activity.upcomingOut)}. That is ${formatAccountMoney(Math.abs(left))} more than the balance you entered.`
+        : `${activity.upcomingCount} ${activity.upcomingCount === 1 ? 'bill comes' : 'bills come'} out of this account soon, totalling ${formatAccountMoney(activity.upcomingOut)}, which would leave ${formatAccountMoney(left)}.`,
+    );
+  }
+
+  return parts.length > 0 ? parts.join(' ') : null;
+}
+
+/**
+ * The same money entered twice. A car payment recorded as a bill AND as
+ * the loan account's minimum payment is one payment described in two
+ * places, and nothing linked them, so the monthly total counted it once
+ * while the payoff plan counted it again.
+ *
+ * Reported rather than resolved. Which of the two someone wants to keep is
+ * their call, and silently ignoring one would make a figure they can see
+ * disagree with a figure they cannot.
+ */
+export function duplicatedDebtPayments(input: {
+  accounts: Account[];
+  recurring: { id: string; name: string; amount: number; paidToAccountId: string | null; active: boolean }[];
+}): { accountId: string; accountName: string; billName: string; billAmount: number; minimumPayment: number }[] {
+  const found: { accountId: string; accountName: string; billName: string; billAmount: number; minimumPayment: number }[] = [];
+  for (const bill of input.recurring) {
+    if (!bill.active || !bill.paidToAccountId) continue;
+    const account = input.accounts.find((entry) => entry.id === bill.paidToAccountId);
+    if (!account || !account.active) continue;
+    if (account.minimumPayment == null || account.minimumPayment <= 0) continue;
+    found.push({
+      accountId: account.id,
+      accountName: account.name,
+      billName: bill.name,
+      billAmount: bill.amount,
+      minimumPayment: account.minimumPayment,
+    });
+  }
+  return found;
+}
+
 // --- Budget limits ----------------------------------------------------------
 
 export type BudgetProgress = {

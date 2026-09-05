@@ -49,6 +49,10 @@ export type FinanceRecurringRecord = {
   autopay: boolean;
   active: boolean;
   notes: string | null;
+  // Which account this leaves from, and for a debt payment, which account
+  // it pays toward. Null until someone says, which is most of the time.
+  paidFromAccountId: string | null;
+  paidToAccountId: string | null;
 };
 
 export type FinanceEntryRecord = {
@@ -59,6 +63,7 @@ export type FinanceEntryRecord = {
   category: string;
   description: string | null;
   notes: string | null;
+  paidFromAccountId: string | null;
 };
 
 // --- Recurring: the bills and income that repeat ---------------------------
@@ -71,6 +76,8 @@ export async function createRecurring(input: {
   rule: DueRule;
   autopay?: boolean;
   notes?: string;
+  paidFromAccountId?: string | null;
+  paidToAccountId?: string | null;
 }): Promise<string> {
   const db = await getDatabase();
   const id = `fin_rec_${Date.now()}`;
@@ -78,8 +85,9 @@ export async function createRecurring(input: {
   await db.runAsync(
     `
       INSERT INTO finance_recurring
-        (id, direction, name, category, amount, cadence, due_rule_json, autopay, active, notes, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+        (id, direction, name, category, amount, cadence, due_rule_json, autopay, active, notes,
+         paid_from_account_id, paid_to_account_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?)
     `,
     id,
     input.direction,
@@ -90,6 +98,8 @@ export async function createRecurring(input: {
     serializeDueRule(input.rule),
     input.autopay ? 1 : 0,
     input.notes?.trim() || null,
+    input.paidFromAccountId ?? null,
+    input.paidToAccountId ?? null,
     now,
     now,
   );
@@ -106,6 +116,8 @@ export async function updateRecurring(
     rule: DueRule;
     autopay?: boolean;
     notes?: string;
+    paidFromAccountId?: string | null;
+    paidToAccountId?: string | null;
   },
 ): Promise<void> {
   const db = await getDatabase();
@@ -113,7 +125,8 @@ export async function updateRecurring(
     `
       UPDATE finance_recurring
       SET direction = ?, name = ?, category = ?, amount = ?, cadence = ?,
-          due_rule_json = ?, autopay = ?, notes = ?, updated_at = ?
+          due_rule_json = ?, autopay = ?, notes = ?,
+          paid_from_account_id = ?, paid_to_account_id = ?, updated_at = ?
       WHERE id = ?
     `,
     input.direction,
@@ -124,6 +137,8 @@ export async function updateRecurring(
     serializeDueRule(input.rule),
     input.autopay ? 1 : 0,
     input.notes?.trim() || null,
+    input.paidFromAccountId ?? null,
+    input.paidToAccountId ?? null,
     new Date().toISOString(),
     id,
   );
@@ -162,10 +177,14 @@ export async function listRecurring(): Promise<FinanceRecurringRecord[]> {
     autopay: number;
     active: number;
     notes: string | null;
+    paidFromAccountId: string | null;
+    paidToAccountId: string | null;
   }>(
     `
       SELECT id, direction, name, category, amount, cadence,
-             due_rule_json AS dueRuleJson, autopay, active, notes
+             due_rule_json AS dueRuleJson, autopay, active, notes,
+             paid_from_account_id AS paidFromAccountId,
+             paid_to_account_id AS paidToAccountId
       FROM finance_recurring
       ORDER BY direction DESC, active DESC, amount DESC
     `,
@@ -185,6 +204,8 @@ export async function listRecurring(): Promise<FinanceRecurringRecord[]> {
       autopay: row.autopay === 1,
       active: row.active === 1,
       notes: row.notes,
+      paidFromAccountId: row.paidFromAccountId,
+      paidToAccountId: row.paidToAccountId,
     };
   });
 }
@@ -198,6 +219,7 @@ export async function createEntry(input: {
   category: string;
   description?: string;
   notes?: string;
+  paidFromAccountId?: string | null;
 }): Promise<string> {
   const db = await getDatabase();
   const id = `fin_ent_${Date.now()}`;
@@ -205,8 +227,9 @@ export async function createEntry(input: {
   await db.runAsync(
     `
       INSERT INTO finance_entries
-        (id, occurred_on, direction, amount, category, description, notes, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, occurred_on, direction, amount, category, description, notes,
+         paid_from_account_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.occurredOn,
@@ -215,6 +238,7 @@ export async function createEntry(input: {
     input.category,
     input.description?.trim() || null,
     input.notes?.trim() || null,
+    input.paidFromAccountId ?? null,
     now,
     now,
   );
@@ -233,7 +257,8 @@ export async function listEntries(filters: { month?: string; limit?: number } = 
   const params: (string | number)[] = filters.month ? [filters.month] : [];
   const rows = await db.getAllAsync<FinanceEntryRecord>(
     `
-      SELECT id, occurred_on AS occurredOn, direction, amount, category, description, notes
+      SELECT id, occurred_on AS occurredOn, direction, amount, category, description, notes,
+             paid_from_account_id AS paidFromAccountId
       FROM finance_entries
       ${where}
       ORDER BY occurred_on DESC, created_at DESC

@@ -4793,6 +4793,11 @@ async function runDatabaseInitialization() {
         -- worked out at read time by financeCore's nextDueDate rather than
         -- baked into the row.
         due_day INTEGER,
+        -- Which account this is paid out of, and for a debt payment, which
+        -- account it pays toward. Both nullable: a bill someone knows about
+        -- is worth recording before any account exists.
+        paid_from_account_id TEXT,
+        paid_to_account_id TEXT,
         autopay INTEGER NOT NULL DEFAULT 0,
         active INTEGER NOT NULL DEFAULT 1,
         notes TEXT,
@@ -4812,6 +4817,7 @@ async function runDatabaseInitialization() {
         amount REAL NOT NULL,
         category TEXT NOT NULL,
         description TEXT,
+        paid_from_account_id TEXT,
         notes TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -6122,6 +6128,26 @@ async function runDatabaseInitialization() {
       ['finance_recurring', 'condition_code'],
       ['finance_entries', 'condition_code'],
       ['therapy_sessions', 'condition_code'],
+      // Which account money moves out of, and for a debt payment, which
+      // account it moves toward. Added 2026-09-05, because the two halves
+      // of Finances were not connected to each other at all: bills and
+      // spending were a flow with no source, and accounts were a stock
+      // nothing ever touched. Paying rent left checking untouched, and
+      // buying groceries on a card left that card's balance where it was,
+      // which quietly made the payoff plan wrong.
+      //
+      // Both are nullable and stay that way. Requiring an account would
+      // make the form worse for someone who only wants to know their
+      // monthly total, and would turn a bill someone knows into one they
+      // cannot record until they have set up an account.
+      //
+      // Nothing here rewrites a balance. See lib/financeAccounts.ts's
+      // accountStanding for what is done with the link instead: what was
+      // entered, and what the records say has happened since, side by
+      // side, with the gap between them reported rather than resolved.
+      ['finance_recurring', 'paid_from_account_id'],
+      ['finance_recurring', 'paid_to_account_id'],
+      ['finance_entries', 'paid_from_account_id'],
     ] as const) {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (columns.length > 0 && !columns.some((entry) => entry.name === column)) {
