@@ -4818,6 +4818,59 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_finance_entries_occurred_on ON finance_entries(occurred_on);
 
+      -- --- Finances: the budgeting core (2026-09-05, pass 2) -------------
+      --
+      -- Accounts, budget limits and net-worth history: the parts every
+      -- mainstream finance app has and the first Finances build did not.
+      -- See lib/financeAccounts.ts for the arithmetic.
+      --
+      -- balance is always the plain magnitude someone reads off a
+      -- statement, never a signed number. Whether it counts toward what
+      -- you own or what you owe comes from the kind column, so nobody types
+      -- -1240 for a credit card and no call site has to remember a sign
+      -- convention. A negative balance still works in both directions: an
+      -- overdrawn account reduces what you own, a card in credit reduces
+      -- what you owe.
+      CREATE TABLE IF NOT EXISTS finance_accounts (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        balance REAL NOT NULL DEFAULT 0,
+        -- Only meaningful for the debt kinds; null on everything else
+        -- rather than zero, which would read as an interest-free loan.
+        apr REAL,
+        minimum_payment REAL,
+        active INTEGER NOT NULL DEFAULT 1,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- One spending limit per category. Deliberately not per month: a
+      -- limit that had to be re-entered every month would be abandoned by
+      -- February, and a limit someone wants to change is a limit they can
+      -- edit.
+      CREATE TABLE IF NOT EXISTS finance_budgets (
+        id TEXT PRIMARY KEY,
+        category TEXT NOT NULL UNIQUE,
+        monthly_limit REAL NOT NULL,
+        active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- Net worth over time. Written when a balance is actually updated
+      -- rather than on a timer: balances here are typed in by hand, so
+      -- snapshotting daily would draw a flat line out of stale numbers and
+      -- call it a trend. One row per date, replaced if a balance changes
+      -- again the same day.
+      CREATE TABLE IF NOT EXISTS finance_networth_snapshots (
+        snapshot_date TEXT PRIMARY KEY,
+        assets REAL NOT NULL,
+        liabilities REAL NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- --- Finances: the health-money layer (2026-09-05) -----------------
       --
       -- Pass 1 of a rebuild, after a direct challenge that the first

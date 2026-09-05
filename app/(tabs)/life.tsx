@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { AppTextInput } from '../../components/AppTextInput';
 import { FinanceHealthSection } from '../../components/FinanceHealthSection';
+import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import type { HelpSection } from '../../components/HelpButton';
@@ -41,11 +42,14 @@ import {
   describeDueRuleShort,
   describeMissingPiece,
   nextOccurrence,
+  occurrencesPerYear,
   parseDate,
   type DueRule,
   type WeekOfMonth,
   type Weekday,
 } from '../../lib/financeSchedule';
+import { budgetProgress, formatAccountMoney, sinkingFund } from '../../lib/financeAccounts';
+import { listBudgets, removeBudget, setBudget, type BudgetRecord } from '../../lib/financeAccountsDb';
 import {
   createEntry,
   createRecurring,
@@ -102,7 +106,7 @@ import { parsePriceInput } from '../../lib/groceryList';
 const TAB_COLOR = colors.tabLife;
 
 type LifeLens = 'finances';
-type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming';
+type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
   { key: 'overview', label: 'Overview' },
@@ -110,6 +114,7 @@ const SECTIONS: { key: FinanceSection; label: string }[] = [
   { key: 'recurring', label: 'Bills & Income' },
   { key: 'spending', label: 'Spending' },
   { key: 'upcoming', label: 'Coming Up' },
+  { key: 'money', label: 'Accounts' },
 ];
 
 const UPCOMING_WINDOW_DAYS = 30;
@@ -130,6 +135,10 @@ const LIFE_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Weekly is not four times a month',
     body: 'There are 52 weeks in a year, so anything weekly costs 4.33 times its amount each month, not 4. Every two weeks is 26 payments a year and twice a month is 24, which is a genuine two-payment difference. The monthly figures here use the real numbers, which is why they may read slightly higher than you expect.',
+  },
+  {
+    heading: 'Two orders for paying off debt',
+    body: 'Highest rate first always costs less in interest, and that is arithmetic. Smallest balance first clears individual debts sooner, which many people find easier to keep going with. Accounts shows what each one costs and how long it takes, and does not pick for you, because which one you will actually stick to is not something an app can know.',
   },
   {
     heading: 'What is not here',
@@ -342,17 +351,20 @@ export default function LifeScreen() {
   const [loading, setLoading] = useState(false);
   const [recurringForm, setRecurringForm] = useState<RecurringForm | null>(null);
   const [entryForm, setEntryForm] = useState<EntryForm | null>(null);
+  const [budgets, setBudgets] = useState<BudgetRecord[]>([]);
+  const [budgetForm, setBudgetForm] = useState<{ category: string; limit: string } | null>(null);
   const autoOpenLensHub = useAutoOpenLensHubSignal();
 
   const month = currentMonth();
 
   const load = useCallback(() => {
     setLoading(true);
-    getFinanceMonth(month)
-      .then((data) => {
+    Promise.all([getFinanceMonth(month), listBudgets()])
+      .then(([data, budgetRows]) => {
         setRecurring(data.recurring);
         setEntries(data.entries);
         setTracked(data.tracked);
+        setBudgets(budgetRows);
       })
       .catch((error) => showInfoAlert('Could not load Finances', error instanceof Error ? error.message : String(error)))
       .finally(() => setLoading(false));
@@ -377,6 +389,42 @@ export default function LifeScreen() {
     [month, recurringItems, entries, tracked],
   );
   const soon = useMemo(() => upcomingBills(recurringItems, todayLocal(), UPCOMING_WINDOW_DAYS), [recurringItems]);
+
+  // A limit is measured against what has actually been recorded, and what
+  // repeating bills already commit is shown beside it rather than added to
+  // it. Adding them would double-count the month a bill is both committed
+  // and paid, and the two answer different questions anyway.
+  const budgetRows = useMemo(
+    () =>
+      budgets.map((budget) =>
+        budgetProgress({
+          category: budget.category,
+          limit: budget.monthlyLimit,
+          spent: picture.byCategory.find((row) => row.category === budget.category)?.monthly ?? 0,
+          committed: summary.byCategory.find((row) => row.category === budget.category)?.monthly ?? 0,
+        }),
+      ),
+    [budgets, picture.byCategory, summary.byCategory],
+  );
+
+  // Only bills that arrive less often than monthly. A monthly bill needs no
+  // setting aside for; it is already part of the monthly rhythm.
+  const funds = useMemo(() => {
+    const today = todayLocal();
+    return recurringItems
+      .filter((item) => item.active && item.direction === 'expense' && item.rule && occurrencesPerYear(item.rule) < 12)
+      .map((item) => {
+        const rule = item.rule as DueRule;
+        return sinkingFund({
+          name: item.name,
+          amount: item.amount,
+          monthsBetween: 12 / occurrencesPerYear(rule),
+          nextDue: nextOccurrence(rule, today),
+          today,
+        });
+      })
+      .sort((a, b) => b.monthlySetAside - a.monthlySetAside);
+  }, [recurringItems]);
 
   const activeLensLabel = LIFE_LENSES.find((option) => option.key === lens)?.label;
 
@@ -965,6 +1013,106 @@ export default function LifeScreen() {
           </View>
         ) : null}
 
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Monthly limits</Text>
+          {budgetRows.length === 0 ? (
+            <Text style={styles.bodyText}>
+              Set a limit on a category you want to keep an eye on, and this shows how much of it is used up. Groceries
+              is usually the one worth starting with, since it is already counted for you from what you price in the
+              shop.
+            </Text>
+          ) : (
+            budgetRows.map((row) => (
+              <View key={row.category} style={styles.barRow}>
+                <View style={styles.barLabelRow}>
+                  <Text style={styles.barLabel}>{financeCategoryLabel(row.category)}</Text>
+                  <Text style={[styles.barValue, row.overspent && styles.statWarn]}>
+                    {formatAccountMoney(row.spent)} of {formatAccountMoney(row.limit)}
+                  </Text>
+                </View>
+                <View style={styles.barTrack}>
+                  <View
+                    style={[
+                      styles.barFill,
+                      row.overspent && styles.barFillOver,
+                      { width: `${Math.max(2, Math.round(row.fraction * 100))}%` },
+                    ]}
+                  />
+                </View>
+                <View style={styles.barLabelRow}>
+                  <Text style={styles.listMeta}>
+                    {row.overspent
+                      ? `${formatAccountMoney(row.spent - row.limit)} over`
+                      : `${formatAccountMoney(row.remaining)} left`}
+                    {row.committed > 0 ? ` · ${formatAccountMoney(row.committed)} already committed by bills` : ''}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={async () => {
+                      await removeBudget(row.category);
+                      load();
+                    }}
+                  >
+                    <Text style={styles.actionTextRemove}>Remove</Text>
+                  </TouchableOpacity>
+                </View>
+                {row.committedAlone ? (
+                  <Text style={styles.listNeedsSetup}>
+                    Regular bills in this category already come to more than the limit, so it cannot be met without
+                    changing the bills themselves.
+                  </Text>
+                ) : null}
+              </View>
+            ))
+          )}
+
+          {budgetForm ? (
+            <>
+              <Text style={styles.label}>Category</Text>
+              <PopoverSelect
+                options={expenseCategoriesByGroup().flatMap((group) =>
+                  group.categories.map((c) => ({ label: `${group.label}: ${c.label}`, value: c.code })),
+                )}
+                selected={budgetForm.category}
+                onSelect={(value) => setBudgetForm({ ...budgetForm, category: value })}
+                tabColor={TAB_COLOR}
+                searchable
+              />
+              <Text style={styles.label}>Limit each month</Text>
+              <AppTextInput
+                style={[styles.input, styles.shortInput]}
+                placeholder="0.00"
+                keyboardType="decimal-pad"
+                value={budgetForm.limit}
+                onChangeText={(text) => setBudgetForm({ ...budgetForm, limit: text })}
+              />
+              <View style={styles.formActions}>
+                <TouchableOpacity style={styles.secondaryButton} onPress={() => setBudgetForm(null)}>
+                  <Text style={styles.secondaryButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.primaryButton}
+                  onPress={async () => {
+                    const limit = parsePriceInput(budgetForm.limit);
+                    if (limit == null || limit <= 0) {
+                      showInfoAlert('Almost there', 'Enter a limit greater than zero.');
+                      return;
+                    }
+                    await setBudget(budgetForm.category, limit);
+                    setBudgetForm(null);
+                    load();
+                  }}
+                >
+                  <Text style={styles.primaryButtonText}>Set it</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : (
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => setBudgetForm({ category: 'groceries', limit: '' })}>
+              <Text style={styles.secondaryButtonText}>+ Set a limit</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
         {tracked.grocerySpend > 0 || tracked.therapySpend > 0 || tracked.groceryLinesWithoutPrice > 0 ? (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Already counted for you</Text>
@@ -1050,6 +1198,42 @@ export default function LifeScreen() {
           ) : null}
         </View>
 
+        {funds.length > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Worth putting by each month</Text>
+            <Text style={styles.bodyText}>
+              A bill that lands once or twice a year is the one most likely to wreck a month, because it sits outside
+              the monthly rhythm. This is what each would cost if you set it aside a bit at a time instead.
+            </Text>
+            {funds.map((fund) => (
+              <View key={fund.name} style={styles.listRow}>
+                <View style={styles.listMain}>
+                  <Text style={styles.listTitle}>{fund.name}</Text>
+                  <Text style={styles.listMeta}>
+                    {formatAccountMoney(fund.amount)}
+                    {fund.nextDue ? ` due ${shortDate(fund.nextDue)}` : ''}
+                    {fund.monthsUntilDue != null
+                      ? fund.monthsUntilDue === 0
+                        ? ' · this month'
+                        : ` · ${fund.monthsUntilDue} ${fund.monthsUntilDue === 1 ? 'month' : 'months'} away`
+                      : ''}
+                  </Text>
+                  {fund.shouldHaveByNow != null && fund.shouldHaveByNow > 0 ? (
+                    <Text style={styles.listMeta}>
+                      About {formatAccountMoney(fund.shouldHaveByNow)} of it would be put by by now, if you had started
+                      right after the last one.
+                    </Text>
+                  ) : null}
+                </View>
+                <Text style={styles.listAmount}>{formatAccountMoney(fund.monthlySetAside)}/mo</Text>
+              </View>
+            ))}
+            <Text style={styles.footnote}>
+              This app does not move money, so nothing here is set aside for you. It is the figure to aim at.
+            </Text>
+          </View>
+        ) : null}
+
         {soon.needsSetup.length > 0 ? (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Needs a due date</Text>
@@ -1112,6 +1296,8 @@ export default function LifeScreen() {
               renderRecurringSection()
             ) : section === 'spending' ? (
               renderSpending()
+            ) : section === 'money' ? (
+              <FinanceMoneySection tabColor={TAB_COLOR} />
             ) : (
               renderUpcoming()
             )}
@@ -1249,6 +1435,7 @@ const styles = StyleSheet.create({
   barValue: { ...typography.caption, color: colors.textPrimary, fontVariant: ['tabular-nums'], ...textShadow },
   barTrack: { height: 8, borderRadius: 4, backgroundColor: colors.border, overflow: 'hidden' },
   barFill: { height: 8, borderRadius: 4, backgroundColor: TAB_COLOR },
+  barFillOver: { backgroundColor: colors.danger },
 
   listRow: {
     flexDirection: 'row',

@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.4',
+    date: '2026-09-05',
+    changes: [
+      'New in Finances: an Accounts section, covering the ordinary budgeting ground the first version skipped.',
+      'What you own and what you owe become one net worth figure. Balances are typed in rather than pulled from a bank, and a point is recorded whenever you change one, so the line only moves when something real did.',
+      'Two orders for paying off debt, side by side. Highest rate first is cheaper and usually finishes sooner, and you are told by how much of each. Smallest balance first is reported by the month its first debt is gone, so it can be weighed rather than just felt. Neither is picked for you.',
+      'A debt with no interest rate or minimum payment recorded is named and left out rather than treated as interest-free.',
+      'Monthly limits per category, in Spending. What repeating bills already commit is shown beside what you have spent rather than added into it, and a limit your bills alone already exceed says so, because that one cannot be met by spending less.',
+      'Bills that arrive once or twice a year now show what they would cost set aside monthly, in Coming Up. Those are the ones that wreck a month, precisely because they sit outside the monthly rhythm.',
+    ],
+  },
+  {
     version: '1.0.34.3',
     date: '2026-09-05',
     changes: [

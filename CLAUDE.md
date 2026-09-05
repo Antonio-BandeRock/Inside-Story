@@ -25,6 +25,24 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-05, 1.0.34.4): the budgeting core, pass 2 of the Finances rebuild.** The ordinary ground pass 1 deliberately skipped, since the health-money layer was the half nothing else could replace. This half is the reason someone would not simply use Monarch instead.
+
+**Accounts and net worth.** `lib/financeAccounts.ts` (pure, no database) plus `lib/financeAccountsDb.ts` and three tables. Balances are typed in, because the standing no-bank-connection rule is the point rather than a gap. **A net-worth point is recorded when a balance changes, not on a timer**, so the line only moves when something real did; a nightly snapshot would draw a flat line through months of nothing happening and make it look like data.
+
+**Debt payoff, and the one finding worth keeping.** Snowball and avalanche are simulated month by month with a **rolling commitment**: the pool is the extra plus the sum of every minimum, fixed at the start and not recomputed from still-open debts. That was a bug caught by test, and it is the whole mechanism: a cleared debt's minimum has to keep flowing into the next one or the plan silently slows down. Expected 15 months, got 20.
+
+**Then the test caught a false claim before it shipped.** The first wording said both orders finish in the same month, reasoning that the same amount goes out either way. **That is wrong, and the check named it: 37 months against 40.** Paying less interest leaves less to pay, so the cheaper order is usually also the shorter one. The wording now reports both figures, and states what smallest-balance-first is actually for as **a month** (its first debt gone in month 4 rather than month 22) rather than as a feeling, so it can be weighed against the interest instead of being the vague reassuring option. **Neither order is picked**, because which one someone will keep going with is not something an app can know.
+
+**Budget limits per category**, in Spending. What repeating bills already commit is shown **beside** what has been spent rather than added into it: adding them would double-count the month a bill is both committed and paid, and they answer different questions. A limit the bills alone already exceed says so plainly, since that one cannot be met by spending less.
+
+**Sinking funds**, in Coming Up, for anything arriving less often than monthly. Those are the bills most likely to wreck a month precisely because they sit outside its rhythm. The app does not move money and says so.
+
+**`scripts/check_schema_sql.js` is new**, and it exists because the same mistake happened three times in three days: a backtick inside a SQL comment, which terminates the template literal every `CREATE TABLE` in this project lives inside. `tsc` always caught it, so it never shipped, but it points at a line of English prose rather than at the cause, which is what made it cost minutes each time. Verified both ways.
+
+`tsc` clean, `eslint` clean on every touched file, bare-text audit at 0, suites 72/108/69/80/55/142/29/30. Every new check confirmed able to fail by breaking it. **Not yet confirmed on-device.**
+
+**Named and not built: Goals**, asked for directly with its own framing: "goals require costs to attain each goal, whether that cost is a trade of time, or goods, or actual money." That last part is the design constraint rather than a detail, and it is why this is pass 3 rather than a field bolted onto sinking funds.
+
 **Most recent (2026-09-05, 1.0.34.3): the health-money layer, pass 1 of a Finances rebuild, after a fair challenge that the first build was thin.** Asked directly: "What app did you look at to decide what should be in the finance lens? This is extremely minimal." **The honest answer was none.** Finances had been built from general knowledge of household bill categories without looking at a single real finance app, and it showed.
 
 **What the gap turned out to be, once actually researched.** Every mainstream app (YNAB, Monarch, Copilot, Simplifi, Rocket Money) is built on things this had none of: accounts and balances, net worth, **a spending limit per category with progress against it**, debt payoff with snowball against avalanche, goals and sinking funds, a cash-flow forecast, a subscription audit, and month-over-month trends. The budget one is the worst of them: what shipped records what was spent and **never compares it to a plan**, which is the entire premise of YNAB and EveryDollar.
