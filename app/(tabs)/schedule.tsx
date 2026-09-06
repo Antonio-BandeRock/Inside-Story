@@ -92,6 +92,7 @@ import {
 } from '../../lib/db';
 import type { RecipeDietTag } from '../../lib/digest';
 import { RECIPES_ENTRIES } from '../../lib/digest/recipes';
+import { describePlanningScope, resolvePlanningScope, type PlanningScope } from '../../lib/partnerPlanning';
 import {
   dailyMealPlanToMealPlanDay,
   FREQUENCY_RULES,
@@ -1979,6 +1980,10 @@ function DailyMealPlanLens() {
   const [conditionCodes, setConditionCodes] = useState<string[]>([]);
   const [dietPreferences, setDietPreferences] = useState<RecipeDietTag[]>([]);
   const [generating, setGenerating] = useState(false);
+  // Who the plan on screen was actually built for. Held rather than recomputed,
+  // so the screen describes the plan it is showing rather than the current state
+  // of a partner link that may have changed since it was generated.
+  const [planningScope, setPlanningScope] = useState<PlanningScope | null>(null);
   const [plans, setPlans] = useState<DailyMealPlanResult[]>([]);
   const [scheduleDate, setScheduleDate] = useState(todayDateString());
   const [scheduling, setScheduling] = useState(false);
@@ -2017,7 +2022,22 @@ function DailyMealPlanLens() {
   async function handleGenerate() {
     setGenerating(true);
     try {
-      const results = await generateMealPlanDays({ conditionCodes, dietPreferences, carbLevel, days: daysToGenerate, limitAddedSugar });
+      // Resolved here rather than taken from this screen's own state, because a
+      // partner's conditions have to reach the generator or the whole point of
+      // linking two people is lost. resolvePlanningScope reads the partner
+      // itself, so this cannot silently plan for one person.
+      const scope = await resolvePlanningScope({
+        myConditionCodes: conditionCodes,
+        today: new Date().toISOString().slice(0, 10),
+      });
+      const results = await generateMealPlanDays({
+        conditionCodes: scope.conditionCodes,
+        dietPreferences,
+        carbLevel,
+        days: daysToGenerate,
+        limitAddedSugar,
+      });
+      setPlanningScope(scope);
       setPlans(results);
     } catch (error) {
       showInfoAlert('Could not generate a plan', error instanceof Error ? error.message : String(error));
@@ -2038,7 +2058,18 @@ function DailyMealPlanLens() {
   async function regenerateDay(index: number) {
     setRegeneratingDayIndex(index);
     try {
-      const result = await generateDailyMealPlan({ conditionCodes, dietPreferences, carbLevel, limitAddedSugar });
+      // The same scope the whole plan was built for, so a swapped day is not
+      // quietly checked against a narrower set of conditions than its neighbours.
+      const scope = planningScope ?? await resolvePlanningScope({
+        myConditionCodes: conditionCodes,
+        today: new Date().toISOString().slice(0, 10),
+      });
+      const result = await generateDailyMealPlan({
+        conditionCodes: scope.conditionCodes,
+        dietPreferences,
+        carbLevel,
+        limitAddedSugar,
+      });
       setPlans((current) => current.map((day, i) => (i === index ? result : day)));
     } catch (error) {
       showInfoAlert('Could not regenerate this day', error instanceof Error ? error.message : String(error));
@@ -2145,6 +2176,15 @@ function DailyMealPlanLens() {
         >
           <Text style={styles.primaryButtonText}>{generating ? 'Generating…' : plans.length > 0 ? 'Regenerate' : daysToGenerate === 1 ? 'Generate My Day' : 'Generate My Plan'}</Text>
         </TouchableOpacity>
+        {/* Who this plan was built for, said plainly and never omitted. A plan
+            that covers one person while a partner is linked has to say so: the
+            whole reason someone sets up a partner is expecting both to be
+            planned around, and silence there reads as success. */}
+        {planningScope && plans.length > 0 ? (
+          <View style={styles.planScopeBox}>
+            <Text style={styles.planScopeText}>{describePlanningScope(planningScope)}</Text>
+          </View>
+        ) : null}
       </View>
 
       {singleDay ? (
@@ -6200,6 +6240,13 @@ const styles = StyleSheet.create({
   // (margin on a child inside a row isn't cleared by the row itself), so
   // no existing spacing anywhere this wraps needed to change.
   labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  planScopeBox: {
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+  },
+  planScopeText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   helperText: { ...typography.caption, color: TAB_COLOR, marginTop: 4, marginBottom: 8, ...textShadow },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pill: {

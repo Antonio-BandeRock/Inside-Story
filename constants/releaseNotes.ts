@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.39',
+    date: '2026-09-06',
+    changes: [
+      'A generated meal plan is now built around BOTH of you when you have a partner who shares which conditions they track. Every day is checked against the whole combined list rather than only yours.',
+      'The plan says who it was built for, every time. If it could only be built around you, it says which piece is missing rather than staying quiet about it.',
+      'Turning off what you share stops it being used immediately, even though the app still remembers it.',
+      'Still no sending between phones. The two of you each generate locally; carrying a plan across is the next piece.',
+    ],
+  },
+  {
     version: '1.0.34.38',
     date: '2026-09-06',
     changes: [

@@ -25,6 +25,29 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-06, 1.0.34.39): a plan generated for both people, and a carrier recommendation reversed by investigating it.** Asked directly for LAN sync. What shipped is the half that needed no carrier, because looking at the actual libraries inverted the advice I had given an hour earlier.
+
+**WHAT THE INVESTIGATION FOUND, and why LAN did not ship.** Both candidates carry risk that cannot be discharged without spending a rebuild, and each fails differently:
+
+- `@dr.pogodin/react-native-static-server` is New-Architecture-confirmed and maintained, and it **compiles lighttpd and pcre2 from C source through CMake** on every Android build. Its own README says plainly that Expo "is not supported officially". Installing it moved the fingerprint from `9fb7d0d0` to `a28bab3d`, so it is a rebuild plus a reinstall on both phones before a single line of it can run.
+- `react-native-tcp-socket` is far lighter, Java and Kotlin with no C build at all. It is also an **old-architecture bridge module** (`ReactContextBaseJavaModule`, `@ReactMethod`, no `codegenConfig`), so on this app it works only through the legacy interop layer, and Expo requires the New Architecture from SDK 55. It is a dead end with a deadline.
+
+**And the argument for doing LAN first turned out to be wrong.** The reason given was that it needs no OAuth, so the payload could be proven without an account in the way. But `expo-web-browser` is already installed AND already native in the shipped build, and it exposes `openAuthSessionAsync`; `expo-linking` catches the redirect; `expo-crypto` does PKCE; `fetch` moves the bytes. **The cloud inbox needs no new native module at all**, ships over an ordinary update, and works when the two people are apart, which LAN never will. The option I called the larger job is the cheaper and broader one, and the option I recommended is the risky, narrower one. Saying so is better than quietly building the worse thing because I recommended it first.
+
+**So what shipped is what LAN was supposed to prove: the payload.** `lib/partnerPlanning.ts` closes the gap where `mergeConditionCodes` and `verdictForSharedMeal` were both written, tested, and **called by nothing**. `generateMealPlanDays` already takes its condition array from its caller and never fetches conditions itself, so planning for two people was a merge at the call site rather than a change to the generator, and both generator calls in Schedule now go through it.
+
+**`resolvePlanningScope` reads the partner itself rather than taking one as an argument**, so no call site can plan for two people by passing the wrong thing and none can miss a partner by forgetting to look. The same reasoning `buildPartnerInvite` already follows for the condition grant.
+
+**THE CHECK THAT MATTERS MOST IS A PRIVACY ONE.** Condition codes stay in the row after a grant is switched off, so the merge reads `partner.grants.conditions` rather than whether codes happen to be present. A mutation making it trust the codes instead fails, which is the difference between honouring a withdrawn permission and quietly continuing to use withdrawn data.
+
+**Nothing is ever silent about narrowing.** Every refusal names its missing piece on screen, because someone sets up a partner precisely expecting both to be planned around, and silence there reads as success. A second partner is counted and named too rather than hidden: nothing stops marking two people as partners, only one is planned around, and guessing which two of three sets of conditions to combine would be worse than saying so.
+
+**Regeneration is its own named decision**, since it is the one that was asked about directly: generate fresh for both rather than adopt an existing plan. A plan built for a narrower set of conditions was never checked against the ones it is missing, and `shouldRegenerateForScope` treats a WIDER previous set as a change too, because that plan was filtered against conditions no longer in play.
+
+`scripts/test_partner_planning.js` is 40 checks, six mutations confirmed to break them, including the revoked grant and the generator never receiving the partner's conditions. The suite substitutes a controllable partner for `lib/connections.ts` rather than stubbing the database, since this is about the decision and the storage has its own coverage. `tsc` clean, `eslint` clean on new files and identical to baseline at 16 on `schedule.tsx`, bare-text audit 0, all four guards clean, all eighteen suites passing. **Fingerprint confirmed still `9fb7d0d0`, so this ships with no rebuild. Not yet confirmed on-device.**
+
+**The carrier decision is now genuinely open and belongs to the person, not to me.** Cloud inbox needs no rebuild and works apart; LAN needs a rebuild and one of two imperfect libraries. Whichever lands, the payload it carries is now built and tested.
+
 **Most recent (2026-09-06, 1.0.34.38): encryption keys in the pairing exchange, ahead of the agreed cloud inbox.** Direct decision after laying out the options: sync through the person's own OneDrive or Google Drive, set up during pairing, with children inheriting the same location, and "Lan first though, I agree."
 
 **WHY THIS COULD NOT WAIT FOR THE TRANSPORT IT SERVES.** Everything shared between two phones so far is SIGNED and not encrypted, which was right while the only carrier was a file handed over in person: a signature answers "did this come from them", and nobody else ever held the bytes. A cloud folder breaks that. A signature does nothing to stop whoever can reach the folder from reading a partner's meal plan and condition codes.
