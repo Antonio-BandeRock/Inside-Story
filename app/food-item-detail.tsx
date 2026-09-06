@@ -5,7 +5,13 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NutrientsTable, PrepView, SixDsView, type Scope } from './(tabs)/insights';
 import type { ResolvedFoodSelection } from '../components/FoodLookup';
-import { colors } from '../constants/colors';
+import { BUTTON_SHADOW, colors } from '../constants/colors';
+import { useConfirmSheet } from '../components/ConfirmSheet';
+import { useInfoAlert } from '../components/InfoAlert';
+import { formatGroceryAmount } from '../lib/groceryList';
+import { loadKitchenStock, stockIdKey, stockPairKey } from '../lib/groceryDb';
+import { applyMakePlan } from '../lib/kitchenDb';
+import { buildMakePlan, type MakeIngredient, type MakePlan } from '../lib/kitchenUsage';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import {
@@ -100,6 +106,31 @@ const DETAIL_LENSES: { key: DetailLens; label: string }[] = [
   { key: 'prep', label: 'Cooking & Prep' },
 ];
 
+// The plan in plain words, so someone can see exactly what is about to happen
+// before it happens. Deliberately leads with what will be TAKEN, since that is
+// the destructive half and the part worth reading.
+function describeMakePlan(plan: MakePlan, servings: number): string {
+  const taking = plan.lines.filter((line) => line.draws.length > 0);
+  const short = plan.lines.filter((line) => line.status !== 'full');
+  const parts: string[] = [];
+  parts.push(
+    taking.length === 0
+      ? 'Nothing in your kitchen matches this, so nothing comes out.'
+      : `Comes out of your kitchen: ${taking
+          .map((line) => `${line.foodName} ${formatGroceryAmount(line.covered, line.unit)}`)
+          .join(', ')}.`,
+  );
+  if (short.length > 0) {
+    parts.push(
+      `Not covered: ${short
+        .map((line) => `${line.foodName} ${formatGroceryAmount(Math.max(0, line.needed - line.covered), line.unit)}`)
+        .join(', ')}. Those are left alone.`,
+    );
+  }
+  parts.push(`Goes in: ${servings} serving${servings === 1 ? '' : 's'}.`);
+  return parts.join('\n\n');
+}
+
 export default function FoodItemDetailScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -108,6 +139,9 @@ export default function FoodItemDetailScreen() {
 
   const [lens, setLens] = useState<DetailLens>('ingredients');
   const [side, setSide] = useState<SideDetail | null>(null);
+  const [making, setMaking] = useState(false);
+  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [ingredients, setIngredients] = useState<SideIngredientDetail[]>([]);
   const [nutrientBreakdown, setNutrientBreakdown] = useState<DailyNutrientBreakdown | null>(null);
   const [dimensionsBreakdown, setDimensionsBreakdown] = useState<DailySixDimensionsBreakdown | null>(null);
@@ -266,6 +300,8 @@ export default function FoodItemDetailScreen() {
           resets drilledItemIndex, so there's already a real way out of
           an ingredient's own drill-down without a dedicated button. */}
       <Stack.Screen options={{ title: title || side?.name || 'Saved Item', headerLeft: () => null }} />
+      {confirmSheetElement}
+      {infoAlertElement}
       <ScrollView contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
         {loading ? (
           <Text style={styles.emptyText}>Loading…</Text>
@@ -292,6 +328,41 @@ export default function FoodItemDetailScreen() {
                 <Text style={styles.sideMeta}>
                   Serves {side.servings} · {side.servingSizeAmount} {side.servingSizeUnit} / serving
                 </Text>
+                {/* The one action that moves stock: ingredients out, the batch
+                    in. See lib/kitchenUsage.ts for why it asks first. */}
+                <TouchableOpacity
+                  style={styles.madeButton}
+                  activeOpacity={0.85}
+                  disabled={making || ingredients.length === 0}
+                  onPress={async () => {
+                    setMaking(true);
+                    try {
+                      const stock = await loadKitchenStock();
+                      const plan = buildMakePlan(ingredients, (ingredient: MakeIngredient) =>
+                        stock.get(stockIdKey(ingredient.foodId) ?? ' ') ??
+                        stock.get(stockPairKey(ingredient.category ?? '', ingredient.foodName)) ??
+                        stock.get(ingredient.foodName.trim().toLowerCase()),
+                      );
+                      // Shown before anything is written. See
+                      // lib/kitchenUsage.ts for why that is not negotiable.
+                      const ok = await confirmSheet({
+                        title: `Made ${side.name}?`,
+                        message: describeMakePlan(plan, side.servings),
+                        confirmLabel: 'Yes, I made it',
+                      });
+                      if (!ok) return;
+                      await applyMakePlan({
+                        draws: plan.lines.flatMap((line) => line.draws),
+                        made: { name: side.name, servings: side.servings, servingUnit: 'servings' },
+                      });
+                      showInfoAlert('Recorded', `${side.name} is in your kitchen, and what it used has come out.`);
+                    } finally {
+                      setMaking(false);
+                    }
+                  }}
+                >
+                  <Text style={styles.madeButtonText}>{making ? 'Recording…' : 'I Made This'}</Text>
+                </TouchableOpacity>
                 {ingredients.map((ingredient) => (
                   <View key={ingredient.id} style={styles.ingredientCard}>
                     <Text style={styles.ingredientName}>{ingredient.foodName}</Text>
@@ -597,6 +668,21 @@ const styles = StyleSheet.create({
 
     textShadowRadius: 0,
 
+  },
+  madeButton: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: colors.buttonColor,
+    marginBottom: 12,
+    ...BUTTON_SHADOW,
+  },
+  madeButtonText: {
+    ...typography.label,
+    color: colors.textOnButton,
+    // Dark text on a light fill: no shadow, matching every other button.
+    textShadowColor: 'transparent',
   },
   sideMeta: {
     ...typography.caption,

@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.16',
+    date: '2026-09-05',
+    changes: [
+      "New: I Made This, on any saved dish. What it used comes out of your kitchen and the batch goes in, so the inventory keeps itself up rather than only ever climbing.",
+      "It shows you exactly what it is about to take before it takes anything, and does nothing until you say yes. Saving a recipe is not the same as cooking it, and the app cannot tell whether you used your own stock or something you picked up on the way home.",
+      "If you only had part of what a recipe wanted, it takes what was there and says what was short rather than pretending the rest existed.",
+      "Two ingredients that resolve to the same jar can no longer each be given all of it.",
+    ],
+  },
+  {
     version: '1.0.34.15',
     date: '2026-09-05',
     changes: [

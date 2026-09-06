@@ -784,8 +784,8 @@ export async function repairTransposedGroceryLines(): Promise<{ corrected: numbe
 // actually pin down: the reference row itself, then the canonical purchasable
 // pair (category plus base_name, the same key food_purchase_forms uses), then
 // the bare name for anything with neither.
-const stockIdKey = (foodId: string | null | undefined) => (foodId ? `id:${foodId}` : null);
-const stockPairKey = (category: string, name: string) =>
+export const stockIdKey = (foodId: string | null | undefined) => (foodId ? `id:${foodId}` : null);
+export const stockPairKey = (category: string, name: string) =>
   `pair:${category.trim().toLowerCase()}|${name.trim().toLowerCase()}`;
 
 // --- What is already in the kitchen -----------------------------------------
@@ -801,7 +801,7 @@ const stockPairKey = (category: string, name: string) =>
 // not.
 
 // Everything currently in the kitchen, keyed by lower-cased food name.
-async function loadKitchenStock(excludeListId: string): Promise<Map<string, KitchenStockEntry[]>> {
+export async function loadKitchenStock(excludeListId?: string): Promise<Map<string, KitchenStockEntry[]>> {
   const db = await getDatabase();
   const stock = new Map<string, KitchenStockEntry[]>();
   // A row is filed under every key it can be found by, so a lookup succeeds at
@@ -877,7 +877,9 @@ async function loadKitchenStock(excludeListId: string): Promise<Map<string, Kitc
       JOIN grocery_lists l ON l.id = i.list_id
       WHERE i.checked = 1 AND i.list_id != ? AND COALESCE(i.checked_at, l.created_at) >= ?
     `,
-    excludeListId,
+    // No list to exclude when this is read for something other than a grocery
+    // list. A sentinel matches nothing rather than branching the SQL.
+    excludeListId ?? '',
     since,
   );
   for (const row of rows) {

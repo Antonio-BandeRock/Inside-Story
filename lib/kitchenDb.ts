@@ -309,6 +309,40 @@ export async function deleteKitchenItem(id: string): Promise<boolean> {
   return true;
 }
 
+// Applies a plan: the ingredients come out, the dish goes in.
+//
+// Only ever called after the plan has been SHOWN and confirmed. See
+// lib/kitchenUsage.ts for why that is not negotiable: the app cannot know
+// whether someone cooked from their own stock or from something they picked up
+// on the way home, so it must never decide that on their behalf.
+//
+// Order matters. The draws happen first so that a failure part way through
+// leaves stock reduced but the dish unrecorded, which is recoverable by hand.
+// The other order would put a phantom batch in the kitchen with its
+// ingredients still sitting there, and nothing to tell the two apart later.
+export async function applyMakePlan(input: {
+  draws: { id: string; source: string; quantity: number }[];
+  made: { name: string; servings: number; servingUnit: string } | null;
+}): Promise<void> {
+  for (const draw of input.draws) {
+    if (!draw.id || draw.quantity <= 0) continue;
+    await consumeKitchenItem(draw.id, draw.quantity);
+  }
+  if (!input.made || input.made.servings <= 0) return;
+  // The dish itself becomes stock, which is the other half of the request:
+  // "Anything they make or grow should become part of the Kitchen inventory
+  // the moment they are harvested or completed." Counted in servings rather
+  // than weight, because that is what a batch of soup is measured in when
+  // someone goes back to it.
+  await addKitchenItem({
+    foodName: input.made.name,
+    quantity: input.made.servings,
+    unit: input.made.servingUnit,
+    kind: 'food',
+    note: 'Made at home',
+  });
+}
+
 // How long something has been claimed, in words. The counterweight to an amount
 // nothing can verify: "3 weeks ago" is the app being honest about how much
 // trust the number beside it has earned.

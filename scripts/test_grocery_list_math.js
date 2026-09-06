@@ -706,6 +706,80 @@ check('and neither does an empty kitchen', kitchenCoverageFor(340, 'g', [], TODA
 
 // A harvest in the wrong family is not taken from at all.
 check('a volume harvest is never drawn for a weight line', kitchenCoverageFor(340, 'g', [g2('h1', 1, 'l', '2026-09-01')], TODAY).draws, []);
+// --------------------------------------------------------------------------
+// Making something: what comes out of the kitchen.
+//
+// 2026-09-05. This arithmetic decrements a record someone keeps by hand, so
+// getting it wrong destroys the thing the feature exists to maintain. The case
+// that matters most is the last one: two ingredients resolving to the SAME
+// stock row must not each be told they can have all of it.
+const { buildMakePlan, shortfallsFrom } = loadModule('kitchenUsage');
+
+// A lookup standing in for the map loadKitchenStock builds.
+const stockFor = (map) => (ingredient) => map[ingredient.foodName.toLowerCase()];
+const row = (id, quantity, unit) => ({ id, source: 'kitchen', quantity, unit, date: '2026-09-01' });
+
+// Enough of everything.
+const stocked = buildMakePlan(
+  [{ foodId: null, foodName: 'Broccoli', category: 'Veg', quantity: 340, unit: 'g' }],
+  stockFor({ broccoli: [row('k1', 500, 'g')] }),
+);
+check('a fully stocked line reads full', stocked.lines[0].status, 'full');
+check('and takes only what the dish needs', stocked.lines[0].draws[0].quantity, 340);
+check('and the plan says so', stocked.fullyStocked, true);
+check('with nothing to buy', shortfallsFrom(stocked), []);
+
+// Not enough: take what there is, report the rest.
+const short = buildMakePlan(
+  [{ foodId: null, foodName: 'Broccoli', category: 'Veg', quantity: 340, unit: 'g' }],
+  stockFor({ broccoli: [row('k1', 200, 'g')] }),
+);
+check('a short line reads partial', short.lines[0].status, 'partial');
+check('it empties what was there', short.lines[0].draws[0].quantity, 200);
+check('and never invents the rest', shortfallsFrom(short), [{ foodName: 'Broccoli', quantity: 140, unit: 'g' }]);
+check('so the plan is not fully stocked', short.fullyStocked, false);
+
+// Nothing in the kitchen at all.
+const none = buildMakePlan(
+  [{ foodId: null, foodName: 'Kale', category: 'Veg', quantity: 100, unit: 'g' }],
+  stockFor({}),
+);
+check('an unmatched line reads none', none.lines[0].status, 'none');
+check('takes nothing', none.lines[0].draws, []);
+check('and is nothing to confirm', none.drawableCount, 0);
+check('but is still something to buy', shortfallsFrom(none)[0].quantity, 100);
+
+// THE ONE THAT MATTERS: two ingredients, one shared stock row.
+const shared = { 'olive oil': [row('k9', 100, 'ml')], 'olive oil (extra virgin)': [row('k9', 100, 'ml')] };
+const doubled = buildMakePlan(
+  [
+    { foodId: null, foodName: 'Olive Oil', category: 'Fats', quantity: 60, unit: 'ml' },
+    { foodId: null, foodName: 'Olive Oil (Extra Virgin)', category: 'Fats', quantity: 60, unit: 'ml' },
+  ],
+  stockFor(shared),
+);
+const takenFromK9 = doubled.lines.reduce(
+  (total, line) => total + line.draws.filter((d) => d.id === 'k9').reduce((sum, d) => sum + d.quantity, 0),
+  0,
+);
+check('one row is never drawn past what it holds', takenFromK9, 100);
+check('the first line gets what it asked for', doubled.lines[0].status, 'full');
+check('the second gets only the remainder', doubled.lines[1].covered, 40);
+
+// Units convert, and the draw comes back in the STOCK row's unit.
+const kiloDraw = buildMakePlan(
+  [{ foodId: null, foodName: 'Broccoli', category: 'Veg', quantity: 500, unit: 'g' }],
+  stockFor({ broccoli: [row('k1', 1, 'kg')] }),
+);
+check('a kilo covers a gram line', kiloDraw.lines[0].status, 'full');
+check('and is drawn down in kilos', kiloDraw.lines[0].draws[0].quantity, 0.5);
+
+// A zero-amount ingredient is not a line at all.
+check(
+  'a zero amount is skipped',
+  buildMakePlan([{ foodId: null, foodName: 'Salt', category: 'Herbs', quantity: 0, unit: 'g' }], stockFor({})).lines,
+  [],
+);
 if (failures > 0) {
   console.error(`\nGrocery list math: ${failures} of ${checks} checks failed.`);
   process.exit(1);
