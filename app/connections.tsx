@@ -31,6 +31,7 @@ import {
   linkState,
 } from '../lib/partners';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
+import { canEncryptTo } from '../lib/partnerCrypto';
 
 export default function ConnectionsScreen() {
   const scrollPadding = useFloatingButtonScrollPadding();
@@ -191,6 +192,22 @@ export default function ConnectionsScreen() {
                           while nothing can actually travel between the phones,
                           reads as a working feature. */}
                       <Text style={styles.rowPending}>{PARTNER_SHARING_NOT_LIVE}</Text>
+                      {canEncryptTo(connection.encryptionPublicKeyBase64) ? null : (
+                        <View style={styles.rowFix}>
+                          <Text style={styles.rowFixText}>
+                            You paired before this app could seal something so only they can read it. Show each other
+                            your codes once more and it fills itself in. Nothing else about the connection changes.
+                          </Text>
+                          <TouchableOpacity
+                            style={styles.rowFixButton}
+                            activeOpacity={0.85}
+                            onPress={() => openPairing('partner')}
+                          >
+                            <Ionicons name="qr-code-outline" size={16} color={colors.textOnButton} />
+                            <Text style={styles.rowFixButtonText}>Show My Code Again</Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
                       {connection.theirConditionCodes.length > 0 ? (
                         <Text style={styles.rowMeta}>
                           They share {connection.theirConditionCodes.length}{' '}
@@ -311,6 +328,20 @@ const styles = StyleSheet.create({
     marginTop: 4,
     ...textShadow,
   },
+  rowFix: {
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 6,
+    gap: 8,
+  },
+  rowFixText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  rowFixButton: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: colors.buttonColor, borderRadius: 10, paddingVertical: 9, paddingHorizontal: 14,
+    ...BUTTON_SHADOW,
+  },
+  rowFixButtonText: { ...typography.caption, color: colors.textOnButton, ...textShadow },
   rowWarn: { ...typography.caption, color: colors.statusYellowStandalone, marginTop: 4, ...textShadow },
   partnerHint: { ...typography.caption, color: colors.textMuted, marginTop: 6, ...textShadow },
   secondaryButton: {

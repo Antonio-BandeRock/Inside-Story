@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.38',
+    date: '2026-09-06',
+    changes: [
+      'Pairing now also exchanges the key that lets one phone send something only the other can read. This is what will keep a shared meal plan private once it travels through your own cloud storage rather than being handed over in person.',
+      'Anyone you paired with before today has no such key. Their entry in Connections says so, with a button to show your code once more, which fills it in. Nothing else about the connection changes and you do not need to disconnect.',
+      'Nothing is sent anywhere yet. This is groundwork.',
+    ],
+  },
+  {
     version: '1.0.34.37',
     date: '2026-09-06',
     changes: [

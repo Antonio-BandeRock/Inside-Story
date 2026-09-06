@@ -25,6 +25,36 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-06, 1.0.34.38): encryption keys in the pairing exchange, ahead of the agreed cloud inbox.** Direct decision after laying out the options: sync through the person's own OneDrive or Google Drive, set up during pairing, with children inheriting the same location, and "Lan first though, I agree."
+
+**WHY THIS COULD NOT WAIT FOR THE TRANSPORT IT SERVES.** Everything shared between two phones so far is SIGNED and not encrypted, which was right while the only carrier was a file handed over in person: a signature answers "did this come from them", and nobody else ever held the bytes. A cloud folder breaks that. A signature does nothing to stop whoever can reach the folder from reading a partner's meal plan and condition codes.
+
+**And it gets more expensive every day it waits.** Adding a key to the invite means every pairing that predates it has none. **Right now exactly one pairing exists in the world**, so the cost is one extra scan. Later it is a migration.
+
+**The old comment in `lib/deviceIdentity.ts` was right and incomplete.** It scoped encryption out on the grounds that NaCl's signing and box keys sit on different curves and neither can be derived from the other. True. What it did not consider is that both can be derived from one ROOT secret: the encryption key now comes from a **domain-separated hash** of the same stored seed, so there is still exactly one value in `expo-secure-store` rather than two to keep in step. The domain tag is what makes that safe rather than key reuse across two algorithms, and a test asserts that dropping it changes the derived key.
+
+**Sign, then seal, in that order.** The recipient decrypts and is left holding exactly the signed envelope `lib/sharing.ts` already verifies. Encrypting first and signing the ciphertext would only prove who uploaded a blob, not who wrote what is inside it.
+
+**A sealed box with a throwaway key per message**, assembled from `nacl.box` since tweetnacl-js ships no `box.seal`. Two things fall out of using an ephemeral key rather than the sender's own: the recipient needs nothing from the sender beyond what travels with the message, so this works before both sides have exchanged keys in both directions; and a secret recovered later cannot open messages already sent.
+
+**`lib/partnerCrypto.ts` is deliberately pure**, with every key and every random byte passed in. That is what lets the format be tested in plain node, which matters because **failure here is silent**: wrong nonce handling or a mis-sliced header does not throw, it produces bytes that never open, or worse, bytes that look encrypted and are not.
+
+**TWO REAL BUGS THIS PASS, BOTH FOUND BY MUTATION TESTING RATHER THAN BY READING.**
+
+**The first was the checks, not the code.** Replacing the nonce with a block of zeroes passed every test, because the throwaway key alone still varied and the blobs still differed. The nonce is now pinned to the caller's random buffer directly. Then a second mutation, slicing the nonce one byte off, ALSO passed: the test's random buffer was filled with one repeated value, so an off-by-one produced a byte-identical array. **Third time in this project a fixture uniform enough to satisfy two rules has tested neither.** The buffer now varies per byte and both mutations fail.
+
+**The second would have broken pairing completely.** The invite went to v3 and `decodeConnectionInvite`'s version gate still listed only 1 and 2, so **the app could not read the codes it built itself.** Caught by the round-trip test, seconds from shipping, and nothing short of pointing two phones at each other would have shown it. There is now a check that reads the declared version union out of the source and asserts every value decodes, so adding v4 to the type without adding it to the gate fails here rather than on a kitchen table.
+
+**A length guard was REMOVED rather than kept.** An early-exit on a short blob could not be made to fail any test, because `nacl.box.open` already refuses those. This project's own rule is that a check which cannot fail is worth nothing, so it went, with a comment saying why.
+
+**Catching up costs one scan, not an unpair.** `fillMissingEncryptionKey` backfills the key from the "already connected" path, so showing each other a code once more is enough. It only ever fills a gap and never replaces an existing key, since silently changing the key someone's data is sealed to is how a partner link breaks invisibly. Connections says which partners lack a key and offers the button.
+
+**The migration was replayed against a real database rather than trusted**, which is the check that was missing when 1.0.34.30 took Home down: an existing partner survives with a null key, a new pairing stores a real one, the app's own SELECT works, and `typeof` matches across both rows so the INTEGER/TEXT trap is not reopened.
+
+`scripts/test_partner_crypto.js` is 45 checks, six mutations confirmed to break them. `test_qr_pairing.js` grew to 53. `tsc` clean, `eslint` clean on every shipped file, bare-text audit 0, all four guards clean, all seventeen suites passing. **Ships over EAS Update with no rebuild**, since tweetnacl was already installed. **Not yet confirmed on-device.**
+
+**Next, and agreed: LAN sync**, which needs the native rebuild (`@dr.pogodin/react-native-static-server` and `react-native-zeroconf`, both confirmed New-Architecture-compatible and maintained). Then the cloud inbox. **An inbox per device, not one shared file**, which removes the locking problem the brief spends three mechanisms on and extends to children for free.
+
 **Most recent (2026-09-06, 1.0.34.37): the connection row rebuilt, and the partner copy made honest after a direct question exposed it.** Two reports in one message. On the layout: "the resulting box with her information has what appear to be two columns and the left column is very narrow and has a bunch of text in it... Those should be below the rest and there should only be the one column." And then the question that mattered more: "explain to me how we each see the other person's things. How do the apps combine the scheduled meals?"
 
 **THE LAYOUT WAS AN OLD SHAPE OUTLIVING ITS CONTENT.** `row` was `flexDirection: row` with `space-between`, which read fine when a connection was a name and a date beside two links. A partner row carries six lines, so the text got crushed into a narrow strip. Now one column, with the actions below a divider so they read as controls rather than more paragraph.

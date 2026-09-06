@@ -32,6 +32,13 @@ const LIB = path.join(__dirname, '..', 'lib');
 // Native) and expo-linking. Both are stubbed with a Proxy that throws BY NAME
 // rather than returning undefined, so a test reaching for something the
 // harness cannot provide fails loudly instead of somewhere further on.
+// Real npm packages passed through to the actual require rather than stubbed.
+// lib/connections.ts reaches lib/partnerCrypto.ts, which needs real crypto: a
+// stub cannot fake NaCl. Everything else non-relative still throws BY NAME,
+// which is how this failure surfaced in the first place rather than quietly
+// returning undefined somewhere further on.
+const REAL_PACKAGES = new Set(['tweetnacl']);
+
 function throwingStub(what) {
   return new Proxy(
     {},
@@ -49,12 +56,18 @@ function loadModule(name, cache = new Map()) {
   if (cache.has(name)) return cache.get(name);
   const source = fs.readFileSync(path.join(LIB, `${name}.ts`), 'utf8');
   const { outputText } = ts.transpileModule(source, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2020,
+      // tweetnacl uses `export =`, so the default import needs interop.
+      esModuleInterop: true,
+    },
     fileName: `${name}.ts`,
   });
   const module = { exports: {} };
   cache.set(name, module.exports);
   const localRequire = (request) => {
+    if (REAL_PACKAGES.has(request)) return require(request);
     if (!request.startsWith('./')) return throwingStub(request);
     const target = request.slice(2);
     if (target === 'db') return throwingStub('lib/db.ts');

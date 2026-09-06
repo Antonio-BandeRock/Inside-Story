@@ -27,6 +27,7 @@ import {
   decodeConnectionInvite,
   getConnectionByPublicKey,
   markFingerprintVerified,
+  fillMissingEncryptionKey,
   markTheyHaveMe,
   setConnectionRole,
   setPartnerConditionCodes,
@@ -34,6 +35,7 @@ import {
 } from '../lib/connections';
 import { computeKeyFingerprint, getDeviceIdentity } from '../lib/deviceIdentity';
 import { SHARE_SCOPES, defaultGrantsForRole, type ShareGrants } from '../lib/partners';
+import { canEncryptTo } from '../lib/partnerCrypto';
 
 type Status = 'checking' | 'preview' | 'self-invite' | 'already-connected' | 'accepting' | 'accepted' | 'error';
 
@@ -54,6 +56,10 @@ export default function ConnectScreen() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fingerprintChecked, setFingerprintChecked] = useState(false);
   const [updatedExisting, setUpdatedExisting] = useState(false);
+  const [filledEncryptionKey, setFilledEncryptionKey] = useState(false);
+  // Whether someone already paired predates encryption keys. Paired before
+  // 2026-09-06 means no key, and one more scan is all it takes to fix.
+  const [existingNeedsKey, setExistingNeedsKey] = useState(false);
   // What I grant THEM, chosen here rather than mirrored from what they offered.
   // Their generosity is not consent on my behalf.
   const [grants, setGrants] = useState<ShareGrants>(() => defaultGrantsForRole('partner'));
@@ -75,6 +81,7 @@ export default function ConnectScreen() {
       if (existing) {
         setExistingConnectionName(existing.name);
         setExistingConnectionId(existing.id);
+        setExistingNeedsKey(!canEncryptTo(existing.encryptionPublicKeyBase64));
         setStatus('already-connected');
         return;
       }
@@ -93,6 +100,10 @@ export default function ConnectScreen() {
       const connection = await addConnection(invite.fromName, invite.publicKeyBase64, {
         role,
         grants: isPartnerInvite ? grants : defaultGrantsForRole('recipe'),
+        // Their X25519 key, if their app is new enough to carry one. Null is a
+        // fine outcome: they pair and plan exactly the same, and nothing can
+        // be sealed to them until they show a newer code.
+        encryptionPublicKeyBase64: invite.encryptionKeyBase64 ?? null,
       });
 
       if (isPartnerInvite) {
@@ -138,6 +149,12 @@ export default function ConnectScreen() {
     try {
       if (isPartnerInvite) await setConnectionRole(existingConnectionId, 'partner');
       if (invite.alreadyHaveYou) await markTheyHaveMe(existingConnectionId);
+      // The reason "already connected" is worth landing on for anyone paired
+      // before encryption keys existed: this fills the gap in place.
+      if (invite.encryptionKeyBase64) {
+        const filled = await fillMissingEncryptionKey(existingConnectionId, invite.encryptionKeyBase64);
+        if (filled) setFilledEncryptionKey(true);
+      }
       if (isPartnerInvite && invite.conditionCodes?.length) {
         await setPartnerConditionCodes(existingConnectionId, invite.conditionCodes);
       }
@@ -208,6 +225,12 @@ export default function ConnectScreen() {
                   ? `${invite.fromName} has confirmed they added you too. Accepting this finishes the link so it works both ways.`
                   : `They have sent a partner link this time, which shares more than a recipe connection does.`}
               </Text>
+              {existingNeedsKey && invite.encryptionKeyBase64 ? (
+                <Text style={styles.text}>
+                  This code also carries the key that lets them be sent something only they can read. You paired
+                  before that existed, so accepting this fills it in.
+                </Text>
+              ) : null}
               {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
               <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={handleUpdateExisting}>
                 <Text style={styles.primaryButtonText}>
@@ -217,7 +240,11 @@ export default function ConnectScreen() {
             </>
           ) : null}
           {updatedExisting ? (
-            <Text style={styles.text}>Updated. This link now works both ways.</Text>
+            <Text style={styles.text}>
+              {filledEncryptionKey
+                ? 'Updated. This link works both ways, and anything sent between you can now be sealed so only the two of you can read it.'
+                : 'Updated. This link now works both ways.'}
+            </Text>
           ) : null}
           <TouchableOpacity
             style={updatedExisting ? styles.primaryButton : styles.secondaryButton}

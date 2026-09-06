@@ -5547,6 +5547,22 @@ async function runDatabaseInitialization() {
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         public_key_base64 TEXT NOT NULL UNIQUE,
+        --
+        -- X25519, added 2026-09-06 alongside the agreed cloud inbox. The key
+        -- above is Ed25519 and signs; this one lets something be written so
+        -- only this person can read it. Different curves, and neither can be
+        -- derived from the other, which is why it is a second column rather
+        -- than something computed from the first.
+        --
+        -- Nullable, and stays that way. Anyone paired before this has none,
+        -- and they can still pair and still plan meals. What they cannot do is
+        -- receive anything sealed, which the screens say plainly rather than
+        -- looking ready to share.
+        --
+        -- TEXT, so the generic column-add loop further down this file is the
+        -- right home for it. The share_* columns below are INTEGER and are
+        -- deliberately kept out of that loop for exactly that reason.
+        encryption_public_key_base64 TEXT,
         paired_at TEXT NOT NULL DEFAULT (datetime('now')),
         -- --- Partner links (2026-09-06) --------------------------------
         --
@@ -6637,6 +6653,8 @@ async function runDatabaseInitialization() {
       ['connections', 'fingerprint_verified_at'],
       ['connections', 'their_condition_codes_json'],
       ['connections', 'their_conditions_at'],
+      // Encryption keys, 2026-09-06. TEXT, so the loop is correct for it.
+      ['connections', 'encryption_public_key_base64'],
     ] as const) {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (columns.length > 0 && !columns.some((entry) => entry.name === column)) {

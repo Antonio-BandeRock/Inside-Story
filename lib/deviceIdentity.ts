@@ -17,18 +17,25 @@
 // widely used in real production systems for exactly this kind of
 // device-to-device signing/encryption with no server involved.
 //
-// Step 2, real device identity: a genuine Ed25519 signing keypair,
-// generated once per device and stored securely. Deliberately scoped to
-// IDENTITY ONLY -- no box/encryption keypair (NaCl's signing and box/
-// encryption keys use different curves and can't be derived from one
-// seed, so that's a real, separate generation step of its own, only worth
-// adding if a future pass decides true confidentiality -- not just
-// signing/verification -- is needed on top of this; step 5, below, covers
-// signing and verification only, matching the roadmap's own explicit
-// "if true confidentiality is wanted" framing as a separate, optional
-// extension). Step 5's own real signMessage()/verifySignature() live at
-// the bottom of this file, once step 4's real pairing exchange existed to
-// know whose public key a signature should be checked against.
+// Step 2, real device identity: an Ed25519 signing keypair, generated once per
+// device and stored securely. Step 5's own signMessage()/verifySignature() live
+// at the bottom of this file, once step 4's pairing exchange existed to know
+// whose public key a signature should be checked against.
+//
+// 2026-09-06: this now ALSO carries an X25519 encryption keypair, which the
+// comment here previously scoped out as a separate future step if true
+// confidentiality were ever wanted. It is wanted now: the agreed next transport
+// is a cloud inbox in the person's own OneDrive or Google Drive, and a signature
+// does nothing to stop whoever can reach that folder from reading a partner's
+// meal plan and condition codes.
+//
+// That old comment was right that the two curves are different and neither key
+// can be derived from the other. What it did not consider is that both can be
+// derived from one ROOT secret, which is what happens here: the encryption key
+// comes from a domain-separated hash of the same stored seed, so there is still
+// exactly one secret in expo-secure-store rather than two to keep in step. See
+// lib/partnerCrypto.ts for the derivation and why the domain tag is what makes
+// it safe.
 //
 // Two real native modules this needs -- expo-crypto (a genuine, platform-
 // backed source of secure random bytes; tweetnacl's own internal
@@ -45,12 +52,16 @@
 // exactly the class of bug already found and fixed once this session on
 // the meal-photo feature itself.
 import nacl from 'tweetnacl';
+import { SEAL_RANDOM_BYTES, deriveEncryptionKeyPair, openSealed, sealTo } from './partnerCrypto';
 
 const PRIVATE_SEED_KEY = 'device_identity_seed_v1';
 
 export type DeviceIdentity = {
   publicKey: Uint8Array;
   publicKeyBase64: string;
+  /** X25519, for receiving something only this device can read. Separate curve from the signing key above. */
+  encryptionPublicKey: Uint8Array;
+  encryptionPublicKeyBase64: string;
 };
 
 // A real, standalone, byte-array base64 codec -- deliberately not the
@@ -140,7 +151,46 @@ async function loadSeed(): Promise<Uint8Array> {
 async function loadOrCreateIdentity(): Promise<DeviceIdentity> {
   const seed = await loadSeed();
   const keyPair = nacl.sign.keyPair.fromSeed(seed);
-  return { publicKey: keyPair.publicKey, publicKeyBase64: bytesToBase64(keyPair.publicKey) };
+  const boxPair = deriveEncryptionKeyPair(seed);
+  return {
+    publicKey: keyPair.publicKey,
+    publicKeyBase64: bytesToBase64(keyPair.publicKey),
+    encryptionPublicKey: boxPair.publicKey,
+    encryptionPublicKeyBase64: bytesToBase64(boxPair.publicKey),
+  };
+}
+
+/**
+ * Seals a payload so that only the holder of `recipientEncryptionKeyBase64`
+ * can read it.
+ *
+ * Lives here rather than in lib/partnerCrypto.ts for the same reason signMessage
+ * does: this is where the real randomness comes from. tweetnacl's own
+ * randomBytes throws outright in React Native, which provides no Web Crypto
+ * API, so the bytes come from expo-crypto. The format itself is pure and
+ * tested separately.
+ *
+ * Sign first, then seal. What comes out of the other end is exactly the signed
+ * envelope lib/sharing.ts already knows how to verify, so the signature covers
+ * the real content rather than a blob someone happened to upload.
+ */
+export async function sealForRecipient(message: Uint8Array, recipientEncryptionKeyBase64: string): Promise<string> {
+  const Crypto = await import('expo-crypto');
+  const random = await Crypto.getRandomBytesAsync(SEAL_RANDOM_BYTES);
+  return sealTo(message, base64ToBytes(recipientEncryptionKeyBase64), random);
+}
+
+/**
+ * Opens something sealed to this device, or returns null.
+ *
+ * The one function anywhere that touches the encryption secret key, and it
+ * re-derives it per call rather than caching it, the same deliberate tradeoff
+ * signMessage already makes: opening a message is infrequent, so keeping the
+ * secret out of memory is worth the small cost of deriving it again.
+ */
+export async function openSealedForMe(blobBase64: string): Promise<Uint8Array | null> {
+  const seed = await loadSeed();
+  return openSealed(blobBase64, deriveEncryptionKeyPair(seed).secretKey);
 }
 
 // Step 5, 2026-08-15, direct request: "Let's start on step 5" -- real

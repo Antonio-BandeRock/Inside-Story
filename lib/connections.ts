@@ -26,12 +26,15 @@
 import { getDatabase, getUserConditions, getUserProfile } from './db';
 import { getDeviceIdentity } from './deviceIdentity';
 import { decodeBase64Utf8, encodeBase64Utf8 } from './sharing';
+import { canEncryptTo } from './partnerCrypto';
 import { defaultGrantsForRole, type ConnectionRole, type ShareGrants } from './partners';
 
 export type Connection = {
   id: string;
   name: string;
   publicKeyBase64: string;
+  /** X25519, for sealing something only they can read. Null if they paired before this existed. */
+  encryptionPublicKeyBase64: string | null;
   pairedAt: string;
   role: ConnectionRole;
   /** Their claim that they added you back. See markTheyHaveMe below. */
@@ -48,6 +51,7 @@ type ConnectionRow = {
   id: string;
   name: string;
   public_key_base64: string;
+  encryption_public_key_base64: string | null;
   paired_at: string;
   role: string | null;
   they_have_me_at: string | null;
@@ -62,7 +66,7 @@ type ConnectionRow = {
 // Every SELECT in this file uses this, so a column added later cannot reach
 // some reads and miss others.
 const CONNECTION_COLUMNS = `
-  id, name, public_key_base64, paired_at, role, they_have_me_at,
+  id, name, public_key_base64, encryption_public_key_base64, paired_at, role, they_have_me_at,
   fingerprint_verified_at, share_meals, share_shopping, share_conditions,
   their_condition_codes_json, their_conditions_at
 `;
@@ -85,6 +89,10 @@ function fromRow(row: ConnectionRow): Connection {
     id: row.id,
     name: row.name,
     publicKeyBase64: row.public_key_base64,
+    // Null for anyone paired before 2026-09-06. Nothing can be encrypted to
+    // them until they pair again, and the screens say so rather than looking
+    // ready to share.
+    encryptionPublicKeyBase64: row.encryption_public_key_base64,
     pairedAt: row.paired_at,
     // A row migrated from before roles existed is a recipe connection, which
     // is what every connection made before 2026-09-06 was for.
@@ -111,7 +119,7 @@ function fromRow(row: ConnectionRow): Connection {
 export async function addConnection(
   name: string,
   publicKeyBase64: string,
-  options: { role?: ConnectionRole; grants?: ShareGrants } = {},
+  options: { role?: ConnectionRole; grants?: ShareGrants; encryptionPublicKeyBase64?: string | null } = {},
 ): Promise<Connection> {
   const db = await getDatabase();
   const id = `connection_${Date.now()}`;
@@ -121,11 +129,12 @@ export async function addConnection(
   // sharing meals and shopping and deliberately NOT conditions.
   const grants = options.grants ?? defaultGrantsForRole(role);
   await db.runAsync(
-    `INSERT INTO connections (id, name, public_key_base64, role, share_meals, share_shopping, share_conditions)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO connections (id, name, public_key_base64, encryption_public_key_base64, role, share_meals, share_shopping, share_conditions)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     trimmedName || 'Unnamed connection',
     publicKeyBase64,
+    options.encryptionPublicKeyBase64 ?? null,
     role,
     grants.meals ? 1 : 0,
     grants.shopping ? 1 : 0,
@@ -282,6 +291,30 @@ export async function setPartnerConditionCodes(id: string, codes: string[]): Pro
   );
 }
 
+/**
+ * Fills in an encryption key for someone already paired.
+ *
+ * This is what saves anyone paired before 2026-09-06 from having to remove the
+ * connection and start over. Showing each other a code again lands on the
+ * "already connected" path, and this backfills the key from that invite, so
+ * catching up costs one scan rather than an unpair and a re-pair.
+ *
+ * Only ever fills a gap. An existing key is left alone, because silently
+ * replacing the key someone's data is sealed to is how a partner link would
+ * break in a way nobody could see.
+ */
+export async function fillMissingEncryptionKey(id: string, encryptionPublicKeyBase64: string): Promise<boolean> {
+  if (!canEncryptTo(encryptionPublicKeyBase64)) return false;
+  const db = await getDatabase();
+  const result = await db.runAsync(
+    `UPDATE connections SET encryption_public_key_base64 = ?
+     WHERE id = ? AND (encryption_public_key_base64 IS NULL OR encryption_public_key_base64 = '')`,
+    encryptionPublicKeyBase64,
+    id,
+  );
+  return result.changes > 0;
+}
+
 // --- The real invitation exchange itself -------------------------------
 //
 // Deliberately a single, symmetric payload shape -- no separate "invite"
@@ -316,9 +349,18 @@ export async function setPartnerConditionCodes(id: string, codes: string[]): Pro
 // conditionCodes travels ONLY when the sender granted it. Codes, never a
 // symptom, a lab result, a healing stage or a note. See lib/partners.ts.
 export type ConnectionInvite = {
-  v: 1 | 2;
+  v: 1 | 2 | 3;
   fromName: string;
   publicKeyBase64: string;
+  /**
+   * X25519, added at v3 (2026-09-06). Signing proves who wrote something;
+   * this is what lets it be written so only the recipient can read it, which
+   * the agreed cloud inbox needs and a signature cannot provide.
+   *
+   * Optional because an older invite has none. A partner without it can still
+   * pair and still plan, and nothing can be sealed to them.
+   */
+  encryptionKeyBase64?: string;
   role?: ConnectionRole;
   grants?: ShareGrants;
   conditionCodes?: string[];
@@ -328,9 +370,10 @@ export type ConnectionInvite = {
 export async function buildConnectionInvite(): Promise<ConnectionInvite> {
   const [profile, identity] = await Promise.all([getUserProfile(), getDeviceIdentity()]);
   return {
-    v: 2,
+    v: 3,
     fromName: profile.firstName?.trim() || 'A friend',
     publicKeyBase64: identity.publicKeyBase64,
+    encryptionKeyBase64: identity.encryptionPublicKeyBase64,
     role: 'recipe',
   };
 }
@@ -349,9 +392,10 @@ export async function buildPartnerInvite(options: {
 }): Promise<ConnectionInvite> {
   const [profile, identity] = await Promise.all([getUserProfile(), getDeviceIdentity()]);
   const invite: ConnectionInvite = {
-    v: 2,
+    v: 3,
     fromName: profile.firstName?.trim() || 'A friend',
     publicKeyBase64: identity.publicKeyBase64,
+    encryptionKeyBase64: identity.encryptionPublicKeyBase64,
     role: 'partner',
     grants: options.grants,
     alreadyHaveYou: options.alreadyHaveYou === true,
@@ -479,10 +523,17 @@ export function parseInviteInput(raw: string): string | null {
 export function decodeConnectionInvite(raw: string): ConnectionInvite | null {
   try {
     const parsed = JSON.parse(decodeBase64Utf8(raw)) as Partial<ConnectionInvite>;
-    // v1 is still accepted. A link sent before 2026-09-06 can still be sitting
-    // in a message thread, and refusing it would break something that used to
-    // work for no reason: a v1 invite is simply a recipe connection.
-    if (parsed.v !== 1 && parsed.v !== 2) return null;
+    // v1 and v2 are still accepted. A link sent before 2026-09-06 can still be
+    // sitting in a message thread, and refusing it would break something that
+    // used to work for no reason: a v1 invite is simply a recipe connection, and
+    // a v2 one is a partner invite with no encryption key.
+    //
+    // v3 added the encryption key. Every version this app has ever produced has
+    // to stay listed here, and a new one has to be ADDED rather than swapped in:
+    // getting this wrong means the app cannot read the codes it builds itself,
+    // which is a total pairing failure and one nothing but pairing two phones
+    // would reveal.
+    if (parsed.v !== 1 && parsed.v !== 2 && parsed.v !== 3) return null;
     if (typeof parsed.fromName !== 'string' || !parsed.publicKeyBase64) return null;
 
     // Everything below is normalised rather than trusted. This arrived from
@@ -499,6 +550,8 @@ export function decodeConnectionInvite(raw: string): ConnectionInvite | null {
     // Codes are kept only when they were actually granted. A payload claiming
     // no condition grant while carrying codes anyway is contradicting itself,
     // and the safe reading of that is to drop them.
+    const encryptionKeyBase64 = canEncryptTo(parsed.encryptionKeyBase64) ? parsed.encryptionKeyBase64 : undefined;
+
     const conditionCodes = grants.conditions && Array.isArray(parsed.conditionCodes)
       ? parsed.conditionCodes.filter((code): code is string => typeof code === 'string')
       : undefined;
@@ -507,6 +560,7 @@ export function decodeConnectionInvite(raw: string): ConnectionInvite | null {
       v: parsed.v,
       fromName: parsed.fromName,
       publicKeyBase64: parsed.publicKeyBase64,
+      encryptionKeyBase64,
       role,
       grants,
       conditionCodes,

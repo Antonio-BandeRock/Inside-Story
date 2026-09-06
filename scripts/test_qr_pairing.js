@@ -35,7 +35,7 @@ const LIB = path.join(__dirname, '..', 'lib');
 // Anything else non-relative still throws BY NAME, so a module reaching for
 // something the harness cannot provide fails loudly rather than silently
 // returning undefined somewhere further on.
-const REAL_PACKAGES = new Set(['qrcode-generator']);
+const REAL_PACKAGES = new Set(['qrcode-generator', 'tweetnacl']);
 
 function throwingStub(what) {
   return new Proxy(
@@ -77,6 +77,7 @@ function loadModule(name, cache = new Map()) {
 
 const { buildQrDrawing, countPaintedModules, QUIET_ZONE_MODULES, ERROR_CORRECTION } = loadModule('qrLayout');
 const { decodeConnectionInvite, parseInviteInput, encodeInviteCode } = loadModule('connections');
+const { bytesToBase64, deriveEncryptionKeyPair } = loadModule('partnerCrypto');
 const qrcodeGenerator = require('qrcode-generator');
 
 let failures = 0;
@@ -268,6 +269,78 @@ check(
 // grows past what a phone camera reads comfortably.
 ok('the worst case stays within a readable code', drawing.moduleCount <= 105);
 ok('and is a real QR version, not a degenerate one', drawing.moduleCount >= 21);
+
+// --- 5. The encryption key the invite now carries ----------------------------
+//
+// Added at v3 (2026-09-06) so a partner can be sent something only they can
+// read, which the agreed cloud inbox needs and a signature cannot give. The
+// risks are that it is silently dropped, or that a wrong-sized one is believed.
+
+const realBoxKey = bytesToBase64(deriveEncryptionKeyPair(new Uint8Array(32).fill(5)).publicKey);
+
+{
+  const v3 = { ...TYPICAL, v: 3, encryptionKeyBase64: realBoxKey };
+  const back = decodeConnectionInvite(parseInviteInput(encodeInviteCode(v3)));
+  check('a v3 invite carries its encryption key through the round trip', back.encryptionKeyBase64, realBoxKey);
+  check('and still carries everything v2 did', [back.role, back.grants.meals, back.alreadyHaveYou],
+    ['partner', true, false]);
+}
+
+// A wrong-sized key is treated as absent rather than believed. Pairing still
+// succeeds and sealing is simply not offered, instead of failing later at the
+// moment someone actually tries to share something.
+for (const [label, bad] of [
+  ['a short key', bytesToBase64(new Uint8Array(16))],
+  ['a long key', bytesToBase64(new Uint8Array(64))],
+  ['an empty key', ''],
+  ['rubbish', '!!!not base64!!!'],
+  ['a number', 42],
+  ['an object', { key: realBoxKey }],
+]) {
+  const invite = { ...TYPICAL, v: 3, encryptionKeyBase64: bad };
+  const back = decodeConnectionInvite(encodeInviteCode(invite));
+  ok(`${label} is dropped rather than believed`, back !== null && back.encryptionKeyBase64 === undefined);
+}
+
+// An older invite has no key at all, and must still pair.
+{
+  const back = decodeConnectionInvite(encodeInviteCode(TYPICAL));
+  ok('a v2 invite still decodes', back !== null);
+  check('and simply has no encryption key', back.encryptionKeyBase64, undefined);
+}
+
+// EVERY VERSION THE TYPE DECLARES MUST DECODE.
+//
+// This exists because of a real bug caught seconds before shipping: the invite
+// gained v3, and decodeConnectionInvite's version gate still listed only 1 and
+// 2. The app could not read the codes it built itself, which is a total pairing
+// failure, and nothing short of pointing two phones at each other would have
+// shown it. Reading the declared union from the source means adding v4 to the
+// type without adding it to the gate fails here instead of on a kitchen table.
+{
+  const source = fs.readFileSync(path.join(LIB, 'connections.ts'), 'utf8');
+  const declared = source.match(/export type ConnectionInvite = \{\s*\n\s*v: ([^;]+);/);
+  ok('the declared invite versions are readable from the source', declared !== null);
+  const versions = declared[1].split('|').map((part) => Number(part.trim())).filter((n) => Number.isFinite(n));
+  ok('and there is at least one', versions.length > 0);
+  for (const v of versions) {
+    const back = decodeConnectionInvite(encodeInviteCode({ ...TYPICAL, v }));
+    ok(`a v${v} invite decodes, because the type says the app can produce one`, back !== null);
+  }
+  // And an undeclared version is still refused, so the gate is a real gate.
+  check('an unknown future version is refused',
+    decodeConnectionInvite(encodeInviteCode({ ...TYPICAL, v: Math.max(...versions) + 1 })), null);
+  check('version zero is refused', decodeConnectionInvite(encodeInviteCode({ ...TYPICAL, v: 0 })), null);
+}
+
+// The key adds real length to the QR, so the worst case is re-measured with it
+// rather than assumed to still fit.
+{
+  const withKey = encodeInviteCode({ ...WORST_CASE, v: 3, encryptionKeyBase64: realBoxKey });
+  const d = buildQrDrawing(withKey);
+  ok('the worst case still encodes once the key is added', d !== null);
+  ok('and still stays within a readable code', d.moduleCount <= 105);
+}
 
 if (failures) {
   console.error(`\n${failures} of ${checks} checks failed`);
