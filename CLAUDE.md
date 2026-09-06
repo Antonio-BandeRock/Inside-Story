@@ -25,6 +25,26 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-06, 1.0.34.40): the sync payload, first half of the cloud inbox.** Direct decision: "Do the cloud inbox first, then LAN later."
+
+**`lib/partnerSync.ts` is deliberately carrier-independent**, so the same bytes work over a cloud folder now and over the local network later without being rewritten. That is the whole reason it was worth building before the provider: it is the part neither carrier changes.
+
+**THE PRIVACY RULE IS ENFORCED WHERE IT CAN BE, WHICH IS ON SENDING.** What someone grants a partner is one-directional and stored on the sender's device, so the sender is the only side able to honour it. `buildSyncPayload` reads the grants itself rather than taking the fields as arguments, so no call site can send a condition list by passing the wrong thing. A grant that is off means the field is **absent**, not empty, and a test confirms no code appears anywhere in the serialised payload. Two mutations, sending conditions or the plan regardless of the grant, both fail.
+
+**READING REBUILDS THE PAYLOAD FIELD BY FIELD rather than passing the parsed object along.** That is what stops an extra key from a newer or hostile sender riding in: a test feeds it a payload carrying a `symptomLog` and asserts it does not survive the read. The mutation that swaps the rebuild for a spread fails.
+
+**THE REFERENCE-DATABASE GUARD, and the distinction that makes it worth having.** A shared week is a few hundred bytes only because `linkedCuratedRecipeId` is a stable cross-device pointer, and that holds only while both phones carry the same version-stamped reference database. So the version travels with the payload, and on a mismatch the **plan is dropped while the conditions are still accepted**: a condition code is a plain, stable string, whereas a recipe id points into one specific database. The plan is dropped rather than carried and flagged, because a caller holding a plan it was told not to trust is one mistake from using it. The wording explains it without blaming either person and says that updating both apps fixes it.
+
+**A design flaw the tests caught rather than confirmed.** `daysSinceSent` compared the exact send timestamp against midnight today, so something written at 9am seven days ago reported as six. Now both sides normalise to midnight, matching how `lib/partners.ts` already decides staleness, because calendar days are what a person counting back on a calendar means.
+
+**Nothing beyond condition codes and curated recipe ids travels**, held on the shape and the text rather than trusted from a comment: the key list is asserted exactly, and nine words (symptom, flare, lab, weight, medication, stage, note, dose, blood) are checked for absence in both the payload and every sentence it produces.
+
+`scripts/test_partner_sync.js` is 62 checks, six mutations confirmed to break them. `tsc` clean, `eslint` clean, bare-text audit 0, all four guards clean, **all nineteen suites passing at 1,453 checks**. Fingerprint confirmed still `9fb7d0d0`, so this ships with no rebuild. **Not yet confirmed on-device.**
+
+**WHAT THE PROVIDER HALF NEEDS, and it is not code.** The transfer itself needs no new native module: `expo-web-browser` is already installed and already native in the shipped build and exposes `openAuthSessionAsync`, `expo-linking` catches the redirect, `expo-crypto` does PKCE, `fetch` moves the bytes. What it needs is **an app registration**, which cannot be written: a Microsoft Entra app for OneDrive and a Google Cloud OAuth client for Drive, each giving a client id and a redirect URI.
+
+**The shape that keeps it simple, worth recording before it is built.** Only the SENDER needs to authenticate, to write to their own Drive and create a share link for that one file. The reader just fetches the link, so **no account is needed on the reading side at all**, and the link travels in the pairing QR alongside the keys. One file per recipient, each sealed to that recipient, which is why a link anyone could fetch reveals nothing. That also makes children work with no new mechanism: each device polls the links it was given.
+
 **Most recent (2026-09-06, 1.0.34.39): a plan generated for both people, and a carrier recommendation reversed by investigating it.** Asked directly for LAN sync. What shipped is the half that needed no carrier, because looking at the actual libraries inverted the advice I had given an hour earlier.
 
 **WHAT THE INVESTIGATION FOUND, and why LAN did not ship.** Both candidates carry risk that cannot be discharged without spending a rebuild, and each fails differently:

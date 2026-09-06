@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.40',
+    date: '2026-09-06',
+    changes: [
+      'Groundwork for sharing a meal plan through your own cloud storage: the message one phone sends the other is built and tested.',
+      'It only ever carries which conditions you track and which recipes are planned, and only the parts you chose to share. Turning a share off means that part is not put in the message at all.',
+      'If the two phones are on different versions of the food database, the plan is left out rather than shown, because the same recipe number can mean a different dish. The conditions still come through, and the app says what happened.',
+      'Nothing is sent anywhere yet. Connecting it to OneDrive or Google Drive is the next step.',
+    ],
+  },
+  {
     version: '1.0.34.39',
     date: '2026-09-06',
     changes: [
