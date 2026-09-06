@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { AppTextInput } from '../../components/AppTextInput';
 import { FinanceHealthSection } from '../../components/FinanceHealthSection';
+import { FinanceGoalsSection } from '../../components/FinanceGoalsSection';
 import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -114,7 +115,7 @@ import { parsePriceInput } from '../../lib/groceryList';
 const TAB_COLOR = colors.tabLife;
 
 type LifeLens = 'finances' | 'kitchen';
-type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money';
+type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money' | 'goals';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
   { key: 'overview', label: 'Overview' },
@@ -123,6 +124,7 @@ const SECTIONS: { key: FinanceSection; label: string }[] = [
   { key: 'spending', label: 'Spending' },
   { key: 'upcoming', label: 'Coming Up' },
   { key: 'money', label: 'Accounts' },
+  { key: 'goals', label: 'Goals' },
 ];
 
 const UPCOMING_WINDOW_DAYS = 30;
@@ -147,6 +149,10 @@ const LIFE_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Two orders for paying off debt',
     body: 'Highest rate first always costs less in interest, and that is arithmetic. Smallest balance first clears individual debts sooner, which many people find easier to keep going with. Accounts shows what each one costs and how long it takes, and does not pick for you, because which one you will actually stick to is not something an app can know.',
+  },
+  {
+    heading: 'A goal costs more than money',
+    body: 'A goal here is something you want plus what it will actually take, and that can be money, hours of work, or things you provide yourself. Most real goals are a mix. Each cost is tracked in its own unit, and they are never added together into one percentage: money with no hours behind it is not halfway to a goal that needs both. What you get told instead is how many costs are met and which one is furthest behind, which is what says whether the thing in your way is money or a weekend.',
   },
   {
     heading: 'What is not here',
@@ -1417,6 +1423,8 @@ export default function LifeScreen() {
               renderSpending()
             ) : section === 'money' ? (
               <FinanceMoneySection tabColor={TAB_COLOR} />
+            ) : section === 'goals' ? (
+              <FinanceGoalsSection tabColor={TAB_COLOR} />
             ) : (
               renderUpcoming()
             )}

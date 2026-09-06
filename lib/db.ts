@@ -4877,6 +4877,69 @@ async function runDatabaseInitialization() {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- --- Goals (2026-09-05, pass 3) -----------------------------------
+      --
+      -- Asked for with its own framing, given twice: "goals require costs
+      -- to attain each goal, whether that cost is a trade of time, or
+      -- goods, or actual money."
+      --
+      -- That is why a goal's costs are their own TABLE rather than an
+      -- amount column on the goal. A goal usually has several costs of
+      -- different kinds at once: restoring a garden bed costs lumber and a
+      -- weekend, and putting up a year of preserves costs jars, produce
+      -- and hours. One amount could only ever hold the money.
+      --
+      -- Each cost line carries its own unit, and every contribution to it
+      -- is in that unit by construction, so there is no conversion
+      -- anywhere in this feature and nowhere for one to be wrong. See
+      -- lib/financeGoals.ts for the rule that follows from it: costs of
+      -- different kinds are never blended into a single percentage.
+      CREATE TABLE IF NOT EXISTS finance_goals (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        -- Why it matters. A goal with no reason is a task with a number on
+        -- it, and the reason is what someone reads when the effort stops
+        -- feeling worth it.
+        reason TEXT,
+        -- Optional. Without it no per-month figure exists, and the app
+        -- says which piece is missing rather than dividing by nothing.
+        target_date TEXT,
+        status TEXT NOT NULL DEFAULT 'active',
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS finance_goal_costs (
+        id TEXT PRIMARY KEY,
+        goal_id TEXT NOT NULL,
+        -- money, time or goods.
+        kind TEXT NOT NULL,
+        label TEXT NOT NULL,
+        target_amount REAL NOT NULL,
+        -- Empty for money, which formats as currency. Hours, kg, jars and
+        -- so on otherwise, in the person's own words.
+        unit TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_finance_goal_costs_goal ON finance_goal_costs(goal_id);
+
+      -- What has actually gone in, one row per time something was put
+      -- toward a cost line. Kept as separate rows rather than a running
+      -- total on the cost so a mistaken entry can be removed without
+      -- retyping the rest, the same reason meals are events rather than a
+      -- counter.
+      CREATE TABLE IF NOT EXISTS finance_goal_contributions (
+        id TEXT PRIMARY KEY,
+        cost_id TEXT NOT NULL,
+        occurred_on TEXT NOT NULL,
+        amount REAL NOT NULL,
+        note TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (cost_id) REFERENCES finance_goal_costs(id) ON DELETE CASCADE
+      );
+      CREATE INDEX IF NOT EXISTS idx_finance_goal_contrib_cost ON finance_goal_contributions(cost_id);
+
       -- The same history, per account, added 2026-09-05. The aggregate
       -- table above cannot answer how one account has done, and it has a
       -- flaw that shows up the moment you try: adding a NEW account jumps

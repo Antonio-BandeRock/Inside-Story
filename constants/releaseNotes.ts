@@ -41,6 +41,19 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.19',
+    date: '2026-09-05',
+    changes: [
+      'New: Goals, in Finances. A goal is something you want plus what it will actually take, and that cost does not have to be money.',
+      'A goal can carry several costs at once, of different kinds: money, hours of work, or things you provide yourself. Rebuilding a bed costs lumber and a weekend. A year of preserves costs jars, produce and time.',
+      'Each cost is tracked in its own unit, and they are never added together into one percentage. Half the money and half the hours is not half done, it is half funded and half worked. Money finished with the work not started is not halfway either.',
+      'So what you are told is how many costs are met and which one is furthest behind, by share rather than by amount. That is the figure that says whether the thing in your way is money or a weekend.',
+      'With a date on the goal, each cost says what it means per month in its own unit. Without one it says a date is missing rather than inventing a figure.',
+      'Every goal asks why it matters. It is what you read on the day the effort stops feeling worth it.',
+      'A goal you stop chasing can be set aside rather than deleted, and it stops asking for anything each month while keeping everything you put in.',
+    ],
+  },
+  {
     version: '1.0.34.18',
     date: '2026-09-05',
     changes: [
