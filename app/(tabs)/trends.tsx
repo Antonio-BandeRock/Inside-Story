@@ -26,6 +26,12 @@ import { describeTherapyResponse, summarizeTherapyResponse, type TherapyResponse
 import { therapyTypeLabel } from '../../lib/therapyTypes';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import {
+  STRAIN_CAVEAT,
+  describeStrainComparison,
+  describeStrainRefusal,
+  dimensionLabel,
+} from '../../lib/workMeaning';
+import {
   getDietaryReferenceIntakesForCurrentUser,
   getFoodIdentity,
   getLabResultTrend,
@@ -1273,6 +1279,34 @@ export default function TrendsScreen() {
                     ) : null}
                   </>
                 )}
+
+                {!loading && patternResult ? (
+                  <View style={styles.chartCard}>
+                    <Text style={styles.patternSectionHeading}>Work, week by week</Text>
+                    {patternResult.workStrainRefusal ? (
+                      <Text style={styles.patternRowCaption}>
+                        {describeStrainRefusal(patternResult.workStrainRefusal)}
+                      </Text>
+                    ) : (
+                      <>
+                        {patternResult.workStrainComparisons.map((comparison) => (
+                          <View key={comparison.dimension} style={styles.patternRow}>
+                            <View style={styles.patternRowText}>
+                              <Text style={styles.patternRowTitle}>
+                                {dimensionLabel(comparison.dimension)}
+                                {comparison.notable ? '' : ' \u00b7 nothing in it'}
+                              </Text>
+                              <Text style={styles.patternRowCaption}>
+                                {describeStrainComparison(comparison)}
+                              </Text>
+                            </View>
+                          </View>
+                        ))}
+                        <Text style={styles.patternRowCaption}>{STRAIN_CAVEAT}</Text>
+                      </>
+                    )}
+                  </View>
+                ) : null}
               </>
             )}
           </ScrollView>

@@ -25,6 +25,34 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-05, 1.0.34.26): work strain wired into Pattern Finder, and the granularity problem that ruled out the obvious way to do it.** Direct instruction, closing the follow-up named when Work shipped an hour earlier.
+
+**THE PROBLEM THAT SHAPED EVERYTHING.** Pattern Finder asks what was logged in the 6, 12, 24 or 48 hours BEFORE a flare. A work answer covers a whole WEEK. It cannot go in one of those windows, because the week contains the flare and six other days, and **calling a weekly rating an antecedent of a Tuesday evening would be a category error dressed up as a correlation.** So this is not a fourth candidate array beside foods, dimensions and categories. It is a between-groups comparison and it keeps its own field with its own name so nothing conflates the two.
+
+**The question it actually asks:** in the weeks you rated work worse than your own average, did more symptoms turn up than in the weeks you rated it better?
+
+**Split on the person's own mean, not a threshold.** "Drain of 4 or more is a hard week" gives someone who never rates above 3 no hard weeks at all, and someone who always rates 5 no easy ones. Their own mean adapts to whatever range they actually use. **A week landing exactly on the mean goes in NEITHER group**, since it is neither better nor worse and pushing it to one side would tilt the answer on an arbitrary choice; how many were set aside is reported so the two figures are not read as covering every week.
+
+**The direction inversion is the whole risk, and it is tested from both sides.** For drain a HIGH number is the worse week; for the other three a LOW number is. A mutation replacing the check with a plain `value > mean` fails three checks, including one built specifically so autonomy and drain would disagree.
+
+**More symptoms in the EASIER weeks is reported just as plainly**, and the wording names it as the opposite of what someone might expect and worth noticing for that reason. Hiding a result because it points the wrong way would be the same dishonesty as inventing one.
+
+**Four refusals, each of which would otherwise be a confident wrong answer:** under 6 answered weeks there is nothing to split; when every answer is identical there is no harder half; when one side has fewer than 2 weeks it is one week against several rather than a comparison; and when no flares fell in the answered weeks there is nothing to compare against, which the wording calls good news rather than a gap.
+
+**A week answered but with no outcome recorded is unknown, not zero.** Only weeks present in both sets take part, and a mutation dropping that filter fails, because counting an unrecorded week as symptom-free would quietly load the easier group.
+
+**The multiple-comparisons problem is stated on screen rather than left for the reader.** Four dimensions across a handful of weeks makes one looking meaningful by luck likely rather than surprising, and the caveat says so alongside the evidence position established when Work shipped: job strain has a measured link to CRP, and a meta-analysis of about 95,000 adults found no link to the onset of Crohn's or ulcerative colitis. A test asserts the caveat quotes no p-value, no confidence figure and never the word significant.
+
+**A small difference is not dressed up.** `NOTABLE_DIFFERENCE` is a stated judgment call at half a symptom per week, and anything under it reads as "nothing in it" rather than being reported as a finding.
+
+**Structurally, the arithmetic lives in `lib/workMeaning.ts` rather than in `patternFinder.ts`**, deliberately: patternFinder has no test suite of its own because everything in it needs a database, while this is pure and now carries 45 checks. patternFinder only assembles the inputs, grouping the same symptom population every other candidate was counted from into the weeks it fell in, so both halves of that screen are talking about the same flares.
+
+**Rendered outside the existing candidate conditional**, since work strain can have something to say in a stretch where nothing showed up in any 48-hour window, and putting it inside that branch would have hidden it exactly then.
+
+`scripts/test_work.js` is 182 checks, up from 137. Five mutations confirmed to break the new ones. `tsc` clean, `eslint` clean on every touched file, bare-text audit 0, schema guard clean, all twelve suites passing. No schema change at all, which is worth noting: everything needed already existed. **Not yet confirmed on-device.**
+
+**One tooling note, third time today.** Patching a CRLF file with a script whose anchors were joined on `\n` matched nothing, and two attempts to fix that through shell-quoted node one-liners mangled the escapes further. Writing the patch script with the file tool instead worked first time. The rule from this morning stands and now has a second half: **write patch scripts with the file tool, and make them read the file's own line ending rather than assuming.**
+
 **Most recent (2026-09-05, 1.0.34.25): Work, Life's third area, covering both readings of one question.** Asked directly: "There are intrinsic values that a person's work could offer them. Let's look into what the various thing could be that a person could be taking advantage of that is offered through their work?" Discussed first at the person's own instruction ("We are only talking about it right now"), then built on the answer: **both** readings, and **its own Life area**.
 
 **The two readings, and why they belong together.** "Taking advantage of that is offered" points at unclaimed benefits; "intrinsic values" points at the value in the work itself. They sit in one area because both are value arriving through a job and neither is the paycheck.
@@ -45,7 +73,7 @@ So the fourth question is deliberately **not** a psychological need. It is what 
 
 `scripts/test_work.js` is 137 checks. Five mutations confirmed to break it, including ignoring the inverted dimension and treating a match as an allowance. One expectation of mine was wrong (I counted a match and a perk as untouched allowances) and the code was right. `tsc` clean, `eslint` clean on every new and touched file, bare-text audit 0, schema guard clean, all twelve suites passing. No reference-database change. **Not yet confirmed on-device.**
 
-**Named and not built:** wiring work strain into Pattern Finder. It already looks backward from a symptom for what preceded it, and weekly drain is a plausible antecedent nothing currently feeds it. Worth doing once there are enough weeks recorded to be worth correlating.
+**Named and closed the same day (1.0.34.26):** wiring work strain into Pattern Finder, which turned out to need a between-groups comparison rather than the window it already used, since a weekly answer cannot be an antecedent of one evening.
 
 **Most recent (2026-09-05, 1.0.34.24): the tax explanation removed an hour after it shipped, and volunteering deliberately left out of Finances.** Two direct points: "What about volunteering time to a food bank? It does get added to their schedule, but I'm not sure it could be any sort of a trade or income." And: "I'm not sure we should be looking at doing their taxes for them, or saying something is a tax deduction or not."
 

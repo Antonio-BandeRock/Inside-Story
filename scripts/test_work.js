@@ -49,6 +49,9 @@ const {
 const {
   WORK_DIMENSIONS, SDT_ATTRIBUTION, NO_SCORE_NOTE, SCALE_MIN, SCALE_MAX, SCALE_LABELS,
   buildWorkTrend, describeWorkTrend, describeDimensionTrend, dimensionLabel,
+  compareStrainAgainstSymptoms, isStrainRefusal, describeStrainRefusal,
+  describeStrainComparison, STRAIN_CAVEAT,
+  MIN_WEEKS_FOR_STRAIN_PATTERN, MIN_WEEKS_PER_GROUP, NOTABLE_DIFFERENCE,
   MIN_CHECKINS_FOR_TREND, weekOf,
 } = M;
 const { WORK_PROMPT_GROUPS, WORK_PROMPT_COUNT, workPromptGroup } = P;
@@ -342,6 +345,169 @@ const ci = (over = {}) => ({
   const autonomy = trend.dimensions.find((d) => d.dimension === 'autonomy');
   check('the earliest week is first whatever order they arrive in', autonomy.first, 1);
   check('and the latest is last', autonomy.latest, 5);
+}
+
+// --- 4b. Does a harder week show up in how you felt? ------------------------
+//
+// The comparison is between groups rather than inside a window, because a
+// weekly answer cannot be an antecedent of a Tuesday evening. The risk is the
+// same inversion as the trend: for drain a HIGH number is the worse week, for
+// the other three a LOW number is, and getting it backwards would report a
+// hard week as an easy one.
+
+const wk = (weekOf, symptomCount) => ({ weekOf, symptomCount });
+const MONDAYS = [
+  '2026-07-06', '2026-07-13', '2026-07-20', '2026-07-27',
+  '2026-08-03', '2026-08-10', '2026-08-17', '2026-08-24',
+];
+
+{
+  // Drain high in four weeks with lots of symptoms, low in four with few.
+  // A harder week by drain is a HIGHER number.
+  const checkins = MONDAYS.map((monday, i) =>
+    ci({ id: `c${i}`, weekOf: monday, drain: i < 4 ? 5 : 1, autonomy: 3 }));
+  const weeks = MONDAYS.map((monday, i) => wk(monday, i < 4 ? 3 : 0));
+  const result = compareStrainAgainstSymptoms({ checkins, weeks });
+  checkTrue('with eight weeks there is something to compare', !isStrainRefusal(result));
+
+  const drain = result.comparisons.find((c) => c.dimension === 'drain');
+  check('the four high-drain weeks are the worse group', drain.worseWeeks, 4);
+  check('and the four low-drain weeks the better one', drain.betterWeeks, 4);
+  near('three a week in the worse ones', drain.symptomsPerWeekWhenWorse, 3);
+  near('none in the better ones', drain.symptomsPerWeekWhenBetter, 0);
+  near('so the gap is three', drain.difference, 3);
+  check('and that is worth saying', drain.notable, true);
+  const text = describeStrainComparison(drain);
+  checkTrue('the wording names both groups', text.includes('4 weeks') && text.includes('3.0') && text.includes('0.0'));
+  checkTrue('and calls it the expected direction', text.includes('direction you might expect'));
+}
+{
+  // THE INVERSION. Same symptom pattern, but driven by autonomy, where the
+  // worse week is the LOWER number. A naive implementation would call the
+  // high-autonomy weeks the bad ones and report the gap backwards.
+  const checkins = MONDAYS.map((monday, i) =>
+    ci({ id: `c${i}`, weekOf: monday, autonomy: i < 4 ? 1 : 5, drain: 3 }));
+  const weeks = MONDAYS.map((monday, i) => wk(monday, i < 4 ? 4 : 0));
+  const result = compareStrainAgainstSymptoms({ checkins, weeks });
+  const autonomy = result.comparisons.find((c) => c.dimension === 'autonomy');
+  check('low autonomy is the worse group', autonomy.worseWeeks, 4);
+  near('and those are the weeks with the symptoms', autonomy.symptomsPerWeekWhenWorse, 4);
+  near('the better weeks had none', autonomy.symptomsPerWeekWhenBetter, 0);
+  checkTrue('so the difference is positive, not negative', autonomy.difference > 0);
+}
+{
+  // The opposite result must be reportable too. More symptoms in the EASIER
+  // weeks is a real thing to see, not something to hide.
+  const checkins = MONDAYS.map((monday, i) => ci({ id: `c${i}`, weekOf: monday, drain: i < 4 ? 5 : 1 }));
+  const weeks = MONDAYS.map((monday, i) => wk(monday, i < 4 ? 0 : 3));
+  const result = compareStrainAgainstSymptoms({ checkins, weeks });
+  const drain = result.comparisons.find((c) => c.dimension === 'drain');
+  checkTrue('the difference goes negative', drain.difference < 0);
+  check('and it is still notable', drain.notable, true);
+  checkTrue('the wording says it is the opposite of expected',
+    describeStrainComparison(drain).includes('opposite of what you might expect'));
+}
+{
+  // A week sitting exactly on the average belongs to neither group, and how
+  // many were set aside has to be reported so the two figures are not read as
+  // covering every week.
+  const values = [1, 1, 1, 3, 5, 5, 5];
+  const mondays = MONDAYS.slice(0, 7);
+  const checkins = mondays.map((monday, i) => ci({ id: `c${i}`, weekOf: monday, drain: values[i] }));
+  const weeks = mondays.map((monday) => wk(monday, 1));
+  const result = compareStrainAgainstSymptoms({ checkins, weeks });
+  const drain = result.comparisons.find((c) => c.dimension === 'drain');
+  check('the week on the average is set aside', drain.setAside, 1);
+  check('three on each side', drain.worseWeeks, 3);
+  check('and three on the other', drain.betterWeeks, 3);
+  checkTrue('the groups plus the set-aside week account for every week',
+    drain.worseWeeks + drain.betterWeeks + drain.setAside === 7);
+}
+{
+  // A tiny difference must not be dressed up.
+  const checkins = MONDAYS.map((monday, i) => ci({ id: `c${i}`, weekOf: monday, drain: i < 4 ? 5 : 1 }));
+  const weeks = MONDAYS.map((monday, i) => wk(monday, i < 4 ? 1 : 1));
+  const result = compareStrainAgainstSymptoms({ checkins, weeks });
+  const drain = result.comparisons.find((c) => c.dimension === 'drain');
+  near('no difference at all', drain.difference, 0);
+  check('so not notable', drain.notable, false);
+  checkTrue('and the wording says it says nothing',
+    describeStrainComparison(drain).includes('does not say anything either way'));
+  checkTrue('the threshold is a stated judgment rather than zero', NOTABLE_DIFFERENCE > 0);
+}
+
+// Every refusal, each of which would otherwise be a confident wrong answer.
+{
+  const few = MONDAYS.slice(0, 4);
+  const r = compareStrainAgainstSymptoms({
+    checkins: few.map((m, i) => ci({ id: `c${i}`, weekOf: m, drain: i < 2 ? 5 : 1 })),
+    weeks: few.map((m) => wk(m, 1)),
+  });
+  checkTrue('four weeks refuses', isStrainRefusal(r));
+  check('for not enough weeks', r.reason, 'notEnoughWeeks');
+  check('and says how many there are', r.weeksAnswered, 4);
+  checkTrue('the wording names the number needed',
+    describeStrainRefusal(r).includes(String(MIN_WEEKS_FOR_STRAIN_PATTERN)));
+}
+{
+  // Every answer identical. There is no harder half.
+  const r = compareStrainAgainstSymptoms({
+    checkins: MONDAYS.map((m, i) => ci({ id: `c${i}`, weekOf: m })),
+    weeks: MONDAYS.map((m) => wk(m, 1)),
+  });
+  checkTrue('no variation refuses', isStrainRefusal(r));
+  check('named as such', r.reason, 'noVariation');
+  checkTrue('and the wording explains it',
+    describeStrainRefusal(r).includes('same every week'));
+}
+{
+  // Nothing to compare against, which is good news rather than a gap.
+  const r = compareStrainAgainstSymptoms({
+    checkins: MONDAYS.map((m, i) => ci({ id: `c${i}`, weekOf: m, drain: i < 4 ? 5 : 1 })),
+    weeks: MONDAYS.map((m) => wk(m, 0)),
+  });
+  checkTrue('no symptoms refuses', isStrainRefusal(r));
+  check('named as such', r.reason, 'noSymptoms');
+  checkTrue('and the wording says it is good news',
+    describeStrainRefusal(r).includes('good news rather than a gap'));
+}
+{
+  // Seven weeks the same and one different: one side has a single week, which
+  // is not a comparison.
+  const r = compareStrainAgainstSymptoms({
+    checkins: MONDAYS.map((m, i) => ci({ id: `c${i}`, weekOf: m, drain: i === 0 ? 5 : 1, autonomy: i === 0 ? 1 : 3, competence: i === 0 ? 1 : 3, relatedness: i === 0 ? 1 : 3 })),
+    weeks: MONDAYS.map((m) => wk(m, 1)),
+  });
+  checkTrue('one week against seven refuses', isStrainRefusal(r));
+  check('named as a group being too small', r.reason, 'groupTooSmall');
+  checkTrue('the wording says each side needs more',
+    describeStrainRefusal(r).includes(String(MIN_WEEKS_PER_GROUP)));
+}
+{
+  // A week answered but with no outcome recorded is unknown, not zero, so it
+  // must not be counted as a symptom-free week.
+  const answered = MONDAYS.map((m, i) => ci({ id: `c${i}`, weekOf: m, drain: i < 4 ? 5 : 1 }));
+  const onlySome = MONDAYS.slice(0, 5).map((m, i) => wk(m, i < 4 ? 2 : 0));
+  const r = compareStrainAgainstSymptoms({ checkins: answered, weeks: onlySome });
+  checkTrue('only weeks with an outcome take part', isStrainRefusal(r));
+  check('and five is below the floor', r.weeksAnswered, 5);
+}
+{
+  // Biggest gap first, so the ordering is not just dimension order.
+  const checkins = MONDAYS.map((m, i) =>
+    ci({ id: `c${i}`, weekOf: m, autonomy: i < 4 ? 1 : 5, competence: i < 4 ? 2 : 4, relatedness: 3, drain: 3 }));
+  const weeks = MONDAYS.map((m, i) => wk(m, i < 4 ? 5 : 0));
+  const result = compareStrainAgainstSymptoms({ checkins, weeks });
+  checkTrue('at least two dimensions compared', result.comparisons.length >= 2);
+  checkTrue('and they are ordered by the size of the gap',
+    Math.abs(result.comparisons[0].difference) >= Math.abs(result.comparisons[1].difference));
+}
+{
+  // The caveat carries the things this must never imply.
+  checkTrue('it refuses causation outright', STRAIN_CAVEAT.includes('not evidence that work caused anything'));
+  checkTrue('it names the multiple-comparisons problem', STRAIN_CAVEAT.includes('four things are being compared at once'));
+  checkTrue('and admits the evidence cuts both ways', STRAIN_CAVEAT.includes('found no link'));
+  checkTrue('and quotes no statistic of its own', !/p\s*[<=]|confidence|significant/i.test(STRAIN_CAVEAT));
 }
 
 // --- 5. Weeks -----------------------------------------------------------------

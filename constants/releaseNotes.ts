@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.26',
+    date: '2026-09-05',
+    changes: [
+      'Pattern Finder now looks at work alongside food. A new "Work, week by week" section in Trends compares the weeks you rated work worse than your own average against the weeks you rated it better, and shows how many flares or reactions fell in each.',
+      'It is a comparison between weeks rather than a 48-hour window, because a weekly answer covers the flare and six other days. Calling that an antecedent of a Tuesday evening would be wrong however good it looked.',
+      'The split uses your own average rather than a fixed number, so it works whether you rate everything a 2 or everything a 5. A week landing exactly on your average goes in neither group, and the app says how many did.',
+      'It refuses rather than guessing: under six answered weeks, when your answers never vary, when one side has fewer than two weeks, or when there were no flares to compare against. Each says which piece is missing.',
+      'More flares in the EASIER weeks is reported just as plainly as the reverse, since that is worth noticing too.',
+      'And it says out loud what it is not: four things compared across a handful of weeks makes one of them looking meaningful by luck likely rather than surprising, so this is a prompt to notice, never evidence that work caused anything.',
+    ],
+  },
+  {
     version: '1.0.34.25',
     date: '2026-09-05',
     changes: [

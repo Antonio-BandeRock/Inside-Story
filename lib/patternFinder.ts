@@ -1,5 +1,13 @@
 import { getConditionScoresForFoodsBulk, getMealItemsInWindow, listCheckins } from './db';
 import { isFlaggedTier } from './sixDimensionsReference';
+import { listWorkCheckins } from './workDb';
+import {
+  compareStrainAgainstSymptoms,
+  isStrainRefusal,
+  weekOf,
+  type StrainComparison,
+  type StrainRefusal,
+} from './workMeaning';
 
 // The app's own core-mission gap, named directly in Trends' own in-app
 // caveat since it was written: "Actually matching flares to specific
@@ -62,6 +70,19 @@ export type CategoryPatternCandidate = {
   occurrenceCount: number;
 };
 
+// Work strain, added 2026-09-05, and deliberately NOT a candidate array
+// like the three above it.
+//
+// Those count occurrences inside a 6 to 48 hour window before a flare. A
+// work answer covers a whole WEEK, so it cannot go in one of those windows:
+// the week contains the flare and six other days, and calling a weekly
+// rating an antecedent of a Tuesday evening would be a category error
+// dressed up as a correlation.
+//
+// So it is a between-groups comparison instead, and it keeps its own field
+// with its own name so nothing conflates the two. The arithmetic and every
+// refusal live in lib/workMeaning.ts, which is testable without a database;
+// this file only assembles the inputs.
 export type PatternFinderResult = {
   // The real denominator for "logged before N of your M flares" -- every
   // symptom check-in actually considered, whether or not it produced any
@@ -70,6 +91,10 @@ export type PatternFinderResult = {
   foodCandidates: FoodPatternCandidate[];
   dimensionCandidates: DimensionPatternCandidate[];
   categoryCandidates: CategoryPatternCandidate[];
+  /** Empty when there is not enough to say anything, in which case
+   *  workStrainRefusal names which piece is missing. */
+  workStrainComparisons: StrainComparison[];
+  workStrainRefusal: StrainRefusal | null;
 };
 
 // Same 'YYYY-MM-DD' local-time convention already duplicated across this
@@ -263,5 +288,34 @@ export async function findFoodPatterns(
     .map((entry) => ({ kind: 'category' as const, category: entry.category, occurrenceCount: entry.count }))
     .sort((a, b) => b.occurrenceCount - a.occurrenceCount || a.category.localeCompare(b.category));
 
-  return { totalSymptomInstances: symptomCheckins.length, foodCandidates, dimensionCandidates, categoryCandidates };
+  // Work strain. The symptom population is the same one every candidate above
+  // was counted from, grouped into the weeks it fell in, so the two halves of
+  // this screen are talking about the same flares.
+  //
+  // Every week that has a work answer gets an entry, including weeks with zero
+  // symptoms, because a week someone answered and had no flare in is a real
+  // data point. A week with no work answer contributes nothing, since an
+  // unanswered week is unknown rather than easy.
+  const workCheckins = (await listWorkCheckins()).filter((checkin) => checkin.weekOf >= weekOf(rangeStart));
+  const symptomsByWeek = new Map<string, number>();
+  for (const checkin of workCheckins) symptomsByWeek.set(checkin.weekOf, 0);
+  for (const checkin of symptomCheckins) {
+    const week = weekOf(checkin.loggedAt.slice(0, 10));
+    if (!symptomsByWeek.has(week)) continue;
+    symptomsByWeek.set(week, (symptomsByWeek.get(week) ?? 0) + 1);
+  }
+
+  const strain = compareStrainAgainstSymptoms({
+    checkins: workCheckins,
+    weeks: [...symptomsByWeek.entries()].map(([week, symptomCount]) => ({ weekOf: week, symptomCount })),
+  });
+
+  return {
+    totalSymptomInstances: symptomCheckins.length,
+    foodCandidates,
+    dimensionCandidates,
+    categoryCandidates,
+    workStrainComparisons: isStrainRefusal(strain) ? [] : strain.comparisons,
+    workStrainRefusal: isStrainRefusal(strain) ? strain : null,
+  };
 }

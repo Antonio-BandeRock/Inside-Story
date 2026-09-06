@@ -219,6 +219,189 @@ export function describeDimensionTrend(trend: DimensionTrend): string {
   return `Averaging ${average}, ${word} from ${trend.first} to ${trend.latest}. ${trend.improving ? 'That is the better direction for this one.' : 'That is the worse direction for this one.'}`;
 }
 
+// --- Does a harder week show up in how you felt? ----------------------------
+//
+// Added 2026-09-05, wiring work into Pattern Finder, which was named as the
+// obvious next step when this module shipped.
+//
+// THE GRANULARITY PROBLEM, WHICH RULES OUT THE OBVIOUS APPROACH.
+//
+// Pattern Finder asks what was logged in the 6, 12, 24 or 48 hours BEFORE a
+// flare. A work answer covers a whole week, so it cannot be put in one of
+// those windows: the week contains the flare and six other days, and calling a
+// weekly rating an antecedent of a Tuesday evening would be a category error
+// dressed up as a correlation.
+//
+// So this is a different question, and a between-groups one rather than a
+// within-window one: in the weeks you rated work worse than your own average,
+// did more symptoms turn up than in the weeks you rated it better?
+//
+// SPLIT ON THE PERSON'S OWN AVERAGE, NOT A FIXED NUMBER.
+//
+// A threshold like "drain of 4 or more is a hard week" gives someone who never
+// rates above 3 no hard weeks at all, and someone who always rates 5 no easy
+// ones. Splitting on their own mean adapts to whatever range they actually use.
+//
+// Weeks landing exactly on the mean go in NEITHER group. They are neither
+// better nor worse, and pushing them to one side would tilt the answer on an
+// arbitrary choice. How many were set aside is reported, so the two figures are
+// not read as covering every week.
+//
+// WHAT THIS IS NOT.
+//
+// Not causation, not a p-value, not a confidence figure, matching the rule the
+// rest of Pattern Finder already holds. And four dimensions compared at once on
+// a handful of weeks means one of them looking meaningful by luck is likely
+// rather than surprising, which the wording says out loud rather than leaving
+// for someone to work out.
+
+export type WeekOutcome = { weekOf: string; symptomCount: number };
+
+export type StrainComparison = {
+  dimension: WorkDimension;
+  /** Weeks rated worse than the person's own average FOR THIS DIMENSION,
+   *  which for drain means higher and for the other three means lower. */
+  worseWeeks: number;
+  betterWeeks: number;
+  /** Weeks sitting exactly on the average, in neither group. */
+  setAside: number;
+  symptomsPerWeekWhenWorse: number;
+  symptomsPerWeekWhenBetter: number;
+  /** Worse minus better. Positive means more symptoms in the weeks work was
+   *  worse, which is the direction someone would expect and still not proof. */
+  difference: number;
+  /** Big enough to be worth a sentence rather than noise. */
+  notable: boolean;
+};
+
+export type StrainRefusal = {
+  reason: 'notEnoughWeeks' | 'noVariation' | 'groupTooSmall' | 'noSymptoms';
+  weeksAnswered: number;
+};
+
+/** Fewer weeks than this and there is nothing to split into two groups. */
+export const MIN_WEEKS_FOR_STRAIN_PATTERN = 6;
+/** And each side needs more than a single week, or it is one week against
+ *  several rather than a comparison. */
+export const MIN_WEEKS_PER_GROUP = 2;
+/** Below this difference in symptoms per week, the two groups are the same as
+ *  far as anyone can tell from this much data. A stated judgment call. */
+export const NOTABLE_DIFFERENCE = 0.5;
+
+export function compareStrainAgainstSymptoms(input: {
+  checkins: WorkCheckin[];
+  weeks: WeekOutcome[];
+}): { comparisons: StrainComparison[] } | StrainRefusal {
+  const byWeek = new Map(input.weeks.map((week) => [week.weekOf, week.symptomCount]));
+  // Only weeks that were both answered AND have a symptom count available can
+  // take part. A week with no outcome recorded is unknown, not zero.
+  const usable = input.checkins.filter((checkin) => byWeek.has(checkin.weekOf));
+
+  if (usable.length < MIN_WEEKS_FOR_STRAIN_PATTERN) {
+    return { reason: 'notEnoughWeeks', weeksAnswered: usable.length };
+  }
+  const anySymptoms = usable.some((checkin) => (byWeek.get(checkin.weekOf) ?? 0) > 0);
+  if (!anySymptoms) return { reason: 'noSymptoms', weeksAnswered: usable.length };
+
+  const comparisons: StrainComparison[] = [];
+  let anyVariation = false;
+  let anyBigEnoughGroup = false;
+
+  for (const meta of WORK_DIMENSIONS) {
+    const values = usable.map((checkin) => dimensionValue(checkin, meta.code));
+    const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+    if (values.some((value) => value !== values[0])) anyVariation = true;
+
+    let worseTotal = 0;
+    let worseWeeks = 0;
+    let betterTotal = 0;
+    let betterWeeks = 0;
+    let setAside = 0;
+
+    for (const checkin of usable) {
+      const value = dimensionValue(checkin, meta.code);
+      const symptoms = byWeek.get(checkin.weekOf) ?? 0;
+      if (value === mean) {
+        setAside += 1;
+        continue;
+      }
+      // Worse means a lower number where higher is better, and a higher number
+      // for drain. Getting this backwards would report a hard week as an easy
+      // one, which is the whole risk in this function.
+      const isWorse = meta.higherIsBetter ? value < mean : value > mean;
+      if (isWorse) {
+        worseWeeks += 1;
+        worseTotal += symptoms;
+      } else {
+        betterWeeks += 1;
+        betterTotal += symptoms;
+      }
+    }
+
+    if (worseWeeks < MIN_WEEKS_PER_GROUP || betterWeeks < MIN_WEEKS_PER_GROUP) continue;
+    anyBigEnoughGroup = true;
+
+    const perWorse = worseTotal / worseWeeks;
+    const perBetter = betterTotal / betterWeeks;
+    comparisons.push({
+      dimension: meta.code,
+      worseWeeks,
+      betterWeeks,
+      setAside,
+      symptomsPerWeekWhenWorse: perWorse,
+      symptomsPerWeekWhenBetter: perBetter,
+      difference: perWorse - perBetter,
+      notable: Math.abs(perWorse - perBetter) >= NOTABLE_DIFFERENCE,
+    });
+  }
+
+  if (!anyVariation) return { reason: 'noVariation', weeksAnswered: usable.length };
+  if (!anyBigEnoughGroup) return { reason: 'groupTooSmall', weeksAnswered: usable.length };
+
+  // Biggest gap first, by size in either direction, since a dimension where
+  // the worse weeks were EASIER is just as worth seeing as the reverse.
+  comparisons.sort((a, b) => Math.abs(b.difference) - Math.abs(a.difference));
+  return { comparisons };
+}
+
+export function isStrainRefusal(
+  value: { comparisons: StrainComparison[] } | StrainRefusal,
+): value is StrainRefusal {
+  return 'reason' in value;
+}
+
+export function describeStrainRefusal(refusal: StrainRefusal): string {
+  switch (refusal.reason) {
+    case 'notEnoughWeeks':
+      return `${refusal.weeksAnswered} of the ${MIN_WEEKS_FOR_STRAIN_PATTERN} weeks needed. Below that there is nothing to split into a harder half and an easier one.`;
+    case 'noSymptoms':
+      return 'No flares or reactions logged in the weeks you have answered, so there is nothing to compare them against. That is good news rather than a gap.';
+    case 'noVariation':
+      return 'Your answers have been the same every week so far, so there is no harder half and no easier half to tell apart.';
+    case 'groupTooSmall':
+      return `Not enough weeks on both sides yet. Each side needs at least ${MIN_WEEKS_PER_GROUP}, and so far one of them has fewer.`;
+  }
+}
+
+export function describeStrainComparison(comparison: StrainComparison): string {
+  const worse = comparison.symptomsPerWeekWhenWorse.toFixed(1);
+  const better = comparison.symptomsPerWeekWhenBetter.toFixed(1);
+  const label = dimensionLabel(comparison.dimension).toLowerCase();
+  const base = `In the ${comparison.worseWeeks} weeks ${label} was worse than your own average, ${worse} flares or reactions a week. In the ${comparison.betterWeeks} weeks it was better, ${better}.`;
+
+  if (!comparison.notable) {
+    return `${base} Close enough that this does not say anything either way.`;
+  }
+  const direction =
+    comparison.difference > 0
+      ? 'More in the harder weeks, which is the direction you might expect.'
+      : 'Fewer in the harder weeks, which is the opposite of what you might expect and worth noticing for that reason.';
+  return `${base} ${direction}`;
+}
+
+export const STRAIN_CAVEAT =
+  'This is your own weeks side by side and nothing more. It is not evidence that work caused anything: four things are being compared at once across a handful of weeks, which makes one of them looking meaningful by luck likely rather than surprising. Work strain does have a measured link to inflammation, and a large study also found no link between it and the onset of one of the conditions tracked here, so a pattern worth mentioning to someone is as far as this goes.';
+
 /** The Monday of the week a date falls in, so a check-in belongs to a week
  *  rather than a day and answering twice corrects instead of duplicating. */
 export function weekOf(date: string): string {
