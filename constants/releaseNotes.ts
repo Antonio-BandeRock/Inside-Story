@@ -41,6 +41,19 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.29',
+    date: '2026-09-05',
+    changes: [
+      'New: Emergency, on the Life tab. What someone else needs to know when you cannot tell them. It opens by saying plainly that nobody is going to find it in an emergency: it is on your phone, behind a lock, in an app, and a paramedic will not open it. It is a record to show someone, read out, or hand over, and it is not a replacement for a bracelet, a card in your wallet, or the medical ID screen your phone already has.',
+      'Drug allergies now have somewhere to live. Until now this app only ever recorded FOOD allergies, and a penicillin allergy is not a food allergy. It is the first thing on the card and the first thing on the screen, because it is the one most likely to change what someone does in the next ten minutes.',
+      'Most of the card is already filled in. Your conditions, everything you are currently taking with its dose, your food allergies and your name are read from where they already live rather than asked for twice, so changing a medication in My Meds changes the card with it.',
+      'Somewhere to put who to call, which the app has never had anywhere for. One person can be marked to try first, and choosing that moves it off whoever had it, since a card naming two people to try first has not answered the question.',
+      'It tells you how old it is. A card listing a medication you stopped six months ago is worse than no card, so the date you last confirmed it goes onto the card itself. Confirming is a separate act from editing a field, so changing your hospital does not quietly declare an old medication list current.',
+      'Nothing you left empty is printed as a blank. A line reading none recorded gets read as no allergies by anyone scanning it in a hurry, so an empty field is simply left off the card entirely.',
+      'For an advance directive it holds only where the document is kept, never what it says, since nothing written in an app carries any legal weight on its own.',
+    ],
+  },
+  {
     version: '1.0.34.27',
     date: '2026-09-05',
     changes: [

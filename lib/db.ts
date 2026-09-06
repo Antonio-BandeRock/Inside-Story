@@ -4948,6 +4948,67 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_upkeep_items_active ON upkeep_items(active);
 
+      -- --- Emergency & Essentials: what someone else needs to know (2026-09-05) --
+      --
+      -- Life gains its fifth area. NOTHING HERE IS AN ALERT SYSTEM, and the
+      -- screen says so before it says anything else: an app on a locked phone
+      -- is not reachable by a paramedic. This is a record to show someone,
+      -- read out, or hand over. See lib/emergency.ts for the full reasoning.
+      --
+      -- THE ONE FIELD THAT DID NOT EXIST ANYWHERE. Checked rather than
+      -- assumed: this app tracks FOOD allergies (user_food_allergies) and has
+      -- no concept of a DRUG allergy at all. A penicillin allergy is not a
+      -- food allergy, and on an emergency card it is arguably the highest
+      -- stakes line there is. drug_allergies below closes that gap, and it is
+      -- free text on purpose: exactly what the person typed, never inferred
+      -- from a food allergy or from anything in treatments.
+      CREATE TABLE IF NOT EXISTS emergency_contacts (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        relationship TEXT,
+        phone TEXT NOT NULL,
+        -- The one to try first. At most one row carries this, enforced on
+        -- write rather than by a constraint, since SQLite has no partial
+        -- unique index in the version this app can rely on.
+        is_primary INTEGER NOT NULL DEFAULT 0,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_emergency_contacts_primary ON emergency_contacts(is_primary);
+
+      -- One row, id 'self'. Not a column set bolted onto the profile because
+      -- every field here is written and confirmed together as one card, and
+      -- confirmed_at describes the whole card rather than any one field.
+      --
+      -- confirmed_at is the point of the table as much as the fields are. A
+      -- card listing a medication stopped six months ago is worse than no
+      -- card, so the reading always carries how old it is, the same rule the
+      -- kitchen inventory holds about an amount nothing decrements.
+      --
+      -- directive_location holds WHERE an advance directive is, never what it
+      -- says. A wish recorded in an app is not a legal document, and storing
+      -- its contents would invite someone to treat it as one.
+      CREATE TABLE IF NOT EXISTS emergency_profile (
+        id TEXT PRIMARY KEY,
+        drug_allergies TEXT,
+        blood_type TEXT,
+        -- Pacemaker, pump, port, stent. Changes what scans are safe and what
+        -- someone does before shocking a heart.
+        devices TEXT,
+        doctor_name TEXT,
+        doctor_phone TEXT,
+        preferred_hospital TEXT,
+        -- What the person can actually be spoken to in, which matters a great
+        -- deal to anyone living somewhere their first language is not local.
+        language TEXT,
+        directive_location TEXT,
+        other_notes TEXT,
+        confirmed_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- --- Work: what it gives you, and how it is going (2026-09-05) ------
       --
       -- Life gains its second area here, which is what the tab was built

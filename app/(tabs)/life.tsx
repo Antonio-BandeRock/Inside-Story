@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { AppTextInput } from '../../components/AppTextInput';
+import { EmergencySection } from '../../components/EmergencySection';
 import { FinanceHealthSection } from '../../components/FinanceHealthSection';
 import { FinanceGoalsSection } from '../../components/FinanceGoalsSection';
 import { FinanceMoneySection } from '../../components/FinanceMoneySection';
@@ -127,7 +128,7 @@ import { parsePriceInput } from '../../lib/groceryList';
 
 const TAB_COLOR = colors.tabLife;
 
-type LifeLens = 'finances' | 'kitchen' | 'work' | 'upkeep';
+type LifeLens = 'finances' | 'kitchen' | 'work' | 'upkeep' | 'emergency';
 type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money' | 'goals';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
@@ -210,7 +211,7 @@ const WORK_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'How It Feels, and why there is no score',
-    body: 'Three of the four weekly questions are the basic psychological needs of Self-Determination Theory, a long-established framework rather than anything this app invented. The fourth, what work took out of you, is this app own addition, because it is the answer most likely to line up with how you have actually been feeling. Nothing is graded and nothing is compared against anybody else. Work strain does have a measured relationship with inflammation, and a large study also found no link between it and the onset of one of the conditions tracked here, so telling you what your answers mean about your health would go well past what anyone knows.',
+    body: 'Three of the four weekly questions are the basic psychological needs of Self-Determination Theory, a long-established framework rather than anything this app invented. The fourth, what work took out of you, was added by this app, because it is the answer most likely to line up with how you have actually been feeling. Nothing is graded and nothing is compared against anybody else. Work strain does have a measured relationship with inflammation, and a large study also found no link between it and the onset of one of the conditions tracked here, so telling you what your answers mean about your health would go well past what anyone knows.',
   },
 ];
 
@@ -237,10 +238,45 @@ const UPKEEP_HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
+
+// Emergency & Essentials, added 2026-09-05, and Life fifth area. The other
+// half of the same answer Upkeep came from. Checked before building: there
+// was nothing anywhere in this app for an emergency contact or next of kin,
+// and no concept of a DRUG allergy at all, only food allergies.
+//
+// The first help section is a warning rather than an explanation, matching
+// the screen itself, because the way this feature fails is someone trusting
+// it to be found.
+const EMERGENCY_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'Read this before anything else',
+    body: 'Nobody is going to find this in an emergency. It is on your phone, behind a lock, inside an app, and a paramedic will not open it. This is a record to show someone, read out, or hand over, and it is genuinely worth having for that. It is not a bracelet, a card in your wallet, or the medical ID screen your phone already has, and if it replaces one of those you are worse off than before.',
+  },
+  {
+    heading: 'The one thing here the app had nowhere else to keep',
+    body: 'Drug allergies. Your food allergies are already recorded elsewhere and are a different thing entirely: a penicillin allergy is not a food allergy. It is free text on purpose, exactly as you would say it out loud, and nothing is ever filled in for you or guessed from anything else you have recorded.',
+  },
+  {
+    heading: 'Most of it is already here',
+    body: 'Your conditions, everything you are currently taking with its dose, your food allergies and your name are read straight from where they already live rather than asked for twice. Change a medication in My Meds and the card changes with it, because nothing is copied.',
+  },
+  {
+    heading: 'Why it keeps asking whether it is still right',
+    body: 'A card listing a medication you stopped six months ago is worse than no card at all. So the reading always says how long since you last confirmed it, and that date goes onto the card itself, so whoever reads it knows how old it is without having to ask you. Confirming is deliberately a separate act from editing a field: changing your hospital should not quietly declare an old medication list current.',
+  },
+  {
+    heading: 'What it will not do',
+    body: 'It never prints a blank. Anything you have not filled in is left off the card completely, because a line reading none recorded is read as no allergies by someone scanning it in a hurry, and that is a claim this app is in no position to make. It holds only where an advance directive is kept, never what it says, since nothing written in an app carries any legal weight. And it names no scheme, no law and no country, because what any of this means depends entirely on where you are.',
+  },
+];
 const LIFE_LENSES: LensOption<LifeLens>[] = [
   { key: 'finances', label: 'Finances', icon: 'wallet-outline', help: LIFE_HELP_SECTIONS },
   { key: 'work', label: 'Work', icon: 'briefcase-outline', help: WORK_HELP_SECTIONS },
   { key: 'upkeep', label: 'Upkeep', icon: 'construct-outline', help: UPKEEP_HELP_SECTIONS },
+  // medkit-outline rather than a warning triangle or a siren: this is a
+  // record of information, and an alarm icon would say exactly the thing the
+  // first paragraph on the screen exists to deny.
+  { key: 'emergency', label: 'Emergency', icon: 'medkit-outline', help: EMERGENCY_HELP_SECTIONS },
   // 2026-09-05. What is in the house is a household-running concern, the same
   // as bills are, which is why it landed on Life rather than on Food: every
   // Food lens is a BUILDER, something you make, and an inventory is not.
@@ -1606,6 +1642,7 @@ export default function LifeScreen() {
             {lens === 'work' ? <WorkSection tabColor={TAB_COLOR} /> : null}
 
             {lens === 'upkeep' ? <UpkeepSection tabColor={TAB_COLOR} /> : null}
+            {lens === 'emergency' ? <EmergencySection tabColor={TAB_COLOR} /> : null}
 
             {lens === 'finances' ? (
             <>
