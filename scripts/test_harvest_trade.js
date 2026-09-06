@@ -46,7 +46,7 @@ const {
   DISPOSITION_KINDS, dispositionLabel,
   valueReceivedGoods, describeValuation,
   summarizeSurplus, describeSurplus,
-  summarizeGiving, describeGiving, DONATED_PRODUCE_NOTE, RECIPIENT_KINDS,
+  summarizeGiving, describeGiving, DONATION_RECORD_NOTE, RECIPIENT_KINDS,
   formatTradeMoney, formatQuantity,
 } = H;
 
@@ -308,20 +308,28 @@ const rec = (over = {}) => ({
   check('two units stay two lines', summary.goodsByFood.length, 2);
 }
 {
-  // The note is the point of the whole feature: the assumption runs the other
-  // way, and an app that totalled up "value donated" would mislead badly.
-  checkTrue('the note says the deduction is limited to cost',
-    DONATED_PRODUCE_NOTE.includes('limited to what it COST you'));
-  checkTrue('and names why that is nearly nothing for a garden',
-    DONATED_PRODUCE_NOTE.includes('seed, water and compost'));
-  checkTrue('it says itemising is required', DONATED_PRODUCE_NOTE.includes('itemise'));
-  checkTrue('it disclaims being advice', DONATED_PRODUCE_NOTE.includes('not advice'));
-  checkTrue('and states plainly that no number is given',
-    DONATED_PRODUCE_NOTE.includes('puts no number on it'));
-  // The one thing it must never do.
-  checkTrue('the note quotes no money figure of its own', !DONATED_PRODUCE_NOTE.includes('$'));
+  // The note explains why the record is kept and says NOTHING about tax.
+  //
+  // An earlier version explained how donated produce is treated for a
+  // deduction, which was wrong twice over: it is not this app's business, and
+  // it was United States law in an app whose reference data spans seven
+  // countries and whose owner does not live there. These checks exist to stop
+  // it coming back.
+  checkTrue('the note says the record is the useful part',
+    DONATION_RECORD_NOTE.includes('The record is the useful part'));
+  checkTrue('and sends the tax question to someone who does tax',
+    DONATION_RECORD_NOTE.includes('someone who does tax'));
+  checkTrue('and says it depends on where you live',
+    DONATION_RECORD_NOTE.includes('where you live'));
+
+  // The things it must never do again, each its own check.
+  checkTrue('it never says deductible', !/deductib/i.test(DONATION_RECORD_NOTE));
+  checkTrue('it never mentions itemising', !/itemis|itemiz/i.test(DONATION_RECORD_NOTE));
+  checkTrue('it never invokes a tax authority', !/\bIRS\b|HMRC|SAT\b/.test(DONATION_RECORD_NOTE));
+  checkTrue('it never explains cost basis', !/cost basis|ordinary income/i.test(DONATION_RECORD_NOTE));
+  checkTrue('it quotes no money figure', !DONATION_RECORD_NOTE.includes('$'));
   checkTrue('and no digits at all, so no figure can be read out of it',
-    !/[0-9]/.test(DONATED_PRODUCE_NOTE));
+    !/[0-9]/.test(DONATION_RECORD_NOTE));
 }
 
 check('two kinds of recipient and no more', RECIPIENT_KINDS.length, 2);

@@ -25,6 +25,28 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-05, 1.0.34.24): the tax explanation removed an hour after it shipped, and volunteering deliberately left out of Finances.** Two direct points: "What about volunteering time to a food bank? It does get added to their schedule, but I'm not sure it could be any sort of a trade or income." And: "I'm not sure we should be looking at doing their taxes for them, or saying something is a tax deduction or not."
+
+**The second point is a correction and it was right.** 1.0.34.23 shipped `DONATED_PRODUCE_NOTE`, a paragraph explaining that donated home produce is ordinary income property, that the deduction is limited to cost basis, and that itemising is required. Verifying that against IRS guidance was good practice and it made me miss the prior question, which is whether the fact belonged in the app at all. It did not, for two reasons:
+
+1. **It is not this app's job.** Framing it as "here is why you should not expect a deduction" is still a substantive claim about tax treatment, and being confidently wrong about that has consequences a food app has no business creating.
+2. **It was United States law in an app that is deliberately not US-centric.** The reference database draws on seven countries, i18n is a standing scope item, and the owner lives in Mexico. A paragraph about IRS ordinary-income-property rules is wrong or meaningless for most people it would reach, and tax rules move.
+
+**What replaced it:** `DONATION_RECORD_NOTE`, which says the record is the useful part and that what it counts for depends on where you live, so the question goes to someone who does tax. **The receipt checkbox stays**, because "they gave me a receipt" is a record of a real event and makes no claim about anything.
+
+**The tests were rewritten to enforce the absence rather than the content.** Six checks now assert the note never says deductible, never mentions itemising, never invokes a tax authority, never explains cost basis, quotes no money figure and contains no digits at all. A test that pinned the old wording would have made the mistake permanent; these make it hard to reintroduce.
+
+**Scope of the removal, established by grep rather than memory.** Every other "deductible" in the app is an INSURANCE deductible in `financeHealth.ts` and `FinanceHealthSection.tsx`: a health plan's own deductible and out-of-pocket maximum, which are plan terms and someone's own spending against them, not tax. Those stay. The two `IRS` hits in the Digest are Insulin Resistance Syndrome. The 1.0.34.23 release note repeating the tax claim was corrected too, since a person upgrading from an older version would otherwise still read it.
+
+**On volunteering: nothing needed building, and that is the answer.** It is neither income nor a trade, and forcing it into Finances would require an hourly rate the app would have to invent, which is exactly what `lib/financeGoals.ts` already refuses when it declines to convert hours into dollars. It is already covered twice over, both verified rather than assumed:
+
+- **The schedule** already takes it as an `appointment`, which is what the report described.
+- **Goals already take a cost in hours.** `GOAL_COST_KINDS` has `time` as a first-class kind with its own unit, so "volunteer 50 hours this year" is expressible today, with hours recorded against it as they happen, and no price implied anywhere.
+
+**Named and not built:** a combined "what you have given" view covering donated produce, money given and volunteered hours, three things counted and never summed. It needs a source for hours the app can trust, and inferring which appointments were volunteering would be guessing. Worth doing only if hours get recorded deliberately.
+
+`tsc` clean, `eslint` clean, bare-text audit 0, schema guard clean, all eleven suites passing, `scripts/test_harvest_trade.js` at 97 checks. **Not yet confirmed on-device.**
+
 **Most recent (2026-09-05, 1.0.34.23): donations, and a verified tax fact that runs opposite to what most people assume.** Direct question: "Are we accounting for donations? They might just be giving excess from the garden to someone."
 
 **Partly, and checking established what was missing.** `given` already existed as a disposition from 1.0.34.22, so giving produce away was recorded: the harvest came down, the event was kept with who it went to. And money giving already had a home, `gifts_giving` under Everyday. What was missing was the distinction that makes a donation different from handing a bag of zucchini over a fence: **who received it, and whether they gave a receipt.**

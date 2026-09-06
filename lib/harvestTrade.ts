@@ -341,26 +341,25 @@ export function summarizeGiving(input: {
 }
 
 /**
- * What most people assume about donated produce, and what is actually true.
+ * Why the receipt is worth noting, WITHOUT saying anything about tax.
  *
- * Home-grown produce is ordinary income property: if it were sold it would
- * produce ordinary income, not a capital gain. The deduction allowed for
- * ordinary income property is limited to the donor's BASIS, not what the food
- * is worth, and a home gardener's basis is seed, water and soil amendment.
- * So a crate of tomatoes worth $60 at the market is not a $60 deduction; it is
- * closer to nothing, and the real figure is both tiny and not something
- * anybody can work out per tomato.
+ * An earlier version of this explained how donated produce is treated for a
+ * deduction, and that was a mistake, corrected the same day on the direct
+ * point: "I'm not sure we should be looking at doing their taxes for them, or
+ * saying something is a tax deduction or not."
  *
- * Stated because the assumption runs the other way and an app that totalled up
- * "value donated" would be actively misleading. Deliberately gives no figure
- * and does no arithmetic: the rule is general, the reader's situation is not,
- * and this is not tax advice.
+ * Right on both counts, and there is a second reason beyond scope. That
+ * explanation was United States law, and this app is deliberately not
+ * US-centric: its reference data spans seven countries and its owner does not
+ * live in the US. A confident paragraph about one country's rules is wrong or
+ * meaningless for most of the people it would reach, and tax rules move.
  *
- * Verified 2026-09-05 against IRS guidance on donated property and ordinary
- * income property rather than recalled. See CLAUDE.md for the sources.
+ * So the app keeps the record and says nothing about what it is worth on a
+ * return. That is the same line it already holds everywhere else: state what
+ * is known, and send the question that needs a professional to one.
  */
-export const DONATED_PRODUCE_NOTE =
-  'Worth knowing before you assume a deduction: home-grown produce counts as ordinary income property, and the deduction for that is limited to what it COST you rather than what it is worth. For a home garden that is seed, water and compost, so the figure is close to nothing however much you gave. It also only applies if you itemise and the recipient qualifies. That is a general rule and not advice about your own situation, so this app deliberately puts no number on it. What it does keep is the record: what went where, when, and whether you were given a receipt.';
+export const DONATION_RECORD_NOTE =
+  'The record is the useful part: what went where, when, and whether you were given a receipt. Whether any of it counts for anything on a tax return depends on where you live and on your own situation, so this app keeps the record and leaves that question to someone who does tax.';
 
 export function describeGiving(summary: GivingSummary): string {
   if (summary.goodsLots === 0 && summary.moneyGiven <= 0) {

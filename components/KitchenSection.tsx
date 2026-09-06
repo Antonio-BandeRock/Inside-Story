@@ -42,7 +42,7 @@ import {
 } from '../lib/kitchenDb';
 import {
   DISPOSITION_KINDS,
-  DONATED_PRODUCE_NOTE,
+  DONATION_RECORD_NOTE,
   RECIPIENT_KINDS,
   describeValuation,
   formatQuantity,
@@ -578,7 +578,7 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                                       </View>
                                       <Text style={styles.receiptLabel}>They gave me a receipt</Text>
                                     </TouchableOpacity>
-                                    <Text style={styles.itemMeta}>{DONATED_PRODUCE_NOTE}</Text>
+                                    <Text style={styles.itemMeta}>{DONATION_RECORD_NOTE}</Text>
                                   </>
                                 ) : null}
                               </>
