@@ -4895,6 +4895,69 @@ async function runDatabaseInitialization() {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- --- Work: what it gives you, and how it is going (2026-09-05) ------
+      --
+      -- Life gains its second area here, which is what the tab was built
+      -- for: its lens list is meant to read as a list of AREAS rather than
+      -- a pile of views belonging to one of them.
+      --
+      -- Two tables because the request had two halves. What work makes
+      -- available and you may not be claiming, and what the work itself is
+      -- actually giving you.
+      --
+      -- work_benefits holds only what the person told the app their own
+      -- employer offers. It asserts no entitlement, because this whole area
+      -- is jurisdiction-specific to the point where a confident claim would
+      -- be wrong for most readers. See constants/workBenefitPrompts.ts for
+      -- the questions, which name no country, statute or scheme.
+      CREATE TABLE IF NOT EXISTS work_benefits (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        -- allowance, sessions, days, match or perk. The shapes are genuinely
+        -- different: an allowance runs down and expires, a match is a share
+        -- of pay you are either taking or declining, and a perk has no
+        -- number at all and deliberately gets no arithmetic.
+        kind TEXT NOT NULL,
+        -- The ceiling, or for a match the point past which they stop adding.
+        -- Null for a perk, which has no quantity.
+        total REAL,
+        -- How much is used, or for a match what you currently pay in.
+        used REAL NOT NULL DEFAULT 0,
+        resets TEXT NOT NULL DEFAULT 'yearly',
+        -- Null when nobody has said, and that is left null rather than
+        -- guessed at a year end: without it no countdown is possible, and
+        -- the summary says how many are in that state.
+        reset_on TEXT,
+        active INTEGER NOT NULL DEFAULT 1,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- How work is going, four answers a week.
+      --
+      -- Three of the four are the basic psychological needs of
+      -- Self-Determination Theory, attributed rather than presented as this
+      -- app own idea. The fourth, drain, is not one of them: it is what this
+      -- app adds for its own reasons, because it is the answer that might
+      -- line up with the symptoms and flares already being recorded.
+      --
+      -- week_of is the Monday of the week, and it is UNIQUE, so answering
+      -- twice in one week corrects the answer rather than adding a second
+      -- one. A week is the unit because a day is noise and a month is too
+      -- late to notice anything.
+      CREATE TABLE IF NOT EXISTS work_checkins (
+        id TEXT PRIMARY KEY,
+        week_of TEXT NOT NULL UNIQUE,
+        autonomy INTEGER NOT NULL,
+        competence INTEGER NOT NULL,
+        relatedness INTEGER NOT NULL,
+        drain INTEGER NOT NULL,
+        note TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- --- What happens to extra harvest (2026-09-05) --------------------
       --
       -- Direct extension of the income work: "A sale via a harvest could be

@@ -9,6 +9,7 @@ import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { KitchenSection } from '../../components/KitchenSection';
+import { WorkSection } from '../../components/WorkSection';
 import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { LensHub, type LensOption } from '../../components/LensHub';
@@ -125,7 +126,7 @@ import { parsePriceInput } from '../../lib/groceryList';
 
 const TAB_COLOR = colors.tabLife;
 
-type LifeLens = 'finances' | 'kitchen';
+type LifeLens = 'finances' | 'kitchen' | 'work';
 type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money' | 'goals';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
@@ -189,8 +190,32 @@ const KITCHEN_HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
+// Work, added 2026-09-05, and Life third area. Two readings of one question
+// asked directly: what a person could be taking advantage of that is offered
+// through their work, and the value in the work itself. They sit in one area
+// because both are value arriving through a job and neither is the paycheck.
+const WORK_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'Two different things called work',
+    body: 'What your work makes available and you may not be claiming, and what the work itself is actually giving you. Both are value that comes through a job, and neither of them is your pay.',
+  },
+  {
+    heading: 'This app will not tell you what you are entitled to',
+    body: 'What exists depends entirely on where you live and who you work for, and the same benefit works differently or not at all from one country to the next. So Worth Asking holds questions rather than answers, and names no scheme and no law. Ask them, put what comes back into What I Get, and the app keeps track of the amounts and the dates.',
+  },
+  {
+    heading: 'The two shapes that matter',
+    body: 'An allowance runs down and resets, and whatever is left usually goes with it: a dental maximum, a training budget, counselling sessions, leave. The app warns before that happens, the same way it already does for a health account that forfeits. A match is a different thing and nothing expires: paying in below the point where matching stops turns down money every month. That is reported as a share of pay, because this app does not know what you earn and is not going to ask.',
+  },
+  {
+    heading: 'How It Feels, and why there is no score',
+    body: 'Three of the four weekly questions are the basic psychological needs of Self-Determination Theory, a long-established framework rather than anything this app invented. The fourth, what work took out of you, is this app own addition, because it is the answer most likely to line up with how you have actually been feeling. Nothing is graded and nothing is compared against anybody else. Work strain does have a measured relationship with inflammation, and a large study also found no link between it and the onset of one of the conditions tracked here, so telling you what your answers mean about your health would go well past what anyone knows.',
+  },
+];
+
 const LIFE_LENSES: LensOption<LifeLens>[] = [
   { key: 'finances', label: 'Finances', icon: 'wallet-outline', help: LIFE_HELP_SECTIONS },
+  { key: 'work', label: 'Work', icon: 'briefcase-outline', help: WORK_HELP_SECTIONS },
   // 2026-09-05. What is in the house is a household-running concern, the same
   // as bills are, which is why it landed on Life rather than on Food: every
   // Food lens is a BUILDER, something you make, and an inventory is not.
@@ -1552,6 +1577,8 @@ export default function LifeScreen() {
             />
 
             {lens === 'kitchen' ? <KitchenSection tabColor={TAB_COLOR} /> : null}
+
+            {lens === 'work' ? <WorkSection tabColor={TAB_COLOR} /> : null}
 
             {lens === 'finances' ? (
             <>

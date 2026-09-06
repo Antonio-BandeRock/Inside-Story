@@ -41,6 +41,19 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.25',
+    date: '2026-09-05',
+    changes: [
+      'New: Work, on the Life tab. Two things at once, because both are value that arrives through a job and neither is your pay.',
+      'Worth Asking is a set of questions to put to whoever runs your benefits, covering health cover, money set aside before tax, time and what protects it, money you may be turning down, and food. It names no scheme and no law, because what exists depends entirely on where you live and who you work for. The app will not tell you what you are entitled to.',
+      'What I Get holds the answers. An allowance runs down and resets, and whatever is left usually goes with it, so the app warns you before that happens, the same as it already does for a health account that forfeits.',
+      'A matched contribution is a different thing and nothing expires: paying in below the point where matching stops turns down money every month. That is reported as a share of your pay, never as an amount, because this app does not know what you earn and is not going to ask.',
+      'Something with no number attached, like a fridge at work or a nurse line, is recorded without being given a progress bar it has no business having.',
+      'How It Feels asks four questions a week. Three are the basic psychological needs of Self-Determination Theory, a long-standing framework rather than anything invented here. The fourth is what work took out of you physically, which is this app own question and the one most likely to line up with how you have been feeling.',
+      'There is no score and nothing is compared against anyone else. Work strain does have a measured link to inflammation, and a large study also found no link between it and the onset of one of the conditions tracked here, so saying what your answers mean about your health would go past what anyone knows.',
+    ],
+  },
+  {
     version: '1.0.34.24',
     date: '2026-09-05',
     changes: [
