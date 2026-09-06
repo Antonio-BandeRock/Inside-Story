@@ -1,3 +1,4 @@
+import { colors } from '../constants/colors';
 import Svg, { Path } from 'react-native-svg';
 
 // A real folded awareness-ribbon shape, 2026-07-28 -- traced (not hand-
@@ -102,7 +103,33 @@ const SHADOW_LAYERS = [
 // 52px call site actually rendered ~89px tall), reported as "way too big."
 // Deriving width from height here instead keeps every call site sized to
 // match its neighboring icons, the same way it always has.
-export function PurpleRibbonIcon({ size, color }: { size: number; color: string }) {
+// `color` is optional, and its default is the one place that decides what
+// shade this ribbon is drawn in, 2026-09-05.
+//
+// Every call site was passing colors.tabPurpleDigest, the Digest's fill
+// colour, and measured against the two surfaces this icon actually sits on
+// that is below the 3:1 floor this project holds non-text marks to: 2.53:1
+// on menuSurface (both hub menus and Home's lens menu) and 2.83:1 on a
+// composited card surface. colors.tabPurpleDigestText clears both, at
+// 3.53:1 and 3.96:1.
+//
+// The two tokens exist for exactly this split, decided 2026-08-23 when the
+// Digest's colour was darkened: the fill token is right behind dark text on
+// a solid button or pill, and the lighter token is right when the colour
+// IS the thing being read. A glyph is the second case, so it was on the
+// wrong side of that line everywhere.
+//
+// Defaulted here rather than corrected at five call sites so there is one
+// answer rather than five that can drift. The prop stays, for a caller that
+// genuinely needs another colour (a ribbon drawn on a filled button would
+// want textOnPrimary, not either of these).
+export function PurpleRibbonIcon({
+  size,
+  color = colors.tabPurpleDigestText,
+}: {
+  size: number;
+  color?: string;
+}) {
   const width = size / RIBBON_ASPECT;
   const svgHeight = size * (VIEWBOX_HEIGHT / RIBBON_SHAPE_HEIGHT);
   return (

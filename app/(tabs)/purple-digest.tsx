@@ -4157,11 +4157,11 @@ export default function PurpleDigestScreen() {
                         (whichever condition `lens` currently is) would be
                         wrong here regardless of what's showing underneath. */}
                     {glossaryOpen ? (
-                      <PurpleRibbonIcon size={22} color={TAB_COLOR} />
+                      <PurpleRibbonIcon size={22} />
                     ) : ActiveConditionIcon ? (
                       <ActiveConditionIcon size={36} color={TAB_COLOR} />
                     ) : (
-                      <PurpleRibbonIcon size={22} color={TAB_COLOR} />
+                      <PurpleRibbonIcon size={22} />
                     )}
                     <Text style={styles.categoryHeaderText}>{glossaryOpen ? 'Glossary' : (drilldownTopicLabel ?? activeLensLabel)}</Text>
                   </View>
@@ -4604,7 +4604,7 @@ export default function PurpleDigestScreen() {
         // TabHub already special-cases this same path; LensHub has no such
         // per-route special-casing of its own, so it needs this override
         // explicitly.
-        renderIcon={(size) => <PurpleRibbonIcon size={size} color={TAB_COLOR} />}
+        renderIcon={(size) => <PurpleRibbonIcon size={size} />}
         autoOpenSignal={openTrigger}
         onSelect={(key) => {
           // Same reasoning as jumpToRelated's own reset -- a fresh lens

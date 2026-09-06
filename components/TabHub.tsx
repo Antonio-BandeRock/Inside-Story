@@ -149,7 +149,9 @@ const DESSERT_BUILDER_TAB_HUB_COLOR = colors.tabFood;
 // same as it would have all along if the icon were never animated.
 function TabRouteIcon({ route, size }: { route: TabRoute; size: number }) {
   if (route.path === '/purple-digest') {
-    return <PurpleRibbonIcon size={PURPLE_RIBBON_SIZE} color={route.color} />;
+    // route.color is the Digest fill colour, which measures 2.53:1 against
+    // this menu. The ribbon picks its own readable shade instead.
+    return <PurpleRibbonIcon size={PURPLE_RIBBON_SIZE} />;
   }
   return <Ionicons name={route.icon} size={size} color={route.color} style={textShadow} />;
 }

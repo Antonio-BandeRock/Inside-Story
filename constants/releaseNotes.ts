@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.18',
+    date: '2026-09-05',
+    changes: [
+      'The awareness ribbon is drawn in a lighter purple everywhere it appears, so it reads clearly against the grey menus and the cards rather than sinking into them.',
+      'It was being drawn in the Digest’s fill colour, which is the right shade behind dark text on a button and too dark for a shape you are meant to see. Measured against both backgrounds it sat under the contrast floor this app holds itself to; it now clears it on both.',
+    ],
+  },
+  {
     version: '1.0.34.17',
     date: '2026-09-05',
     changes: [

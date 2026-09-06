@@ -586,7 +586,9 @@ const HOME_LENS_DESTINATIONS: Partial<
     label: 'From The Digest',
     icon: 'ribbon',
     color: colors.tabPurpleDigest,
-    renderIcon: (_size, color) => <PurpleRibbonIcon size={23} color={color} />,
+    // No colour passed: PurpleRibbonIcon decides, and its default is the
+    // lighter token that actually clears 3:1 on this menu surface.
+    renderIcon: () => <PurpleRibbonIcon size={23} />,
     scrollTo: true,
   },
 };
@@ -1977,7 +1979,7 @@ export default function HomeScreen() {
         {visibleFlipCards.map((card) => (
           <FlipCard
             key={card.groupKey}
-            icon={<PurpleRibbonIcon size={28} color={colors.tabPurpleDigest} />}
+            icon={<PurpleRibbonIcon size={28} />}
             hook={card.hook}
             backTitle={card.backTitle}
             backBody={card.backBody}
