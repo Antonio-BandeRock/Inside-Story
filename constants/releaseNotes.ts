@@ -41,6 +41,19 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.30',
+    date: '2026-09-06',
+    changes: [
+      'New: partner links. You can connect with a partner on their own copy of Inside Story, and plan meals around both of you at once. This is the first connection in the app that does anything beyond sending a single recipe.',
+      'One dinner, two sets of conditions. A meal is left out only if it is one to avoid for someone; if it is merely worth a closer look for one of you, it stays on the plan and each of you is told what it means for you. Planning only what is perfect for both would empty the menu, and a shared dinner where one person leaves something out is a normal evening rather than a failure.',
+      'What you share is your choice and is set before the link is sent. Meals and shopping lists start on. Which conditions you track starts OFF and has to be turned on deliberately, because a list of your diagnoses is not the same kind of thing as what is for dinner.',
+      'Your symptoms, labs, healing stage, weight and notes are not shared by this and cannot be. Only the names of the conditions you track ever cross, and only if you switch that on.',
+      'For a partner link you now have to compare the four-group device code with each other before accepting. It is optional for sending a recipe and required here, because this link keeps carrying information rather than handing over one dish.',
+      'The app never claims a link works both ways until the other phone has actually said so. Until then it tells you plainly that they have not confirmed yet, rather than looking finished while nothing you send can land.',
+      'A partner can be set back to recipes-only at any time, which stops the sharing and removes the condition list they had shared with you.',
+    ],
+  },
+  {
     version: '1.0.34.29',
     date: '2026-09-05',
     changes: [

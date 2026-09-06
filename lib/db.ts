@@ -5547,8 +5547,50 @@ async function runDatabaseInitialization() {
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         public_key_base64 TEXT NOT NULL UNIQUE,
-        paired_at TEXT NOT NULL DEFAULT (datetime('now'))
+        paired_at TEXT NOT NULL DEFAULT (datetime('now')),
+        -- --- Partner links (2026-09-06) --------------------------------
+        --
+        -- ONE TABLE WITH ROLES, decided directly. Your sister can be both
+        -- the person you plan meals with and the person you send a recipe
+        -- to, and two tables would guarantee her key goes stale in one of
+        -- them. recipe is what every connection shipped before this was.
+        role TEXT NOT NULL DEFAULT 'recipe',
+        --
+        -- Evidence they added you back, not a claim that they did. Pairing
+        -- has no cryptographic guarantee before the keys are exchanged (see
+        -- app/connect.tsx), so this holds what this device actually KNOWS:
+        -- null means no confirmation has come back, and the screen says that
+        -- rather than implying a working two-way link.
+        they_have_me_at TEXT,
+        -- When the two people compared the short key fingerprint out loud.
+        -- Optional for a recipe, and the only real defence for a partner
+        -- link, which carries data continuously rather than once.
+        fingerprint_verified_at TEXT,
+        --
+        -- What YOU grant THEM, one direction only. What they grant you
+        -- arrives with their data, so there is nothing to store for it and
+        -- no second set of columns that could disagree with reality.
+        --
+        -- INTEGER, and therefore excluded from the generic column-add loop
+        -- further down this file, which adds every column as TEXT.
+        share_meals INTEGER NOT NULL DEFAULT 0,
+        share_shopping INTEGER NOT NULL DEFAULT 0,
+        -- Off until asked for. Meals and shopping are household facts; a
+        -- list of diagnoses is not, and defaulting it on would be this app
+        -- deciding something it has no business deciding.
+        share_conditions INTEGER NOT NULL DEFAULT 0,
+        --
+        -- CONDITION CODES ONLY, decided directly. The names of what they
+        -- track, so meals can be planned around both people at once. Never a
+        -- symptom, a lab result, a healing stage or a note. Stored as JSON
+        -- because nothing queries a partner BY condition in SQL, the same
+        -- reasoning due_rule_json and payload_json already follow.
+        their_condition_codes_json TEXT,
+        -- When they last sent them. A partner list from a year ago is worth
+        -- asking about, the same freshness rule the emergency card holds.
+        their_conditions_at TEXT
       );
+      CREATE INDEX IF NOT EXISTS idx_connections_role ON connections(role);
 
       -- The person's own actual lab results over time. test_code matches
       -- lab_tests.code in the bundled reference database (a cross-database
@@ -6576,6 +6618,14 @@ async function runDatabaseInitialization() {
       // Donations, 2026-09-05. harvest_dispositions shipped hours earlier in
       // 1.0.34.22, so a device can already have the table without these.
       ['harvest_dispositions', 'recipient_kind'],
+      // Partner links, 2026-09-06. connections shipped 2026-08-15, so a
+      // device can already have the table without any of these. The three
+      // share_* columns are INTEGER and are handled below instead.
+      ['connections', 'role'],
+      ['connections', 'they_have_me_at'],
+      ['connections', 'fingerprint_verified_at'],
+      ['connections', 'their_condition_codes_json'],
+      ['connections', 'their_conditions_at'],
     ] as const) {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (columns.length > 0 && !columns.some((entry) => entry.name === column)) {
@@ -6600,6 +6650,31 @@ async function runDatabaseInitialization() {
     const recurringColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(finance_recurring)');
     if (recurringColumns.length > 0 && !recurringColumns.some((column) => column.name === 'amount_is_estimate')) {
       await db.execAsync('ALTER TABLE finance_recurring ADD COLUMN amount_is_estimate INTEGER NOT NULL DEFAULT 0;');
+    }
+
+    // The three partner share grants, 2026-09-06. INTEGER, so deliberately
+    // not in the loop above for the same reason as the two blocks before
+    // this: a TEXT column would return the string "1" on an upgraded device
+    // and the number 1 on a fresh install.
+    //
+    // A device upgrading into this gets 0 for all three, which is correct:
+    // every connection that already exists was made to send a recipe, and
+    // none of them were ever granted anything.
+    const connectionColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(connections)');
+    if (connectionColumns.length > 0) {
+      for (const column of ['share_meals', 'share_shopping', 'share_conditions'] as const) {
+        if (!connectionColumns.some((entry) => entry.name === column)) {
+          await db.execAsync(`ALTER TABLE connections ADD COLUMN ${column} INTEGER NOT NULL DEFAULT 0;`);
+        }
+      }
+    }
+
+    // role is TEXT and is added by the loop above, which cannot carry a NOT
+    // NULL DEFAULT. So an upgraded row lands with role NULL rather than
+    // 'recipe', and every read would then have to guess. Backfilled here
+    // instead, once, so the column means the same thing on both paths.
+    if (connectionColumns.length > 0 && connectionColumns.some((entry) => entry.name === 'role')) {
+      await db.execAsync(`UPDATE connections SET role = 'recipe' WHERE role IS NULL;`);
     }
 
     // The Grocery List's own two later columns, 2026-09-01. The table shipped

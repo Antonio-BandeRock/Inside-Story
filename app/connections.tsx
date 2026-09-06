@@ -17,7 +17,23 @@ import { useInfoAlert } from '../components/InfoAlert';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
-import { buildConnectionInvite, buildConnectionInviteLink, listConnections, removeConnection, renameConnection, type Connection } from '../lib/connections';
+import {
+  buildConnectionInvite,
+  buildConnectionInviteLink,
+  buildPartnerInviteLink,
+  listConnections,
+  removeConnection,
+  renameConnection,
+  setConnectionRole,
+  type Connection,
+} from '../lib/connections';
+import {
+  defaultGrantsForRole,
+  describeGrants,
+  describeLinkState,
+  fingerprintStanding,
+  linkState,
+} from '../lib/partners';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 
 export default function ConnectionsScreen() {
@@ -61,6 +77,24 @@ export default function ConnectionsScreen() {
     } catch (error) {
       console.error('[ConnectionsScreen] Failed to share an invite', error);
       showInfoAlert('Something went wrong', "This couldn't be shared. Please try again.");
+    } finally {
+      setInviting(false);
+    }
+  }
+
+  // Meals and shopping on, conditions deliberately off. A list of diagnoses is
+  // not a household fact, and defaulting it on would be this app deciding
+  // something on the sender's behalf. They can turn it on before sending, and
+  // the receiver chooses their own side independently.
+  async function handlePartnerInvite() {
+    setInviting(true);
+    try {
+      const link = await buildPartnerInviteLink({ grants: defaultGrantsForRole('partner') });
+      await Share.share({
+        message: `Here is my Inside Story partner link. Tap it and we can plan meals together: ${link}`,
+      });
+    } catch (error) {
+      console.error('[ConnectionsScreen] Failed to share a partner invite', error);
     } finally {
       setInviting(false);
     }
@@ -121,6 +155,23 @@ export default function ConnectionsScreen() {
         <Text style={styles.primaryButtonText}>{inviting ? 'Preparing…' : 'Invite Someone'}</Text>
       </TouchableOpacity>
 
+      {/* A partner link is its own invitation rather than a setting applied
+          afterwards, because what it shares has to be chosen before it is sent
+          rather than switched on behind someone. */}
+      <TouchableOpacity
+        style={[styles.secondaryButton, inviting ? styles.primaryButtonDisabled : null]}
+        activeOpacity={0.85}
+        onPress={handlePartnerInvite}
+        disabled={inviting}
+      >
+        <Ionicons name="people-outline" size={18} color={colors.textPrimary} />
+        <Text style={styles.secondaryButtonText}>Invite a Partner to Plan Meals</Text>
+      </TouchableOpacity>
+      <Text style={styles.partnerHint}>
+        A partner sees the same meals you do, each with what they mean for their own conditions. You
+        choose what to share, and you can change it or undo it here at any time.
+      </Text>
+
       <Text style={styles.sectionLabel}>Your connections</Text>
 
       {loading ? (
@@ -155,11 +206,52 @@ export default function ConnectionsScreen() {
                 <View style={styles.rowInfo}>
                   <Text style={styles.rowName}>{connection.name}</Text>
                   <Text style={styles.rowMeta}>Connected {new Date(connection.pairedAt).toLocaleDateString()}</Text>
+                  {connection.role === 'partner' ? (
+                    <>
+                      <Text style={styles.rowBadge}>Partner</Text>
+                      {/* Never claims a two-way link without evidence for one.
+                          The alternative is a screen that reads as finished
+                          while nothing this person sends can land. */}
+                      <Text style={styles.rowMeta}>
+                        {describeLinkState(linkState(connection.theyHaveMeAt), connection.name)}
+                      </Text>
+                      <Text style={styles.rowMeta}>{describeGrants(connection.grants)}</Text>
+                      {connection.theirConditionCodes.length > 0 ? (
+                        <Text style={styles.rowMeta}>
+                          They share {connection.theirConditionCodes.length}{' '}
+                          {connection.theirConditionCodes.length === 1 ? 'condition' : 'conditions'} to plan around.
+                        </Text>
+                      ) : (
+                        <Text style={styles.rowMeta}>
+                          They have not shared which conditions they track, so meals are planned around you alone.
+                        </Text>
+                      )}
+                      {!fingerprintStanding('partner', connection.fingerprintVerifiedAt).verified ? (
+                        <Text style={styles.rowWarn}>
+                          {fingerprintStanding('partner', connection.fingerprintVerifiedAt).message}
+                        </Text>
+                      ) : null}
+                    </>
+                  ) : null}
                 </View>
                 <View style={styles.rowActions}>
                   <TouchableOpacity onPress={() => startRename(connection)} hitSlop={8}>
                     <Text style={styles.rowActionText}>Rename</Text>
                   </TouchableOpacity>
+                  {connection.role === 'partner' ? (
+                    <TouchableOpacity
+                      onPress={async () => {
+                        // Demoting resets the grants and drops their condition
+                        // list, since holding a diagnosis list for someone you
+                        // no longer plan meals with has no remaining reason.
+                        await setConnectionRole(connection.id, 'recipe');
+                        load();
+                      }}
+                      hitSlop={8}
+                    >
+                      <Text style={styles.rowActionText}>Stop Sharing</Text>
+                    </TouchableOpacity>
+                  ) : null}
                   <TouchableOpacity onPress={() => handleRemove(connection)} hitSlop={8} disabled={busyId === connection.id}>
                     <Text style={styles.rowActionTextDanger}>{busyId === connection.id ? 'Removing…' : 'Remove'}</Text>
                   </TouchableOpacity>
@@ -225,6 +317,24 @@ const styles = StyleSheet.create({
   rowInfo: { flex: 1 },
   rowName: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   rowMeta: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
+  // A partner link shares more than a recipe connection does, so it is marked
+  // rather than left looking like every other row.
+  rowBadge: {
+    ...typography.caption, color: colors.textOnPrimary, backgroundColor: colors.accent,
+    alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 3,
+    marginTop: 6, overflow: 'hidden',
+    textShadowColor: 'transparent', textShadowRadius: 0,
+  },
+  // The unchecked fingerprint on a partner link. Not danger red: nothing is
+  // wrong, there is just a step that has not been done and should be.
+  rowWarn: { ...typography.caption, color: colors.statusYellowStandalone, marginTop: 4, ...textShadow },
+  partnerHint: { ...typography.caption, color: colors.textMuted, marginTop: 6, ...textShadow },
+  secondaryButton: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
+    borderRadius: 10, paddingVertical: 12, paddingHorizontal: 16, marginTop: 8,
+  },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   rowActions: { flexDirection: 'row', gap: 16 },
   rowActionText: { ...typography.body, color: colors.accent, ...textShadow },
   rowActionTextMuted: { ...typography.body, color: colors.textMuted, ...textShadow },

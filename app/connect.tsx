@@ -25,13 +25,24 @@ import { textShadow, typography } from '../constants/typography';
 import {
   addConnection,
   buildConnectionInviteLink,
+  buildPartnerInviteLink,
   decodeConnectionInvite,
   getConnectionByPublicKey,
+  markFingerprintVerified,
+  markTheyHaveMe,
+  setConnectionRole,
+  setPartnerConditionCodes,
   type ConnectionInvite,
 } from '../lib/connections';
 import { computeKeyFingerprint, getDeviceIdentity } from '../lib/deviceIdentity';
+import { SHARE_SCOPES, defaultGrantsForRole, type ShareGrants } from '../lib/partners';
 
 type Status = 'checking' | 'preview' | 'self-invite' | 'already-connected' | 'accepting' | 'accepted' | 'error';
+
+// A partner link carries data continuously rather than once, so the fingerprint
+// step stops being optional here. It is the only defence against having
+// accepted a substituted key, since pairing cannot verify anything before the
+// keys are exchanged, and it costs two people ten seconds once.
 
 export default function ConnectScreen() {
   const router = useRouter();
@@ -41,8 +52,16 @@ export default function ConnectScreen() {
   const invite = useMemo<ConnectionInvite | null>(() => (typeof data === 'string' ? decodeConnectionInvite(data) : null), [data]);
   const [status, setStatus] = useState<Status>('checking');
   const [existingConnectionName, setExistingConnectionName] = useState<string | null>(null);
+  const [existingConnectionId, setExistingConnectionId] = useState<string | null>(null);
   const [sendingInviteBack, setSendingInviteBack] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fingerprintChecked, setFingerprintChecked] = useState(false);
+  const [updatedExisting, setUpdatedExisting] = useState(false);
+  // What I grant THEM, chosen here rather than mirrored from what they offered.
+  // Their generosity is not consent on my behalf.
+  const [grants, setGrants] = useState<ShareGrants>(() => defaultGrantsForRole('partner'));
+
+  const isPartnerInvite = invite?.role === 'partner';
 
   useEffect(() => {
     if (!invite) return;
@@ -58,6 +77,7 @@ export default function ConnectScreen() {
       if (cancelled) return;
       if (existing) {
         setExistingConnectionName(existing.name);
+        setExistingConnectionId(existing.id);
         setStatus('already-connected');
         return;
       }
@@ -72,7 +92,32 @@ export default function ConnectScreen() {
     if (!invite) return;
     setStatus('accepting');
     try {
-      await addConnection(invite.fromName, invite.publicKeyBase64);
+      const role = isPartnerInvite ? 'partner' : 'recipe';
+      const connection = await addConnection(invite.fromName, invite.publicKeyBase64, {
+        role,
+        grants: isPartnerInvite ? grants : defaultGrantsForRole('recipe'),
+      });
+
+      if (isPartnerInvite) {
+        // Recorded only because the person said they compared it. Never
+        // inferred: an app cannot know whether two people read four words to
+        // each other, and pretending it does would make the check worthless.
+        if (fingerprintChecked) await markFingerprintVerified(connection.id);
+
+        // Their claim that they already added me, which is what lets this stop
+        // showing a one-way link as finished. A claim over the same channel the
+        // invite arrived through, not proof, and lib/partners.ts never calls it
+        // verified.
+        if (invite.alreadyHaveYou) await markTheyHaveMe(connection.id);
+
+        // Codes only, and only for a partner. decodeConnectionInvite has
+        // already dropped codes that arrived without the matching grant; this
+        // is the second gate, so a recipe-role payload claiming a condition
+        // grant still cannot get a diagnosis list stored.
+        if (invite.conditionCodes?.length) {
+          await setPartnerConditionCodes(connection.id, invite.conditionCodes);
+        }
+      }
       setStatus('accepted');
     } catch (error) {
       console.error('[ConnectScreen] Failed to save the new connection', error);
@@ -81,10 +126,41 @@ export default function ConnectScreen() {
     }
   }
 
+  /**
+   * The third leg, and the reason "already connected" is not a dead end.
+   *
+   * A sends an invite, B accepts and sends one back saying "I have you", A
+   * accepts that and is now linked. But B still does not know A accepted, so A
+   * sends once more and B lands HERE, on a connection that already exists. If
+   * this screen just said "already connected", B would never reach a confirmed
+   * two-way link. This is also how a partner refreshes a condition list that
+   * has changed since pairing.
+   */
+  async function handleUpdateExisting() {
+    if (!invite || !existingConnectionId) return;
+    try {
+      if (isPartnerInvite) await setConnectionRole(existingConnectionId, 'partner');
+      if (invite.alreadyHaveYou) await markTheyHaveMe(existingConnectionId);
+      if (isPartnerInvite && invite.conditionCodes?.length) {
+        await setPartnerConditionCodes(existingConnectionId, invite.conditionCodes);
+      }
+      setUpdatedExisting(true);
+    } catch (error) {
+      console.error('[ConnectScreen] Failed to update the existing connection', error);
+      setErrorMessage("Something went wrong updating this connection. Please try again.");
+    }
+  }
+
   async function handleSendInviteBack() {
     setSendingInviteBack(true);
     try {
-      const link = await buildConnectionInviteLink();
+      // alreadyHaveYou is true because reaching this point means the accept
+      // above has already saved them. That one flag is the whole mutual-link
+      // mechanism, and it stays inside the existing symmetric payload rather
+      // than introducing a second message type.
+      const link = isPartnerInvite
+        ? await buildPartnerInviteLink({ grants, alreadyHaveYou: true })
+        : await buildConnectionInviteLink();
       const fromName = invite?.fromName ?? 'them';
       await Share.share({
         message: `Here's my Inside Story connection link back to you, ${fromName}. Tap it to finish connecting us: ${link}`,
@@ -142,14 +218,36 @@ export default function ConnectScreen() {
           <Ionicons name="checkmark-circle-outline" size={40} color={colors.accent} />
           <Text style={styles.title}>You&apos;re already connected</Text>
           <Text style={styles.text}>
-            {existingConnectionName ?? invite.fromName} is already in your Connections list, no need to accept this again.
+            {existingConnectionName ?? invite.fromName} is already in your Connections list.
           </Text>
+          {/* Not a dead end. This is the leg that finishes the link: they have
+              sent one more time to say they added you, and without accepting it
+              here this side would keep showing a one-way link forever. It is
+              also how a partner refreshes a condition list that has changed. */}
+          {!updatedExisting && (invite.alreadyHaveYou || isPartnerInvite) ? (
+            <>
+              <Text style={styles.text}>
+                {invite.alreadyHaveYou
+                  ? `${invite.fromName} has confirmed they added you too. Accepting this finishes the link so it works both ways.`
+                  : `They have sent a partner link this time, which shares more than a recipe connection does.`}
+              </Text>
+              {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+              <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={handleUpdateExisting}>
+                <Text style={styles.primaryButtonText}>
+                  {invite.alreadyHaveYou ? 'Finish the Link' : 'Make Them a Partner'}
+                </Text>
+              </TouchableOpacity>
+            </>
+          ) : null}
+          {updatedExisting ? (
+            <Text style={styles.text}>Updated. This link now works both ways.</Text>
+          ) : null}
           <TouchableOpacity
-            style={styles.primaryButton}
+            style={updatedExisting ? styles.primaryButton : styles.secondaryButton}
             activeOpacity={0.85}
             onPress={() => router.replace({ pathname: '/connections' })}
           >
-            <Text style={styles.primaryButtonText}>View Connections</Text>
+            <Text style={updatedExisting ? styles.primaryButtonText : styles.secondaryButtonText}>View Connections</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -163,9 +261,16 @@ export default function ConnectScreen() {
           <Ionicons name="checkmark-circle-outline" size={40} color={colors.accent} />
           <Text style={styles.title}>You&apos;re connected with {invite.fromName}</Text>
           <Text style={styles.text}>
-            This is one-sided so far. {invite.fromName} won&apos;t see you as a connection until they accept an invite back
-            from you too.
+            {invite.alreadyHaveYou
+              ? `${invite.fromName} has already added you, so this works both ways now.`
+              : `This is one-sided so far. ${invite.fromName} will not see you as a connection until they accept a link back from you too.`}
           </Text>
+          {isPartnerInvite ? (
+            <Text style={styles.text}>
+              Send them a link back even if they have added you: it is what tells their phone the link is
+              finished, and it carries what you chose to share.
+            </Text>
+          ) : null}
           <TouchableOpacity
             style={[styles.primaryButton, sendingInviteBack ? styles.primaryButtonDisabled : null]}
             activeOpacity={0.85}
@@ -194,21 +299,79 @@ export default function ConnectScreen() {
     <View style={[styles.screen, { paddingBottom: scrollPadding }]}>
       <View style={styles.body}>
         <Ionicons name="person-add-outline" size={40} color={colors.accent} />
-        <Text style={styles.title}>{invite.fromName} wants to connect with you</Text>
-        <Text style={styles.text}>
-          Accepting adds them to your Connections list, so you can share recipes and more with each other going forward.
+        <Text style={styles.title}>
+          {isPartnerInvite
+            ? `${invite.fromName} wants to plan meals with you`
+            : `${invite.fromName} wants to connect with you`}
         </Text>
+        <Text style={styles.text}>
+          {isPartnerInvite
+            ? `You would both see the same meals each day, each with what those meals mean for your own conditions. One dinner, and the app tells each of you what it means for you.`
+            : `Accepting adds them to your Connections list, so you can share recipes and more with each other going forward.`}
+        </Text>
+
+        {isPartnerInvite ? (
+          <>
+            <View style={styles.grantBox}>
+              <Text style={styles.grantHeading}>What you share with {invite.fromName}</Text>
+              <Text style={styles.grantHint}>
+                Your choice, not theirs. What they share with you is theirs to decide, and it arrives with
+                their own link.
+              </Text>
+              {SHARE_SCOPES.map((scope) => (
+                <TouchableOpacity
+                  key={scope.code}
+                  style={styles.grantRow}
+                  activeOpacity={0.8}
+                  onPress={() => setGrants({ ...grants, [scope.code]: !grants[scope.code] })}
+                >
+                  <View style={[styles.checkBox, grants[scope.code] ? styles.checkBoxOn : null]}>
+                    {grants[scope.code] ? <Text style={styles.checkMark}>✓</Text> : null}
+                  </View>
+                  <View style={styles.grantTextWrap}>
+                    <Text style={styles.grantLabel}>{scope.label}</Text>
+                    <Text style={styles.grantWhat}>{scope.what}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        ) : null}
         <View style={styles.fingerprintBox}>
-          <Text style={styles.fingerprintLabel}>Their device ID, if you&apos;d like to double-check it with them directly:</Text>
+          <Text style={styles.fingerprintLabel}>
+            {isPartnerInvite
+              ? `Read these four groups out loud to ${invite.fromName} and check they see the same:`
+              : `Their device ID, if you'd like to double-check it with them directly:`}
+          </Text>
           <Text style={styles.fingerprintValue}>{fingerprint}</Text>
+          {/* Optional for a recipe, which is how it shipped. Required here,
+              because a partner link carries data continuously and this is the
+              only thing standing between accepting them and accepting whoever
+              passed the link along. */}
+          {isPartnerInvite ? (
+            <TouchableOpacity
+              style={styles.grantRow}
+              activeOpacity={0.8}
+              onPress={() => setFingerprintChecked((prev) => !prev)}
+            >
+              <View style={[styles.checkBox, fingerprintChecked ? styles.checkBoxOn : null]}>
+                {fingerprintChecked ? <Text style={styles.checkMark}>✓</Text> : null}
+              </View>
+              <Text style={styles.grantLabel}>We compared it and it matches</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
         {status === 'error' && errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
         <View style={styles.actionRow}>
           <TouchableOpacity
-            style={[styles.primaryButton, styles.actionButton, status === 'accepting' ? styles.primaryButtonDisabled : null]}
+            style={[
+              styles.primaryButton,
+              styles.actionButton,
+              status === 'accepting' || (isPartnerInvite && !fingerprintChecked) ? styles.primaryButtonDisabled : null,
+            ]}
             activeOpacity={0.85}
             onPress={handleAccept}
-            disabled={status === 'accepting'}
+            disabled={status === 'accepting' || (isPartnerInvite && !fingerprintChecked)}
           >
             <Text style={styles.primaryButtonText}>{status === 'accepting' ? 'Saving…' : 'Accept'}</Text>
           </TouchableOpacity>
@@ -238,6 +401,22 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   fingerprintLabel: { ...typography.caption, color: colors.textMuted, textAlign: 'center', ...textShadow },
+  grantBox: {
+    marginTop: 8, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.surface, gap: 8, width: '100%',
+  },
+  grantHeading: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+  grantHint: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  grantRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 6 },
+  grantTextWrap: { flex: 1 },
+  grantLabel: { ...typography.body, color: colors.textPrimary, flex: 1, ...textShadow },
+  grantWhat: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
+  checkBox: {
+    width: 22, height: 22, borderRadius: 6, borderWidth: 2, borderColor: colors.accent,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  checkBoxOn: { backgroundColor: colors.accent },
+  checkMark: { ...typography.caption, color: colors.textOnPrimary, textShadowColor: 'transparent', textShadowRadius: 0 },
   fingerprintValue: { ...typography.bodyEmphasis, color: colors.textPrimary, letterSpacing: 2, ...textShadow },
   errorText: { ...typography.caption, color: colors.danger, marginTop: 8, textAlign: 'center', ...textShadow },
   actionRow: { flexDirection: 'row', gap: 12, marginTop: 12, width: '100%' },

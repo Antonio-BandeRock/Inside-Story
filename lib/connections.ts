@@ -13,23 +13,36 @@
 // whichever leaf module actually makes sense (the same real precedent
 // lib/sharing.ts already set for `shared_recipes`).
 //
-// Deliberately NOT built yet, named directly rather than silently
-// implied: no real invitation/pairing exchange UI writes to this table
-// yet (step 4 of the same list -- the actual QR-code/link-based public-
-// key handshake); no real signature verification reads from it yet (step
-// 5). This file's only real job is: can a connection be added, listed,
-// looked up, renamed, and removed, correctly, once something else
-// eventually calls it.
+// Steps 4 and 5 are since built: app/connect.tsx is the accept screen the
+// invite below lands on, and lib/sharing.ts verifies every received payload
+// against a key from this table. CLAUDE.md still describes the whole list as
+// unstarted, which is stale rather than true.
+//
+// PARTNER LINKS, 2026-09-06. A row here is now either someone you send a
+// recipe to or someone you plan meals with, distinguished by role rather than
+// by living in a second table: your sister can be both, and two tables would
+// guarantee her key goes stale in one of them. See lib/partners.ts for what a
+// partner link actually means and for every rule about what may cross.
 import * as Linking from 'expo-linking';
-import { getDatabase, getUserProfile } from './db';
+import { getDatabase, getUserConditions, getUserProfile } from './db';
 import { getDeviceIdentity } from './deviceIdentity';
 import { decodeBase64Utf8, encodeBase64Utf8 } from './sharing';
+import { defaultGrantsForRole, type ConnectionRole, type ShareGrants } from './partners';
 
 export type Connection = {
   id: string;
   name: string;
   publicKeyBase64: string;
   pairedAt: string;
+  role: ConnectionRole;
+  /** Their claim that they added you back. See markTheyHaveMe below. */
+  theyHaveMeAt: string | null;
+  fingerprintVerifiedAt: string | null;
+  /** What YOU grant THEM. One direction only. */
+  grants: ShareGrants;
+  /** Condition codes they shared. Never anything else about their health. */
+  theirConditionCodes: string[];
+  theirConditionsAt: string | null;
 };
 
 type ConnectionRow = {
@@ -37,27 +50,89 @@ type ConnectionRow = {
   name: string;
   public_key_base64: string;
   paired_at: string;
+  role: string | null;
+  they_have_me_at: string | null;
+  fingerprint_verified_at: string | null;
+  share_meals: number | null;
+  share_shopping: number | null;
+  share_conditions: number | null;
+  their_condition_codes_json: string | null;
+  their_conditions_at: string | null;
 };
 
+// Every SELECT in this file uses this, so a column added later cannot reach
+// some reads and miss others.
+const CONNECTION_COLUMNS = `
+  id, name, public_key_base64, paired_at, role, they_have_me_at,
+  fingerprint_verified_at, share_meals, share_shopping, share_conditions,
+  their_condition_codes_json, their_conditions_at
+`;
+
 function fromRow(row: ConnectionRow): Connection {
-  return { id: row.id, name: row.name, publicKeyBase64: row.public_key_base64, pairedAt: row.paired_at };
+  let theirConditionCodes: string[] = [];
+  // Defensive parse. This value arrived from another device, so a malformed
+  // one is a real possibility rather than a theoretical one, and an empty
+  // list is the honest reading of unreadable rather than a thrown error that
+  // would take a whole screen down.
+  if (row.their_condition_codes_json) {
+    try {
+      const parsed = JSON.parse(row.their_condition_codes_json);
+      if (Array.isArray(parsed)) theirConditionCodes = parsed.filter((entry): entry is string => typeof entry === 'string');
+    } catch {
+      theirConditionCodes = [];
+    }
+  }
+  return {
+    id: row.id,
+    name: row.name,
+    publicKeyBase64: row.public_key_base64,
+    pairedAt: row.paired_at,
+    // A row migrated from before roles existed is a recipe connection, which
+    // is what every connection made before 2026-09-06 was for.
+    role: row.role === 'partner' ? 'partner' : 'recipe',
+    theyHaveMeAt: row.they_have_me_at,
+    fingerprintVerifiedAt: row.fingerprint_verified_at,
+    // Number() rather than === 1, as a belt-and-braces guard: these columns
+    // are INTEGER on both paths (verified against a scratch database), and
+    // this still holds if one ever slips through as TEXT.
+    grants: {
+      meals: Number(row.share_meals) === 1,
+      shopping: Number(row.share_shopping) === 1,
+      conditions: Number(row.share_conditions) === 1,
+    },
+    theirConditionCodes,
+    theirConditionsAt: row.their_conditions_at,
+  };
 }
 
 // Real, deliberate parity with lib/deviceIdentity.ts's own publicKeyBase64
 // field -- both this table and this app's own device identity encode a
 // real Ed25519 public key the identical way, so a value read from one is
 // always directly comparable to the other with no re-encoding step.
-export async function addConnection(name: string, publicKeyBase64: string): Promise<Connection> {
+export async function addConnection(
+  name: string,
+  publicKeyBase64: string,
+  options: { role?: ConnectionRole; grants?: ShareGrants } = {},
+): Promise<Connection> {
   const db = await getDatabase();
   const id = `connection_${Date.now()}`;
   const trimmedName = name.trim();
+  const role: ConnectionRole = options.role ?? 'recipe';
+  // Grants default from the role rather than to nothing, so a partner starts
+  // sharing meals and shopping and deliberately NOT conditions.
+  const grants = options.grants ?? defaultGrantsForRole(role);
   await db.runAsync(
-    'INSERT INTO connections (id, name, public_key_base64) VALUES (?, ?, ?)',
+    `INSERT INTO connections (id, name, public_key_base64, role, share_meals, share_shopping, share_conditions)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
     id,
     trimmedName || 'Unnamed connection',
     publicKeyBase64,
+    role,
+    grants.meals ? 1 : 0,
+    grants.shopping ? 1 : 0,
+    grants.conditions ? 1 : 0,
   );
-  const row = await db.getFirstAsync<ConnectionRow>('SELECT id, name, public_key_base64, paired_at FROM connections WHERE id = ?', id);
+  const row = await db.getFirstAsync<ConnectionRow>(`SELECT ${CONNECTION_COLUMNS} FROM connections WHERE id = ?`, id);
   if (!row) throw new Error('Failed to save the new connection.');
   return fromRow(row);
 }
@@ -68,13 +143,13 @@ export async function addConnection(name: string, publicKeyBase64: string): Prom
 // condition list, food-allergy list, etc.), not insertion/pairing order.
 export async function listConnections(): Promise<Connection[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<ConnectionRow>('SELECT id, name, public_key_base64, paired_at FROM connections ORDER BY name COLLATE NOCASE ASC');
+  const rows = await db.getAllAsync<ConnectionRow>(`SELECT ${CONNECTION_COLUMNS} FROM connections ORDER BY name COLLATE NOCASE ASC`);
   return rows.map(fromRow);
 }
 
 export async function getConnection(id: string): Promise<Connection | null> {
   const db = await getDatabase();
-  const row = await db.getFirstAsync<ConnectionRow>('SELECT id, name, public_key_base64, paired_at FROM connections WHERE id = ?', id);
+  const row = await db.getFirstAsync<ConnectionRow>(`SELECT ${CONNECTION_COLUMNS} FROM connections WHERE id = ?`, id);
   return row ? fromRow(row) : null;
 }
 
@@ -86,7 +161,7 @@ export async function getConnection(id: string): Promise<Connection | null> {
 export async function getConnectionByPublicKey(publicKeyBase64: string): Promise<Connection | null> {
   const db = await getDatabase();
   const row = await db.getFirstAsync<ConnectionRow>(
-    'SELECT id, name, public_key_base64, paired_at FROM connections WHERE public_key_base64 = ?',
+    `SELECT ${CONNECTION_COLUMNS} FROM connections WHERE public_key_base64 = ?`,
     publicKeyBase64,
   );
   return row ? fromRow(row) : null;
@@ -102,6 +177,110 @@ export async function renameConnection(id: string, name: string): Promise<void> 
 export async function removeConnection(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM connections WHERE id = ?', id);
+}
+
+// --- Partner links -----------------------------------------------------
+
+export async function listPartners(): Promise<Connection[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<ConnectionRow>(
+    `SELECT ${CONNECTION_COLUMNS} FROM connections WHERE role = 'partner' ORDER BY name COLLATE NOCASE ASC`,
+  );
+  return rows.map(fromRow);
+}
+
+/**
+ * The one partner a meal plan is built around.
+ *
+ * Nothing stops a person marking two people as partners, and nothing here
+ * pretends to resolve that: the first by name is used and the caller is left
+ * able to see there is more than one. Planning one dinner around three sets of
+ * conditions is a different feature from the one that was asked for, and
+ * guessing which two of the three to use would be worse than saying so.
+ */
+export async function getMealPlanningPartner(): Promise<{ partner: Connection | null; others: number }> {
+  const partners = await listPartners();
+  return { partner: partners[0] ?? null, others: Math.max(0, partners.length - 1) };
+}
+
+export async function setConnectionRole(id: string, role: ConnectionRole): Promise<void> {
+  const db = await getDatabase();
+  // Grants are reset to the new role default rather than carried across.
+  // Demoting a partner back to recipes-only has to stop the sharing it was
+  // granted, or the row would keep permissions its role no longer implies.
+  const grants = defaultGrantsForRole(role);
+  await db.runAsync(
+    'UPDATE connections SET role = ?, share_meals = ?, share_shopping = ?, share_conditions = ? WHERE id = ?',
+    role,
+    grants.meals ? 1 : 0,
+    grants.shopping ? 1 : 0,
+    grants.conditions ? 1 : 0,
+    id,
+  );
+  // Their conditions are dropped on demotion. Keeping a diagnosis list for
+  // someone you are no longer planning meals with would be holding health
+  // data for no remaining reason.
+  if (role !== 'partner') {
+    await db.runAsync(
+      'UPDATE connections SET their_condition_codes_json = NULL, their_conditions_at = NULL WHERE id = ?',
+      id,
+    );
+  }
+}
+
+export async function setConnectionGrants(id: string, grants: ShareGrants): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE connections SET share_meals = ?, share_shopping = ?, share_conditions = ? WHERE id = ?',
+    grants.meals ? 1 : 0,
+    grants.shopping ? 1 : 0,
+    grants.conditions ? 1 : 0,
+    id,
+  );
+}
+
+/**
+ * Records that they say they have added you.
+ *
+ * A CLAIM carried over the same out-of-band channel the invite itself came
+ * through, not proof. Pairing cannot prove anything before the keys are
+ * exchanged, which is the bootstrapping problem the comment further down this
+ * file already explains. So this is named for what it is, and the wording in
+ * lib/partners.ts never calls it verified.
+ */
+export async function markTheyHaveMe(id: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE connections SET they_have_me_at = ? WHERE id = ? AND they_have_me_at IS NULL',
+    new Date().toISOString(),
+    id,
+  );
+}
+
+// Only ever set by the two people saying they compared the code, never
+// inferred. An app cannot know whether two people read four words to each
+// other, and claiming it did would make the one real defence here worthless.
+export async function markFingerprintVerified(id: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('UPDATE connections SET fingerprint_verified_at = ? WHERE id = ?', new Date().toISOString(), id);
+}
+
+/**
+ * Stores the condition codes a partner sent.
+ *
+ * Codes only, and filtered to strings on the way in, because this arrived from
+ * another device. Replaces rather than merges: their current list is the whole
+ * truth, and a condition they stopped tracking has to be able to disappear.
+ */
+export async function setPartnerConditionCodes(id: string, codes: string[]): Promise<void> {
+  const db = await getDatabase();
+  const clean = [...new Set(codes.filter((code) => typeof code === 'string' && code.trim().length > 0))].sort();
+  await db.runAsync(
+    'UPDATE connections SET their_condition_codes_json = ?, their_conditions_at = ? WHERE id = ?',
+    JSON.stringify(clean),
+    new Date().toISOString(),
+    id,
+  );
 }
 
 // --- The real invitation exchange itself -------------------------------
@@ -127,19 +306,72 @@ export async function removeConnection(id: string): Promise<void> {
 // message the right individual in the first place) -- not a cryptographic
 // guarantee during pairing itself. Real signature verification is step
 // 5's own job, using the real public key this exchange hands over.
+// v2 adds what the link is FOR, what the sender is offering, and one honest
+// flag. The symmetric shape above is deliberately kept: there is still exactly
+// one message type, sent by both people, rather than an invite and a separate
+// reply. alreadyHaveYou is how the second sender says "I have added you",
+// which is what lets the first sender stop showing a one-way link as finished.
+// It is a claim over a trusted channel, not proof, and nothing here says
+// otherwise.
+//
+// conditionCodes travels ONLY when the sender granted it. Codes, never a
+// symptom, a lab result, a healing stage or a note. See lib/partners.ts.
 export type ConnectionInvite = {
-  v: 1;
+  v: 1 | 2;
   fromName: string;
   publicKeyBase64: string;
+  role?: ConnectionRole;
+  grants?: ShareGrants;
+  conditionCodes?: string[];
+  alreadyHaveYou?: boolean;
 };
 
 export async function buildConnectionInvite(): Promise<ConnectionInvite> {
   const [profile, identity] = await Promise.all([getUserProfile(), getDeviceIdentity()]);
   return {
-    v: 1,
+    v: 2,
     fromName: profile.firstName?.trim() || 'A friend',
     publicKeyBase64: identity.publicKeyBase64,
+    role: 'recipe',
   };
+}
+
+/**
+ * A partner invite: what the link is for, what is being offered, and the
+ * condition codes only where that was granted.
+ *
+ * alreadyHaveYou is set by whoever is sending SECOND, after accepting the
+ * other side. That is the whole mutual-link mechanism, and it stays inside the
+ * existing symmetric payload rather than adding a second message type.
+ */
+export async function buildPartnerInvite(options: {
+  grants: ShareGrants;
+  alreadyHaveYou?: boolean;
+}): Promise<ConnectionInvite> {
+  const [profile, identity] = await Promise.all([getUserProfile(), getDeviceIdentity()]);
+  const invite: ConnectionInvite = {
+    v: 2,
+    fromName: profile.firstName?.trim() || 'A friend',
+    publicKeyBase64: identity.publicKeyBase64,
+    role: 'partner',
+    grants: options.grants,
+    alreadyHaveYou: options.alreadyHaveYou === true,
+  };
+  // The gate that matters: the codes are attached ONLY when the person granted
+  // them, read from the grant rather than from a caller argument, so no call
+  // site can send a diagnosis list by passing the wrong parameter.
+  if (options.grants.conditions) {
+    invite.conditionCodes = await getUserConditions();
+  }
+  return invite;
+}
+
+export async function buildPartnerInviteLink(options: {
+  grants: ShareGrants;
+  alreadyHaveYou?: boolean;
+}): Promise<string> {
+  const invite = await buildPartnerInvite(options);
+  return Linking.createURL('/connect', { queryParams: { data: encodeBase64Utf8(JSON.stringify(invite)) } });
 }
 
 // A real hashimotosapp://connect deep link, reusing the exact same
@@ -160,8 +392,39 @@ export async function buildConnectionInviteLink(): Promise<string> {
 export function decodeConnectionInvite(raw: string): ConnectionInvite | null {
   try {
     const parsed = JSON.parse(decodeBase64Utf8(raw)) as Partial<ConnectionInvite>;
-    if (parsed.v !== 1 || typeof parsed.fromName !== 'string' || !parsed.publicKeyBase64) return null;
-    return parsed as ConnectionInvite;
+    // v1 is still accepted. A link sent before 2026-09-06 can still be sitting
+    // in a message thread, and refusing it would break something that used to
+    // work for no reason: a v1 invite is simply a recipe connection.
+    if (parsed.v !== 1 && parsed.v !== 2) return null;
+    if (typeof parsed.fromName !== 'string' || !parsed.publicKeyBase64) return null;
+
+    // Everything below is normalised rather than trusted. This arrived from
+    // another device, so a field being the wrong type is a real possibility,
+    // and the failure has to be "treated as absent" rather than a crash on a
+    // screen whose whole job is to let someone accept or discard safely.
+    const role: ConnectionRole = parsed.role === 'partner' ? 'partner' : 'recipe';
+    const rawGrants = (parsed.grants ?? {}) as Partial<ShareGrants>;
+    const grants: ShareGrants = {
+      meals: rawGrants.meals === true,
+      shopping: rawGrants.shopping === true,
+      conditions: rawGrants.conditions === true,
+    };
+    // Codes are kept only when they were actually granted. A payload claiming
+    // no condition grant while carrying codes anyway is contradicting itself,
+    // and the safe reading of that is to drop them.
+    const conditionCodes = grants.conditions && Array.isArray(parsed.conditionCodes)
+      ? parsed.conditionCodes.filter((code): code is string => typeof code === 'string')
+      : undefined;
+
+    return {
+      v: parsed.v,
+      fromName: parsed.fromName,
+      publicKeyBase64: parsed.publicKeyBase64,
+      role,
+      grants,
+      conditionCodes,
+      alreadyHaveYou: parsed.alreadyHaveYou === true,
+    };
   } catch {
     return null;
   }
