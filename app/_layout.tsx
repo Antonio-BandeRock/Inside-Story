@@ -10,6 +10,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ActiveInputProvider } from '../components/ActiveInputContext';
 import { AppKeyboard } from '../components/AppKeyboard';
 import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
+import { StartupFailureScreen } from '../components/StartupFailureScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { VersionLabel } from '../components/VersionLabel';
 import { colors } from '../constants/colors';
@@ -50,6 +51,12 @@ export default function RootLayout() {
   // has actually finished PLAYING (its own onExitComplete callback), so
   // the real app is never swapped in mid-animation.
   const [referenceImportResolved, setReferenceImportResolved] = useState(false);
+  // Null while nothing has gone wrong, which is the ordinary case.
+  const [startupError, setStartupError] = useState<unknown>(null);
+  // Set when someone chooses to go in regardless. Deliberately not persisted:
+  // a fresh launch should show the problem again rather than quietly hiding a
+  // database that is still broken.
+  const [dismissedStartupError, setDismissedStartupError] = useState(false);
   const [referenceDbReady, setReferenceDbReady] = useState(false);
   // 2026-08-16 -- the real other half of the startup wait. See
   // lib/homeReadySignal.ts's own header comment for the full "why": the
@@ -85,9 +92,20 @@ export default function RootLayout() {
   // fix: a synchronous read at colors.ts's own module-load time, which
   // runs before ANY file's `import { colors } from '.../constants/colors'`
   // can resolve, this one included.
+  // The failure was previously logged and then dropped, which is how a bad
+  // schema release in 1.0.34.30 left the app running against a database that
+  // had never finished being built: Home empty, Profile unopenable, and no way
+  // to reach Check for Updates to pull the fix. Logging it is still right; the
+  // gap was doing nothing else with it.
+  //
+  // Kept as state rather than thrown, so this stays a recoverable screen rather
+  // than a crash, and so the person can still choose to go in anyway.
   useEffect(() => {
     initializeDatabase()
-      .catch((error) => console.error('initializeDatabase failed', error))
+      .catch((error) => {
+        console.error('initializeDatabase failed', error);
+        setStartupError(error);
+      })
       .finally(() => setDbReady(true));
   }, []);
 
@@ -288,6 +306,26 @@ export default function RootLayout() {
   // header is exactly the kind of place a font swap is most noticeable.
   if (!fontsLoaded || !dbReady) {
     return null;
+  }
+
+  // Shown INSTEAD of the app when the database could not be set up.
+  //
+  // Placed after the fonts/dbReady gate above rather than before it, so this
+  // screen renders with real fonts rather than as unstyled fallback text on the
+  // one occasion someone most needs to be able to read it. dbReady is true here
+  // either way: its .finally fires whether initializeDatabase resolved or threw.
+  //
+  // Placed BEFORE the Stack rather than as an overlay on top of it, deliberately.
+  // The app tree mounting against a half-built database is what produced the
+  // empty Home and the unopenable Profile in the first place, so the fix is not
+  // to cover that with something, it is not to mount it.
+  if (startupError && !dismissedStartupError) {
+    return (
+      <StartupFailureScreen
+        error={startupError}
+        onContinueAnyway={() => setDismissedStartupError(true)}
+      />
+    );
   }
 
   // The native splash screen has already hidden by this point (it only

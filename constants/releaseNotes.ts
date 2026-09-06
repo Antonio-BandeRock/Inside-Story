@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.32',
+    date: '2026-09-06',
+    changes: [
+      'If the app ever fails to set itself up again, it now says so and gives you a Check for Updates button, instead of opening to an empty Home with nothing working and no way to reach Profile. That is what happened yesterday, and the only reason it was recoverable is that the app happens to fetch updates on its own at launch.',
+      'The screen shows the real error and the version number, so a report can say something specific rather than that it is broken, and it offers to open the app anyway in case something you need still works.',
+      'Nothing you have recorded is affected by any of this. The failure was in building the database structure, never in the data itself.',
+    ],
+  },
+  {
     version: '1.0.34.31',
     date: '2026-09-06',
     changes: [

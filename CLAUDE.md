@@ -25,6 +25,22 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-06, 1.0.34.32): a recovery screen, so a bad release can never again lock someone out of the thing that fixes it.** Asked for directly after the 1.0.34.30 schema bug: "Yes, do the error screen with a Check for Updates button."
+
+**The gap was not that the failure was unhandled. It was that it was handled and then dropped.** `app/_layout.tsx` already caught the `initializeDatabase` rejection and logged it, then carried on and mounted the whole app against a database that had never finished being built. Home was empty, Profile would not open, and Check for Updates lives inside Profile, so the one control that could pull the fix was behind the thing that was broken. The only reason it was recoverable at all is that expo-updates fetches on launch independently of app code.
+
+**New `components/StartupFailureScreen.tsx`, returned INSTEAD of the app rather than layered over it.** Mounting the app tree against a half-built database is what produced the empty screens, so the fix is not to cover that, it is not to mount it. It offers Check for Updates (the same `checkForUpdateAsync`/`fetchUpdateAsync`/`reloadAsync` chain Profile uses, including the `Updates.isEnabled` guard that is false in Expo Go and in a dev client), an Open the App Anyway escape so nobody is trapped, and the real error text plus the version, since somebody reporting this needs something specific to report.
+
+**It touches no database at all, and that is load-bearing rather than incidental.** No profile name, no saved preference, nothing. Colours still come out right because `constants/colors.ts` resolves the ground theme synchronously from a plain text mirror file rather than from SQLite, which is the 2026-08-27 fix earning its keep in a situation it was not written for.
+
+**Continuing anyway is deliberately not remembered.** A fresh launch shows the problem again, because a database that is still broken should not be quietly hidden by a choice made once while annoyed.
+
+**Two new standing guards, both verified able to fail.** `scripts/check_schema_upgrade.js` builds a database from an older version of the schema and runs the current one on top, across four baselines: it is the only check that can catch the class of bug that shipped in 1.0.34.30, and it was confirmed by pointing it at that exact commit. `scripts/check_startup_recovery.js` asserts the recovery wiring itself, since a screen that exists but is never reached is worse than none.
+
+**The lesson worth keeping, stated plainly.** Every check passed on 1.0.34.30: `tsc`, `eslint`, fifteen suites, the schema-comment guard, and a scratch-database verification of the new columns. All of it tested the MIGRATIONS. Nothing tested the schema block that runs BEFORE them against a database that already exists, and a fresh install can never catch that, because `CREATE TABLE IF NOT EXISTS` creates the column on a new device and does nothing on an upgrade. **Verifying a migration is not verifying an upgrade.**
+
+`tsc` clean, `eslint` clean, bare-text audit 0, all four guards clean, all fifteen suites passing. **Not yet confirmed on-device**, and this one is deliberately hard to confirm: seeing it means something has gone wrong.
+
 **Most recent (2026-09-06, 1.0.34.31): the Home screen stuck on "Loading today", caused by the partner-links release hours earlier.** Reported directly: "Home screen has nothing on it. It says loading today."
 
 **A one-line schema bug whose failure mode is the part worth keeping.** 1.0.34.30 put a CREATE INDEX on the connections table's new role column into the schema block, while the migration that ADDS role to an already-existing table sits a thousand lines further down. CREATE TABLE IF NOT EXISTS is a no-op where the table already exists, so on any phone that already had connections (shipped 2026-08-15) the column did not exist yet, the index threw "no such column: role" inside initializeDatabase, and **nothing downstream ever finished**, which is what Home was showing.
