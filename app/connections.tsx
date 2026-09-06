@@ -1,29 +1,22 @@
 // Step 4 of the real device-pairing prerequisite list (see CLAUDE.md's own
 // "Sharing individual recipes between two people" security-requirement
 // note), 2026-08-15 -- the real Connections management screen. Reached
-// from Profile. Lets a person invite someone new (via any real carrier --
-// text, WhatsApp, email -- through the OS share sheet, exactly like this
-// app's own existing recipe-sharing feature already works), and browse/
+// from Profile. Pairing happens face to face by QR since 2026-09-06 (see
+// app/pair.tsx for why the two message-based routes before it never
+// arrived). This screen routes into that, and browses/
 // rename/remove people already paired with (see app/connect.tsx for the
 // real receiving/accept side of the same exchange).
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { useConfirmSheet } from '../components/ConfirmSheet';
-import { useInfoAlert } from '../components/InfoAlert';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import {
-  buildConnectionInvite,
-  buildConnectionInviteLink,
-  buildPartnerInvite,
-  buildPartnerInviteLink,
-  encodeInviteCode,
-  parseInviteInput,
   listConnections,
   removeConnection,
   renameConnection,
@@ -31,7 +24,6 @@ import {
   type Connection,
 } from '../lib/connections';
 import {
-  defaultGrantsForRole,
   describeGrants,
   describeLinkState,
   fingerprintStanding,
@@ -44,18 +36,10 @@ export default function ConnectionsScreen() {
   const [connections, setConnections] = useState<Connection[]>([]);
   const [myFingerprint, setMyFingerprint] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [inviting, setInviting] = useState(false);
-  // The paste route in. Added after a deep link and then a .is file both
-  // failed to reach the other phone: text is the one thing that always
-  // arrives, through any channel.
-  const [pasting, setPasting] = useState(false);
-  const [pasted, setPasted] = useState('');
-  const [pasteError, setPasteError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
   const router = useRouter();
-  const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
 
   const load = useCallback(async () => {
@@ -77,75 +61,15 @@ export default function ConnectionsScreen() {
     }, [load]),
   );
 
-  async function handleInvite() {
-    setInviting(true);
-    try {
-      const [invite, link] = await Promise.all([buildConnectionInvite(), buildConnectionInviteLink()]);
-      // Text only. Attaching the .is file as well meant a SECOND share sheet
-      // after the message, so inviting someone required picking them twice, and
-      // the second send was the path already shown not to work.
-      const code = encodeInviteCode(invite);
-      await Share.share({
-        message:
-          `${invite.fromName} wants to connect with you in the Inside Story app, so you can share recipes directly and privately.\n\n` +
-          `In Inside Story, go to Profile, then Connections, then "I Was Sent an Invite" and paste this in:\n\n` +
-          `${code}\n\n` +
-          `(If tapping this link happens to work on your phone, that does the same thing: ${link})`,
-      });
-    } catch (error) {
-      console.error('[ConnectionsScreen] Failed to share an invite', error);
-      showInfoAlert('Something went wrong', "This couldn't be shared. Please try again.");
-    } finally {
-      setInviting(false);
-    }
+  // Pairing happens in person now, so this screen only routes into it. The
+  // three message-based invites that used to live here each depended on
+  // something outside this app cooperating, and none of them arrived.
+  function openPairing(role: 'partner' | 'recipe') {
+    router.push({ pathname: '/pair', params: { role, mode: 'show' } });
   }
 
-  // Meals and shopping on, conditions deliberately off. A list of diagnoses is
-  // not a household fact, and defaulting it on would be this app deciding
-  // something on the sender's behalf. They can turn it on before sending, and
-  // the receiver chooses their own side independently.
-  async function handlePartnerInvite() {
-    setInviting(true);
-    try {
-      const grants = defaultGrantsForRole('partner');
-      const invite = await buildPartnerInvite({ grants });
-      const link = await buildPartnerInviteLink({ grants });
-      // The CODE is the whole mechanism, and the only thing sent. A deep link is
-      // not tappable in a messaging app, and a .is file tapped in WhatsApp
-      // produced WhatsApp's own "Couldn't load object" without this app ever
-      // being reached. Attaching the file anyway meant a second share sheet that
-      // sent the broken path, so it is gone: leading someone toward the thing
-      // that does not work is worse than not offering it.
-      const code = encodeInviteCode(invite);
-      await Share.share({
-        message:
-          `Here is my Inside Story partner invite, so we can plan meals together.\n\n` +
-          `In Inside Story, go to Profile, then Connections, then "I Was Sent an Invite" and paste this in:\n\n` +
-          `${code}\n\n` +
-          `(If tapping this link happens to work on your phone, that does the same thing: ${link})`,
-      });
-    } catch (error) {
-      console.error('[ConnectionsScreen] Failed to share a partner invite', error);
-    } finally {
-      setInviting(false);
-    }
-  }
-
-  // Hands the pasted invite to the same accept screen a tapped link or file
-  // would have reached, so there is one place that decides what an invite
-  // means and one place that accepts it.
-  function handlePastedInvite() {
-    const data = parseInviteInput(pasted);
-    if (!data) {
-      setPasteError(
-        'That does not look like an invite. Copy the whole code from their message, including any long run of letters and numbers, and paste it here.',
-      );
-      return;
-    }
-    setPasteError(null);
-    setPasted('');
-    setPasting(false);
-    router.push({ pathname: '/connect', params: { data } });
+  function openScanner() {
+    router.push({ pathname: '/pair', params: { mode: 'scan' } });
   }
 
   function startRename(connection: Connection) {
@@ -180,7 +104,6 @@ export default function ConnectionsScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
-      {infoAlertElement}
       {confirmSheetElement}
       {myFingerprint ? (
         <View style={styles.fingerprintCard}>
@@ -193,77 +116,31 @@ export default function ConnectionsScreen() {
         </View>
       ) : null}
 
-      <TouchableOpacity
-        style={[styles.primaryButton, inviting ? styles.primaryButtonDisabled : null]}
-        activeOpacity={0.85}
-        onPress={handleInvite}
-        disabled={inviting}
-      >
-        <Ionicons name="person-add-outline" size={18} color={colors.background} />
-        <Text style={styles.primaryButtonText}>{inviting ? 'Preparing…' : 'Invite Someone'}</Text>
-      </TouchableOpacity>
-
       {/* A partner link is its own invitation rather than a setting applied
           afterwards, because what it shares has to be chosen before it is sent
           rather than switched on behind someone. */}
-      <TouchableOpacity
-        style={[styles.secondaryButton, inviting ? styles.primaryButtonDisabled : null]}
-        activeOpacity={0.85}
-        onPress={handlePartnerInvite}
-        disabled={inviting}
-      >
-        <Ionicons name="people-outline" size={18} color={colors.textPrimary} />
-        <Text style={styles.secondaryButtonText}>Invite a Partner to Plan Meals</Text>
+      <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={() => openPairing('partner')}>
+        <Ionicons name="people-outline" size={18} color={colors.textOnButton} />
+        <Text style={styles.primaryButtonText}>Pair With a Partner</Text>
       </TouchableOpacity>
       <Text style={styles.partnerHint}>
         A partner sees the same meals you do, each with what they mean for their own conditions. You
         choose what to share, and you can change it or undo it here at any time.
       </Text>
 
-      {/* The way in that does not depend on the OS handing this app a file.
-          A deep link is not tappable in a messaging app, and a .is file tapped
-          in WhatsApp fails before this app is ever reached, so the code in the
-          message text is the part that reliably survives the trip. */}
-      {pasting ? (
-        <View style={styles.pasteBox}>
-          <Text style={styles.pasteLabel}>Paste the code from their message</Text>
-          <AppTextInput
-            style={styles.pasteInput}
-            placeholder="Paste here"
-            multiline
-            value={pasted}
-            onChangeText={(text) => {
-              setPasted(text);
-              if (pasteError) setPasteError(null);
-            }}
-          />
-          {pasteError ? <Text style={styles.pasteError}>{pasteError}</Text> : null}
-          <Text style={styles.partnerHint}>
-            Pasting the whole message is fine. It will find the code in it.
-          </Text>
-          <View style={styles.pasteActions}>
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              activeOpacity={0.85}
-              onPress={() => {
-                setPasting(false);
-                setPasted('');
-                setPasteError(null);
-              }}
-            >
-              <Text style={styles.secondaryButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={handlePastedInvite}>
-              <Text style={styles.primaryButtonText}>Continue</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : (
-        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => setPasting(true)}>
-          <Ionicons name="clipboard-outline" size={18} color={colors.textPrimary} />
-          <Text style={styles.secondaryButtonText}>I Was Sent an Invite</Text>
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => openPairing('recipe')}>
+        <Ionicons name="person-add-outline" size={18} color={colors.textPrimary} />
+        <Text style={styles.secondaryButtonText}>Pair for Sharing Recipes</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={openScanner}>
+        <Ionicons name="qr-code-outline" size={18} color={colors.textPrimary} />
+        <Text style={styles.secondaryButtonText}>Scan Their Code</Text>
+      </TouchableOpacity>
+      <Text style={styles.partnerHint}>
+        Pairing happens face to face: one phone shows a code and the other reads it with the camera. Nothing is sent
+        over the internet, and nothing has to be typed or pasted.
+      </Text>
 
       <Text style={styles.sectionLabel}>Your connections</Text>
 
@@ -271,7 +148,7 @@ export default function ConnectionsScreen() {
         <Text style={styles.emptyText}>Loading…</Text>
       ) : connections.length === 0 ? (
         <Text style={styles.emptyText}>
-          No connections yet. Invite someone above, or accept an invite someone sends you to see them appear here.
+          No connections yet. Pair with someone above, in person, and they will appear here.
         </Text>
       ) : (
         connections.map((connection) => (
@@ -382,7 +259,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 14,
   },
-  primaryButtonDisabled: { opacity: 0.6 },
   primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnButton,
 
     // Dark text: cancel any shadow inherited from a base style it is
@@ -422,17 +298,6 @@ const styles = StyleSheet.create({
   // wrong, there is just a step that has not been done and should be.
   rowWarn: { ...typography.caption, color: colors.statusYellowStandalone, marginTop: 4, ...textShadow },
   partnerHint: { ...typography.caption, color: colors.textMuted, marginTop: 6, ...textShadow },
-  pasteBox: {
-    marginTop: 8, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: colors.border,
-    backgroundColor: colors.surface, gap: 8,
-  },
-  pasteLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
-  pasteInput: {
-    backgroundColor: colors.surfaceMuted, borderRadius: 10, borderWidth: 1, borderColor: colors.border,
-    paddingHorizontal: 12, paddingVertical: 10, color: colors.textPrimary, minHeight: 90, textAlignVertical: 'top',
-  },
-  pasteError: { ...typography.caption, color: colors.danger, ...textShadow },
-  pasteActions: { flexDirection: 'row', gap: 10 },
   secondaryButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
     backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,

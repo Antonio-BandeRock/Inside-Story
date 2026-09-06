@@ -23,10 +23,9 @@
 // by living in a second table: your sister can be both, and two tables would
 // guarantee her key goes stale in one of them. See lib/partners.ts for what a
 // partner link actually means and for every rule about what may cross.
-import * as Linking from 'expo-linking';
 import { getDatabase, getUserConditions, getUserProfile } from './db';
 import { getDeviceIdentity } from './deviceIdentity';
-import { decodeBase64Utf8, encodeBase64Utf8, writeRawIsFile } from './sharing';
+import { decodeBase64Utf8, encodeBase64Utf8 } from './sharing';
 import { defaultGrantsForRole, type ConnectionRole, type ShareGrants } from './partners';
 
 export type Connection = {
@@ -376,9 +375,6 @@ export async function buildPartnerInvite(options: {
 // comparison, which is required for a partner.
 export const CONNECTION_INVITE_FILE_KIND = 'connection-invite';
 
-export async function writeConnectionInviteIsFile(invite: ConnectionInvite): Promise<string | null> {
-  return writeRawIsFile({ kind: CONNECTION_INVITE_FILE_KIND, v: 1, invite });
-}
 
 /**
  * Reads a connection invite back out of a .is file's parsed contents.
@@ -472,22 +468,7 @@ export function parseInviteInput(raw: string): string | null {
   return null;
 }
 
-export async function buildPartnerInviteLink(options: {
-  grants: ShareGrants;
-  alreadyHaveYou?: boolean;
-}): Promise<string> {
-  const invite = await buildPartnerInvite(options);
-  return Linking.createURL('/connect', { queryParams: { data: encodeBase64Utf8(JSON.stringify(invite)) } });
-}
 
-// A real hashimotosapp://connect deep link, reusing the exact same
-// base64-JSON-in-a-query-param shape lib/sharing.ts already established
-// for recipe sharing (encodeBase64Utf8, exported from there specifically
-// for this reuse rather than duplicated a third time).
-export async function buildConnectionInviteLink(): Promise<string> {
-  const invite = await buildConnectionInvite();
-  return Linking.createURL('/connect', { queryParams: { data: encodeBase64Utf8(JSON.stringify(invite)) } });
-}
 
 // Defensive parse -- never trusts a received invite's own shape blindly,
 // the same discipline every other real "external input" boundary in this

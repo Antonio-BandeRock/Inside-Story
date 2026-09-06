@@ -509,6 +509,20 @@ export default function RootLayout() {
                   headerTintColor: colors.textPrimary,
                 }}
               />
+              {/* QR pairing, 2026-09-06. The only route in now: a deep link
+                  is not tappable in a messaging app, and a .is file tapped in
+                  WhatsApp fails before this app is ever reached. A code on
+                  one screen and a camera on the other is the one channel this
+                  app owns end to end. */}
+              <Stack.Screen
+                name="pair"
+                options={{
+                  headerShown: true,
+                  title: 'Pair',
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
               {/* 2026-08-16, the real barcode-scanning feature -- reached from
                   Food's own "My Foods" hub. Themed the same as every other
                   Stack screen. */}

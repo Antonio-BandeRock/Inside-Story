@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.36',
+    date: '2026-09-06',
+    changes: [
+      'Connecting two phones now works by scanning a code, in person. One of you shows a code on screen, the other reads it with the camera. Nothing to tap, nothing to type, nothing to paste.',
+      'In Profile then Connections: Pair With a Partner, Pair for Sharing Recipes, or Scan Their Code.',
+      'The old ways of sending an invite are gone, because none of them arrived. A link was not tappable in a messaging app, and a file failed to open before this app was ever reached. Offering something that does not work is worse than not offering it.',
+      'The catch, said plainly: you both need to be in the same room. Pairing with someone far away needs work that is not built yet.',
+    ],
+  },
+  {
     version: '1.0.34.35',
     date: '2026-09-06',
     changes: [

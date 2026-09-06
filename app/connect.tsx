@@ -18,17 +18,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import {
   addConnection,
-  buildConnectionInviteLink,
-  buildConnectionInvite,
-  buildPartnerInvite,
-  buildPartnerInviteLink,
-  encodeInviteCode,
   decodeConnectionInvite,
   getConnectionByPublicKey,
   markFingerprintVerified,
@@ -56,7 +51,6 @@ export default function ConnectScreen() {
   const [status, setStatus] = useState<Status>('checking');
   const [existingConnectionName, setExistingConnectionName] = useState<string | null>(null);
   const [existingConnectionId, setExistingConnectionId] = useState<string | null>(null);
-  const [sendingInviteBack, setSendingInviteBack] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fingerprintChecked, setFingerprintChecked] = useState(false);
   const [updatedExisting, setUpdatedExisting] = useState(false);
@@ -154,36 +148,6 @@ export default function ConnectScreen() {
     }
   }
 
-  async function handleSendInviteBack() {
-    setSendingInviteBack(true);
-    try {
-      // alreadyHaveYou is true because reaching this point means the accept
-      // above has already saved them. That one flag is the whole mutual-link
-      // mechanism, and it stays inside the existing symmetric payload rather
-      // than introducing a second message type.
-      const link = isPartnerInvite
-        ? await buildPartnerInviteLink({ grants, alreadyHaveYou: true })
-        : await buildConnectionInviteLink();
-      const fromName = invite?.fromName ?? 'them';
-      // The code, and only the code: the one of the three routes that has
-      // actually been shown to reach the other phone.
-      const outgoing = isPartnerInvite
-        ? await buildPartnerInvite({ grants, alreadyHaveYou: true })
-        : await buildConnectionInvite();
-      const code = encodeInviteCode(outgoing);
-      await Share.share({
-        message:
-          `Here is my Inside Story invite back to you, ${fromName}, to finish connecting us.\n\n` +
-          `In Inside Story, go to Profile, then Connections, then "I Was Sent an Invite" and paste this in:\n\n` +
-          `${code}\n\n` +
-          `(If tapping this link happens to work on your phone, that does the same thing: ${link})`,
-      });
-    } catch (error) {
-      console.error('[ConnectScreen] Failed to share invite back', error);
-    } finally {
-      setSendingInviteBack(false);
-    }
-  }
 
   if (!invite) {
     return (
@@ -280,17 +244,30 @@ export default function ConnectScreen() {
           </Text>
           {isPartnerInvite ? (
             <Text style={styles.text}>
-              Send them a link back even if they have added you: it is what tells their phone the link is
+              Show them your code even if they have added you: it is what tells their phone the link is
               finished, and it carries what you chose to share.
             </Text>
           ) : null}
+          {/* Straight back into the pairing screen with ack set, so their
+              phone reads the one flag that makes the link mutual. They are
+              already standing next to you, which is the whole reason this
+              exchange is a camera and not a message. */}
           <TouchableOpacity
-            style={[styles.primaryButton, sendingInviteBack ? styles.primaryButtonDisabled : null]}
+            style={styles.primaryButton}
             activeOpacity={0.85}
-            onPress={handleSendInviteBack}
-            disabled={sendingInviteBack}
+            onPress={() =>
+              router.replace({
+                pathname: '/pair',
+                params: {
+                  role: isPartnerInvite ? 'partner' : 'recipe',
+                  mode: 'show',
+                  ack: '1',
+                  theirName: invite.fromName,
+                },
+              })
+            }
           >
-            <Text style={styles.primaryButtonText}>{sendingInviteBack ? 'Preparing…' : `Send Your Invite Back to ${invite.fromName}`}</Text>
+            <Text style={styles.primaryButtonText}>Show Your Code to {invite.fromName}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.secondaryButton, styles.doneButton]}
