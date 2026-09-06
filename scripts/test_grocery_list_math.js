@@ -490,6 +490,7 @@ const sampleItem = {
   unitLabelPlural: 'stalks',
   gramsPerUnit: 148,
   purchaseForm: 'count',
+  foodId: '1234',
 };
 const lineValues = scheduleLineValues('item_1', 'list_1', 'Veg', sampleItem, 2, 0);
 const valueFor = (column) => lineValues[lineColumns.indexOf(column)];
@@ -514,6 +515,19 @@ check('extra amounts scale by the same head count', JSON.parse(valueFor('extra_a
 check('meal names are carried through', JSON.parse(valueFor('meal_names_json')), ['Roasted Vegetables']);
 check('sort order is carried through', valueFor('sort_order'), 0);
 check('the list id lands in list_id', valueFor('list_id'), 'list_1');
+
+// 2026-09-05. The reference row the line is, carried so anything reading a
+// grocery list can match on the FOOD rather than on its name. Held here for the
+// same reason every other column is: it is bound by position, and a transposed
+// bind is accepted by SQLite and invisible to TypeScript.
+check('food_id carries the reference row', valueFor('food_id'), '1234');
+check(
+  'and is null where the group agreed on none',
+  scheduleLineValues('item_3', 'list_1', 'Veg', { ...sampleItem, foodId: null }, 1, 2)[
+    lineColumns.indexOf('food_id')
+  ],
+  null,
+);
 
 // A food with no cited unit weight gets no count rather than a guessed one,
 // and must not leave the form field carrying the gap.

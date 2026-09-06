@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.14',
+    date: '2026-09-05',
+    changes: [
+      "Groundwork, with nothing to see yet. Your grocery list and your kitchen now remember WHICH food each line is, not just what it is called.",
+      "That matters for what comes next: a recipe drawing on what you have, and being told what you are short of, both come down to knowing that the broccoli in a recipe and the broccoli in your kitchen are the same food. On names alone that fails quietly.",
+      "It also puts back the link to the nutrition data behind each food, which a grocery line had been dropping.",
+    ],
+  },
+  {
     version: '1.0.34.13',
     date: '2026-09-05',
     changes: [

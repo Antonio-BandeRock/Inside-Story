@@ -5988,6 +5988,21 @@ async function runDatabaseInitialization() {
         -- was ticked. Kept so the screen can say where a row came from, and
         -- so a purchase can be traced back to the trip that produced it.
         source TEXT NOT NULL DEFAULT 'manual',
+        -- 2026-09-05. The reference-database row this is, where it is one.
+        --
+        -- category + food_name already carry the canonical purchasable pair
+        -- for anything that came off a grocery list, since a schedule-derived
+        -- line stores base_name (see resolvePurchasableNames), which is the
+        -- same key food_purchase_forms is itself keyed on. So matching stock
+        -- to a recipe was never as broken as a bare "name only" reading
+        -- suggests. What was genuinely missing is the link back to the food
+        -- ITSELF: nutrients, the six-dimension scores, condition relevance.
+        --
+        -- Null for something typed by hand that resolves to nothing, and for
+        -- a brand item off a barcode, which has a real panel of its own and no
+        -- USDA row. Both are legitimate, which is why this is nullable rather
+        -- than required.
+        food_id TEXT,
         grocery_item_id TEXT,
         note TEXT,
         added_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -6050,6 +6065,10 @@ async function runDatabaseInitialization() {
         -- choose that you are going to take from your harvest instead of
         -- having to purchase."
         sourced_from_kitchen INTEGER NOT NULL DEFAULT 0,
+        -- Same as kitchen_items above, and for the same reason: the line knows
+        -- WHICH food it is, and dropping that meant anything reading a grocery
+        -- list could only ever match on the name.
+        food_id TEXT,
         -- Whether the price paid was a sale price rather than the usual one.
         -- Kept because a price history without it quietly lies: one week at
         -- half price reads as a thing getting cheaper rather than as an offer.
@@ -6219,6 +6238,12 @@ async function runDatabaseInitialization() {
       }
       if (!groceryItemColumns.some((column) => column.name === 'purchase_form')) {
         await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN purchase_form TEXT;');
+      }
+      for (const column of ['food_id TEXT'] as const) {
+        const name = column.split(' ')[0];
+        if (!groceryItemColumns.some((existing) => existing.name === name)) {
+          await db.execAsync(`ALTER TABLE grocery_list_items ADD COLUMN ${column};`);
+        }
       }
       if (!groceryItemColumns.some((column) => column.name === 'sourced_from_kitchen')) {
         await db.execAsync(
@@ -12011,6 +12036,19 @@ export type ShoppingListItem = {
   // How the thing is sold, which decides which price units are worth
   // offering. A bottle of oil has no price per pound.
   purchaseForm: PurchaseForm | null;
+  // 2026-09-05. The reference row this line is, carried through rather than
+  // discarded. It was resolved a few lines above (every entry arrives with a
+  // foodId) and then thrown away at the grouping step, so a grocery line, and
+  // then anything built from one, could only ever say the food's NAME.
+  //
+  // Null where a group's entries genuinely disagree. Several prep variants of
+  // one food collapse onto a single purchasable line ("Broccoli, raw" and
+  // "Broccoli, boiled" are one head of broccoli to buy), and picking one of
+  // their ids arbitrarily would attach a specific preparation to a line that
+  // deliberately has none. The canonical category + base_name pair still
+  // identifies it in that case, which is what the purchase-forms table keys
+  // on too.
+  foodId: string | null;
 };
 
 export type ShoppingListSection = {
@@ -12185,7 +12223,13 @@ export async function getUpcomingShoppingList(daysAhead: number = 4): Promise<Sh
   // Grouped on the purchasable name alone, case-insensitively, so the same
   // food needed by four different meals in three different units comes out as
   // one line saying how much to buy in total.
-  const grouped = new Map<string, Map<string, { name: string; entries: AmountEntry[]; meals: Set<string> }>>();
+  const grouped = new Map<
+    string,
+    Map<
+      string,
+      { name: string; entries: AmountEntry[]; meals: Set<string>; foodId: string | null }
+    >
+  >();
   for (const entry of allEntries) {
     const purchasable = (entry.foodId ? purchasableNames.get(entry.foodId) : undefined) ?? entry.foodName;
     if (isNonPurchasableIngredient(purchasable)) continue;
@@ -12196,11 +12240,15 @@ export async function getUpcomingShoppingList(daysAhead: number = 4): Promise<Sh
     if (existing) {
       existing.entries.push({ quantity: entry.quantity, unit: entry.unit });
       existing.meals.add(entry.mealName);
+      // Two prep variants of one purchasable food. Neither id describes the
+      // line any more, so it keeps none.
+      if (existing.foodId !== (entry.foodId ?? null)) existing.foodId = null;
     } else {
       byName.set(key, {
         name: purchasable,
         entries: [{ quantity: entry.quantity, unit: entry.unit }],
         meals: new Set([entry.mealName]),
+        foodId: entry.foodId ?? null,
       });
     }
   }
@@ -12220,6 +12268,7 @@ export async function getUpcomingShoppingList(daysAhead: number = 4): Promise<Sh
             extraAmounts: merged.extras,
             mealNames: Array.from(group.meals),
             soldAs: form?.soldAs ?? '',
+            foodId: group.foodId,
             purchaseForm: (form?.form as PurchaseForm | undefined) ?? null,
             unitLabel: form?.unitLabel ?? '',
             unitLabelPlural: form?.unitLabelPlural ?? '',

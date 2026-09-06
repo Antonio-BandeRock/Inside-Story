@@ -45,6 +45,10 @@ export type KitchenInventoryItem = {
   quantity: number;
   unit: string;
   quantityRemaining: number;
+  // The reference row this is, where there is one. Null for a brand item, a
+  // typed entry that resolved to nothing, and a fermentation (a drink someone
+  // made is not a row in anyone's food database).
+  foodId: string | null;
   note: string | null;
   // ISO date. What makes an unverifiable amount honest: the screen can say how
   // long this has been claimed rather than presenting it as current fact.
@@ -59,13 +63,14 @@ type KitchenItemRow = {
   unit: string;
   quantityRemaining: number;
   source: string;
+  foodId: string | null;
   note: string | null;
   addedAt: string;
 };
 
 const COLUMNS = `
   id, category, food_name AS foodName, quantity, unit,
-  quantity_remaining AS quantityRemaining, source, note, added_at AS addedAt
+  quantity_remaining AS quantityRemaining, source, food_id AS foodId, note, added_at AS addedAt
 `;
 
 // Everything on hand, newest first, across all three sources.
@@ -92,6 +97,9 @@ export async function listKitchenInventory(): Promise<KitchenInventoryItem[]> {
     items.push({
       id: `garden:${harvest.id}`,
       source: 'garden',
+      // A harvest knows exactly which food it is; that is what the planting
+      // was picked as.
+      foodId: String(harvest.foodId),
       category: '',
       foodName: harvest.foodName,
       quantity: harvest.quantity,
@@ -106,6 +114,7 @@ export async function listKitchenInventory(): Promise<KitchenInventoryItem[]> {
     items.push({
       id: `fermentation:${harvest.id}`,
       source: 'fermentation',
+      foodId: null,
       category: '',
       foodName: harvest.drinkName,
       quantity: harvest.quantity,
@@ -125,14 +134,19 @@ export async function addKitchenItem(input: {
   quantity: number;
   unit: string;
   category?: string;
+  // Set when the food was picked from the reference database rather than
+  // typed. Null for a brand item or anything with no row of its own, which is
+  // a real case rather than a failure: the name and category still identify it
+  // for matching, and only the nutrient link is missing.
+  foodId?: string | null;
   note?: string | null;
 }): Promise<string> {
   const db = await getDatabase();
   const id = `kitchen_${Date.now()}`;
   const quantity = Math.max(0, input.quantity);
   await db.runAsync(
-    `INSERT INTO kitchen_items (id, category, food_name, quantity, unit, quantity_remaining, source, note)
-     VALUES (?, ?, ?, ?, ?, ?, 'manual', ?)`,
+    `INSERT INTO kitchen_items (id, category, food_name, quantity, unit, quantity_remaining, source, note, food_id)
+     VALUES (?, ?, ?, ?, ?, ?, 'manual', ?, ?)`,
     id,
     input.category?.trim() || '',
     input.foodName.trim(),
@@ -140,6 +154,7 @@ export async function addKitchenItem(input: {
     input.unit.trim(),
     quantity,
     input.note?.trim() || null,
+    input.foodId ?? null,
   );
   return id;
 }
@@ -170,6 +185,7 @@ export async function addKitchenItemFromPurchase(input: {
   groceryItemId: string;
   foodName: string;
   category: string;
+  foodId: string | null;
   quantity: number | null;
   unit: string;
 }): Promise<boolean> {
@@ -195,8 +211,8 @@ export async function addKitchenItemFromPurchase(input: {
 
   await db.runAsync(
     `INSERT INTO kitchen_items
-       (id, category, food_name, quantity, unit, quantity_remaining, source, grocery_item_id)
-     VALUES (?, ?, ?, ?, ?, ?, 'purchase', ?)`,
+       (id, category, food_name, quantity, unit, quantity_remaining, source, grocery_item_id, food_id)
+     VALUES (?, ?, ?, ?, ?, ?, 'purchase', ?, ?)`,
     `kitchen_${Date.now()}_${input.groceryItemId}`,
     input.category,
     input.foodName,
@@ -204,6 +220,7 @@ export async function addKitchenItemFromPurchase(input: {
     input.unit,
     input.quantity,
     input.groceryItemId,
+    input.foodId,
   );
   return true;
 }

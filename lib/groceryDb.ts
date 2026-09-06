@@ -88,6 +88,8 @@ export type GroceryListItemRecord = {
   // A sale price rather than the usual one. See describeSaleLabel for why the
   // distinction is kept rather than folded into the number.
   onSale: boolean;
+  // The reference row this line is, or null. See ShoppingListItem.foodId.
+  foodId: string | null;
   // Satisfied out of the kitchen rather than bought. See the column's own
   // comment in lib/db.ts for why this is separate from checked and from price.
   sourcedFromKitchen: boolean;
@@ -131,7 +133,7 @@ const GROCERY_ITEM_COLUMNS = `
   scanned_product_id AS scannedProductId, note, added_manually AS addedManually, sort_order AS sortOrder,
   extra_amounts_json AS extraAmountsJson, meal_names_json AS mealNamesJson,
   sold_as AS soldAs, approx_amount AS approxAmount, purchase_form AS purchaseForm, on_sale AS onSale,
-  sourced_from_kitchen AS sourcedFromKitchen
+  sourced_from_kitchen AS sourcedFromKitchen, food_id AS foodId
 `;
 
 function toPriceUnit(value: string | null | undefined): GroceryPriceUnit | null {
@@ -191,9 +193,9 @@ function mapGroceryItem(row: GroceryListItemRow): GroceryListItemRecord {
 // copies is what made it possible, so there is now one copy.
 export const SCHEDULE_LINE_COLUMNS =
   'id, list_id, category, food_name, unit, quantity, sort_order, extra_amounts_json, ' +
-  'meal_names_json, sold_as, approx_amount, purchase_form';
+  'meal_names_json, sold_as, approx_amount, purchase_form, food_id';
 
-export const SCHEDULE_LINE_PLACEHOLDERS = '?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?';
+export const SCHEDULE_LINE_PLACEHOLDERS = '?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?';
 
 export function scheduleLineValues(
   id: string,
@@ -234,6 +236,9 @@ export function scheduleLineValues(
       item.gramsPerUnit,
     ),
     item.purchaseForm,
+    // Which reference row this line is, where the group agreed on one. See
+    // ShoppingListItem.foodId for when it is null and why that is correct.
+    item.foodId,
   ];
 }
 
@@ -768,6 +773,14 @@ export async function repairTransposedGroceryLines(): Promise<{ corrected: numbe
   }
 }
 
+// The three levels a stock row can be found by, in order of how much they
+// actually pin down: the reference row itself, then the canonical purchasable
+// pair (category plus base_name, the same key food_purchase_forms uses), then
+// the bare name for anything with neither.
+const stockIdKey = (foodId: string | null | undefined) => (foodId ? `id:${foodId}` : null);
+const stockPairKey = (category: string, name: string) =>
+  `pair:${category.trim().toLowerCase()}|${name.trim().toLowerCase()}`;
+
 // --- What is already in the kitchen -----------------------------------------
 //
 // Gathers the three things the app knows about already having a food, and
@@ -784,18 +797,35 @@ export async function repairTransposedGroceryLines(): Promise<{ corrected: numbe
 async function loadKitchenStock(excludeListId: string): Promise<Map<string, KitchenStockEntry[]>> {
   const db = await getDatabase();
   const stock = new Map<string, KitchenStockEntry[]>();
-  const add = (name: string, entry: KitchenStockEntry) => {
-    const key = name.trim().toLowerCase();
-    if (!key) return;
-    const existing = stock.get(key);
-    if (existing) existing.push(entry);
-    else stock.set(key, [entry]);
+  // A row is filed under every key it can be found by, so a lookup succeeds at
+  // whichever level the two sides share.
+  //
+  // 2026-09-05: this used to be the name alone, which is weaker than it looks
+  // in one direction and stronger than it looks in the other. Weaker, because
+  // a food typed by hand never matches anything resolved. Stronger, because a
+  // schedule-derived line already stores base_name (see
+  // resolvePurchasableNames), the same canonical value food_purchase_forms is
+  // keyed on, so those did line up. Both levels are now used explicitly rather
+  // than one of them working by coincidence.
+  const add = (keys: (string | null | undefined)[], entry: KitchenStockEntry) => {
+    for (const raw of keys) {
+      const key = raw?.trim().toLowerCase();
+      if (!key) continue;
+      const existing = stock.get(key);
+      if (existing) {
+        // The same row can be filed under several keys; it must not be
+        // counted twice when a lookup happens to hit more than one.
+        if (!existing.some((other) => other.id === entry.id && other.source === entry.source)) existing.push(entry);
+      } else {
+        stock.set(key, [entry]);
+      }
+    }
   };
 
   // Both of these already return only what still has something left
   // (quantity_remaining > 0), drawn down as it gets used.
   for (const harvest of await listAvailableHarvests()) {
-    add(harvest.foodName, {
+    add([stockIdKey(String(harvest.foodId)), harvest.foodName], {
       id: harvest.id,
       source: 'garden',
       quantity: harvest.quantityRemaining,
@@ -804,7 +834,7 @@ async function loadKitchenStock(excludeListId: string): Promise<Map<string, Kitc
     });
   }
   for (const harvest of await listAvailableFermentationHarvests()) {
-    add(harvest.drinkName, {
+    add([harvest.drinkName], {
       id: harvest.id,
       source: 'fermentation',
       quantity: harvest.quantityRemaining,
@@ -819,7 +849,7 @@ async function loadKitchenStock(excludeListId: string): Promise<Map<string, Kitc
   for (const item of await listKitchenInventory()) {
     // Harvests are already gathered above, from their own tables.
     if (item.source !== 'manual' && item.source !== 'purchase') continue;
-    add(item.foodName, {
+    add([stockIdKey(item.foodId), stockPairKey(item.category, item.foodName), item.foodName], {
       id: item.id,
       source: 'kitchen',
       quantity: item.quantityRemaining,
@@ -844,7 +874,7 @@ async function loadKitchenStock(excludeListId: string): Promise<Map<string, Kitc
     since,
   );
   for (const row of rows) {
-    add(row.foodName, {
+    add([row.foodName], {
       // A purchase is never drawn down, so it needs no addressable row.
       id: '',
       source: 'purchase',
@@ -875,7 +905,10 @@ export async function getKitchenCoverageForItems(
   const today = new Date().toISOString().slice(0, 10);
   const coverage = new Map<string, KitchenCoverage>();
   for (const item of items) {
-    const entries = stock.get(item.foodName.trim().toLowerCase());
+    const entries =
+      stock.get(stockIdKey(item.foodId) ?? ' ') ??
+      stock.get(stockPairKey(item.category, item.foodName)) ??
+      stock.get(item.foodName.trim().toLowerCase());
     if (!entries || entries.length === 0) continue;
     const result = kitchenCoverageFor(item.quantity, item.unit, entries, today);
     if (result.level !== 'none') coverage.set(item.id, result);

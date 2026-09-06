@@ -295,6 +295,7 @@ export default function GroceryListScreen() {
           groceryItemId: item.id,
           foodName: item.foodName,
           category: item.category,
+          foodId: item.foodId,
           quantity: item.purchasedQuantity ?? item.quantity,
           unit: item.unit,
         });
@@ -387,6 +388,7 @@ export default function GroceryListScreen() {
           groceryItemId: item.id,
           foodName: item.foodName,
           category: item.category,
+          foodId: item.foodId,
           quantity: purchased ?? item.quantity,
           unit: item.unit,
         });
