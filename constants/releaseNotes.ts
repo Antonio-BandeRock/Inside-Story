@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.21',
+    date: '2026-09-05',
+    changes: [
+      'Income that varies is now tracked properly. Several income sources were always possible, but each held one fixed amount, so solar credits, harvest sales and side work could only ever be a number that is wrong every month.',
+      'Mark an income as varying and the amount you enter becomes a starting guess. Tag what actually arrives and the app works out what it really brings in, then tells you how far off the guess was.',
+      'The average counts months that brought in nothing, on purpose. Harvest sales that stop for the winter really do earn nothing then, and leaving those months out would turn an honest year-round figure into a flattering summer one.',
+      'A new "Where your money comes from" view shows each stream and its share. If one is most of it, the app says so, because several streams are only worth having if none of them is nearly all of it.',
+      'Two new income kinds this app is in an unusual position to track: energy sold back to the grid, and produce or goods you sold.',
+      'An income stream can point at the goal that created it, which makes "has it paid for itself yet" answerable from two measured numbers rather than a projection. It refuses to quote a rate from one or two payouts, and flags anything under a year, because solar in July is not solar in January.',
+    ],
+  },
+  {
     version: '1.0.34.20',
     date: '2026-09-05',
     changes: [

@@ -4798,6 +4798,16 @@ async function runDatabaseInitialization() {
         -- is worth recording before any account exists.
         paid_from_account_id TEXT,
         paid_to_account_id TEXT,
+        -- For income that varies: solar feed-in, harvest sales, side work.
+        -- The amount above is then a guess rather than a fact, and the real
+        -- figure is measured from the receipts tagged to this row. See
+        -- lib/financeIncome.ts.
+        amount_is_estimate INTEGER NOT NULL DEFAULT 0,
+        -- The goal whose money costs created this income, where one did.
+        -- Solar panels are the case: a goal that exists to produce a
+        -- stream, which then makes "has it paid for itself" answerable
+        -- from two measured numbers rather than a projection.
+        from_goal_id TEXT,
         autopay INTEGER NOT NULL DEFAULT 0,
         active INTEGER NOT NULL DEFAULT 1,
         notes TEXT,
@@ -4823,6 +4833,9 @@ async function runDatabaseInitialization() {
         -- several money costs and the line is the only level at which an
         -- amount means anything.
         goal_cost_id TEXT,
+        -- Which income stream this receipt belongs to, for income that
+        -- varies month to month. Points at a finance_recurring row.
+        income_stream_id TEXT,
         notes TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -6306,11 +6319,31 @@ async function runDatabaseInitialization() {
       // expense here (the Set Aside category group), so "put $200 by for
       // it" tags correctly without needing income to.
       ['finance_entries', 'goal_cost_id'],
+      // Income streams that vary, 2026-09-05. Several income rows were
+      // always possible, but each stored one fixed amount, so solar
+      // feed-in, harvest sales and side work could only be represented by
+      // a number that is wrong every month. These three columns let the
+      // amount be marked a guess, let receipts be attached to the stream
+      // they belong to, and let a stream point back at the goal that
+      // created it.
+      ['finance_recurring', 'from_goal_id'],
+      ['finance_entries', 'income_stream_id'],
     ] as const) {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (columns.length > 0 && !columns.some((entry) => entry.name === column)) {
         await db.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} TEXT;`);
       }
+    }
+
+    // amount_is_estimate is deliberately NOT in the loop above, which adds
+    // every column as TEXT. It is INTEGER in the CREATE TABLE, and a
+    // mismatch here is not harmless: SQLite would hand back the string "1"
+    // on a device that already had this table while a fresh install
+    // returned the number 1, so a plain === 1 check would pass on one and
+    // fail on the other.
+    const recurringColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(finance_recurring)');
+    if (recurringColumns.length > 0 && !recurringColumns.some((column) => column.name === 'amount_is_estimate')) {
+      await db.execAsync('ALTER TABLE finance_recurring ADD COLUMN amount_is_estimate INTEGER NOT NULL DEFAULT 0;');
     }
 
     // The Grocery List's own two later columns, 2026-09-01. The table shipped

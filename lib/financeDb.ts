@@ -53,6 +53,11 @@ export type FinanceRecurringRecord = {
   // it pays toward. Null until someone says, which is most of the time.
   paidFromAccountId: string | null;
   paidToAccountId: string | null;
+  /** Income only: the amount above is a guess, and the real figure comes
+   *  from receipts tagged to this stream. */
+  amountIsEstimate: boolean;
+  /** The goal whose money costs created this income stream, if one did. */
+  fromGoalId: string | null;
 };
 
 export type FinanceEntryRecord = {
@@ -66,6 +71,8 @@ export type FinanceEntryRecord = {
   paidFromAccountId: string | null;
   /** A goal cost line this spending counts toward. Expenses only. */
   goalCostId: string | null;
+  /** The income stream this receipt belongs to. Income only. */
+  incomeStreamId: string | null;
 };
 
 // --- Recurring: the bills and income that repeat ---------------------------
@@ -80,6 +87,8 @@ export async function createRecurring(input: {
   notes?: string;
   paidFromAccountId?: string | null;
   paidToAccountId?: string | null;
+  amountIsEstimate?: boolean;
+  fromGoalId?: string | null;
 }): Promise<string> {
   const db = await getDatabase();
   const id = `fin_rec_${Date.now()}`;
@@ -88,8 +97,9 @@ export async function createRecurring(input: {
     `
       INSERT INTO finance_recurring
         (id, direction, name, category, amount, cadence, due_rule_json, autopay, active, notes,
-         paid_from_account_id, paid_to_account_id, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?)
+         paid_from_account_id, paid_to_account_id, amount_is_estimate, from_goal_id,
+         created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.direction,
@@ -102,6 +112,10 @@ export async function createRecurring(input: {
     input.notes?.trim() || null,
     input.paidFromAccountId ?? null,
     input.paidToAccountId ?? null,
+    // Only income can be an estimate. An expense with a variable amount is
+    // a different thing and has no receipts to measure against.
+    input.direction === 'income' && input.amountIsEstimate ? 1 : 0,
+    input.direction === 'income' ? input.fromGoalId ?? null : null,
     now,
     now,
   );
@@ -120,6 +134,8 @@ export async function updateRecurring(
     notes?: string;
     paidFromAccountId?: string | null;
     paidToAccountId?: string | null;
+    amountIsEstimate?: boolean;
+    fromGoalId?: string | null;
   },
 ): Promise<void> {
   const db = await getDatabase();
@@ -128,7 +144,8 @@ export async function updateRecurring(
       UPDATE finance_recurring
       SET direction = ?, name = ?, category = ?, amount = ?, cadence = ?,
           due_rule_json = ?, autopay = ?, notes = ?,
-          paid_from_account_id = ?, paid_to_account_id = ?, updated_at = ?
+          paid_from_account_id = ?, paid_to_account_id = ?,
+          amount_is_estimate = ?, from_goal_id = ?, updated_at = ?
       WHERE id = ?
     `,
     input.direction,
@@ -141,6 +158,8 @@ export async function updateRecurring(
     input.notes?.trim() || null,
     input.paidFromAccountId ?? null,
     input.paidToAccountId ?? null,
+    input.direction === 'income' && input.amountIsEstimate ? 1 : 0,
+    input.direction === 'income' ? input.fromGoalId ?? null : null,
     new Date().toISOString(),
     id,
   );
@@ -181,12 +200,16 @@ export async function listRecurring(): Promise<FinanceRecurringRecord[]> {
     notes: string | null;
     paidFromAccountId: string | null;
     paidToAccountId: string | null;
+    amountIsEstimate: number;
+    fromGoalId: string | null;
   }>(
     `
       SELECT id, direction, name, category, amount, cadence,
              due_rule_json AS dueRuleJson, autopay, active, notes,
              paid_from_account_id AS paidFromAccountId,
-             paid_to_account_id AS paidToAccountId
+             paid_to_account_id AS paidToAccountId,
+             amount_is_estimate AS amountIsEstimate,
+             from_goal_id AS fromGoalId
       FROM finance_recurring
       ORDER BY direction DESC, active DESC, amount DESC
     `,
@@ -208,8 +231,39 @@ export async function listRecurring(): Promise<FinanceRecurringRecord[]> {
       notes: row.notes,
       paidFromAccountId: row.paidFromAccountId,
       paidToAccountId: row.paidToAccountId,
+      // Compared loosely on purpose: a device that gained this column
+      // before it was split out of the generic TEXT migration could hold
+      // the string "1" rather than the number.
+      amountIsEstimate: Number(row.amountIsEstimate) === 1,
+      fromGoalId: row.fromGoalId,
     };
   });
+}
+
+// --- Income streams: what actually arrived ---------------------------------
+
+/**
+ * Receipts grouped by the income stream they were tagged to.
+ *
+ * Read where they already live rather than copied onto the stream, so
+ * correcting a receipt corrects every figure built on it. Income only, since
+ * an expense tagged to a stream would be nonsense.
+ */
+export async function getIncomeReceiptsByStream(): Promise<Record<string, { occurredOn: string; amount: number }[]>> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ streamId: string; occurredOn: string; amount: number }>(
+    `
+      SELECT income_stream_id AS streamId, occurred_on AS occurredOn, amount
+      FROM finance_entries
+      WHERE income_stream_id IS NOT NULL AND direction = 'income'
+      ORDER BY occurred_on
+    `,
+  );
+  const byStream: Record<string, { occurredOn: string; amount: number }[]> = {};
+  for (const row of rows) {
+    (byStream[row.streamId] ??= []).push({ occurredOn: row.occurredOn, amount: row.amount });
+  }
+  return byStream;
 }
 
 // --- Entries: what actually happened ---------------------------------------
@@ -223,6 +277,7 @@ export async function createEntry(input: {
   notes?: string;
   paidFromAccountId?: string | null;
   goalCostId?: string | null;
+  incomeStreamId?: string | null;
 }): Promise<string> {
   const db = await getDatabase();
   const id = `fin_ent_${Date.now()}`;
@@ -231,8 +286,8 @@ export async function createEntry(input: {
     `
       INSERT INTO finance_entries
         (id, occurred_on, direction, amount, category, description, notes,
-         paid_from_account_id, goal_cost_id, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         paid_from_account_id, goal_cost_id, income_stream_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.occurredOn,
@@ -245,6 +300,9 @@ export async function createEntry(input: {
     // An income entry never carries a goal tag, enforced here rather than
     // trusted from the form: only money that went OUT can advance a cost.
     input.direction === 'expense' ? input.goalCostId ?? null : null,
+    // The mirror of the goal tag: a receipt belongs to an income stream, and
+    // an expense never does.
+    input.direction === 'income' ? input.incomeStreamId ?? null : null,
     now,
     now,
   );
@@ -264,7 +322,8 @@ export async function listEntries(filters: { month?: string; limit?: number } = 
   const rows = await db.getAllAsync<FinanceEntryRecord>(
     `
       SELECT id, occurred_on AS occurredOn, direction, amount, category, description, notes,
-             paid_from_account_id AS paidFromAccountId, goal_cost_id AS goalCostId
+             paid_from_account_id AS paidFromAccountId, goal_cost_id AS goalCostId,
+             income_stream_id AS incomeStreamId
       FROM finance_entries
       ${where}
       ORDER BY occurred_on DESC, created_at DESC

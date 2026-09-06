@@ -61,11 +61,21 @@ import {
 } from '../../lib/financeAccountsDb';
 import { listGoalCostOptions, type GoalCostOption } from '../../lib/financeGoalsDb';
 import {
+  buildIncomeMix,
+  checkEstimate,
+  describeEstimateCheck,
+  describeIncomeMix,
+  describeIncomeStream,
+  incomeStreamStats,
+  type StreamRollup,
+} from '../../lib/financeIncome';
+import {
   createEntry,
   createRecurring,
   deleteEntry,
   deleteRecurring,
   getFinanceMonth,
+  getIncomeReceiptsByStream,
   setRecurringActive,
   updateRecurring,
   type FinanceEntryRecord,
@@ -273,6 +283,8 @@ type RecurringForm = {
   // it pays down. Empty string means not linked, which is the default.
   paidFromAccountId: string;
   paidToAccountId: string;
+  /** Income only: this varies, so the amount is a starting guess. */
+  amountIsEstimate: boolean;
 };
 
 function blankRecurringForm(): RecurringForm {
@@ -293,6 +305,7 @@ function blankRecurringForm(): RecurringForm {
     notes: '',
     paidFromAccountId: '',
     paidToAccountId: '',
+    amountIsEstimate: false,
   };
 }
 
@@ -368,14 +381,14 @@ function formFromRule(rule: DueRule | null, base: RecurringForm): RecurringForm 
 
 type EntryForm = {
   occurredOn: string; direction: FinanceDirection; amount: string; category: string;
-  description: string; paidFromAccountId: string;
+  description: string; paidFromAccountId: string; incomeStreamId: string;
   /** A goal cost line this counts toward. Empty means none, and expenses
    *  only: income tagged to a goal would be earmarking, not progress. */
   goalCostId: string;
 };
 
 function blankEntryForm(): EntryForm {
-  return { occurredOn: todayLocal(), direction: 'expense', amount: '', category: 'dining_out', description: '', paidFromAccountId: '', goalCostId: '' };
+  return { occurredOn: todayLocal(), direction: 'expense', amount: '', category: 'dining_out', description: '', paidFromAccountId: '', goalCostId: '', incomeStreamId: '' };
 }
 
 export default function LifeScreen() {
@@ -403,6 +416,7 @@ export default function LifeScreen() {
   const [budgets, setBudgets] = useState<BudgetRecord[]>([]);
   const [accountList, setAccountList] = useState<AccountRecord[]>([]);
   const [goalCosts, setGoalCosts] = useState<GoalCostOption[]>([]);
+  const [receiptsByStream, setReceiptsByStream] = useState<Record<string, { occurredOn: string; amount: number }[]>>({});
   const [budgetForm, setBudgetForm] = useState<{ category: string; limit: string } | null>(null);
   const autoOpenLensHub = useAutoOpenLensHubSignal();
 
@@ -410,9 +424,12 @@ export default function LifeScreen() {
 
   const load = useCallback(() => {
     setLoading(true);
-    Promise.all([getFinanceMonth(month), listBudgets(), listAccounts(), listGoalCostOptions()])
-      .then(([data, budgetRows, accountRows, goalCostRows]) => {
+    Promise.all([
+      getFinanceMonth(month), listBudgets(), listAccounts(), listGoalCostOptions(), getIncomeReceiptsByStream(),
+    ])
+      .then(([data, budgetRows, accountRows, goalCostRows, receiptRows]) => {
         setGoalCosts(goalCostRows);
+        setReceiptsByStream(receiptRows);
         setRecurring(data.recurring);
         setEntries(data.entries);
         setTracked(data.tracked);
@@ -442,6 +459,27 @@ export default function LifeScreen() {
     [month, recurringItems, entries, tracked],
   );
   const soon = useMemo(() => upcomingBills(recurringItems, todayLocal(), UPCOMING_WINDOW_DAYS), [recurringItems]);
+
+  // What each income stream is actually worth per month. A stream marked as
+  // varying uses the figure measured from its receipts where there are any,
+  // because that is a fact and the typed amount is a guess. Everything else
+  // uses its own monthly-equivalent from the due rule.
+  const incomeMix = useMemo(() => {
+    const rollups: StreamRollup[] = recurring
+      .filter((row) => row.direction === 'income' && row.active)
+      .map((row) => {
+        const stats = incomeStreamStats(receiptsByStream[row.id] ?? []);
+        const typed = itemMonthly({ ...row });
+        return {
+          name: row.name,
+          category: row.category,
+          monthly: row.amountIsEstimate && stats ? stats.averagePerMonth : typed,
+          isMeasured: row.amountIsEstimate && stats !== null,
+          isEstimate: row.amountIsEstimate,
+        };
+      });
+    return buildIncomeMix(rollups);
+  }, [recurring, receiptsByStream]);
 
   // A limit is measured against what has actually been recorded, and what
   // repeating bills already commit is shown beside it rather than added to
@@ -508,6 +546,13 @@ export default function LifeScreen() {
     [accountList],
   );
 
+  // Only streams marked as varying can receive a receipt. A fixed
+  // paycheck has nothing to measure: its amount is already the fact.
+  const variableIncomeStreams = useMemo(
+    () => recurring.filter((row) => row.direction === 'income' && row.active && row.amountIsEstimate),
+    [recurring],
+  );
+
   function openAddRecurring(direction: FinanceDirection) {
     setRecurringForm({ ...blankRecurringForm(), direction, category: direction === 'income' ? 'wages' : 'housing' });
     setEntryForm(null);
@@ -525,6 +570,7 @@ export default function LifeScreen() {
         notes: row.notes ?? '',
         paidFromAccountId: row.paidFromAccountId ?? '',
         paidToAccountId: row.paidToAccountId ?? '',
+        amountIsEstimate: row.amountIsEstimate,
       }),
     );
     setEntryForm(null);
@@ -562,6 +608,7 @@ export default function LifeScreen() {
         notes: form.notes,
         paidFromAccountId: form.paidFromAccountId || null,
         paidToAccountId: form.paidToAccountId || null,
+        amountIsEstimate: form.amountIsEstimate,
       };
       if (form.editingId) await updateRecurring(form.editingId, payload);
       else await createRecurring(payload);
@@ -593,6 +640,7 @@ export default function LifeScreen() {
         description: form.description,
         paidFromAccountId: form.paidFromAccountId || null,
         goalCostId: form.goalCostId || null,
+        incomeStreamId: form.incomeStreamId || null,
       });
       setEntryForm(null);
       load();
@@ -737,10 +785,31 @@ export default function LifeScreen() {
         {recurringForm ? renderRecurringForm() : null}
 
         {income.length > 0 ? (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Coming in</Text>
-            {income.map((row) => renderRecurringRow(row))}
-          </View>
+          <>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Where your money comes from</Text>
+              <Text style={styles.bodyText}>{describeIncomeMix(incomeMix)}</Text>
+              {incomeMix.streams.map((entry) => (
+                <View key={entry.name} style={styles.barRow}>
+                  <View style={styles.barLabelRow}>
+                    <Text style={styles.barLabel}>
+                      {entry.name}
+                      {entry.isMeasured ? '' : entry.isEstimate ? ' · still a guess' : ''}
+                    </Text>
+                    <Text style={styles.barValue}>{formatFinanceMoney(entry.monthly)}</Text>
+                  </View>
+                  <View style={styles.barTrack}>
+                    <View style={[styles.barFill, { width: `${Math.max(2, Math.round(entry.share * 100))}%` }]} />
+                  </View>
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Coming in</Text>
+              {income.map((row) => renderRecurringRow(row))}
+            </View>
+          </>
         ) : null}
 
         {expenses.length > 0 ? (
@@ -776,6 +845,19 @@ export default function LifeScreen() {
             {row.rule ? ` · ${describeDueRuleShort(row.rule)}` : ''}
           </Text>
           {row.rule ? <Text style={styles.listMeta}>{describeDueRule(row.rule)}</Text> : null}
+          {row.direction === 'income' && row.amountIsEstimate ? (() => {
+            const stats = incomeStreamStats(receiptsByStream[row.id] ?? []);
+            const estimate = checkEstimate(row.amount, stats);
+            const estimateText = describeEstimateCheck(estimate);
+            return (
+              <>
+                <Text style={styles.listMeta}>{describeIncomeStream(stats)}</Text>
+                {estimateText ? (
+                  <Text style={[styles.listMeta, estimate?.wayOff && styles.listNeedsSetup]}>{estimateText}</Text>
+                ) : null}
+              </>
+            );
+          })() : null}
           {!row.rule && row.active ? (
             <Text style={styles.listNeedsSetup}>Needs a due date before it can show under Coming Up.</Text>
           ) : null}
@@ -862,6 +944,25 @@ export default function LifeScreen() {
           value={form.amount}
           onChangeText={(text) => setRecurringForm({ ...form, amount: text })}
         />
+
+        {form.direction === 'income' ? (
+          <>
+            <TouchableOpacity
+              style={styles.checkRow}
+              onPress={() => setRecurringForm({ ...form, amountIsEstimate: !form.amountIsEstimate })}
+            >
+              <View style={[styles.checkBox, form.amountIsEstimate && styles.checkBoxOn]}>
+                {form.amountIsEstimate ? <Text style={styles.checkMark}>{'✓'}</Text> : null}
+              </View>
+              <Text style={styles.checkLabel}>This amount varies month to month</Text>
+            </TouchableOpacity>
+            <Text style={styles.helperText}>
+              For solar credits, harvest sales, side work, anything that is never the same twice. The amount above
+              becomes a starting guess, and once you record what actually arrives the app works out the real figure and
+              tells you how far off the guess was.
+            </Text>
+          </>
+        ) : null}
 
         <Text style={styles.label}>How often</Text>
         <PopoverSelect
@@ -1071,6 +1172,8 @@ export default function LifeScreen() {
                   // Income cannot advance a goal cost, so switching over
                   // drops the tag rather than leaving it set but ignored.
                   goalCostId: value === 'income' ? '' : entryForm.goalCostId,
+                  // The mirror: an expense never belongs to an income stream.
+                  incomeStreamId: value === 'expense' ? '' : entryForm.incomeStreamId,
                 })
               }
               tabColor={TAB_COLOR}
@@ -1106,6 +1209,26 @@ export default function LifeScreen() {
                 <Text style={styles.pillTextSmall}>Today</Text>
               </TouchableOpacity>
             </View>
+
+            {entryForm.direction === 'income' && variableIncomeStreams.length > 0 ? (
+              <>
+                <Text style={styles.label}>Which income stream (optional)</Text>
+                <PopoverSelect
+                  options={[
+                    { label: 'Not part of a stream', value: '' },
+                    ...variableIncomeStreams.map((row) => ({ label: row.name, value: row.id })),
+                  ]}
+                  selected={entryForm.incomeStreamId}
+                  onSelect={(value) => setEntryForm({ ...entryForm, incomeStreamId: value })}
+                  tabColor={TAB_COLOR}
+                  searchable
+                />
+                <Text style={styles.helperText}>
+                  Only streams you marked as varying appear here. Tagging what arrives is what lets the app measure what
+                  one actually brings in rather than trusting the figure you first guessed.
+                </Text>
+              </>
+            ) : null}
 
             {entryForm.direction === 'expense' && goalCosts.length > 0 ? (
               <>
@@ -1584,6 +1707,23 @@ const styles = StyleSheet.create({
   previewText: { ...typography.body, color: colors.textPrimary, ...textShadow },
   listNeedsSetup: { ...typography.caption, color: colors.statusYellowStandalone, marginTop: 2, ...textShadow },
   inlineRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+
+  // The same checkbox row shape the Food builders already use for their own
+  // "Also save as a Favorite", rather than a second look for the same
+  // control.
+  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14 },
+  checkBox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkBoxOn: { backgroundColor: TAB_COLOR },
+  checkMark: { ...typography.caption, color: colors.textOnPrimary, textShadowColor: 'transparent', textShadowRadius: 0 },
+  checkLabel: { ...typography.body, color: colors.textPrimary, flex: 1, ...textShadow },
 
   statRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingVertical: 4, gap: 12 },
   statLabel: { ...typography.body, color: colors.textSecondary, flex: 1, ...textShadow },

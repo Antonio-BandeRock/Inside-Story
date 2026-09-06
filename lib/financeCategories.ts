@@ -131,6 +131,13 @@ export const FINANCE_INCOME_CATEGORIES: FinanceCategoryDefinition[] = [
   { code: 'pension', label: 'Pension or retirement income', group: 'other' },
   { code: 'support', label: 'Child support or alimony', group: 'other' },
   { code: 'investment', label: 'Investment or rental income', group: 'other' },
+  // Two kinds this app is in an unusual position to track, added
+  // 2026-09-05. Both are income from something the household already owns
+  // or grows producing more than it needs, and both vary month to month,
+  // which is why they are their own categories rather than being filed
+  // under Investment or Something else where a trend could not be seen.
+  { code: 'energy_sold', label: 'Energy sold back to the grid', group: 'other' },
+  { code: 'goods_sold', label: 'Produce or goods you sold', group: 'other' },
   { code: 'other_income', label: 'Something else', group: 'other' },
 ];
 
