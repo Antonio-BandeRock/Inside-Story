@@ -4933,6 +4933,13 @@ async function runDatabaseInitialization() {
         amount REAL,
         -- The income stream a sale belongs to, where it belongs to one.
         income_stream_id TEXT,
+        -- Gifts only, 2026-09-05: 'person' or 'organization'. Not a fourth
+        -- disposition kind, because what HAPPENED is identical either way
+        -- (the goods left, nothing came back) and only who received them
+        -- differs. See lib/harvestTrade.ts for why, and for the verified note
+        -- on why donated home produce is worth almost nothing as a deduction.
+        recipient_kind TEXT,
+        receipt_given INTEGER NOT NULL DEFAULT 0,
         notes TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
@@ -6389,11 +6396,22 @@ async function runDatabaseInitialization() {
       // created it.
       ['finance_recurring', 'from_goal_id'],
       ['finance_entries', 'income_stream_id'],
+      // Donations, 2026-09-05. harvest_dispositions shipped hours earlier in
+      // 1.0.34.22, so a device can already have the table without these.
+      ['harvest_dispositions', 'recipient_kind'],
     ] as const) {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (columns.length > 0 && !columns.some((entry) => entry.name === column)) {
         await db.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} TEXT;`);
       }
+    }
+
+    // receipt_given is INTEGER, so like amount_is_estimate below it stays out
+    // of the loop above, which adds every column as TEXT. Same trap: the
+    // string "1" on an upgraded device against the number 1 on a fresh one.
+    const dispositionColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(harvest_dispositions)');
+    if (dispositionColumns.length > 0 && !dispositionColumns.some((column) => column.name === 'receipt_given')) {
+      await db.execAsync('ALTER TABLE harvest_dispositions ADD COLUMN receipt_given INTEGER NOT NULL DEFAULT 0;');
     }
 
     // amount_is_estimate is deliberately NOT in the loop above, which adds

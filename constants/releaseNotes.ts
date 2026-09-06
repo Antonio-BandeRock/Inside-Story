@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.23',
+    date: '2026-09-05',
+    changes: [
+      'Giving produce away now records who got it: someone you know, or a food bank or charity. For an organisation you can note whether they gave you a receipt.',
+      'It is not a separate kind of thing from giving it away, because what happened is the same either way. Only who received it differs, and that is the part worth keeping.',
+      'One thing worth knowing before you assume a deduction, and it goes the opposite way to what most people expect: home-grown produce counts as ordinary income property, so the deduction is limited to what it COST you, not what it is worth. For a garden that is seed, water and compost, so the figure is close to nothing however much you gave.',
+      'The app deliberately puts no number on that. It keeps the record instead: what went where, when, and whether you have a receipt.',
+      'Money you give is already tracked under Gifts and giving. It is reported alongside the produce but never added to it, because there is no honest way to turn vegetables into dollars.',
+    ],
+  },
+  {
     version: '1.0.34.22',
     date: '2026-09-05',
     changes: [

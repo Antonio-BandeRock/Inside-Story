@@ -50,6 +50,23 @@
 
 export type DispositionKind = 'sold' | 'traded' | 'given';
 
+// Who received it, 2026-09-05, from "Are we accounting for donations? They
+// might just be giving excess from the garden to someone."
+//
+// A donation is NOT a fourth disposition. What happened is the same in both
+// cases: the goods left and nothing came back. What differs is who received
+// them, and a fourth kind would force an ambiguous choice between "gave away"
+// and "donated" for something like a church food drive.
+//
+// The distinction earns its place for one reason: an organization may give a
+// receipt, and a year's worth of those is worth being able to total.
+export type RecipientKind = 'person' | 'organization';
+
+export const RECIPIENT_KINDS: { code: RecipientKind; label: string; help: string }[] = [
+  { code: 'person', label: 'Someone you know', help: 'A neighbour, family, a friend.' },
+  { code: 'organization', label: 'A food bank or charity', help: 'Somewhere that might give you a receipt.' },
+];
+
 export const DISPOSITION_KINDS: { code: DispositionKind; label: string; help: string }[] = [
   { code: 'sold', label: 'Sold it', help: 'Money came in. It can count toward an income stream.' },
   { code: 'traded', label: 'Traded it', help: 'Goods came back instead of money, and go into your kitchen.' },
@@ -180,6 +197,10 @@ export type DispositionRecord = {
   /** Sales only. */
   amount: number | null;
   received: ReceivedGood[];
+  /** Gifts only: who received it, and whether they gave a receipt. Null on a
+   *  sale or a trade, where the question does not arise. */
+  recipientKind: RecipientKind | null;
+  receiptGiven: boolean;
 };
 
 export type SurplusSummary = {
@@ -269,6 +290,108 @@ export function describeSurplus(summary: SurplusSummary): string {
   if (summary.gifts > 0) {
     parts.push(`${summary.gifts} ${summary.gifts === 1 ? 'lot' : 'lots'} given away.`);
   }
+  return parts.join(' ');
+}
+
+// --- What has been given away, and the thing worth knowing about it ---------
+
+export type GivingSummary = {
+  /** Produce given away, counted per food and unit. Never one total, since
+   *  kilos of zucchini and dozens of eggs have no shared figure. */
+  goodsLots: number;
+  goodsByFood: { foodName: string; quantity: number; unit: string }[];
+  /** Of those, how many went to an organization rather than a person. */
+  toOrganizations: number;
+  /** And how many of those you have a receipt for. */
+  withReceipt: number;
+  /** Money given, which is a separate thing and is NEVER added to the above.
+   *  From ordinary spending in the Gifts and giving category. */
+  moneyGiven: number;
+};
+
+export function summarizeGiving(input: {
+  dispositions: DispositionRecord[];
+  moneyGiven: number;
+}): GivingSummary {
+  const byFood = new Map<string, { foodName: string; quantity: number; unit: string }>();
+  let goodsLots = 0;
+  let toOrganizations = 0;
+  let withReceipt = 0;
+
+  for (const record of input.dispositions) {
+    if (record.kind !== 'given') continue;
+    goodsLots += 1;
+    if (record.recipientKind === 'organization') {
+      toOrganizations += 1;
+      if (record.receiptGiven) withReceipt += 1;
+    }
+    const key = `${record.foodName.toLowerCase()}|${normalizeUnit(record.unit)}`;
+    const existing = byFood.get(key);
+    if (existing) existing.quantity += record.quantityGiven;
+    else byFood.set(key, { foodName: record.foodName, quantity: record.quantityGiven, unit: record.unit });
+  }
+
+  return {
+    goodsLots,
+    goodsByFood: [...byFood.values()].sort((a, b) => b.quantity - a.quantity),
+    toOrganizations,
+    withReceipt,
+    moneyGiven: input.moneyGiven,
+  };
+}
+
+/**
+ * What most people assume about donated produce, and what is actually true.
+ *
+ * Home-grown produce is ordinary income property: if it were sold it would
+ * produce ordinary income, not a capital gain. The deduction allowed for
+ * ordinary income property is limited to the donor's BASIS, not what the food
+ * is worth, and a home gardener's basis is seed, water and soil amendment.
+ * So a crate of tomatoes worth $60 at the market is not a $60 deduction; it is
+ * closer to nothing, and the real figure is both tiny and not something
+ * anybody can work out per tomato.
+ *
+ * Stated because the assumption runs the other way and an app that totalled up
+ * "value donated" would be actively misleading. Deliberately gives no figure
+ * and does no arithmetic: the rule is general, the reader's situation is not,
+ * and this is not tax advice.
+ *
+ * Verified 2026-09-05 against IRS guidance on donated property and ordinary
+ * income property rather than recalled. See CLAUDE.md for the sources.
+ */
+export const DONATED_PRODUCE_NOTE =
+  'Worth knowing before you assume a deduction: home-grown produce counts as ordinary income property, and the deduction for that is limited to what it COST you rather than what it is worth. For a home garden that is seed, water and compost, so the figure is close to nothing however much you gave. It also only applies if you itemise and the recipient qualifies. That is a general rule and not advice about your own situation, so this app deliberately puts no number on it. What it does keep is the record: what went where, when, and whether you were given a receipt.';
+
+export function describeGiving(summary: GivingSummary): string {
+  if (summary.goodsLots === 0 && summary.moneyGiven <= 0) {
+    return 'Nothing given away on record yet.';
+  }
+  const parts: string[] = [];
+
+  if (summary.goodsLots > 0) {
+    const items = summary.goodsByFood
+      .map((entry) => `${formatQuantity(entry.quantity, entry.unit)} of ${entry.foodName}`)
+      .join(', ');
+    parts.push(`${items}, across ${summary.goodsLots} ${summary.goodsLots === 1 ? 'lot' : 'lots'}.`);
+    if (summary.toOrganizations > 0) {
+      parts.push(
+        summary.withReceipt > 0
+          ? `${summary.toOrganizations} of those went to an organisation, and you have a receipt for ${summary.withReceipt}.`
+          : `${summary.toOrganizations} of those went to an organisation, with no receipt recorded.`,
+      );
+    }
+  }
+
+  if (summary.moneyGiven > 0) {
+    // Kept in its own sentence and never added to the produce. One is
+    // kilograms and the other is dollars, and a combined "you gave $X" would
+    // require pricing the produce, which is the invented number this file
+    // exists to refuse.
+    parts.push(
+      `Separately, ${formatTradeMoney(summary.moneyGiven)} given as money. That is not added to the produce above, because there is no honest way to turn vegetables into dollars here.`,
+    );
+  }
+
   return parts.join(' ');
 }
 

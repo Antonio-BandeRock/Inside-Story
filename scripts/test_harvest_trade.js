@@ -46,6 +46,7 @@ const {
   DISPOSITION_KINDS, dispositionLabel,
   valueReceivedGoods, describeValuation,
   summarizeSurplus, describeSurplus,
+  summarizeGiving, describeGiving, DONATED_PRODUCE_NOTE, RECIPIENT_KINDS,
   formatTradeMoney, formatQuantity,
 } = H;
 
@@ -72,7 +73,8 @@ function near(label, actual, expected, tol = 0.01) {
 const good = (over = {}) => ({ foodName: 'Corn', quantity: 8, unit: 'kg', ...over });
 const rec = (over = {}) => ({
   id: 'd1', occurredOn: '2026-09-05', kind: 'traded', foodName: 'Potato',
-  quantityGiven: 12, unit: 'kg', withWhom: null, amount: null, received: [], ...over,
+  quantityGiven: 12, unit: 'kg', withWhom: null, amount: null, received: [],
+  recipientKind: null, receiptGiven: false, ...over,
 });
 
 // --- 1. Valuing what came back, where it can be valued ----------------------
@@ -232,7 +234,99 @@ const rec = (over = {}) => ({
   checkTrue('but the trade is reported', text.includes('1 trade'));
 }
 
-// --- 4. Vocabulary and formatting -------------------------------------------
+// --- 3b. Donations, which are gifts with a recipient worth naming ----------
+
+{
+  const summary = summarizeGiving({
+    dispositions: [
+      rec({ id: 'g1', kind: 'given', foodName: 'Zucchini', quantityGiven: 6, unit: 'kg', recipientKind: 'organization', receiptGiven: true }),
+      rec({ id: 'g2', kind: 'given', foodName: 'Zucchini', quantityGiven: 4, unit: 'kg', recipientKind: 'organization', receiptGiven: false }),
+      rec({ id: 'g3', kind: 'given', foodName: 'Tomato', quantityGiven: 3, unit: 'kg', recipientKind: 'person' }),
+      // Neither of these is a gift and neither should be counted.
+      rec({ id: 's1', kind: 'sold', foodName: 'Potato', quantityGiven: 20, unit: 'kg', amount: 40 }),
+      rec({ id: 't1', kind: 'traded', foodName: 'Potato', quantityGiven: 12, unit: 'kg' }),
+    ],
+    moneyGiven: 240,
+  });
+  check('only gifts are counted', summary.goodsLots, 3);
+  check('the same food in the same unit adds up', summary.goodsByFood[0].quantity, 10);
+  check('and leads, being the largest', summary.goodsByFood[0].foodName, 'Zucchini');
+  check('two foods in total', summary.goodsByFood.length, 2);
+  check('donations to an organisation are counted apart', summary.toOrganizations, 2);
+  check('and receipts among those', summary.withReceipt, 1);
+  check('money given is carried but kept separate', summary.moneyGiven, 240);
+
+  const text = describeGiving(summary);
+  checkTrue('the produce is described in its own units', text.includes('10 kg of Zucchini'));
+  checkTrue('the organisation count is named', text.includes('2 of those'));
+  checkTrue('and the receipt count', text.includes('receipt for 1'));
+  checkTrue('money appears as its own sentence', text.includes('$240.00'));
+  checkTrue('and is explicitly not added to the produce',
+    text.includes('not added to the produce'));
+  // The produce and the money must stay in separate sentences, so no reader
+  // can come away with one figure covering both. Checked by splitting on the
+  // sentence that introduces the money and confirming the produce half holds
+  // no money at all, rather than by a fuzzy pattern.
+  const produceHalf = text.split('Separately,')[0];
+  checkTrue('the produce half quotes no money', !produceHalf.includes('$'));
+  checkTrue('and the money is introduced as separate', text.includes('Separately,'));
+}
+{
+  // A gift to a person raises no receipt question, so nothing about
+  // organisations or receipts should appear.
+  const summary = summarizeGiving({
+    dispositions: [rec({ kind: 'given', foodName: 'Kale', quantityGiven: 2, unit: 'kg', recipientKind: 'person' })],
+    moneyGiven: 0,
+  });
+  check('nothing went to an organisation', summary.toOrganizations, 0);
+  const text = describeGiving(summary);
+  checkTrue('so no organisation line', !text.includes('organisation'));
+  checkTrue('and no money line', !text.includes('$'));
+}
+{
+  const summary = summarizeGiving({ dispositions: [], moneyGiven: 0 });
+  check('nothing given', summary.goodsLots, 0);
+  checkTrue('and honest wording', describeGiving(summary).includes('Nothing given away on record yet'));
+}
+{
+  // Money only, no produce. Should read cleanly rather than as an empty
+  // produce sentence with a money figure bolted onto it.
+  const summary = summarizeGiving({ dispositions: [], moneyGiven: 100 });
+  const text = describeGiving(summary);
+  checkTrue('the money is reported', text.includes('$100.00'));
+  checkTrue('and nothing claims produce was given', !text.includes('lots'));
+}
+{
+  // Units are never merged here either. A dozen and each are not the same.
+  const summary = summarizeGiving({
+    dispositions: [
+      rec({ kind: 'given', foodName: 'Eggs', quantityGiven: 12, unit: 'each', recipientKind: 'person' }),
+      rec({ kind: 'given', foodName: 'Eggs', quantityGiven: 2, unit: 'dozen', recipientKind: 'person' }),
+    ],
+    moneyGiven: 0,
+  });
+  check('two units stay two lines', summary.goodsByFood.length, 2);
+}
+{
+  // The note is the point of the whole feature: the assumption runs the other
+  // way, and an app that totalled up "value donated" would mislead badly.
+  checkTrue('the note says the deduction is limited to cost',
+    DONATED_PRODUCE_NOTE.includes('limited to what it COST you'));
+  checkTrue('and names why that is nearly nothing for a garden',
+    DONATED_PRODUCE_NOTE.includes('seed, water and compost'));
+  checkTrue('it says itemising is required', DONATED_PRODUCE_NOTE.includes('itemise'));
+  checkTrue('it disclaims being advice', DONATED_PRODUCE_NOTE.includes('not advice'));
+  checkTrue('and states plainly that no number is given',
+    DONATED_PRODUCE_NOTE.includes('puts no number on it'));
+  // The one thing it must never do.
+  checkTrue('the note quotes no money figure of its own', !DONATED_PRODUCE_NOTE.includes('$'));
+  checkTrue('and no digits at all, so no figure can be read out of it',
+    !/[0-9]/.test(DONATED_PRODUCE_NOTE));
+}
+
+check('two kinds of recipient and no more', RECIPIENT_KINDS.length, 2);
+checkTrue('an organisation is the one that might give a receipt',
+  RECIPIENT_KINDS.find((k) => k.code === 'organization').help.includes('receipt'));
 
 check('three things can happen and no more', DISPOSITION_KINDS.length, 3);
 check('sold has a label', dispositionLabel('sold'), 'Sold it');

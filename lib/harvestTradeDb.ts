@@ -20,7 +20,7 @@
 import { getDatabase } from './db';
 import { createEntry } from './financeDb';
 import { addKitchenItem, consumeKitchenItem } from './kitchenDb';
-import type { DispositionKind, DispositionRecord, ReceivedGood, RecordedPrice } from './harvestTrade';
+import type { DispositionKind, DispositionRecord, ReceivedGood, RecipientKind, RecordedPrice } from './harvestTrade';
 
 export type RecordDispositionInput = {
   occurredOn: string;
@@ -38,6 +38,9 @@ export type RecordDispositionInput = {
   incomeStreamId?: string | null;
   /** Trades only. Each becomes a kitchen row. */
   received?: ReceivedGood[];
+  /** Gifts only. */
+  recipientKind?: RecipientKind | null;
+  receiptGiven?: boolean;
 };
 
 function sourceOf(inventoryId: string): { source: string; harvestId: string | null } {
@@ -57,8 +60,8 @@ export async function recordDisposition(input: RecordDispositionInput): Promise<
     `
       INSERT INTO harvest_dispositions
         (id, occurred_on, kind, source, harvest_id, food_name, quantity_given, unit,
-         with_whom, amount, income_stream_id, notes)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         with_whom, amount, income_stream_id, recipient_kind, receipt_given, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.occurredOn,
@@ -73,6 +76,10 @@ export async function recordDisposition(input: RecordDispositionInput): Promise<
     // for nothing, which is a different and wrong statement.
     input.kind === 'sold' ? input.amount ?? null : null,
     input.kind === 'sold' ? input.incomeStreamId ?? null : null,
+    // Only a gift has a recipient kind. A sale went to a buyer and a trade to
+    // whoever traded, and neither raises the receipt question this is for.
+    input.kind === 'given' ? input.recipientKind ?? null : null,
+    input.kind === 'given' && input.receiptGiven ? 1 : 0,
     input.notes?.trim() || null,
   );
 
@@ -143,10 +150,12 @@ export async function listDispositions(limit = 100): Promise<DispositionRecord[]
   const rows = await db.getAllAsync<{
     id: string; occurredOn: string; kind: string; foodName: string;
     quantityGiven: number; unit: string; withWhom: string | null; amount: number | null;
+    recipientKind: string | null; receiptGiven: number;
   }>(
     `
       SELECT id, occurred_on AS occurredOn, kind, food_name AS foodName,
-             quantity_given AS quantityGiven, unit, with_whom AS withWhom, amount
+             quantity_given AS quantityGiven, unit, with_whom AS withWhom, amount,
+             recipient_kind AS recipientKind, receipt_given AS receiptGiven
       FROM harvest_dispositions
       ORDER BY occurred_on DESC, rowid DESC
       LIMIT ?
@@ -185,6 +194,10 @@ export async function listDispositions(limit = 100): Promise<DispositionRecord[]
     withWhom: row.withWhom,
     amount: row.amount,
     received: byDisposition[row.id] ?? [],
+    recipientKind: (row.recipientKind as RecipientKind | null) ?? null,
+    // Number() rather than === 1, for the same reason amountIsEstimate does
+    // it: a column added by the generic TEXT migration would hand back "1".
+    receiptGiven: Number(row.receiptGiven) === 1,
   }));
 }
 
@@ -200,6 +213,27 @@ export async function listDispositions(limit = 100): Promise<DispositionRecord[]
  * "AS on" is a syntax error SQLite raises only when the statement is prepared,
  * which tsc cannot see. Verified against a scratch database.
  */
+/**
+ * Money given away, from ordinary spending in the Gifts and giving category.
+ *
+ * Its own small query rather than folded into the disposition read, because it
+ * answers a different question and comes from a different table. It is never
+ * added to the produce figures: kilos and dollars have no shared total, and
+ * combining them would require pricing the produce.
+ */
+export async function getMoneyGiven(sinceDate: string): Promise<number> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ total: number | null }>(
+    `
+      SELECT SUM(amount) AS total
+      FROM finance_entries
+      WHERE direction = 'expense' AND category = 'gifts_giving' AND occurred_on >= ?
+    `,
+    sinceDate,
+  );
+  return row?.total ?? 0;
+}
+
 export async function getLastPaidPrices(): Promise<Record<string, RecordedPrice>> {
   const db = await getDatabase();
   const rows = await db.getAllAsync<{ foodName: string; price: number; priceUnit: string; paidOn: string }>(

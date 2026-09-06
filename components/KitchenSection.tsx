@@ -42,11 +42,14 @@ import {
 } from '../lib/kitchenDb';
 import {
   DISPOSITION_KINDS,
+  DONATED_PRODUCE_NOTE,
+  RECIPIENT_KINDS,
   describeValuation,
   formatQuantity,
   valueReceivedGoods,
   type DispositionKind,
   type ReceivedGood,
+  type RecipientKind,
   type RecordedPrice,
 } from '../lib/harvestTrade';
 import { getLastPaidPrices, recordDisposition } from '../lib/harvestTradeDb';
@@ -57,6 +60,9 @@ type DispositionForm = {
   quantity: string;
   withWhom: string;
   amount: string;
+  // Gifts only: who got it, and whether they gave a receipt.
+  recipientKind: RecipientKind;
+  receiptGiven: boolean;
   // What came back, for a trade. Two rows to start, since a trade is at
   // least one thing for one thing and a second row is usually wanted.
   received: { foodName: string; quantity: string; unit: string }[];
@@ -228,6 +234,8 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
         withWhom: disposition.withWhom,
         amount,
         received,
+        recipientKind: disposition.recipientKind,
+        receiptGiven: disposition.receiptGiven,
       });
       setDisposition(null);
     });
@@ -515,6 +523,67 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                               />
                             ) : null}
 
+                            {disposition.kind === 'given' ? (
+                              <>
+                                <Text style={styles.dispositionSubtitle}>Who got it</Text>
+                                <View style={styles.actionRow}>
+                                  {RECIPIENT_KINDS.map((entry) => (
+                                    <TouchableOpacity
+                                      key={entry.code}
+                                      style={[
+                                        styles.secondaryButton,
+                                        disposition.recipientKind === entry.code && {
+                                          backgroundColor: tabColor,
+                                          borderColor: tabColor,
+                                        },
+                                      ]}
+                                      activeOpacity={0.85}
+                                      onPress={() =>
+                                        setDisposition({
+                                          ...disposition,
+                                          recipientKind: entry.code,
+                                          receiptGiven: entry.code === 'person' ? false : disposition.receiptGiven,
+                                        })
+                                      }
+                                    >
+                                      <Text
+                                        style={
+                                          disposition.recipientKind === entry.code
+                                            ? styles.smallButtonText
+                                            : styles.secondaryButtonText
+                                        }
+                                      >
+                                        {entry.label}
+                                      </Text>
+                                    </TouchableOpacity>
+                                  ))}
+                                </View>
+
+                                {disposition.recipientKind === 'organization' ? (
+                                  <>
+                                    <TouchableOpacity
+                                      style={styles.receiptRow}
+                                      activeOpacity={0.85}
+                                      onPress={() =>
+                                        setDisposition({ ...disposition, receiptGiven: !disposition.receiptGiven })
+                                      }
+                                    >
+                                      <View
+                                        style={[
+                                          styles.receiptBox,
+                                          disposition.receiptGiven && { backgroundColor: tabColor, borderColor: tabColor },
+                                        ]}
+                                      >
+                                        {disposition.receiptGiven ? <Text style={styles.smallButtonText}>{'\u2713'}</Text> : null}
+                                      </View>
+                                      <Text style={styles.receiptLabel}>They gave me a receipt</Text>
+                                    </TouchableOpacity>
+                                    <Text style={styles.itemMeta}>{DONATED_PRODUCE_NOTE}</Text>
+                                  </>
+                                ) : null}
+                              </>
+                            ) : null}
+
                             {disposition.kind === 'traded' ? (
                               <>
                                 <Text style={styles.dispositionSubtitle}>What came back</Text>
@@ -601,6 +670,8 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                                 quantity: '',
                                 withWhom: '',
                                 amount: '',
+                                recipientKind: 'person',
+                                receiptGiven: false,
                                 received: [{ foodName: '', quantity: '', unit: '' }],
                               })
                             }
@@ -682,6 +753,17 @@ const styles = StyleSheet.create({
   },
   dispositionTitle: { ...typography.bodyEmphasis, ...textShadow, color: colors.textPrimary, fontWeight: '400' },
   dispositionSubtitle: { ...typography.caption, ...textShadow, color: colors.textMuted, marginTop: 2 },
+  receiptRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 },
+  receiptBox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  receiptLabel: { ...typography.body, ...textShadow, color: colors.textPrimary, flex: 1 },
   addBlock: { gap: 8, marginTop: 4 },
   kindRow: { flexDirection: 'row', gap: 8, marginBottom: 2 },
   kindPill: {
