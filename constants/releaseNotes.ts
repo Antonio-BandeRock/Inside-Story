@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.17',
+    date: '2026-09-05',
+    changes: [
+      "Any saved dish now tells you whether you can make it, as soon as you open it. Either you have everything, or it names what you are short and by how much.",
+      "One tap puts what you are missing onto your grocery list, each line noting which dish it was for.",
+      "Those lines remember which food they are, so what you buy matches back against the recipe next time instead of relying on the name.",
+    ],
+  },
+  {
     version: '1.0.34.16',
     date: '2026-09-05',
     changes: [

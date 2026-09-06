@@ -39,6 +39,11 @@ export type MakeIngredient = {
 
 export type MakePlanLine = {
   foodName: string;
+  // Carried from the ingredient so a shortfall reaching the grocery list
+  // arrives identified rather than as a bare name, which would undo the
+  // foundation for the one path that most needs it.
+  foodId: string | null;
+  category: string | null;
   // What the dish asks for, in its own unit.
   needed: number;
   unit: string;
@@ -94,6 +99,8 @@ export function buildMakePlan(ingredients: MakeIngredient[], lookup: StockLookup
     const covered = coverage.coveredQuantity ?? 0;
     lines.push({
       foodName: ingredient.foodName,
+      foodId: ingredient.foodId,
+      category: ingredient.category,
       needed: ingredient.quantity,
       unit: ingredient.unit,
       covered,
@@ -115,11 +122,21 @@ export function buildMakePlan(ingredients: MakeIngredient[], lookup: StockLookup
 // What is still needed after the kitchen has given what it can, for putting
 // onto a grocery list. Only genuine shortfalls: a fully covered line has
 // nothing to buy.
-export function shortfallsFrom(plan: MakePlan): { foodName: string; quantity: number; unit: string }[] {
+export type Shortfall = {
+  foodName: string;
+  foodId: string | null;
+  category: string | null;
+  quantity: number;
+  unit: string;
+};
+
+export function shortfallsFrom(plan: MakePlan): Shortfall[] {
   return plan.lines
     .filter((line) => line.status !== 'full')
     .map((line) => ({
       foodName: line.foodName,
+      foodId: line.foodId,
+      category: line.category,
       quantity: Math.max(0, line.needed - line.covered),
       unit: line.unit,
     }));

@@ -419,6 +419,7 @@ export async function addGroceryListItem(
     unit?: string;
     quantity?: number;
     kind?: KitchenItemKind;
+    foodId?: string | null;
     scannedProductId?: number | null;
     price?: number | null;
     priceUnit?: GroceryPriceUnit | null;
@@ -433,8 +434,8 @@ export async function addGroceryListItem(
   );
   await db.runAsync(
     `INSERT INTO grocery_list_items
-       (id, list_id, category, food_name, unit, quantity, price, price_unit, scanned_product_id, note, added_manually, sort_order, kind)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
+       (id, list_id, category, food_name, unit, quantity, price, price_unit, scanned_product_id, note, added_manually, sort_order, kind, food_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)`,
     id,
     listId,
     input.category?.trim() || ADDED_BY_HAND_CATEGORY,
@@ -447,6 +448,7 @@ export async function addGroceryListItem(
     input.note?.trim() || null,
     (maxRow?.maxOrder ?? 0) + 1,
     input.kind ?? 'food',
+    input.foodId ?? null,
   );
   return id;
 }

@@ -736,7 +736,9 @@ const short = buildMakePlan(
 );
 check('a short line reads partial', short.lines[0].status, 'partial');
 check('it empties what was there', short.lines[0].draws[0].quantity, 200);
-check('and never invents the rest', shortfallsFrom(short), [{ foodName: 'Broccoli', quantity: 140, unit: 'g' }]);
+check('and never invents the rest', shortfallsFrom(short), [
+  { foodName: 'Broccoli', foodId: null, category: 'Veg', quantity: 140, unit: 'g' },
+]);
 check('so the plan is not fully stocked', short.fullyStocked, false);
 
 // Nothing in the kitchen at all.

@@ -9,9 +9,9 @@ import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
 import { formatGroceryAmount } from '../lib/groceryList';
-import { loadKitchenStock, stockIdKey, stockPairKey } from '../lib/groceryDb';
+import { addGroceryListItem, getActiveGroceryList, loadKitchenStock, stockIdKey, stockPairKey } from '../lib/groceryDb';
 import { applyMakePlan } from '../lib/kitchenDb';
-import { buildMakePlan, type MakeIngredient, type MakePlan } from '../lib/kitchenUsage';
+import { buildMakePlan, shortfallsFrom, type MakeIngredient, type MakePlan } from '../lib/kitchenUsage';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import {
@@ -131,6 +131,17 @@ function describeMakePlan(plan: MakePlan, servings: number): string {
   return parts.join('\n\n');
 }
 
+// One place that builds a plan, so the readout and the action can never
+// disagree about what the kitchen holds.
+async function planForIngredients(ingredients: MakeIngredient[]): Promise<MakePlan> {
+  const stock = await loadKitchenStock();
+  return buildMakePlan(ingredients, (ingredient: MakeIngredient) =>
+    stock.get(stockIdKey(ingredient.foodId) ?? ' ') ??
+    stock.get(stockPairKey(ingredient.category ?? '', ingredient.foodName)) ??
+    stock.get(ingredient.foodName.trim().toLowerCase()),
+  );
+}
+
 export default function FoodItemDetailScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -140,6 +151,11 @@ export default function FoodItemDetailScreen() {
   const [lens, setLens] = useState<DetailLens>('ingredients');
   const [side, setSide] = useState<SideDetail | null>(null);
   const [making, setMaking] = useState(false);
+  // Whether the kitchen can cover this, worked out as the dish loads rather
+  // than on request. The point of the question is to answer it BEFORE anyone
+  // commits to cooking, so making them ask first would be most of the way to
+  // not having it at all.
+  const [stockPlan, setStockPlan] = useState<MakePlan | null>(null);
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [ingredients, setIngredients] = useState<SideIngredientDetail[]>([]);
@@ -155,6 +171,16 @@ export default function FoodItemDetailScreen() {
   useEffect(() => {
     getPersonalizationProfile().then(setPersonalizationProfile);
   }, []);
+
+  // Nothing to plan against until the ingredients are in. A failure here
+  // leaves the readout absent rather than claiming a full cupboard.
+  useEffect(() => {
+    if (ingredients.length === 0) {
+      setStockPlan(null);
+      return;
+    }
+    void planForIngredients(ingredients).then(setStockPlan).catch(() => setStockPlan(null));
+  }, [ingredients]);
 
   // Which ingredient (by index into the BREAKDOWN's own item list, not
   // `ingredients` above -- see this file's own top comment on why those
@@ -328,6 +354,69 @@ export default function FoodItemDetailScreen() {
                 <Text style={styles.sideMeta}>
                   Serves {side.servings} · {side.servingSizeAmount} {side.servingSizeUnit} / serving
                 </Text>
+                {/* Can this be made right now, answered before anyone commits
+                    to it. Absent rather than reassuring when the plan could
+                    not be worked out: silence is the safe direction, since a
+                    wrong "you have everything" sends someone to a cupboard
+                    that is empty. */}
+                {stockPlan ? (
+                  <View style={styles.stockCard}>
+                    <Text style={styles.stockTitle}>
+                      {stockPlan.fullyStocked
+                        ? 'You have everything for this'
+                        : `Short ${shortfallsFrom(stockPlan).length} of ${stockPlan.lines.length}`}
+                    </Text>
+                    {stockPlan.fullyStocked ? null : (
+                      <>
+                        <Text style={styles.stockBody}>
+                          {shortfallsFrom(stockPlan)
+                            .map((short) => `${short.foodName} ${formatGroceryAmount(short.quantity, short.unit)}`)
+                            .join(', ')}
+                        </Text>
+                        <TouchableOpacity
+                          style={styles.stockButton}
+                          activeOpacity={0.85}
+                          disabled={making}
+                          onPress={async () => {
+                            const list = await getActiveGroceryList();
+                            if (!list) {
+                              showInfoAlert(
+                                'No list open',
+                                'Start a grocery list first, then what you are missing can go straight onto it.',
+                              );
+                              return;
+                            }
+                            setMaking(true);
+                            try {
+                              // Each shortfall carries the food it is, so the
+                              // line arrives identified rather than as a bare
+                              // name and matches stock again next time.
+                              for (const short of shortfallsFrom(stockPlan)) {
+                                await addGroceryListItem(list.id, {
+                                  foodName: short.foodName,
+                                  category: short.category ?? undefined,
+                                  foodId: short.foodId,
+                                  unit: short.unit,
+                                  quantity: short.quantity,
+                                  note: `For ${side.name}`,
+                                });
+                              }
+                              showInfoAlert(
+                                'On your list',
+                                `What you were missing for ${side.name} has been added.`,
+                              );
+                            } finally {
+                              setMaking(false);
+                            }
+                          }}
+                        >
+                          <Text style={styles.stockButtonText}>Add What I Am Missing to My List</Text>
+                        </TouchableOpacity>
+                      </>
+                    )}
+                  </View>
+                ) : null}
+
                 {/* The one action that moves stock: ingredients out, the batch
                     in. See lib/kitchenUsage.ts for why it asks first. */}
                 <TouchableOpacity
@@ -337,12 +426,10 @@ export default function FoodItemDetailScreen() {
                   onPress={async () => {
                     setMaking(true);
                     try {
-                      const stock = await loadKitchenStock();
-                      const plan = buildMakePlan(ingredients, (ingredient: MakeIngredient) =>
-                        stock.get(stockIdKey(ingredient.foodId) ?? ' ') ??
-                        stock.get(stockPairKey(ingredient.category ?? '', ingredient.foodName)) ??
-                        stock.get(ingredient.foodName.trim().toLowerCase()),
-                      );
+                      // Recomputed rather than reusing the readout's plan:
+                      // stock can move while a screen sits open, and what is
+                      // confirmed has to be what will actually happen.
+                      const plan = await planForIngredients(ingredients);
                       // Shown before anything is written. See
                       // lib/kitchenUsage.ts for why that is not negotiable.
                       const ok = await confirmSheet({
@@ -356,6 +443,7 @@ export default function FoodItemDetailScreen() {
                         made: { name: side.name, servings: side.servings, servingUnit: 'servings' },
                       });
                       showInfoAlert('Recorded', `${side.name} is in your kitchen, and what it used has come out.`);
+                      setStockPlan(await planForIngredients(ingredients));
                     } finally {
                       setMaking(false);
                     }
@@ -668,6 +756,31 @@ const styles = StyleSheet.create({
 
     textShadowRadius: 0,
 
+  },
+  stockCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.border,
+    padding: 12,
+    marginBottom: 12,
+    gap: 6,
+  },
+  stockTitle: { ...typography.label, ...textShadow, color: colors.textPrimary },
+  stockBody: { ...typography.caption, ...textShadow, color: colors.textSecondary },
+  stockButton: {
+    alignSelf: 'flex-start',
+    marginTop: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 10,
+    backgroundColor: colors.buttonColor,
+    ...BUTTON_SHADOW,
+  },
+  stockButtonText: {
+    ...typography.caption,
+    color: colors.textOnButton,
+    textShadowColor: 'transparent',
   },
   madeButton: {
     alignSelf: 'flex-start',
