@@ -67,10 +67,26 @@ export type GoalCostProgress = {
   fraction: number;
   met: boolean;
   over: number;
+  /** Of `contributed`, how much came from spending tagged to this cost in
+   *  Spending rather than being recorded here by hand. Money costs only;
+   *  a dollar entry cannot advance a line counted in hours. */
+  fromSpending: number;
+  recordedByHand: number;
+  /** True when both routes have put money in. The app cannot tell whether
+   *  the same money went in twice, so it says so rather than deciding. */
+  hasBothSources: boolean;
 };
 
-export function costProgress(cost: GoalCost, contributed: number): GoalCostProgress {
+export function costProgress(
+  cost: GoalCost,
+  contributed: number,
+  breakdown?: { fromSpending: number },
+): GoalCostProgress {
   const remaining = Math.max(0, cost.target - contributed);
+  // Derived from the total rather than passed in alongside it, so the two
+  // halves can never add up to something other than the whole.
+  const fromSpending = Math.min(contributed, Math.max(0, breakdown?.fromSpending ?? 0));
+  const recordedByHand = contributed - fromSpending;
   return {
     cost,
     contributed,
@@ -78,7 +94,30 @@ export function costProgress(cost: GoalCost, contributed: number): GoalCostProgr
     fraction: cost.target > 0 ? Math.min(1, contributed / cost.target) : 0,
     met: cost.target > 0 && contributed >= cost.target,
     over: Math.max(0, contributed - cost.target),
+    fromSpending,
+    recordedByHand,
+    hasBothSources: fromSpending > 0 && recordedByHand > 0,
   };
+}
+
+/**
+ * Where a cost line's money came from, and the warning that has to go with
+ * it when both routes were used.
+ *
+ * This is the same honesty rule the grocery list already turns on: money
+ * read from somewhere it already lives is reported as already counted, with
+ * a note not to enter it again, because the app genuinely cannot tell one
+ * $200 from another $200 on the same day.
+ */
+export function describeContributionSources(progress: GoalCostProgress): string | null {
+  const { cost } = progress;
+  if (progress.fromSpending <= 0) return null;
+  const tagged = formatGoalAmount(cost.kind, progress.fromSpending, cost.unit);
+  if (!progress.hasBothSources) {
+    return `All of that came from spending you tagged to this, so there is nothing to enter again here.`;
+  }
+  const byHand = formatGoalAmount(cost.kind, progress.recordedByHand, cost.unit);
+  return `${tagged} of that came from spending you tagged to this, and ${byHand} you recorded here. If any of it is the same money, it is being counted twice, which is worth a look because the app cannot tell.`;
 }
 
 export type Goal = {

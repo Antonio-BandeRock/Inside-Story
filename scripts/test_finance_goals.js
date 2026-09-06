@@ -46,6 +46,7 @@ const {
   GOAL_COST_KINDS, goalCostKindLabel, defaultUnitFor,
   costProgress, goalProgress, pace, isPaceRefusal,
   formatGoalAmount, describeCostProgress, describePace, describeGoalProgress,
+  describeContributionSources,
   summarizeGoals, describeGoalsSummary,
 } = G;
 
@@ -305,6 +306,75 @@ function goal(over = {}) {
   check('and no money wanted', s.monthlyMoneyNeeded, 0);
   checkTrue('with wording that does not pretend otherwise',
     describeGoalsSummary(s).includes('Nothing here yet'));
+}
+
+// --- 6. Where a cost line's money came from ---------------------------------
+//
+// Spending tagged to a goal counts toward it, so a purchase made FOR a goal
+// does not have to be entered twice. That opens exactly one risk: the same
+// money going in by both routes. The app cannot tell one $200 from another
+// $200 on the same day, so it reports the split and says so.
+
+{
+  const p = costProgress(cost({ kind: 'money', target: 600 }), 250, { fromSpending: 250 });
+  check('tagged spending counts toward the line', p.contributed, 250);
+  check('all of it came from spending', p.fromSpending, 250);
+  check('and none by hand', p.recordedByHand, 0);
+  check('so there is nothing to double count', p.hasBothSources, false);
+  checkTrue('and the wording says there is nothing to re-enter',
+    describeContributionSources(p).includes('nothing to enter again'));
+}
+{
+  // Both routes used. This is the case worth warning about.
+  const p = costProgress(cost({ kind: 'money', target: 600 }), 450, { fromSpending: 200 });
+  check('the total is both routes together', p.contributed, 450);
+  check('tagged spending is separated out', p.fromSpending, 200);
+  check('and the rest is what was recorded by hand', p.recordedByHand, 250);
+  check('both sources is flagged', p.hasBothSources, true);
+  const text = describeContributionSources(p);
+  checkTrue('the wording gives both figures', text.includes('$200.00') && text.includes('$250.00'));
+  checkTrue('and names the risk plainly', text.includes('counted twice'));
+  checkTrue('while admitting the app cannot resolve it', text.includes('cannot tell'));
+}
+{
+  // Hand-entered only, which is every non-money line and any money line
+  // nobody has tagged spending to.
+  const p = costProgress(cost({ kind: 'time', target: 20, unit: 'hours' }), 8);
+  check('no breakdown means none came from spending', p.fromSpending, 0);
+  check('and all of it was recorded by hand', p.recordedByHand, 8);
+  check('nothing to warn about', p.hasBothSources, false);
+  check('and nothing is said', describeContributionSources(p), null);
+}
+{
+  // The two halves must always add to the whole. Derived rather than passed
+  // in beside it, so a caller cannot make them disagree.
+  const p = costProgress(cost({ target: 100 }), 60, { fromSpending: 999 });
+  check('a breakdown larger than the total is clamped', p.fromSpending, 60);
+  check('so by-hand never goes negative', p.recordedByHand, 0);
+  checkTrue('and the halves still sum to the total', p.fromSpending + p.recordedByHand === p.contributed);
+
+  const neg = costProgress(cost({ target: 100 }), 60, { fromSpending: -40 });
+  check('a negative breakdown is floored at zero', neg.fromSpending, 0);
+  checkTrue('and the halves still sum', neg.fromSpending + neg.recordedByHand === neg.contributed);
+}
+{
+  // Tagged spending is real progress, so it has to move everything the
+  // hand-entered route moves: met, the bar, and the pace.
+  const p = costProgress(cost({ kind: 'money', target: 300 }), 300, { fromSpending: 300 });
+  check('spending alone can meet a cost', p.met, true);
+  check('and fills the bar', p.fraction, 1);
+  const r = pace(p, '2027-01-01', '2026-09-05');
+  checkTrue('a line met by spending needs no pace', isPaceRefusal(r));
+}
+{
+  // And it has to reach the cross-goal figure too, or the monthly number
+  // would keep asking for money already spent.
+  const g = goalProgress(
+    goal({ targetDate: '2026-12-05' }),
+    [costProgress(cost({ kind: 'money', target: 600 }), 300, { fromSpending: 300 })],
+  );
+  const s = summarizeGoals([{ progress: g }], '2026-09-05');
+  near('only what is still short is asked for each month', s.monthlyMoneyNeeded, 100);
 }
 
 // --- 5. Formatting and vocabulary -------------------------------------------

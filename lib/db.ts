@@ -4818,6 +4818,11 @@ async function runDatabaseInitialization() {
         category TEXT NOT NULL,
         description TEXT,
         paid_from_account_id TEXT,
+        -- Which goal cost this spending counts toward, 2026-09-05. Points
+        -- at a COST LINE rather than at a goal, because a goal can carry
+        -- several money costs and the line is the only level at which an
+        -- amount means anything.
+        goal_cost_id TEXT,
         notes TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -6291,6 +6296,16 @@ async function runDatabaseInitialization() {
       ['finance_recurring', 'paid_from_account_id'],
       ['finance_recurring', 'paid_to_account_id'],
       ['finance_entries', 'paid_from_account_id'],
+      // Spending that counts toward a goal, 2026-09-05. Without this a
+      // purchase made FOR a goal had to be entered twice: once as spending
+      // and again as a contribution, with nothing connecting them.
+      //
+      // Only an expense ever counts. Income tagged to a goal would be
+      // earmarking, which is a different idea and one this app cannot act
+      // on since it does not move money. Setting money aside is already an
+      // expense here (the Set Aside category group), so "put $200 by for
+      // it" tags correctly without needing income to.
+      ['finance_entries', 'goal_cost_id'],
     ] as const) {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (columns.length > 0 && !columns.some((entry) => entry.name === column)) {

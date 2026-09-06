@@ -59,6 +59,7 @@ import {
   type AccountRecord,
   type BudgetRecord,
 } from '../../lib/financeAccountsDb';
+import { listGoalCostOptions, type GoalCostOption } from '../../lib/financeGoalsDb';
 import {
   createEntry,
   createRecurring,
@@ -368,10 +369,13 @@ function formFromRule(rule: DueRule | null, base: RecurringForm): RecurringForm 
 type EntryForm = {
   occurredOn: string; direction: FinanceDirection; amount: string; category: string;
   description: string; paidFromAccountId: string;
+  /** A goal cost line this counts toward. Empty means none, and expenses
+   *  only: income tagged to a goal would be earmarking, not progress. */
+  goalCostId: string;
 };
 
 function blankEntryForm(): EntryForm {
-  return { occurredOn: todayLocal(), direction: 'expense', amount: '', category: 'dining_out', description: '', paidFromAccountId: '' };
+  return { occurredOn: todayLocal(), direction: 'expense', amount: '', category: 'dining_out', description: '', paidFromAccountId: '', goalCostId: '' };
 }
 
 export default function LifeScreen() {
@@ -398,6 +402,7 @@ export default function LifeScreen() {
   const [entryForm, setEntryForm] = useState<EntryForm | null>(null);
   const [budgets, setBudgets] = useState<BudgetRecord[]>([]);
   const [accountList, setAccountList] = useState<AccountRecord[]>([]);
+  const [goalCosts, setGoalCosts] = useState<GoalCostOption[]>([]);
   const [budgetForm, setBudgetForm] = useState<{ category: string; limit: string } | null>(null);
   const autoOpenLensHub = useAutoOpenLensHubSignal();
 
@@ -405,8 +410,9 @@ export default function LifeScreen() {
 
   const load = useCallback(() => {
     setLoading(true);
-    Promise.all([getFinanceMonth(month), listBudgets(), listAccounts()])
-      .then(([data, budgetRows, accountRows]) => {
+    Promise.all([getFinanceMonth(month), listBudgets(), listAccounts(), listGoalCostOptions()])
+      .then(([data, budgetRows, accountRows, goalCostRows]) => {
+        setGoalCosts(goalCostRows);
         setRecurring(data.recurring);
         setEntries(data.entries);
         setTracked(data.tracked);
@@ -586,6 +592,7 @@ export default function LifeScreen() {
         category: form.category,
         description: form.description,
         paidFromAccountId: form.paidFromAccountId || null,
+        goalCostId: form.goalCostId || null,
       });
       setEntryForm(null);
       load();
@@ -1061,6 +1068,9 @@ export default function LifeScreen() {
                   ...entryForm,
                   direction: value as FinanceDirection,
                   category: value === 'income' ? 'other_income' : 'dining_out',
+                  // Income cannot advance a goal cost, so switching over
+                  // drops the tag rather than leaving it set but ignored.
+                  goalCostId: value === 'income' ? '' : entryForm.goalCostId,
                 })
               }
               tabColor={TAB_COLOR}
@@ -1096,6 +1106,29 @@ export default function LifeScreen() {
                 <Text style={styles.pillTextSmall}>Today</Text>
               </TouchableOpacity>
             </View>
+
+            {entryForm.direction === 'expense' && goalCosts.length > 0 ? (
+              <>
+                <Text style={styles.label}>Counts toward a goal (optional)</Text>
+                <PopoverSelect
+                  options={[
+                    { label: 'Not for a goal', value: '' },
+                    ...goalCosts.map((entry) => ({
+                      label: `${entry.goalName}: ${entry.costLabel}`,
+                      value: entry.costId,
+                    })),
+                  ]}
+                  selected={entryForm.goalCostId}
+                  onSelect={(value) => setEntryForm({ ...entryForm, goalCostId: value })}
+                  tabColor={TAB_COLOR}
+                  searchable
+                />
+                <Text style={styles.helperText}>
+                  Tag it and this counts toward that goal without being entered a second time. Only money costs appear
+                  here, since a dollar amount cannot advance something measured in hours.
+                </Text>
+              </>
+            ) : null}
 
             {accountList.length > 0 ? (
               <>

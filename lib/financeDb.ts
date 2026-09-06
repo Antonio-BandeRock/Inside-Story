@@ -64,6 +64,8 @@ export type FinanceEntryRecord = {
   description: string | null;
   notes: string | null;
   paidFromAccountId: string | null;
+  /** A goal cost line this spending counts toward. Expenses only. */
+  goalCostId: string | null;
 };
 
 // --- Recurring: the bills and income that repeat ---------------------------
@@ -220,6 +222,7 @@ export async function createEntry(input: {
   description?: string;
   notes?: string;
   paidFromAccountId?: string | null;
+  goalCostId?: string | null;
 }): Promise<string> {
   const db = await getDatabase();
   const id = `fin_ent_${Date.now()}`;
@@ -228,8 +231,8 @@ export async function createEntry(input: {
     `
       INSERT INTO finance_entries
         (id, occurred_on, direction, amount, category, description, notes,
-         paid_from_account_id, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         paid_from_account_id, goal_cost_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.occurredOn,
@@ -239,6 +242,9 @@ export async function createEntry(input: {
     input.description?.trim() || null,
     input.notes?.trim() || null,
     input.paidFromAccountId ?? null,
+    // An income entry never carries a goal tag, enforced here rather than
+    // trusted from the form: only money that went OUT can advance a cost.
+    input.direction === 'expense' ? input.goalCostId ?? null : null,
     now,
     now,
   );
@@ -258,7 +264,7 @@ export async function listEntries(filters: { month?: string; limit?: number } = 
   const rows = await db.getAllAsync<FinanceEntryRecord>(
     `
       SELECT id, occurred_on AS occurredOn, direction, amount, category, description, notes,
-             paid_from_account_id AS paidFromAccountId
+             paid_from_account_id AS paidFromAccountId, goal_cost_id AS goalCostId
       FROM finance_entries
       ${where}
       ORDER BY occurred_on DESC, created_at DESC

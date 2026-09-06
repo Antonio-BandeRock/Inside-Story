@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.20',
+    date: '2026-09-05',
+    changes: [
+      'Spending can now be tagged to a goal, so a purchase made for one counts toward it without being entered twice.',
+      'It attaches to a specific cost on the goal, not the goal as a whole, because a goal can have several money costs and only the cost line has an amount that means anything.',
+      'Only money costs appear in that list. A dollar amount cannot advance something measured in hours, and offering it would put a number into a unit it does not belong to.',
+      'Setting money aside counts the same way, since that is already an expense here. Income is not offered: earmarking money you have not spent is a different idea, and this app does not move money.',
+      'Each cost now says how much came from tagged spending and how much you recorded by hand. If both, it says plainly that some of it may be the same money counted twice, because the app cannot tell one $200 from another.',
+    ],
+  },
+  {
     version: '1.0.34.19',
     date: '2026-09-05',
     changes: [

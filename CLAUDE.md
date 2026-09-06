@@ -25,6 +25,24 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-05, 1.0.34.20): spending tagged to a goal, closing the double-entry gap named an hour earlier.** Direct instruction: "Do the entry tagging so a purchase counts toward a goal."
+
+**It tags a COST LINE, not a goal**, and that is the load-bearing decision. A goal can carry several money costs (Lumber, Hardware, Delivery), and the line is the only level at which an amount means anything, since contributions are per-line in that line's own unit. Tagging the goal alone would leave the app unable to say which cost a purchase advanced.
+
+**Money costs only, and that is not a simplification.** A dollar entry cannot advance a line counted in hours or jars, so `listGoalCostOptions` filters to `kind = 'money'` on ACTIVE goals. Active only as well: tagging spending to a goal already reached or set aside would quietly move a figure someone has finished looking at.
+
+**Expenses only, enforced at the write rather than trusted from the form.** `createEntry` drops the tag on an income row, and switching the form to income clears it, so a stale tag cannot be saved and then silently ignored. The reasoning: money going OUT advances a cost; income tagged to a goal would be earmarking, which is a different idea and one this app cannot act on because it does not move money. **Setting money aside needs no special case**, since the Set Aside category group is already an expense here, so "put $200 by for it" tags correctly through the same path.
+
+**Read where it lives, never copied.** `listGoalsWithProgress` sums tagged expenses in SQL and adds them to hand-recorded contributions, so correcting a price in Spending corrects the goal too. Copying into a contribution row would have left a stale figure on the goal the moment a price was fixed, which is the exact drift this project keeps having to unpick.
+
+**The one risk this opens, and how it is handled.** Both routes can put money in, so the same $200 can be recorded twice. The app genuinely cannot tell one $200 from another on the same day, so it does not try: `GoalCostProgress` now carries `fromSpending` and `recordedByHand`, and when both are non-zero the line says so and names the risk. Same honesty rule the grocery list already turns on, where money read from where it lives is reported as already counted with a note not to enter it again.
+
+**The split is DERIVED from the total rather than passed in beside it** (`recordedByHand = contributed - fromSpending`, with `fromSpending` clamped into range), so the two halves cannot add up to something other than the whole. Three mutations confirm it: letting the halves exceed the total, suppressing the both-sources flag, and trusting an out-of-range breakdown all fail the suite.
+
+**Tagged spending had to move everything hand entry moves**, or a cost could read as met while still being asked for monthly. Tested: it can meet a line on its own, it fills the bar, it makes `pace` refuse as already-met, and it reduces the cross-goal monthly figure to only what is still short.
+
+`scripts/test_finance_goals.js` is 111 checks, up from 86. `tsc` clean, `eslint` clean on every touched file, bare-text audit 0, schema guard clean, all nine suites passing. `goal_cost_id` added with the established conditional `ALTER TABLE` pattern, so no reference-database change and no re-import. **Not yet confirmed on-device.**
+
 **Most recent (2026-09-05, 1.0.34.19): Goals, pass 3 of the Finances rebuild, and the one idea that keeps it from being a savings tracker.** Asked for with its own framing, given twice: "goals require costs to attain each goal, whether that cost is a trade of time, or goods, or actual money."
 
 **That framing is the design rather than a detail, and it is why costs are their own table.** Every budgeting app has a savings goal: a number, a date, a bar. This app already tracks harvests with real remaining quantities, ferments, therapy sessions with real `duration_minutes` and exercise with real minutes, so it can model a goal whose cost was never money without inventing anything. Rebuilding a raised bed costs lumber AND a weekend; a year of preserves costs jars, produce and hours. One amount column could only ever have held the money.

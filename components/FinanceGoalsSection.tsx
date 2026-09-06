@@ -11,6 +11,7 @@ import { textShadow, typography } from '../constants/typography';
 import {
   GOAL_COST_KINDS,
   defaultUnitFor,
+  describeContributionSources,
   describeCostProgress,
   describeGoalProgress,
   describeGoalsSummary,
@@ -281,6 +282,12 @@ export function FinanceGoalsSection({ tabColor }: Props) {
                     />
                   </View>
                   <Text style={styles.costMeta}>{describeCostProgress(entry)}</Text>
+                  {(() => {
+                    const sources = describeContributionSources(entry);
+                    return sources ? (
+                      <Text style={[styles.costMeta, entry.hasBothSources && styles.warn]}>{sources}</Text>
+                    ) : null;
+                  })()}
                   {paceText ? (
                     <Text style={[styles.costMeta, overdue && styles.warn]}>{paceText}</Text>
                   ) : null}
