@@ -27,8 +27,12 @@ import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { formatGroceryAmount } from '../lib/groceryList';
 import { addGroceryListItem, getActiveGroceryList } from '../lib/groceryDb';
+import { HOUSEHOLD_GROUPS } from '../constants/householdItems';
 import {
   addKitchenItem,
+  listPurchasableFoods,
+  type KitchenItemKind,
+  type PurchasableFood,
   deleteKitchenItem,
   describeKitchenAge,
   listKitchenInventory,
@@ -50,27 +54,37 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
   const [busy, setBusy] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [useAmount, setUseAmount] = useState('');
+  const [kind, setKind] = useState<KitchenItemKind>('food');
   const [addOpen, setAddOpen] = useState(false);
-  const [newName, setNewName] = useState('');
+  // What the picker settled on. Nothing is typed except the amount, which is
+  // the point: "as free from manual writing something as we can."
+  const [picked, setPicked] = useState<{ name: string; unit: string; category: string; group: string } | null>(null);
+  const [pickerSearch, setPickerSearch] = useState('');
+  const [foods, setFoods] = useState<PurchasableFood[]>([]);
   const [newQuantity, setNewQuantity] = useState('');
-  const [newUnit, setNewUnit] = useState('');
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      setItems(await listKitchenInventory());
+      setItems(await listKitchenInventory(kind));
     } catch {
       setItems([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [kind]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
+  // The canonical purchasable set, fetched once. See listPurchasableFoods for
+  // why this is not a hand-written list of staples.
+  useEffect(() => {
+    void listPurchasableFoods().then(setFoods).catch(() => setFoods([]));
+  }, []);
 
   async function run(action: () => Promise<void>) {
     setBusy(true);
@@ -84,18 +98,37 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
 
   async function handleAdd() {
     const quantity = Number(newQuantity);
-    if (!newName.trim() || !Number.isFinite(quantity) || quantity <= 0) {
-      showInfoAlert('Not enough to go on', 'A name and an amount above zero are both needed.');
+    if (!picked || !Number.isFinite(quantity) || quantity <= 0) {
+      showInfoAlert('Not quite', 'Pick something from the list, then say how much.');
       return;
     }
     await run(async () => {
-      await addKitchenItem({ foodName: newName, quantity, unit: newUnit });
-      setNewName('');
+      await addKitchenItem({
+        foodName: picked.name,
+        quantity,
+        unit: picked.unit,
+        category: picked.category,
+        kind,
+      });
+      setPicked(null);
       setNewQuantity('');
-      setNewUnit('');
+      setPickerSearch('');
       setAddOpen(false);
     });
   }
+
+  // One shape for both catalogues, so the picker below does not care which
+  // inventory it is filling.
+  const search = pickerSearch.trim().toLowerCase();
+  const catalogue =
+    kind === 'food'
+      ? foods.map((food) => ({ name: food.baseName, unit: food.form === 'count' ? 'each' : 'g', category: food.category, group: food.category }))
+      : HOUSEHOLD_GROUPS.flatMap((group) =>
+          group.items.map((item) => ({ name: item.name, unit: item.unit, category: group.label, group: group.label })),
+        );
+  const matches = search
+    ? catalogue.filter((entry) => entry.name.toLowerCase().includes(search))
+    : catalogue;
 
   // Straight onto whatever list is open, so "I am nearly out of this" takes one
   // tap from the shelf it is about. No list yet is said plainly rather than one
@@ -116,6 +149,7 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
         foodName: item.foodName,
         unit: item.unit,
         quantity: item.quantity,
+        kind: item.kind,
         note: 'Running low',
       });
     });
@@ -150,10 +184,32 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
       {confirmSheetElement}
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>What is in your kitchen</Text>
+        <View style={styles.kindRow}>
+          {(['food', 'non_food'] as const).map((option) => (
+            <TouchableOpacity
+              key={option}
+              style={[styles.kindPill, kind === option && { backgroundColor: tabColor, borderColor: tabColor }]}
+              activeOpacity={0.85}
+              onPress={() => {
+                setKind(option);
+                setAddOpen(false);
+                setPicked(null);
+                setPickerSearch('');
+              }}
+            >
+              <Text style={[styles.kindPillText, kind === option && styles.kindPillTextActive]}>
+                {option === 'food' ? 'Food' : 'Household'}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <Text style={styles.cardTitle}>
+          {kind === 'food' ? 'What is in your kitchen' : 'What the house needs'}
+        </Text>
         <Text style={styles.bodyText}>
-          Everything on hand, from the garden, from what you have fermented, and from what you have bought. Ticking
-          something off a grocery list puts it here.
+          {kind === 'food'
+            ? 'Everything on hand, from the garden, from what you have fermented, and from what you have bought. Ticking something off a grocery list puts it here.'
+            : 'Cleaning, paper, laundry, personal care and the rest. Kept apart from food because none of it has nutrients, a score, or anything else the app knows how to say about a food.'}
         </Text>
         <Text style={styles.caveat}>
           Nothing takes this down as you cook, so it is only as right as you keep it. Each one says how long it has been
@@ -170,32 +226,62 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
 
         {addOpen ? (
           <View style={styles.addBlock}>
-            <Text style={styles.fieldLabel}>What is it?</Text>
-            <AppTextInput style={styles.input} value={newName} onChangeText={setNewName} placeholder="Olive oil" />
-            <View style={styles.row}>
-              <View style={styles.rowHalf}>
-                <Text style={styles.fieldLabel}>How much</Text>
+            <Text style={styles.fieldLabel}>
+              {picked ? 'How much?' : kind === 'food' ? 'Which food?' : 'Which one?'}
+            </Text>
+            {picked ? (
+              <>
+                <View style={styles.pickedRow}>
+                  <Text style={styles.pickedName}>{picked.name}</Text>
+                  <TouchableOpacity onPress={() => setPicked(null)} activeOpacity={0.85}>
+                    <Text style={styles.changeLink}>Change</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.row}>
+                  <AppTextInput
+                    style={[styles.input, styles.rowGrow]}
+                    value={newQuantity}
+                    onChangeText={setNewQuantity}
+                    placeholder={`How many ${picked.unit}`}
+                    keyboardType="numeric"
+                  />
+                  <TouchableOpacity
+                    style={[styles.smallButton, { backgroundColor: tabColor }]}
+                    activeOpacity={0.85}
+                    disabled={busy}
+                    onPress={handleAdd}
+                  >
+                    <Text style={styles.smallButtonText}>Add</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : (
+              <>
                 <AppTextInput
                   style={styles.input}
-                  value={newQuantity}
-                  onChangeText={setNewQuantity}
-                  placeholder="750"
-                  keyboardType="numeric"
+                  value={pickerSearch}
+                  onChangeText={setPickerSearch}
+                  placeholder="Search, or just scroll"
                 />
-              </View>
-              <View style={styles.rowHalf}>
-                <Text style={styles.fieldLabel}>Unit</Text>
-                <AppTextInput style={styles.input} value={newUnit} onChangeText={setNewUnit} placeholder="ml" />
-              </View>
-            </View>
-            <TouchableOpacity
-              style={[styles.primaryButton, { backgroundColor: tabColor }]}
-              activeOpacity={0.85}
-              disabled={busy}
-              onPress={handleAdd}
-            >
-              <Text style={styles.primaryButtonText}>Put It In the Kitchen</Text>
-            </TouchableOpacity>
+                <ScrollView style={styles.picker} nestedScrollEnabled>
+                  {matches.length === 0 ? (
+                    <Text style={styles.itemMeta}>Nothing matches that.</Text>
+                  ) : (
+                    matches.map((entry) => (
+                      <TouchableOpacity
+                        key={`${entry.group}:${entry.name}`}
+                        style={styles.pickerRow}
+                        activeOpacity={0.85}
+                        onPress={() => setPicked(entry)}
+                      >
+                        <Text style={styles.pickerName}>{entry.name}</Text>
+                        <Text style={styles.pickerGroup}>{entry.group}</Text>
+                      </TouchableOpacity>
+                    ))
+                  )}
+                </ScrollView>
+              </>
+            )}
           </View>
         ) : null}
       </View>
@@ -346,6 +432,29 @@ const styles = StyleSheet.create({
   rowGrow: { flex: 1 },
   actionRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   addBlock: { gap: 8, marginTop: 4 },
+  kindRow: { flexDirection: 'row', gap: 8, marginBottom: 2 },
+  kindPill: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceMuted,
+  },
+  kindPillText: { ...typography.caption, ...textShadow, color: colors.textSecondary },
+  kindPillTextActive: { color: colors.textOnButton, textShadowColor: 'transparent' },
+  // Tall enough to scroll a full catalogue without swallowing the page.
+  picker: { maxHeight: 260 },
+  pickerRow: {
+    paddingVertical: 9,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  pickerName: { ...typography.body, ...textShadow, color: colors.textPrimary },
+  pickerGroup: { ...typography.caption, ...textShadow, color: colors.textMuted },
+  pickedRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  pickedName: { ...typography.label, ...textShadow, color: colors.textPrimary, flex: 1 },
+  changeLink: { ...typography.caption, ...textShadow, color: colors.primary },
   primaryButton: {
     alignSelf: 'flex-start',
     flexDirection: 'row',

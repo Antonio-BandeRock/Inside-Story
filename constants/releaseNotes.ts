@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.15',
+    date: '2026-09-05',
+    changes: [
+      "New: a Household inventory beside the food one, in Kitchen. Cleaning, paper, laundry, personal care, first aid, pets and the rest, kept apart from food because none of it has nutrients or a score.",
+      "Nothing is typed but the amount. Household items are picked from a list of 63 everyday things; food is picked from the 212 the app already knows how to buy, so what you add always matches what a recipe asks for.",
+      "Anything from either inventory goes onto the grocery list in one tap, and a non-food line says so on the list.",
+    ],
+  },
+  {
     version: '1.0.34.14',
     date: '2026-09-05',
     changes: [

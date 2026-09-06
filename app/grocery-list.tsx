@@ -809,6 +809,13 @@ export default function GroceryListScreen() {
                           {[item.approxAmount, item.soldAs].filter(Boolean).join(' · ')}
                         </Text>
                       ) : null}
+                      {/* Labelled rather than filed somewhere separate: the
+                          whole point of one list is that a shop is one trip.
+                          It just has to be obvious which lines are not food,
+                          since nothing else about them behaves like food. */}
+                      {item.kind === 'non_food' ? (
+                        <Text style={[styles.rowMeta, styles.rowNonFood]}>Non-food item</Text>
+                      ) : null}
                       {item.sourcedFromKitchen ? (
                         <Text style={[styles.rowMeta, styles.rowKitchenCovered]}>
                           Taken from your kitchen, not bought.
@@ -1154,6 +1161,9 @@ const styles = StyleSheet.create({
     color: colors.textOnButton,
     // Dark text on a light fill: no shadow, matching every other button.
     textShadowColor: 'transparent',
+  },
+  rowNonFood: {
+    color: colors.textMuted,
   },
   rowKitchenNote: {
     color: colors.textSecondary,

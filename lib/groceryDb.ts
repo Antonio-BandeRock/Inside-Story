@@ -11,7 +11,7 @@
 // The pure arithmetic (what a price means, what a line comes to) is in
 // lib/groceryList.ts, separately again, so it can be reasoned about and
 // tested with no database at all.
-import { listKitchenInventory } from './kitchenDb';
+import { listKitchenInventory, type KitchenItemKind } from './kitchenDb';
 import {
   getDatabase,
   getUpcomingShoppingList,
@@ -88,6 +88,8 @@ export type GroceryListItemRecord = {
   // A sale price rather than the usual one. See describeSaleLabel for why the
   // distinction is kept rather than folded into the number.
   onSale: boolean;
+  // Food or household. A non-food line shares the list and is labelled on it.
+  kind: KitchenItemKind;
   // The reference row this line is, or null. See ShoppingListItem.foodId.
   foodId: string | null;
   // Satisfied out of the kitchen rather than bought. See the column's own
@@ -110,10 +112,12 @@ type GroceryListItemRow = Omit<
   | 'purchaseForm'
   | 'onSale'
   | 'sourcedFromKitchen'
+  | 'kind'
 > & {
   purchaseForm: string | null;
   onSale: number;
   sourcedFromKitchen: number;
+  kind: string;
   checked: number;
   addedManually: number;
   priceUnit: string | null;
@@ -133,7 +137,7 @@ const GROCERY_ITEM_COLUMNS = `
   scanned_product_id AS scannedProductId, note, added_manually AS addedManually, sort_order AS sortOrder,
   extra_amounts_json AS extraAmountsJson, meal_names_json AS mealNamesJson,
   sold_as AS soldAs, approx_amount AS approxAmount, purchase_form AS purchaseForm, on_sale AS onSale,
-  sourced_from_kitchen AS sourcedFromKitchen, food_id AS foodId
+  sourced_from_kitchen AS sourcedFromKitchen, food_id AS foodId, kind
 `;
 
 function toPriceUnit(value: string | null | undefined): GroceryPriceUnit | null {
@@ -174,6 +178,7 @@ function mapGroceryItem(row: GroceryListItemRow): GroceryListItemRecord {
       ? (row.purchaseForm as PurchaseForm)
       : null,
     onSale: row.onSale === 1,
+    kind: row.kind === 'non_food' ? 'non_food' : 'food',
     sourcedFromKitchen: row.sourcedFromKitchen === 1,
   };
 }
@@ -413,6 +418,7 @@ export async function addGroceryListItem(
     foodName: string;
     unit?: string;
     quantity?: number;
+    kind?: KitchenItemKind;
     scannedProductId?: number | null;
     price?: number | null;
     priceUnit?: GroceryPriceUnit | null;
@@ -427,8 +433,8 @@ export async function addGroceryListItem(
   );
   await db.runAsync(
     `INSERT INTO grocery_list_items
-       (id, list_id, category, food_name, unit, quantity, price, price_unit, scanned_product_id, note, added_manually, sort_order)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`,
+       (id, list_id, category, food_name, unit, quantity, price, price_unit, scanned_product_id, note, added_manually, sort_order, kind)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)`,
     id,
     listId,
     input.category?.trim() || ADDED_BY_HAND_CATEGORY,
@@ -440,6 +446,7 @@ export async function addGroceryListItem(
     input.scannedProductId ?? null,
     input.note?.trim() || null,
     (maxRow?.maxOrder ?? 0) + 1,
+    input.kind ?? 'food',
   );
   return id;
 }

@@ -5988,6 +5988,18 @@ async function runDatabaseInitialization() {
         -- was ticked. Kept so the screen can say where a row came from, and
         -- so a purchase can be traced back to the trip that produced it.
         source TEXT NOT NULL DEFAULT 'manual',
+        -- 'food' or 'non_food', 2026-09-05. Two inventories rather than one,
+        -- asked for directly: "There will be non-food items needing to be
+        -- tracked as well, which should be a different inventory from their
+        -- food item inventory, but both available to be on the grocery list,
+        -- clearly labeled as non-food item."
+        --
+        -- Separate because almost everything the app knows how to do with a
+        -- food is meaningless for a bottle of bleach: no nutrients, no
+        -- six-dimension score, no condition relevance, no reference row. A
+        -- single list would have half its rows silently opting out of every
+        -- feature around it.
+        kind TEXT NOT NULL DEFAULT 'food',
         -- 2026-09-05. The reference-database row this is, where it is one.
         --
         -- category + food_name already carry the canonical purchasable pair
@@ -6069,6 +6081,10 @@ async function runDatabaseInitialization() {
         -- WHICH food it is, and dropping that meant anything reading a grocery
         -- list could only ever match on the name.
         food_id TEXT,
+        -- Non-food lines share the list and say so on it. Defaulting to 'food'
+        -- keeps every line already written correct without a backfill: nothing
+        -- that existed before this column was anything else.
+        kind TEXT NOT NULL DEFAULT 'food',
         -- Whether the price paid was a sale price rather than the usual one.
         -- Kept because a price history without it quietly lies: one week at
         -- half price reads as a thing getting cheaper rather than as an offer.
@@ -6239,7 +6255,7 @@ async function runDatabaseInitialization() {
       if (!groceryItemColumns.some((column) => column.name === 'purchase_form')) {
         await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN purchase_form TEXT;');
       }
-      for (const column of ['food_id TEXT'] as const) {
+      for (const column of ['food_id TEXT', "kind TEXT NOT NULL DEFAULT 'food'"] as const) {
         const name = column.split(' ')[0];
         if (!groceryItemColumns.some((existing) => existing.name === name)) {
           await db.execAsync(`ALTER TABLE grocery_list_items ADD COLUMN ${column};`);

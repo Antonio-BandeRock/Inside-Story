@@ -27,6 +27,7 @@
 // cannot verify should at least say how old it is.
 import {
   getDatabase,
+  getReferenceDatabase,
   listAvailableFermentationHarvests,
   listAvailableHarvests,
   recordFermentationHarvestUsage,
@@ -34,6 +35,10 @@ import {
 } from './db';
 
 export type KitchenItemSource = 'manual' | 'purchase' | 'garden' | 'fermentation';
+
+// Two inventories, not one list with a filter on it. See kitchen_items' own
+// column comment in lib/db.ts for why they are kept apart.
+export type KitchenItemKind = 'food' | 'non_food';
 
 export type KitchenInventoryItem = {
   // Prefixed by source, so one id space covers three tables and every action
@@ -45,6 +50,7 @@ export type KitchenInventoryItem = {
   quantity: number;
   unit: string;
   quantityRemaining: number;
+  kind: KitchenItemKind;
   // The reference row this is, where there is one. Null for a brand item, a
   // typed entry that resolved to nothing, and a fermentation (a drink someone
   // made is not a row in anyone's food database).
@@ -63,6 +69,7 @@ type KitchenItemRow = {
   unit: string;
   quantityRemaining: number;
   source: string;
+  kind: string;
   foodId: string | null;
   note: string | null;
   addedAt: string;
@@ -70,7 +77,7 @@ type KitchenItemRow = {
 
 const COLUMNS = `
   id, category, food_name AS foodName, quantity, unit,
-  quantity_remaining AS quantityRemaining, source, food_id AS foodId, note, added_at AS addedAt
+  quantity_remaining AS quantityRemaining, source, kind, food_id AS foodId, note, added_at AS addedAt
 `;
 
 // Everything on hand, newest first, across all three sources.
@@ -78,25 +85,32 @@ const COLUMNS = `
 // Only rows with something left. A harvest drawn down to zero is finished, and
 // a pantry item marked gone is gone; neither belongs in a list of what is
 // available, and both are still on record in their own table.
-export async function listKitchenInventory(): Promise<KitchenInventoryItem[]> {
+export async function listKitchenInventory(kind: KitchenItemKind = 'food'): Promise<KitchenInventoryItem[]> {
   const db = await getDatabase();
   const items: KitchenInventoryItem[] = [];
 
   const rows = await db.getAllAsync<KitchenItemRow>(
-    `SELECT ${COLUMNS} FROM kitchen_items WHERE quantity_remaining > 0 ORDER BY added_at DESC`,
+    `SELECT ${COLUMNS} FROM kitchen_items WHERE quantity_remaining > 0 AND kind = ? ORDER BY added_at DESC`,
+    kind,
   );
   for (const row of rows) {
     items.push({
       ...row,
       source: row.source === 'purchase' ? 'purchase' : 'manual',
+      kind: row.kind === 'non_food' ? 'non_food' : 'food',
       note: row.note,
     });
   }
+
+  // A harvest is food by definition, so neither source contributes anything to
+  // the household side.
+  if (kind === 'non_food') return items;
 
   for (const harvest of await listAvailableHarvests()) {
     items.push({
       id: `garden:${harvest.id}`,
       source: 'garden',
+      kind: 'food',
       // A harvest knows exactly which food it is; that is what the planting
       // was picked as.
       foodId: String(harvest.foodId),
@@ -114,6 +128,7 @@ export async function listKitchenInventory(): Promise<KitchenInventoryItem[]> {
     items.push({
       id: `fermentation:${harvest.id}`,
       source: 'fermentation',
+      kind: 'food',
       foodId: null,
       category: '',
       foodName: harvest.drinkName,
@@ -129,11 +144,40 @@ export async function listKitchenInventory(): Promise<KitchenInventoryItem[]> {
   return items;
 }
 
+export type PurchasableFood = {
+  category: string;
+  baseName: string;
+  soldAs: string;
+  form: string;
+};
+
+// Everything this app knows how to buy, for picking from rather than typing.
+//
+// food_purchase_forms is the right source and a hand-written staples list would
+// be the wrong one: this is already the canonical purchasable set (212 foods,
+// each with a category, a base name and how it is sold), it is what the grocery
+// list itself groups on, and anything added from here therefore matches stock
+// to a recipe by the canonical pair with no name-guessing at all.
+export async function listPurchasableFoods(): Promise<PurchasableFood[]> {
+  const db = await getReferenceDatabase();
+  try {
+    return await db.getAllAsync<PurchasableFood>(
+      `SELECT category, base_name AS baseName, sold_as AS soldAs, form
+       FROM food_purchase_forms ORDER BY category, base_name`,
+    );
+  } catch {
+    // A device still on a reference database from before that table existed.
+    // Adding by hand still works; only the picker is unavailable.
+    return [];
+  }
+}
+
 export async function addKitchenItem(input: {
   foodName: string;
   quantity: number;
   unit: string;
   category?: string;
+  kind?: KitchenItemKind;
   // Set when the food was picked from the reference database rather than
   // typed. Null for a brand item or anything with no row of its own, which is
   // a real case rather than a failure: the name and category still identify it
@@ -145,8 +189,8 @@ export async function addKitchenItem(input: {
   const id = `kitchen_${Date.now()}`;
   const quantity = Math.max(0, input.quantity);
   await db.runAsync(
-    `INSERT INTO kitchen_items (id, category, food_name, quantity, unit, quantity_remaining, source, note, food_id)
-     VALUES (?, ?, ?, ?, ?, ?, 'manual', ?, ?)`,
+    `INSERT INTO kitchen_items (id, category, food_name, quantity, unit, quantity_remaining, source, note, food_id, kind)
+     VALUES (?, ?, ?, ?, ?, ?, 'manual', ?, ?, ?)`,
     id,
     input.category?.trim() || '',
     input.foodName.trim(),
@@ -155,6 +199,7 @@ export async function addKitchenItem(input: {
     quantity,
     input.note?.trim() || null,
     input.foodId ?? null,
+    input.kind ?? 'food',
   );
   return id;
 }
