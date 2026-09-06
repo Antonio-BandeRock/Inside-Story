@@ -29,6 +29,7 @@ import { textShadow, typography } from '../constants/typography';
 import { recognizeTextFromImage } from '../lib/ocr';
 import { detectMeasurementSystemFromLocale } from '../lib/measurement';
 import { getStoredMeasurementSystem } from '../lib/db';
+import { addKitchenItemFromPurchase } from '../lib/kitchenDb';
 import {
   addGroceryListItem,
   createGroceryListFromSchedule,
@@ -283,6 +284,21 @@ export default function GroceryListScreen() {
     setItems((current) => current.map((row) => (row.id === item.id ? { ...row, checked: nowChecked } : row)));
     try {
       await setGroceryItemChecked(item.id, nowChecked);
+      // Ticking something puts it in the kitchen, at whatever size is known so
+      // far. That is usually just what the list asked for; the price panel
+      // opening right behind this is where a real bought size gets entered,
+      // and saving it corrects this row rather than adding a second one.
+      // Unticking deliberately does NOT remove it: the food is in the house
+      // either way, and a mis-tap should not quietly empty a cupboard.
+      if (nowChecked) {
+        await addKitchenItemFromPurchase({
+          groceryItemId: item.id,
+          foodName: item.foodName,
+          category: item.category,
+          quantity: item.purchasedQuantity ?? item.quantity,
+          unit: item.unit,
+        });
+      }
       await refreshItems(list.id);
     } catch {
       await refreshItems(list.id);
@@ -363,6 +379,18 @@ export default function GroceryListScreen() {
         // once there is no price it was a sale on.
         onSale: price == null ? false : editor.onSale,
       });
+      // The size entered here is the real one, so it corrects whatever the
+      // tick put in the kitchen. Only for a ticked line: entering a price on
+      // something not yet in the cart is pricing it, not buying it.
+      if (item.checked) {
+        await addKitchenItemFromPurchase({
+          groceryItemId: item.id,
+          foodName: item.foodName,
+          category: item.category,
+          quantity: purchased ?? item.quantity,
+          unit: item.unit,
+        });
+      }
       await refreshItems(list.id);
       setExpandedId(null);
     } catch (error) {

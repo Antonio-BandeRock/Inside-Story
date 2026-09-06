@@ -5948,6 +5948,51 @@ async function runDatabaseInitialization() {
       -- recipe in this app was deliberately rescaled to a single person on
       -- 2026-08-24, for exactly this reason ("The app can do the math to
       -- increase the ingredients to accommodate for additional people").
+      -- What is actually in the kitchen right now, 2026-09-05. Asked for
+      -- directly: "The user needs a way to add to their inventory of on hand
+      -- kitchen items, or mark them as expended, with them being able to
+      -- quickly add the item to the list as they want to."
+      --
+      -- Until now "kitchen inventory" was only ever a read-through inside the
+      -- grocery list, computed from garden and fermentation harvests. Those
+      -- two keep their own tables, deliberately: a harvest has a lifecycle of
+      -- its own (a planting, a batch, a ready date) that a pantry item does
+      -- not, and folding them in here would flatten that away. This table is
+      -- the third source, and the inventory a person actually sees is the
+      -- union of all three.
+      --
+      -- quantity_remaining mirrors those two tables on purpose, so the same
+      -- draw-down arithmetic works across every source without knowing which
+      -- one a row came from.
+      --
+      -- grocery_item_id is what stops a purchase being added twice. Ticking a
+      -- line adds it, unticking and re-ticking the same line must not add it
+      -- again, and it is a plain reference rather than a foreign key because
+      -- the list it belongs to can be deleted while the food is still in the
+      -- cupboard.
+      --
+      -- THE HONEST LIMIT, and it is the whole risk of auto-adding a purchase:
+      -- nothing decrements this as someone cooks. Logging a meal does not
+      -- reach back into the pantry. So an inventory left untended slowly
+      -- claims food that was eaten weeks ago. That is why every row carries
+      -- added_at and the screen shows how long something has been sitting:
+      -- an amount the app cannot verify should at least say how old it is.
+      CREATE TABLE IF NOT EXISTS kitchen_items (
+        id TEXT PRIMARY KEY,
+        category TEXT NOT NULL DEFAULT '',
+        food_name TEXT NOT NULL,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL DEFAULT '',
+        quantity_remaining REAL NOT NULL,
+        -- 'manual' when someone entered it, 'purchase' when a grocery line
+        -- was ticked. Kept so the screen can say where a row came from, and
+        -- so a purchase can be traced back to the trip that produced it.
+        source TEXT NOT NULL DEFAULT 'manual',
+        grocery_item_id TEXT,
+        note TEXT,
+        added_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       CREATE TABLE IF NOT EXISTS grocery_lists (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,

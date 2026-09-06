@@ -412,7 +412,7 @@ export function formatMergedAmounts(merged: MergedAmounts): string {
 // would come home without broccoli. It surfaces as a reminder to look, never
 // as an amount, for the same reason a price the app cannot resolve is
 // reported as missing rather than guessed.
-export type KitchenStockSource = 'garden' | 'fermentation' | 'purchase';
+export type KitchenStockSource = 'garden' | 'fermentation' | 'kitchen' | 'purchase';
 
 export type KitchenStockEntry = {
   // The harvest row this came from, so taking some of it can draw the right
@@ -473,6 +473,9 @@ function describeDaysAgo(date: string, today: string): string {
 function describeSource(source: KitchenStockSource): string {
   if (source === 'garden') return 'from the garden';
   if (source === 'fermentation') return 'from what you fermented';
+  // Already in the house and counted, as against 'purchase', which is a date
+  // with no amount behind it.
+  if (source === 'kitchen') return 'in your kitchen';
   return 'bought';
 }
 

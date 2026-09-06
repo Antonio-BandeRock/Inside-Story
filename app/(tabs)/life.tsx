@@ -7,6 +7,7 @@ import { FinanceHealthSection } from '../../components/FinanceHealthSection';
 import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
+import { KitchenSection } from '../../components/KitchenSection';
 import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { LensHub, type LensOption } from '../../components/LensHub';
@@ -112,7 +113,7 @@ import { parsePriceInput } from '../../lib/groceryList';
 
 const TAB_COLOR = colors.tabLife;
 
-type LifeLens = 'finances';
+type LifeLens = 'finances' | 'kitchen';
 type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
@@ -153,8 +154,30 @@ const LIFE_HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
+const KITCHEN_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'What this is',
+    body:
+      'Everything you have on hand: what you have added yourself, what came out of the garden, what you have fermented, and what you ticked off a grocery list. It is also what the grocery list checks against before telling you to buy something again.',
+  },
+  {
+    heading: 'What it cannot do',
+    body:
+      'Nothing takes an amount down as you cook. Logging a meal does not reach back into the cupboard, so this is only ever as accurate as you keep it. That is why every item says how long it has been sitting here: an amount the app cannot check should at least tell you how old it is.',
+  },
+  {
+    heading: 'Harvests are different',
+    body:
+      'A garden or fermentation harvest is shown here but still belongs to its own planting or batch, so it is removed from Garden or the Fermentation Tracker rather than from here, where the rest of its history lives.',
+  },
+];
+
 const LIFE_LENSES: LensOption<LifeLens>[] = [
   { key: 'finances', label: 'Finances', icon: 'wallet-outline', help: LIFE_HELP_SECTIONS },
+  // 2026-09-05. What is in the house is a household-running concern, the same
+  // as bills are, which is why it landed on Life rather than on Food: every
+  // Food lens is a BUILDER, something you make, and an inventory is not.
+  { key: 'kitchen', label: 'Kitchen', icon: 'file-tray-full-outline', help: KITCHEN_HELP_SECTIONS },
 ];
 
 const DIRECTION_OPTIONS = [
@@ -1366,6 +1389,10 @@ export default function LifeScreen() {
               actions={confirm?.actions ?? []}
             />
 
+            {lens === 'kitchen' ? <KitchenSection tabColor={TAB_COLOR} /> : null}
+
+            {lens === 'finances' ? (
+            <>
             <View style={styles.sectionPillRow}>
               {SECTIONS.map((entry) => (
                 <TouchableOpacity
@@ -1393,6 +1420,8 @@ export default function LifeScreen() {
             ) : (
               renderUpcoming()
             )}
+            </>
+            ) : null}
           </ScrollView>
         </GatedTabContent>
       </SwipeableTabScreen>

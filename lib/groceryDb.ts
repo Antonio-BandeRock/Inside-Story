@@ -11,6 +11,7 @@
 // The pure arithmetic (what a price means, what a line comes to) is in
 // lib/groceryList.ts, separately again, so it can be reasoned about and
 // tested with no database at all.
+import { listKitchenInventory } from './kitchenDb';
 import {
   getDatabase,
   getUpcomingShoppingList,
@@ -809,6 +810,21 @@ async function loadKitchenStock(excludeListId: string): Promise<Map<string, Kitc
       quantity: harvest.quantityRemaining,
       unit: harvest.unit,
       date: harvest.readyAt.slice(0, 10),
+    });
+  }
+
+  // Anything actually in the kitchen, which since 2026-09-05 includes what
+  // ticking a grocery line put there. This is a measured amount, drawn down as
+  // it gets used, so unlike a bare purchase date it can be subtracted.
+  for (const item of await listKitchenInventory()) {
+    // Harvests are already gathered above, from their own tables.
+    if (item.source !== 'manual' && item.source !== 'purchase') continue;
+    add(item.foodName, {
+      id: item.id,
+      source: 'kitchen',
+      quantity: item.quantityRemaining,
+      unit: item.unit,
+      date: item.addedAt,
     });
   }
 

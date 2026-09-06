@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.13',
+    date: '2026-09-05',
+    changes: [
+      "New: Kitchen, on the Life tab. Everything you have on hand in one place, from the garden, from what you have fermented, from what you have bought, and from anything you add yourself.",
+      "Ticking something off a grocery list now puts it in your kitchen. Entering the real size in the price panel corrects it, so a 750ml bottle is recorded as 750ml rather than as whatever the recipe asked for.",
+      "Each item can have some marked used, be marked all gone, or be added straight back onto your grocery list when it runs low.",
+      "Every item says how long it has been there, on purpose: nothing takes an amount down as you cook, so an inventory is only as right as you keep it, and an amount the app cannot check should tell you how old it is.",
+    ],
+  },
+  {
     version: '1.0.34.12',
     date: '2026-09-05',
     changes: [
