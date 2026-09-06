@@ -276,7 +276,11 @@ export function describeUpkeepSummary(summary: UpkeepSummary): string {
   }
   if (summary.needsSetup.length > 0) {
     parts.push(
-      `${summary.needsSetup.length} ${summary.needsSetup.length === 1 ? 'cannot be' : 'cannot be'} placed on a calendar yet, and ${summary.needsSetup.length === 1 ? 'it is' : 'they are'} listed rather than dropped.`,
+      // "cannot be" either way, so no ternary. The first version had one with
+      // identical branches, left over from a singular/plural switch that
+      // turned out not to need one, and it also split the sentence across
+      // three literals for no reason.
+      `${summary.needsSetup.length} cannot be placed on a calendar yet, and ${summary.needsSetup.length === 1 ? 'it is' : 'they are'} listed rather than dropped.`,
     );
   }
 
