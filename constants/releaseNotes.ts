@@ -41,13 +41,21 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.35',
+    date: '2026-09-06',
+    changes: [
+      'Inviting someone no longer attaches a file. It was asking you to pick the person twice, once for the message and again for the file, and that second send was the part already shown not to work.',
+      'The invite is now one message with the code in it, sent once.',
+    ],
+  },
+  {
     version: '1.0.34.34',
     date: '2026-09-06',
     changes: [
       'New: I Was Sent an Invite, in Profile then Connections. Paste the code from someone\u2019s message and it opens the accept screen. This is now the way to connect two phones.',
       'Why: sending an invite as a link did not work, because messaging apps only make ordinary web links tappable. Sending it as a file did not work either, because tapping it in WhatsApp failed before this app was ever reached. Text always arrives, so the invite message now leads with a code you can copy.',
       'Pasting the whole message is fine. It will find the code inside it, and it tells you plainly if what you pasted is not an invite rather than failing quietly.',
-      'The file and the link are still sent alongside the code, in case they work on a different phone or a different app.',
+      'The link is still in the message underneath, in case you are sending through something that does make it tappable.',
     ],
   },
   {

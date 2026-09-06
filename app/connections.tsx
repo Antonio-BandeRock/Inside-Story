@@ -22,7 +22,6 @@ import {
   buildConnectionInviteLink,
   buildPartnerInvite,
   buildPartnerInviteLink,
-  writeConnectionInviteIsFile,
   encodeInviteCode,
   parseInviteInput,
   listConnections,
@@ -38,7 +37,6 @@ import {
   fingerprintStanding,
   linkState,
 } from '../lib/partners';
-import { shareFileIfAvailable } from '../lib/nativeSharing';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 
 export default function ConnectionsScreen() {
@@ -83,20 +81,17 @@ export default function ConnectionsScreen() {
     setInviting(true);
     try {
       const [invite, link] = await Promise.all([buildConnectionInvite(), buildConnectionInviteLink()]);
-      // Sent as a file for the same reason the partner invite is: a
-      // hashimotosapp:// link inside a message is not tappable in any messaging
-      // app, so on its own it arrives as dead text. This button had the identical
-      // problem and was fixed in the same pass.
-      const fileUri = await writeConnectionInviteIsFile(invite);
+      // Text only. Attaching the .is file as well meant a SECOND share sheet
+      // after the message, so inviting someone required picking them twice, and
+      // the second send was the path already shown not to work.
       const code = encodeInviteCode(invite);
       await Share.share({
         message:
           `${invite.fromName} wants to connect with you in the Inside Story app, so you can share recipes directly and privately.\n\n` +
           `In Inside Story, go to Profile, then Connections, then "I Was Sent an Invite" and paste this in:\n\n` +
           `${code}\n\n` +
-          `(A file is attached too, and this link may work on some phones: ${link})`,
+          `(If tapping this link happens to work on your phone, that does the same thing: ${link})`,
       });
-      if (fileUri) await shareFileIfAvailable(fileUri, { mimeType: '*/*', dialogTitle: 'Send this invite' });
     } catch (error) {
       console.error('[ConnectionsScreen] Failed to share an invite', error);
       showInfoAlert('Something went wrong', "This couldn't be shared. Please try again.");
@@ -115,27 +110,20 @@ export default function ConnectionsScreen() {
       const grants = defaultGrantsForRole('partner');
       const invite = await buildPartnerInvite({ grants });
       const link = await buildPartnerInviteLink({ grants });
-      // The FILE is what actually opens on the other phone. A hashimotosapp://
-      // link inside a message is not tappable in any messaging app, which is
-      // exactly how the first version of this failed. The link stays in the text
-      // only as a fallback for a channel that does linkify it.
-      const fileUri = await writeConnectionInviteIsFile(invite);
-      // The CODE leads, because it is the only part that has actually been shown
-      // to survive the trip. A deep link is not tappable in a messaging app, and
-      // a .is file tapped in WhatsApp produced WhatsApp's own "Couldn't load
-      // object" rather than opening this app. Text always arrives.
+      // The CODE is the whole mechanism, and the only thing sent. A deep link is
+      // not tappable in a messaging app, and a .is file tapped in WhatsApp
+      // produced WhatsApp's own "Couldn't load object" without this app ever
+      // being reached. Attaching the file anyway meant a second share sheet that
+      // sent the broken path, so it is gone: leading someone toward the thing
+      // that does not work is worse than not offering it.
       const code = encodeInviteCode(invite);
       await Share.share({
         message:
           `Here is my Inside Story partner invite, so we can plan meals together.\n\n` +
           `In Inside Story, go to Profile, then Connections, then "I Was Sent an Invite" and paste this in:\n\n` +
           `${code}\n\n` +
-          `(A file is attached too, and this link may work on some phones: ${link})`,
+          `(If tapping this link happens to work on your phone, that does the same thing: ${link})`,
       });
-      // Android discards a file passed to Share.share, confirmed in react-native's
-      // own source, so it goes as its own second step. The same two-call shape
-      // every recipe share in this app already uses.
-      if (fileUri) await shareFileIfAvailable(fileUri, { mimeType: '*/*', dialogTitle: 'Send this invite' });
     } catch (error) {
       console.error('[ConnectionsScreen] Failed to share a partner invite', error);
     } finally {

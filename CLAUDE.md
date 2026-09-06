@@ -25,6 +25,16 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-06, 1.0.34.35): the file dropped from an invite entirely.** Reported directly, after the paste route shipped: "it appears to still be sending a .is file when I select to invite a partner."
+
+**Correct, and keeping it was the wrong call.** Sending both meant two share sheets in a row, so inviting someone asked you to pick the same person twice, and the second one sent the path already proven to fail before this app is ever reached. **Leading someone toward the thing that does not work is worse than not offering it**, and the reasoning given for keeping it (that it might work on another phone) is a guess, while the two-sheet cost is certain.
+
+Removed from all three paths: the recipe-connection invite, the partner invite, and the send-back that finishes a handshake. Each now sends one message with the code in it.
+
+**The RECEIVING side is deliberately left in place**, along with its checks. It costs nothing to keep, it is the only half that would matter if the Android registration is ever fixed in a native build, and removing it would mean rebuilding it to find out.
+
+`tsc` clean, `eslint` clean, bare-text audit 0, all four guards clean, all fifteen suites passing. **Not yet confirmed on-device**, and the check is simply that inviting someone now opens one share sheet rather than two.
+
 **Most recent (2026-09-06, 1.0.34.34): pasting an invite, after the link and the file both failed to reach the other phone.** Reported directly: the .is file arrived, and tapping it on the receiving phone produced "Couldn't load object... Go back", which sends you back to WhatsApp.
 
 **That dialog is WhatsApp's, not this app's**, confirmed by grepping for the string and finding nothing. So the app was never launched at all, and the problem is upstream of every line of code in it.
