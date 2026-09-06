@@ -4895,6 +4895,59 @@ async function runDatabaseInitialization() {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- --- Upkeep: things that need doing again (2026-09-05) --------------
+      --
+      -- Life fourth area. Servicing, filters, registrations, passports:
+      -- anything with a date that bites when it is forgotten.
+      --
+      -- WHY THIS DOES NOT USE due_rule_json THE WAY finance_recurring DOES,
+      -- which was the first plan and was wrong.
+      --
+      -- A bill is calendar-anchored: rent arrives on the 1st whether or not
+      -- you did anything. A service is LAST-DONE-anchored: a boiler serviced
+      -- in March is next due the following March, not next January. Reusing
+      -- the bill machinery would have announced a service was due in January
+      -- regardless of the one three months earlier. Same-looking shape,
+      -- different meaning, so interval_months plus last_done_on instead.
+      --
+      -- Two cadences, because an expiry is genuinely not a service: it has
+      -- one date and then it is over. renewable separates a passport, which
+      -- is renewed, from a warranty, which simply ends, since telling
+      -- someone to renew a finished warranty is telling them to do an
+      -- impossible thing.
+      --
+      -- Nothing here asserts what is required. Whether a vehicle must be
+      -- inspected, or how long a licence lasts, depends entirely on where
+      -- someone lives. See constants/workBenefitPrompts.ts for the same rule
+      -- and the correction earlier the same day that produced it.
+      CREATE TABLE IF NOT EXISTS upkeep_items (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        -- home, vehicle, document or other. Grouping only: the arithmetic is
+        -- identical whichever it is.
+        category TEXT NOT NULL DEFAULT 'other',
+        -- recurring or expires.
+        cadence TEXT NOT NULL DEFAULT 'recurring',
+        -- Recurring only: months between doings, and when it was last done.
+        -- Null last_done_on means never, and then there is no next date at
+        -- all rather than one counted from today, which would invent a
+        -- schedule nobody set.
+        interval_months INTEGER,
+        last_done_on TEXT,
+        -- Expiring only.
+        expires_on TEXT,
+        renewable INTEGER NOT NULL DEFAULT 1,
+        -- What it costs, when known. Null is the common case and is never
+        -- guessed at: any total built over these says how many are missing
+        -- and calls itself a floor.
+        cost REAL,
+        active INTEGER NOT NULL DEFAULT 1,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_upkeep_items_active ON upkeep_items(active);
+
       -- --- Work: what it gives you, and how it is going (2026-09-05) ------
       --
       -- Life gains its second area here, which is what the tab was built

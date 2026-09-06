@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.27',
+    date: '2026-09-05',
+    changes: [
+      'New: Upkeep, on the Life tab. Anything with a date that bites you when you forget it. A boiler service, a water filter, a registration, a passport, a warranty.',
+      'A service is counted from when you last did it, not from a fixed month. A boiler serviced in March is next due the following March, and recording that you did something today moves the next date. That is the one thing here that works differently from your bills, where rent arrives on the 1st whether or not you did anything.',
+      'Things that run out are handled as their own kind of thing, since a passport has one date and then it is over. You say whether it renews, so the app never suggests renewing a warranty that has finished; that stays on the list as a record rather than as a task.',
+      'What is overdue leads, then what is due in the next 45 days, then everything by area. Anything missing the piece it needs to be put on a calendar is listed as needing setup rather than quietly dropped.',
+      'Costs are never guessed. Anything with no cost recorded is counted separately, and the figure for what is coming says so and calls itself a floor.',
+      'And it never says something is required. Whether a vehicle has to be inspected, or how long a licence lasts, depends on where you live, so the app holds what you told it.',
+    ],
+  },
+  {
     version: '1.0.34.26',
     date: '2026-09-05',
     changes: [

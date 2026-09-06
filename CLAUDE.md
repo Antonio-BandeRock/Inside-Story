@@ -25,6 +25,33 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-05, 1.0.34.27): Upkeep, Life's fourth area, and a reuse that turned out to be wrong.** Asked what other areas Life should have; the answer after laying out the options was "Both, Upkeep first", the other being Emergency & Essentials.
+
+**Chosen over the alternatives for two reasons.** The mechanism had already been proven three times the same day (bills with due rules, benefit allowances with resets, sinking funds), and the documents half is load-bearing for anyone whose papers have to be renewed somewhere other than where they were issued.
+
+**THE DESIGN CALL WORTH KEEPING: THIS DOES NOT REUSE `DueRule`, WHICH WAS THE FIRST PLAN.** `lib/financeSchedule.ts` already models "the second Tuesday of every third month", and pointing that at servicing looked obviously right. It is wrong, and the distinction is exact:
+
+- **A bill is calendar-anchored.** Rent arrives on the 1st whether or not you did anything, so its next date comes from a rule about the calendar.
+- **A service is last-done-anchored.** A boiler serviced in March is next due the following March, not next January. Its next date comes from when you last did it plus how often it needs doing.
+
+Reusing the bill machinery would have announced a service was due in January regardless of the one three months earlier. **Same-looking shape, different meaning**, so `interval_months` plus `last_done_on` instead. A test asserts that doing it later moves the next date later, which is the whole difference stated as a check.
+
+**Two cadences, because an expiry is not a service.** A passport has one date and then it is over. `renewable` separates one that gets renewed from a warranty that simply ends, since **telling someone to renew a finished warranty is telling them to do an impossible thing**; that one stays on the list as a record rather than a task, and the wording says so.
+
+**Month arithmetic clamps, and it is tested four ways.** 31 August plus six months is 28 February, and the same sum a year later is 29 February. Removing the clamp fails three checks, producing exactly the impossible dates the clamp exists to prevent, which is the same trap `financeSchedule` already had to solve for a bill due on the 31st.
+
+**Every refusal has a reason rather than a date from nothing.** Never done, no interval recorded, no expiry date. A recurring item with no last-done date **is not counted from today**, since that would invent a schedule nobody set, and a mutation making it do that fails four checks. Anything unplaceable is listed as needing setup rather than dropped, so a clean-looking screen cannot hide the item nobody finished.
+
+**Costs are never invented.** What is coming up is totalled from costs actually recorded, and how many have none is reported so the figure calls itself a floor. With no costs at all it quotes no figure and asks for them, verified by a check that no dollar sign appears.
+
+**Nothing asserts what is required**, carrying forward the rule `constants/workBenefitPrompts.ts` established and the correction earlier the same day that produced it. Whether a vehicle must be inspected depends entirely on where someone lives, so the app holds what it was told. A test checks the category text for "must", "required by", "by law" and "mandatory".
+
+**One of my own expectations was wrong again and the code was right.** I asserted the annual boiler service would be the most overdue item, because a year sounds worse than a quarter. The three-month filter last done in March was 96 days past due against the boiler's 35: **how far past due is the question, not how long the interval is.** The sort was correct and the test now says why.
+
+`scripts/test_upkeep.js` is 86 checks. Five mutations confirmed to break it, including dropping the month clamp and inventing a date for something never done. `tsc` clean, `eslint` clean on every new and touched file, bare-text audit 0, schema guard clean, all thirteen suites passing. Every new statement verified against a scratch database. No reference-database change. **Not yet confirmed on-device.**
+
+**Named and next: Emergency & Essentials**, the other half of the same answer. Checked while deciding: **there is nothing anywhere in the app for emergency contacts or next of kin**, while conditions, active medications and doses, allergies and healing stage are all already held and unreachable by anyone but the person themselves. Reports does not cover it, confirmed by reading what it assembles: a clinical summary over a date range for a doctor, which is a different audience, a different urgency and no date range at all.
+
 **Most recent (2026-09-05, 1.0.34.26): work strain wired into Pattern Finder, and the granularity problem that ruled out the obvious way to do it.** Direct instruction, closing the follow-up named when Work shipped an hour earlier.
 
 **THE PROBLEM THAT SHAPED EVERYTHING.** Pattern Finder asks what was logged in the 6, 12, 24 or 48 hours BEFORE a flare. A work answer covers a whole WEEK. It cannot go in one of those windows, because the week contains the flare and six other days, and **calling a weekly rating an antecedent of a Tuesday evening would be a category error dressed up as a correlation.** So this is not a fourth candidate array beside foods, dimensions and categories. It is a between-groups comparison and it keeps its own field with its own name so nothing conflates the two.

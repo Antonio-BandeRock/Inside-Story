@@ -9,6 +9,7 @@ import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { KitchenSection } from '../../components/KitchenSection';
+import { UpkeepSection } from '../../components/UpkeepSection';
 import { WorkSection } from '../../components/WorkSection';
 import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
@@ -126,7 +127,7 @@ import { parsePriceInput } from '../../lib/groceryList';
 
 const TAB_COLOR = colors.tabLife;
 
-type LifeLens = 'finances' | 'kitchen' | 'work';
+type LifeLens = 'finances' | 'kitchen' | 'work' | 'upkeep';
 type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money' | 'goals';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
@@ -213,9 +214,33 @@ const WORK_HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
+// Upkeep, added 2026-09-05, and Life fourth area. Chosen over the
+// alternatives because the mechanism was already proven three times the same
+// day, and because the documents half matters most to anyone whose papers
+// have to be renewed somewhere other than where they were issued.
+const UPKEEP_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'What belongs here',
+    body: 'Anything with a date that bites you when you forget it. A boiler service, a water filter, a registration, a passport, a warranty. Home, vehicle and documents sit together because they are the same shape: a thing, a date, and a cost you would rather see coming.',
+  },
+  {
+    heading: 'A service is counted from when you did it',
+    body: 'This is the one thing that works differently from your bills. Rent arrives on the 1st whether or not you did anything, so a bill is a rule about the calendar. A boiler serviced in March is next due the following March, so a service is counted from the last time you did it. Recording that you did something today moves the next date, which is the whole point.',
+  },
+  {
+    heading: 'Things that run out are not services',
+    body: 'A passport has one date and then it is over. Some of those renew and some simply end, and the app is told which, so it never suggests renewing a warranty that has finished. Something that has ended stays on the list as a record rather than as a task.',
+  },
+  {
+    heading: 'What it will not do',
+    body: 'It never says something is required. Whether a vehicle has to be inspected, or how long a licence lasts, depends entirely on where you live, so the app holds what you told it rather than asserting a rule. It never guesses a cost either: anything with no cost recorded is counted separately, and any total says so and calls itself a floor. And anything missing the piece it needs to be put on a calendar is listed as needing setup rather than quietly dropped.',
+  },
+];
+
 const LIFE_LENSES: LensOption<LifeLens>[] = [
   { key: 'finances', label: 'Finances', icon: 'wallet-outline', help: LIFE_HELP_SECTIONS },
   { key: 'work', label: 'Work', icon: 'briefcase-outline', help: WORK_HELP_SECTIONS },
+  { key: 'upkeep', label: 'Upkeep', icon: 'construct-outline', help: UPKEEP_HELP_SECTIONS },
   // 2026-09-05. What is in the house is a household-running concern, the same
   // as bills are, which is why it landed on Life rather than on Food: every
   // Food lens is a BUILDER, something you make, and an inventory is not.
@@ -1579,6 +1604,8 @@ export default function LifeScreen() {
             {lens === 'kitchen' ? <KitchenSection tabColor={TAB_COLOR} /> : null}
 
             {lens === 'work' ? <WorkSection tabColor={TAB_COLOR} /> : null}
+
+            {lens === 'upkeep' ? <UpkeepSection tabColor={TAB_COLOR} /> : null}
 
             {lens === 'finances' ? (
             <>
