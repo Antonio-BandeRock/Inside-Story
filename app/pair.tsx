@@ -31,7 +31,12 @@ import {
   encodeInviteCode,
   parseInviteInput,
 } from '../lib/connections';
-import { SHARE_SCOPES, defaultGrantsForRole, type ShareGrants } from '../lib/partners';
+import {
+  PARTNER_SHARING_NOT_LIVE,
+  SHARE_SCOPES,
+  defaultGrantsForRole,
+  type ShareGrants,
+} from '../lib/partners';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 
 // Big enough that each module lands on several physical pixels at any normal
@@ -253,6 +258,9 @@ export default function PairScreen() {
               </View>
             </TouchableOpacity>
           ))}
+          <View style={styles.pendingBox}>
+            <Text style={styles.pendingText}>{PARTNER_SHARING_NOT_LIVE}</Text>
+          </View>
         </View>
       ) : null}
 
@@ -316,6 +324,13 @@ const styles = StyleSheet.create({
   fingerprintLabel: { ...typography.caption, color: colors.textMuted, ...textShadow },
   fingerprintValue: { ...typography.body, color: colors.textPrimary, letterSpacing: 1, ...textShadow },
   fingerprintHint: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  pendingBox: {
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 8,
+  },
+  pendingText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   noteBox: { backgroundColor: colors.surface, borderRadius: 12, padding: 14 },
   noteText: { ...typography.caption, color: colors.textMuted, textAlign: 'center', ...textShadow },
   primaryButton: {

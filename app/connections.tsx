@@ -24,6 +24,7 @@ import {
   type Connection,
 } from '../lib/connections';
 import {
+  PARTNER_SHARING_NOT_LIVE,
   describeGrants,
   describeLinkState,
   fingerprintStanding,
@@ -124,8 +125,7 @@ export default function ConnectionsScreen() {
         <Text style={styles.primaryButtonText}>Pair With a Partner</Text>
       </TouchableOpacity>
       <Text style={styles.partnerHint}>
-        A partner sees the same meals you do, each with what they mean for their own conditions. You
-        choose what to share, and you can change it or undo it here at any time.
+        Sets up the link between two phones and records what each of you allows the other to see. You can change it, or undo it, here at any time.
       </Text>
 
       <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => openPairing('recipe')}>
@@ -186,14 +186,19 @@ export default function ConnectionsScreen() {
                         {describeLinkState(linkState(connection.theyHaveMeAt), connection.name)}
                       </Text>
                       <Text style={styles.rowMeta}>{describeGrants(connection.grants)}</Text>
+                      {/* Said on the row itself rather than left for someone to
+                          discover. A partner card that lists what is shared,
+                          while nothing can actually travel between the phones,
+                          reads as a working feature. */}
+                      <Text style={styles.rowPending}>{PARTNER_SHARING_NOT_LIVE}</Text>
                       {connection.theirConditionCodes.length > 0 ? (
                         <Text style={styles.rowMeta}>
                           They share {connection.theirConditionCodes.length}{' '}
-                          {connection.theirConditionCodes.length === 1 ? 'condition' : 'conditions'} to plan around.
+                          {connection.theirConditionCodes.length === 1 ? 'condition' : 'conditions'} with you.
                         </Text>
                       ) : (
                         <Text style={styles.rowMeta}>
-                          They have not shared which conditions they track, so meals are planned around you alone.
+                          They have not shared which conditions they track.
                         </Text>
                       )}
                       {!fingerprintStanding('partner', connection.fingerprintVerifiedAt).verified ? (
@@ -272,20 +277,21 @@ const styles = StyleSheet.create({
   },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   emptyText: { ...typography.body, color: colors.textMuted, ...textShadow },
+  // One column, actions underneath. This used to lay the text and the actions
+  // out side by side, which read fine when a connection was a name and a date.
+  // A partner row carries six lines, so that squeezed the text into a narrow
+  // strip beside three links.
   row: {
     padding: 14,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 8,
+    gap: 10,
   },
-  rowInfo: { flex: 1 },
+  rowInfo: { gap: 2 },
   rowName: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
-  rowMeta: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
+  rowMeta: { ...typography.caption, color: colors.textMuted, ...textShadow },
   // A partner link shares more than a recipe connection does, so it is marked
   // rather than left looking like every other row.
   rowBadge: {
@@ -296,6 +302,15 @@ const styles = StyleSheet.create({
   },
   // The unchecked fingerprint on a partner link. Not danger red: nothing is
   // wrong, there is just a step that has not been done and should be.
+  rowPending: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 8,
+    padding: 8,
+    marginTop: 4,
+    ...textShadow,
+  },
   rowWarn: { ...typography.caption, color: colors.statusYellowStandalone, marginTop: 4, ...textShadow },
   partnerHint: { ...typography.caption, color: colors.textMuted, marginTop: 6, ...textShadow },
   secondaryButton: {
@@ -304,7 +319,15 @@ const styles = StyleSheet.create({
     borderRadius: 10, paddingVertical: 12, paddingHorizontal: 16, marginTop: 8,
   },
   secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
-  rowActions: { flexDirection: 'row', gap: 16 },
+  // Below the text, not beside it, with a line above so they read as controls
+  // rather than as more of the same paragraph.
+  rowActions: {
+    flexDirection: 'row',
+    gap: 20,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
   rowActionText: { ...typography.body, color: colors.accent, ...textShadow },
   rowActionTextMuted: { ...typography.body, color: colors.textMuted, ...textShadow },
   rowActionTextDanger: { ...typography.body, color: colors.danger, ...textShadow },

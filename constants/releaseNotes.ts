@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.37',
+    date: '2026-09-06',
+    changes: [
+      'A connection now reads down one column, with Rename, Stop Sharing and Remove underneath instead of squeezed into a second column beside the text.',
+      'Corrected what a partner link says it does. It was worded as though meals and lists already move between the two phones. They do not: pairing is finished, but nothing yet carries a plan from one phone to the other, and the app now says so on the partner itself.',
+      'What you allow each other is still recorded, and is what the sharing will use once it exists.',
+    ],
+  },
+  {
     version: '1.0.34.36',
     date: '2026-09-06',
     changes: [

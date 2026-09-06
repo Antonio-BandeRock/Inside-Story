@@ -82,13 +82,13 @@ export const SHARE_SCOPES: {
   {
     code: 'meals',
     label: 'Meals',
-    what: 'What is planned for each day, so you are both looking at the same dinner.',
+    what: 'Permission to see what is planned for each day, once the two phones can pass a plan between them.',
     defaultOn: true,
   },
   {
     code: 'shopping',
     label: 'Shopping lists',
-    what: 'So either of you can be the one who actually goes.',
+    what: 'Permission to see the list, so either of you can be the one who actually goes.',
     defaultOn: true,
   },
   {
@@ -114,9 +114,26 @@ export function defaultGrantsForRole(role: ConnectionRole): ShareGrants {
 
 export function describeGrants(grants: ShareGrants): string {
   const on = SHARE_SCOPES.filter((scope) => grants[scope.code]);
-  if (on.length === 0) return 'You are not sharing anything with them yet.';
-  return `You share: ${on.map((scope) => scope.label.toLowerCase()).join(', ')}.`;
+  if (on.length === 0) return 'You have allowed them nothing.';
+  return `You have allowed: ${on.map((scope) => scope.label.toLowerCase()).join(', ')}.`;
 }
+
+/**
+ * The honest state of a partner link, today.
+ *
+ * Pairing is real and finished: the keys are exchanged, the role is stored, and
+ * these permissions are recorded. What does NOT exist yet is any way for one
+ * phone to hand a meal plan to the other, so nothing actually moves between the
+ * two devices.
+ *
+ * This is deliberately one string in one place rather than wording scattered
+ * across the screens, so that when transport ships there is exactly one thing
+ * to delete rather than several claims to hunt down. Until then the app says so
+ * plainly, because a partner screen that reads as finished while nothing flows
+ * is the same overclaiming this project refuses everywhere else.
+ */
+export const PARTNER_SHARING_NOT_LIVE =
+  'Pairing is done, and these choices are saved. Passing meals and lists between two phones is not built yet, so nothing is moving between you at the moment. Your choices here are what it will use when it is.';
 
 // --- Whether the link actually works both ways -------------------------------
 //

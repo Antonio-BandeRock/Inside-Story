@@ -25,6 +25,24 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-06, 1.0.34.37): the connection row rebuilt, and the partner copy made honest after a direct question exposed it.** Two reports in one message. On the layout: "the resulting box with her information has what appear to be two columns and the left column is very narrow and has a bunch of text in it... Those should be below the rest and there should only be the one column." And then the question that mattered more: "explain to me how we each see the other person's things. How do the apps combine the scheduled meals?"
+
+**THE LAYOUT WAS AN OLD SHAPE OUTLIVING ITS CONTENT.** `row` was `flexDirection: row` with `space-between`, which read fine when a connection was a name and a date beside two links. A partner row carries six lines, so the text got crushed into a narrow strip. Now one column, with the actions below a divider so they read as controls rather than more paragraph.
+
+**THE SECOND QUESTION HAS AN UNCOMFORTABLE ANSWER, AND CHECKING IT IS WHAT MATTERED.** `mergeConditionCodes`, `verdictForSharedMeal`, `getMealPlanningPartner` and `listPartners` are all written and tested and **called by nothing**. `lib/dailyMealPlan.ts` contains no reference to a partner at all. There is no transport of any kind. Pairing is genuinely finished, and it is genuinely all that happens: nothing moves between the two phones.
+
+**The app had been saying otherwise, in the present tense, on four screens.** "A partner sees the same meals you do." "What is planned for each day, so you are both looking at the same dinner." "You share: meals, shopping lists." "so meals are planned around you alone." Someone reading that would reasonably conclude it works. **This is the same overclaiming the health content refuses**, and it went unnoticed because the copy was written alongside the design rather than alongside the wiring.
+
+**Fixed as one string in one place rather than reworded in five.** `PARTNER_SHARING_NOT_LIVE` says pairing is done, that passing meals between phones is not built, and that the recorded choices are what it will use when it is. Shown on the partner row and under the grant toggles while the choice is being made. When transport ships there is one constant to delete rather than several claims to hunt down.
+
+**The grants stay, and that is deliberate.** They are real recorded consent, chosen before anything was sent rather than switched on behind someone, and they are exactly what the feature will read. What changed is that they now describe a permission ("Permission to see what is planned for each day, once the two phones can pass a plan between them") rather than a behaviour.
+
+**Three new checks hold it, each confirmed able to fail.** The pending notice must say pairing is done and that nothing moves; every non-condition scope must read as a permission; and `describeGrants` must not say sharing is happening. Reintroducing any of the three old strings fails the suite.
+
+**Deliberately left alone:** `describeMerge` and `CONNECTION_ROLES` also describe the feature in the present tense, and are rendered nowhere. Dormant code for the unbuilt half is not a claim to anyone.
+
+`scripts/test_partners.js` is 151 checks. `tsc` clean, `eslint` clean, bare-text audit 0, all four guards clean, all sixteen suites passing. **Not yet confirmed on-device.**
+
 **Most recent (2026-09-06, 1.0.34.36): pairing by QR, after being told to stop hoping.** Direct instruction, and it was the right call: "This must work first try every time without fail and it cannot be accomplished by the user copying code sent to them and pasting it into the app somewhere. That is absolute nonsense... come back here with what our actual options are that YOU KNOW will work."
 
 **The rule that came out of it, and it is the useful part.** Both failed routes depended on something OUTSIDE this app cooperating: a messaging app linkifying a custom scheme (it never will), and Android handing over a `content://` URI with a filename in it (it usually has none). So the criterion is not "which is most convenient" but **which channel does this app own end to end.** A code on one screen and a camera on the other is the only answer, which is why Signal, WhatsApp and Discord all pair devices this way.

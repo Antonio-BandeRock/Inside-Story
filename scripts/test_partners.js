@@ -72,6 +72,7 @@ const {
   linkState, describeLinkState, fingerprintStanding,
   CONDITIONS_STALE_AFTER_DAYS, mergeConditionCodes, describeMerge,
   verdictForSharedMeal, describeSharedMealVerdict, describeEmptyPool,
+  PARTNER_SHARING_NOT_LIVE,
 } = P;
 
 let failures = 0;
@@ -122,7 +123,21 @@ const TODAY = '2026-09-06';
     /labs/.test(conditionScope.what) && /healing stage/.test(conditionScope.what) && /notes/.test(conditionScope.what));
 
   check('nothing granted says so plainly', describeGrants(recipeGrants),
-    'You are not sharing anything with them yet.');
+    'You have allowed them nothing.');
+  // The screens must not describe sharing as something already happening.
+  // Nothing carries a meal plan between two phones yet, and a partner card
+  // that reads as finished is the same overclaiming this project refuses in
+  // its health content.
+  checkTrue('the pending notice says pairing is done',
+    /[Pp]airing is done/.test(PARTNER_SHARING_NOT_LIVE));
+  checkTrue('the pending notice says nothing moves yet',
+    /not built yet/.test(PARTNER_SHARING_NOT_LIVE) && /nothing is moving/.test(PARTNER_SHARING_NOT_LIVE));
+  checkTrue('meals and shopping read as a permission, not a live behaviour',
+    SHARE_SCOPES.filter((scope) => scope.code !== 'conditions')
+      .every((scope) => scope.what.startsWith('Permission to')));
+  checkFalse('describeGrants does not claim sharing is happening',
+    /You share:|are shared/.test(describeGrants({ meals: true, shopping: true, conditions: false })));
+
   checkTrue('and a partner default lists what is on',
     /meals/.test(describeGrants(partnerGrants)) && /shopping/.test(describeGrants(partnerGrants)));
   checkFalse('without claiming conditions are shared when they are not',
