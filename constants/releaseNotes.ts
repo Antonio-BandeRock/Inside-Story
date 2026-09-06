@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.31',
+    date: '2026-09-06',
+    changes: [
+      'Fixes the Home screen sitting on Loading today and never finishing. Yesterday partner links added an index to the connections table that referred to a column which only gets added when an existing phone upgrades, so on any phone that already had the app the database could not finish setting itself up and nothing after that point loaded. A brand new install was unaffected, which is why it was not caught before it went out.',
+    ],
+  },
+  {
     version: '1.0.34.30',
     date: '2026-09-06',
     changes: [

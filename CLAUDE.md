@@ -25,6 +25,16 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-06, 1.0.34.31): the Home screen stuck on "Loading today", caused by the partner-links release hours earlier.** Reported directly: "Home screen has nothing on it. It says loading today."
+
+**A one-line schema bug with a failure mode worth remembering.** 1.0.34.30 put  in the schema block, while the migration that ADDS  to an already-existing table sits a thousand lines further down.  is a no-op where the table already exists, so on any phone that already had  (shipped 2026-08-15) the column did not exist yet, the index threw "no such column: role" inside , and **nothing downstream ever finished**, which is what Home was showing.
+
+**A fresh install was completely fine, which is exactly why it shipped.** That is the whole character of this bug class: it cannot be caught by running the app on the machine that wrote it, only by replaying the upgrade path.
+
+**Fixed by removing the index rather than moving it.** An index on a roster holding a handful of people buys nothing, and deleting it removes the failure mode instead of relocating it. Reproduced on a scratch database first (), then confirmed the full upgrade sequence completes clean afterwards.
+
+** gained a second check**, since this is the one schema mistake that passes every local test: it collects every column added by a migration (both the generic  loop and individually typed s) and fails if an index in the schema block references one. Verified by reintroducing the exact bug, which it catches and explains by name. **The general rule, now in that file: an index in the schema block may only reference columns from the ORIGINAL shipped table.**
+
 **Most recent (2026-09-06, 1.0.34.30): partner links, the first connection that does more than send one recipe.** Asked for directly, and asked for BEFORE People & Care: "if we are intent on expanding to connections with people, first there needs to be a partner... the two sides need to be able to combine the conditions for each user into one meal system that both users see. We need the first connection handshake to occur between these two for app development."
 
 **Checking first changed what this job even was, twice.**

@@ -5590,7 +5590,18 @@ async function runDatabaseInitialization() {
         -- asking about, the same freshness rule the emergency card holds.
         their_conditions_at TEXT
       );
-      CREATE INDEX IF NOT EXISTS idx_connections_role ON connections(role);
+      -- Deliberately NO index on role. It would be worthless on a roster of a
+      -- handful of people, and it broke every upgrading device: CREATE TABLE IF
+      -- NOT EXISTS is a no-op where the table already exists, so role does not
+      -- exist yet at this point in the file (its ALTER TABLE runs a thousand
+      -- lines further down), and CREATE INDEX ON connections(role) threw
+      -- "no such column: role" inside initializeDatabase. Nothing downstream
+      -- then finished, so Home sat on "Loading today" forever. Fresh installs
+      -- were fine, which is exactly what made it easy to miss.
+      --
+      -- The general trap, worth remembering: an index in this block may only
+      -- reference columns that exist in the ORIGINAL shipped table, never one
+      -- added by a migration below.
 
       -- The person's own actual lab results over time. test_code matches
       -- lab_tests.code in the bundled reference database (a cross-database
