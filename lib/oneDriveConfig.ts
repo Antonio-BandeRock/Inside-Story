@@ -24,7 +24,7 @@
  * than failing somewhere further on with a Microsoft error code nobody can act
  * on.
  */
-export const ONEDRIVE_CLIENT_ID: string | null = null;
+export const ONEDRIVE_CLIENT_ID: string | null = '6be57e5d-131b-485a-afaf-792009639cd5';
 
 /**
  * The redirect this app listens on, and the exact string to register.
@@ -52,9 +52,23 @@ export const ONEDRIVE_REDIRECT_URI = 'hashimotosapp://oauth/onedrive';
  * offline_access is what allows a refresh token, so signing in happens once
  * rather than every time the app wants to check for an update.
  *
- * Named honestly: if creating a share link turns out to require the broader
- * Files.ReadWrite, that is a real trade to put to the person rather than a
- * scope to quietly widen.
+ * VERIFIED 2026-09-06, AND IT IS THE ANSWER THAT RULED THIS ROUTE OUT FOR NOW.
+ * Graph's createLink permissions table lists, for a personal Microsoft account,
+ * least-privileged Files.ReadWrite. Files.ReadWrite.AppFolder is not accepted.
+ * So the sender-authenticates/receiver-just-fetches shape this whole design
+ * rests on cannot be had at the narrow scope: it needs full read and write to
+ * the person's entire OneDrive, every document and photo, to move a few hundred
+ * bytes. That is disproportionate, and the consent screen says so in exactly
+ * those terms to whoever is being asked.
+ *
+ * WHAT SHIPPED INSTEAD: Android's Storage Access Framework, already native in
+ * expo-file-system, where the person picks one folder and whatever sync app owns
+ * it moves the bytes. No registration, no scope, no provider lock-in.
+ *
+ * THIS FILE STAYS because the registration is real and the client id below is
+ * live. It is the path iOS will need, since SAF is Android-only. Anyone picking
+ * it up should widen the scope deliberately and say plainly on screen what full
+ * drive access means, rather than treating it as a detail.
  */
 export const ONEDRIVE_SCOPES = ['Files.ReadWrite.AppFolder', 'offline_access'] as const;
 

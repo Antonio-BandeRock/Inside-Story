@@ -14714,6 +14714,59 @@ export async function setLastSeenAppVersion(value: string) {
   );
 }
 
+// WHERE THE SHARED FOLDER FOR PARTNER SYNC IS REMEMBERED.
+//
+// Android's Storage Access Framework hands back a content:// URI once somebody
+// picks a folder, and the grant behind it survives restarts, so the URI is the
+// whole of what has to be stored. One scalar, so it lives in app_meta beside the
+// measurement system and the last-seen version rather than earning a table.
+//
+// WHY A FOLDER AND NOT AN ACCOUNT. The OneDrive API route was built as far as a
+// live app registration and then ruled out: Graph's createLink needs full read
+// and write access to a person's entire OneDrive to make the share link the
+// design depends on. A folder the person picks needs no account, no scope and no
+// permission from any provider, because whatever sync app already owns that
+// folder moves the bytes. See lib/oneDriveConfig.ts for the finding.
+const SYNC_FOLDER_URI_KEY = 'sync_folder_uri';
+
+export async function getSyncFolderUri(): Promise<string | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ value: string }>(
+    'SELECT value FROM app_meta WHERE key = ?',
+    SYNC_FOLDER_URI_KEY,
+  );
+  const value = row?.value?.trim();
+  return value ? value : null;
+}
+
+export async function setSyncFolderUri(uri: string) {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+    `,
+    SYNC_FOLDER_URI_KEY,
+    uri,
+    now,
+  );
+}
+
+/**
+ * Forgets the folder.
+ *
+ * Deletes the row rather than storing an empty string, so absence means absence
+ * everywhere and no read has to decide whether a blank value counts. Nothing in
+ * the folder itself is touched: the files there belong to the person's own
+ * storage, and removing somebody's files because they changed a setting in this
+ * app would be reaching well past what was asked.
+ */
+export async function clearSyncFolderUri() {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM app_meta WHERE key = ?', SYNC_FOLDER_URI_KEY);
+}
+
 export async function listMeals(limit = 10) {
   const db = await getDatabase();
   return db.getAllAsync<MealRecord>(

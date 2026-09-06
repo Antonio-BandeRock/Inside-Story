@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.41',
+    date: '2026-09-06',
+    changes: [
+      'Sharing with a partner now works through a folder you pick yourself, on Connections. Anything both phones can see will do: a folder inside OneDrive, Google Drive or Dropbox, or an SD card.',
+      'No account to create and no sign-in. Whatever already syncs that folder carries what you share, so the app never asks either of you for a password.',
+      'Everything written there is encrypted for one person only, so a folder the whole household can see still gives nothing away.',
+      'Send Mine Now writes your conditions across; Check for Theirs reads what your partner sent. Once theirs arrives, a generated meal plan is built around both of you.',
+      'Carrying the generated plan itself across is the next piece. The app says so on the card rather than leaving you to wonder.',
+    ],
+  },
+  {
     version: '1.0.34.40',
     date: '2026-09-06',
     changes: [
