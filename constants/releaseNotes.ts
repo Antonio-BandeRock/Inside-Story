@@ -41,6 +41,19 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.22',
+    date: '2026-09-05',
+    changes: [
+      'A harvest that is more than you can eat can now be sold, traded, or given away, from the item itself in Kitchen.',
+      'A trade needs no money anywhere. Say what came back and it goes straight into your kitchen inventory, marked as traded for rather than bought, so you can see how a jar of honey got there.',
+      'Whatever went out comes off your harvest the same way cooking with it would, so the inventory stays honest either way.',
+      'A trade is not priced, with one narrow exception: if you have recorded paying for that food before, in the same unit, the app says what you did not have to spend, at the price you actually paid and on the day you paid it. It is money you kept, never money you earned, and it stays out of your income.',
+      'Where no price was ever recorded, or the unit is different, it says so and counts the goods rather than converting. A per-package price says nothing about a kilo.',
+      'What you gave away is never valued. Nobody knows what their own potatoes were worth.',
+      'Selling writes a real income entry, so surplus reaches your income figures instead of sitting in its own corner.',
+    ],
+  },
+  {
     version: '1.0.34.21',
     date: '2026-09-05',
     changes: [

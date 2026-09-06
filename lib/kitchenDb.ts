@@ -34,7 +34,11 @@ import {
   recordHarvestUsage,
 } from './db';
 
-export type KitchenItemSource = 'manual' | 'purchase' | 'garden' | 'fermentation';
+// 'trade' added 2026-09-05: food that arrived by swapping surplus harvest
+// for it. Its own source rather than 'manual', because how a jar of honey got
+// here is worth knowing and because nothing was bought, so it never belongs in
+// a spending figure.
+export type KitchenItemSource = 'manual' | 'purchase' | 'garden' | 'fermentation' | 'trade';
 
 // Two inventories, not one list with a filter on it. See kitchen_items' own
 // column comment in lib/db.ts for why they are kept apart.
@@ -96,7 +100,9 @@ export async function listKitchenInventory(kind: KitchenItemKind = 'food'): Prom
   for (const row of rows) {
     items.push({
       ...row,
-      source: row.source === 'purchase' ? 'purchase' : 'manual',
+      // Anything unrecognised still falls back to 'manual', but a real
+      // stored source is kept rather than flattened.
+      source: row.source === 'purchase' ? 'purchase' : row.source === 'trade' ? 'trade' : 'manual',
       kind: row.kind === 'non_food' ? 'non_food' : 'food',
       note: row.note,
     });
@@ -184,19 +190,22 @@ export async function addKitchenItem(input: {
   // for matching, and only the nutrient link is missing.
   foodId?: string | null;
   note?: string | null;
+  source?: KitchenItemSource;
 }): Promise<string> {
   const db = await getDatabase();
   const id = `kitchen_${Date.now()}`;
   const quantity = Math.max(0, input.quantity);
   await db.runAsync(
     `INSERT INTO kitchen_items (id, category, food_name, quantity, unit, quantity_remaining, source, note, food_id, kind)
-     VALUES (?, ?, ?, ?, ?, ?, 'manual', ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     input.category?.trim() || '',
     input.foodName.trim(),
     quantity,
     input.unit.trim(),
     quantity,
+    // Defaults to 'manual', which is what every existing caller means.
+    input.source ?? 'manual',
     input.note?.trim() || null,
     input.foodId ?? null,
     input.kind ?? 'food',

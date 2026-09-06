@@ -25,6 +25,26 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-05, 1.0.34.22): surplus harvest sold, traded or given away, and a trade needs no money anywhere.** Direct extension of the income work: "A sale via a harvest could be through a trade as well, and not monetary. They could have traded their extra potatoes for ears of corn, etc. In that case the receipt of goods would go directly into the kitchen as part of the food inventory."
+
+**Three things can happen to a surplus and they are structurally different**, which is why this is its own record rather than an income row with a price invented for it: sold puts money in, **traded puts GOODS in**, given puts nothing in. The middle one is real economic activity with no money in it at any point, and it is the one every budgeting tool either ignores or fakes a price for.
+
+**One disposition is three moves, and they happen together.** The harvest comes down through the same `consumeKitchenItem` cooking already uses, so a harvest drawn down by trading and one drawn down by eating go through one path rather than two that can drift. For a trade, each thing received becomes a kitchen row with a new `'trade'` source, so the inventory can say how a jar of honey got there and never counts it as bought. For a sale, an income entry is written and can carry an income stream, so surplus reaches the income figures rather than sitting in its own corner.
+
+**WHAT A TRADE IS WORTH, WHICH IS MOSTLY NOTHING.** This app already settled the general question the austere way: where the garden covered a grocery line, that is a **count of lines that did not have to be bought, never a dollar saving**, because what the produce would have cost is unknown. A trade gets one narrow exception, and it turns on a real distinction: if there is a **recorded price** for the food received, from an actual past grocery trip, then "what would this have cost me" is not unknown, it is measured from that person's own shopping. So it can say "8 kg of corn at the $2.40 a kg you paid on 2026-08-14, about $19.20 you did not spend."
+
+**Two hard rules on that figure, both tested.** It is an **avoided cost and never income** ("money you kept, not money you earned"), because no money arrived and letting it reach the income mix would put money that does not exist into the "$X a month across N streams" total. And it is only computed when the recorded price's unit **matches** what was received: a per-package price has no per-kilo meaning without a size, and converting would be the invented number again by a longer route. Same refusal `mergeShoppingAmounts` already makes about crossing weight and volume.
+
+**What was given is never valued**, at either end. Nobody knows what their own potatoes were worth, and valuing both sides would also double count one event. A test confirms the potato's own recorded price is never used even when one exists.
+
+**A real bug caught by testing SQL against a scratch database rather than trusting `tsc`.** `getLastPaidPrices` aliased a column `AS on`, and **ON is a reserved word**: SQLite raises a syntax error only when the statement is prepared, so `tsc` was clean and it would have thrown at runtime. Renamed to `paidOn`, with the reason written into the function so nobody renames it back. Every new statement was then run against a scratch database, including the receipts cascade.
+
+**Quantities are never added across units** in the surplus summary: 3 kg of beans and 3 bunches of beans are two lines, not 6 of anything. Keyed by food AND unit, and a mutation collapsing that key fails.
+
+**Deleting a disposition deliberately does not reverse it.** Deleting the note of an event does not un-happen it: the corn is in the kitchen and the potatoes are gone. Putting either back would edit an inventory to match a record, which is the wrong way round.
+
+`scripts/test_harvest_trade.js` is 64 checks. Four mutations confirmed to break it, including converting across mismatched units and adding quantities across units. `tsc` clean, `eslint` clean on every touched file, bare-text audit 0, schema guard clean, all eleven suites passing. No reference-database change. **Not yet confirmed on-device.**
+
 **Most recent (2026-09-05, 1.0.34.21): income streams that vary, which is all the interesting ones.** Direct question: "Do we have a way to track multiple income streams? For instance, what if the user had a goal to add solar panels to their home so they can be able to feed more electricity into the grid than they use and could then receive a small monthly income from it? Or, maybe they sell their extra harvests, or do some other work on the side."
 
 **The answer split, and checking it was the useful part.** Several income streams were already possible: `finance_recurring` holds any number of income rows, so a paycheck beside a pension was fine. But it stores ONE amount and treats it as what arrives every month, and **all three examples given are income that does not do that.** Solar feed-in varies with sun, season and what the house used. Harvest sales vary with what is ripe and stop entirely for months. Side work varies with whether there was work. So the app could represent the boring stream and not one of the three asked about. Separately, `summarizeRecurring` collapsed every source into one `monthlyIncome`, so nothing reported income per stream at all.
@@ -45,7 +65,7 @@ The app is under active development and substantially built. Current state:
 
 `scripts/test_finance_income.js` is 88 checks. Five mutations confirmed to break it, including the two that matter most: averaging over earning months only, and rounding payback down. `tsc` clean, `eslint` clean on every touched file, bare-text audit 0, schema guard clean, all ten suites passing. No reference-database change. **Not yet confirmed on-device.**
 
-**Named and not built:** selling harvest is currently two unconnected acts, a `garden_harvests` draw-down and an income receipt. Linking them so recording a sale does both is the obvious next step, and it is the same shape as the kitchen draw-down that already exists.
+**Named and now closed the same day (1.0.34.22):** selling harvest was two unconnected acts, a `garden_harvests` draw-down and an income receipt, with nothing linking them. Closed along with trading and giving away, which turned out to be the more interesting half.
 
 **Most recent (2026-09-05, 1.0.34.20): spending tagged to a goal, closing the double-entry gap named an hour earlier.** Direct instruction: "Do the entry tagging so a purchase counts toward a goal."
 

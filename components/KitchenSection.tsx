@@ -40,12 +40,36 @@ import {
   consumeKitchenItem,
   type KitchenInventoryItem,
 } from '../lib/kitchenDb';
+import {
+  DISPOSITION_KINDS,
+  describeValuation,
+  formatQuantity,
+  valueReceivedGoods,
+  type DispositionKind,
+  type ReceivedGood,
+  type RecordedPrice,
+} from '../lib/harvestTrade';
+import { getLastPaidPrices, recordDisposition } from '../lib/harvestTradeDb';
+
+type DispositionForm = {
+  itemId: string;
+  kind: DispositionKind;
+  quantity: string;
+  withWhom: string;
+  amount: string;
+  // What came back, for a trade. Two rows to start, since a trade is at
+  // least one thing for one thing and a second row is usually wanted.
+  received: { foodName: string; quantity: string; unit: string }[];
+};
 
 const SOURCE_LABEL: Record<KitchenInventoryItem['source'], string> = {
   manual: 'Added by you',
   purchase: 'Bought',
   garden: 'From the garden',
   fermentation: 'Fermented',
+  // 2026-09-05. Traded for, rather than bought: surplus harvest swapped for
+  // something else. Worth saying, because nothing was spent on it.
+  trade: 'Traded for',
 };
 
 export function KitchenSection({ tabColor }: { tabColor: string }) {
@@ -64,6 +88,10 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
   const [newQuantity, setNewQuantity] = useState('');
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
+  const [disposition, setDisposition] = useState<DispositionForm | null>(null);
+  // What this person has actually paid for things, used only to say what a
+  // trade saved them. Never to price what they gave away.
+  const [lastPaid, setLastPaid] = useState<Record<string, RecordedPrice>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -84,6 +112,10 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
   // why this is not a hand-written list of staples.
   useEffect(() => {
     void listPurchasableFoods().then(setFoods).catch(() => setFoods([]));
+  }, []);
+
+  useEffect(() => {
+    void getLastPaidPrices().then(setLastPaid).catch(() => setLastPaid({}));
   }, []);
 
   async function run(action: () => Promise<void>) {
@@ -154,6 +186,60 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
       });
     });
     showInfoAlert('Added', `${item.foodName} is on your grocery list.`);
+  }
+
+  async function handleDisposition(item: KitchenInventoryItem) {
+    if (!disposition) return;
+    const quantity = Number(disposition.quantity);
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      showInfoAlert('How much?', 'Say how much of it went, above zero.');
+      return;
+    }
+    if (quantity > item.quantityRemaining) {
+      showInfoAlert(
+        'More than you have',
+        `There is ${formatQuantity(item.quantityRemaining, item.unit)} left, so that is the most that can have gone.`,
+      );
+      return;
+    }
+    const amount = disposition.kind === 'sold' ? Number(disposition.amount) : null;
+    if (disposition.kind === 'sold' && (!Number.isFinite(amount as number) || (amount as number) <= 0)) {
+      showInfoAlert('How much did you get?', 'Enter what it sold for.');
+      return;
+    }
+    const received: ReceivedGood[] = disposition.kind === 'traded'
+      ? disposition.received
+          .filter((row) => row.foodName.trim() && Number(row.quantity) > 0)
+          .map((row) => ({ foodName: row.foodName.trim(), quantity: Number(row.quantity), unit: row.unit.trim() }))
+      : [];
+    if (disposition.kind === 'traded' && received.length === 0) {
+      showInfoAlert('What came back?', 'A trade means something came the other way. Say what, and how much.');
+      return;
+    }
+
+    await run(async () => {
+      await recordDisposition({
+        occurredOn: new Date().toISOString().slice(0, 10),
+        kind: disposition.kind,
+        inventoryId: item.id,
+        foodName: item.foodName,
+        quantityGiven: quantity,
+        unit: item.unit,
+        withWhom: disposition.withWhom,
+        amount,
+        received,
+      });
+      setDisposition(null);
+    });
+
+    if (received.length > 0) {
+      const valuation = valueReceivedGoods(received, lastPaid);
+      const note = describeValuation(valuation);
+      showInfoAlert(
+        'In your kitchen',
+        `${received.map((good) => `${formatQuantity(good.quantity, good.unit)} of ${good.foodName}`).join(', ')} added.${note ? ` ${note}` : ''}`,
+      );
+    }
   }
 
   async function handleMarkGone(item: KitchenInventoryItem) {
@@ -370,9 +456,159 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                       ) : null}
                     </View>
                     {item.source === 'garden' || item.source === 'fermentation' ? (
-                      <Text style={styles.itemMeta}>
-                        This came from a harvest, so it is removed where the rest of its history lives rather than here.
-                      </Text>
+                      <>
+                        <Text style={styles.itemMeta}>
+                          This came from a harvest, so it is removed where the rest of its history lives rather than here.
+                        </Text>
+
+                        {disposition?.itemId === item.id ? (
+                          <View style={styles.dispositionBox}>
+                            <Text style={styles.dispositionTitle}>More than you can eat?</Text>
+                            <View style={styles.actionRow}>
+                              {DISPOSITION_KINDS.map((entry) => (
+                                <TouchableOpacity
+                                  key={entry.code}
+                                  style={[
+                                    styles.secondaryButton,
+                                    disposition.kind === entry.code && { backgroundColor: tabColor, borderColor: tabColor },
+                                  ]}
+                                  activeOpacity={0.85}
+                                  onPress={() => setDisposition({ ...disposition, kind: entry.code })}
+                                >
+                                  <Text
+                                    style={
+                                      disposition.kind === entry.code ? styles.smallButtonText : styles.secondaryButtonText
+                                    }
+                                  >
+                                    {entry.label}
+                                  </Text>
+                                </TouchableOpacity>
+                              ))}
+                            </View>
+                            <Text style={styles.itemMeta}>
+                              {DISPOSITION_KINDS.find((entry) => entry.code === disposition.kind)?.help}
+                            </Text>
+
+                            <View style={styles.row}>
+                              <AppTextInput
+                                style={[styles.input, styles.rowGrow]}
+                                value={disposition.quantity}
+                                onChangeText={(text) => setDisposition({ ...disposition, quantity: text })}
+                                placeholder={`how much (${item.unit || `amount`})`}
+                                keyboardType="numeric"
+                              />
+                              <AppTextInput
+                                style={[styles.input, styles.rowGrow]}
+                                value={disposition.withWhom}
+                                onChangeText={(text) => setDisposition({ ...disposition, withWhom: text })}
+                                placeholder={disposition.kind === 'sold' ? 'who bought it' : 'who with'}
+                              />
+                            </View>
+
+                            {disposition.kind === 'sold' ? (
+                              <AppTextInput
+                                style={styles.input}
+                                value={disposition.amount}
+                                onChangeText={(text) => setDisposition({ ...disposition, amount: text })}
+                                placeholder="what you got for it"
+                                keyboardType="numeric"
+                              />
+                            ) : null}
+
+                            {disposition.kind === 'traded' ? (
+                              <>
+                                <Text style={styles.dispositionSubtitle}>What came back</Text>
+                                {disposition.received.map((row, index) => (
+                                  <View key={index} style={styles.row}>
+                                    <AppTextInput
+                                      style={[styles.input, styles.rowGrow]}
+                                      value={row.foodName}
+                                      onChangeText={(text) => {
+                                        const next = [...disposition.received];
+                                        next[index] = { ...next[index], foodName: text };
+                                        setDisposition({ ...disposition, received: next });
+                                      }}
+                                      placeholder="what you got"
+                                    />
+                                    <AppTextInput
+                                      style={[styles.input, styles.rowNarrow]}
+                                      value={row.quantity}
+                                      onChangeText={(text) => {
+                                        const next = [...disposition.received];
+                                        next[index] = { ...next[index], quantity: text };
+                                        setDisposition({ ...disposition, received: next });
+                                      }}
+                                      placeholder="how much"
+                                      keyboardType="numeric"
+                                    />
+                                    <AppTextInput
+                                      style={[styles.input, styles.rowNarrow]}
+                                      value={row.unit}
+                                      onChangeText={(text) => {
+                                        const next = [...disposition.received];
+                                        next[index] = { ...next[index], unit: text };
+                                        setDisposition({ ...disposition, received: next });
+                                      }}
+                                      placeholder="unit"
+                                    />
+                                  </View>
+                                ))}
+                                <TouchableOpacity
+                                  activeOpacity={0.85}
+                                  onPress={() =>
+                                    setDisposition({
+                                      ...disposition,
+                                      received: [...disposition.received, { foodName: '', quantity: '', unit: '' }],
+                                    })
+                                  }
+                                >
+                                  <Text style={[styles.itemMeta, { color: tabColor }]}>+ Something else came back</Text>
+                                </TouchableOpacity>
+                                <Text style={styles.itemMeta}>
+                                  Whatever you got goes straight into your kitchen. No money moved either way, so nothing
+                                  here counts as income or as spending.
+                                </Text>
+                              </>
+                            ) : null}
+
+                            <View style={styles.actionRow}>
+                              <TouchableOpacity
+                                style={[styles.smallButton, { backgroundColor: tabColor }]}
+                                activeOpacity={0.85}
+                                disabled={busy}
+                                onPress={() => void handleDisposition(item)}
+                              >
+                                <Text style={styles.smallButtonText}>Record it</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                style={styles.secondaryButton}
+                                activeOpacity={0.85}
+                                onPress={() => setDisposition(null)}
+                              >
+                                <Text style={styles.secondaryButtonText}>Cancel</Text>
+                              </TouchableOpacity>
+                            </View>
+                          </View>
+                        ) : (
+                          <TouchableOpacity
+                            style={styles.secondaryButton}
+                            activeOpacity={0.85}
+                            disabled={busy}
+                            onPress={() =>
+                              setDisposition({
+                                itemId: item.id,
+                                kind: 'traded',
+                                quantity: '',
+                                withWhom: '',
+                                amount: '',
+                                received: [{ foodName: '', quantity: '', unit: '' }],
+                              })
+                            }
+                          >
+                            <Text style={styles.secondaryButtonText}>Sold, Traded or Gave Away</Text>
+                          </TouchableOpacity>
+                        )}
+                      </>
                     ) : null}
                   </View>
                 ) : null}
@@ -430,7 +666,22 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 8, alignItems: 'flex-end' },
   rowHalf: { flex: 1, gap: 4 },
   rowGrow: { flex: 1 },
+  rowNarrow: { width: 84 },
   actionRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+
+  // Recording that a surplus was sold, traded or given away, 2026-09-05.
+  // Set apart on its own surface because it is a different kind of act from
+  // the row's other buttons: those change an amount, this records an event
+  // that also moves goods somewhere else.
+  dispositionBox: {
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: colors.surfaceMuted,
+    gap: 8,
+  },
+  dispositionTitle: { ...typography.bodyEmphasis, ...textShadow, color: colors.textPrimary, fontWeight: '400' },
+  dispositionSubtitle: { ...typography.caption, ...textShadow, color: colors.textMuted, marginTop: 2 },
   addBlock: { gap: 8, marginTop: 4 },
   kindRow: { flexDirection: 'row', gap: 8, marginBottom: 2 },
   kindPill: {

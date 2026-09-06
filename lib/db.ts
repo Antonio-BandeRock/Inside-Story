@@ -4895,6 +4895,67 @@ async function runDatabaseInitialization() {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- --- What happens to extra harvest (2026-09-05) --------------------
+      --
+      -- Direct extension of the income work: "A sale via a harvest could be
+      -- through a trade as well, and not monetary. They could have traded
+      -- their extra potatoes for ears of corn, etc. In that case the receipt
+      -- of goods would go directly into the kitchen as part of the food
+      -- inventory."
+      --
+      -- Three things can happen to a surplus and they are structurally
+      -- different: sold puts money in, traded puts GOODS in, given puts
+      -- nothing in. The middle one is real economic activity with no money
+      -- anywhere in it, which is why it needs a record of its own rather
+      -- than being squeezed into an income row with a made-up price.
+      --
+      -- See lib/harvestTrade.ts for the rule on what a trade is worth: only
+      -- what was RECEIVED can be valued, only where a price was actually
+      -- paid for that food before, and the result is an avoided cost that
+      -- never counts as income.
+      CREATE TABLE IF NOT EXISTS harvest_dispositions (
+        id TEXT PRIMARY KEY,
+        occurred_on TEXT NOT NULL,
+        -- sold, traded or given.
+        kind TEXT NOT NULL,
+        -- Where the goods came from, so the draw-down can be routed. Matches
+        -- the id prefixes kitchen inventory already uses.
+        source TEXT NOT NULL,
+        harvest_id TEXT,
+        food_name TEXT NOT NULL,
+        quantity_given REAL NOT NULL,
+        unit TEXT NOT NULL DEFAULT '',
+        -- Who it went to. Free text on purpose: a neighbour is not a record
+        -- this app needs to model, and asking for one would be worse.
+        with_whom TEXT,
+        -- Sales only. Null for a trade or a gift, and null is the honest
+        -- value there rather than zero, which would read as sold for nothing.
+        amount REAL,
+        -- The income stream a sale belongs to, where it belongs to one.
+        income_stream_id TEXT,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_harvest_dispositions_date ON harvest_dispositions(occurred_on);
+
+      -- What came back in a trade. Its own rows because one trade can bring
+      -- back several things, and because the trade stays a complete record
+      -- even after a kitchen item created from it has been eaten.
+      CREATE TABLE IF NOT EXISTS harvest_disposition_receipts (
+        id TEXT PRIMARY KEY,
+        disposition_id TEXT NOT NULL,
+        food_name TEXT NOT NULL,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL DEFAULT '',
+        category TEXT NOT NULL DEFAULT '',
+        food_id TEXT,
+        -- The kitchen row this created, so the two can be seen together.
+        kitchen_item_id TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (disposition_id) REFERENCES harvest_dispositions(id) ON DELETE CASCADE
+      );
+      CREATE INDEX IF NOT EXISTS idx_harvest_receipts_disposition ON harvest_disposition_receipts(disposition_id);
+
       -- --- Goals (2026-09-05, pass 3) -----------------------------------
       --
       -- Asked for with its own framing, given twice: "goals require costs
