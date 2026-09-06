@@ -41,11 +41,15 @@ The app is under active development and substantially built. Current state:
 
 `tsc` clean, `eslint` clean, bare-text audit 0, all four guards clean, all fifteen suites passing. **Not yet confirmed on-device**, and this one is deliberately hard to confirm: seeing it means something has gone wrong.
 
+**What the 2026-09-06 confirmation does NOT cover, stated so it is not read as broader than it is.** The app opening again confirms the startup fix and nothing else. Still unexercised on a device: everything in the Finances, Kitchen, Work and Upkeep arc (1.0.34.3 through 1.0.34.28), Emergency & Essentials (1.0.34.29), partner links (1.0.34.30, which needs two phones and cannot be confirmed on one), and this recovery screen.
+
 **Most recent (2026-09-06, 1.0.34.31): the Home screen stuck on "Loading today", caused by the partner-links release hours earlier.** Reported directly: "Home screen has nothing on it. It says loading today."
 
 **A one-line schema bug whose failure mode is the part worth keeping.** 1.0.34.30 put a CREATE INDEX on the connections table's new role column into the schema block, while the migration that ADDS role to an already-existing table sits a thousand lines further down. CREATE TABLE IF NOT EXISTS is a no-op where the table already exists, so on any phone that already had connections (shipped 2026-08-15) the column did not exist yet, the index threw "no such column: role" inside initializeDatabase, and **nothing downstream ever finished**, which is what Home was showing.
 
 **A fresh install was completely fine, which is exactly why it shipped.** That is the whole character of this bug class: it cannot be caught by running the app on the machine that wrote it, only by replaying the upgrade path against a database that already exists.
+
+**CONFIRMED ON-DEVICE 2026-09-06: "I restarted and it opened fine now."** Which confirms three things rather than one: the index was the cause, removing it was the fix, and the half-built database a failed run leaves behind heals itself on the next launch, since every statement in the schema block is CREATE TABLE IF NOT EXISTS and nothing existing is touched. That last part was the real risk and it is the one that could not be proven from a scratch database alone.
 
 **Fixed by removing the index rather than moving it.** An index on a roster holding a handful of people buys nothing, and deleting it removes the failure mode instead of relocating it. Reproduced on a scratch database first, which threw the exact "no such column: role", then confirmed the full upgrade sequence completes clean afterwards and that the partner query still works.
 
