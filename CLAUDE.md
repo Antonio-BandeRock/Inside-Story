@@ -25,6 +25,22 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-06, 1.0.34.33): invites sent as a file, because a deep link in a message is not tappable.** Reported directly: "I sent the invite to lisa, but it is not a tappable link for her to tap on. It does nothing. This was supposed to be an .is file that would get sent."
+
+**Right on both counts.** The invite was built with `Linking.createURL`, which produces a `hashimotosapp://connect?data=...` deep link. **Messaging apps only linkify http and https**, so a custom scheme arrives as plain text that does nothing when tapped. Recipes never had this problem because they have always gone as a file.
+
+**Two things were already in place and unused, both found by checking rather than assumed.** `app.json` already registers `.is` with the OS on both platforms (Android intent filters for `content://` and `file://` with a `.*\.is` pattern, iOS `CFBundleDocumentTypes`), so step 6 of the prerequisite list is built too, which CLAUDE.md was also stale about. And `lib/nativeSharing.ts` already exists because of a 2026-08-16 finding worth restating: **React Native's own `Share.share` silently discards its `url` field on Android**, so every file share in this app is deliberately two native calls, `Share.share({message})` then `shareFileIfAvailable`. The invite was only ever making the first one.
+
+**So the fix reuses proven machinery rather than adding any.** `writeRawIsFile` was extracted from `writeIsFile` so both kinds of shareable thing agree on where a `.is` file lives and how it is named, and `handleIncomingIsFile` now peeks at the parsed contents and routes an invite to `/connect` instead of the recipe importer. Anything unrecognisable falls through to the old path exactly as before, including a file that could not be read at all, which still lands on the honest "this does not look right" state rather than doing nothing.
+
+**The invite file is deliberately NOT signed, unlike a recipe.** There is nothing to verify it against: the receiver does not have the sender's key until they accept this very file, which is the bootstrapping problem every no-server key exchange has. Signing it would look like a guarantee it cannot make. The real gate is still the explicit accept plus the fingerprint comparison, which is required for a partner.
+
+**All three send paths were wrong, not just the one reported.** Inviting for recipes, inviting a partner, and sending the link back to finish a connection. The plain recipe-connection invite had the identical bug and was found by reading the file rather than by waiting for it to be reported separately.
+
+**A mutation caught a worthless check, the second time this project has hit that trap.** Deleting the `kind` gate from the file router broke no test at all, because every fixture was also caught by the missing-invite check sitting next to it. Fixed by adding the one case only the kind gate can refuse: a file carrying a perfectly valid invite under the wrong kind. **A fixture where two rules agree tests neither.**
+
+`scripts/test_partners.js` is 129 checks. `tsc` clean, `eslint` clean, bare-text audit 0, all four guards clean, all fifteen suites passing. **Not yet confirmed on-device**, and the check is the reported one: send an invite and confirm a file arrives that opens the app when tapped.
+
 **Most recent (2026-09-06, 1.0.34.32): a recovery screen, so a bad release can never again lock someone out of the thing that fixes it.** Asked for directly after the 1.0.34.30 schema bug: "Yes, do the error screen with a Check for Updates button."
 
 **The gap was not that the failure was unhandled. It was that it was handled and then dropped.** `app/_layout.tsx` already caught the `initializeDatabase` rejection and logged it, then carried on and mounted the whole app against a database that had never finished being built. Home was empty, Profile would not open, and Check for Updates lives inside Profile, so the one control that could pull the fix was behind the thing that was broken. The only reason it was recoverable at all is that expo-updates fetches on launch independently of app code.

@@ -20,7 +20,9 @@ import { textShadow, typography } from '../constants/typography';
 import {
   buildConnectionInvite,
   buildConnectionInviteLink,
+  buildPartnerInvite,
   buildPartnerInviteLink,
+  writeConnectionInviteIsFile,
   listConnections,
   removeConnection,
   renameConnection,
@@ -34,6 +36,7 @@ import {
   fingerprintStanding,
   linkState,
 } from '../lib/partners';
+import { shareFileIfAvailable } from '../lib/nativeSharing';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 
 export default function ConnectionsScreen() {
@@ -71,9 +74,17 @@ export default function ConnectionsScreen() {
     setInviting(true);
     try {
       const [invite, link] = await Promise.all([buildConnectionInvite(), buildConnectionInviteLink()]);
+      // Sent as a file for the same reason the partner invite is: a
+      // hashimotosapp:// link inside a message is not tappable in any messaging
+      // app, so on its own it arrives as dead text. This button had the identical
+      // problem and was fixed in the same pass.
+      const fileUri = await writeConnectionInviteIsFile(invite);
       await Share.share({
-        message: `${invite.fromName} wants to connect with you in the Inside Story app, so you can share recipes and more directly and privately. If you have Inside Story installed, tap this link to accept: ${link}`,
+        message: fileUri
+          ? `${invite.fromName} wants to connect with you in the Inside Story app, so you can share recipes and more directly and privately. Open the attached file on your phone to accept. If the file does not work, this link may: ${link}`
+          : `${invite.fromName} wants to connect with you in the Inside Story app. If you have Inside Story installed, open this link on your phone to accept: ${link}`,
       });
+      if (fileUri) await shareFileIfAvailable(fileUri, { mimeType: '*/*', dialogTitle: 'Send this invite' });
     } catch (error) {
       console.error('[ConnectionsScreen] Failed to share an invite', error);
       showInfoAlert('Something went wrong', "This couldn't be shared. Please try again.");
@@ -89,10 +100,23 @@ export default function ConnectionsScreen() {
   async function handlePartnerInvite() {
     setInviting(true);
     try {
-      const link = await buildPartnerInviteLink({ grants: defaultGrantsForRole('partner') });
+      const grants = defaultGrantsForRole('partner');
+      const invite = await buildPartnerInvite({ grants });
+      const link = await buildPartnerInviteLink({ grants });
+      // The FILE is what actually opens on the other phone. A hashimotosapp://
+      // link inside a message is not tappable in any messaging app, which is
+      // exactly how the first version of this failed. The link stays in the text
+      // only as a fallback for a channel that does linkify it.
+      const fileUri = await writeConnectionInviteIsFile(invite);
       await Share.share({
-        message: `Here is my Inside Story partner link. Tap it and we can plan meals together: ${link}`,
+        message: fileUri
+          ? `Here is my Inside Story partner invite. Open the attached file on your phone and it will open in the app, and we can plan meals together. If the file does not work, this link may: ${link}`
+          : `Here is my Inside Story partner link. Open it on your phone so we can plan meals together: ${link}`,
       });
+      // Android discards a file passed to Share.share, confirmed in react-native's
+      // own source, so it goes as its own second step. The same two-call shape
+      // every recipe share in this app already uses.
+      if (fileUri) await shareFileIfAvailable(fileUri, { mimeType: '*/*', dialogTitle: 'Send this invite' });
     } catch (error) {
       console.error('[ConnectionsScreen] Failed to share a partner invite', error);
     } finally {

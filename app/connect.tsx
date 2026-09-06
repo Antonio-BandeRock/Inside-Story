@@ -25,7 +25,10 @@ import { textShadow, typography } from '../constants/typography';
 import {
   addConnection,
   buildConnectionInviteLink,
+  buildConnectionInvite,
+  buildPartnerInvite,
   buildPartnerInviteLink,
+  writeConnectionInviteIsFile,
   decodeConnectionInvite,
   getConnectionByPublicKey,
   markFingerprintVerified,
@@ -36,6 +39,7 @@ import {
 } from '../lib/connections';
 import { computeKeyFingerprint, getDeviceIdentity } from '../lib/deviceIdentity';
 import { SHARE_SCOPES, defaultGrantsForRole, type ShareGrants } from '../lib/partners';
+import { shareFileIfAvailable } from '../lib/nativeSharing';
 
 type Status = 'checking' | 'preview' | 'self-invite' | 'already-connected' | 'accepting' | 'accepted' | 'error';
 
@@ -162,9 +166,18 @@ export default function ConnectScreen() {
         ? await buildPartnerInviteLink({ grants, alreadyHaveYou: true })
         : await buildConnectionInviteLink();
       const fromName = invite?.fromName ?? 'them';
+      // Sent as a file, for the same reason the first invite is: a
+      // hashimotosapp:// link inside a message opens nothing when tapped.
+      const outgoing = isPartnerInvite
+        ? await buildPartnerInvite({ grants, alreadyHaveYou: true })
+        : await buildConnectionInvite();
+      const fileUri = await writeConnectionInviteIsFile(outgoing);
       await Share.share({
-        message: `Here's my Inside Story connection link back to you, ${fromName}. Tap it to finish connecting us: ${link}`,
+        message: fileUri
+          ? `Here is my Inside Story invite back to you, ${fromName}. Open the attached file on your phone to finish connecting us. If the file does not work, this link may: ${link}`
+          : `Here's my Inside Story connection link back to you, ${fromName}. Open it on your phone to finish connecting us: ${link}`,
       });
+      if (fileUri) await shareFileIfAvailable(fileUri, { mimeType: '*/*', dialogTitle: 'Send this invite' });
     } catch (error) {
       console.error('[ConnectScreen] Failed to share invite back', error);
     } finally {

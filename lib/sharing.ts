@@ -324,17 +324,34 @@ async function encodeEnvelope(payload: ShareComponentPayload | ShareMealPayload,
 // letting the OS reclaim this under storage pressure is the right, honest
 // tradeoff. A real, per-call timestamped filename avoids any risk of two
 // concurrent shares colliding on the same file.
-export async function writeIsFile(payload: ShareComponentPayload | ShareMealPayload, fromName: string): Promise<string | null> {
+// The one place that knows where a .is file lives and how it is named, so a
+// second kind of shareable thing cannot drift from the first.
+//
+// Extracted 2026-09-06, when connection invites needed a file too. They had been
+// shared as a hashimotosapp:// deep link inside a plain message, and messaging
+// apps do not make a custom-scheme URL tappable, so it arrived as dead text that
+// did nothing when tapped. Reported exactly that way. Recipes never had this
+// problem because they always went as a file.
+export async function writeRawIsFile(content: unknown): Promise<string | null> {
   try {
-    const wire = await buildSignedWire(payload, fromName);
     const { Directory, File, Paths } = await import('expo-file-system');
     const dir = new Directory(Paths.cache, 'is-shares');
     if (!dir.exists) dir.create({ intermediates: true });
     const file = new File(dir, `inside-story-share-${Date.now()}.is`);
-    file.write(JSON.stringify(wire));
+    file.write(JSON.stringify(content));
     return file.uri;
   } catch (error) {
     console.error('[sharing] Failed to write a real .is file', error);
+    return null;
+  }
+}
+
+export async function writeIsFile(payload: ShareComponentPayload | ShareMealPayload, fromName: string): Promise<string | null> {
+  try {
+    const wire = await buildSignedWire(payload, fromName);
+    return await writeRawIsFile(wire);
+  } catch (error) {
+    console.error('[sharing] Failed to build a signed wire for a .is file', error);
     return null;
   }
 }

@@ -490,6 +490,96 @@ const tiers = (map) => (code) => map[code] ?? 'unknown';
   check('the role is preserved as recipe', smuggle.role, 'recipe');
 }
 
+// ---------------------------------------------------------------------------
+// 10. THE .is FILE. What decides whether a tapped invite opens the pairing
+//     screen or the recipe importer.
+//
+//     Added 2026-09-06 after the first version shipped the invite as a
+//     hashimotosapp:// link inside a plain message. Messaging apps do not make
+//     a custom-scheme URL tappable, so it arrived as dead text and did nothing.
+//     Reported exactly that way. Recipes never had the problem because they
+//     always went as a file.
+// ---------------------------------------------------------------------------
+
+{
+  const { connectionInviteDataFromFile, decodeConnectionInvite, CONNECTION_INVITE_FILE_KIND } = loadModule('connections');
+
+  check('the file kind is the one the writer uses', CONNECTION_INVITE_FILE_KIND, 'connection-invite');
+
+  const validInvite = {
+    v: 2, fromName: 'Lisa', publicKeyBase64: 'AAAAkey1', role: 'partner',
+    grants: { meals: true, shopping: true, conditions: true },
+    conditionCodes: ['celiac'],
+  };
+
+  // The whole point: an invite file resolves to something /connect can decode.
+  const data = connectionInviteDataFromFile({
+    kind: CONNECTION_INVITE_FILE_KIND, v: 1, invite: validInvite,
+  });
+  checkTrue('an invite file yields data for the pairing screen', typeof data === 'string' && data.length > 0);
+  const roundTripped = decodeConnectionInvite(data);
+  check('and that data decodes back to the same person', roundTripped.fromName, 'Lisa');
+  check('with the role intact', roundTripped.role, 'partner');
+  check('and the codes intact', roundTripped.conditionCodes, ['celiac']);
+
+  // A shared recipe must fall through to the importer, which is the common
+  // case and the one that would break loudly if this got it wrong.
+  check('a signed recipe wire is not an invite',
+    connectionInviteDataFromFile({ unsignedJson: '{}', signature: 'abc' }), null);
+  check('nor is a bare envelope', connectionInviteDataFromFile({ kind: 'component' }), null);
+
+  // The check that ONLY the kind gate can pass. Everything above is also caught
+  // by the missing-invite check, so without this, deleting the kind check
+  // entirely broke no test at all: caught by mutation, and the same
+  // "two rules agree, so neither is tested" trap this project has hit before.
+  // A file has to positively identify itself as an invite, rather than being
+  // treated as one because it happens to carry a field of the right shape.
+  check('a file carrying a perfectly good invite under the WRONG kind is refused',
+    connectionInviteDataFromFile({ kind: 'component', v: 1, invite: validInvite }), null);
+  check('and one with no kind at all is refused',
+    connectionInviteDataFromFile({ v: 1, invite: validInvite }), null);
+
+  // Nothing here may throw: it decides where a tapped file goes.
+  check('null is handled', connectionInviteDataFromFile(null), null);
+  check('undefined is handled', connectionInviteDataFromFile(undefined), null);
+  check('a string is handled', connectionInviteDataFromFile('nonsense'), null);
+  check('a number is handled', connectionInviteDataFromFile(42), null);
+  check('an array is handled', connectionInviteDataFromFile([1, 2, 3]), null);
+
+  // The right wrapper around the wrong contents is still not an invite. This
+  // is the check that stops a malformed file reaching the pairing screen with
+  // nothing usable on it.
+  check('the kind alone is not enough',
+    connectionInviteDataFromFile({ kind: CONNECTION_INVITE_FILE_KIND, v: 1 }), null);
+  check('an invite missing its key is refused',
+    connectionInviteDataFromFile({ kind: CONNECTION_INVITE_FILE_KIND, v: 1, invite: { v: 2, fromName: 'Lisa' } }), null);
+  check('an invite missing its name is refused',
+    connectionInviteDataFromFile({ kind: CONNECTION_INVITE_FILE_KIND, v: 1, invite: { v: 2, publicKeyBase64: 'k' } }), null);
+  check('an invite of an unknown version is refused',
+    connectionInviteDataFromFile({ kind: CONNECTION_INVITE_FILE_KIND, v: 1, invite: { v: 9, fromName: 'L', publicKeyBase64: 'k' } }), null);
+  check('an invite that is not an object is refused',
+    connectionInviteDataFromFile({ kind: CONNECTION_INVITE_FILE_KIND, v: 1, invite: 12 }), null);
+
+  // A v1 invite in a file still works, same as a v1 link.
+  const v1data = connectionInviteDataFromFile({
+    kind: CONNECTION_INVITE_FILE_KIND, v: 1, invite: { v: 1, fromName: 'Ana', publicKeyBase64: 'AAAAkey2' },
+  });
+  checkTrue('a v1 invite file still resolves', typeof v1data === 'string');
+  check('and reads as a recipe connection', decodeConnectionInvite(v1data).role, 'recipe');
+
+  // The grant gate still applies on the way out of a file, not just a link.
+  const ungranted = connectionInviteDataFromFile({
+    kind: CONNECTION_INVITE_FILE_KIND, v: 1,
+    invite: {
+      v: 2, fromName: 'Lisa', publicKeyBase64: 'AAAAkey3', role: 'partner',
+      grants: { meals: true, shopping: true, conditions: false },
+      conditionCodes: ['celiac'],
+    },
+  });
+  check('codes in a file without the grant are still dropped',
+    decodeConnectionInvite(ungranted).conditionCodes, undefined);
+}
+
 console.log(`${checks - failures}/${checks} checks passed`);
 if (failures > 0) {
   console.error(`${failures} FAILED`);

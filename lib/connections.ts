@@ -26,7 +26,7 @@
 import * as Linking from 'expo-linking';
 import { getDatabase, getUserConditions, getUserProfile } from './db';
 import { getDeviceIdentity } from './deviceIdentity';
-import { decodeBase64Utf8, encodeBase64Utf8 } from './sharing';
+import { decodeBase64Utf8, encodeBase64Utf8, writeRawIsFile } from './sharing';
 import { defaultGrantsForRole, type ConnectionRole, type ShareGrants } from './partners';
 
 export type Connection = {
@@ -364,6 +364,44 @@ export async function buildPartnerInvite(options: {
     invite.conditionCodes = await getUserConditions();
   }
   return invite;
+}
+
+// What a connection invite looks like inside a .is file.
+//
+// Deliberately NOT signed, unlike a recipe. There is nothing to verify it
+// against: the receiver does not have this sender's key until they accept
+// this very file, which is the bootstrapping problem every no-server key
+// exchange has. Signing it would look like a guarantee it cannot make. The
+// real safety gate is still the explicit accept plus the fingerprint
+// comparison, which is required for a partner.
+export const CONNECTION_INVITE_FILE_KIND = 'connection-invite';
+
+export async function writeConnectionInviteIsFile(invite: ConnectionInvite): Promise<string | null> {
+  return writeRawIsFile({ kind: CONNECTION_INVITE_FILE_KIND, v: 1, invite });
+}
+
+/**
+ * Reads a connection invite back out of a .is file's parsed contents.
+ *
+ * Returns the base64 the /connect route expects, or null when this file is
+ * something else entirely (a shared recipe, which is the common case). Pure and
+ * defensive: it decides where a tapped file goes, so a malformed one has to
+ * fall through to the recipe path rather than throw.
+ */
+export function connectionInviteDataFromFile(parsed: unknown): string | null {
+  if (!parsed || typeof parsed !== 'object') return null;
+  const wrapper = parsed as { kind?: unknown; invite?: unknown };
+  if (wrapper.kind !== CONNECTION_INVITE_FILE_KIND) return null;
+  if (!wrapper.invite || typeof wrapper.invite !== 'object') return null;
+  try {
+    const encoded = encodeBase64Utf8(JSON.stringify(wrapper.invite));
+    // Round-tripped through the real decoder rather than trusted, so a file
+    // claiming to be an invite but carrying nothing usable is treated as not
+    // an invite at all.
+    return decodeConnectionInvite(encoded) ? encoded : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function buildPartnerInviteLink(options: {

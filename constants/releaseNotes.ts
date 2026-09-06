@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.33',
+    date: '2026-09-06',
+    changes: [
+      'Fixes connection and partner invites arriving as text that does nothing when tapped. They were sent as a link in the app\u2019s own private format, and messaging apps only make ordinary web links tappable, so it landed as dead text on the other phone.',
+      'Invites now go as an attached file, the same way sharing a recipe already worked. Open the file on the other phone and it opens straight into the app, on the right screen.',
+      'That applies to all three: inviting someone for recipes, inviting a partner, and sending your link back to finish a connection.',
+      'The link is still included in the message underneath, in case you are sending through something that does make it tappable.',
+    ],
+  },
+  {
     version: '1.0.34.32',
     date: '2026-09-06',
     changes: [

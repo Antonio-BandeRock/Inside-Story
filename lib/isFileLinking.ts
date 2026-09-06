@@ -32,6 +32,7 @@
 // URI is left completely untouched here, for Expo Router's own existing
 // hashimotosapp:// handling to keep working exactly as it always has.
 import { encodeBase64Utf8 } from './sharing';
+import { connectionInviteDataFromFile } from './connections';
 
 // A real, honest, currently-unconfirmed assumption, named directly rather
 // than glossed over: neither expo-file-system's current class-based File
@@ -71,7 +72,12 @@ async function readIsFileContent(uri: string): Promise<string | null> {
 // module stays a plain, testable leaf with no direct dependency on the
 // router itself; app/_layout.tsx passes its own real router.push straight
 // through.
-type PushToImportShared = (params: { pathname: '/import-shared'; params: { data: string } }) => void;
+// Two destinations now, not one. A .is file can be a shared recipe or a
+// connection invite, and they are different screens with different jobs.
+type PushToShareScreen = (params:
+  | { pathname: '/import-shared'; params: { data: string } }
+  | { pathname: '/connect'; params: { data: string } }
+) => void;
 
 // Real, deliberate scope boundary named directly: this only ever routes a
 // genuine file-open URI into the existing /import-shared staging screen --
@@ -82,7 +88,7 @@ type PushToImportShared = (params: { pathname: '/import-shared'; params: { data:
 // sees the SAME honest "this link doesn't look right" state a genuinely
 // malformed link already produces, rather than silently doing nothing when
 // they tapped something meant to open in this app.
-export async function handleIncomingIsFile(url: string, push: PushToImportShared): Promise<void> {
+export async function handleIncomingIsFile(url: string, push: PushToShareScreen): Promise<void> {
   // This app's own hashimotosapp:// scheme is left completely alone --
   // Expo Router already owns routing those, correctly, on its own.
   if (url.startsWith('hashimotosapp://')) return;
@@ -92,5 +98,29 @@ export async function handleIncomingIsFile(url: string, push: PushToImportShared
   if (!url.startsWith('content://') && !url.startsWith('file://')) return;
 
   const rawJson = await readIsFileContent(url);
+
+  // A connection invite goes to the pairing screen instead, 2026-09-06.
+  // Before this, invites were only ever a hashimotosapp:// link inside a
+  // message, and messaging apps do not make a custom-scheme URL tappable, so
+  // an invite arrived as text that did nothing. Sending it as a file fixes
+  // that, and this is the half that puts the file in front of the right
+  // screen once it is tapped.
+  //
+  // Anything not recognisable as an invite falls through to the recipe path
+  // exactly as before, including a file that could not be read at all, which
+  // still lands on the honest "this does not look right" state rather than
+  // doing nothing when somebody tapped something meant for this app.
+  if (rawJson) {
+    try {
+      const inviteData = connectionInviteDataFromFile(JSON.parse(rawJson));
+      if (inviteData) {
+        push({ pathname: '/connect', params: { data: inviteData } });
+        return;
+      }
+    } catch {
+      // Not parseable as JSON at all: fall through, same as before.
+    }
+  }
+
   push({ pathname: '/import-shared', params: { data: rawJson ? encodeBase64Utf8(rawJson) : '' } });
 }
