@@ -404,6 +404,74 @@ export function connectionInviteDataFromFile(parsed: unknown): string | null {
   }
 }
 
+/**
+ * Reads an invite out of whatever someone actually pasted.
+ *
+ * Added 2026-09-06, after two failed attempts at getting an invite from one
+ * phone to another. First it went as a hashimotosapp:// link in a message,
+ * which messaging apps do not make tappable. Then it went as a .is file, and
+ * tapping that in WhatsApp produced WhatsApp's own "Couldn't load object"
+ * rather than opening this app at all.
+ *
+ * THE UNDERLYING PROBLEM, AND WHY THIS EXISTS RATHER THAN A THIRD ATTEMPT AT
+ * THE SAME THING. The Android intent filter in app.json matches a .is file by
+ * pathPattern, and a content:// URI handed over by another app usually has an
+ * opaque path with no filename in it at all, so that pattern never matches.
+ * Fixing it needs a native rebuild and may still not work across every sending
+ * app, so this is a route into the app that depends on no OS handoff at all:
+ * text, copied and pasted, which works through every channel there is.
+ *
+ * Deliberately tolerant, because people paste messily. Accepts the bare code,
+ * the whole deep link, or a block of message text with the code somewhere in
+ * it, and validates by actually decoding rather than by matching a shape.
+ */
+// The code itself, which is what actually gets copied and pasted. Same base64
+// the link carries in its data param, so both routes lead to one decoder.
+export function encodeInviteCode(invite: ConnectionInvite): string {
+  return encodeBase64Utf8(JSON.stringify(invite));
+}
+
+export function parseInviteInput(raw: string): string | null {
+  if (typeof raw !== 'string') return null;
+  const text = raw.trim();
+  if (!text) return null;
+
+  const candidates: string[] = [];
+
+  // A full link, pasted whole. Pulled out by hand rather than with a URL
+  // parser, since a custom scheme is not something every parser accepts.
+  const dataAt = text.indexOf('data=');
+  if (dataAt !== -1) {
+    // Take the leading run of characters that could BE base64, rather than
+    // splitting on a guessed list of delimiters. The first version split on
+    // whitespace, & and # and kept the closing bracket from this app's own
+    // message, which ends "...data=CODE)". Caught by testing against the real
+    // message text rather than a tidy fixture.
+    const after = text.slice(dataAt + 5).match(/^[A-Za-z0-9+/=_-]+/);
+    if (after) candidates.push(after[0]);
+  }
+
+  // The whole thing, for someone who pasted exactly the code.
+  candidates.push(text);
+
+  // Any single run of base64-ish characters long enough to be an invite,
+  // for a paste that carries surrounding words. Longest first, since the
+  // code is by far the longest such run in any message this app sends.
+  const runs = text.match(/[A-Za-z0-9+/=_-]{40,}/g);
+  if (runs) candidates.push(...[...runs].sort((a, b) => b.length - a.length));
+
+  for (const candidate of candidates) {
+    const cleaned = candidate.trim();
+    if (!cleaned) continue;
+    try {
+      if (decodeConnectionInvite(cleaned)) return cleaned;
+    } catch {
+      // Not this one. Keep going rather than failing the whole paste.
+    }
+  }
+  return null;
+}
+
 export async function buildPartnerInviteLink(options: {
   grants: ShareGrants;
   alreadyHaveYou?: boolean;

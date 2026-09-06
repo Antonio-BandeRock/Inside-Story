@@ -580,6 +580,76 @@ const tiers = (map) => (code) => map[code] ?? 'unknown';
     decodeConnectionInvite(ungranted).conditionCodes, undefined);
 }
 
+// ---------------------------------------------------------------------------
+// 11. PASTING AN INVITE. The route in that depends on no OS handoff at all.
+//
+//     Added 2026-09-06 after two failures getting an invite between phones: a
+//     hashimotosapp:// link is not tappable in a messaging app, and a .is file
+//     tapped in WhatsApp produced WhatsApp's own "Couldn't load object"
+//     without ever reaching this app. Text always arrives, so text is the path
+//     that has to work, and it has to survive being pasted messily.
+// ---------------------------------------------------------------------------
+
+{
+  const { parseInviteInput, encodeInviteCode, decodeConnectionInvite } = loadModule('connections');
+
+  const invite = {
+    v: 2, fromName: 'Lisa', publicKeyBase64: 'AAAAkey1234567890abcdefghijklmnop', role: 'partner',
+    grants: { meals: true, shopping: true, conditions: true },
+    conditionCodes: ['celiac'],
+  };
+  const code = encodeInviteCode(invite);
+
+  checkTrue('the code is long enough to be recognisable in a message', code.length > 40);
+
+  // The clean case.
+  check('the bare code parses', parseInviteInput(code), code);
+  check('and round-trips to the right person', decodeConnectionInvite(parseInviteInput(code)).fromName, 'Lisa');
+
+  // Every realistic way somebody actually pastes.
+  check('with surrounding whitespace', parseInviteInput(`  ${code}  `), code);
+  check('with newlines around it', parseInviteInput(`\n\n${code}\n\n`), code);
+  check('as a whole deep link', parseInviteInput(`hashimotosapp://connect?data=${code}`), code);
+  check('as a link with something after it',
+    parseInviteInput(`hashimotosapp://connect?data=${code}&other=1`), code);
+
+  // The big one: the entire message pasted, which is what most people will do
+  // rather than carefully selecting one line.
+  const wholeMessage =
+    'Here is my Inside Story partner invite, so we can plan meals together.\n\n' +
+    'In Inside Story, go to Profile, then Connections, then "I Was Sent an Invite" and paste this in:\n\n' +
+    `${code}\n\n` +
+    `(A file is attached too, and this link may work on some phones: hashimotosapp://connect?data=${code})`;
+  check('the whole message pasted still finds the code', parseInviteInput(wholeMessage), code);
+
+  // A message where the link comes FIRST, so the data= branch is what wins.
+  check('a message leading with the link still works',
+    parseInviteInput(`Tap this: hashimotosapp://connect?data=${code} or paste ${code}`), code);
+
+  // Nothing usable.
+  check('empty is refused', parseInviteInput(''), null);
+  check('whitespace only is refused', parseInviteInput('   \n  '), null);
+  check('ordinary chat is refused', parseInviteInput('hey are we still on for dinner'), null);
+  check('a non-string is refused', parseInviteInput(null), null);
+  check('a number is refused', parseInviteInput(12345), null);
+
+  // Long base64-looking text that is not an invite must not be accepted just
+  // for being the right shape. This is the check that stops the parser from
+  // being a shape-matcher rather than a decoder.
+  const decoy = 'QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVphYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5eg==';
+  check('a long base64 blob that is not an invite is refused', parseInviteInput(decoy), null);
+  check('and a decoy sitting next to a real code still finds the real one',
+    parseInviteInput(`${decoy} ${code}`), code);
+
+  // A v1 invite, still accepted, same as everywhere else.
+  const v1 = encodeInviteCode({ v: 1, fromName: 'Ana', publicKeyBase64: 'AAAAkey0987654321zyxwvutsrqponml' });
+  check('a v1 code still parses', parseInviteInput(v1), v1);
+
+  // A truncated paste, which is a real thing people do, must fail honestly
+  // rather than half-decoding into something wrong.
+  check('a truncated code is refused', parseInviteInput(code.slice(0, Math.floor(code.length / 2))), null);
+}
+
 console.log(`${checks - failures}/${checks} checks passed`);
 if (failures > 0) {
   console.error(`${failures} FAILED`);

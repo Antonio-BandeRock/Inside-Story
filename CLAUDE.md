@@ -25,6 +25,22 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-06, 1.0.34.34): pasting an invite, after the link and the file both failed to reach the other phone.** Reported directly: the .is file arrived, and tapping it on the receiving phone produced "Couldn't load object... Go back", which sends you back to WhatsApp.
+
+**That dialog is WhatsApp's, not this app's**, confirmed by grepping for the string and finding nothing. So the app was never launched at all, and the problem is upstream of every line of code in it.
+
+**THE CAUSE, and why there was no third attempt at the same approach.** `app.json` registers .is by `pathPattern` on a `content://` URI. A content URI handed over by another app usually has an **opaque path with no filename in it**, so `.*\.is` never matches. That is a known Android limitation rather than a mistake in the pattern, fixing it needs a native rebuild, and it might still fail on the next sending app. Two blind attempts had already cost real time, so this stops trying to make the OS hand the file over and adds a route that needs no OS involvement at all.
+
+**Text is the one thing that always arrives.** The invite message now leads with the code itself, and Connections gained "I Was Sent an Invite": paste, and it opens the same accept screen a tapped link or file would have reached, so there is still exactly one place that decides what an invite means.
+
+**The parser is deliberately tolerant, because people paste messily.** It takes the bare code, a whole deep link, or an entire pasted message with the code somewhere inside it, and it validates by actually DECODING rather than by matching a shape. A mutation confirms that: accepting anything base64-shaped without decoding fails four checks, including a long decoy blob that is not an invite.
+
+**A real bug found by testing against the app's own message rather than a tidy fixture.** The message ends "...data=CODE)", and the first extractor split on whitespace, & and # and so kept the closing bracket. Now it takes the leading run of characters that could be base64, which handles brackets, quotes and anything else a real message wraps a link in.
+
+**A finding worth more than the fix: this affects recipes too.** Tapping a file has been the ONLY way anything gets into this app, confirmed by grep, since there is no document picker anywhere. So recipe sharing has almost certainly never worked end to end through WhatsApp either, and has simply never been tested that way. The paste route is currently only wired for invites; the same treatment for a shared recipe is named and not built.
+
+`scripts/test_partners.js` is 147 checks. Four mutations confirmed to break the new ones. `tsc` clean, `eslint` clean, bare-text audit 0, all four guards clean, all fifteen suites passing. **Not yet confirmed on-device.**
+
 **Most recent (2026-09-06, 1.0.34.33): invites sent as a file, because a deep link in a message is not tappable.** Reported directly: "I sent the invite to lisa, but it is not a tappable link for her to tap on. It does nothing. This was supposed to be an .is file that would get sent."
 
 **Right on both counts.** The invite was built with `Linking.createURL`, which produces a `hashimotosapp://connect?data=...` deep link. **Messaging apps only linkify http and https**, so a custom scheme arrives as plain text that does nothing when tapped. Recipes never had this problem because they have always gone as a file.

@@ -7,7 +7,7 @@
 // rename/remove people already paired with (see app/connect.tsx for the
 // real receiving/accept side of the same exchange).
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
@@ -23,6 +23,8 @@ import {
   buildPartnerInvite,
   buildPartnerInviteLink,
   writeConnectionInviteIsFile,
+  encodeInviteCode,
+  parseInviteInput,
   listConnections,
   removeConnection,
   renameConnection,
@@ -45,9 +47,16 @@ export default function ConnectionsScreen() {
   const [myFingerprint, setMyFingerprint] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [inviting, setInviting] = useState(false);
+  // The paste route in. Added after a deep link and then a .is file both
+  // failed to reach the other phone: text is the one thing that always
+  // arrives, through any channel.
+  const [pasting, setPasting] = useState(false);
+  const [pasted, setPasted] = useState('');
+  const [pasteError, setPasteError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
+  const router = useRouter();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
 
@@ -79,10 +88,13 @@ export default function ConnectionsScreen() {
       // app, so on its own it arrives as dead text. This button had the identical
       // problem and was fixed in the same pass.
       const fileUri = await writeConnectionInviteIsFile(invite);
+      const code = encodeInviteCode(invite);
       await Share.share({
-        message: fileUri
-          ? `${invite.fromName} wants to connect with you in the Inside Story app, so you can share recipes and more directly and privately. Open the attached file on your phone to accept. If the file does not work, this link may: ${link}`
-          : `${invite.fromName} wants to connect with you in the Inside Story app. If you have Inside Story installed, open this link on your phone to accept: ${link}`,
+        message:
+          `${invite.fromName} wants to connect with you in the Inside Story app, so you can share recipes directly and privately.\n\n` +
+          `In Inside Story, go to Profile, then Connections, then "I Was Sent an Invite" and paste this in:\n\n` +
+          `${code}\n\n` +
+          `(A file is attached too, and this link may work on some phones: ${link})`,
       });
       if (fileUri) await shareFileIfAvailable(fileUri, { mimeType: '*/*', dialogTitle: 'Send this invite' });
     } catch (error) {
@@ -108,10 +120,17 @@ export default function ConnectionsScreen() {
       // exactly how the first version of this failed. The link stays in the text
       // only as a fallback for a channel that does linkify it.
       const fileUri = await writeConnectionInviteIsFile(invite);
+      // The CODE leads, because it is the only part that has actually been shown
+      // to survive the trip. A deep link is not tappable in a messaging app, and
+      // a .is file tapped in WhatsApp produced WhatsApp's own "Couldn't load
+      // object" rather than opening this app. Text always arrives.
+      const code = encodeInviteCode(invite);
       await Share.share({
-        message: fileUri
-          ? `Here is my Inside Story partner invite. Open the attached file on your phone and it will open in the app, and we can plan meals together. If the file does not work, this link may: ${link}`
-          : `Here is my Inside Story partner link. Open it on your phone so we can plan meals together: ${link}`,
+        message:
+          `Here is my Inside Story partner invite, so we can plan meals together.\n\n` +
+          `In Inside Story, go to Profile, then Connections, then "I Was Sent an Invite" and paste this in:\n\n` +
+          `${code}\n\n` +
+          `(A file is attached too, and this link may work on some phones: ${link})`,
       });
       // Android discards a file passed to Share.share, confirmed in react-native's
       // own source, so it goes as its own second step. The same two-call shape
@@ -122,6 +141,23 @@ export default function ConnectionsScreen() {
     } finally {
       setInviting(false);
     }
+  }
+
+  // Hands the pasted invite to the same accept screen a tapped link or file
+  // would have reached, so there is one place that decides what an invite
+  // means and one place that accepts it.
+  function handlePastedInvite() {
+    const data = parseInviteInput(pasted);
+    if (!data) {
+      setPasteError(
+        'That does not look like an invite. Copy the whole code from their message, including any long run of letters and numbers, and paste it here.',
+      );
+      return;
+    }
+    setPasteError(null);
+    setPasted('');
+    setPasting(false);
+    router.push({ pathname: '/connect', params: { data } });
   }
 
   function startRename(connection: Connection) {
@@ -195,6 +231,51 @@ export default function ConnectionsScreen() {
         A partner sees the same meals you do, each with what they mean for their own conditions. You
         choose what to share, and you can change it or undo it here at any time.
       </Text>
+
+      {/* The way in that does not depend on the OS handing this app a file.
+          A deep link is not tappable in a messaging app, and a .is file tapped
+          in WhatsApp fails before this app is ever reached, so the code in the
+          message text is the part that reliably survives the trip. */}
+      {pasting ? (
+        <View style={styles.pasteBox}>
+          <Text style={styles.pasteLabel}>Paste the code from their message</Text>
+          <AppTextInput
+            style={styles.pasteInput}
+            placeholder="Paste here"
+            multiline
+            value={pasted}
+            onChangeText={(text) => {
+              setPasted(text);
+              if (pasteError) setPasteError(null);
+            }}
+          />
+          {pasteError ? <Text style={styles.pasteError}>{pasteError}</Text> : null}
+          <Text style={styles.partnerHint}>
+            Pasting the whole message is fine. It will find the code in it.
+          </Text>
+          <View style={styles.pasteActions}>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              activeOpacity={0.85}
+              onPress={() => {
+                setPasting(false);
+                setPasted('');
+                setPasteError(null);
+              }}
+            >
+              <Text style={styles.secondaryButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={handlePastedInvite}>
+              <Text style={styles.primaryButtonText}>Continue</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => setPasting(true)}>
+          <Ionicons name="clipboard-outline" size={18} color={colors.textPrimary} />
+          <Text style={styles.secondaryButtonText}>I Was Sent an Invite</Text>
+        </TouchableOpacity>
+      )}
 
       <Text style={styles.sectionLabel}>Your connections</Text>
 
@@ -353,6 +434,17 @@ const styles = StyleSheet.create({
   // wrong, there is just a step that has not been done and should be.
   rowWarn: { ...typography.caption, color: colors.statusYellowStandalone, marginTop: 4, ...textShadow },
   partnerHint: { ...typography.caption, color: colors.textMuted, marginTop: 6, ...textShadow },
+  pasteBox: {
+    marginTop: 8, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.surface, gap: 8,
+  },
+  pasteLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+  pasteInput: {
+    backgroundColor: colors.surfaceMuted, borderRadius: 10, borderWidth: 1, borderColor: colors.border,
+    paddingHorizontal: 12, paddingVertical: 10, color: colors.textPrimary, minHeight: 90, textAlignVertical: 'top',
+  },
+  pasteError: { ...typography.caption, color: colors.danger, ...textShadow },
+  pasteActions: { flexDirection: 'row', gap: 10 },
   secondaryButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
     backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,

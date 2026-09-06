@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.34',
+    date: '2026-09-06',
+    changes: [
+      'New: I Was Sent an Invite, in Profile then Connections. Paste the code from someone\u2019s message and it opens the accept screen. This is now the way to connect two phones.',
+      'Why: sending an invite as a link did not work, because messaging apps only make ordinary web links tappable. Sending it as a file did not work either, because tapping it in WhatsApp failed before this app was ever reached. Text always arrives, so the invite message now leads with a code you can copy.',
+      'Pasting the whole message is fine. It will find the code inside it, and it tells you plainly if what you pasted is not an invite rather than failing quietly.',
+      'The file and the link are still sent alongside the code, in case they work on a different phone or a different app.',
+    ],
+  },
+  {
     version: '1.0.34.33',
     date: '2026-09-06',
     changes: [
