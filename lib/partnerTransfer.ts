@@ -24,7 +24,13 @@
 // gets its own result and the caller reports all of them.
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { computeKeyFingerprint, getMyKeyFingerprint, openSealedForMe, sealForRecipient } from './deviceIdentity';
-import { listConnections, setPartnerConditionCodes, type Connection } from './connections';
+import {
+  listConnections,
+  setInboxFileUri,
+  setOutboxFileUri,
+  setPartnerConditionCodes,
+  type Connection,
+} from './connections';
 import { getUserConditions } from './db';
 import { buildSyncPayload, readSyncPayload, type SyncPlanDay } from './partnerSync';
 import { resolveSender } from './syncInbox';
@@ -425,30 +431,23 @@ export async function sendToPartnerAsFile(connectionId: string): Promise<{
 }
 
 /**
- * Reads a file a partner handed over, after the person picks it.
+ * The four checks, in one place, whatever carried the bytes.
  *
- * THE SAME FOUR CHECKS AS THE FOLDER PATH, deliberately reusing the same
- * functions rather than a second copy: addressed to this device, opens with this
- * device's key, the fingerprint inside the payload matches the one outside it,
- * and that fingerprint belongs to somebody paired as a partner. A carrier
- * changing does not change what has to be true before anything is stored.
+ * 1. It parses and says it came from this app.
+ * 2. The sealed box opens with this device's own key, which only the intended
+ *    recipient can do.
+ * 3. The fingerprint INSIDE the sealed payload matches the one outside it. A
+ *    filename or an envelope field is not evidence; the seal is.
+ * 4. That fingerprint belongs to somebody actually paired as a partner.
+ *
+ * One function rather than one per route on purpose. Where a file came from
+ * must never change what has to be true before anything is stored, and two
+ * copies of a check like this are two chances for them to drift apart.
  */
-export async function importPartnerFile(): Promise<{ applied: boolean; message: string }> {
-  let text: string;
-  try {
-    const { File } = await import('expo-file-system');
-    // No mime filter. A .is file arriving through a messaging app can land with
-    // almost any type attached, and filtering on one would hide the very file
-    // the person is trying to pick.
-    const picked = await File.pickFileAsync();
-    const file = Array.isArray(picked) ? picked[0] : picked;
-    if (!file) return { applied: false, message: 'Nothing was picked.' };
-    text = await file.text();
-  } catch {
-    // Cancelling lands here too, and is not worth an alarming message.
-    return { applied: false, message: 'No file was read.' };
-  }
-
+async function applySyncFileText(
+  text: string,
+  connections: readonly Connection[],
+): Promise<{ applied: boolean; message: string }> {
   let wire: Partial<PartnerSyncFile>;
   try {
     wire = JSON.parse(text) as Partial<PartnerSyncFile>;
@@ -487,7 +486,6 @@ export async function importPartnerFile(): Promise<{ applied: boolean; message: 
   );
   if (!sender.trusted) return { applied: false, message: sender.reason };
 
-  const connections = await listConnections();
   const connection = connections.find(
     (candidate) => computeKeyFingerprint(candidate.publicKeyBase64).replace(/\s+/g, '') === sender.fingerprint,
   );
@@ -522,4 +520,211 @@ export async function importPartnerFile(): Promise<{ applied: boolean; message: 
   }
 
   return { applied: codes.length > 0, message: parts.join(' ') };
+}
+/**
+ * Reads a file a partner handed over, after the person picks it.
+ *
+ * THE SAME FOUR CHECKS AS THE FOLDER PATH, deliberately reusing the same
+ * functions rather than a second copy: addressed to this device, opens with this
+ * device's key, the fingerprint inside the payload matches the one outside it,
+ * and that fingerprint belongs to somebody paired as a partner. A carrier
+ * changing does not change what has to be true before anything is stored.
+ */
+export async function importPartnerFile(): Promise<{ applied: boolean; message: string }> {
+  let text: string;
+  try {
+    const { File } = await import('expo-file-system');
+    // No mime filter. A .is file arriving through a messaging app can land with
+    // almost any type attached, and filtering on one would hide the very file
+    // the person is trying to pick.
+    const picked = await File.pickFileAsync();
+    const file = Array.isArray(picked) ? picked[0] : picked;
+    if (!file) return { applied: false, message: 'Nothing was picked.' };
+    text = await file.text();
+  } catch {
+    // Cancelling lands here too, and is not worth an alarming message.
+    return { applied: false, message: 'No file was read.' };
+  }
+
+  const connections = await listConnections();
+  return applySyncFileText(text, connections);
+}
+
+// ---------------------------------------------------------------------------
+// THE MAILBOX: link a file once, then stop navigating to it.
+//
+// Sending through the share sheet and picking a file back works, and needed no
+// setup at all, but it asks somebody to steer through their storage every time
+// in both directions. That is a file transfer, not a mailbox.
+//
+// WHAT MAKES THIS POSSIBLE. expo-file-system's picker calls
+// takePersistableUriPermission with the read and write flags that were granted
+// (FilePickerContract.kt), so a file chosen once stays reachable after the app
+// restarts. Pick each side once and every send and check afterwards is direct.
+//
+// A FILE, NOT A FOLDER, AND THAT IS FORCED RATHER THAN CHOSEN. Verified on a
+// real device: Android lists a cloud app in the folder picker only if it
+// supports handing over a whole folder, and OneDrive does not, so the folder
+// picker cannot see it at all. The file picker can. One file per direction is
+// therefore the largest unit available inside somebody's cloud storage.
+//
+// THE ONE STEP THIS CANNOT DO FOR ANYBODY: creating the shared folder and
+// sharing it with the other person. That happens in OneDrive or Drive itself,
+// because no app can make a folder in somebody else's storage appear in theirs.
+// Said plainly on screen rather than left to be discovered.
+
+/**
+ * Binds the file this device writes for one partner.
+ *
+ * The file has to exist before it can be picked, which is why the flow is send
+ * once through the share sheet, then link what was just sent. Creating a file
+ * inside a cloud folder is not something this app can do: Android offers no
+ * create-document picker through expo-file-system, only open-file and
+ * open-folder.
+ */
+export async function linkOutboxFile(connectionId: string): Promise<{ linked: boolean; message: string }> {
+  const uri = await pickOneFile();
+  if (!uri) return { linked: false, message: 'No file was picked.' };
+  await setOutboxFileUri(connectionId, uri);
+  return {
+    linked: true,
+    message: 'Linked. Send Mine to Them now writes straight there, with nothing to navigate.',
+  };
+}
+
+/** Binds the file this device reads for one partner. */
+export async function linkInboxFile(connectionId: string): Promise<{ linked: boolean; message: string }> {
+  const uri = await pickOneFile();
+  if (!uri) return { linked: false, message: 'No file was picked.' };
+  await setInboxFileUri(connectionId, uri);
+  return {
+    linked: true,
+    message: 'Linked. Check for Theirs now reads straight from there.',
+  };
+}
+
+export async function unlinkFiles(connectionId: string): Promise<void> {
+  await setOutboxFileUri(connectionId, null);
+  await setInboxFileUri(connectionId, null);
+}
+
+/**
+ * One picker call, shared, with no mime filter.
+ *
+ * Filtering would hide the very file somebody is trying to pick: a .is file
+ * arriving through a messaging app or sitting in a cloud folder can carry
+ * almost any type.
+ */
+async function pickOneFile(): Promise<string | null> {
+  try {
+    const { File } = await import('expo-file-system');
+    const picked = await File.pickFileAsync();
+    const file = Array.isArray(picked) ? picked[0] : picked;
+    return file?.uri ?? null;
+  } catch {
+    // Cancelling lands here too, and is not worth an alarming message.
+    return null;
+  }
+}
+
+/**
+ * Writes this device's payload straight into the linked file.
+ *
+ * Overwrites in place, which is the point: the partner's device already holds
+ * a permission to that exact file, so replacing its contents is what makes the
+ * next check pick up something new without either person doing anything.
+ */
+export async function sendToLinkedFile(connectionId: string): Promise<{ sent: boolean; message: string }> {
+  const [connections, myFingerprint, myConditions] = await Promise.all([
+    listConnections(),
+    getMyKeyFingerprint(),
+    getUserConditions(),
+  ]);
+  const partner = connections.find((connection) => connection.id === connectionId);
+  if (!partner) return { sent: false, message: 'That partner is no longer in your list.' };
+  if (!partner.outboxFileUri) {
+    return {
+      sent: false,
+      message: 'No file is linked for them yet. Send once through your share sheet, then link what you sent.',
+    };
+  }
+  if (!partner.encryptionPublicKeyBase64) {
+    return {
+      sent: false,
+      message: 'They paired before this app could encrypt. Show each other your codes once more first.',
+    };
+  }
+
+  const payload = buildSyncPayload({
+    grants: partner.grants,
+    myConditionCodes: myConditions,
+    plan: [],
+    referenceDbVersion: REFERENCE_DB_VERSION,
+    fromFingerprint: myFingerprint,
+    sentAt: new Date().toISOString(),
+  });
+
+  let sealed: string;
+  try {
+    sealed = await sealForRecipient(
+      new TextEncoder().encode(JSON.stringify(payload)),
+      partner.encryptionPublicKeyBase64,
+    );
+  } catch {
+    return { sent: false, message: 'Their key could not be used to encrypt this.' };
+  }
+
+  const wire: PartnerSyncFile = {
+    kind: PARTNER_SYNC_FILE_KIND,
+    v: 1,
+    to: computeKeyFingerprint(partner.publicKeyBase64),
+    from: myFingerprint,
+    sealed,
+  };
+
+  try {
+    const { File } = await import('expo-file-system');
+    new File(partner.outboxFileUri).write(JSON.stringify(wire));
+  } catch {
+    return {
+      sent: false,
+      message: 'That file could not be written to. It may have been moved or deleted, or your storage app may not allow this app to change it. Link it again.',
+    };
+  }
+
+  return { sent: true, message: `Sent to ${partner.name}.` };
+}
+
+/**
+ * Reads the linked file for one partner and applies what is in it.
+ *
+ * The same four checks as every other route, reusing the same functions rather
+ * than a second copy: addressed to this device, opens with this device's key,
+ * the fingerprint inside the payload matches the one outside it, and that
+ * fingerprint belongs to somebody paired as a partner. Where the bytes came from
+ * never changes what has to be true before anything is stored.
+ */
+export async function checkLinkedFile(connectionId: string): Promise<{ applied: boolean; message: string }> {
+  const connections = await listConnections();
+  const partner = connections.find((connection) => connection.id === connectionId);
+  if (!partner) return { applied: false, message: 'That partner is no longer in your list.' };
+  if (!partner.inboxFileUri) {
+    return {
+      applied: false,
+      message: 'Nothing is linked to read yet. Use Get What They Sent once, then link it.',
+    };
+  }
+
+  let text: string;
+  try {
+    const { File } = await import('expo-file-system');
+    text = await new File(partner.inboxFileUri).text();
+  } catch {
+    return {
+      applied: false,
+      message: 'That file could not be read. It may still be syncing, or it may have been moved. Try again, or link it afresh.',
+    };
+  }
+
+  return applySyncFileText(text, connections);
 }

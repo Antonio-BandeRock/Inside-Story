@@ -5563,6 +5563,12 @@ async function runDatabaseInitialization() {
         -- right home for it. The share_* columns below are INTEGER and are
         -- deliberately kept out of that loop for exactly that reason.
         encryption_public_key_base64 TEXT,
+        -- Where this pairing's two files live once each side is linked.
+        -- One file each, not a folder: the file picker is the only one that
+        -- reaches a cloud app, and it hands over a file. TEXT, so the generic
+        -- loop below is correct for both.
+        outbox_file_uri TEXT,
+        inbox_file_uri TEXT,
         paired_at TEXT NOT NULL DEFAULT (datetime('now')),
         -- --- Partner links (2026-09-06) --------------------------------
         --
@@ -6655,6 +6661,9 @@ async function runDatabaseInitialization() {
       ['connections', 'their_conditions_at'],
       // Encryption keys, 2026-09-06. TEXT, so the loop is correct for it.
       ['connections', 'encryption_public_key_base64'],
+      // Mailbox file locations, 2026-09-07. Both TEXT, so the loop is right.
+      ['connections', 'outbox_file_uri'],
+      ['connections', 'inbox_file_uri'],
     ] as const) {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (columns.length > 0 && !columns.some((entry) => entry.name === column)) {

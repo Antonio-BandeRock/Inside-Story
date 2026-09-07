@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.48',
+    date: '2026-09-07',
+    changes: [
+      'A real mailbox. Link a file once on each side and Send Now and Check Theirs Now go straight to it, with nothing to navigate.',
+      'Setting it up: in OneDrive or Drive, make a folder and share it with your partner. Send once through your share sheet into that folder, then tap Link What I Send and pick it. Do the same with Link What They Send once theirs arrives.',
+      'The app cannot make that shared folder for you. No app can put a folder into storage that belongs to somebody else, so that first step is yours and the app now says so instead of leaving you to find out.',
+      'Unlink at any time and it goes back to picking a file by hand.',
+    ],
+  },
+  {
     version: '1.0.34.47',
     date: '2026-09-07',
     changes: [

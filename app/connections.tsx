@@ -35,7 +35,15 @@ import {
 } from '../lib/partners';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 import { canEncryptTo } from '../lib/partnerCrypto';
-import { importPartnerFile, sendToPartnerAsFile } from '../lib/partnerTransfer';
+import {
+  checkLinkedFile,
+  importPartnerFile,
+  linkInboxFile,
+  linkOutboxFile,
+  sendToLinkedFile,
+  sendToPartnerAsFile,
+  unlinkFiles,
+} from '../lib/partnerTransfer';
 
 export default function ConnectionsScreen() {
   const scrollPadding = useFloatingButtonScrollPadding();
@@ -129,6 +137,50 @@ export default function ConnectionsScreen() {
     await setConnectionGrants(connection.id, next);
     load();
   };
+
+  const runTransfer = async (
+    kind: 'send' | 'check',
+    work: () => Promise<{ message: string; changed?: boolean }>,
+  ) => {
+    setTransferBusy(kind);
+    try {
+      const result = await work();
+      setTransferNote(result.message);
+      if (result.changed) load();
+    } finally {
+      setTransferBusy(null);
+    }
+  };
+
+  const handleLinkOutbox = (id: string) =>
+    runTransfer('send', async () => {
+      const result = await linkOutboxFile(id);
+      return { message: result.message, changed: result.linked };
+    });
+
+  const handleLinkInbox = (id: string) =>
+    runTransfer('check', async () => {
+      const result = await linkInboxFile(id);
+      return { message: result.message, changed: result.linked };
+    });
+
+  const handleUnlink = (id: string) =>
+    runTransfer('send', async () => {
+      await unlinkFiles(id);
+      return { message: 'Unlinked. Sending and getting go back to picking a file by hand.', changed: true };
+    });
+
+  const handleSendLinked = (id: string) =>
+    runTransfer('send', async () => {
+      const result = await sendToLinkedFile(id);
+      return { message: result.message };
+    });
+
+  const handleCheckLinked = (id: string) =>
+    runTransfer('check', async () => {
+      const result = await checkLinkedFile(id);
+      return { message: result.message, changed: result.applied };
+    });
 
   const handleSendFile = async (connectionId: string) => {
     setTransferBusy('send');
@@ -338,6 +390,77 @@ export default function ConnectionsScreen() {
                           <Text style={styles.rowFixButtonText}>Show My Code Again</Text>
                         </TouchableOpacity>
                       </View>
+                      {/* THE MAILBOX FOR THIS PAIRING.
+
+                          Linked, both directions run with nothing to navigate.
+                          Unlinked, sending and getting still work by hand, which
+                          is what the setup steps below use to create the files in
+                          the first place. */}
+                        <View style={styles.rowFix}>
+                          <Text style={styles.rowFixText}>
+                            {connection.outboxFileUri && connection.inboxFileUri
+                              ? 'Mailbox is set up. Sending and getting go straight to the files, with nothing to navigate.'
+                              : connection.outboxFileUri || connection.inboxFileUri
+                                ? 'Half set up. Link the other direction and neither of you has to navigate again.'
+                                : 'Set up a mailbox and neither of you has to go looking for a file again. First, in OneDrive or Drive, make a folder and share it with them. This app cannot do that part: no app can put a folder into storage that belongs to somebody else. Then send once, and link what you sent.'}
+                          </Text>
+                          <View style={styles.folderActions}>
+                            <TouchableOpacity
+                              onPress={() => handleLinkOutbox(connection.id)}
+                              hitSlop={8}
+                              disabled={transferBusy !== null}
+                            >
+                              <Text style={styles.rowActionText}>
+                                {connection.outboxFileUri ? 'Relink What I Send' : 'Link What I Send'}
+                              </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              onPress={() => handleLinkInbox(connection.id)}
+                              hitSlop={8}
+                              disabled={transferBusy !== null}
+                            >
+                              <Text style={styles.rowActionText}>
+                                {connection.inboxFileUri ? 'Relink What They Send' : 'Link What They Send'}
+                              </Text>
+                            </TouchableOpacity>
+                            {connection.outboxFileUri || connection.inboxFileUri ? (
+                              <TouchableOpacity
+                                onPress={() => handleUnlink(connection.id)}
+                                hitSlop={8}
+                                disabled={transferBusy !== null}
+                              >
+                                <Text style={styles.rowActionText}>Unlink</Text>
+                              </TouchableOpacity>
+                            ) : null}
+                          </View>
+                          {connection.outboxFileUri || connection.inboxFileUri ? (
+                            <View style={styles.folderActions}>
+                              {connection.outboxFileUri ? (
+                                <TouchableOpacity
+                                  onPress={() => handleSendLinked(connection.id)}
+                                  hitSlop={8}
+                                  disabled={transferBusy !== null}
+                                >
+                                  <Text style={styles.rowActionText}>
+                                    {transferBusy === 'send' ? 'Sending...' : 'Send Now'}
+                                  </Text>
+                                </TouchableOpacity>
+                              ) : null}
+                              {connection.inboxFileUri ? (
+                                <TouchableOpacity
+                                  onPress={() => handleCheckLinked(connection.id)}
+                                  hitSlop={8}
+                                  disabled={transferBusy !== null}
+                                >
+                                  <Text style={styles.rowActionText}>
+                                    {transferBusy === 'check' ? 'Checking...' : 'Check Theirs Now'}
+                                  </Text>
+                                </TouchableOpacity>
+                              ) : null}
+                            </View>
+                          ) : null}
+                        </View>
+
                       {connection.theirConditionCodes.length > 0 ? (
                         <Text style={styles.rowMeta}>
                           They share {connection.theirConditionCodes.length}{' '}
@@ -435,6 +558,7 @@ const styles = StyleSheet.create({
 
   },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
+  folderActions: { flexDirection: 'row', gap: 18, flexWrap: 'wrap', marginTop: 6 },
   // Taken verbatim from app/pair.tsx, so the same choice looks the same in the
   // two places it is made rather than drifting into two designs.
   grantRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 6 },

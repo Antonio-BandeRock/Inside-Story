@@ -45,6 +45,20 @@ export type Connection = {
   /** Condition codes they shared. Never anything else about their health. */
   theirConditionCodes: string[];
   theirConditionsAt: string | null;
+  /**
+   * Where this pairing's two files live, once each side has been linked.
+   *
+   * A content:// URI to ONE file each, not a folder. The folder picker cannot
+   * reach a cloud app on Android unless that app supports handing over a whole
+   * folder, which OneDrive does not; the file picker can. So the addressable
+   * unit inside somebody's cloud storage is one file, and the mailbox is built
+   * out of exactly that.
+   *
+   * Null until linked, which is the honest state: sending and receiving still
+   * work by hand before then, they just ask for navigation every time.
+   */
+  outboxFileUri: string | null;
+  inboxFileUri: string | null;
 };
 
 type ConnectionRow = {
@@ -52,6 +66,8 @@ type ConnectionRow = {
   name: string;
   public_key_base64: string;
   encryption_public_key_base64: string | null;
+  outbox_file_uri: string | null;
+  inbox_file_uri: string | null;
   paired_at: string;
   role: string | null;
   they_have_me_at: string | null;
@@ -67,6 +83,7 @@ type ConnectionRow = {
 // some reads and miss others.
 const CONNECTION_COLUMNS = `
   id, name, public_key_base64, encryption_public_key_base64, paired_at, role, they_have_me_at,
+  outbox_file_uri, inbox_file_uri,
   fingerprint_verified_at, share_meals, share_shopping, share_conditions,
   their_condition_codes_json, their_conditions_at
 `;
@@ -93,6 +110,8 @@ function fromRow(row: ConnectionRow): Connection {
     // them until they pair again, and the screens say so rather than looking
     // ready to share.
     encryptionPublicKeyBase64: row.encryption_public_key_base64,
+    outboxFileUri: row.outbox_file_uri,
+    inboxFileUri: row.inbox_file_uri,
     pairedAt: row.paired_at,
     // A row migrated from before roles existed is a recipe connection, which
     // is what every connection made before 2026-09-06 was for.
@@ -569,4 +588,27 @@ export function decodeConnectionInvite(raw: string): ConnectionInvite | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Remembers where a linked file lives, so it never has to be found again.
+ *
+ * The picker takes a persistable permission on whatever was chosen
+ * (FilePickerContract.kt calls takePersistableUriPermission with the granted
+ * read and write flags), so the URI stored here keeps working after a restart.
+ * That is the whole difference between a mailbox and navigating to a file every
+ * single time.
+ *
+ * Passing null unlinks, which has to stay possible: a file somebody deleted or
+ * moved leaves a URI that resolves to nothing, and being stuck with it would be
+ * worse than going back to picking by hand.
+ */
+export async function setOutboxFileUri(id: string, uri: string | null): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('UPDATE connections SET outbox_file_uri = ? WHERE id = ?', uri, id);
+}
+
+export async function setInboxFileUri(id: string, uri: string | null): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('UPDATE connections SET inbox_file_uri = ? WHERE id = ?', uri, id);
 }
