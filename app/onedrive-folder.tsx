@@ -238,6 +238,12 @@ export default function OneDriveFolderScreen() {
       await setMailboxFolderName(current.name);
     }
     setChosen(current);
+    // Reload so the move offer reappraises now that there is somewhere to move
+    // things to.
+    await load(root, trail, current);
+    // Said after the reload, because load clears the note: right for somebody
+    // opening a folder and leaving a stale message behind, wrong for a message
+    // about what just happened.
     setNote(
       forBackups
         ? 'Backups will be written to ' + current.name + ' from now on.'
@@ -245,9 +251,6 @@ export default function OneDriveFolderScreen() {
           current.name +
           '. Anything you send a partner goes in here, and this is where the app looks for what they sent.',
     );
-    // Reload so the move offer reappraises now that there is somewhere to move
-    // things to.
-    await load(root, trail, current);
   };
 
   const handleCreate = async () => {
@@ -267,12 +270,12 @@ export default function OneDriveFolderScreen() {
       return;
     }
     setNewFolderName('');
+    await load(root, trail, chosen);
     setNote(
       forBackups
         ? 'Made ' + result.value.name + '. Open it and tap Use to start keeping backups there.'
         : 'Made ' + result.value.name + '. Share it with them in OneDrive, then open it here and tap Use.',
     );
-    await load(root, trail, chosen);
   };
 
   const handleMoveStrays = async () => {
@@ -286,12 +289,12 @@ export default function OneDriveFolderScreen() {
       else failures.push(file.name + ': ' + result.reason);
     }
     setBusy(false);
+    await load(root, trail, chosen);
     setNote(
       failures.length === 0
         ? 'Moved ' + moved + (moved === 1 ? ' backup into ' : ' backups into ') + chosen.name + '.'
         : 'Moved ' + moved + '. ' + failures.join(' '),
     );
-    await load(root, trail, chosen);
   };
 
   const purposeTitle = forBackups ? 'Where your backups are kept' : 'The folder your mailbox lives in';
