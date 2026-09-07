@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.44',
+    date: '2026-09-07',
+    changes: [
+      'Show My Code Again is now on every partner, not only ones you paired with before this app could encrypt. Showing each other your codes is how your conditions cross, and it was hidden once you both had keys.',
+      'Scan each other whenever your conditions change. A meal plan you generate is then built around both of you.',
+      'The note on a partner used to say nothing moved between your phones. That was out of date: conditions do cross. It now says so, and still says the plan itself does not yet.',
+    ],
+  },
+  {
     version: '1.0.34.43',
     date: '2026-09-07',
     changes: [

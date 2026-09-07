@@ -138,13 +138,24 @@ const TODAY = '2026-09-06';
   check('nothing granted says so plainly', describeGrants(recipeGrants),
     'You have allowed them nothing.');
   // The screens must not describe sharing as something already happening.
-  // Nothing carries a meal plan between two phones yet, and a partner card
-  // that reads as finished is the same overclaiming this project refuses in
-  // its health content.
-  checkTrue('the pending notice says pairing is done',
-    /[Pp]airing is done/.test(PARTNER_SHARING_NOT_LIVE));
-  checkTrue('the pending notice says nothing moves yet',
-    /not built yet/.test(PARTNER_SHARING_NOT_LIVE) && /nothing is moving/.test(PARTNER_SHARING_NOT_LIVE));
+  // WHAT THESE TWO CHECKS GUARD HAS CHANGED, AND THEY ARE UPDATED RATHER THAN
+  // DELETED. When they were written nothing at all could travel between two
+  // phones. Conditions now do: app/pair.tsx rebuilds the invite from current
+  // conditions every time it opens, and app/connect.tsx applies incoming codes
+  // to a connection that already exists, so showing each other a code again is
+  // a real exchange. The plan itself still cannot cross.
+  //
+  // So the risk they exist for is unchanged: a partner card that reads as
+  // finished while half of it does not work is the same overclaiming this
+  // project refuses in its health content. What changed is which half. A notice
+  // still saying nothing moves would now be wrong in the other direction, and an
+  // app that understates what it does teaches somebody not to trust it either.
+  checkTrue('the notice says conditions do cross',
+    /conditions/i.test(PARTNER_SHARING_NOT_LIVE) && /crosses|cross/i.test(PARTNER_SHARING_NOT_LIVE));
+  checkTrue('the notice still says the plan itself does not',
+    /not built yet/.test(PARTNER_SHARING_NOT_LIVE));
+  checkFalse('and it no longer claims nothing moves at all',
+    /nothing is moving/.test(PARTNER_SHARING_NOT_LIVE));
   checkTrue('meals and shopping read as a permission, not a live behaviour',
     SHARE_SCOPES.filter((scope) => scope.code !== 'conditions')
       .every((scope) => scope.what.startsWith('Permission to')));

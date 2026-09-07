@@ -363,22 +363,32 @@ export default function ConnectionsScreen() {
                           while nothing can actually travel between the phones,
                           reads as a working feature. */}
                       <Text style={styles.rowPending}>{PARTNER_SHARING_NOT_LIVE}</Text>
-                      {canEncryptTo(connection.encryptionPublicKeyBase64) ? null : (
-                        <View style={styles.rowFix}>
-                          <Text style={styles.rowFixText}>
-                            You paired before this app could seal something so only they can read it. Show each other
-                            your codes once more and it fills itself in. Nothing else about the connection changes.
-                          </Text>
-                          <TouchableOpacity
-                            style={styles.rowFixButton}
-                            activeOpacity={0.85}
-                            onPress={() => openPairing('partner')}
-                          >
-                            <Ionicons name="qr-code-outline" size={16} color={colors.textOnButton} />
-                            <Text style={styles.rowFixButtonText}>Show My Code Again</Text>
-                          </TouchableOpacity>
-                        </View>
-                      )}
+                      {/* SHOWING A CODE AGAIN IS HOW CONDITIONS ACTUALLY CROSS,
+                          and this was gated behind the missing-key case, so for
+                          anyone already holding a key it was invisible.
+
+                          The mechanism was there the whole time: app/pair.tsx
+                          rebuilds the invite fresh from current conditions every
+                          time it opens, and app/connect.tsx applies incoming
+                          codes to a connection that already exists. Nothing new
+                          was needed to make partners share conditions, only a way
+                          to reach what already worked. A day was spent building
+                          three carriers before that was checked. */}
+                      <View style={styles.rowFix}>
+                        <Text style={styles.rowFixText}>
+                          {canEncryptTo(connection.encryptionPublicKeyBase64)
+                            ? 'Show each other your codes again whenever your conditions change. Scanning updates what each of you knows about the other. Nothing else about the connection changes.'
+                            : 'You paired before this app could seal something so only they can read it. Show each other your codes once more and it fills itself in. Nothing else about the connection changes.'}
+                        </Text>
+                        <TouchableOpacity
+                          style={styles.rowFixButton}
+                          activeOpacity={0.85}
+                          onPress={() => openPairing('partner')}
+                        >
+                          <Ionicons name="qr-code-outline" size={16} color={colors.textOnButton} />
+                          <Text style={styles.rowFixButtonText}>Show My Code Again</Text>
+                        </TouchableOpacity>
+                      </View>
                       {connection.theirConditionCodes.length > 0 ? (
                         <Text style={styles.rowMeta}>
                           They share {connection.theirConditionCodes.length}{' '}

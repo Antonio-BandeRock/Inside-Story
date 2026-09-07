@@ -133,7 +133,7 @@ export function describeGrants(grants: ShareGrants): string {
  * is the same overclaiming this project refuses everywhere else.
  */
 export const PARTNER_SHARING_NOT_LIVE =
-  'Pairing is done, and these choices are saved. Passing meals and lists between two phones is not built yet, so nothing is moving between you at the moment. Your choices here are what it will use when it is.';
+  'Which conditions you track crosses when you show each other your codes, and a meal plan you generate is then built around both of you. Passing the plan itself, and shopping lists, between two phones is not built yet.';
 
 // --- Whether the link actually works both ways -------------------------------
 //
