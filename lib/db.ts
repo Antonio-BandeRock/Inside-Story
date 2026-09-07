@@ -14794,33 +14794,62 @@ export async function setMailboxFolderName(name: string | null) {
 // any part of it: it is read whole and written whole.
 const ONEDRIVE_FOLDER_KEY = 'onedrive_folder';
 
-export type StoredOneDriveFolder = { driveId: string; itemId: string; name: string };
+// WHERE BACKUPS GO, WHICH IS DELIBERATELY NOT THE MAILBOX.
+//
+// Two folders rather than one because they hold different things for different
+// reasons. The mailbox holds small files addressed between two phones, written
+// and deleted constantly. Backups are large, kept, and nobody else has any
+// business reading them. Putting both in one folder means a partner who can see
+// the mailbox can also see every backup, which is the person's whole database.
+const ONEDRIVE_BACKUP_FOLDER_KEY = 'onedrive_backup_folder';
 
-export async function getOneDriveFolder(): Promise<StoredOneDriveFolder | null> {
+export type StoredOneDriveFolder = {
+  driveId: string;
+  itemId: string;
+  name: string;
+  /**
+   * Where it sits, for a person to read. Never used to address anything.
+   *
+   * Optional because a folder somebody shared reports a path inside their own
+   * drive, which would mislead rather than help, and because a folder stored
+   * before this existed has none.
+   */
+  path?: string;
+};
+
+/**
+ * Reads one of the chosen folders back, checking every field.
+ *
+ * A half-written row would otherwise surface as a Graph request to
+ * /drives/undefined, which reads as a OneDrive problem rather than a local one.
+ */
+async function readStoredFolder(key: string): Promise<StoredOneDriveFolder | null> {
   const db = await getDatabase();
   const row = await db.getFirstAsync<{ value: string }>(
     'SELECT value FROM app_meta WHERE key = ?',
-    ONEDRIVE_FOLDER_KEY,
+    key,
   );
   if (!row?.value) return null;
   try {
     const parsed = JSON.parse(row.value) as Partial<StoredOneDriveFolder>;
-    // Every field checked rather than trusted. A half-written row would
-    // otherwise surface as a Graph request to /drives/undefined, which reads as
-    // a OneDrive problem rather than a local one.
     if (typeof parsed.driveId !== 'string' || !parsed.driveId) return null;
     if (typeof parsed.itemId !== 'string' || !parsed.itemId) return null;
     if (typeof parsed.name !== 'string' || !parsed.name) return null;
-    return { driveId: parsed.driveId, itemId: parsed.itemId, name: parsed.name };
+    return {
+      driveId: parsed.driveId,
+      itemId: parsed.itemId,
+      name: parsed.name,
+      path: typeof parsed.path === 'string' && parsed.path ? parsed.path : undefined,
+    };
   } catch {
     return null;
   }
 }
 
-export async function setOneDriveFolder(folder: StoredOneDriveFolder | null) {
+async function writeStoredFolder(key: string, folder: StoredOneDriveFolder | null) {
   const db = await getDatabase();
   if (!folder) {
-    await db.runAsync('DELETE FROM app_meta WHERE key = ?', ONEDRIVE_FOLDER_KEY);
+    await db.runAsync('DELETE FROM app_meta WHERE key = ?', key);
     return;
   }
   const now = new Date().toISOString();
@@ -14829,10 +14858,26 @@ export async function setOneDriveFolder(folder: StoredOneDriveFolder | null) {
       INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
       ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
     `,
-    ONEDRIVE_FOLDER_KEY,
+    key,
     JSON.stringify(folder),
     now,
   );
+}
+
+export async function getOneDriveFolder(): Promise<StoredOneDriveFolder | null> {
+  return readStoredFolder(ONEDRIVE_FOLDER_KEY);
+}
+
+export async function setOneDriveFolder(folder: StoredOneDriveFolder | null) {
+  return writeStoredFolder(ONEDRIVE_FOLDER_KEY, folder);
+}
+
+export async function getOneDriveBackupFolder(): Promise<StoredOneDriveFolder | null> {
+  return readStoredFolder(ONEDRIVE_BACKUP_FOLDER_KEY);
+}
+
+export async function setOneDriveBackupFolder(folder: StoredOneDriveFolder | null) {
+  return writeStoredFolder(ONEDRIVE_BACKUP_FOLDER_KEY, folder);
 }
 
 const SYNC_FOLDER_URI_KEY = 'sync_folder_uri';

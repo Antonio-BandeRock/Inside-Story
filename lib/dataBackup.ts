@@ -152,6 +152,30 @@ export async function buildBackupEnvelope(): Promise<BackupEnvelope> {
 // parseBackupEnvelope below) -- this only changes what a FUTURE export
 // produces, it never breaks reading a real backup already sitting on a
 // device from before this feature existed.
+/**
+ * The encrypted bytes of a backup, and what to call the file.
+ *
+ * Pulled out so writing to a local file and writing to OneDrive share one
+ * definition of what a backup IS. Two copies of "build it, encrypt it, name it"
+ * is two chances for a backup written one way to be unreadable by the other.
+ */
+export async function buildBackupFileContent(
+  password: string,
+): Promise<{ fileName: string; content: string } | null> {
+  try {
+    const envelope = await buildBackupEnvelope();
+    const wire = await encryptBackupPayload(JSON.stringify(envelope), password);
+    const stamp = envelope.exportedAt.replace(/[:.]/g, '-');
+    return {
+      fileName: 'inside-story-backup-' + stamp + '.json',
+      content: JSON.stringify(wire),
+    };
+  } catch (error) {
+    console.error('[dataBackup] Failed to build a backup', error);
+    return null;
+  }
+}
+
 export async function exportBackupToFile(password: string): Promise<string | null> {
   try {
     const envelope = await buildBackupEnvelope();

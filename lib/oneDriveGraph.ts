@@ -33,7 +33,36 @@ export type DriveItemRef = {
   driveId: string;
   itemId: string;
   name: string;
+  /**
+   * Where it sits, for a person to read. Never used to address anything.
+   *
+   * Two folders can be called Backups and a name alone cannot tell them
+   * apart, which is the whole reason this is here. Optional because a folder
+   * somebody else shared reports a path inside THEIR drive, which would be
+   * misleading rather than helpful, so in that case there is honestly nothing
+   * to show.
+   */
+  path?: string;
 };
+
+/**
+ * Turns Graph's own parent path into something worth showing.
+ *
+ * Graph reports a parent as /drive/root:/Documents, or /drives/{id}/root:/x
+ * for another drive. Everything up to and including root: is addressing rather
+ * than location, so it goes, and what is left is joined with the item name.
+ * Returns undefined rather than a half-parsed string when the shape is not the
+ * one this understands, since a wrong path is worse than none.
+ */
+export function describeItemPath(parentPath: string | undefined, name: string): string | undefined {
+  if (typeof parentPath !== 'string') return undefined;
+  const marker = parentPath.indexOf('root:');
+  if (marker === -1) return undefined;
+  const inside = decodeURIComponent(parentPath.slice(marker + 5));
+  const parts = inside.split('/').filter((part) => part.length > 0);
+  parts.push(name);
+  return 'OneDrive / ' + parts.join(' / ');
+}
 
 export type GraphResult<T> = { ok: true; value: T } | { ok: false; reason: string };
 
@@ -42,13 +71,13 @@ type GraphChild = {
   name?: string;
   folder?: { childCount?: number };
   file?: { mimeType?: string };
-  parentReference?: { driveId?: string };
+  parentReference?: { driveId?: string; path?: string };
   remoteItem?: {
     id?: string;
     name?: string;
     folder?: { childCount?: number };
     file?: { mimeType?: string };
-    parentReference?: { driveId?: string };
+    parentReference?: { driveId?: string; path?: string };
   };
 };
 
@@ -117,7 +146,8 @@ function toRef(child: GraphChild, fallbackDriveId: string): DriveItemRef | null 
   const name = remote?.name ?? child.name;
   const driveId = remote?.parentReference?.driveId ?? child.parentReference?.driveId ?? fallbackDriveId;
   if (!id || !name || !driveId) return null;
-  return { driveId, itemId: id, name };
+  const parentPath = remote?.parentReference?.path ?? child.parentReference?.path;
+  return { driveId, itemId: id, name, path: describeItemPath(parentPath, name) };
 }
 
 function isFolder(child: GraphChild): boolean {
@@ -201,6 +231,47 @@ export async function createFolder(
 }
 
 /** Files directly inside a folder, by name, so an inbox can be scanned. */
+export type DriveFileRef = { itemId: string; name: string };
+
+/**
+ * Files in a folder, with the ids needed to act on them.
+ *
+ * Separate from listFileNames because the mailbox only ever needs names and
+ * asking for more than is needed there would be untidy, while moving a file
+ * cannot be done with a name at all.
+ */
+export async function listFiles(folder: DriveItemRef): Promise<GraphResult<DriveFileRef[]>> {
+  const result = await graphFetch(
+    '/drives/' + folder.driveId + '/items/' + folder.itemId + '/children?$top=200&$select=id,name,file',
+  );
+  if (!result.ok) return result;
+  const files = ((result.value as { value?: GraphChild[] }).value ?? [])
+    .filter((child) => Boolean(child.file) && typeof child.name === 'string' && typeof child.id === 'string')
+    .map((child) => ({ itemId: child.id as string, name: child.name as string }));
+  return { ok: true, value: files };
+}
+
+/**
+ * Moves a file into another folder.
+ *
+ * A move in Graph is a change of parent, which is why this reads as an edit
+ * rather than a copy and a delete. Nothing is duplicated and nothing is left
+ * behind, so a move that half fails cannot lose the file.
+ */
+export async function moveFile(
+  from: DriveItemRef,
+  file: DriveFileRef,
+  into: DriveItemRef,
+): Promise<GraphResult<null>> {
+  const result = await graphFetch('/drives/' + from.driveId + '/items/' + file.itemId, {
+    method: 'PATCH',
+    contentType: 'application/json',
+    body: JSON.stringify({ parentReference: { driveId: into.driveId, id: into.itemId } }),
+  });
+  if (!result.ok) return result;
+  return { ok: true, value: null };
+}
+
 export async function listFileNames(folder: DriveItemRef): Promise<GraphResult<string[]>> {
   const result = await graphFetch(
     '/drives/' + folder.driveId + '/items/' + folder.itemId + '/children?$top=200&$select=id,name,file',
@@ -268,12 +339,15 @@ export async function deleteFile(
  * after it was picked, and finding that out when somebody taps Send is worse
  * than finding it out on the screen that shows the mailbox.
  */
-export async function checkFolder(folder: DriveItemRef): Promise<GraphResult<string>> {
+export async function checkFolder(
+  folder: DriveItemRef,
+): Promise<GraphResult<{ name: string; path?: string }>> {
   const result = await graphFetch(
-    '/drives/' + folder.driveId + '/items/' + folder.itemId + '?$select=id,name,folder',
+    '/drives/' + folder.driveId + '/items/' + folder.itemId + '?$select=id,name,folder,parentReference',
   );
   if (!result.ok) return result;
   const child = result.value as GraphChild;
   if (!child.folder) return { ok: false, reason: 'That is no longer a folder in OneDrive.' };
-  return { ok: true, value: child.name ?? folder.name };
+  const name = child.name ?? folder.name;
+  return { ok: true, value: { name, path: describeItemPath(child.parentReference?.path, name) } };
 }

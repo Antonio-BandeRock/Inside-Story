@@ -65,12 +65,17 @@ export async function getMailboxStatus(): Promise<MailboxStatus> {
     return { state: 'unreachable', folderName: stored.name, reason: check.reason };
   }
 
-  // A rename is not a problem, but a stale name on screen is confusing, so the
-  // stored copy is brought back in line with what OneDrive actually calls it.
-  if (check.value !== stored.name) {
-    const renamed: StoredOneDriveFolder = { ...stored, name: check.value };
-    await setOneDriveFolder(renamed);
-    return { state: 'ready', folder: renamed };
+  // A rename or a move is not a problem, but a stale name or path on screen is
+  // confusing, so the stored copy is brought back in line with where OneDrive
+  // actually says the folder is now.
+  if (check.value.name !== stored.name || check.value.path !== stored.path) {
+    const refreshed: StoredOneDriveFolder = {
+      ...stored,
+      name: check.value.name,
+      path: check.value.path,
+    };
+    await setOneDriveFolder(refreshed);
+    return { state: 'ready', folder: refreshed };
   }
 
   return { state: 'ready', folder };

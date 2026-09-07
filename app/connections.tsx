@@ -65,7 +65,10 @@ function describeMailboxStatus(status: MailboxStatus): string {
     case 'unreachable':
       return status.folderName + ' could not be opened. ' + status.reason;
     case 'ready':
-      return 'Using ' + status.folder.name + '.';
+      // The full path, not just the name. Two folders can be called Backups and
+      // a name on its own cannot tell them apart, which is exactly the question
+      // somebody has when two phones are supposed to be pointed at one folder.
+      return status.folder.path ? 'Using ' + status.folder.path : 'Using ' + status.folder.name + '.';
   }
 }
 

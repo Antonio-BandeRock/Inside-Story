@@ -3,7 +3,7 @@ import * as Updates from 'expo-updates';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { AppTextInput } from '../components/AppTextInput';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { GenericBackground } from '../components/GenericBackground';
@@ -20,12 +20,15 @@ import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
 import { APP_VERSION } from '../constants/version';
+import { isSignedIn as isOneDriveSignedIn } from '../lib/oneDriveAuth';
+import { downloadText, listFiles, uploadText } from '../lib/oneDriveGraph';
 import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreferences';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
 import { decryptBackupPayload, isEncryptedBackupWire } from '../lib/backupEncryption';
 import {
+  buildBackupFileContent,
   exportBackupToFile,
   listLocalBackupFiles,
   parseBackupEnvelope,
@@ -84,6 +87,8 @@ import {
   SymptomAssessmentRecord,
   type UserNutrientTargetOverride,
   UserProfile,
+  getOneDriveBackupFolder,
+  type StoredOneDriveFolder,
 } from '../lib/db';
 import { RECIPE_DIET_TAGS, type RecipeDietTag } from '../lib/digest/types';
 import { getConditionFoodConcerns, type ConditionFoodConcern } from '../lib/conditionFoodConcerns';
@@ -783,6 +788,11 @@ export default function ProfileScreen() {
   // fresh every time, so this always reflects what's genuinely still
   // there, not a stale one-time snapshot.
   const [localBackups, setLocalBackups] = useState<LocalBackupFile[]>([]);
+  // Where backups go in OneDrive, and whether an account is connected at all.
+  // Both read rather than assumed, so this card never offers to write
+  // somewhere it cannot reach.
+  const [backupFolder, setBackupFolder] = useState<StoredOneDriveFolder | null>(null);
+  const [oneDriveConnected, setOneDriveConnected] = useState(false);
   // Password-based encryption, 2026-08-16, see lib/backupEncryption.ts's
   // header comment for the full reasoning. One shared prompt
   // (components/PasswordPrompt.tsx) covers both moments this needs to
@@ -915,6 +925,12 @@ export default function ProfileScreen() {
     setLocalBackups(files);
   }, []);
 
+  const refreshBackupFolder = useCallback(async () => {
+    const [folder, connected] = await Promise.all([getOneDriveBackupFolder(), isOneDriveSignedIn()]);
+    setBackupFolder(folder);
+    setOneDriveConnected(connected);
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
     listLocalBackupFiles().then((files) => {
@@ -924,6 +940,14 @@ export default function ProfileScreen() {
       isMounted = false;
     };
   }, []);
+
+  // Re-read on every focus rather than only on mount: the folder is chosen on
+  // a different screen, so coming back from it is exactly when this is stale.
+  useFocusEffect(
+    useCallback(() => {
+      void refreshBackupFolder();
+    }, [refreshBackupFolder]),
+  );
 
   const [mealTimeBuffers, setMealTimeBuffers] = useState<Record<DayPart, TimeOfDayInput>>({
     breakfast: BLANK_TIME,
@@ -1394,6 +1418,110 @@ export default function ProfileScreen() {
   // (the module built for this, added the same day) and, per the direct
   // follow-up ask, showing the local file path directly rather than
   // leaving it to whatever the OS share target silently did with it.
+  // Writing a backup straight into OneDrive, rather than handing a file to
+  // the share sheet and hoping.
+  //
+  // The share sheet route still exists and still works, but the app never
+  // learns where the file went, so it cannot list what is there or read one
+  // back. Writing to a folder this app can address means Restore can offer
+  // the newest backup by name instead of asking somebody to go and find it.
+  async function handleBackUpToOneDrive() {
+    if (backupBusy) return;
+    if (!backupFolder) {
+      showBackupAlert('No folder yet', 'Choose where backups go first.');
+      return;
+    }
+    const password = await promptPassword(
+      'set',
+      'Set a Backup Password',
+      "This encrypts your backup so only someone who has this password can ever read it: not a text editor, not an AI tool, nothing. Choose something you'll remember; there's no way to reset it later.",
+    );
+    if (password === null) return;
+    setBackupBusy(true);
+    try {
+      showBusy('Encrypting your backup...');
+      let built: { fileName: string; content: string } | null;
+      try {
+        built = await buildBackupFileContent(password);
+      } finally {
+        hideBusy();
+      }
+      if (!built) {
+        showBackupAlert('Something went wrong', 'Could not build a backup. Nothing was sent.');
+        return;
+      }
+      showBusy('Sending it to OneDrive...');
+      let sent;
+      try {
+        sent = await uploadText(backupFolder, built.fileName, built.content);
+      } finally {
+        hideBusy();
+      }
+      if (!sent.ok) {
+        showBackupAlert('It did not reach OneDrive', sent.reason);
+        return;
+      }
+      showBackupAlert(
+        'Backed up',
+        built.fileName + ' is now in ' + (backupFolder.path ?? backupFolder.name) + '.',
+      );
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+
+  // Restores the newest backup sitting in the OneDrive folder.
+  //
+  // Newest by name, not by a timestamp OneDrive reports: the name carries the
+  // moment the backup was taken, which is the thing that matters, while a file
+  // date changes if it is ever copied or moved between folders.
+  async function handleRestoreFromOneDrive() {
+    if (backupBusy) return;
+    if (!backupFolder) {
+      showBackupAlert('No folder yet', 'Choose where backups go first.');
+      return;
+    }
+    setBackupBusy(true);
+    try {
+      showBusy('Looking in OneDrive...');
+      let listed;
+      try {
+        listed = await listFiles(backupFolder);
+      } finally {
+        hideBusy();
+      }
+      if (!listed.ok) {
+        showBackupAlert('Could not read the folder', listed.reason);
+        return;
+      }
+      const backups = listed.value
+        .filter((file) => file.name.startsWith('inside-story-backup-') && file.name.endsWith('.json'))
+        .sort((a, b) => b.name.localeCompare(a.name));
+      if (backups.length === 0) {
+        showBackupAlert(
+          'Nothing to restore',
+          'There are no Inside Story backups in ' + (backupFolder.path ?? backupFolder.name) + '.',
+        );
+        return;
+      }
+      const newest = backups[0];
+      showBusy('Downloading ' + newest.name + '...');
+      let text;
+      try {
+        text = await downloadText(backupFolder, newest.name);
+      } finally {
+        hideBusy();
+      }
+      if (!text.ok) {
+        showBackupAlert('Could not read that backup', text.reason);
+        return;
+      }
+      await runRestore(text.value);
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+
   async function handleExportBackup() {
     if (backupBusy) return;
     const password = await promptPassword(
@@ -3455,6 +3583,58 @@ export default function ProfileScreen() {
             <TouchableOpacity style={styles.checkinButton} disabled={backupBusy} onPress={handleExportBackup}>
               <Text style={styles.checkinButtonText}>{backupBusy ? 'Working…' : 'Export a Backup'}</Text>
             </TouchableOpacity>
+
+            {/* WHERE BACKUPS ARE KEPT, REPORTED THE SAME WAY THE SHARED
+                FOLDER IS.
+
+                Export a Backup above hands a file to the share sheet, and this
+                app never learns where it landed. That is why its own text says
+                "wherever you like" rather than naming anywhere: it genuinely
+                does not know. Choosing a folder here is what makes the
+                difference, because a folder the app can address is one it can
+                write to, list, and read a backup back out of.
+
+                A DIFFERENT FOLDER FROM THE MAILBOX, deliberately. The mailbox
+                is shared with a partner. A backup is the whole record, and
+                keeping the two together would hand every backup to whoever the
+                mailbox is shared with. */}
+            <View style={styles.concernRow}>
+              <Text style={styles.subLabel}>Where backups are kept</Text>
+              {backupFolder ? (
+                <>
+                  <Text style={styles.concernLabel}>{backupFolder.name}</Text>
+                  <Text style={styles.derivedText}>
+                    {backupFolder.path ?? 'A folder somebody shared with you.'}
+                  </Text>
+                </>
+              ) : (
+                <Text style={styles.derivedText}>
+                  {oneDriveConnected
+                    ? 'No folder chosen yet, so backups are only handed to the share sheet.'
+                    : 'Not connected to OneDrive, so backups are only handed to the share sheet.'}
+                </Text>
+              )}
+              <TouchableOpacity
+                style={styles.checkinButton}
+                disabled={backupBusy}
+                onPress={() => router.push('/onedrive-folder?purpose=backups')}
+              >
+                <Text style={styles.checkinButtonText}>
+                  {backupFolder ? 'Change Where Backups Go' : 'Choose Where Backups Go'}
+                </Text>
+              </TouchableOpacity>
+              {backupFolder ? (
+                <TouchableOpacity
+                  style={styles.checkinButton}
+                  disabled={backupBusy}
+                  onPress={handleBackUpToOneDrive}
+                >
+                  <Text style={styles.checkinButtonText}>
+                    {backupBusy ? 'Working…' : 'Back Up to OneDrive'}
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
             {/* A durable "document and display the file path" record, per
                 direct feedback: always reflects what's genuinely still
                 sitting in this app's cache directory right now, not a
@@ -3486,6 +3666,17 @@ export default function ProfileScreen() {
             <TouchableOpacity style={styles.dangerButton} disabled={backupBusy} onPress={handleRestoreFromFile}>
               <Text style={styles.dangerButtonText}>{backupBusy ? 'Working…' : 'Restore from a File…'}</Text>
             </TouchableOpacity>
+            {backupFolder ? (
+              <TouchableOpacity
+                style={styles.dangerButton}
+                disabled={backupBusy}
+                onPress={handleRestoreFromOneDrive}
+              >
+                <Text style={styles.dangerButtonText}>
+                  {backupBusy ? 'Working…' : 'Restore Newest from OneDrive'}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
         ) : null}
       </View>
