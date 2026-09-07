@@ -41,7 +41,9 @@ import {
 import {
   describeReceive,
   describeSend,
+  importPartnerFile,
   receiveFromPartners,
+  sendToPartnerAsFile,
   sendToPartners,
 } from '../lib/partnerTransfer';
 
@@ -129,6 +131,33 @@ export default function ConnectionsScreen() {
     }
   }
 
+  const handleSendFile = async (connectionId: string) => {
+    setTransferBusy('send');
+    try {
+      const result = await sendToPartnerAsFile(connectionId);
+      setTransferNote(
+        result.sent
+          ? 'Sent. They open it with Get What They Sent on their own phone.'
+          : (result.reason ?? 'It could not be sent.'),
+      );
+    } finally {
+      setTransferBusy(null);
+    }
+  };
+
+  const handleImportFile = async () => {
+    setTransferBusy('check');
+    try {
+      const result = await importPartnerFile();
+      setTransferNote(result.message);
+      // Conditions that just arrived change what a plan gets built around, so
+      // the rows are reloaded rather than left showing the old counts.
+      if (result.applied) load();
+    } finally {
+      setTransferBusy(null);
+    }
+  };
+
   const handleChooseFolder = async () => {
     const result = await chooseSyncFolder();
     if (!result.chosen) return; // Cancelling is not an error worth reporting.
@@ -176,21 +205,47 @@ export default function ConnectionsScreen() {
         </View>
       ) : null}
 
-      {/* HOW A PLAN AND A CONDITION LIST ACTUALLY CROSS BETWEEN TWO PHONES.
-          A folder both phones can see, with whatever already syncs that folder
-          moving the bytes. No account, no sign-in and no permission from any
-          cloud provider: the OneDrive API route was built as far as a live app
-          registration and then ruled out, because creating the share link it
-          needed costs full read and write access to somebody's entire OneDrive.
-          Every file written here is sealed to one recipient first, so a folder
-          the whole household can see still reveals nothing. */}
+      {/* HOW A CONDITION LIST ACTUALLY CROSSES BETWEEN TWO PHONES.
+
+          Three carriers were investigated and ruled out on evidence before this
+          one. A cloud API needs BOTH people to grant full read and write access
+          to their entire OneDrive, because Graph's createLink will not work at
+          the narrow scope and /shares needs a token on the reading side too. A
+          shared folder needs a storage app that supports folder selection, and
+          most cloud apps do not: OneDrive does not appear in the picker at all.
+          A QR code fits condition codes but not a plan of any length.
+
+          So the default is handing the file over through whatever the two people
+          already use. No account, no permission from anyone, works when they are
+          apart, and every byte of it is sealed so only the recipient can open it.
+          The cost is that it is a deliberate act rather than a background poll,
+          which is said plainly rather than hidden. */}
       <View style={styles.fingerprintCard}>
-        <Text style={styles.fingerprintLabel}>Shared folder</Text>
+        <Text style={styles.fingerprintLabel}>Sharing with a partner</Text>
+        <Text style={styles.fingerprintHint}>
+          Send what you share as a file, through whatever you already use to send each other things. No account and
+          no sign-in anywhere. Only the person you sent it to can open it, so it stays private even passing through
+          a messaging app.
+        </Text>
+
+        <TouchableOpacity onPress={handleImportFile} hitSlop={8} disabled={transferBusy !== null}>
+          <Text style={styles.rowActionText}>
+            {transferBusy === 'check' ? 'Opening…' : 'Get What They Sent'}
+          </Text>
+        </TouchableOpacity>
+
+        {transferNote ? <Text style={styles.fingerprintHint}>{transferNote}</Text> : null}
+
+        {/* The folder is kept rather than removed: where a storage app does
+            support folder selection, or on an SD card, it is the same exchange
+            without the sending step. Named honestly as the narrower option now
+            rather than presented as the main one. */}
+        <Text style={styles.folderSubLabel}>Or use a shared folder, where your storage app allows it</Text>
         {folderStatus.state === 'notChosen' ? (
           <Text style={styles.fingerprintHint}>
-            Pick a folder that both phones can see, such as one inside OneDrive, Google Drive or Dropbox. Whatever
-            already syncs that folder carries what you share. Nothing is uploaded anywhere else, and everything
-            written there is encrypted so only the person it is for can read it.
+            Some storage apps let this app write straight into a folder you both see, which skips the sending step.
+            Most cloud apps on Android do not offer it, OneDrive among them, so this may show only folders on the
+            phone itself.
           </Text>
         ) : folderStatus.state === 'unreachable' ? (
           <Text style={styles.folderProblem}>{SYNC_FOLDER_PROBLEM_TEXT.unreachable}</Text>
@@ -204,28 +259,27 @@ export default function ConnectionsScreen() {
           </Text>
         )}
 
-        <TouchableOpacity onPress={handleChooseFolder} hitSlop={8}>
-          <Text style={styles.rowActionText}>
-            {folderStatus.state === 'notChosen' ? 'Pick a Shared Folder' : 'Pick a Different Folder'}
-          </Text>
-        </TouchableOpacity>
-
-        {folderStatus.state === 'ready' ? (
-          <View style={styles.folderActions}>
-            <TouchableOpacity onPress={handleSend} hitSlop={8} disabled={transferBusy !== null}>
-              <Text style={styles.rowActionText}>
-                {transferBusy === 'send' ? 'Sending…' : 'Send Mine Now'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleCheck} hitSlop={8} disabled={transferBusy !== null}>
-              <Text style={styles.rowActionText}>
-                {transferBusy === 'check' ? 'Checking…' : 'Check for Theirs'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-
-        {transferNote ? <Text style={styles.fingerprintHint}>{transferNote}</Text> : null}
+        <View style={styles.folderActions}>
+          <TouchableOpacity onPress={handleChooseFolder} hitSlop={8}>
+            <Text style={styles.rowActionText}>
+              {folderStatus.state === 'notChosen' ? 'Pick a Folder' : 'Pick a Different Folder'}
+            </Text>
+          </TouchableOpacity>
+          {folderStatus.state === 'ready' ? (
+            <>
+              <TouchableOpacity onPress={handleSend} hitSlop={8} disabled={transferBusy !== null}>
+                <Text style={styles.rowActionText}>
+                  {transferBusy === 'send' ? 'Sending…' : 'Write to Folder'}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleCheck} hitSlop={8} disabled={transferBusy !== null}>
+                <Text style={styles.rowActionText}>
+                  {transferBusy === 'check' ? 'Checking…' : 'Read the Folder'}
+                </Text>
+              </TouchableOpacity>
+            </>
+          ) : null}
+        </View>
 
         {/* Named rather than left to be discovered as a silent omission: the
             conditions cross, the generated plan does not yet. */}
@@ -361,6 +415,18 @@ export default function ConnectionsScreen() {
                       <Text style={styles.rowActionText}>Stop Sharing</Text>
                     </TouchableOpacity>
                   ) : null}
+                  {/* On the row rather than in the card above, because a share
+                      sheet sends one thing to one person and a button that had
+                      to guess which partner it meant would be worse. */}
+                  {connection.role === 'partner' ? (
+                    <TouchableOpacity
+                      onPress={() => handleSendFile(connection.id)}
+                      hitSlop={8}
+                      disabled={transferBusy !== null}
+                    >
+                      <Text style={styles.rowActionText}>Send Mine to Them</Text>
+                    </TouchableOpacity>
+                  ) : null}
                   <TouchableOpacity onPress={() => handleRemove(connection)} hitSlop={8} disabled={busyId === connection.id}>
                     <Text style={styles.rowActionTextDanger}>{busyId === connection.id ? 'Removing…' : 'Remove'}</Text>
                   </TouchableOpacity>
@@ -411,6 +477,9 @@ const styles = StyleSheet.create({
   },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   folderActions: { flexDirection: 'row', gap: 18, flexWrap: 'wrap', marginTop: 2 },
+  // Separates the narrower folder option from the one above it without adding
+  // a seventh collapse layer to a screen that already reads as a list.
+  folderSubLabel: { ...typography.caption, color: colors.textPrimary, marginTop: 10, ...textShadow },
   // A folder that has gone is a real problem to fix, not a passing note, so it
   // reads in the warning colour rather than the muted hint colour beside it.
   folderProblem: { ...typography.caption, color: colors.statusYellowStandalone, ...textShadow },

@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.42',
+    date: '2026-09-06',
+    changes: [
+      'Sharing with a partner now works by sending them a file, through whatever you already use to send each other things. No account anywhere and no sign-in.',
+      'On a partner in your list, tap Send Mine to Them. On their phone, Get What They Sent, then pick the file. Only the person you sent it to can open it.',
+      'The shared folder option is still there for storage apps that allow it, but it is no longer the main way. Most cloud apps on Android, OneDrive among them, do not let an app pick a folder at all.',
+      'Once a partner sends theirs, a meal plan you generate is built around both of you.',
+    ],
+  },
+  {
     version: '1.0.34.41',
     date: '2026-09-06',
     changes: [
