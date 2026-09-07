@@ -9,7 +9,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { useConfirmSheet } from '../components/ConfirmSheet';
@@ -149,6 +149,20 @@ export default function ConnectionsScreen() {
       if (result.changed) load();
     } finally {
       setTransferBusy(null);
+    }
+  };
+
+  // onedrive.live.com is a verified app link for the OneDrive app, confirmed
+  // on a real device, so this opens the app rather than a browser. Falling
+  // through to a browser is the correct behaviour where it is not installed:
+  // the same folder can be made and shared from the website.
+  const handleOpenOneDrive = async () => {
+    try {
+      await Linking.openURL('https://onedrive.live.com');
+    } catch {
+      setTransferNote(
+        'OneDrive could not be opened from here. Open it yourself, make a folder, and share it with them.',
+      );
     }
   };
 
@@ -402,8 +416,30 @@ export default function ConnectionsScreen() {
                               ? 'Mailbox is set up. Sending and getting go straight to the files, with nothing to navigate.'
                               : connection.outboxFileUri || connection.inboxFileUri
                                 ? 'Half set up. Link the other direction and neither of you has to navigate again.'
-                                : 'Set up a mailbox and neither of you has to go looking for a file again. First, in OneDrive or Drive, make a folder and share it with them. This app cannot do that part: no app can put a folder into storage that belongs to somebody else. Then send once, and link what you sent.'}
+                                : 'Set up a mailbox once and neither of you has to go looking for a file again.'}
                           </Text>
+                          {!connection.outboxFileUri && !connection.inboxFileUri ? (
+                            <>
+                              {/* Numbered because the order matters and cannot be
+                                  guessed: the file has to exist in the folder
+                                  before there is anything to link. */}
+                              <Text style={styles.mailboxStep}>
+                                1. Make a folder in OneDrive and share it with them. This app cannot do that part: no app
+                                can put a folder into storage that belongs to somebody else.
+                              </Text>
+                              <TouchableOpacity onPress={handleOpenOneDrive} hitSlop={8}>
+                                <Text style={styles.rowActionText}>Open OneDrive</Text>
+                              </TouchableOpacity>
+                              <Text style={styles.mailboxStep}>
+                                2. Tap Send Mine to Them below, and save it into that folder. That is what creates the
+                                file.
+                              </Text>
+                              <Text style={styles.mailboxStep}>
+                                3. Tap Link What I Send and pick the file you just saved. Once they have done the same,
+                                tap Link What They Send and pick theirs.
+                              </Text>
+                            </>
+                          ) : null}
                           <View style={styles.folderActions}>
                             <TouchableOpacity
                               onPress={() => handleLinkOutbox(connection.id)}
@@ -559,6 +595,9 @@ const styles = StyleSheet.create({
   },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   folderActions: { flexDirection: 'row', gap: 18, flexWrap: 'wrap', marginTop: 6 },
+  // A step in a sequence, so it reads as an instruction to act on rather than
+  // another paragraph of explanation to skim past.
+  mailboxStep: { ...typography.caption, color: colors.textPrimary, marginTop: 8, ...textShadow },
   // Taken verbatim from app/pair.tsx, so the same choice looks the same in the
   // two places it is made rather than drifting into two designs.
   grantRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 6 },

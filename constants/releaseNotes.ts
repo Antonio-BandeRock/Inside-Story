@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.49',
+    date: '2026-09-07',
+    changes: [
+      'Setting up a mailbox is now three numbered steps on the partner, and step one has an Open OneDrive button rather than an instruction with no way to act on it.',
+      'The app still cannot make the shared folder for you, and still says so. What it can do now is take you there in one tap.',
+    ],
+  },
+  {
     version: '1.0.34.48',
     date: '2026-09-07',
     changes: [
