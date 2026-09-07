@@ -61,6 +61,7 @@ import {
   type MealPlanDay,
   type MealPlanSlot,
   type UserNutrientTargetOverride,
+  isSharedObjectReleasedError,
 } from './db';
 import {
   getEntriesForCategory,
@@ -1062,6 +1063,35 @@ function applyNutrientTargetOverrides(
 // generateDailyMealPlan every single call; now shared so generating a
 // 42-day range resolves each real candidate's nutrient totals/sweetener/
 // frequency-rule data exactly once, not once per day it's considered on.
+// 2026-09-07, from a reported failure on the phone: "Cannot use shared
+// object that was already released", raised while generating a single day.
+// Both fan-outs below used to be a plain Promise.all over every distinct
+// curated recipe, and there are 411 of them, each several queries deep. One
+// SQLite connection runs those one at a time whatever the caller does, so
+// the parallelism never bought speed: it bought a queue of over a thousand
+// live native statement objects, and a released one somewhere in that churn
+// is what surfaced. The same error class showed up under the same conditions
+// during the 2026-08-28 refetch-loop investigation, which described "dozens
+// of overlapping calls piling onto the same SQLite connection". Eight at a
+// time keeps the connection continuously busy, which is all it can be, while
+// the number of statements alive at once stays small enough to stop being a
+// hazard.
+const DB_FANOUT_LIMIT = 8;
+
+async function mapWithLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+  async function worker() {
+    for (;;) {
+      const index = next++;
+      if (index >= items.length) return;
+      results[index] = await fn(items[index]);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
 async function buildCandidatePools(conditionCodes: string[], dietPreferences: RecipeDietTag[]): Promise<CandidatePools> {
   const pool = getEntriesForCategory('recipes').filter(isEligibleRecipeEntry).filter((entry) => {
     if (recipeSafeAcrossConditions(entry, conditionCodes) === null) return false;
@@ -1152,12 +1182,10 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
   // getCuratedRecipeNutrientTotals) finds every food already cached and
   // never calls getFoodNutrients at all for this run.
   const recipesById = new Map<string, NonNullable<Awaited<ReturnType<typeof getCuratedRecipe>>>>();
-  await Promise.all(
-    uniqueEntryList.map(async (entry) => {
-      const recipe = await getCuratedRecipe(entry.linkedCuratedRecipeId, sharedCaches.ingredientChoice);
-      if (recipe) recipesById.set(entry.linkedCuratedRecipeId, recipe);
-    }),
-  );
+  await mapWithLimit(uniqueEntryList, DB_FANOUT_LIMIT, async (entry) => {
+    const recipe = await getCuratedRecipe(entry.linkedCuratedRecipeId, sharedCaches.ingredientChoice);
+    if (recipe) recipesById.set(entry.linkedCuratedRecipeId, recipe);
+  });
   const distinctFoodPairs = new Map<string, { foodId: number; source: string }>();
   for (const recipe of recipesById.values()) {
     for (const ingredient of recipe.ingredients) {
@@ -1168,7 +1196,7 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
   for (const [key, nutrients] of bulkNutrients) sharedCaches.nutrient.set(key, nutrients);
 
   const [loadedCandidates, driRows, profile, nutrientTargetOverrides] = await Promise.all([
-    Promise.all(uniqueEntryList.map((entry) => loadCandidate(entry, sharedCaches, sweetenedRecipeIds, ruleMatchesByRecipeId))),
+    mapWithLimit(uniqueEntryList, DB_FANOUT_LIMIT, (entry) => loadCandidate(entry, sharedCaches, sweetenedRecipeIds, ruleMatchesByRecipeId)),
     getDietaryReferenceIntakesForCurrentUser(),
     getUserProfile(),
     getUserNutrientTargets(),
@@ -1545,6 +1573,19 @@ async function generateOneDay(
   };
 }
 
+// One transient native SQLite failure used to lose the whole generation and
+// show its raw text on screen, which is what was reported. Generating reads
+// and never writes, so running it again costs nothing but time. Retried once,
+// not in a loop: if a second attempt fails too, something real is wrong and
+// saying so is more use than trying forever.
+async function retryOnceOnReleasedObject<T>(run: () => Promise<T>): Promise<T> {
+  try {
+    return await run();
+  } catch (error) {
+    if (!isSharedObjectReleasedError(error)) throw error;
+    return run();
+  }
+}
 export async function generateDailyMealPlan(options: {
   conditionCodes: string[];
   dietPreferences: RecipeDietTag[];
@@ -1553,8 +1594,10 @@ export async function generateDailyMealPlan(options: {
   // behaving exactly as before.
   limitAddedSugar?: boolean;
 }): Promise<DailyMealPlanResult> {
-  const pools = await buildCandidatePools(options.conditionCodes, options.dietPreferences);
-  return generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false);
+  return retryOnceOnReleasedObject(async () => {
+    const pools = await buildCandidatePools(options.conditionCodes, options.dietPreferences);
+    return generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false);
+  });
 }
 
 // 2026-08-25, direct request: "it all needs to be wired to the 6 week,
@@ -1584,20 +1627,22 @@ export async function generateMealPlanDays(options: {
   limitAddedSugar?: boolean;
 }): Promise<DailyMealPlanResult[]> {
   const days = Math.max(1, Math.min(42, Math.round(options.days)));
-  const pools = await buildCandidatePools(options.conditionCodes, options.dietPreferences);
-  const rotationState = newRotationState();
-  const results: DailyMealPlanResult[] = [];
-  for (let dayIndex = 0; dayIndex < days; dayIndex++) {
-    const dayOfWeek = dayIndex % 7;
-    if (dayOfWeek === 0) rotationState.weekFrequency.clear();
-    const daysRemainingInWeekIncludingToday = 7 - dayOfWeek;
-    const result = await generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, {
-      state: rotationState,
-      daysRemainingInWeekIncludingToday,
-    });
-    results.push(result);
-  }
-  return results;
+  return retryOnceOnReleasedObject(async () => {
+    const pools = await buildCandidatePools(options.conditionCodes, options.dietPreferences);
+    const rotationState = newRotationState();
+    const results: DailyMealPlanResult[] = [];
+    for (let dayIndex = 0; dayIndex < days; dayIndex++) {
+      const dayOfWeek = dayIndex % 7;
+      if (dayOfWeek === 0) rotationState.weekFrequency.clear();
+      const daysRemainingInWeekIncludingToday = 7 - dayOfWeek;
+      const result = await generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, {
+        state: rotationState,
+        daysRemainingInWeekIncludingToday,
+      });
+      results.push(result);
+    }
+    return results;
+  });
 }
 
 // 2026-08-25, real scheduling for a generated day: converts a

@@ -4523,7 +4523,7 @@ export async function getDatabase() {
 // corrupted connection is discarded and the whole sequence is retried
 // exactly once, opening a genuinely fresh native connection rather than
 // reusing the one that already broke.
-function isSharedObjectReleasedError(error: unknown): boolean {
+export function isSharedObjectReleasedError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
   return message.includes('shared object') && message.includes('released');
 }

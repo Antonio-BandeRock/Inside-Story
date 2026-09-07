@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.61',
+    date: '2026-09-07',
+    changes: [
+      'Fixed a meal plan that could fail outright with a technical error about a released object. Generating one asks the database about all 411 recipes, and it was asking for every one of them at the same moment. It now works through them steadily instead, and if a query does fail once, it tries again rather than giving up on the whole plan.',
+    ],
+  },
+  {
     version: '1.0.34.60',
     date: '2026-09-07',
     changes: [
