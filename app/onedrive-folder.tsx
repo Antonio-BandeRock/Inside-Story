@@ -162,6 +162,17 @@ export default function OneDriveFolderScreen() {
       ]);
       setSignedIn(alreadySignedIn);
       setChosen(saved);
+      // Everything about WHERE the person is resets too, not only what is
+      // chosen. Expo Router reuses this screen when the same route is opened
+      // with a different purpose, so without this the listing switched to the
+      // new root while the trail and the Use button still named a folder opened
+      // under the old one. Tapping Use there would have set the backup folder to
+      // the mailbox.
+      setTrail([]);
+      setStrays([]);
+      setNewFolderName('');
+      setNote(null);
+      setRoot(forBackups ? 'mine' : 'shared');
       if (!alreadySignedIn) return;
       const current = await refreshStored(saved);
       setChosen(current);
