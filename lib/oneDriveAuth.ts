@@ -45,6 +45,22 @@ const AUTHORITY = 'https://login.microsoftonline.com/common/oauth2/v2.0';
 const REFRESH_TOKEN_KEY = 'onedrive.refreshToken';
 
 /**
+ * The PKCE verifier, kept only between opening the sign-in page and the
+ * redirect coming back.
+ *
+ * It has to outlive signIn because Android may deliver the redirect to the
+ * app as a deep link rather than back through the browser session, and the
+ * screen that receives it is a different piece of code with no access to a
+ * local variable. Stored rather than held in memory because that deep link
+ * can arrive after the process was killed, in which case a variable is gone
+ * and the sign-in would fail with nothing to explain it.
+ *
+ * Deleted the moment it is used. A verifier left behind is the one piece of
+ * an interrupted sign-in worth not keeping.
+ */
+const PKCE_VERIFIER_KEY = 'onedrive.pkceVerifier';
+
+/**
  * The access token is deliberately in memory only, never in secure storage.
  *
  * It lasts about an hour and can be fetched again from the refresh token at any
@@ -191,6 +207,13 @@ export async function signIn(): Promise<{ ok: true } | { ok: false; reason: stri
       prompt: 'select_account',
     }).toString();
 
+  try {
+    await SecureStore.setItemAsync(PKCE_VERIFIER_KEY, codeVerifier);
+  } catch {
+    // Without this the deep-link path cannot finish, but the in-session path
+    // still can, so this is worth attempting and not worth refusing over.
+  }
+
   let result: WebBrowser.WebBrowserAuthSessionResult;
   try {
     result = await WebBrowser.openAuthSessionAsync(authorizeUrl, ONEDRIVE_REDIRECT_URI);
@@ -212,13 +235,50 @@ export async function signIn(): Promise<{ ok: true } | { ok: false; reason: stri
   const code = params.get('code');
   if (!code) return { ok: false, reason: 'Microsoft did not send back a sign-in code.' };
 
+  return completeSignIn(code);
+}
+
+/**
+ * Redeems an authorization code, from whichever path caught the redirect.
+ *
+ * A code can be redeemed once. Both paths can fire for the same sign-in, so
+ * this checks first whether the other one already finished and reports success
+ * rather than sending a spent code to Microsoft and surfacing its refusal as a
+ * failure the person cannot act on.
+ */
+export async function completeSignIn(code: string): Promise<{ ok: true } | { ok: false; reason: string }> {
+  if (!ONEDRIVE_CLIENT_ID) {
+    return { ok: false, reason: 'This build has no OneDrive application id set up.' };
+  }
+
+  let verifier: string | null = null;
+  try {
+    verifier = await SecureStore.getItemAsync(PKCE_VERIFIER_KEY);
+  } catch {
+    verifier = null;
+  }
+
+  if (!verifier) {
+    // No verifier means either the other path already used it, or this is a
+    // redirect with no sign-in behind it. Being signed in tells the two apart.
+    if (await isSignedIn()) return { ok: true };
+    return { ok: false, reason: 'That sign-in could not be finished. Start it again.' };
+  }
+
   const exchanged = await exchange({
     client_id: ONEDRIVE_CLIENT_ID,
     grant_type: 'authorization_code',
     code,
     redirect_uri: ONEDRIVE_REDIRECT_URI,
-    code_verifier: codeVerifier,
+    code_verifier: verifier,
   });
+
+  try {
+    await SecureStore.deleteItemAsync(PKCE_VERIFIER_KEY);
+  } catch {
+    // A verifier that outlives its code is unusable rather than dangerous.
+  }
+
   return exchanged.ok ? { ok: true } : { ok: false, reason: exchanged.reason };
 }
 

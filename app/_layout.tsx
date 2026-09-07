@@ -490,6 +490,13 @@ export default function RootLayout() {
                   one because browsing a drive is a small navigation of its
                   own, with a trail and a back step, and folding that into a
                   scrolling page of partners would bury it. */}
+              {/* Where the OneDrive redirect lands, 2026-09-07. Android
+                  resolves hashimotosapp:// itself and hands the redirect to
+                  this app as navigation, so without a route here it showed
+                  Unmatched Route with the authorization code printed on it.
+                  No header: it is a hallway that replaces itself with the
+                  picker, and a back arrow into a spent code helps nobody. */}
+              <Stack.Screen name="oauth/onedrive" options={{ headerShown: false }} />
               <Stack.Screen
                 name="onedrive-folder"
                 options={{
