@@ -356,15 +356,11 @@ export default function ConnectionsScreen() {
       {/* A partner link is its own invitation rather than a setting applied
           afterwards, because what it shares has to be chosen before it is sent
           rather than switched on behind someone. */}
-      {/* Disabled until a folder is named, because a partner link with nowhere
-          to put anything is the half-finished state this whole screen keeps
-          being caught out by. */}
-      <TouchableOpacity
-        style={[styles.primaryButton, mailboxFolderName ? null : styles.primaryButtonDisabled]}
-        activeOpacity={0.85}
-        disabled={!mailboxFolderName}
-        onPress={() => openPairing('partner')}
-      >
+      {/* The gate that used to be here is gone. It checked that a name had been
+          typed, which proves nothing: the app cannot see the folder, cannot
+          confirm it exists and cannot confirm it was shared. A lock that verifies
+          nothing is theatre. */}
+      <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={() => openPairing('partner')}>
         <Ionicons name="people-outline" size={18} color={colors.textOnButton} />
         <Text style={styles.primaryButtonText}>Pair With a Partner</Text>
       </TouchableOpacity>

@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.52',
+    date: '2026-09-07',
+    changes: [
+      'Pairing is no longer blocked until you type a folder name. That check proved nothing: the app cannot see the folder, cannot confirm it exists and cannot confirm it was shared.',
+    ],
+  },
+  {
     version: '1.0.34.51',
     date: '2026-09-07',
     changes: [
