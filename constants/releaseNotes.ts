@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.43',
+    date: '2026-09-07',
+    changes: [
+      'Send Mine to Them now offers every app in your share sheet, WhatsApp and OneDrive included. It was using a file type some apps filter out of the list.',
+      'It also sends a short message alongside the file now, saying how to open it, the same way sharing a recipe already does.',
+    ],
+  },
+  {
     version: '1.0.34.42',
     date: '2026-09-06',
     changes: [

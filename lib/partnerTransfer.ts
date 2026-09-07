@@ -34,6 +34,7 @@ import {
   type SyncFolderProblem,
 } from './syncInboxStorage';
 import { writeRawIsFile } from './sharing';
+import { Share } from 'react-native';
 import { shareFileIfAvailable } from './nativeSharing';
 
 export type SendOutcome = {
@@ -397,9 +398,22 @@ export async function sendToPartnerAsFile(connectionId: string): Promise<{
     return { sent: false, reason: 'The file could not be written. There may be no room left on the device.' };
   }
 
+  // MATCHES THE CONFIGURATION RECIPE SHARING ALREADY PROVES ON A REAL PHONE,
+  // rather than a plausible-looking one. Two differences, both of which decide
+  // whether the file reaches anybody:
+  //
+  //  * mimeType '*/*' rather than application/octet-stream. Messaging apps filter
+  //    the share sheet by type, and a .is file under a narrow type can be left
+  //    out of the list entirely. The recipe path has used '*/*' since it shipped.
+  //  * Share.share({ message }) first, then the file. React Native's own
+  //    Share.share silently discards its url field on Android, which is why every
+  //    file share in this app has always been two native calls rather than one.
+  await Share.share({
+    message: `Here is what I am sharing with you from Inside Story. Open it with Get What They Sent on the Connections screen.`,
+  });
   const shared = await shareFileIfAvailable(uri, {
     dialogTitle: `Send to ${partner.name}`,
-    mimeType: 'application/octet-stream',
+    mimeType: '*/*',
   });
   if (!shared) {
     return {
