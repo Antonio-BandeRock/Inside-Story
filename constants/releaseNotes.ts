@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.45',
+    date: '2026-09-07',
+    changes: [
+      'You can now change what a partner is allowed to see, on their row in Connections. Until now those were fixed when you paired and the only way to change them was to unpair and start over, even though the pairing screen said otherwise.',
+      'This is what was stopping conditions crossing: sharing conditions was switched off, so showing your code again sent everything except them. Tick Conditions on their row, then show each other your codes.',
+      'The buttons on a partner row now wrap onto a second line instead of pushing Remove off the edge of the screen.',
+    ],
+  },
+  {
     version: '1.0.34.44',
     date: '2026-09-07',
     changes: [

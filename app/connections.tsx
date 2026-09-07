@@ -20,6 +20,7 @@ import {
   listConnections,
   removeConnection,
   renameConnection,
+  setConnectionGrants,
   setConnectionRole,
   type Connection,
 } from '../lib/connections';
@@ -28,7 +29,9 @@ import {
   describeGrants,
   describeLinkState,
   fingerprintStanding,
+  SHARE_SCOPES,
   linkState,
+  type ShareScope,
 } from '../lib/partners';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 import { canEncryptTo } from '../lib/partnerCrypto';
@@ -130,6 +133,23 @@ export default function ConnectionsScreen() {
       setBusyId(null);
     }
   }
+
+  // CHANGING WHAT SOMEBODY IS ALLOWED TO SEE, WHICH WAS UNREACHABLE.
+  //
+  // setConnectionGrants has existed in lib/connections.ts all along and nothing
+  // called it, so grants were fixed at pairing and the only way to change them
+  // was to unpair and start over. The pairing screen has been telling people
+  // they could change it here at any time, which was not true.
+  //
+  // Turning conditions off does NOT drop the codes already stored, matching
+  // what demoting a partner does. The grant is what everything reads before
+  // using them, so a withdrawn permission stops them being used immediately
+  // whether or not the row still holds them.
+  const handleToggleGrant = async (connection: Connection, code: ShareScope) => {
+    const next = { ...connection.grants, [code]: !connection.grants[code] };
+    await setConnectionGrants(connection.id, next);
+    load();
+  };
 
   const handleSendFile = async (connectionId: string) => {
     setTransferBusy('send');
@@ -358,6 +378,27 @@ export default function ConnectionsScreen() {
                         {describeLinkState(linkState(connection.theyHaveMeAt), connection.name)}
                       </Text>
                       <Text style={styles.rowMeta}>{describeGrants(connection.grants)}</Text>
+                      {/* Editable here rather than only at pairing, because what
+                          somebody is willing to share changes, and unpairing to
+                          change it would throw away the keys and the history. */}
+                      {SHARE_SCOPES.map((scope) => (
+                        <TouchableOpacity
+                          key={scope.code}
+                          style={styles.grantRow}
+                          activeOpacity={0.8}
+                          onPress={() => handleToggleGrant(connection, scope.code)}
+                        >
+                          <View
+                            style={[styles.checkBox, connection.grants[scope.code] ? styles.checkBoxOn : null]}
+                          >
+                            {connection.grants[scope.code] ? <Text style={styles.checkMark}>✓</Text> : null}
+                          </View>
+                          <View style={styles.grantTextWrap}>
+                            <Text style={styles.grantLabel}>{scope.label}</Text>
+                            <Text style={styles.grantWhat}>{scope.what}</Text>
+                          </View>
+                        </TouchableOpacity>
+                      ))}
                       {/* Said on the row itself rather than left for someone to
                           discover. A partner card that lists what is shared,
                           while nothing can actually travel between the phones,
@@ -487,6 +528,23 @@ const styles = StyleSheet.create({
   },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   folderActions: { flexDirection: 'row', gap: 18, flexWrap: 'wrap', marginTop: 2 },
+  // Taken verbatim from app/pair.tsx, so the same choice looks the same in the
+  // two places it is made rather than drifting into two designs.
+  grantRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 6 },
+  grantTextWrap: { flex: 1 },
+  grantLabel: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  grantWhat: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  checkBox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkBoxOn: { backgroundColor: colors.accent },
+  checkMark: { ...typography.caption, color: colors.textOnPrimary, ...textShadow },
   // Separates the narrower folder option from the one above it without adding
   // a seventh collapse layer to a screen that already reads as a list.
   folderSubLabel: { ...typography.caption, color: colors.textPrimary, marginTop: 10, ...textShadow },
@@ -554,6 +612,12 @@ const styles = StyleSheet.create({
   // rather than as more of the same paragraph.
   rowActions: {
     flexDirection: 'row',
+    // Wraps rather than running off the right edge. Confirmed on a real phone:
+    // adding a fourth action pushed Remove past the screen where nobody could
+    // reach it, and a row of actions that silently loses one is worse than a
+    // row that takes two lines.
+    flexWrap: 'wrap',
+    rowGap: 12,
     gap: 20,
     paddingTop: 10,
     borderTopWidth: 1,
