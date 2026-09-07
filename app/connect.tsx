@@ -32,6 +32,7 @@ import {
   setConnectionRole,
   setPartnerConditionCodes,
   type ConnectionInvite,
+  setPartnerMailboxFolder,
 } from '../lib/connections';
 import { computeKeyFingerprint, getDeviceIdentity } from '../lib/deviceIdentity';
 import { SHARE_SCOPES, defaultGrantsForRole, type ShareGrants } from '../lib/partners';
@@ -107,6 +108,15 @@ export default function ConnectScreen() {
       });
 
       if (isPartnerInvite) {
+        // What they call the shared folder, so both phones agree where to look.
+        // A name, not access: a content:// permission belongs to one app on one
+        // device and cannot be handed over, so each side still links its own
+        // files. Stored even when it differs from mine, because a mismatch is
+        // exactly the thing worth showing.
+        if (invite.mailboxFolder) {
+          await setPartnerMailboxFolder(connection.id, invite.mailboxFolder);
+        }
+
         // Recorded only because the person said they compared it. Never
         // inferred: an app cannot know whether two people read four words to
         // each other, and pretending it does would make the check worthless.
@@ -157,6 +167,9 @@ export default function ConnectScreen() {
       }
       if (isPartnerInvite && invite.conditionCodes?.length) {
         await setPartnerConditionCodes(existingConnectionId, invite.conditionCodes);
+      }
+      if (isPartnerInvite && invite.mailboxFolder) {
+        await setPartnerMailboxFolder(existingConnectionId, invite.mailboxFolder);
       }
       setUpdatedExisting(true);
     } catch (error) {

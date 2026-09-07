@@ -33,6 +33,7 @@ import {
   linkState,
   type ShareScope,
 } from '../lib/partners';
+import { getMailboxFolderName, setMailboxFolderName } from '../lib/db';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 import { canEncryptTo } from '../lib/partnerCrypto';
 import {
@@ -52,6 +53,8 @@ export default function ConnectionsScreen() {
   // What the last send or check actually did. Kept on screen rather than
   // flashed, because somebody who taps Send wants to know it landed, and a
   // toast that has gone is the same as never having said anything.
+  const [mailboxFolderName, setMailboxFolderNameState] = useState<string | null>(null);
+  const [folderDraft, setFolderDraft] = useState('');
   const [transferNote, setTransferNote] = useState<string | null>(null);
   const [transferBusy, setTransferBusy] = useState<'send' | 'check' | null>(null);
   const [loading, setLoading] = useState(true);
@@ -64,7 +67,13 @@ export default function ConnectionsScreen() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [list, fingerprint] = await Promise.all([listConnections(), getMyKeyFingerprint()]);
+      const [list, fingerprint, folder] = await Promise.all([
+        listConnections(),
+        getMyKeyFingerprint(),
+        getMailboxFolderName(),
+      ]);
+      setMailboxFolderNameState(folder);
+      setFolderDraft(folder ?? '');
       setConnections(list);
       setMyFingerprint(fingerprint);
     } catch (error) {
@@ -156,6 +165,17 @@ export default function ConnectionsScreen() {
   // on a real device, so this opens the app rather than a browser. Falling
   // through to a browser is the correct behaviour where it is not installed:
   // the same folder can be made and shared from the website.
+  const handleSaveFolder = async () => {
+    const trimmed = folderDraft.trim();
+    await setMailboxFolderName(trimmed || null);
+    setMailboxFolderNameState(trimmed || null);
+    setTransferNote(
+      trimmed
+        ? 'Saved. Anyone you pair with from now on gets this folder name in the code you show them.'
+        : 'Cleared. Pairing is switched off again until a folder is named.',
+    );
+  };
+
   const handleOpenOneDrive = async () => {
     try {
       await Linking.openURL('https://onedrive.live.com');
@@ -237,6 +257,54 @@ export default function ConnectionsScreen() {
         </View>
       ) : null}
 
+      {/* THE PREREQUISITE, ABOVE PAIRING RATHER THAN INSIDE A PARTNER.
+
+          The mailbox is infrastructure, not a setting on one person: the same
+          folder serves every partner and later every child. Having it hang off
+          a partner row meant somebody could pair first and meet the
+          prerequisite afterwards, which is how it came to be found by tapping
+          a button that led nowhere.
+
+          The gate is honest about what it is. This app cannot see inside a
+          cloud folder, so it cannot check that the folder exists or that it was
+          shared. Naming it is a declaration, and the card says so rather than
+          implying anything was verified. What the gate buys is that the step is
+          taken deliberately, and that both invites carry the same name. */}
+      <View style={styles.fingerprintCard}>
+        <Text style={styles.fingerprintLabel}>Your shared folder</Text>
+        <Text style={styles.fingerprintHint}>
+          Before pairing with anyone, make one folder in OneDrive or Google Drive and share it with them. That folder
+          is where everything you send each other lands. Set it up once and every partner, and later every child, uses
+          the same one.
+        </Text>
+        <Text style={styles.fingerprintHint}>
+          This app cannot make it or check on it: Android will not let an app browse a cloud folder. Naming it here is
+          how the app tells the person you pair with where to look.
+        </Text>
+
+        <TouchableOpacity onPress={handleOpenOneDrive} hitSlop={8}>
+          <Text style={styles.rowActionText}>Open OneDrive</Text>
+        </TouchableOpacity>
+
+        <AppTextInput
+          style={styles.folderInput}
+          value={folderDraft}
+          onChangeText={setFolderDraft}
+          placeholder="What did you call the folder?"
+          placeholderTextColor={colors.textMuted}
+        />
+        <TouchableOpacity onPress={handleSaveFolder} hitSlop={8}>
+          <Text style={styles.rowActionText}>
+            {mailboxFolderName ? 'Save the Folder Name' : 'Save and Turn On Pairing'}
+          </Text>
+        </TouchableOpacity>
+        {mailboxFolderName ? (
+          <Text style={styles.fingerprintHint}>
+            Anyone you pair with from now on gets this folder name in the code you show them.
+          </Text>
+        ) : null}
+      </View>
+
       {/* HOW A CONDITION LIST ACTUALLY CROSSES BETWEEN TWO PHONES.
 
           Three carriers were investigated and ruled out on evidence before this
@@ -286,7 +354,15 @@ export default function ConnectionsScreen() {
       {/* A partner link is its own invitation rather than a setting applied
           afterwards, because what it shares has to be chosen before it is sent
           rather than switched on behind someone. */}
-      <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={() => openPairing('partner')}>
+      {/* Disabled until a folder is named, because a partner link with nowhere
+          to put anything is the half-finished state this whole screen keeps
+          being caught out by. */}
+      <TouchableOpacity
+        style={[styles.primaryButton, mailboxFolderName ? null : styles.primaryButtonDisabled]}
+        activeOpacity={0.85}
+        disabled={!mailboxFolderName}
+        onPress={() => openPairing('partner')}
+      >
         <Ionicons name="people-outline" size={18} color={colors.textOnButton} />
         <Text style={styles.primaryButtonText}>Pair With a Partner</Text>
       </TouchableOpacity>
@@ -416,29 +492,16 @@ export default function ConnectionsScreen() {
                               ? 'Mailbox is set up. Sending and getting go straight to the files, with nothing to navigate.'
                               : connection.outboxFileUri || connection.inboxFileUri
                                 ? 'Half set up. Link the other direction and neither of you has to navigate again.'
-                                : 'Set up a mailbox once and neither of you has to go looking for a file again.'}
+                                : `Your mailbox folder is ${connection.mailboxFolder ?? mailboxFolderName ?? 'not set'}. Send once into it, then link what you sent. Do the same with theirs.`}
                           </Text>
-                          {!connection.outboxFileUri && !connection.inboxFileUri ? (
-                            <>
-                              {/* Numbered because the order matters and cannot be
-                                  guessed: the file has to exist in the folder
-                                  before there is anything to link. */}
-                              <Text style={styles.mailboxStep}>
-                                1. Make a folder in OneDrive and share it with them. This app cannot do that part: no app
-                                can put a folder into storage that belongs to somebody else.
-                              </Text>
-                              <TouchableOpacity onPress={handleOpenOneDrive} hitSlop={8}>
-                                <Text style={styles.rowActionText}>Open OneDrive</Text>
-                              </TouchableOpacity>
-                              <Text style={styles.mailboxStep}>
-                                2. Tap Send Mine to Them below, and save it into that folder. That is what creates the
-                                file.
-                              </Text>
-                              <Text style={styles.mailboxStep}>
-                                3. Tap Link What I Send and pick the file you just saved. Once they have done the same,
-                                tap Link What They Send and pick theirs.
-                              </Text>
-                            </>
+                          {connection.mailboxFolder &&
+                          mailboxFolderName &&
+                          connection.mailboxFolder !== mailboxFolderName ? (
+                            <Text style={styles.folderMismatch}>
+                              They named a different folder ({connection.mailboxFolder}) than you did (
+                              {mailboxFolderName}). If those are not the same folder, nothing either of you sends will
+                              reach the other.
+                            </Text>
                           ) : null}
                           <View style={styles.folderActions}>
                             <TouchableOpacity
@@ -595,6 +658,13 @@ const styles = StyleSheet.create({
   },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   folderActions: { flexDirection: 'row', gap: 18, flexWrap: 'wrap', marginTop: 6 },
+  primaryButtonDisabled: { opacity: 0.45 },
+  // Its own style rather than editInput: that one is a flex row child inside a
+  // rename control, and reusing it here would collapse this field to nothing.
+  folderInput: { ...typography.body, color: colors.textPrimary, borderBottomWidth: 1, borderBottomColor: colors.border, paddingVertical: 6, marginTop: 6, ...textShadow },
+  // Two people pointing at differently-named folders have no mailbox at all,
+  // and nothing else on this screen would ever say so.
+  folderMismatch: { ...typography.caption, color: colors.statusYellowStandalone, marginTop: 6, ...textShadow },
   // A step in a sequence, so it reads as an instruction to act on rather than
   // another paragraph of explanation to skim past.
   mailboxStep: { ...typography.caption, color: colors.textPrimary, marginTop: 8, ...textShadow },

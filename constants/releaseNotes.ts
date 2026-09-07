@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.50',
+    date: '2026-09-07',
+    changes: [
+      'Your shared folder is now set up before you pair with anyone, not after. It is its own card at the top of Connections, with Open OneDrive and a place to say what you called the folder.',
+      'Pairing stays switched off until you have named it. A partner link with nowhere to put anything is not much of a link.',
+      'The folder name now travels in the code you show someone, so both phones know where to look without either of you explaining it.',
+      'If the two of you named different folders, the app says so on their row. Nothing would reach either of you and nothing else would have told you.',
+      'One folder covers every partner, and later every child. You only do this once.',
+    ],
+  },
+  {
     version: '1.0.34.49',
     date: '2026-09-07',
     changes: [

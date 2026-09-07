@@ -5567,6 +5567,10 @@ async function runDatabaseInitialization() {
         -- One file each, not a folder: the file picker is the only one that
         -- reaches a cloud app, and it hands over a file. TEXT, so the generic
         -- loop below is correct for both.
+        -- What THEY call the shared folder, from their invite. Stored so a
+        -- mismatch is visible: two people pointing at differently-named
+        -- folders have no mailbox, and nothing else would ever say so.
+        mailbox_folder TEXT,
         outbox_file_uri TEXT,
         inbox_file_uri TEXT,
         paired_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -6664,6 +6668,7 @@ async function runDatabaseInitialization() {
       // Mailbox file locations, 2026-09-07. Both TEXT, so the loop is right.
       ['connections', 'outbox_file_uri'],
       ['connections', 'inbox_file_uri'],
+      ['connections', 'mailbox_folder'],
     ] as const) {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (columns.length > 0 && !columns.some((entry) => entry.name === column)) {
@@ -14736,6 +14741,47 @@ export async function setLastSeenAppVersion(value: string) {
 // design depends on. A folder the person picks needs no account, no scope and no
 // permission from any provider, because whatever sync app already owns that
 // folder moves the bytes. See lib/oneDriveConfig.ts for the finding.
+
+// WHAT THE SHARED CLOUD FOLDER IS CALLED.
+//
+// A name somebody typed, not a location this app can reach. Android will not
+// let an app browse a cloud folder, so there is nothing here to verify against
+// and nothing to open. What it buys is that both phones agree where to look,
+// and that the prerequisite is met deliberately rather than discovered after
+// somebody has already paired.
+//
+// Stored once for the person, not per partner: the same folder serves every
+// partner and, later, every child.
+const MAILBOX_FOLDER_KEY = 'mailbox_folder_name';
+
+export async function getMailboxFolderName(): Promise<string | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ value: string }>(
+    'SELECT value FROM app_meta WHERE key = ?',
+    MAILBOX_FOLDER_KEY,
+  );
+  const value = row?.value?.trim();
+  return value ? value : null;
+}
+
+export async function setMailboxFolderName(name: string | null) {
+  const db = await getDatabase();
+  const trimmed = name?.trim();
+  if (!trimmed) {
+    await db.runAsync('DELETE FROM app_meta WHERE key = ?', MAILBOX_FOLDER_KEY);
+    return;
+  }
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+    `,
+    MAILBOX_FOLDER_KEY,
+    trimmed,
+    now,
+  );
+}
 const SYNC_FOLDER_URI_KEY = 'sync_folder_uri';
 
 export async function getSyncFolderUri(): Promise<string | null> {

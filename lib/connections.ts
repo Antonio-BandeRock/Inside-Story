@@ -23,7 +23,7 @@
 // by living in a second table: your sister can be both, and two tables would
 // guarantee her key goes stale in one of them. See lib/partners.ts for what a
 // partner link actually means and for every rule about what may cross.
-import { getDatabase, getUserConditions, getUserProfile } from './db';
+import { getDatabase, getMailboxFolderName, getUserConditions, getUserProfile } from './db';
 import { getDeviceIdentity } from './deviceIdentity';
 import { decodeBase64Utf8, encodeBase64Utf8 } from './sharing';
 import { canEncryptTo } from './partnerCrypto';
@@ -57,6 +57,8 @@ export type Connection = {
    * Null until linked, which is the honest state: sending and receiving still
    * work by hand before then, they just ask for navigation every time.
    */
+  /** What they call the shared folder, from their invite. Null if none was sent. */
+  mailboxFolder: string | null;
   outboxFileUri: string | null;
   inboxFileUri: string | null;
 };
@@ -66,6 +68,7 @@ type ConnectionRow = {
   name: string;
   public_key_base64: string;
   encryption_public_key_base64: string | null;
+  mailbox_folder: string | null;
   outbox_file_uri: string | null;
   inbox_file_uri: string | null;
   paired_at: string;
@@ -83,7 +86,7 @@ type ConnectionRow = {
 // some reads and miss others.
 const CONNECTION_COLUMNS = `
   id, name, public_key_base64, encryption_public_key_base64, paired_at, role, they_have_me_at,
-  outbox_file_uri, inbox_file_uri,
+  mailbox_folder, outbox_file_uri, inbox_file_uri,
   fingerprint_verified_at, share_meals, share_shopping, share_conditions,
   their_condition_codes_json, their_conditions_at
 `;
@@ -110,6 +113,7 @@ function fromRow(row: ConnectionRow): Connection {
     // them until they pair again, and the screens say so rather than looking
     // ready to share.
     encryptionPublicKeyBase64: row.encryption_public_key_base64,
+    mailboxFolder: row.mailbox_folder,
     outboxFileUri: row.outbox_file_uri,
     inboxFileUri: row.inbox_file_uri,
     pairedAt: row.paired_at,
@@ -368,7 +372,7 @@ export async function fillMissingEncryptionKey(id: string, encryptionPublicKeyBa
 // conditionCodes travels ONLY when the sender granted it. Codes, never a
 // symptom, a lab result, a healing stage or a note. See lib/partners.ts.
 export type ConnectionInvite = {
-  v: 1 | 2 | 3;
+  v: 1 | 2 | 3 | 4;
   fromName: string;
   publicKeyBase64: string;
   /**
@@ -383,6 +387,20 @@ export type ConnectionInvite = {
   role?: ConnectionRole;
   grants?: ShareGrants;
   conditionCodes?: string[];
+  /**
+   * What the shared cloud folder is called, added at v4 (2026-09-07).
+   *
+   * A NAME, not a location, and that limit is the whole reason this is worth
+   * stating. A content:// URI cannot travel between phones: Android grants
+   * that permission to one app on one device, only as the result of a picker
+   * the person tapped, so the other side holds no grant for it and could do
+   * nothing with it. The name is what lets both phones agree where to look,
+   * and each side still links its own files once.
+   *
+   * Optional because an older invite has none, and because a recipe
+   * connection has no mailbox at all.
+   */
+  mailboxFolder?: string;
   alreadyHaveYou?: boolean;
 };
 
@@ -411,7 +429,7 @@ export async function buildPartnerInvite(options: {
 }): Promise<ConnectionInvite> {
   const [profile, identity] = await Promise.all([getUserProfile(), getDeviceIdentity()]);
   const invite: ConnectionInvite = {
-    v: 3,
+    v: 4,
     fromName: profile.firstName?.trim() || 'A friend',
     publicKeyBase64: identity.publicKeyBase64,
     encryptionKeyBase64: identity.encryptionPublicKeyBase64,
@@ -419,6 +437,11 @@ export async function buildPartnerInvite(options: {
     grants: options.grants,
     alreadyHaveYou: options.alreadyHaveYou === true,
   };
+  // Read here rather than taken as an argument, the same reasoning the
+  // condition grant below already follows: one place decides what an invite
+  // carries, so no call site can leave the mailbox out by forgetting it.
+  const mailboxFolder = await getMailboxFolderName();
+  if (mailboxFolder) invite.mailboxFolder = mailboxFolder;
   // The gate that matters: the codes are attached ONLY when the person granted
   // them, read from the grant rather than from a caller argument, so no call
   // site can send a diagnosis list by passing the wrong parameter.
@@ -552,7 +575,7 @@ export function decodeConnectionInvite(raw: string): ConnectionInvite | null {
     // getting this wrong means the app cannot read the codes it builds itself,
     // which is a total pairing failure and one nothing but pairing two phones
     // would reveal.
-    if (parsed.v !== 1 && parsed.v !== 2 && parsed.v !== 3) return null;
+    if (parsed.v !== 1 && parsed.v !== 2 && parsed.v !== 3 && parsed.v !== 4) return null;
     if (typeof parsed.fromName !== 'string' || !parsed.publicKeyBase64) return null;
 
     // Everything below is normalised rather than trusted. This arrived from
@@ -611,4 +634,10 @@ export async function setOutboxFileUri(id: string, uri: string | null): Promise<
 export async function setInboxFileUri(id: string, uri: string | null): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('UPDATE connections SET inbox_file_uri = ? WHERE id = ?', uri, id);
+}
+
+/** Records what a partner calls the shared folder, taken from their invite. */
+export async function setPartnerMailboxFolder(id: string, folder: string | null): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('UPDATE connections SET mailbox_folder = ? WHERE id = ?', folder?.trim() || null, id);
 }
