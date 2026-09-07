@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.46',
+    date: '2026-09-07',
+    changes: [
+      'OneDrive does work for sharing with a partner, and the app now says how. Send it there from your share sheet, then on the other phone tap Get What They Sent and choose OneDrive under Browse files in other apps.',
+      'A folder in OneDrive that you both have is all you need. No account setup in this app and no sign-in.',
+      'Picking a folder still only offers folders on the phone itself. That is Android: it only lists cloud apps there if they support choosing a whole folder, and OneDrive does not. Getting a file is a different picker and does list it.',
+    ],
+  },
+  {
     version: '1.0.34.45',
     date: '2026-09-07',
     changes: [

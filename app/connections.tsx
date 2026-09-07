@@ -243,9 +243,16 @@ export default function ConnectionsScreen() {
       <View style={styles.fingerprintCard}>
         <Text style={styles.fingerprintLabel}>Sharing with a partner</Text>
         <Text style={styles.fingerprintHint}>
-          Send what you share as a file, through whatever you already use to send each other things. No account and
-          no sign-in anywhere. Only the person you sent it to can open it, so it stays private even passing through
-          a messaging app.
+          Send what you share as a file, through whatever you already use to send each other things: a message, an
+          email, or a folder in OneDrive that you both have. No account and no sign-in anywhere. Only the person you
+          sent it to can open it, so it stays private even passing through a messaging app.
+        </Text>
+        {/* Spelled out because the two system pickers behave differently and
+            nothing on screen would tell you which one you are looking at. The
+            file picker lists cloud apps; the folder picker below does not. */}
+        <Text style={styles.fingerprintHint}>
+          To use OneDrive: send it there from your share sheet, then on the other phone tap Get What They Sent and
+          choose OneDrive under Browse files in other apps.
         </Text>
 
         <TouchableOpacity onPress={handleImportFile} hitSlop={8} disabled={transferBusy !== null}>
@@ -263,9 +270,9 @@ export default function ConnectionsScreen() {
         <Text style={styles.folderSubLabel}>Or use a shared folder, where your storage app allows it</Text>
         {folderStatus.state === 'notChosen' ? (
           <Text style={styles.fingerprintHint}>
-            Some storage apps let this app write straight into a folder you both see, which skips the sending step.
-            Most cloud apps on Android do not offer it, OneDrive among them, so this may show only folders on the
-            phone itself.
+            This writes straight into a folder you both see, skipping the sending step. Android only offers cloud
+            apps here if they support picking a whole folder, and most do not, OneDrive included, so this usually
+            lists only folders on the phone itself. Reaching OneDrive is what Get What They Sent above is for.
           </Text>
         ) : folderStatus.state === 'unreachable' ? (
           <Text style={styles.folderProblem}>{SYNC_FOLDER_PROBLEM_TEXT.unreachable}</Text>
