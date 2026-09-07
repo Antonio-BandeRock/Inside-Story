@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.60',
+    date: '2026-09-07',
+    changes: [
+      'You can now pick your OneDrive folder inside the app: sign in to Microsoft, browse either your own folders or ones somebody shared with you, and choose one. No typing a name and hoping.',
+      'One shared folder holds everything the app keeps in OneDrive. The app makes a Mailbox folder inside it for anything you and a partner send each other, and a Backups folder for your backups.',
+      'Backup & Restore now shows exactly where your backups go, the whole path, and can write one straight to OneDrive or restore the newest one back.',
+      'Home asks you to set the folder up the first time you open the app, and stops asking once it exists.',
+    ],
+  },
+  {
     version: '1.0.34.52',
     date: '2026-09-07',
     changes: [
