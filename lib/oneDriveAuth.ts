@@ -69,6 +69,23 @@ const PKCE_VERIFIER_KEY = 'onedrive.pkceVerifier';
  */
 let cachedAccessToken: { token: string; expiresAt: number } | null = null;
 
+/**
+ * The redemption already under way, keyed by the code it is redeeming.
+ *
+ * Both redirect paths run in this same JS context, so the second one to
+ * arrive with a given code waits on the first one and they share its result.
+ * Without this they each send the same code to Microsoft, one is redeemed and
+ * the other is refused, and the refusal is what somebody sees.
+ *
+ * Kept rather than cleared once it settles, so a duplicate arriving later
+ * still gets the answer instead of spending a code that is already gone. One
+ * entry, replaced by the next sign-in, cleared on sign-out.
+ */
+let inFlightExchange: {
+  code: string;
+  promise: Promise<{ ok: true } | { ok: false; reason: string }>;
+} | null = null;
+
 function base64UrlFromBytes(bytes: Uint8Array): string {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
   let out = '';
@@ -105,6 +122,7 @@ export async function isSignedIn(): Promise<boolean> {
 
 export async function signOut(): Promise<void> {
   cachedAccessToken = null;
+  inFlightExchange = null;
   try {
     await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
   } catch {
@@ -246,7 +264,22 @@ export async function signIn(): Promise<{ ok: true } | { ok: false; reason: stri
  * rather than sending a spent code to Microsoft and surfacing its refusal as a
  * failure the person cannot act on.
  */
-export async function completeSignIn(code: string): Promise<{ ok: true } | { ok: false; reason: string }> {
+export async function completeSignIn(
+  code: string,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  if (inFlightExchange && inFlightExchange.code === code) return inFlightExchange.promise;
+  const promise = redeemCode(code);
+  inFlightExchange = { code, promise };
+  return promise;
+}
+
+/**
+ * The actual redemption, called once per code.
+ *
+ * Separate from completeSignIn so the deduplication above has something to
+ * hold a promise to, and so there is exactly one place a code is spent.
+ */
+async function redeemCode(code: string): Promise<{ ok: true } | { ok: false; reason: string }> {
   if (!ONEDRIVE_CLIENT_ID) {
     return { ok: false, reason: 'This build has no OneDrive application id set up.' };
   }
@@ -279,7 +312,16 @@ export async function completeSignIn(code: string): Promise<{ ok: true } | { ok:
     // A verifier that outlives its code is unusable rather than dangerous.
   }
 
-  return exchanged.ok ? { ok: true } : { ok: false, reason: exchanged.reason };
+  if (exchanged.ok) return { ok: true };
+
+  // The deduplication above cannot reach a redirect that arrives after
+  // Android killed the process: that path runs in a context which never saw
+  // the first attempt, so it can still meet a code somebody else already
+  // spent. Being signed in is the honest answer to that, and reporting a
+  // refusal instead would send somebody to fix a sign-in that worked.
+  if (await isSignedIn()) return { ok: true };
+
+  return { ok: false, reason: exchanged.reason };
 }
 
 /**
