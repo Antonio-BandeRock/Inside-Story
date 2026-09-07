@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.47',
+    date: '2026-09-07',
+    changes: [
+      'Pick a Folder is gone. It could never reach OneDrive, or any cloud app, because Android only offers those there if they support choosing a whole folder. It only ever showed folders on the phone itself, which a partner cannot see.',
+      'There is one way to share now, and it does reach OneDrive: Send Mine to Them on their row, and Get What They Sent to open one.',
+    ],
+  },
+  {
     version: '1.0.34.46',
     date: '2026-09-07',
     changes: [

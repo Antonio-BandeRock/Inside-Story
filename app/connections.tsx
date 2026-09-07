@@ -35,26 +35,12 @@ import {
 } from '../lib/partners';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 import { canEncryptTo } from '../lib/partnerCrypto';
-import {
-  chooseSyncFolder,
-  getSyncFolderStatus,
-  SYNC_FOLDER_PROBLEM_TEXT,
-  type SyncFolderStatus,
-} from '../lib/syncInboxStorage';
-import {
-  describeReceive,
-  describeSend,
-  importPartnerFile,
-  receiveFromPartners,
-  sendToPartnerAsFile,
-  sendToPartners,
-} from '../lib/partnerTransfer';
+import { importPartnerFile, sendToPartnerAsFile } from '../lib/partnerTransfer';
 
 export default function ConnectionsScreen() {
   const scrollPadding = useFloatingButtonScrollPadding();
   const [connections, setConnections] = useState<Connection[]>([]);
   const [myFingerprint, setMyFingerprint] = useState<string | null>(null);
-  const [folderStatus, setFolderStatus] = useState<SyncFolderStatus>({ state: 'notChosen' });
   // What the last send or check actually did. Kept on screen rather than
   // flashed, because somebody who taps Send wants to know it landed, and a
   // toast that has gone is the same as never having said anything.
@@ -70,14 +56,7 @@ export default function ConnectionsScreen() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [list, fingerprint, folder] = await Promise.all([
-        listConnections(),
-        getMyKeyFingerprint(),
-        // Listed rather than assumed. A stored folder URI proves somebody once
-        // picked a folder, not that it is still there.
-        getSyncFolderStatus(),
-      ]);
-      setFolderStatus(folder);
+      const [list, fingerprint] = await Promise.all([listConnections(), getMyKeyFingerprint()]);
       setConnections(list);
       setMyFingerprint(fingerprint);
     } catch (error) {
@@ -178,39 +157,6 @@ export default function ConnectionsScreen() {
     }
   };
 
-  const handleChooseFolder = async () => {
-    const result = await chooseSyncFolder();
-    if (!result.chosen) return; // Cancelling is not an error worth reporting.
-    setFolderStatus(await getSyncFolderStatus());
-    setTransferNote(null);
-  };
-
-  const handleSend = async () => {
-    setTransferBusy('send');
-    try {
-      const { outcomes, folderProblem } = await sendToPartners();
-      setTransferNote(folderProblem ? SYNC_FOLDER_PROBLEM_TEXT[folderProblem] : describeSend(outcomes));
-      setFolderStatus(await getSyncFolderStatus());
-    } finally {
-      setTransferBusy(null);
-    }
-  };
-
-  const handleCheck = async () => {
-    setTransferBusy('check');
-    try {
-      const result = await receiveFromPartners();
-      setTransferNote(
-        result.folderProblem ? SYNC_FOLDER_PROBLEM_TEXT[result.folderProblem] : describeReceive(result),
-      );
-      // Conditions that just arrived change what a plan would be built around,
-      // so the rows are reloaded rather than left showing the old counts.
-      load();
-    } finally {
-      setTransferBusy(null);
-    }
-  };
-
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
       {confirmSheetElement}
@@ -262,51 +208,6 @@ export default function ConnectionsScreen() {
         </TouchableOpacity>
 
         {transferNote ? <Text style={styles.fingerprintHint}>{transferNote}</Text> : null}
-
-        {/* The folder is kept rather than removed: where a storage app does
-            support folder selection, or on an SD card, it is the same exchange
-            without the sending step. Named honestly as the narrower option now
-            rather than presented as the main one. */}
-        <Text style={styles.folderSubLabel}>Or use a shared folder, where your storage app allows it</Text>
-        {folderStatus.state === 'notChosen' ? (
-          <Text style={styles.fingerprintHint}>
-            This writes straight into a folder you both see, skipping the sending step. Android only offers cloud
-            apps here if they support picking a whole folder, and most do not, OneDrive included, so this usually
-            lists only folders on the phone itself. Reaching OneDrive is what Get What They Sent above is for.
-          </Text>
-        ) : folderStatus.state === 'unreachable' ? (
-          <Text style={styles.folderProblem}>{SYNC_FOLDER_PROBLEM_TEXT.unreachable}</Text>
-        ) : (
-          <Text style={styles.fingerprintHint}>
-            {folderStatus.fileCount === 0
-              ? 'Folder is set up. Nothing has been exchanged through it yet.'
-              : `Folder is set up, holding ${folderStatus.fileCount} shared ${
-                  folderStatus.fileCount === 1 ? 'file' : 'files'
-                }.`}
-          </Text>
-        )}
-
-        <View style={styles.folderActions}>
-          <TouchableOpacity onPress={handleChooseFolder} hitSlop={8}>
-            <Text style={styles.rowActionText}>
-              {folderStatus.state === 'notChosen' ? 'Pick a Folder' : 'Pick a Different Folder'}
-            </Text>
-          </TouchableOpacity>
-          {folderStatus.state === 'ready' ? (
-            <>
-              <TouchableOpacity onPress={handleSend} hitSlop={8} disabled={transferBusy !== null}>
-                <Text style={styles.rowActionText}>
-                  {transferBusy === 'send' ? 'Sending…' : 'Write to Folder'}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleCheck} hitSlop={8} disabled={transferBusy !== null}>
-                <Text style={styles.rowActionText}>
-                  {transferBusy === 'check' ? 'Checking…' : 'Read the Folder'}
-                </Text>
-              </TouchableOpacity>
-            </>
-          ) : null}
-        </View>
 
         {/* Named rather than left to be discovered as a silent omission: the
             conditions cross, the generated plan does not yet. */}
@@ -534,7 +435,6 @@ const styles = StyleSheet.create({
 
   },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
-  folderActions: { flexDirection: 'row', gap: 18, flexWrap: 'wrap', marginTop: 2 },
   // Taken verbatim from app/pair.tsx, so the same choice looks the same in the
   // two places it is made rather than drifting into two designs.
   grantRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 6 },
@@ -552,12 +452,6 @@ const styles = StyleSheet.create({
   },
   checkBoxOn: { backgroundColor: colors.accent },
   checkMark: { ...typography.caption, color: colors.textOnPrimary, ...textShadow },
-  // Separates the narrower folder option from the one above it without adding
-  // a seventh collapse layer to a screen that already reads as a list.
-  folderSubLabel: { ...typography.caption, color: colors.textPrimary, marginTop: 10, ...textShadow },
-  // A folder that has gone is a real problem to fix, not a passing note, so it
-  // reads in the warning colour rather than the muted hint colour beside it.
-  folderProblem: { ...typography.caption, color: colors.statusYellowStandalone, ...textShadow },
   emptyText: { ...typography.body, color: colors.textMuted, ...textShadow },
   // One column, actions underneath. This used to lay the text and the actions
   // out side by side, which read fine when a connection was a name and a date.
