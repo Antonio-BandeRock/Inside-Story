@@ -35,6 +35,12 @@ import {
 } from '../lib/partners';
 import { getMailboxFolderName } from '../lib/db';
 import {
+  describeSharedFolderProblem,
+  getSharedFolder,
+  MAILBOX_FOLDER_NAME,
+  type SharedFolderState,
+} from '../lib/oneDriveFolders';
+import {
   describeMailboxReceive,
   describeMailboxSend,
   getMailboxStatus,
@@ -81,6 +87,11 @@ export default function ConnectionsScreen() {
   // toast that has gone is the same as never having said anything.
   const [mailboxFolderName, setMailboxFolderNameState] = useState<string | null>(null);
   const [mailboxStatus, setMailboxStatus] = useState<MailboxStatus | null>(null);
+  // The shared folder itself, shown here, as distinct from the Mailbox folder
+  // inside it that the sending and checking actually use. Somebody looking at
+  // this screen wants to know which folder to share with their partner, and
+  // that is the outer one.
+  const [sharedFolderState, setSharedFolderState] = useState<SharedFolderState | null>(null);
   const [transferNote, setTransferNote] = useState<string | null>(null);
   const [transferBusy, setTransferBusy] = useState<'send' | 'check' | null>(null);
   const [loading, setLoading] = useState(true);
@@ -103,6 +114,7 @@ export default function ConnectionsScreen() {
       // trip to Microsoft, and making the whole screen wait on it would
       // leave partners blank while a phone with no signal times out.
       void getMailboxStatus().then(setMailboxStatus);
+      void getSharedFolder().then(setSharedFolderState);
       setConnections(list);
       setMyFingerprint(fingerprint);
     } catch (error) {
@@ -303,14 +315,22 @@ export default function ConnectionsScreen() {
           pairing without either one being wrong. */}
       <View style={styles.fingerprintCard}>
         <Text style={styles.fingerprintLabel}>Your shared folder</Text>
-        {mailboxStatus === null ? (
+        {sharedFolderState === null ? (
           <Text style={styles.fingerprintHint}>Checking OneDrive...</Text>
+        ) : sharedFolderState.state === 'ready' ? (
+          <>
+            <Text style={styles.fingerprintValueName}>{sharedFolderState.folder.name}</Text>
+            <Text style={styles.fingerprintPath}>
+              {sharedFolderState.folder.path ?? 'OneDrive, in a folder shared with you.'}
+            </Text>
+          </>
         ) : (
-          <Text style={styles.fingerprintHint}>{describeMailboxStatus(mailboxStatus)}</Text>
+          <Text style={styles.fingerprintHint}>{describeSharedFolderProblem(sharedFolderState)}</Text>
         )}
         <Text style={styles.fingerprintHint}>
-          One folder in OneDrive, shared between the two of you. What you send goes in it, and what they send is
-          waiting in it. Every partner and, later, every child uses the same one.
+          One folder in OneDrive holding everything this app keeps there. Share it with them and what you send
+          each other passes through the {MAILBOX_FOLDER_NAME} folder inside it. Every partner and, later, every
+          child uses the same one.
         </Text>
         <TouchableOpacity onPress={() => router.push('/onedrive-folder')} hitSlop={8}>
           <Text style={styles.rowActionText}>
@@ -656,6 +676,10 @@ const styles = StyleSheet.create({
   fingerprintLabel: { ...typography.caption, color: colors.textMuted, ...textShadow },
   fingerprintValue: { ...typography.bodyEmphasis, color: colors.textPrimary, letterSpacing: 2, ...textShadow },
   fingerprintHint: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  fingerprintValueName: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  // The path reads as supporting detail under the name rather than competing
+  // with it, which is why it is the quieter of the two.
+  fingerprintPath: { ...typography.caption, color: colors.accent, ...textShadow },
   primaryButton: {
     flexDirection: 'row',
     alignItems: 'center',

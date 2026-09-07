@@ -26,6 +26,7 @@ import {
   GAUGE_OVER_LIMIT,
   mixHex,
 } from '../../constants/colors';
+import { getSharedFolder } from '../../lib/oneDriveFolders';
 import { FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import {
   formatReleaseNotesMessage,
@@ -797,6 +798,9 @@ export default function HomeScreen() {
   // before this loads still shows Basic Health content rather than an
   // empty or crashing pool.
   const [userConditionCodes, setUserConditionCodes] = useState<string[]>([]);
+  // Null while it is still being worked out, so the card cannot flash up on
+  // somebody who set this up months ago.
+  const [sharedFolderReady, setSharedFolderReady] = useState<boolean | null>(null);
   const [curiousAboutConditionCodes, setCuriousAboutConditionCodes] = useState<string[]>([]);
   // 2026-08-28, real root cause of a multi-minute cold-start stall,
   // found by adding real timing instrumentation and reading the actual
@@ -889,6 +893,13 @@ export default function HomeScreen() {
   // Also kept separate from `load` -- two small, cheap local reads, but
   // logically about what Home's own Digest flip cards should draw from,
   // not the rest of this screen's own health/schedule data.
+  // Its own loader rather than part of the main load: it is a network round
+  // trip to Microsoft, and Home must not wait on it.
+  const loadSharedFolderState = useCallback(async () => {
+    const state = await getSharedFolder();
+    setSharedFolderReady(state.state === 'ready');
+  }, []);
+
   const loadDigestConditionScope = useCallback(() => {
     return Promise.all([getUserConditions(), getCuriousAboutConditions()]).then(([owned, curious]) => {
       setUserConditionCodes(owned);
@@ -1108,6 +1119,10 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      // Deliberately outside the Promise.all below. It is a network round trip
+      // to Microsoft, and Home must not sit on the loading gate waiting for it:
+      // the card it feeds is the only thing that depends on the answer.
+      void loadSharedFolderState();
       const isFirstLoad = !hasLoadedOnceRef.current;
       if (isFirstLoad) setLoading(true);
       Promise.all([load(), loadWeekTrend(), loadSkyData(), loadDigestConditionScope(), refreshTestDataBanner()]).then(() => {
@@ -1130,7 +1145,7 @@ export default function HomeScreen() {
         markHomeDataReady();
         scrollRef.current?.scrollTo({ y: 0, animated: false });
       });
-    }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope, announceAppliedUpdate, repairSavedDishes, refreshTestDataBanner]),
+    }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope, loadSharedFolderState, announceAppliedUpdate, repairSavedDishes, refreshTestDataBanner]),
   );
 
   // Plain useEffect (mount-once), not useFocusEffect -- this is meant to
@@ -1588,6 +1603,30 @@ export default function HomeScreen() {
   // days" -- this is that pop-up. A rolling cadence (see
   // ASSESSMENT_DUE_AFTER_DAYS's own comment above), not a
   // calendar-anchored one.
+  // Shown until the shared folder exists, then gone for good. See the top of
+  // lib/oneDriveFolders.ts for what that folder is and what the app keeps in
+  // it.
+  function renderSharedFolderSetup() {
+    if (sharedFolderReady !== false || !isHomeSectionVisible(visualPrefs, 'sharedFolderSetup')) return null;
+    return (
+      <TouchableOpacity
+        style={styles.assessmentDueBanner}
+        onPress={() => router.push('/onedrive-folder')}
+        activeOpacity={0.85}
+      >
+        <Ionicons name="cloud-outline" size={20} color={colors.primary} />
+        <View style={styles.assessmentDueTextCol}>
+          <Text style={styles.assessmentDueTitle}>Set up your shared folder</Text>
+          <Text style={styles.assessmentDueSubtitle}>
+            One folder in OneDrive for your backups, and for anything you and a partner send each other. Worth
+            doing now, before there is anything to lose.
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+      </TouchableOpacity>
+    );
+  }
+
   function renderSymptomCheckinReminder() {
     if (!assessmentDue || !isHomeSectionVisible(visualPrefs, 'symptomCheckinReminder')) return null;
     return (
@@ -2160,6 +2199,8 @@ export default function HomeScreen() {
   // real, deliberate safety net, not a case actually expected to fire.
   function renderHomeSection(key: HomeSectionKey) {
     switch (key) {
+      case 'sharedFolderSetup':
+        return renderSharedFolderSetup();
       case 'symptomCheckinReminder':
         return renderSymptomCheckinReminder();
       case 'todaysCheckin':

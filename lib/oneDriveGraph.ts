@@ -207,6 +207,40 @@ export async function listChildFolders(parent: DriveItemRef): Promise<GraphResul
   return { ok: true, value: items };
 }
 
+/**
+ * The folder of this name inside the parent, made if it is not there yet.
+ *
+ * The person chooses one folder and the app owns the shape underneath it, so
+ * this is how Mailbox and Backups come to exist without anybody being asked to
+ * make them. Looked up by name rather than remembered by id, deliberately:
+ * somebody can delete or recreate either of them in OneDrive, and an id
+ * remembered from months ago would then point at nothing while the folder they
+ * can plainly see sits there unused.
+ *
+ * The create is a race against nothing in practice, but if two devices set up
+ * at once, conflictBehavior rename would leave a Mailbox 1 nobody looks in. So
+ * a failed create re-reads the listing before giving up: the usual reason a
+ * create fails is that the folder now exists.
+ */
+export async function ensureChildFolder(
+  parent: DriveItemRef,
+  name: string,
+): Promise<GraphResult<DriveItemRef>> {
+  const existing = await listChildFolders(parent);
+  if (!existing.ok) return existing;
+  const lower = name.toLowerCase();
+  const found = existing.value.find((folder) => folder.name.toLowerCase() === lower);
+  if (found) return { ok: true, value: found };
+
+  const made = await createFolder(parent, name);
+  if (made.ok) return made;
+
+  const retry = await listChildFolders(parent);
+  if (!retry.ok) return made;
+  const late = retry.value.find((folder) => folder.name.toLowerCase() === lower);
+  return late ? { ok: true, value: late } : made;
+}
+
 /** Makes a folder, so somebody can set the mailbox up without leaving the app. */
 export async function createFolder(
   parent: DriveItemRef,

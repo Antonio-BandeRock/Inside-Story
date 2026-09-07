@@ -21,6 +21,8 @@ import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
 import { APP_VERSION } from '../constants/version';
 import { isSignedIn as isOneDriveSignedIn } from '../lib/oneDriveAuth';
+import { getBackupsFolder, getSharedFolder } from '../lib/oneDriveFolders';
+import type { DriveItemRef } from '../lib/oneDriveGraph';
 import { downloadText, listFiles, uploadText } from '../lib/oneDriveGraph';
 import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreferences';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
@@ -87,8 +89,7 @@ import {
   SymptomAssessmentRecord,
   type UserNutrientTargetOverride,
   UserProfile,
-  getOneDriveBackupFolder,
-  type StoredOneDriveFolder,
+
 } from '../lib/db';
 import { RECIPE_DIET_TAGS, type RecipeDietTag } from '../lib/digest/types';
 import { getConditionFoodConcerns, type ConditionFoodConcern } from '../lib/conditionFoodConcerns';
@@ -791,7 +792,7 @@ export default function ProfileScreen() {
   // Where backups go in OneDrive, and whether an account is connected at all.
   // Both read rather than assumed, so this card never offers to write
   // somewhere it cannot reach.
-  const [backupFolder, setBackupFolder] = useState<StoredOneDriveFolder | null>(null);
+  const [backupFolder, setBackupFolder] = useState<DriveItemRef | null>(null);
   const [oneDriveConnected, setOneDriveConnected] = useState(false);
   // Password-based encryption, 2026-08-16, see lib/backupEncryption.ts's
   // header comment for the full reasoning. One shared prompt
@@ -925,10 +926,23 @@ export default function ProfileScreen() {
     setLocalBackups(files);
   }, []);
 
+  // Derived from the shared folder rather than chosen separately: the app owns
+  // the shape under that folder, so Backups is found or made there rather than
+  // being one more thing to set up.
   const refreshBackupFolder = useCallback(async () => {
-    const [folder, connected] = await Promise.all([getOneDriveBackupFolder(), isOneDriveSignedIn()]);
-    setBackupFolder(folder);
+    const connected = await isOneDriveSignedIn();
     setOneDriveConnected(connected);
+    if (!connected) {
+      setBackupFolder(null);
+      return;
+    }
+    const shared = await getSharedFolder();
+    if (shared.state !== 'ready') {
+      setBackupFolder(null);
+      return;
+    }
+    const backups = await getBackupsFolder();
+    setBackupFolder(backups.ok ? backups.value : null);
   }, []);
 
   useEffect(() => {
@@ -1428,7 +1442,7 @@ export default function ProfileScreen() {
   async function handleBackUpToOneDrive() {
     if (backupBusy) return;
     if (!backupFolder) {
-      showBackupAlert('No folder yet', 'Choose where backups go first.');
+      showBackupAlert('No shared folder yet', 'Set up your shared folder first, then backups have somewhere to go.');
       return;
     }
     const password = await promptPassword(
@@ -1478,7 +1492,7 @@ export default function ProfileScreen() {
   async function handleRestoreFromOneDrive() {
     if (backupBusy) return;
     if (!backupFolder) {
-      showBackupAlert('No folder yet', 'Choose where backups go first.');
+      showBackupAlert('No shared folder yet', 'Set up your shared folder first, then backups have somewhere to go.');
       return;
     }
     setBackupBusy(true);
@@ -3604,23 +3618,23 @@ export default function ProfileScreen() {
                 <>
                   <Text style={styles.concernLabel}>{backupFolder.name}</Text>
                   <Text style={styles.derivedText}>
-                    {backupFolder.path ?? 'A folder somebody shared with you.'}
+                    {backupFolder.path ?? 'Inside your shared folder.'}
                   </Text>
                 </>
               ) : (
                 <Text style={styles.derivedText}>
                   {oneDriveConnected
-                    ? 'No folder chosen yet, so backups are only handed to the share sheet.'
+                    ? 'No shared folder set up yet, so backups are only handed to the share sheet.'
                     : 'Not connected to OneDrive, so backups are only handed to the share sheet.'}
                 </Text>
               )}
               <TouchableOpacity
                 style={styles.checkinButton}
                 disabled={backupBusy}
-                onPress={() => router.push('/onedrive-folder?purpose=backups')}
+                onPress={() => router.push('/onedrive-folder')}
               >
                 <Text style={styles.checkinButtonText}>
-                  {backupFolder ? 'Change Where Backups Go' : 'Choose Where Backups Go'}
+                  {backupFolder ? 'Change the Shared Folder' : 'Set Up the Shared Folder'}
                 </Text>
               </TouchableOpacity>
               {backupFolder ? (

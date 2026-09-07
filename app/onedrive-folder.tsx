@@ -1,28 +1,30 @@
-// Choosing a OneDrive folder, for either of the two things the app keeps there.
+// Choosing the one Shared Folder everything the app keeps in OneDrive lives in.
+//
+// ONE FOLDER, NOT TWO. An earlier pass asked for a mailbox folder and a backup
+// folder to be picked separately, which put the person in charge of a layout the
+// app should keep itself. Now one folder is chosen and the app makes and owns
+// what goes inside it:
+//
+//   Shared Folder
+//   |- Mailbox     where every person's mailbox lives, partner and later child
+//   |- Backups     where backups are written
+//
+// SET UP BEFORE ANYBODY IS ADDED. This is not a step that belongs to pairing. It
+// is set up when the app is first opened, whether or not there is ever a partner,
+// because backups need it just as much as a mailbox does.
 //
 // A REAL PICKER, WHICH IS THE WHOLE POINT. An earlier attempt asked somebody to
-// type a folder's name, which told the app nothing it could open and was rightly
-// called out as pretending a choice had been made. This browses the actual
-// account: it lists the folders that are really there, drills into them, and
-// hands back an address the app can write to and read from.
-//
-// TWO PURPOSES, ONE SCREEN. The mailbox and the backup folder are picked exactly
-// the same way, so they share this rather than being two screens that drift
-// apart. Which one is being set arrives as a route parameter and changes the
-// wording, where the answer is stored, and whether the move action is offered.
-//
-// WHY THEY ARE TWO FOLDERS AND NOT ONE. The mailbox is shared with a partner by
-// design. A backup is the whole record, and nobody else has any business reading
-// it. Keeping backups in the mailbox would hand every one of them to whoever the
-// mailbox is shared with.
+// type a folder's name, which told the app nothing it could open. This browses
+// the actual account and hands back an address the app can write to and read
+// from.
 //
 // TWO STARTING POINTS, AND BOTH ARE NEEDED. A folder somebody else shared with
-// you does not appear anywhere in your own OneDrive; it sits under Shared with
-// me and physically lives in their drive. Whoever MADE the folder finds it under
+// you does not appear anywhere in your own OneDrive; it sits under Shared with me
+// and physically lives in their drive. Whoever MADE the folder finds it under
 // their own files instead.
 
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -30,23 +32,20 @@ import { AppTextInput } from '../components/AppTextInput';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
-import {
-  getOneDriveBackupFolder,
-  getOneDriveFolder,
-  setMailboxFolderName,
-  setOneDriveBackupFolder,
-  setOneDriveFolder,
-} from '../lib/db';
+import { getOneDriveFolder, setMailboxFolderName, setOneDriveFolder } from '../lib/db';
 import { isOneDriveConfigured, isSignedIn, signIn, signOut } from '../lib/oneDriveAuth';
+import {
+  BACKUPS_FOLDER_NAME,
+  forgetResolvedFolders,
+  MAILBOX_FOLDER_NAME,
+  prepareSharedFolder,
+} from '../lib/oneDriveFolders';
 import {
   checkFolder,
   createFolder,
   listChildFolders,
-  listFiles,
   listMyRootFolders,
   listSharedFolders,
-  moveFile,
-  type DriveFileRef,
   type DriveItemRef,
 } from '../lib/oneDriveGraph';
 import { ONEDRIVE_NOT_CONFIGURED } from '../lib/oneDriveConfig';
@@ -54,32 +53,14 @@ import { ONEDRIVE_NOT_CONFIGURED } from '../lib/oneDriveConfig';
 /** Where the listing came from, so Back knows what to go back to. */
 type Root = 'shared' | 'mine';
 
-/**
- * What a backup this app wrote is called.
- *
- * Matched on rather than moving every file, because a folder can hold anything
- * and moving somebody's own documents because they happened to be nearby would
- * be indefensible.
- */
-const BACKUP_PREFIX = 'inside-story-backup-';
-const BACKUP_SUFFIX = '.json';
-
-function isBackupFile(name: string): boolean {
-  return name.startsWith(BACKUP_PREFIX) && name.endsWith(BACKUP_SUFFIX);
-}
-
 export default function OneDriveFolderScreen() {
   const router = useRouter();
   const scrollPadding = useFloatingButtonScrollPadding();
-  const params = useLocalSearchParams<{ purpose?: string }>();
-  const forBackups = params.purpose === 'backups';
 
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
-  // A backup folder is one of your own, so start where those are. A mailbox is
-  // usually one somebody shared, so start there instead.
-  const [root, setRoot] = useState<Root>(forBackups ? 'mine' : 'shared');
+  const [root, setRoot] = useState<Root>('shared');
   // The path from a root down to wherever the person is now. Empty means they
   // are looking at a root listing. The last entry is the current folder, which
   // is also the one the Use button would pick.
@@ -87,98 +68,56 @@ export default function OneDriveFolderScreen() {
   const [folders, setFolders] = useState<DriveItemRef[]>([]);
   const [chosen, setChosen] = useState<DriveItemRef | null>(null);
   const [newFolderName, setNewFolderName] = useState('');
-  // Backups sitting in whatever folder is currently open, so they can be moved
-  // into the chosen one. Only ever looked for when a backup folder is what is
-  // being set, since it costs an extra request per folder opened.
-  const [strays, setStrays] = useState<DriveFileRef[]>([]);
 
   const current = trail.length > 0 ? trail[trail.length - 1] : null;
 
-  const load = useCallback(
-    async (nextRoot: Root, nextTrail: DriveItemRef[], target: DriveItemRef | null) => {
-      setBusy(true);
-      setNote(null);
-      setStrays([]);
-      const parent = nextTrail.length > 0 ? nextTrail[nextTrail.length - 1] : null;
-      const result = parent
-        ? await listChildFolders(parent)
-        : nextRoot === 'shared'
-          ? await listSharedFolders()
-          : await listMyRootFolders();
-
-      if (!result.ok) {
-        setBusy(false);
-        setFolders([]);
-        setNote(result.reason);
-        return;
-      }
-      setFolders(result.value);
-
-      // Only worth asking about files when there is somewhere to move them to
-      // and the folder open is not already that somewhere.
-      if (forBackups && parent && target && parent.itemId !== target.itemId) {
-        const files = await listFiles(parent);
-        if (files.ok) setStrays(files.value.filter((file) => isBackupFile(file.name)));
-      }
-      setBusy(false);
-    },
-    [forBackups],
-  );
+  const load = useCallback(async (nextRoot: Root, nextTrail: DriveItemRef[]) => {
+    setBusy(true);
+    const parent = nextTrail.length > 0 ? nextTrail[nextTrail.length - 1] : null;
+    const result = parent
+      ? await listChildFolders(parent)
+      : nextRoot === 'shared'
+        ? await listSharedFolders()
+        : await listMyRootFolders();
+    setBusy(false);
+    if (!result.ok) {
+      setFolders([]);
+      setNote(result.reason);
+      return;
+    }
+    setFolders(result.value);
+  }, []);
 
   /**
-   * Brings a stored folder back in line with what OneDrive says about it.
+   * Brings the stored folder back in line with what OneDrive says about it.
    *
-   * A folder chosen before paths were recorded has none, and a folder renamed
-   * or moved since carries the old one. Both show as something that does not
-   * match what the person sees in OneDrive, which is exactly the confusion
-   * showing a path was meant to remove.
+   * A folder renamed or moved since it was picked otherwise shows as something
+   * that does not match what the person sees in OneDrive, which is exactly the
+   * confusion showing a path was meant to remove. A folder that cannot be reached
+   * right now is left alone: losing the choice over one failed request would be
+   * worse than a slightly stale name.
    */
-  const refreshStored = useCallback(
-    async (saved: DriveItemRef | null): Promise<DriveItemRef | null> => {
-      if (!saved) return null;
-      const checked = await checkFolder(saved);
-      // A folder that cannot be reached right now is left exactly as it was.
-      // Losing the choice over one failed request would be worse than showing
-      // a slightly stale name.
-      if (!checked.ok) return saved;
-      if (checked.value.name === saved.name && checked.value.path === saved.path) return saved;
-      const refreshed: DriveItemRef = {
-        ...saved,
-        name: checked.value.name,
-        path: checked.value.path,
-      };
-      if (forBackups) await setOneDriveBackupFolder(refreshed);
-      else await setOneDriveFolder(refreshed);
-      return refreshed;
-    },
-    [forBackups],
-  );
+  const refreshStored = useCallback(async (saved: DriveItemRef | null): Promise<DriveItemRef | null> => {
+    if (!saved) return null;
+    const checked = await checkFolder(saved);
+    if (!checked.ok) return saved;
+    if (checked.value.name === saved.name && checked.value.path === saved.path) return saved;
+    const refreshed: DriveItemRef = { ...saved, name: checked.value.name, path: checked.value.path };
+    await setOneDriveFolder(refreshed);
+    return refreshed;
+  }, []);
 
   useEffect(() => {
     void (async () => {
-      const [alreadySignedIn, saved] = await Promise.all([
-        isSignedIn(),
-        forBackups ? getOneDriveBackupFolder() : getOneDriveFolder(),
-      ]);
+      const [alreadySignedIn, saved] = await Promise.all([isSignedIn(), getOneDriveFolder()]);
       setSignedIn(alreadySignedIn);
       setChosen(saved);
-      // Everything about WHERE the person is resets too, not only what is
-      // chosen. Expo Router reuses this screen when the same route is opened
-      // with a different purpose, so without this the listing switched to the
-      // new root while the trail and the Use button still named a folder opened
-      // under the old one. Tapping Use there would have set the backup folder to
-      // the mailbox.
-      setTrail([]);
-      setStrays([]);
-      setNewFolderName('');
-      setNote(null);
-      setRoot(forBackups ? 'mine' : 'shared');
       if (!alreadySignedIn) return;
-      const current = await refreshStored(saved);
-      setChosen(current);
-      await load(forBackups ? 'mine' : 'shared', [], current);
+      const currentFolder = await refreshStored(saved);
+      setChosen(currentFolder);
+      await load('shared', []);
     })();
-  }, [load, forBackups, refreshStored]);
+  }, [load, refreshStored]);
 
   const handleSignIn = async () => {
     setBusy(true);
@@ -189,68 +128,70 @@ export default function OneDriveFolderScreen() {
       return;
     }
     setSignedIn(true);
-    await load(root, [], chosen);
+    await load(root, []);
   };
 
   const handleSignOut = async () => {
     await signOut();
-    // Both folders go with the account. Leaving an address behind that nothing
+    // The folder goes with the account. Leaving an address behind that nothing
     // can open would show a folder that is set up and refuses every write, which
     // is worse than plainly showing nothing is set up.
     await setOneDriveFolder(null);
-    await setOneDriveBackupFolder(null);
     await setMailboxFolderName(null);
+    forgetResolvedFolders();
     setSignedIn(false);
     setChosen(null);
     setFolders([]);
     setTrail([]);
-    setStrays([]);
-    setNote('Signed out of OneDrive. Both folders were cleared with it.');
+    setNote('Signed out of OneDrive. The shared folder was cleared with it.');
   };
 
   const handleSwitchRoot = async (nextRoot: Root) => {
     setRoot(nextRoot);
     setTrail([]);
-    await load(nextRoot, [], chosen);
+    setNote(null);
+    await load(nextRoot, []);
   };
 
   const handleOpen = async (folder: DriveItemRef) => {
     const nextTrail = [...trail, folder];
     setTrail(nextTrail);
-    await load(root, nextTrail, chosen);
+    setNote(null);
+    await load(root, nextTrail);
   };
 
   const handleBack = async () => {
     const nextTrail = trail.slice(0, -1);
     setTrail(nextTrail);
-    await load(root, nextTrail, chosen);
+    setNote(null);
+    await load(root, nextTrail);
   };
 
   const handleUse = async () => {
     if (!current) return;
-    if (forBackups) {
-      await setOneDriveBackupFolder(current);
-    } else {
-      await setOneDriveFolder(current);
-      // The name is written too, and not as a duplicate. It is what travels in a
-      // pairing code so the other phone can say which folder it means. The
-      // address is what this app opens; the name is what a person reads.
-      await setMailboxFolderName(current.name);
-    }
+    setBusy(true);
+    await setOneDriveFolder(current);
+    // The name is written too, and not as a duplicate. It is what travels in a
+    // pairing code so the other phone can say which folder it means. The address
+    // is what this app opens; the name is what a person reads.
+    await setMailboxFolderName(current.name);
     setChosen(current);
-    // Reload so the move offer reappraises now that there is somewhere to move
-    // things to.
-    await load(root, trail, current);
-    // Said after the reload, because load clears the note: right for somebody
-    // opening a folder and leaving a stale message behind, wrong for a message
-    // about what just happened.
+    // Made now rather than on first use, so somebody can open OneDrive straight
+    // afterwards and see the shape they were told about.
+    const prepared = await prepareSharedFolder();
+    setBusy(false);
     setNote(
-      forBackups
-        ? 'Backups will be written to ' + current.name + ' from now on.'
-        : 'Using ' +
+      prepared.ok
+        ? 'Using ' +
           current.name +
-          '. Anything you send a partner goes in here, and this is where the app looks for what they sent.',
+          '. ' +
+          MAILBOX_FOLDER_NAME +
+          ' and ' +
+          BACKUPS_FOLDER_NAME +
+          ' are ready inside it.'
+        : 'Using ' + current.name + ', but its folders could not be made yet. ' + (prepared.reason ?? ''),
     );
+    await load(root, trail);
   };
 
   const handleCreate = async () => {
@@ -270,37 +211,9 @@ export default function OneDriveFolderScreen() {
       return;
     }
     setNewFolderName('');
-    await load(root, trail, chosen);
-    setNote(
-      forBackups
-        ? 'Made ' + result.value.name + '. Open it and tap Use to start keeping backups there.'
-        : 'Made ' + result.value.name + '. Share it with them in OneDrive, then open it here and tap Use.',
-    );
+    await load(root, trail);
+    setNote('Made ' + result.value.name + '. Open it and tap Use to make it your shared folder.');
   };
-
-  const handleMoveStrays = async () => {
-    if (!current || !chosen || strays.length === 0) return;
-    setBusy(true);
-    let moved = 0;
-    const failures: string[] = [];
-    for (const file of strays) {
-      const result = await moveFile(current, file, chosen);
-      if (result.ok) moved += 1;
-      else failures.push(file.name + ': ' + result.reason);
-    }
-    setBusy(false);
-    await load(root, trail, chosen);
-    setNote(
-      failures.length === 0
-        ? 'Moved ' + moved + (moved === 1 ? ' backup into ' : ' backups into ') + chosen.name + '.'
-        : 'Moved ' + moved + '. ' + failures.join(' '),
-    );
-  };
-
-  const purposeTitle = forBackups ? 'Where your backups are kept' : 'The folder your mailbox lives in';
-  const purposeHint = forBackups
-    ? 'A folder of your own, not one you share. A backup is your whole record, so it should not sit where a partner can read it.'
-    : 'One folder, shared between the two of you, holding what each of you sends the other. Every partner and, later, every child uses the same one.';
 
   if (!isOneDriveConfigured()) {
     return (
@@ -315,17 +228,32 @@ export default function OneDriveFolderScreen() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
       <View style={styles.card}>
-        <Text style={styles.label}>{purposeTitle}</Text>
-        <Text style={styles.hint}>{purposeHint}</Text>
+        <Text style={styles.label}>Your shared folder</Text>
+        <Text style={styles.hint}>
+          One folder in OneDrive holding everything this app keeps there. Set it up once, whether or not you ever add
+          anyone, because backups need it too.
+        </Text>
         {chosen ? (
           <>
             <Text style={styles.chosen}>Currently using: {chosen.name}</Text>
-            {/* The full path, because two folders can be called Backups and a
-                name on its own cannot tell them apart. */}
+            {/* The full path, because two folders can be called Inside Story and
+                a name on its own cannot tell them apart. */}
             <Text style={styles.pathText}>{chosen.path ?? 'OneDrive, in a folder shared with you.'}</Text>
+            {/* What the app puts inside it, named plainly rather than left to be
+                discovered in OneDrive. */}
+            <Text style={styles.hint}>
+              Inside it: {MAILBOX_FOLDER_NAME}, where everyone&apos;s mail lives, and {BACKUPS_FOLDER_NAME}, where your
+              backups are written. The app makes both.
+            </Text>
+            {/* Said once, plainly, because it is the consequence somebody is
+                least likely to have thought through. */}
+            <Text style={styles.warning}>
+              Anything in this folder is visible to whoever you share it with in OneDrive, and that includes your
+              backups.
+            </Text>
           </>
         ) : (
-          <Text style={styles.hint}>Nothing chosen yet.</Text>
+          <Text style={styles.hint}>Nothing set up yet.</Text>
         )}
       </View>
 
@@ -334,16 +262,16 @@ export default function OneDriveFolderScreen() {
           <Text style={styles.label}>Sign in to OneDrive</Text>
           {/* Said before sending anybody to the consent screen rather than
               leaving Microsoft's wording to explain it. Asking for access to
-              everything and using two folders is a real gap between what is
+              everything and using one folder is a real gap between what is
               granted and what is used, and it should be stated by the side
               doing the asking. */}
           <Text style={styles.hint}>
             Microsoft will ask you to allow access to your files. It has no narrower permission that can reach a folder
-            somebody else shared with you, and a folder only you can see is not a mailbox.
+            somebody else shared with you, and a folder only you can see cannot hold a mailbox.
           </Text>
           <Text style={styles.hint}>
-            What this app does with it: list your folders so you can pick one, then read and write files inside the ones
-            you pick. It never looks anywhere else.
+            What this app does with it: list your folders so you can pick one, then read and write inside the one you
+            pick. It never looks anywhere else.
           </Text>
           <TouchableOpacity style={styles.primaryButton} onPress={handleSignIn} disabled={busy}>
             <Ionicons name="cloud-outline" size={18} color={colors.textOnButton} />
@@ -366,7 +294,7 @@ export default function OneDriveFolderScreen() {
             <Text style={styles.hint}>
               {root === 'shared'
                 ? 'Folders other people have shared with you. Look here if they made the folder.'
-                : 'Folders in your own OneDrive. Look here if you made the folder.'}
+                : 'Folders in your own OneDrive. Look here if you made the folder, or make one below.'}
             </Text>
 
             {trail.length > 0 ? (
@@ -414,32 +342,11 @@ export default function OneDriveFolderScreen() {
             ) : null}
           </View>
 
-          {/* Offered exactly where it is useful: standing in a folder that holds
-              backups, with somewhere else already chosen to keep them. Matched on
-              this app's own file naming, so nothing else in the folder is
-              touched. */}
-          {forBackups && chosen && strays.length > 0 ? (
-            <View style={styles.card}>
-              <Text style={styles.label}>
-                {strays.length === 1 ? '1 backup is in here' : strays.length + ' backups are in here'}
-              </Text>
-              <Text style={styles.hint}>
-                They can be moved into {chosen.name} so they are all in one place. Nothing else in this folder is
-                touched.
-              </Text>
-              <TouchableOpacity style={styles.primaryButton} onPress={handleMoveStrays} disabled={busy}>
-                <Ionicons name="arrow-forward" size={18} color={colors.textOnButton} />
-                <Text style={styles.primaryButtonText}>Move Them to {chosen.name}</Text>
-              </TouchableOpacity>
-            </View>
-          ) : null}
-
           <View style={styles.card}>
             <Text style={styles.label}>Make a new folder</Text>
             <Text style={styles.hint}>
-              {forBackups
-                ? 'Goes inside whichever folder you have open.'
-                : 'Goes inside whichever folder you have open. The app can make it, but only OneDrive can share it: make it here, then share it with them from the OneDrive app.'}
+              Goes inside whichever folder you have open. The app can make it, but only OneDrive can share it: make it
+              here, then share it with them from the OneDrive app.
             </Text>
             <AppTextInput
               style={styles.input}
@@ -491,6 +398,9 @@ const styles = StyleSheet.create({
   // The path reads as supporting detail under the name rather than competing
   // with it, which is why it is the quieter of the two.
   pathText: { ...typography.caption, color: colors.accent, ...textShadow },
+  // Not danger red: nothing here is broken or about to be lost. It is a
+  // consequence of a choice, and it should be noticed without alarming.
+  warning: { ...typography.caption, color: colors.statusYellowStandalone, ...textShadow },
   action: { ...typography.body, color: colors.accent, ...textShadow },
   rootRow: { flexDirection: 'row', gap: 20 },
   rootActive: { ...typography.bodyEmphasis, color: colors.accent, ...textShadow },

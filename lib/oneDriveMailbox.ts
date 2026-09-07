@@ -24,13 +24,12 @@
 
 import { computeKeyFingerprint, getMyKeyFingerprint, sealForRecipient } from './deviceIdentity';
 import { listConnections } from './connections';
-import { getOneDriveFolder, getUserConditions, setOneDriveFolder, type StoredOneDriveFolder } from './db';
+import { getUserConditions } from './db';
 import { buildSyncPayload } from './partnerSync';
 import { applySyncFileText, PARTNER_SYNC_FILE_KIND } from './partnerTransfer';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { buildSyncFileName, incomingFilesFor } from './syncInbox';
 import {
-  checkFolder,
   deleteFile,
   downloadText,
   listFileNames,
@@ -38,6 +37,7 @@ import {
   type DriveItemRef,
 } from './oneDriveGraph';
 import { isSignedIn } from './oneDriveAuth';
+import { describeSharedFolderProblem, getMailboxFolder, getSharedFolder } from './oneDriveFolders';
 
 export type MailboxStatus =
   | { state: 'notSignedIn' }
@@ -56,29 +56,25 @@ export type MailboxStatus =
 export async function getMailboxStatus(): Promise<MailboxStatus> {
   if (!(await isSignedIn())) return { state: 'notSignedIn' };
 
-  const stored = await getOneDriveFolder();
-  if (!stored) return { state: 'noFolder' };
-
-  const folder: DriveItemRef = stored;
-  const check = await checkFolder(folder);
-  if (!check.ok) {
-    return { state: 'unreachable', folderName: stored.name, reason: check.reason };
-  }
-
-  // A rename or a move is not a problem, but a stale name or path on screen is
-  // confusing, so the stored copy is brought back in line with where OneDrive
-  // actually says the folder is now.
-  if (check.value.name !== stored.name || check.value.path !== stored.path) {
-    const refreshed: StoredOneDriveFolder = {
-      ...stored,
-      name: check.value.name,
-      path: check.value.path,
+  const shared = await getSharedFolder();
+  if (shared.state === 'notSetUp') return { state: 'noFolder' };
+  if (shared.state !== 'ready') {
+    return {
+      state: 'unreachable',
+      folderName: shared.state === 'unreachable' ? shared.name : 'Your shared folder',
+      reason: describeSharedFolderProblem(shared),
     };
-    await setOneDriveFolder(refreshed);
-    return { state: 'ready', folder: refreshed };
   }
 
-  return { state: 'ready', folder };
+  // The Mailbox folder inside it, made if it is missing. The shared folder
+  // itself is not the mailbox: backups live beside it, and later so will
+  // anything else the app keeps there.
+  const mailbox = await getMailboxFolder();
+  if (!mailbox.ok) {
+    return { state: 'unreachable', folderName: shared.folder.name, reason: mailbox.reason };
+  }
+
+  return { state: 'ready', folder: mailbox.value };
 }
 
 export type MailboxSendOutcome = {

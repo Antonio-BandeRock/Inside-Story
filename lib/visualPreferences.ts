@@ -218,6 +218,7 @@ export const GENERIC_PALETTE_LABELS: Record<GenericPalette, string> = {
 // each section actually renders in on Home.
 export type HomeSectionKey =
   | 'weather'
+  | 'sharedFolderSetup'
   | 'symptomCheckinReminder'
   | 'todaysCheckin'
   // Quick-log, 2026-08-30 -- see Home's own renderLogAgain for why this sits
@@ -242,6 +243,7 @@ export type HomeSectionKey =
 
 export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weather',
+  'sharedFolderSetup',
   'symptomCheckinReminder',
   'todaysCheckin',
   'logAgain',
@@ -273,6 +275,7 @@ export const REORDERABLE_HOME_SECTION_KEYS: HomeSectionKey[] = ALL_HOME_SECTION_
 // the call site.
 export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weather: 'Weather & Sunrise/Sunset',
+  sharedFolderSetup: 'Shared Folder Setup',
   symptomCheckinReminder: 'Symptom Check-In Reminder',
   todaysCheckin: "Today's Check-In",
   logAgain: 'Log a Meal (Voice, Photo, Past Meals)',

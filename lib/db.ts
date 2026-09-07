@@ -14801,7 +14801,12 @@ const ONEDRIVE_FOLDER_KEY = 'onedrive_folder';
 // and deleted constantly. Backups are large, kept, and nobody else has any
 // business reading them. Putting both in one folder means a partner who can see
 // the mailbox can also see every backup, which is the person's whole database.
-const ONEDRIVE_BACKUP_FOLDER_KEY = 'onedrive_backup_folder';
+// Written by the short-lived arrangement where a backup folder was chosen
+// separately. Nothing reads it now: Backups is found or made inside the
+// shared folder instead. Declared rather than deleted so the name is not
+// reused for something else while old rows still carry it.
+const ONEDRIVE_BACKUP_FOLDER_KEY_UNUSED = 'onedrive_backup_folder';
+void ONEDRIVE_BACKUP_FOLDER_KEY_UNUSED;
 
 export type StoredOneDriveFolder = {
   driveId: string;
@@ -14872,13 +14877,6 @@ export async function setOneDriveFolder(folder: StoredOneDriveFolder | null) {
   return writeStoredFolder(ONEDRIVE_FOLDER_KEY, folder);
 }
 
-export async function getOneDriveBackupFolder(): Promise<StoredOneDriveFolder | null> {
-  return readStoredFolder(ONEDRIVE_BACKUP_FOLDER_KEY);
-}
-
-export async function setOneDriveBackupFolder(folder: StoredOneDriveFolder | null) {
-  return writeStoredFolder(ONEDRIVE_BACKUP_FOLDER_KEY, folder);
-}
 
 const SYNC_FOLDER_URI_KEY = 'sync_folder_uri';
 
