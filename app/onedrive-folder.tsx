@@ -39,6 +39,7 @@ import {
 } from '../lib/db';
 import { isOneDriveConfigured, isSignedIn, signIn, signOut } from '../lib/oneDriveAuth';
 import {
+  checkFolder,
   createFolder,
   listChildFolders,
   listFiles,
@@ -124,6 +125,35 @@ export default function OneDriveFolderScreen() {
     [forBackups],
   );
 
+  /**
+   * Brings a stored folder back in line with what OneDrive says about it.
+   *
+   * A folder chosen before paths were recorded has none, and a folder renamed
+   * or moved since carries the old one. Both show as something that does not
+   * match what the person sees in OneDrive, which is exactly the confusion
+   * showing a path was meant to remove.
+   */
+  const refreshStored = useCallback(
+    async (saved: DriveItemRef | null): Promise<DriveItemRef | null> => {
+      if (!saved) return null;
+      const checked = await checkFolder(saved);
+      // A folder that cannot be reached right now is left exactly as it was.
+      // Losing the choice over one failed request would be worse than showing
+      // a slightly stale name.
+      if (!checked.ok) return saved;
+      if (checked.value.name === saved.name && checked.value.path === saved.path) return saved;
+      const refreshed: DriveItemRef = {
+        ...saved,
+        name: checked.value.name,
+        path: checked.value.path,
+      };
+      if (forBackups) await setOneDriveBackupFolder(refreshed);
+      else await setOneDriveFolder(refreshed);
+      return refreshed;
+    },
+    [forBackups],
+  );
+
   useEffect(() => {
     void (async () => {
       const [alreadySignedIn, saved] = await Promise.all([
@@ -132,9 +162,12 @@ export default function OneDriveFolderScreen() {
       ]);
       setSignedIn(alreadySignedIn);
       setChosen(saved);
-      if (alreadySignedIn) await load(forBackups ? 'mine' : 'shared', [], saved);
+      if (!alreadySignedIn) return;
+      const current = await refreshStored(saved);
+      setChosen(current);
+      await load(forBackups ? 'mine' : 'shared', [], current);
     })();
-  }, [load, forBackups]);
+  }, [load, forBackups, refreshStored]);
 
   const handleSignIn = async () => {
     setBusy(true);
@@ -275,7 +308,7 @@ export default function OneDriveFolderScreen() {
             <Text style={styles.chosen}>Currently using: {chosen.name}</Text>
             {/* The full path, because two folders can be called Backups and a
                 name on its own cannot tell them apart. */}
-            <Text style={styles.pathText}>{chosen.path ?? 'A folder somebody shared with you.'}</Text>
+            <Text style={styles.pathText}>{chosen.path ?? 'OneDrive, in a folder shared with you.'}</Text>
           </>
         ) : (
           <Text style={styles.hint}>Nothing chosen yet.</Text>
