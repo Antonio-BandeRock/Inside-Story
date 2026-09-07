@@ -9,7 +9,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { useConfirmSheet } from '../components/ConfirmSheet';
@@ -33,7 +33,15 @@ import {
   linkState,
   type ShareScope,
 } from '../lib/partners';
-import { getMailboxFolderName, setMailboxFolderName } from '../lib/db';
+import { getMailboxFolderName } from '../lib/db';
+import {
+  describeMailboxReceive,
+  describeMailboxSend,
+  getMailboxStatus,
+  receiveViaOneDrive,
+  sendViaOneDrive,
+  type MailboxStatus,
+} from '../lib/oneDriveMailbox';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 import { canEncryptTo } from '../lib/partnerCrypto';
 import {
@@ -46,6 +54,21 @@ import {
   unlinkFiles,
 } from '../lib/partnerTransfer';
 
+// One sentence per state, so every button that can hit a not-ready mailbox
+// says the same thing about it rather than each inventing its own wording.
+function describeMailboxStatus(status: MailboxStatus): string {
+  switch (status.state) {
+    case 'notSignedIn':
+      return 'Sign in to OneDrive first, on the Shared Folder screen.';
+    case 'noFolder':
+      return 'No folder chosen yet. Pick one on the Shared Folder screen.';
+    case 'unreachable':
+      return status.folderName + ' could not be opened. ' + status.reason;
+    case 'ready':
+      return 'Using ' + status.folder.name + '.';
+  }
+}
+
 export default function ConnectionsScreen() {
   const scrollPadding = useFloatingButtonScrollPadding();
   const [connections, setConnections] = useState<Connection[]>([]);
@@ -54,7 +77,7 @@ export default function ConnectionsScreen() {
   // flashed, because somebody who taps Send wants to know it landed, and a
   // toast that has gone is the same as never having said anything.
   const [mailboxFolderName, setMailboxFolderNameState] = useState<string | null>(null);
-  const [folderDraft, setFolderDraft] = useState('');
+  const [mailboxStatus, setMailboxStatus] = useState<MailboxStatus | null>(null);
   const [transferNote, setTransferNote] = useState<string | null>(null);
   const [transferBusy, setTransferBusy] = useState<'send' | 'check' | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +96,10 @@ export default function ConnectionsScreen() {
         getMailboxFolderName(),
       ]);
       setMailboxFolderNameState(folder);
-      setFolderDraft(folder ?? '');
+      // Deliberately not awaited alongside the rest. It is a network round
+      // trip to Microsoft, and making the whole screen wait on it would
+      // leave partners blank while a phone with no signal times out.
+      void getMailboxStatus().then(setMailboxStatus);
       setConnections(list);
       setMyFingerprint(fingerprint);
     } catch (error) {
@@ -165,25 +191,29 @@ export default function ConnectionsScreen() {
   // on a real device, so this opens the app rather than a browser. Falling
   // through to a browser is the correct behaviour where it is not installed:
   // the same folder can be made and shared from the website.
-  const handleSaveFolder = async () => {
-    const trimmed = folderDraft.trim();
-    await setMailboxFolderName(trimmed || null);
-    setMailboxFolderNameState(trimmed || null);
-    setTransferNote(
-      trimmed
-        ? 'Saved. Anyone you pair with from now on gets this folder name in the code you show them.'
-        : 'Cleared. Pairing is switched off again until a folder is named.',
-    );
+  const handleSendViaOneDrive = async () => {
+    setTransferNote('Sending...');
+    const result = await sendViaOneDrive();
+    setMailboxStatus(result.status);
+    if (result.status.state !== 'ready') {
+      setTransferNote(describeMailboxStatus(result.status));
+      return;
+    }
+    setTransferNote(describeMailboxSend(result.outcomes));
   };
 
-  const handleOpenOneDrive = async () => {
-    try {
-      await Linking.openURL('https://onedrive.live.com');
-    } catch {
-      setTransferNote(
-        'OneDrive could not be opened from here. Open it yourself, make a folder, and share it with them.',
-      );
+  const handleCheckOneDrive = async () => {
+    setTransferNote('Checking the folder...');
+    const result = await receiveViaOneDrive();
+    setMailboxStatus(result.status);
+    if (result.status.state !== 'ready') {
+      setTransferNote(describeMailboxStatus(result.status));
+      return;
     }
+    setTransferNote(describeMailboxReceive(result.outcomes));
+    // Conditions may have arrived, so the rows have to be rebuilt rather
+    // than left showing what was true before the check.
+    await load();
   };
 
   const handleLinkOutbox = (id: string) =>
@@ -257,53 +287,43 @@ export default function ConnectionsScreen() {
         </View>
       ) : null}
 
-      {/* THE PREREQUISITE, ABOVE PAIRING RATHER THAN INSIDE A PARTNER.
+      {/* THE MAILBOX, AS A REAL ADDRESS RATHER THAN A NAME SOMEBODY TYPED.
 
-          The mailbox is infrastructure, not a setting on one person: the same
-          folder serves every partner and later every child. Having it hang off
-          a partner row meant somebody could pair first and meet the
-          prerequisite afterwards, which is how it came to be found by tapping
-          a button that led nowhere.
+          What was here before asked for the folder's name and stored the
+          string. That told the app nothing it could open, which is exactly
+          what it was called out as: pretending a choice had been made. This
+          shows the folder actually picked out of the account, and every
+          button here reaches it.
 
-          The gate is honest about what it is. This app cannot see inside a
-          cloud folder, so it cannot check that the folder exists or that it was
-          shared. Naming it is a declaration, and the card says so rather than
-          implying anything was verified. What the gate buys is that the step is
-          taken deliberately, and that both invites carry the same name. */}
+          Not gated any more. A gate that only checks somebody typed something
+          proves nothing, and a real folder can be chosen before or after
+          pairing without either one being wrong. */}
       <View style={styles.fingerprintCard}>
         <Text style={styles.fingerprintLabel}>Your shared folder</Text>
+        {mailboxStatus === null ? (
+          <Text style={styles.fingerprintHint}>Checking OneDrive...</Text>
+        ) : (
+          <Text style={styles.fingerprintHint}>{describeMailboxStatus(mailboxStatus)}</Text>
+        )}
         <Text style={styles.fingerprintHint}>
-          Before pairing with anyone, make one folder in OneDrive or Google Drive and share it with them. That folder
-          is where everything you send each other lands. Set it up once and every partner, and later every child, uses
-          the same one.
+          One folder in OneDrive, shared between the two of you. What you send goes in it, and what they send is
+          waiting in it. Every partner and, later, every child uses the same one.
         </Text>
-        <Text style={styles.mailboxStep}>1. Make the folder and share it.</Text>
-        <TouchableOpacity onPress={handleOpenOneDrive} hitSlop={8}>
-          <Text style={styles.rowActionText}>Open OneDrive</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.mailboxStep}>
-          2. Come back and type its name below. There is nothing to select: Android will not let this app browse a
-          cloud folder, so it cannot see the folder or check on it. The name is only so the person you pair with is
-          told where to look.
-        </Text>
-
-        <AppTextInput
-          style={styles.folderInput}
-          value={folderDraft}
-          onChangeText={setFolderDraft}
-          placeholder="Type the folder name"
-          placeholderTextColor={colors.textMuted}
-        />
-        <TouchableOpacity onPress={handleSaveFolder} hitSlop={8}>
+        <TouchableOpacity onPress={() => router.push('/onedrive-folder')} hitSlop={8}>
           <Text style={styles.rowActionText}>
-            {mailboxFolderName ? 'Save the Folder Name' : 'Save and Turn On Pairing'}
+            {mailboxStatus?.state === 'ready' ? 'Change the Folder' : 'Choose the Folder'}
           </Text>
         </TouchableOpacity>
-        {mailboxFolderName ? (
-          <Text style={styles.fingerprintHint}>
-            Anyone you pair with from now on gets this folder name in the code you show them.
-          </Text>
+
+        {mailboxStatus?.state === 'ready' ? (
+          <View style={styles.folderActions}>
+            <TouchableOpacity onPress={handleSendViaOneDrive} hitSlop={8}>
+              <Text style={styles.rowActionText}>Send Mine to Everyone</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleCheckOneDrive} hitSlop={8}>
+              <Text style={styles.rowActionText}>Check the Folder</Text>
+            </TouchableOpacity>
+          </View>
         ) : null}
       </View>
 

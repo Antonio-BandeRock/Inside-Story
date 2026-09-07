@@ -14782,6 +14782,59 @@ export async function setMailboxFolderName(name: string | null) {
     now,
   );
 }
+// THE ONEDRIVE FOLDER SOMEBODY ACTUALLY PICKED.
+//
+// Not a name. An address: which drive, which item, and what it was called at
+// the time. All three, because an item id without its drive is not an address,
+// and a folder a partner shared lives in THEIR drive rather than this one. A
+// name alone was what the previous attempt stored, and a name is exactly what
+// cannot be opened.
+//
+// Kept as JSON in one row rather than three columns because nothing queries by
+// any part of it: it is read whole and written whole.
+const ONEDRIVE_FOLDER_KEY = 'onedrive_folder';
+
+export type StoredOneDriveFolder = { driveId: string; itemId: string; name: string };
+
+export async function getOneDriveFolder(): Promise<StoredOneDriveFolder | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ value: string }>(
+    'SELECT value FROM app_meta WHERE key = ?',
+    ONEDRIVE_FOLDER_KEY,
+  );
+  if (!row?.value) return null;
+  try {
+    const parsed = JSON.parse(row.value) as Partial<StoredOneDriveFolder>;
+    // Every field checked rather than trusted. A half-written row would
+    // otherwise surface as a Graph request to /drives/undefined, which reads as
+    // a OneDrive problem rather than a local one.
+    if (typeof parsed.driveId !== 'string' || !parsed.driveId) return null;
+    if (typeof parsed.itemId !== 'string' || !parsed.itemId) return null;
+    if (typeof parsed.name !== 'string' || !parsed.name) return null;
+    return { driveId: parsed.driveId, itemId: parsed.itemId, name: parsed.name };
+  } catch {
+    return null;
+  }
+}
+
+export async function setOneDriveFolder(folder: StoredOneDriveFolder | null) {
+  const db = await getDatabase();
+  if (!folder) {
+    await db.runAsync('DELETE FROM app_meta WHERE key = ?', ONEDRIVE_FOLDER_KEY);
+    return;
+  }
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+    `,
+    ONEDRIVE_FOLDER_KEY,
+    JSON.stringify(folder),
+    now,
+  );
+}
+
 const SYNC_FOLDER_URI_KEY = 'sync_folder_uri';
 
 export async function getSyncFolderUri(): Promise<string | null> {

@@ -41,36 +41,33 @@ export const ONEDRIVE_CLIENT_ID: string | null = '6be57e5d-131b-485a-afaf-792009
 export const ONEDRIVE_REDIRECT_URI = 'hashimotosapp://oauth/onedrive';
 
 /**
- * What this app asks permission to do, and nothing beyond it.
+ * What this app asks permission to do.
  *
- * Files.ReadWrite.AppFolder is deliberately narrower than Files.ReadWrite. It
- * grants access to ONE folder that Microsoft creates for this app, and to
- * nothing else in the person's OneDrive: not their documents, not their photos,
- * not anything they already had. The folder shows up under Apps in their own
- * OneDrive, so it is visible and deletable by them rather than hidden.
+ * WIDENED 2026-09-07, DELIBERATELY, AND THE COST IS REAL. Files.ReadWrite.All
+ * covers everything the signed-in person can reach: their own OneDrive AND
+ * anything shared with them. Nothing narrower reaches a shared folder, and a
+ * shared folder is the entire point, since a mailbox one person can see is not
+ * a mailbox. Files.ReadWrite.AppFolder was tried first and only ever reaches a
+ * folder Microsoft creates for this app, which nobody else can be given access
+ * to. Files.ReadWrite covers the signing-in person's own drive and stops at the
+ * boundary of it, so a folder a partner made and shared is out of reach.
+ *
+ * The consent screen says so in Microsoft's own words, and the app says so in
+ * its own before sending anybody to it. What the app actually does with the
+ * access is narrower than what it has to ask for: it lists folders so somebody
+ * can pick one, then reads and writes files inside that one folder. It never
+ * touches anything else, and nothing in the code goes looking.
+ *
+ * WHY ANDROID COULD NOT DO THIS INSTEAD, checked on a real phone rather than
+ * assumed. OneDrive's Android document provider answers a request to open a
+ * FILE and refuses a request to open a FOLDER or create one, so a folder picker
+ * built on the Storage Access Framework cannot show OneDrive at all. That is
+ * OneDrive's decision, not something app code can work around.
  *
  * offline_access is what allows a refresh token, so signing in happens once
- * rather than every time the app wants to check for an update.
- *
- * VERIFIED 2026-09-06, AND IT IS THE ANSWER THAT RULED THIS ROUTE OUT FOR NOW.
- * Graph's createLink permissions table lists, for a personal Microsoft account,
- * least-privileged Files.ReadWrite. Files.ReadWrite.AppFolder is not accepted.
- * So the sender-authenticates/receiver-just-fetches shape this whole design
- * rests on cannot be had at the narrow scope: it needs full read and write to
- * the person's entire OneDrive, every document and photo, to move a few hundred
- * bytes. That is disproportionate, and the consent screen says so in exactly
- * those terms to whoever is being asked.
- *
- * WHAT SHIPPED INSTEAD: Android's Storage Access Framework, already native in
- * expo-file-system, where the person picks one folder and whatever sync app owns
- * it moves the bytes. No registration, no scope, no provider lock-in.
- *
- * THIS FILE STAYS because the registration is real and the client id below is
- * live. It is the path iOS will need, since SAF is Android-only. Anyone picking
- * it up should widen the scope deliberately and say plainly on screen what full
- * drive access means, rather than treating it as a detail.
+ * rather than every time the app wants to check for something new.
  */
-export const ONEDRIVE_SCOPES = ['Files.ReadWrite.AppFolder', 'offline_access'] as const;
+export const ONEDRIVE_SCOPES = ['Files.ReadWrite.All', 'offline_access'] as const;
 
 /**
  * The common endpoint, which accepts both personal and work or school accounts.

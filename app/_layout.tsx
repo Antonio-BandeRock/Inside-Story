@@ -485,6 +485,20 @@ export default function RootLayout() {
               {/* Step 4 of the real device-pairing prerequisite list,
                   2026-08-15 -- reached from Profile. Themed the same as every
                   other Stack screen. */}
+              {/* The OneDrive folder picker, 2026-09-07. Reached from
+                  Connections. Its own screen rather than a section on that
+                  one because browsing a drive is a small navigation of its
+                  own, with a trail and a back step, and folding that into a
+                  scrolling page of partners would bury it. */}
+              <Stack.Screen
+                name="onedrive-folder"
+                options={{
+                  headerShown: true,
+                  title: 'Shared Folder',
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
               <Stack.Screen
                 name="connections"
                 options={{

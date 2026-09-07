@@ -444,7 +444,7 @@ export async function sendToPartnerAsFile(connectionId: string): Promise<{
  * must never change what has to be true before anything is stored, and two
  * copies of a check like this are two chances for them to drift apart.
  */
-async function applySyncFileText(
+export async function applySyncFileText(
   text: string,
   connections: readonly Connection[],
 ): Promise<{ applied: boolean; message: string }> {
