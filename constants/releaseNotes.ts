@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.51',
+    date: '2026-09-07',
+    changes: [
+      'The shared folder card is now two numbered steps, and says plainly that there is nothing to select. Open OneDrive sitting above a text box made it look like the button would fill the box in. It does not: you make the folder there, then come back and type its name.',
+    ],
+  },
+  {
     version: '1.0.34.50',
     date: '2026-09-07',
     changes: [

@@ -277,20 +277,22 @@ export default function ConnectionsScreen() {
           is where everything you send each other lands. Set it up once and every partner, and later every child, uses
           the same one.
         </Text>
-        <Text style={styles.fingerprintHint}>
-          This app cannot make it or check on it: Android will not let an app browse a cloud folder. Naming it here is
-          how the app tells the person you pair with where to look.
-        </Text>
-
+        <Text style={styles.mailboxStep}>1. Make the folder and share it.</Text>
         <TouchableOpacity onPress={handleOpenOneDrive} hitSlop={8}>
           <Text style={styles.rowActionText}>Open OneDrive</Text>
         </TouchableOpacity>
+
+        <Text style={styles.mailboxStep}>
+          2. Come back and type its name below. There is nothing to select: Android will not let this app browse a
+          cloud folder, so it cannot see the folder or check on it. The name is only so the person you pair with is
+          told where to look.
+        </Text>
 
         <AppTextInput
           style={styles.folderInput}
           value={folderDraft}
           onChangeText={setFolderDraft}
-          placeholder="What did you call the folder?"
+          placeholder="Type the folder name"
           placeholderTextColor={colors.textMuted}
         />
         <TouchableOpacity onPress={handleSaveFolder} hitSlop={8}>
