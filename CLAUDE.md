@@ -25,6 +25,28 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-07, 1.0.34.43 through 1.0.34.45): the actual blocker found by looking at the phone, after a day spent building carriers for a problem that was already solved.** Direct instruction, after three proposals failed at the first step: "My phone is connected via USB. Look at it. See what I am seeing. I am not going to look at it until you confirm that you have actually come through."
+
+**THE LESSON, AND IT IS THE EXPENSIVE ONE. Three times I described what would be on screen without being able to see it, and was wrong three times.** A cloud API, a shared folder, a file exchange, each ruled out or broken at the first tap. One `adb exec-out screencap` found the real cause in two minutes. **When a device is reachable and the question is what a screen shows, look at the screen.** The standing rule against on-device walkthroughs exists to stop aimless tap-and-retap loops; it was never a reason to guess at a screen that could simply be read.
+
+**WHAT THE SCREEN ACTUALLY SAID: "You have allowed: meals, shopping lists."** Conditions was off. `buildPartnerInvite` reads that grant and drops the codes when it is off, so showing a code again would have sent everything except the conditions. Nothing about carriers was ever the problem.
+
+**AND THE GRANT COULD NOT BE CHANGED.** `setConnectionGrants` has been in `lib/connections.ts` since partner links shipped and **nothing in the app ever called it**. Grants were fixed at pairing, and the only way to change them was to unpair and start over, **while `app/pair.tsx` has been telling people "You can change it again, or undo it entirely, from Connections at any time."** A false claim in shipped copy, of exactly the kind 1.0.34.37 was written to remove.
+
+**A second gate on top of it.** "Show My Code Again" was conditional on `canEncryptTo` being false, so it only appeared for pairings predating encryption. Re-showing a code is how conditions cross at all: `app/pair.tsx` rebuilds the invite from current conditions on every open, and `app/connect.tsx` applies incoming codes to a connection that already exists. **The mechanism worked and was unreachable**, which is the same shape of fault as the grant.
+
+**THE GENERAL FAULT WORTH NAMING, since it has now appeared twice in two days.** Both of these were working code behind an unreachable control. Neither would ever surface as an error, a failed test or a type mistake, because nothing was broken; it simply could not be got at. **Checking that a feature is REACHABLE is a separate act from checking that it works**, and only the device can answer it.
+
+**Fixed across three versions.** 1.0.34.43 matched the share call to the configuration recipe sharing already proves on a real phone (`*/*` rather than `application/octet-stream`, which messaging apps filter out of the share sheet, plus the `Share.share({ message })` call first that every other file share here already makes). 1.0.34.44 ungated the code re-exchange and corrected `PARTNER_SHARING_NOT_LIVE`, which still claimed nothing moves between two phones. 1.0.34.45 put the grant toggles on the partner row, taken verbatim from the pairing screen so one choice looks the same in both places, and made the action row wrap after **a bug I introduced the day before**: adding a fourth action pushed Remove off the right edge where it could not be reached.
+
+**The two suite checks guarding the notice were updated rather than deleted.** They were written when nothing could travel, and now enforce the current truth: it must say conditions cross, must still say the plan does not, and must no longer claim nothing moves. **Understating what the app does teaches somebody not to trust it just as surely as overstating it.**
+
+**CONFIRMED ON-DEVICE over USB, which is the point of this entry.** Screenshots at each step: the toggles render, ticking Conditions persists and the row changes to "You have allowed: meals, shopping lists, which conditions you track", the action row wraps onto two lines with Remove reachable, and Show My Code Again is present. **Still needs two phones**: Lisa updates, ticks the same box, then codes are shown both ways.
+
+`tsc` clean, `eslint` clean, bare-text audit 0, all guards clean, all twenty suites passing at 1,743 checks.
+
+**Still not built, unchanged:** carrying the generated plan between phones. Everything ruled out for it stands, and `lib/oneDriveConfig.ts` records the permission finding so it is not rediscovered: `createLink` needs `Files.ReadWrite` and `/shares` needs a bearer token, so both people would grant full access to their entire OneDrive.
+
 **Most recent (2026-09-06, 1.0.34.42): the carrier settled, after three were ruled out on evidence in one day.** Reported directly, on a real device: "Pick a shared folder only opens the phone folder structure and doesn't open the ability to go to onedrive," then, when asked to check the picker's drawer, "there is no menu like you're talking about."
 
 **THE FULL LIST OF WHAT WAS RULED OUT, AND WHY EACH ONE DIED. Worth keeping in this much detail, because every one of them looks obviously right until it is checked, and each was killed by one specific documented fact rather than by taste.**
