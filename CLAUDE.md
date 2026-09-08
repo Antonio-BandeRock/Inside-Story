@@ -25,6 +25,18 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-07, 1.0.34.62): the standing checklist run in full, and the in-app pitch found a month stale.** Asked directly: "I think it may be time to update git, notion, app guide, etc."
+
+**Git and Notion were already current from the two entries below. The App Guide and the Walkthrough were eight days behind**, and eight days here covered the Life tab and its five areas, the tab reorder, Home's own corner menu, quick-log, Hands-On Therapies, three new Trends lenses, the grocery list, partner links, and the whole OneDrive arc. Both rebuilt against real counts pulled from the code rather than remembered: 10 tabs, 411 curated recipes, 2,129 Digest entries, 13 Schedules lenses, 9 Trends lenses.
+
+**The Walkthrough gained a second button, and that is a fidelity fix rather than decoration.** It had one, and picking a tab auto-opened the lens picker, which is what the app did when the page was built. Since 1.0.34.15 it does not, so the page now has the two the app has: the centre button moves between tabs, the corner button chooses a function within the one you are on.
+
+**`lib/digest/appHelps.ts` is where the real gap was, and its own header says why it matters:** these 19 entries are what the app says to the people it was built for, and a stale pitch undermines the point of them existing. They still said eleven builders and stopped at features from 2026-08-09.
+
+**One shared paragraph added to each rather than 19 invented per-condition claims.** Every item in it is computed for, or applies to, all 19: the depth report on anything built by hand, Meals You Can Eat cross-filtered by declared diet, Trends at nine lenses, Reports, the grocery list, and cost per condition. **A healing-stage model exists for only 6 conditions and is deliberately left out rather than implied for the other 13**, which is the kind of claim that would have been easy to make generically and wrong for two thirds of the file.
+
+`tsc` clean, `eslint` clean, bare-text audit 0 with its named exception, all four guards clean, 2,129 entries and 3,385 relatedIds references resolving. **One bug caught by the type-checker rather than shipped:** the added paragraph quoted a feature name in double quotes, and several of these summaries are double-quoted strings, so it broke the file. Reverted and rewritten without the quotes rather than escaped around.
+
 **Most recent (2026-09-07, 1.0.34.61): a one-day meal plan that died on a released SQLite object, and the fan-out behind it.** Reported with the screen: "Call to function 'NativeStatement.finalizeAsync' has been rejected. Caused by: The 1st argument cannot be cast to type expo.modules.sqlite.NativeStatement (received class java.lang.Integer). Caused by: Cannot use shared object that was already released", and no plan.
 
 **THE ERROR CLASS HAS APPEARED TWICE BEFORE AND THE OLD CAUSE IS GONE**, which is what made this worth investigating rather than retrying. 2026-08-19 and 2026-08-27 were both `getGroundThemeSync` opening a second synchronous connection to the same file, fixed at the source by reading a plain mirror file instead. Confirmed by grep this time: `lib/db.ts` is the only file that opens a database at all, there are no `closeAsync`/`closeSync` calls anywhere, and the backup he had just taken is entirely sequential. So the two-connections explanation does not apply.
