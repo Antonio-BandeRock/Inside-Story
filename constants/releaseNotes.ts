@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.34.62',
+    date: '2026-09-07',
+    changes: [
+      'The 19 How This App Helps entries in the Digest were describing the app as it stood a month ago. They now say twelve builders rather than eleven, and name what has been built since: the full report before you save anything you built yourself, Meals You Can Eat, six more Trends lenses, the grocery list, and what a condition actually costs.',
+    ],
+  },
+  {
     version: '1.0.34.61',
     date: '2026-09-07',
     changes: [
