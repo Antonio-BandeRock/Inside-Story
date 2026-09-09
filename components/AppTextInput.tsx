@@ -1,6 +1,7 @@
-import { forwardRef, useEffect, useId, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useId, useRef, useState } from 'react';
 import { TextInput, type TextInput as TextInputType, type TextInputProps } from 'react-native';
 import { useActiveInputControls, type AppKeyboardType } from './ActiveInputContext';
+import { useKeyboardLift } from './KeyboardLift';
 
 // Drop-in replacement for RN's own TextInput -- same prop surface, so every
 // existing call site (all controlled value/onChangeText fields, see this
@@ -108,6 +109,24 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
 
   const resolvedKeyboardType: AppKeyboardType =
     keyboardType === 'number-pad' || keyboardType === 'decimal-pad' ? keyboardType : 'default';
+
+  // KEEPING THIS FIELD OUT FROM UNDER THE KEYBOARD, 2026-09-09. The keyboard's
+  // top edge is a fixed, known line; where this field sits is the part nobody
+  // knows until it is looked at. So this measures itself and reports one
+  // number, and KeyboardLift.tsx does the rest. One change here rather than on
+  // every screen that has a field.
+  const { liftFieldIntoView } = useKeyboardLift();
+
+  const measureAndLift = useCallback(() => {
+    const node = innerRef.current;
+    // Checked rather than assumed: measureInWindow is on every native
+    // TextInput, but this component can also be handed a stand-in.
+    if (!node || typeof node.measureInWindow !== 'function') return;
+    node.measureInWindow((_x, y, _width, height) => {
+      if (typeof y !== 'number' || typeof height !== 'number') return;
+      liftFieldIntoView(y + height);
+    });
+  }, [liftFieldIntoView]);
 
   // Re-registers whenever this field's own IDENTITY or callbacks actually
   // change while focused, so AppKeyboard.tsx always has a way to reach the
@@ -312,6 +331,7 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
           blurTimeoutRef.current = null;
         }
         setIsFocused(true);
+        measureAndLift();
         onFocus?.(event);
       }}
       onBlur={(event) => {

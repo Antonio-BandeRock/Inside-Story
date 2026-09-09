@@ -9,6 +9,7 @@ import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ActiveInputProvider } from '../components/ActiveInputContext';
 import { AppKeyboard } from '../components/AppKeyboard';
+import { KeyboardLiftProvider, KeyboardLiftReleaser, KeyboardLiftView } from '../components/KeyboardLift';
 import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
 import { StartupFailureScreen } from '../components/StartupFailureScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
@@ -397,237 +398,264 @@ export default function RootLayout() {
                 every screen a guaranteed solid backing at the native
                 container level itself, not just wherever this app's own
                 Views happen to paint one. */}
-            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
-              <Stack.Screen name="(tabs)" />
-              {/* 2026-08-21 -- the native header (with its own back arrow) is
-                  removed by direct request: Profile is reached only via
-                  TabHub's own corner tile and closes via its own blue circle
-                  X (see profile.tsx's own closeButton), so a second, redundant
-                  way back was never needed. profile.tsx now renders its own
-                  "Profile" title row as a sticky, non-scrolling bar instead,
-                  taking over the safe-area top inset this native header used
-                  to reserve. */}
-              <Stack.Screen
-                name="profile"
-                options={{
-                  headerShown: false,
-                  title: 'Profile',
-                }}
-              />
-              {/* 2026-08-21, Phase 0 of the header growth vine/Timeline
-                  plan -- the header's own title is now a real tappable
-                  route into this screen (see ScreenHeader.tsx's own
-                  comment). A plain themed native header for now, same
-                  pattern as "assessment" below; this screen is a
-                  deliberate stub, the real Timeline UI is Phase 6, not
-                  built here. */}
-              <Stack.Screen
-                name="timeline"
-                options={{
-                  headerShown: true,
-                  title: 'Your Inside Story',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              {/* headerStyle/headerTintColor added 2026-08-08 -- this native
-                  header was the one Stack.Screen left out when every other
-                  one (profile, purple-digest, food-items, food-item-detail)
-                  already got themed to match the app, defaulting to a
-                  plain white bar with black text against everything else's
-                  dark navy. */}
-              <Stack.Screen
-                name="assessment"
-                options={{
-                  headerShown: true,
-                  title: 'Check-In',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              {/* No fixed `title` here -- this screen sets its own via its
-                  own <Stack.Screen options={{title}}/> at render time (see
-                  app/food-items.tsx), since it covers every builder's every
-                  saved/favorited category, not one fixed thing the way
-                  Profile/Check-In/The Digest each are. */}
-              <Stack.Screen
-                name="food-items"
-                options={{
-                  headerShown: true,
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              {/* Same "no fixed title" reasoning as food-items.tsx's own
-                  Stack.Screen just above. */}
-              <Stack.Screen
-                name="food-item-detail"
-                options={{
-                  headerShown: true,
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              {/* 2026-08-15 -- the real receiving screen for a shared
-                  item, reached via a hashimotosapp://import-shared?...
-                  deep link (see lib/sharing.ts's own encodeShareLink/
-                  decodeShareLink -- moved out of lib/db.ts the same day).
-                  Themed the same as every other Stack screen. */}
-              <Stack.Screen
-                name="import-shared"
-                options={{
-                  headerShown: true,
-                  title: 'Shared With You',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              {/* Step 4 of the real device-pairing prerequisite list,
-                  2026-08-15 -- reached from Profile. Themed the same as every
-                  other Stack screen. */}
-              {/* The OneDrive folder picker, 2026-09-07. Reached from
-                  Connections. Its own screen rather than a section on that
-                  one because browsing a drive is a small navigation of its
-                  own, with a trail and a back step, and folding that into a
-                  scrolling page of partners would bury it. */}
-              {/* Where the OneDrive redirect lands, 2026-09-07. Android
-                  resolves hashimotosapp:// itself and hands the redirect to
-                  this app as navigation, so without a route here it showed
-                  Unmatched Route with the authorization code printed on it.
-                  No header: it is a hallway that replaces itself with the
-                  picker, and a back arrow into a spent code helps nobody. */}
-              <Stack.Screen name="oauth/onedrive" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="onedrive-folder"
-                options={{
-                  headerShown: true,
-                  title: 'Shared Folder',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              <Stack.Screen
-                name="connections"
-                options={{
-                  headerShown: true,
-                  title: 'Connections',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              {/* Reached via a real hashimotosapp://connect deep link (see
-                  lib/connections.ts's own shareConnectionInvite) -- the same
-                  real shape import-shared's own Stack.Screen above already
-                  establishes for exactly this "receive an out-of-band
-                  invite, decode it, show an explicit accept/decline choice"
-                  pattern. */}
-              <Stack.Screen
-                name="connect"
-                options={{
-                  headerShown: true,
-                  title: 'Connect',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              {/* QR pairing, 2026-09-06. The only route in now: a deep link
-                  is not tappable in a messaging app, and a .is file tapped in
-                  WhatsApp fails before this app is ever reached. A code on
-                  one screen and a camera on the other is the one channel this
-                  app owns end to end. */}
-              <Stack.Screen
-                name="pair"
-                options={{
-                  headerShown: true,
-                  title: 'Pair',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              {/* 2026-08-16, the real barcode-scanning feature -- reached from
-                  Food's own "My Foods" hub. Themed the same as every other
-                  Stack screen. */}
-              {/* Quick-log, 2026-08-30 -- both reached from Home's own Log a
-                  Meal card. Themed the same as every other Stack screen. */}
-              <Stack.Screen
-                name="find-meal"
-                options={{
-                  headerShown: true,
-                  title: 'Find a Meal',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              <Stack.Screen
-                name="voice-log"
-                options={{
-                  headerShown: true,
-                  title: 'Say What You Ate',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              {/* Which of two brands is actually cheaper, 2026-09-01. Reached
-                  from a grocery list line, or on its own. */}
-              <Stack.Screen
-                name="price-compare"
-                options={{
-                  headerShown: true,
-                  title: 'Compare Prices',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              {/* The Grocery List, 2026-09-01 -- reached from Home, from
-                  Schedule's own Shopping List lens, and from a barcode scan
-                  started inside a list. Themed like every other Stack
-                  screen. */}
-              <Stack.Screen
-                name="grocery-list"
-                options={{
-                  headerShown: true,
-                  title: 'Grocery List',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              <Stack.Screen
-                name="scan-product"
-                options={{
-                  headerShown: true,
-                  title: 'Scan a Product',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              {/* No fixed `title` here, same reasoning as food-item-detail's
-                  own Stack.Screen above -- this screen sets its own via its
-                  own <Stack.Screen options={{title}}/> at render time, once
-                  the real scanned product it's showing has actually loaded.
-                  2026-08-16, reached from food-items.tsx's own
-                  itemType==='scannedProduct' case. */}
-              <Stack.Screen
-                name="food-product-detail"
-                options={{
-                  headerShown: true,
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              {/* The Fermentation Tracker, 2026-08-20 -- reached from
-                  food-items.tsx's own "Saved Fermentations" list (a new
-                  "Track" action button) or opened bare. Sets its own fixed
-                  title at render (see app/fermentation-tracker.tsx), same
-                  themed-header treatment as every other Stack screen. */}
-              <Stack.Screen
-                name="fermentation-tracker"
-                options={{
-                  headerShown: true,
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-            </Stack>
+            {/* THE NAVIGATOR MOVES; THE KEYBOARD DOES NOT, 2026-09-09.
+
+                Reported directly: the keyboard was covering whatever field
+                was being typed into, on pretty much every screen. See
+                components/KeyboardLift.tsx for why nothing already handled
+                this (AppKeyboard is a View this app draws, so none of React
+                Native's own keyboard-avoidance machinery ever hears about
+                it) and why the fix lives under every field rather than on
+                each screen.
+
+                Only the Stack is wrapped, deliberately. AppKeyboard,
+                OverlayRoot and VersionLabel are siblings BELOW this, so
+                they are outside the provider as well as outside the lift:
+                the keyboard stays put while the content slides behind it,
+                and AppKeyboard's own search-row field (which lives above
+                the keys and is never covered by anything) asks for no lift
+                at all rather than uselessly shoving the app up by its own
+                height. */}
+            <KeyboardLiftProvider>
+              <KeyboardLiftView style={{ flex: 1 }}>
+              <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+                <Stack.Screen name="(tabs)" />
+                {/* 2026-08-21 -- the native header (with its own back arrow) is
+                    removed by direct request: Profile is reached only via
+                    TabHub's own corner tile and closes via its own blue circle
+                    X (see profile.tsx's own closeButton), so a second, redundant
+                    way back was never needed. profile.tsx now renders its own
+                    "Profile" title row as a sticky, non-scrolling bar instead,
+                    taking over the safe-area top inset this native header used
+                    to reserve. */}
+                <Stack.Screen
+                  name="profile"
+                  options={{
+                    headerShown: false,
+                    title: 'Profile',
+                  }}
+                />
+                {/* 2026-08-21, Phase 0 of the header growth vine/Timeline
+                    plan -- the header's own title is now a real tappable
+                    route into this screen (see ScreenHeader.tsx's own
+                    comment). A plain themed native header for now, same
+                    pattern as "assessment" below; this screen is a
+                    deliberate stub, the real Timeline UI is Phase 6, not
+                    built here. */}
+                <Stack.Screen
+                  name="timeline"
+                  options={{
+                    headerShown: true,
+                    title: 'Your Inside Story',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                {/* headerStyle/headerTintColor added 2026-08-08 -- this native
+                    header was the one Stack.Screen left out when every other
+                    one (profile, purple-digest, food-items, food-item-detail)
+                    already got themed to match the app, defaulting to a
+                    plain white bar with black text against everything else's
+                    dark navy. */}
+                <Stack.Screen
+                  name="assessment"
+                  options={{
+                    headerShown: true,
+                    title: 'Check-In',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                {/* No fixed `title` here -- this screen sets its own via its
+                    own <Stack.Screen options={{title}}/> at render time (see
+                    app/food-items.tsx), since it covers every builder's every
+                    saved/favorited category, not one fixed thing the way
+                    Profile/Check-In/The Digest each are. */}
+                <Stack.Screen
+                  name="food-items"
+                  options={{
+                    headerShown: true,
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                {/* Same "no fixed title" reasoning as food-items.tsx's own
+                    Stack.Screen just above. */}
+                <Stack.Screen
+                  name="food-item-detail"
+                  options={{
+                    headerShown: true,
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                {/* 2026-08-15 -- the real receiving screen for a shared
+                    item, reached via a hashimotosapp://import-shared?...
+                    deep link (see lib/sharing.ts's own encodeShareLink/
+                    decodeShareLink -- moved out of lib/db.ts the same day).
+                    Themed the same as every other Stack screen. */}
+                <Stack.Screen
+                  name="import-shared"
+                  options={{
+                    headerShown: true,
+                    title: 'Shared With You',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                {/* Step 4 of the real device-pairing prerequisite list,
+                    2026-08-15 -- reached from Profile. Themed the same as every
+                    other Stack screen. */}
+                {/* The OneDrive folder picker, 2026-09-07. Reached from
+                    Connections. Its own screen rather than a section on that
+                    one because browsing a drive is a small navigation of its
+                    own, with a trail and a back step, and folding that into a
+                    scrolling page of partners would bury it. */}
+                {/* Where the OneDrive redirect lands, 2026-09-07. Android
+                    resolves hashimotosapp:// itself and hands the redirect to
+                    this app as navigation, so without a route here it showed
+                    Unmatched Route with the authorization code printed on it.
+                    No header: it is a hallway that replaces itself with the
+                    picker, and a back arrow into a spent code helps nobody. */}
+                <Stack.Screen name="oauth/onedrive" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="onedrive-folder"
+                  options={{
+                    headerShown: true,
+                    title: 'Shared Folder',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                <Stack.Screen
+                  name="connections"
+                  options={{
+                    headerShown: true,
+                    title: 'Connections',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                {/* Reached via a real hashimotosapp://connect deep link (see
+                    lib/connections.ts's own shareConnectionInvite) -- the same
+                    real shape import-shared's own Stack.Screen above already
+                    establishes for exactly this "receive an out-of-band
+                    invite, decode it, show an explicit accept/decline choice"
+                    pattern. */}
+                <Stack.Screen
+                  name="connect"
+                  options={{
+                    headerShown: true,
+                    title: 'Connect',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                {/* QR pairing, 2026-09-06. The only route in now: a deep link
+                    is not tappable in a messaging app, and a .is file tapped in
+                    WhatsApp fails before this app is ever reached. A code on
+                    one screen and a camera on the other is the one channel this
+                    app owns end to end. */}
+                <Stack.Screen
+                  name="pair"
+                  options={{
+                    headerShown: true,
+                    title: 'Pair',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                {/* 2026-08-16, the real barcode-scanning feature -- reached from
+                    Food's own "My Foods" hub. Themed the same as every other
+                    Stack screen. */}
+                {/* Quick-log, 2026-08-30 -- both reached from Home's own Log a
+                    Meal card. Themed the same as every other Stack screen. */}
+                <Stack.Screen
+                  name="find-meal"
+                  options={{
+                    headerShown: true,
+                    title: 'Find a Meal',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                <Stack.Screen
+                  name="voice-log"
+                  options={{
+                    headerShown: true,
+                    title: 'Say What You Ate',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                {/* Which of two brands is actually cheaper, 2026-09-01. Reached
+                    from a grocery list line, or on its own. */}
+                <Stack.Screen
+                  name="price-compare"
+                  options={{
+                    headerShown: true,
+                    title: 'Compare Prices',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                {/* The Grocery List, 2026-09-01 -- reached from Home, from
+                    Schedule's own Shopping List lens, and from a barcode scan
+                    started inside a list. Themed like every other Stack
+                    screen. */}
+                <Stack.Screen
+                  name="grocery-list"
+                  options={{
+                    headerShown: true,
+                    title: 'Grocery List',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                <Stack.Screen
+                  name="scan-product"
+                  options={{
+                    headerShown: true,
+                    title: 'Scan a Product',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                {/* No fixed `title` here, same reasoning as food-item-detail's
+                    own Stack.Screen above -- this screen sets its own via its
+                    own <Stack.Screen options={{title}}/> at render time, once
+                    the real scanned product it's showing has actually loaded.
+                    2026-08-16, reached from food-items.tsx's own
+                    itemType==='scannedProduct' case. */}
+                <Stack.Screen
+                  name="food-product-detail"
+                  options={{
+                    headerShown: true,
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                {/* The Fermentation Tracker, 2026-08-20 -- reached from
+                    food-items.tsx's own "Saved Fermentations" list (a new
+                    "Track" action button) or opened bare. Sets its own fixed
+                    title at render (see app/fermentation-tracker.tsx), same
+                    themed-header treatment as every other Stack screen. */}
+                <Stack.Screen
+                  name="fermentation-tracker"
+                  options={{
+                    headerShown: true,
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+              </Stack>
+              </KeyboardLiftView>
+              {/* Puts the content back down when the keyboard closes.
+                  A leaf that renders null, so subscribing it to the active
+                  field costs nothing; subscribing the provider itself would
+                  re-render every mounted screen on every focus change. */}
+              <KeyboardLiftReleaser />
+            </KeyboardLiftProvider>
             {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                 comment: the keyboard must always paint on top of an open
                 dropdown's backdrop/menu, never the other way around. */}
