@@ -21,12 +21,17 @@ import { computeNextLift, LIFT_DURATION_MS } from '../lib/keyboardLift';
 // reserve extra scroll room so a covered field CAN be scrolled to; nothing
 // anywhere moved one into view.
 //
-// THE KEYBOARD'S POSITION IS KNOWN; THE FIELD'S IS NOT. AppKeyboard has a fixed
-// height and sits at a fixed offset from the bottom, so its top edge is the
-// same line every time. A field is wherever the screen and the scroll position
+// THE KEYBOARD IS ONE FIXED LINE; A FIELD COULD BE ANYWHERE. AppKeyboard has a
+// fixed height at a fixed offset from the bottom, so its top edge is in the
+// same place every time. A field is wherever the screen and the scroll position
 // put it, so it is looked at once, on focus, and the content lifts by the
 // difference. A field already above the line reports no overlap and nothing
 // moves.
+//
+// BOTH NUMBERS ARE MEASURED THE SAME WAY, which the first attempt got wrong.
+// The keyboard's line is fixed, but "fixed" is not the same as "safe to work
+// out from the window's height": see keyboardTopRef below for the on-device
+// report that settled it.
 //
 // Only fill fields are affected, and by construction rather than by a rule
 // anyone has to remember: Dropdown, PopoverSelect and InlineSearchSelectList
@@ -40,10 +45,18 @@ import { computeNextLift, LIFT_DURATION_MS } from '../lib/keyboardLift';
 type KeyboardLift = {
   liftFieldIntoView: (fieldBottomY: number) => void;
   releaseLift: () => void;
+  // Called by AppKeyboard with its own top edge, measured the same way a field
+  // measures itself. See keyboardTopRef below.
+  reportKeyboardTop: (topY: number) => void;
   lift: SharedValue<number> | null;
 };
 
-const NO_LIFT: KeyboardLift = { liftFieldIntoView: () => {}, releaseLift: () => {}, lift: null };
+const NO_LIFT: KeyboardLift = {
+  liftFieldIntoView: () => {},
+  releaseLift: () => {},
+  reportKeyboardTop: () => {},
+  lift: null,
+};
 
 // One context, holding an object that is stable for the provider's whole
 // lifetime, so consuming it can never cause a re-render.
@@ -57,15 +70,30 @@ export function KeyboardLiftProvider({ children }: { children: ReactNode }) {
   const { height: windowHeight } = useWindowDimensions();
   const footerBandHeight = useFooterBandHeight();
 
-  // The keyboard's top edge. Derived from the same two values AppKeyboard
-  // positions itself with (`bottom: footerBandHeight`, `height:
-  // KEYBOARD_HEIGHT`), so it cannot drift from where the keyboard is.
-  const keyboardTopY = windowHeight - footerBandHeight - KEYBOARD_HEIGHT;
+  // WHERE THE KEYBOARD IS, MEASURED RATHER THAN WORKED OUT.
+  //
+  // 2026-09-09, reported on-device after the first attempt shipped: a focused
+  // field moved barely at all and the keys still covered half of it. That
+  // version derived this line from the window's height, which compares a
+  // useWindowDimensions number against a field position from measureInWindow,
+  // and on Android those two do not necessarily start counting from the same
+  // place. The gap is fixed, so every lift fell short by the same amount.
+  //
+  // AppKeyboard now measures its own top edge and reports it here, the same way
+  // a field measures itself, so any such offset cancels out instead of being
+  // reasoned about. The derived value below is only the fallback for a focus
+  // that somehow happens before the keyboard has ever laid out.
+  const keyboardTopRef = useRef<number | null>(null);
+  const derivedKeyboardTopY = windowHeight - footerBandHeight - KEYBOARD_HEIGHT;
 
   const value = useMemo<KeyboardLift>(() => {
     return {
       lift,
+      reportKeyboardTop(topY: number) {
+        keyboardTopRef.current = topY;
+      },
       liftFieldIntoView(fieldBottomY: number) {
+        const keyboardTopY = keyboardTopRef.current ?? derivedKeyboardTopY;
         const next = computeNextLift({ currentLift: liftRef.current, fieldBottomY, keyboardTopY });
         if (next === null) return; // already right: start no animation at all
         liftRef.current = next;
@@ -77,11 +105,11 @@ export function KeyboardLiftProvider({ children }: { children: ReactNode }) {
         lift.value = withTiming(0, { duration: LIFT_DURATION_MS });
       },
     };
-    // `lift` and `liftRef` are stable for this provider's lifetime, so
-    // keyboardTopY is the one real dependency, and it only changes on a
-    // rotation or a safe-area change, never while typing.
+    // `lift`, `liftRef` and `keyboardTopRef` are stable for this provider's
+    // lifetime, so the fallback is the one real dependency, and it only changes
+    // on a rotation or a safe-area change, never while typing.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [keyboardTopY]);
+  }, [derivedKeyboardTopY]);
 
   return <KeyboardLiftContext.Provider value={value}>{children}</KeyboardLiftContext.Provider>;
 }
@@ -93,8 +121,9 @@ export function useKeyboardLift(): KeyboardLift {
   return useContext(KeyboardLiftContext) ?? NO_LIFT;
 }
 
-// Wraps the content that moves. AppKeyboard and the version label are siblings
-// outside it, so the keyboard stays put while the content slides behind it.
+// Wraps the content that moves. AppKeyboard sits inside the PROVIDER (it has to
+// report where its top edge is) but outside this VIEW, so it stays exactly
+// where it is while the content slides behind it.
 export function KeyboardLiftView({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   const { lift } = useKeyboardLift();
   const animatedStyle = useAnimatedStyle(() => ({

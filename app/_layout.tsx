@@ -655,13 +655,18 @@ export default function RootLayout() {
                   field costs nothing; subscribing the provider itself would
                   re-render every mounted screen on every focus change. */}
               <KeyboardLiftReleaser />
+              {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
+                  comment: the keyboard must always paint on top of an open
+                  dropdown's backdrop/menu, never the other way around. */}
+              <OverlayRoot />
+              {/* Inside the provider but OUTSIDE the lifting view: AppKeyboard
+                  reports where its own top edge is (2026-09-09, so the lift is
+                  measured against the real keyboard rather than worked out from
+                  the window height), while staying exactly where it is when the
+                  content slides behind it. */}
+              <AppKeyboard />
+              <VersionLabel />
             </KeyboardLiftProvider>
-            {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
-                comment: the keyboard must always paint on top of an open
-                dropdown's backdrop/menu, never the other way around. */}
-            <OverlayRoot />
-            <AppKeyboard />
-            <VersionLabel />
           </OverlayProvider>
         </ActiveInputProvider>
         </GestureHandlerRootView>

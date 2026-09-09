@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { usePathname } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppState, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useActiveInputControls, useActiveInputValue } from './ActiveInputContext';
+import { useKeyboardLift } from './KeyboardLift';
 import { AppTextInput } from './AppTextInput';
 import { VoiceInputButton } from './VoiceInputButton';
 import { colors } from '../constants/colors';
@@ -74,6 +75,8 @@ export function AppKeyboard() {
   const { activeField, searchRequest } = useActiveInputValue();
   const { forceClear, focusNextField } = useActiveInputControls();
   const footerBandHeight = useFooterBandHeight();
+  const { reportKeyboardTop } = useKeyboardLift();
+  const clipRef = useRef<View>(null);
   const pathname = usePathname();
   const [mode, setMode] = useState<Mode>('letters');
   const [shiftActive, setShiftActive] = useState(false);
@@ -348,6 +351,8 @@ export function AppKeyboard() {
           <View style={styles.searchBoxRow}>
             <AppTextInput
               autoFocus
+              // Lives above the keys, so nothing can ever cover it.
+              disableKeyboardLift
               value={searchRequest.value}
               onChangeText={searchRequest.onChangeText}
               placeholder={searchRequest.placeholder}
@@ -379,7 +384,29 @@ export function AppKeyboard() {
     // content below can slide down within it, but is clipped the instant
     // it would cross this box's own bottom edge, which sits exactly at
     // the footer's own top edge.
-    <View style={[styles.clipWrap, { bottom: footerBandHeight, height: KEYBOARD_HEIGHT }]} pointerEvents={visible ? 'auto' : 'none'}>
+    <View
+      style={[styles.clipWrap, { bottom: footerBandHeight, height: KEYBOARD_HEIGHT }]}
+      pointerEvents={visible ? 'auto' : 'none'}
+      // WHERE THE TOP OF THE KEYBOARD ACTUALLY IS, 2026-09-09.
+      //
+      // Reported on-device: a focused field moved barely at all and the keys
+      // still covered half of it. KeyboardLift was working this position out
+      // from the window's height, which means comparing a useWindowDimensions
+      // number against a field measured with measureInWindow, and on Android
+      // those two do not necessarily start counting from the same place. The
+      // difference is a fixed amount, so every lift fell short by the same
+      // amount.
+      //
+      // This box never moves (only its CONTENTS slide within it, see risenStyle
+      // below), so measuring it once puts the keyboard and every field in one
+      // coordinate space with nothing inferred.
+      onLayout={() => {
+        clipRef.current?.measureInWindow((_x, y) => {
+          if (typeof y === 'number') reportKeyboardTop(y);
+        });
+      }}
+      ref={clipRef}
+    >
       <Animated.View style={[styles.container, risenStyle]}>
         {searchRow}
         {mainKeys}

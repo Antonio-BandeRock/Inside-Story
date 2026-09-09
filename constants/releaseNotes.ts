@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.35.3',
+    date: '2026-09-09',
+    changes: [
+      'Corrected the keyboard fix from the last update. The screen was moving only a fraction of what it needed to, so the keyboard still covered the field. It now measures where the keyboard actually is rather than working it out, so a field lands clear of the keys with a small gap above them.',
+    ],
+  },
+  {
     version: '1.0.35.2',
     date: '2026-09-09',
     changes: [

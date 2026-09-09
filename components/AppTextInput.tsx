@@ -14,6 +14,13 @@ import { useKeyboardLift } from './KeyboardLift';
 // both keep working natively), which is what lets AppKeyboard.tsx be the only
 // thing the person ever types on.
 export type AppTextInputProps = TextInputProps & {
+  /**
+   * Opts this field out of moving the screen when it is focused. Set by
+   * AppKeyboard's own search box, which sits inside the keyboard above the
+   * keys and so can never be covered by it. Without this it would ask the app
+   * to shove itself up by the height of the keyboard for no reason.
+   */
+  disableKeyboardLift?: boolean;
   // Starts with the whole value selected/highlighted (e.g. Insights' own
   // Portion field, which defaults to "100" and should read as ready to be
   // typed over, not appended to) rather than a plain cursor parked at the
@@ -54,6 +61,7 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
     infoColor,
     infoLabel,
     autoFocus,
+    disableKeyboardLift,
     ...rest
   },
   forwardedRef,
@@ -118,6 +126,7 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
   const { liftFieldIntoView } = useKeyboardLift();
 
   const measureAndLift = useCallback(() => {
+    if (disableKeyboardLift) return;
     const node = innerRef.current;
     // Checked rather than assumed: measureInWindow is on every native
     // TextInput, but this component can also be handed a stand-in.
@@ -126,7 +135,7 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
       if (typeof y !== 'number' || typeof height !== 'number') return;
       liftFieldIntoView(y + height);
     });
-  }, [liftFieldIntoView]);
+  }, [liftFieldIntoView, disableKeyboardLift]);
 
   // Re-registers whenever this field's own IDENTITY or callbacks actually
   // change while focused, so AppKeyboard.tsx always has a way to reach the
