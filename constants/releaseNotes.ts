@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.35.1',
+    date: '2026-09-09',
+    changes: [
+      'Backup now offers your shared folder first. Once a folder is set up, Back Up to OneDrive is the button at the top of Backup & Restore, and the older route that hands the file to your phone and asks where to put it is below it as Save a Copy Somewhere Else. Restore is ordered the same way.',
+    ],
+  },
+  {
     version: '1.0.34.62',
     date: '2026-09-07',
     changes: [

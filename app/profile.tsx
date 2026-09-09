@@ -3589,14 +3589,53 @@ export default function ProfileScreen() {
         {renderCardHeader('backup', 'Backup & Restore')}
         {!collapsedSections.has('backup') ? (
           <View style={styles.cardBody}>
+            {/* WHICHEVER ROUTE ACTUALLY KNOWS WHERE THE FILE IS GOING LEADS.
+
+                Reported directly, 2026-09-09: "The backup folder is known to
+                it, so why is it asking me to go to the place where I want to
+                back up to?" Correct, and the fault was ordering, not the
+                backup itself. Export a Backup sat first, directly under this
+                text, and it always hands the file to the OS share sheet,
+                which is the thing that asks where to put it. Back Up to
+                OneDrive, the one that writes straight to the folder already
+                chosen, sat further down inside a block headed "Where backups
+                are kept", which reads as configuration rather than an action.
+
+                So the primary button now follows what the app actually knows:
+                with a folder set up it backs up there, and the share sheet
+                demotes to the fallback it always was. With no folder set up
+                the share sheet IS the only route, and leads, unchanged.
+
+                Both keep the one shared button style this app settled on
+                2026-08-24. Position is the signal here, not a second visual
+                tier. */}
             <Text style={styles.helpText}>
-              Export everything on this device (meals, schedule, conditions, trials, connections, and more) into
-              one file you can save wherever you like (a cloud drive, an email to yourself). Doesn&apos;t
-              include the actual photo files a saved dish or recipe may reference, only their stored references.
+              {backupFolder
+                ? 'Everything on this device (meals, schedule, conditions, trials, connections, and more) goes into one password-protected file in your shared folder, so it survives this phone being lost or replaced. It carries the references to your photos, not the photo files themselves.'
+                : "Export everything on this device (meals, schedule, conditions, trials, connections, and more) into one file you can save wherever you like (a cloud drive, an email to yourself). Doesn't include the actual photo files a saved dish or recipe may reference, only their stored references."}
             </Text>
-            <TouchableOpacity style={styles.checkinButton} disabled={backupBusy} onPress={handleExportBackup}>
-              <Text style={styles.checkinButtonText}>{backupBusy ? 'Working…' : 'Export a Backup'}</Text>
-            </TouchableOpacity>
+            {backupFolder ? (
+              <>
+                <TouchableOpacity
+                  style={styles.checkinButton}
+                  disabled={backupBusy}
+                  onPress={handleBackUpToOneDrive}
+                >
+                  <Text style={styles.checkinButtonText}>
+                    {backupBusy ? 'Working…' : 'Back Up to OneDrive'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.checkinButton} disabled={backupBusy} onPress={handleExportBackup}>
+                  <Text style={styles.checkinButtonText}>
+                    {backupBusy ? 'Working…' : 'Save a Copy Somewhere Else'}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <TouchableOpacity style={styles.checkinButton} disabled={backupBusy} onPress={handleExportBackup}>
+                <Text style={styles.checkinButtonText}>{backupBusy ? 'Working…' : 'Export a Backup'}</Text>
+              </TouchableOpacity>
+            )}
 
             {/* WHERE BACKUPS ARE KEPT, REPORTED THE SAME WAY THE SHARED
                 FOLDER IS.
@@ -3637,17 +3676,6 @@ export default function ProfileScreen() {
                   {backupFolder ? 'Change the Shared Folder' : 'Set Up the Shared Folder'}
                 </Text>
               </TouchableOpacity>
-              {backupFolder ? (
-                <TouchableOpacity
-                  style={styles.checkinButton}
-                  disabled={backupBusy}
-                  onPress={handleBackUpToOneDrive}
-                >
-                  <Text style={styles.checkinButtonText}>
-                    {backupBusy ? 'Working…' : 'Back Up to OneDrive'}
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
             </View>
             {/* A durable "document and display the file path" record, per
                 direct feedback: always reflects what's genuinely still
@@ -3674,12 +3702,9 @@ export default function ProfileScreen() {
               Restoring replaces everything currently on this device with what&apos;s in the backup. This can&apos;t
               be undone.
             </Text>
-            <TouchableOpacity style={styles.dangerButton} disabled={backupBusy} onPress={handleRestoreMostRecent}>
-              <Text style={styles.dangerButtonText}>{backupBusy ? 'Working…' : 'Restore Most Recent Backup'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.dangerButton} disabled={backupBusy} onPress={handleRestoreFromFile}>
-              <Text style={styles.dangerButtonText}>{backupBusy ? 'Working…' : 'Restore from a File…'}</Text>
-            </TouchableOpacity>
+            {/* Restore follows the same rule as backup above: the route that
+                already knows where to look leads, and the two that ask
+                somebody to go and find a file follow it. */}
             {backupFolder ? (
               <TouchableOpacity
                 style={styles.dangerButton}
@@ -3691,6 +3716,12 @@ export default function ProfileScreen() {
                 </Text>
               </TouchableOpacity>
             ) : null}
+            <TouchableOpacity style={styles.dangerButton} disabled={backupBusy} onPress={handleRestoreMostRecent}>
+              <Text style={styles.dangerButtonText}>{backupBusy ? 'Working…' : 'Restore Most Recent Backup'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.dangerButton} disabled={backupBusy} onPress={handleRestoreFromFile}>
+              <Text style={styles.dangerButtonText}>{backupBusy ? 'Working…' : 'Restore from a File…'}</Text>
+            </TouchableOpacity>
           </View>
         ) : null}
       </View>
