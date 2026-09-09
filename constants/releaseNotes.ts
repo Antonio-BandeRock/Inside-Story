@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.35.5',
+    date: '2026-09-09',
+    changes: [
+      'A list of choices no longer opens in the wrong place. When the keyboard goes away the page settles back down, and the list was being positioned before that happened, so it ended up floating away from the field it belongs to. It now opens where the field is about to be.',
+    ],
+  },
+  {
     version: '1.0.35.4',
     date: '2026-09-09',
     changes: [

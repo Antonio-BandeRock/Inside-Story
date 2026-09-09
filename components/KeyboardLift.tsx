@@ -48,6 +48,12 @@ type KeyboardLift = {
   // Called by AppKeyboard with its own top edge, measured the same way a field
   // measures itself. See keyboardTopRef below.
   reportKeyboardTop: (topY: number) => void;
+  // How far the content is lifted right now. A popover anchors itself to a
+  // measured field position, and that measurement lands while the content is
+  // still lifted even though the lift is about to be released, so a popover
+  // has to subtract this or it opens where the field WAS. See
+  // PopoverSelect.openMenu.
+  getLift: () => number;
   lift: SharedValue<number> | null;
 };
 
@@ -55,6 +61,7 @@ const NO_LIFT: KeyboardLift = {
   liftFieldIntoView: () => {},
   releaseLift: () => {},
   reportKeyboardTop: () => {},
+  getLift: () => 0,
   lift: null,
 };
 
@@ -89,6 +96,9 @@ export function KeyboardLiftProvider({ children }: { children: ReactNode }) {
   const value = useMemo<KeyboardLift>(() => {
     return {
       lift,
+      getLift() {
+        return liftRef.current;
+      },
       reportKeyboardTop(topY: number) {
         keyboardTopRef.current = topY;
       },

@@ -5,6 +5,7 @@ import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { BUTTON_SHADOW, colors, popoverBackground } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { useActiveInputControls } from './ActiveInputContext';
+import { useKeyboardLift } from './KeyboardLift';
 import type { DropdownOption } from './Dropdown';
 import { useOverlay } from './OverlayContext';
 
@@ -278,6 +279,7 @@ export const PopoverSelect = memo(function PopoverSelect({
   // needs one.
   const overlayOwnerRef = useRef({});
   const { setSearchRequest, forceClear } = useActiveInputControls();
+  const { getLift } = useKeyboardLift();
   const insets = useSafeAreaInsets();
 
   const normalizedOptions = options.map(normalizeOption);
@@ -320,7 +322,21 @@ export const PopoverSelect = memo(function PopoverSelect({
     // search box lives in the keyboard's search row.
     if (!searchable) Keyboard.dismiss();
     fieldRef.current?.measureInWindow((x, y, fieldWidth, fieldHeight) => {
-      setAnchor({ x, y, width: fieldWidth, height: fieldHeight });
+      // ANCHORED TO WHERE THE FIELD IS ABOUT TO BE, NOT WHERE IT IS.
+      //
+      // 2026-09-09, reported on-device: the list opened, the keyboard left,
+      // "and then the field I just selected drops down, too, sort of orphaning
+      // the scrollable selection field." Exactly right. Dismissing the keyboard
+      // releases the lift that was keeping a typed-in field visible, so the
+      // content slides back down -- but this measurement happens first, while
+      // it is still up, so the list was pinned to the old position and the
+      // field slid out from under it.
+      //
+      // Subtracting the lift that is on its way out puts the list where the
+      // field will actually settle. Zero when nothing was lifted, so an
+      // ordinary picker is unaffected.
+      const settledY = y - getLift();
+      setAnchor({ x, y: settledY, width: fieldWidth, height: fieldHeight });
       setIsOpen(true);
     });
   }

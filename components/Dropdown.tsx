@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { textShadow } from '../constants/typography';
 import { useActiveInputControls } from './ActiveInputContext';
+import { useKeyboardLift } from './KeyboardLift';
 import { useOverlay } from './OverlayContext';
 
 // The open menu's top edge sits 3px below the field's own bottom edge --
@@ -128,6 +129,7 @@ export const Dropdown = forwardRef<DropdownHandle, DropdownProps>(function Dropd
   // needs one.
   const overlayOwnerRef = useRef({});
   const { setSearchRequest, forceClear } = useActiveInputControls();
+  const { getLift } = useKeyboardLift();
   // Default, always-on filtering -- a "searchable" dropdown that never
   // actually narrowed its own list was a real gap (nothing calling
   // onSearchChange means nothing filters unless this exists). Simple
@@ -156,18 +158,12 @@ export const Dropdown = forwardRef<DropdownHandle, DropdownProps>(function Dropd
       // field's parent, not the screen, and this menu is positioned in
       // window-absolute coordinates (see OverlayContext.tsx).
       const resolvedHeight = fieldHeightRef.current ?? height;
-      // TEMPORARY diagnostic logging -- remove once the menu-position bug
-      // is actually confirmed fixed. Real screenshots kept showing the list
-      // covering the field no matter what was changed here, even after a
-      // fully fresh (cache-cleared) reload -- logging the actual numbers
-      // being computed, rather than guessing again from a screenshot.
-      console.log('[Dropdown.openMenu]', {
-        placeholder,
-        measureInWindow: { x, y, width, height },
-        fieldHeightRef: fieldHeightRef.current,
-        resolvedHeight,
-      });
-      setAnchor({ x, y, width, height: resolvedHeight });
+      // Anchored to where the field is about to be, not where it is: see
+      // PopoverSelect.openMenu for the reported case this fixes. Dismissing
+      // the keyboard releases the lift, so the content is about to slide back
+      // down, and this measurement happens before it does.
+      const settledY = y - getLift();
+      setAnchor({ x, y: settledY, width, height: resolvedHeight });
       setIsOpen(true);
       onOpen?.();
     });
