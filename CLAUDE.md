@@ -25,6 +25,18 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-09, 1.0.35.1): backup was asking where to put a file it already had a folder for.** Reported directly: "The backup folder is known to it, so why is it asking me to go to the place where I want to back up to?"
+
+**The backup worked. The ordering did not, and that is the same fault twice named in this file already.** Export a Backup sat first in the card, directly under its own explanatory text, and that route always hands the file to the OS share sheet, which is the thing asking where to put it. **Back Up to OneDrive, the one that writes straight to the chosen folder, sat further down inside a block headed "Where backups are kept"**, which reads as configuration rather than an action. Nothing was broken; the working route was simply not the one in front of you.
+
+**The primary button now follows what the app actually knows.** With a folder set up it backs up there, and the share sheet demotes to "Save a Copy Somewhere Else". With no folder set up the share sheet genuinely is the only route, so it still leads, unchanged and honestly worded. **Position carries the signal rather than a second button style**, since this app settled on one on 2026-08-24.
+
+**The duplicate went, rather than both being kept.** "Back Up to OneDrive" existed inside the folder block as well; there is one now, so two copies cannot drift. The card's opening sentence also stops saying "save wherever you like" when the app knows exactly where.
+
+**Restore had the identical shape and got the identical fix:** "Restore Newest from OneDrive" was last, behind two routes that ask somebody to go and find a file. It leads now. Fixing one and not the other would have left the same card arguing with itself.
+
+`tsc` clean, `eslint` at the pre-existing baseline of 5 on `profile.tsx` (all at lines 2182-2949, well outside everything this touched), bare-text audit 0 with its named exception, all four guards clean, all twenty suites passing. **Published to `preview` at Runtime version `621e8bfc...`**, byte-identical to what is installed on both phones, and all four new strings confirmed present in the exported bundle. **Not yet confirmed on-device**, and the check is the reported one: open Backup & Restore and confirm the first button now writes to your folder without asking.
+
 **Most recent (2026-09-07, 1.0.34.62): the standing checklist run in full, and the in-app pitch found a month stale.** Asked directly: "I think it may be time to update git, notion, app guide, etc."
 
 **Git and Notion were already current from the two entries below. The App Guide and the Walkthrough were eight days behind**, and eight days here covered the Life tab and its five areas, the tab reorder, Home's own corner menu, quick-log, Hands-On Therapies, three new Trends lenses, the grocery list, partner links, and the whole OneDrive arc. Both rebuilt against real counts pulled from the code rather than remembered: 10 tabs, 411 curated recipes, 2,129 Digest entries, 13 Schedules lenses, 9 Trends lenses.
