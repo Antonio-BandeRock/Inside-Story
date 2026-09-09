@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { Dimensions, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Keyboard, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { textShadow } from '../constants/typography';
@@ -141,6 +141,11 @@ export const Dropdown = forwardRef<DropdownHandle, DropdownProps>(function Dropd
       : options;
 
   function openMenu() {
+    // Opening a picker puts the keyboard away, 2026-09-09: tapping one blurs
+    // nothing on its own, so a text field kept focus and AppKeyboard stayed up
+    // over the list of options. Skipped for a searchable picker, whose own
+    // search box lives in the keyboard's search row.
+    if (!searchable) Keyboard.dismiss();
     fieldRef.current?.measureInWindow((x, y, width, height) => {
       // Prefers onLayout's own fieldHeightRef over this callback's own
       // `height` -- measureInWindow's height came back small/stale exactly

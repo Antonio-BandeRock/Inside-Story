@@ -123,10 +123,17 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
   // knows until it is looked at. So this measures itself and reports one
   // number, and KeyboardLift.tsx does the rest. One change here rather than on
   // every screen that has a field.
-  const { liftFieldIntoView } = useKeyboardLift();
+  const { liftFieldIntoView, releaseLift } = useKeyboardLift();
 
   const measureAndLift = useCallback(() => {
-    if (disableKeyboardLift) return;
+    // A field that opts out is AppKeyboard's own search box taking over
+    // (a searchable picker was opened). Anything lifted for the field
+    // being typed into before it should come back down, since what is
+    // on screen now is a list of options, not that field.
+    if (disableKeyboardLift) {
+      releaseLift();
+      return;
+    }
     const node = innerRef.current;
     // Checked rather than assumed: measureInWindow is on every native
     // TextInput, but this component can also be handed a stand-in.
@@ -135,7 +142,7 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
       if (typeof y !== 'number' || typeof height !== 'number') return;
       liftFieldIntoView(y + height);
     });
-  }, [liftFieldIntoView, disableKeyboardLift]);
+  }, [liftFieldIntoView, releaseLift, disableKeyboardLift]);
 
   // Re-registers whenever this field's own IDENTITY or callbacks actually
   // change while focused, so AppKeyboard.tsx always has a way to reach the

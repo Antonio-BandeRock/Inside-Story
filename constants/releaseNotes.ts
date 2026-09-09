@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.35.4',
+    date: '2026-09-09',
+    changes: [
+      'The keyboard now goes away when you tap something you cannot type into, like a picker or a list of choices. It used to stay up over the list, because tapping one of those never told the text field to let go.',
+    ],
+  },
+  {
     version: '1.0.35.3',
     date: '2026-09-09',
     changes: [

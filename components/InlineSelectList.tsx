@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View, type ViewToken } from 'react-native';
+import { FlatList, Keyboard, StyleSheet, Text, TouchableOpacity, View, type ViewToken } from 'react-native';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 
@@ -273,7 +273,14 @@ export function InlineSelectList({
                   isLastOfGroup ? [styles.itemGroupEnd, { borderBottomColor: tabColor }] : null,
                   isSelected ? { backgroundColor: tabColor } : null,
                 ]}
-                onPress={() => onChange(item.value)}
+                onPress={() => {
+                  // Picking from a list is not typing: see PopoverSelect's own
+                  // openMenu for the reasoning. This list has no search box of
+                  // its own, so there is nothing the keyboard is still needed
+                  // for.
+                  Keyboard.dismiss();
+                  onChange(item.value);
+                }}
               >
                 <Text style={[styles.itemText, isSelected ? styles.itemTextSelected : null]} numberOfLines={1}>
                   {item.label}

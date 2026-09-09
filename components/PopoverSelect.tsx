@@ -1,5 +1,5 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Dimensions, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Keyboard, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { BUTTON_SHADOW, colors, popoverBackground } from '../constants/colors';
@@ -314,6 +314,11 @@ export const PopoverSelect = memo(function PopoverSelect({
   }
 
   function openMenu() {
+    // Opening a picker puts the keyboard away, 2026-09-09: tapping one blurs
+    // nothing on its own, so a text field kept focus and AppKeyboard stayed up
+    // over the list of options. Skipped for a searchable picker, whose own
+    // search box lives in the keyboard's search row.
+    if (!searchable) Keyboard.dismiss();
     fieldRef.current?.measureInWindow((x, y, fieldWidth, fieldHeight) => {
       setAnchor({ x, y, width: fieldWidth, height: fieldHeight });
       setIsOpen(true);
