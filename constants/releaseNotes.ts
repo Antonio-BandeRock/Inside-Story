@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.35.2',
+    date: '2026-09-09',
+    changes: [
+      'The keyboard no longer covers the field you are typing into. Tapping a field that would sit behind the keyboard now slides the screen up just far enough to keep it visible, and back down when the keyboard closes. A field already above the keyboard does not move at all.',
+    ],
+  },
+  {
     version: '1.0.35.1',
     date: '2026-09-09',
     changes: [
