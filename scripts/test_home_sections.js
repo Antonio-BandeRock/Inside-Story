@@ -60,7 +60,7 @@ const interleaved = [
   'todaysCheckin',
   'logAgain',
   'yourDay',
-  'statTiles',
+  'worthALook',
   'scanProduct',
   'howYoureFeeling',
   'logFlare',
@@ -78,7 +78,7 @@ check('interleaved order is regrouped', groupHomeSectionKeysByTab(interleaved), 
   'logAgain',
   'scanProduct',
   'yourDay',
-  'statTiles',
+  'worthALook',
   'fuelGauges',
   'weekTrend',
   'groceryList',
@@ -108,8 +108,8 @@ check(
 // the group lands where its first member is.
 check(
   'group lands at its first member',
-  groupHomeSectionKeysByTab(['fuelGauges', 'yourDay', 'statTiles', 'groceryList']),
-  ['fuelGauges', 'statTiles', 'yourDay', 'groceryList'],
+  groupHomeSectionKeysByTab(['fuelGauges', 'yourDay', 'worthALook', 'mealsLoggedToday']),
+  ['fuelGauges', 'worthALook', 'yourDay', 'mealsLoggedToday'],
 );
 
 // A section with no tab is its own group and stays put, even between two
@@ -121,7 +121,7 @@ check(
 );
 
 // Nothing is dropped or invented.
-const shuffled = ['digestCards', 'weekTrend', 'fuelGauges', 'statTiles', 'howYoureFeeling', 'todaysCheckin', 'symptomCheckinReminder', 'yourDay', 'groceryList', 'logAgain', 'scanProduct', 'logFlare', 'logBloodPressure', 'logExercise', 'sharedFolderSetup'];
+const shuffled = ['digestCards', 'weekTrend', 'fuelGauges', 'worthALook', 'mealsLoggedToday', 'howYoureFeeling', 'todaysCheckin', 'symptomCheckinReminder', 'yourDay', 'groceryList', 'logAgain', 'scanProduct', 'logFlare', 'logBloodPressure', 'logExercise', 'sharedFolderSetup'];
 check('length is preserved', groupHomeSectionKeysByTab(shuffled).length, shuffled.length);
 check('same members', [...groupHomeSectionKeysByTab(shuffled)].sort(), [...shuffled].sort());
 check('empty stays empty', groupHomeSectionKeysByTab([]), []);

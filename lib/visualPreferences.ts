@@ -238,7 +238,11 @@ export type HomeSectionKey =
   // no shortcut at all.
   | 'groceryList'
   | 'yourDay'
-  | 'statTiles'
+  // 2026-09-12: the two stat tiles ("Meals logged today", "Worth a look")
+  // split into their own rows, each with its own tab, direct request:
+  // "Separate the Meals & Worth a Look the same way."
+  | 'mealsLoggedToday'
+  | 'worthALook'
   // 2026-09-12, the old Quick Actions row split into its own entities,
   // direct correction: "All things on the Home Screen are supposed to be
   // Quick Actions. It makes no sense to suggest that some are Quick
@@ -272,7 +276,8 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'logFlare',
   'logBloodPressure',
   'logExercise',
-  'statTiles',
+  'mealsLoggedToday',
+  'worthALook',
   'fuelGauges',
   'weekTrend',
   // Life sits before The Digest here even though TabHub runs the other way
@@ -305,7 +310,8 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   logAgain: 'Log a Meal',
   groceryList: 'Grocery List',
   yourDay: 'Your Day',
-  statTiles: 'Meals & Worth a Look',
+  mealsLoggedToday: 'Meals Logged Today',
+  worthALook: 'Worth a Look',
   scanProduct: 'Scan a Product',
   logFlare: 'Log a Flare',
   logBloodPressure: 'Log Blood Pressure',

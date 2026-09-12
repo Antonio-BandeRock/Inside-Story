@@ -51,7 +51,7 @@ import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/che
 import { getMoonPhase, getUpcomingSeasonalMarker } from '../../lib/celestialEvents';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
 import { isTestDataPresent } from '../../lib/testData';
-import { ALL_DIGEST_ENTRIES, isProblemFoodEntry, type DigestCategoryKey } from '../../lib/digest';
+import { ALL_DIGEST_ENTRIES, DIGEST_CATEGORY_META, isProblemFoodEntry, type DigestCategoryKey } from '../../lib/digest';
 import { markHomeDataReady } from '../../lib/homeReadySignal';
 import { deleteMealPhotoFile, pickAndSaveMealPhoto } from '../../lib/mealPhotos';
 import {
@@ -506,26 +506,6 @@ function tabColorFor(tabPath: Href): string {
   return TAB_ROUTES.find((route) => route.path === tabPath)?.color ?? colors.border;
 }
 
-// Small (typography.eyebrow -- the same "structural label, not content"
-// tier LensHub/TabHub's own popup headers use) and pinned to the box's own
-// top-left corner specifically so it reads as a label ON the box, not a
-// second competing headline -- the box's own real content (a number, the
-// day's arc, the rings) stays the visually dominant thing. Replaces the
-// old pattern of a separate sectionHeadingChip floating above its own
-// content card: every box below is now the single, self-contained unit
-// the "Good evening" card already was, with this folded inside it instead
-// of living as a second box above.
-function CardLabel({ tabPath, text }: { tabPath: Href; text: string }) {
-  const route = TAB_ROUTES.find((r) => r.path === tabPath);
-  const color = route?.color ?? colors.primary;
-  return (
-    <View style={styles.cardLabelRow}>
-      {route ? <Ionicons name={route.icon} size={11} color={color} style={textShadow} /> : null}
-      <Text style={[styles.cardLabelText, textShadow, { color }]}>{text}</Text>
-    </View>
-  );
-}
-
 // What each Home section is a window INTO, 2026-09-05.
 //
 // Home's corner used to hold a shortcut to The Digest, which made the corner
@@ -595,7 +575,13 @@ const HOME_LENS_DESTINATIONS: Partial<
   logBloodPressure: { label: 'Log Blood Pressure', icon: 'heart-circle', color: colors.tabBioCompass, open: 'bp' },
   logExercise: { label: 'Log Exercise', icon: 'walk', color: colors.tabBioCompass, open: 'exercise' },
   // What it tells you.
-  statTiles: { label: 'Worth a Look', icon: 'sparkles', color: colors.tabInsights, href: '/insights' as Href },
+  mealsLoggedToday: {
+    label: 'Meals Logged Today',
+    icon: 'restaurant',
+    color: colors.tabSchedules,
+    href: { pathname: '/schedule', params: { openScheduleLens: 'todaysMeals' } } as Href,
+  },
+  worthALook: { label: 'Worth a Look', icon: 'sparkles', color: colors.tabInsights, href: '/insights' as Href },
   fuelGauges: { label: "Today's Fuel", icon: 'speedometer', color: colors.tabInsights, href: '/insights' as Href },
   weekTrend: { label: "This Week's Trend", icon: 'trending-up', color: colors.tabTrends, href: '/trends' as Href },
   // The wider world, and the one that stays here. The Grocery List moved
@@ -634,7 +620,8 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'logFlare',
   'logBloodPressure',
   'logExercise',
-  'statTiles',
+  'mealsLoggedToday',
+  'worthALook',
   'fuelGauges',
   'weekTrend',
   'groceryList',
@@ -664,6 +651,13 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
 // element. Rendered inline in the main return below (using that
 // component's own `router`), not a separate component -- every other
 // floating element on this screen is inlined the same way.
+
+// The Digest category a flip card came from, by key, for the header each
+// card carries (2026-09-12). Built once from the Digest's own list rather
+// than a second hand-typed set of names.
+const DIGEST_CATEGORY_LABEL_BY_KEY: Partial<Record<DigestCategoryKey, string>> = Object.fromEntries(
+  DIGEST_CATEGORY_META.map((meta) => [meta.key, meta.label]),
+);
 
 type UpNext = { item: ScheduleItemRecord; isPast: boolean };
 
@@ -1841,54 +1835,34 @@ export default function HomeScreen() {
     );
   }
 
-  // The two tiles keep their own small labels (CardLabel) because they
-  // point at two different tabs, one each, inside a band that carries
-  // Insights' colour for the pair.
-  function renderStatTiles() {
-    if (!isHomeSectionVisible(visualPrefs, 'statTiles')) return null;
-    return renderBand(
-      'statTiles',
-      'Meals & Worth a Look',
-      <View style={styles.statRow}>
-        {/* 2026-08-29, direct report: this "just goes to the My Foods
-            screen and the person doesn't know where to go from there."
-            Correct -- it navigated to /food, which rests on the Desktop
-            menu, so the count it had just shown led nowhere. The meals
-            behind this number are today's meals, so it opens Schedule's
-            Today's Meals lens: the whole day in time order, each one
-            openable to its ingredients and steps. It briefly pointed at
-            Past Meals instead, which was closer than the Desktop menu but
-            still the wrong question, since that lens is for correcting the
-            record rather than cooking from it. */}
-        <TouchableOpacity
-          style={[styles.statTile, { borderColor: tabColorFor('/schedule') }]}
-          onPress={() => router.navigate({ pathname: '/schedule', params: { openScheduleLens: 'todaysMeals' } })}
-          activeOpacity={0.75}
-        >
-          {/* Carries Schedule's colour and icon rather than Food's, since
-              CardLabel draws the destination tab's own icon, and a Food
-              icon on a tile that opens Schedule would be its own small lie. */}
-          <CardLabel tabPath="/schedule" text={mealsLoggedToday === 1 ? 'Meal logged today' : 'Meals logged today'} />
-          <Text style={[styles.statNumber, { color: tabColorFor('/schedule') }]}>{mealsLoggedToday}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.statTile, { borderColor: tabColorFor('/insights') }]}
-          onPress={handleWorthALookPress}
-          activeOpacity={0.75}
-        >
-          <CardLabel tabPath="/insights" text="Worth a look" />
-          <Text
-            style={[
-              styles.statNumber,
-              { color: tabColorFor('/insights') },
-              worthALookCount > 0 && styles.statNumberFlagged,
-            ]}
-          >
-            {mealsLoggedToday === 0 ? '—' : worthALookCount}
-          </Text>
-        </TouchableOpacity>
-      </View>,
+  // The two stat tiles, each its own row since 2026-09-12 ("Separate the
+  // Meals & Worth a Look the same way"). A count is the whole point of
+  // each, so it sits on the row itself rather than behind a fold.
+  //
+  // Meals logged today opens Schedule's Today's Meals lens: the whole day
+  // in time order, each meal openable to its ingredients and steps. It
+  // used to land on the My Foods menu, reported 2026-08-29 as leading
+  // nowhere. Schedules' colour and icon, since that is where it goes.
+  function renderMealsLoggedToday() {
+    if (!isHomeSectionVisible(visualPrefs, 'mealsLoggedToday')) return null;
+    return renderActionRow(
+      'mealsLoggedToday',
+      mealsLoggedToday === 1 ? 'Meal Logged Today' : 'Meals Logged Today',
+      () => router.navigate({ pathname: '/schedule', params: { openScheduleLens: 'todaysMeals' } }),
+      { value: String(mealsLoggedToday) },
     );
+  }
+
+  // A semantic warning colour on the count when there is something to
+  // flag, taking priority over the tab's own colour there; a dash rather
+  // than a zero before any meal is logged, since nothing has been checked
+  // yet. See handleWorthALookPress for where the tap goes.
+  function renderWorthALook() {
+    if (!isHomeSectionVisible(visualPrefs, 'worthALook')) return null;
+    return renderActionRow('worthALook', 'Worth a Look', handleWorthALookPress, {
+      value: mealsLoggedToday === 0 ? '—' : String(worthALookCount),
+      valueColor: worthALookCount > 0 ? colors.statusFlagged : undefined,
+    });
   }
 
   // The four rows that used to be the Quick Actions pill strip, 2026-09-12,
@@ -1901,7 +1875,12 @@ export default function HomeScreen() {
   // reasoning the old pill carried; the other three all write to Signals.
   // "Log a meal" is not here: it was a shortcut to Food's Desktop, and the
   // Log a Meal section above already does that job properly.
-  function renderActionRow(key: HomeSectionKey, title: string, onPress: () => void) {
+  function renderActionRow(
+    key: HomeSectionKey,
+    title: string,
+    onPress: () => void,
+    options?: { value?: string; valueColor?: string },
+  ) {
     if (!isHomeSectionVisible(visualPrefs, key)) return null;
     const tabPath = HOME_SECTION_TAB_PATH[key];
     const route = tabPath ? TAB_ROUTES.find((r) => r.path === tabPath) : undefined;
@@ -1912,11 +1891,13 @@ export default function HomeScreen() {
         icon={route?.icon ?? 'ellipse-outline'}
         color={route?.color ?? colors.primary}
         onPress={onPress}
+        value={options?.value}
+        valueColor={options?.valueColor}
       />
     );
   }
 
-  function renderScanProduct() {
+    function renderScanProduct() {
     return renderActionRow('scanProduct', 'Scan a Product', () => router.push('/scan-product'));
   }
 
@@ -2041,45 +2022,64 @@ export default function HomeScreen() {
     );
   }
 
-  // Explicitly requested, 2026-07-27: no header above this row ("A Few
-  // Things Worth Knowing" is gone) -- the ribbon icon/purple coloring on
-  // the cards themselves, plus the "More from The Digest" card at the
-  // end, already say what this is without a label spelling it out too.
-  // See digestFlipCardPool's own comment (top of file) for the bigger
-  // change this is part of, 2026-08-23: real Digest entries, scoped to
-  // Basic Health plus the person's own conditions, rather than a fixed
-  // hand-written array, reshuffled daily, with more revealed on tap
-  // rather than shown all at once.
+  // See digestFlipCardPool's own comment (top of file) for what these
+  // are, 2026-08-23: real Digest entries, scoped to Basic Health plus the
+  // person's own conditions, one card per group, each moving to a
+  // different entry from its group every 15 minutes.
   //
-  // 2026-09-12: deliberately NOT a band. "The flip cards at the bottom from
-  // Digest are the only thing that I think should remain the same as they
-  // are right now." The row keeps its own 20px inset (flipRow) so the cards
-  // sit exactly where they did; the page's own side padding is gone, so the
-  // negative margin that used to cancel it is gone with it.
+  // 2026-09-12, direct request: "apply the same formatting to the Digest
+  // cards, but not have them be collapsable. They should still scroll
+  // horizontally, but the section of the Digest where they exist should be
+  // seen as a header for each card. Each card should be capable of
+  // scrolling vertically if there is more info on the front or back than
+  // can be displayed." So: a static band (a header row, always open) in
+  // the Digest's colour holding the same horizontal row, and each card
+  // carrying its own Digest category as a header on both faces, with the
+  // band look and a vertical scroll on each face (see FlipCard.tsx).
+  //
+  // The band's text takes tabPurpleDigestText rather than tabPurpleDigest,
+  // the split constants/colors.ts settled on 2026-08-23: the fill token is
+  // right behind dark text on a button, the text token is right when the
+  // colour is the thing being read.
   function renderDigestCards() {
     if (!isHomeSectionVisible(visualPrefs, 'digestCards')) return null;
     return (
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.flipRow}>
-        {/* No "more from the Digest" card any more: the shelf is now every
-            group the person actually has, so there is nothing being held back
-            to reveal. Each card moves to a different entry from its own group
-            every 15 minutes instead. */}
-        {visibleFlipCards.map((card) => (
-          <FlipCard
-            key={card.groupKey}
-            icon={<PurpleRibbonIcon size={28} />}
-            hook={card.hook}
-            backTitle={card.backTitle}
-            backBody={card.backBody}
-            onReadMore={() => router.push({ pathname: '/purple-digest', params: { openEntryId: card.id } })}
-            borderColor={colors.tabPurpleDigest}
-          />
-        ))}
-      </ScrollView>
+      <HomeSectionBand
+        kind="static"
+        title="From The Digest"
+        icon="ribbon"
+        renderIcon={(size) => <PurpleRibbonIcon size={size} />}
+        color={colors.tabPurpleDigest}
+        textColor={colors.tabPurpleDigestText}
+      >
+        {/* Scrolls out to the band's own edges (the same negative-margin
+            technique logAgainScroll uses), with the row re-adding the inset
+            so the first card starts flush with the header text at rest. */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.flipScroll}
+          contentContainerStyle={styles.flipRow}
+        >
+          {visibleFlipCards.map((card) => (
+            <FlipCard
+              key={card.groupKey}
+              icon={<PurpleRibbonIcon size={18} />}
+              header={DIGEST_CATEGORY_LABEL_BY_KEY[card.groupKey] ?? 'The Digest'}
+              hook={card.hook}
+              backTitle={card.backTitle}
+              backBody={card.backBody}
+              onReadMore={() => router.push({ pathname: '/purple-digest', params: { openEntryId: card.id } })}
+              borderColor={colors.tabPurpleDigest}
+              headerColor={colors.tabPurpleDigestText}
+            />
+          ))}
+        </ScrollView>
+      </HomeSectionBand>
     );
   }
 
-  // Quick-log phase 4, 2026-08-30. A photo takes two seconds and can be taken
+    // Quick-log phase 4, 2026-08-30. A photo takes two seconds and can be taken
   // at a table with people waiting; working out what was in it and how much
   // cannot. So the photo is kept on its own until there is time, rather than
   // being the thing that has to happen at the same moment as the logging.
@@ -2263,8 +2263,10 @@ export default function HomeScreen() {
         return renderGroceryList();
       case 'yourDay':
         return renderYourDay();
-      case 'statTiles':
-        return renderStatTiles();
+      case 'mealsLoggedToday':
+        return renderMealsLoggedToday();
+      case 'worthALook':
+        return renderWorthALook();
       case 'scanProduct':
         return renderScanProduct();
       case 'logFlare':
@@ -2874,14 +2876,6 @@ const styles = StyleSheet.create({
   // `gap: 10`, which handles this same job uniformly for every top-level
   // card at once (see that style's own comment) rather than needing it
   // repeated, inconsistently, on each card individually.
-  // CardLabel's own row -- alignSelf: 'flex-start' so it hugs the box's
-  // own left edge. 2026-09-12: only the two stat tiles still use this;
-  // every other section's name moved into its band's own header row.
-  cardLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', marginBottom: 8 },
-  // Color set inline per box (see CardLabel) to match that box's own tab.
-  cardLabelText: { ...typography.eyebrow, ...textShadow,
-    fontWeight: '400',
-  },
   emptyText: { ...typography.body, ...textShadow, color: colors.textSecondary },
 
   // Stays neutral (colors.textSecondary), not tab-colored -- unlike
@@ -2890,32 +2884,6 @@ const styles = StyleSheet.create({
   // brand color reads worse for readability than an accent used sparingly.
   // The card's own border + CardLabel already carry the tab-color signal.
   arcCaption: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 8, textAlign: 'center' },
-
-  // gap 10 (was 12), marginTop removed (content's own gap: 10 handles the
-  // space before this row now) -- 2026-08-08, see content's own comment.
-  statRow: { flexDirection: 'row', gap: 10 },
-  // The same accent-left shape as the bands, kept small and given a
-  // little radius since these two sit side by side inside a band rather
-  // than running edge to edge themselves.
-  statTile: {
-    flex: 1,
-    ...homeBandStyle,
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
-  },
-  // Base color (textPrimary) is a fallback only -- both call sites override
-  // it inline with that tile's own tabColorFor(...) (2026-07-27, explicitly
-  // requested: the big headline number itself should carry the tab color
-  // too, not just the small CardLabel above it, for real consistency
-  // across every info box). "Worth a look" layers statNumberFlagged on top
-  // of that when there's something to flag -- a semantic warning color
-  // deliberately takes priority over the tab's own identity color there.
-  statNumber: { ...typography.screenTitle, ...textShadow, color: colors.textPrimary,
-    fontWeight: '400',
-  },
-  statNumberFlagged: { color: colors.statusFlagged },
 
   // Log Again (quick-log phase 1), 2026-08-30. The card itself is a band
   // now (2026-09-12); these are what sits inside it.
@@ -3071,10 +3039,11 @@ const styles = StyleSheet.create({
   },
   trendCaption: { ...typography.caption, ...textShadow, color: colors.textSecondary, marginTop: 4 },
 
-  // gap 10 (was 12), 2026-08-08 -- see content's own comment. The 20px
-  // inset is this row's own, deliberately: the flip cards are the one
-  // thing on this page left exactly as they were on 2026-09-12.
-  flipRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 20, paddingBottom: 8 },
+  // gap 10 (was 12), 2026-08-08 -- see content's own comment. Inside the
+  // Digest band since 2026-09-12: the row scrolls to the band's edges and
+  // carries the band's own inset itself, the same as logAgainScroll/Row.
+  flipScroll: { marginHorizontal: -HOME_BAND_CONTENT_PADDING },
+  flipRow: { flexDirection: 'row', gap: 10, paddingHorizontal: HOME_BAND_CONTENT_PADDING },
 
   modalBackdrop: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(15, 23, 42, 0.4)', padding: 24 },
   modalBackdropTouchable: { ...StyleSheet.absoluteFillObject },

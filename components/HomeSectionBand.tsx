@@ -37,6 +37,14 @@
 // and a fold that only ever revealed one button would be a step for
 // nothing.
 //
+// Later the same day, two more shapes. A 'static' band is a header row
+// with its content always shown and nothing to tap: the Digest cards,
+// which the request kept horizontal and "not collapsable" but wanted in
+// the same formatting. And an action row can carry a value at its right
+// edge (a count), for the two rows that used to be the stat tiles: the
+// number is the whole point of those, so it belongs on the row itself
+// rather than behind a fold.
+//
 // Purely presentational: no data, no navigation, so it stays reusable if
 // another tab ever wants the same treatment.
 import { Ionicons } from '@expo/vector-icons';
@@ -58,8 +66,14 @@ export const HOME_BAND_CONTENT_PADDING = 16;
 type CommonProps = {
   title: string;
   icon: ComponentProps<typeof Ionicons>['name'];
+  // A custom glyph in place of the Ionicons one (the Digest's real
+  // awareness ribbon rather than the rejected 'ribbon' glyph).
+  renderIcon?: (size: number, color: string) => ReactNode;
   // The tab colour: accent bar, hairlines, icon and title all take it.
   color: string;
+  // The title's own colour when a tab's fill and its readable text are two
+  // different tokens (the Digest's are). Defaults to `color`.
+  textColor?: string;
 };
 
 type FoldProps = CommonProps & {
@@ -75,10 +89,27 @@ type FoldProps = CommonProps & {
 type ActionProps = CommonProps & {
   kind: 'action';
   onPress: () => void;
+  // Shown at the row's right edge, ahead of the chevron: a count, a total.
+  value?: string;
+  // Only when the value itself carries a meaning of its own (a warning
+  // colour for a flagged count). Defaults to the tab colour.
+  valueColor?: string;
 };
 
-export function HomeSectionBand(props: FoldProps | ActionProps) {
+type StaticProps = CommonProps & {
+  kind: 'static';
+  contentStyle?: StyleProp<ViewStyle>;
+  children: ReactNode;
+};
+
+export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
   const { title, icon, color } = props;
+  const textColor = props.textColor ?? color;
+  const glyph = props.renderIcon ? (
+    props.renderIcon(16, color)
+  ) : (
+    <Ionicons name={icon} size={16} color={color} style={textShadow} />
+  );
   if (props.kind === 'action') {
     return (
       <View style={[styles.band, { borderColor: color }]}>
@@ -87,14 +118,30 @@ export function HomeSectionBand(props: FoldProps | ActionProps) {
           onPress={props.onPress}
           activeOpacity={0.75}
           accessibilityRole="button"
-          accessibilityLabel={title}
+          accessibilityLabel={props.value != null ? `${title}, ${props.value}` : title}
         >
-          <Ionicons name={icon} size={16} color={color} style={textShadow} />
-          <Text style={[styles.title, { color }]} numberOfLines={1}>
+          {glyph}
+          <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
             {title}
           </Text>
+          {props.value != null ? (
+            <Text style={[styles.value, { color: props.valueColor ?? textColor }]}>{props.value}</Text>
+          ) : null}
           <Ionicons name="chevron-forward" size={18} color={color} style={textShadow} />
         </TouchableOpacity>
+      </View>
+    );
+  }
+  if (props.kind === 'static') {
+    return (
+      <View style={[styles.band, { borderColor: color }]}>
+        <View style={styles.header} accessibilityRole="header">
+          {glyph}
+          <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
+            {title}
+          </Text>
+        </View>
+        <View style={[styles.content, props.contentStyle]}>{props.children}</View>
       </View>
     );
   }
@@ -109,8 +156,8 @@ export function HomeSectionBand(props: FoldProps | ActionProps) {
         accessibilityState={{ expanded }}
         accessibilityLabel={`${title}, ${expanded ? 'collapse' : 'expand'}`}
       >
-        <Ionicons name={icon} size={16} color={color} style={textShadow} />
-        <Text style={[styles.title, { color }]} numberOfLines={1}>
+        {glyph}
+        <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
           {title}
         </Text>
         <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={color} style={textShadow} />
@@ -146,6 +193,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: HOME_BAND_CONTENT_PADDING,
   },
   title: { ...typography.bodyEmphasis, ...textShadow, flex: 1, fontWeight: '400' },
+  // A count on an action row: larger than the name so the number reads
+  // as the thing the row is about, the way the old tile's number did.
+  value: { ...typography.sectionTitle, ...textShadow, fontWeight: '400', marginRight: 4 },
   // No top padding: the header row's own bottom padding already separates
   // the name from what follows.
   content: {

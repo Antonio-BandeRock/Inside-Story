@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.36.3',
+    date: '2026-09-12',
+    changes: [
+      'Meals Logged Today and Worth a Look are each their own row now, with the count on the row itself: the first sits with Schedules and opens the list of today\'s meals, the second with Insights.',
+      'The Digest cards sit inside a band of their own, headed From The Digest, and each card now names the part of The Digest it came from at the top of both its faces. A card whose text is longer than the card scrolls up and down; the row still scrolls sideways.',
+    ],
+  },
+  {
     version: '1.0.36.2',
     date: '2026-09-12',
     changes: [
