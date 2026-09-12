@@ -69,6 +69,7 @@ import {
   getCuriousAboutConditions,
   getLastSeenAppVersion,
   getNutrientTotalsByDateRange,
+  getFlaggedItemsByDateRange,
   getSixDimensionsFlagCountsByDateRange,
   getUserConditions,
   getUserProfile,
@@ -97,7 +98,7 @@ import {
 import { getActiveGroceryListSummary, type GroceryListSummary } from '../../lib/groceryDb';
 import { reresolveSavedDishCookingMethods } from '../../lib/db';
 import { formatTime12 } from '../../lib/timeOfDay';
-import { getSixDimensionsFlagTrendSeries } from '../../lib/trendAnalysis';
+import { dateStringOffsetFrom } from '../../lib/trendAnalysis';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import {
   ALL_HOME_SECTION_KEYS,
@@ -466,7 +467,11 @@ type DashboardData = {
 // scripts/patch_assessment_item_timeframes.py) now assumes.
 const ASSESSMENT_DUE_AFTER_DAYS = 30;
 
-type WeekTrend = { thisWeekCount: number; lastWeekCount: number | null };
+// otherCount, 2026-09-12: flags that were tripped this week but are tied
+// to no condition the person tracks, so they are not in thisWeekCount.
+// Named on the row so a count that dropped when a condition was added is
+// explained where it is read, not left to be wondered about.
+type WeekTrend = { thisWeekCount: number; lastWeekCount: number | null; otherCount: number };
 
 // null when there's no prior week to compare against (too new to have one) --
 // distinct from a real 0, which is a genuinely flag-free week.
@@ -587,7 +592,7 @@ const HOME_LENS_DESTINATIONS: Partial<
     label: "This Week's Trend",
     icon: 'trending-up',
     color: colors.tabTrends,
-    href: { pathname: '/trends', params: { openTrendsLens: 'sixDs', openTrendsRange: 'thisWeek' } } as Href,
+    href: '/week-flags' as Href,
   },
   // The wider world, and the one that stays here. The Grocery List moved
   // from Schedules to Life on 2026-09-12 (see lib/homeSections.ts).
@@ -906,18 +911,25 @@ export default function HomeScreen() {
   // counted only the ones relevant to a tracked condition, and the two
   // numbers could not agree. Same codes, same series function, same sum
   // as the lens now shows.
+  //
+  // 2026-09-12: reads the itemised flags (getFlaggedItemsByDateRange), the
+  // same function the This Week's Flags screen lists from, and sums them,
+  // so the number here and the rows there are one computation. It used to
+  // sum a trend series that only ever carried the count.
   const loadWeekTrend = useCallback(() => {
-    return getSixDimensionsFlagTrendSeries(14, userConditionCodesRef.current).then((points) => {
+    const today = todayDateString();
+    return getFlaggedItemsByDateRange(dateStringOffsetFrom(today, -13), today, userConditionCodesRef.current).then((days) => {
       const thisWeekStart = dateStringDaysAgo(6);
-      const thisWeekPoints = points.filter((point) => point.date >= thisWeekStart);
-      const lastWeekPoints = points.filter((point) => point.date < thisWeekStart);
-      if (thisWeekPoints.length === 0) {
+      const thisWeek = days.filter((day) => day.date >= thisWeekStart);
+      const lastWeek = days.filter((day) => day.date < thisWeekStart);
+      if (thisWeek.length === 0) {
         setWeekTrend(null);
         return;
       }
-      const thisWeekCount = thisWeekPoints.reduce((sum, point) => sum + point.value, 0);
-      const lastWeekCount = lastWeekPoints.length > 0 ? lastWeekPoints.reduce((sum, point) => sum + point.value, 0) : null;
-      setWeekTrend({ thisWeekCount, lastWeekCount });
+      const thisWeekCount = thisWeek.reduce((sum, day) => sum + day.relevant.length, 0);
+      const otherCount = thisWeek.reduce((sum, day) => sum + day.other.length, 0);
+      const lastWeekCount = lastWeek.length > 0 ? lastWeek.reduce((sum, day) => sum + day.relevant.length, 0) : null;
+      setWeekTrend({ thisWeekCount, lastWeekCount, otherCount });
     });
   }, []);
 
@@ -2028,11 +2040,13 @@ export default function HomeScreen() {
       'weekTrend',
       "This Week's Trend",
       <TouchableOpacity
-        // Lands on the Condition Scores lens over the same seven days this
-        // number was summed from, 2026-09-12, rather than a bare /trends
-        // that resets to the picker and leaves the number with no
-        // destination. Same fix "Worth a look" got on 2026-08-29.
-        onPress={() => router.navigate({ pathname: '/trends', params: { openTrendsLens: 'sixDs', openTrendsRange: 'thisWeek' } })}
+        // Opens the list of the flags themselves, 2026-09-12. It went to a
+        // bare /trends first (nothing selected), then to the Condition
+        // Scores chart over the same week, and the report on that was the
+        // one that settled it: "A graph really doesn't seem to be the right
+        // way to go here, and if 24 were reported, there should be 24 to
+        // see." app/week-flags.tsx is the 24, one row each.
+        onPress={() => router.push('/week-flags')}
         activeOpacity={0.75}
       >
         <Text style={[styles.trendNumber, { color: tabColorFor('/trends') }]}>
@@ -2045,7 +2059,12 @@ export default function HomeScreen() {
         ) : (
           <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Keep logging to compare against last week.</Text>
         )}
-        <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Tap to see these flags day by day →</Text>
+        {weekTrend.otherCount > 0 ? (
+          <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>
+            {`${weekTrend.otherCount} more flagged, not tied to a condition you track.`}
+          </Text>
+        ) : null}
+        <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Tap to see each one →</Text>
       </TouchableOpacity>,
     );
   }

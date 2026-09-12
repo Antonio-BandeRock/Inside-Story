@@ -579,6 +579,17 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* This Week's Flags, 2026-09-12: the list behind Home's weekly
+                    flag count. Themed the same as every other Stack screen. */}
+                <Stack.Screen
+                  name="week-flags"
+                  options={{
+                    headerShown: true,
+                    title: "This Week's Flags",
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 <Stack.Screen
                   name="voice-log"
                   options={{

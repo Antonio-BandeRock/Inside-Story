@@ -8,7 +8,7 @@ import { isCoffeeFood } from './coffeeAdvisory';
 import { isJuiceFood } from './juiceAdvisory';
 import { analyzeNutrientIntake, NutrientGapEntry, sumFoodNutrientTotals } from './nutrientAnalysis';
 import { ACTIVITY_LEVELS, ActivityLevel } from './energyNeeds';
-import { isFlaggedTier } from './sixDimensionsReference';
+import { isFlaggedTier, tierSeverity } from './sixDimensionsReference';
 import { buildPerConditionSummaries, type ConditionDimensionSummary } from './conditionDimensions';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
 import {
@@ -17466,44 +17466,161 @@ type FlagCountFood = { foodName: string; foodId: number; source: string };
 // this number inflated by a sub-criterion that fires on half the
 // database. One bulk fetch for every distinct food across the WHOLE
 // range, not one query per food per day.
-async function countFlaggedSubCriteriaByDate(
+// One flagged sub-criterion on one day: what was flagged, how badly, which
+// foods did it, and which tracked conditions it matters for. 2026-09-12,
+// direct report on Home's "24 flags this week": "I have no idea what the
+// flags were... if 24 were reported, there should be 24 to see." This is
+// the 24, itemised. The counts every other caller uses are derived FROM
+// this (see countFlaggedSubCriteriaByDate below), so a number on Home and
+// the list behind it can never disagree.
+export type FlaggedSubCriterion = {
+  dimension: string;
+  subCriterion: string;
+  // The worst tier any food reached for it that day.
+  tier: string;
+  // Distinct food names that tripped it, in the order they were logged.
+  foods: string[];
+  // Tracked condition codes it is relevant to. Empty for an "other" flag.
+  conditionCodes: string[];
+};
+
+// "relevant" is what counts: with tracked conditions, the sub-criteria
+// relevant to at least one of them (the same 2026-08-26 scoping every
+// other flag count uses); with none tracked, everything flagged. "other"
+// is what was flagged but is tied to no tracked condition, so a person
+// who sees their count drop when they add a condition can see exactly
+// what stopped counting rather than wondering where it went. Always empty
+// when nothing is tracked, since then everything is relevant.
+export type DayFlags = {
+  date: string;
+  relevant: FlaggedSubCriterion[];
+  other: FlaggedSubCriterion[];
+};
+
+function worstTier(a: string, b: string): string {
+  const rank = (tier: string) => (tierSeverity(tier) === 'red' ? 2 : tierSeverity(tier) === 'yellow' ? 1 : 0);
+  return rank(b) > rank(a) ? b : a;
+}
+
+async function describeFlaggedSubCriteriaByDate(
   dayFoods: Map<string, Map<string, FlagCountFood>>,
   conditionCodes: string[],
-): Promise<Record<string, number>> {
-  const counts: Record<string, number> = {};
+): Promise<DayFlags[]> {
   const allPairs = Array.from(dayFoods.values()).flatMap((foods) =>
     Array.from(foods.values()).map((food) => ({ foodId: food.foodId, source: food.source })),
   );
+  const [scoresByFood, conditionScoresByFood] = await Promise.all([
+    getFoodScoresBulk(allPairs),
+    getConditionScoresForFoodsBulk(allPairs, conditionCodes),
+  ]);
 
-  if (conditionCodes.length === 0) {
-    const scoresByFood = await getFoodScoresBulk(allPairs);
-    for (const [date, foods] of dayFoods.entries()) {
-      const foodEntries = Array.from(foods.values()).map((food) => ({
-        foodName: food.foodName,
-        scores: scoresByFood.get(`${food.foodId}|${food.source}`) ?? [],
-      }));
-      const bySubCriterion = aggregateBySubCriterion(foodEntries);
-      counts[date] = bySubCriterion.filter((score) => score.entries.some((entry) => isFlaggedTier(entry.tier))).length;
-    }
-    return counts;
-  }
-
-  const conditionScoresByFood = await getConditionScoresForFoodsBulk(allPairs, conditionCodes);
+  const result: DayFlags[] = [];
   for (const [date, foods] of dayFoods.entries()) {
-    const flaggedSubCriteria = new Set<string>();
+    // Everything flagged, regardless of condition. Same aggregation the
+    // generic count has always used.
+    const generic = new Map<string, FlaggedSubCriterion>();
+    for (const food of foods.values()) {
+      for (const score of scoresByFood.get(`${food.foodId}|${food.source}`) ?? []) {
+        if (!isFlaggedTier(score.tier)) continue;
+        const existing = generic.get(score.subCriterion);
+        if (existing) {
+          existing.tier = worstTier(existing.tier, score.tier);
+          if (!existing.foods.includes(food.foodName)) existing.foods.push(food.foodName);
+        } else {
+          generic.set(score.subCriterion, {
+            dimension: score.dimension,
+            subCriterion: score.subCriterion,
+            tier: score.tier,
+            foods: [food.foodName],
+            conditionCodes: [],
+          });
+        }
+      }
+    }
+
+    if (conditionCodes.length === 0) {
+      result.push({ date, relevant: Array.from(generic.values()), other: [] });
+      continue;
+    }
+
+    // Scoped: only sub-criteria relevant to a tracked condition, minus the
+    // two near-universal ones that would otherwise flag on half the
+    // reference database (see NEAR_UNIVERSAL_SUB_CRITERIA).
+    const relevant = new Map<string, FlaggedSubCriterion>();
     for (const food of foods.values()) {
       const byCondition = conditionScoresByFood.get(`${food.foodId}|${food.source}`);
       if (!byCondition) continue;
       for (const conditionCode of conditionCodes) {
         for (const score of byCondition.get(conditionCode) ?? []) {
           if (NEAR_UNIVERSAL_SUB_CRITERIA.has(score.subCriterion)) continue;
-          if (isFlaggedTier(score.tier)) flaggedSubCriteria.add(score.subCriterion);
+          if (!isFlaggedTier(score.tier)) continue;
+          const existing = relevant.get(score.subCriterion);
+          if (existing) {
+            existing.tier = worstTier(existing.tier, score.tier);
+            if (!existing.foods.includes(food.foodName)) existing.foods.push(food.foodName);
+            if (!existing.conditionCodes.includes(conditionCode)) existing.conditionCodes.push(conditionCode);
+          } else {
+            relevant.set(score.subCriterion, {
+              dimension: score.dimension,
+              subCriterion: score.subCriterion,
+              tier: score.tier,
+              foods: [food.foodName],
+              conditionCodes: [conditionCode],
+            });
+          }
         }
       }
     }
-    counts[date] = flaggedSubCriteria.size;
+    const other = Array.from(generic.values()).filter((flag) => !relevant.has(flag.subCriterion));
+    result.push({ date, relevant: Array.from(relevant.values()), other });
   }
+  return result;
+}
+
+// The per-day count every flag-count caller reads: the size of each day's
+// relevant list, and nothing else, so the count and the list agree by
+// construction.
+async function countFlaggedSubCriteriaByDate(
+  dayFoods: Map<string, Map<string, FlagCountFood>>,
+  conditionCodes: string[],
+): Promise<Record<string, number>> {
+  const days = await describeFlaggedSubCriteriaByDate(dayFoods, conditionCodes);
+  const counts: Record<string, number> = {};
+  for (const day of days) counts[day.date] = day.relevant.length;
   return counts;
+}
+
+// The logged foods in a window, one entry per distinct food per day: the
+// input both the count and the itemised list are built from.
+async function collectLoggedDayFoods(startLocal: string, endLocal: string): Promise<Map<string, Map<string, FlagCountFood>>> {
+  const items = await getMealItemsInWindow(startLocal, endOfLocalDay(endLocal));
+  const dayFoods = new Map<string, Map<string, FlagCountFood>>();
+
+  for (const item of items) {
+    if (!item.foodId) continue;
+    const [foodIdStr, source] = item.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) continue;
+
+    const date = item.eatenAt.slice(0, 10);
+    if (!dayFoods.has(date)) dayFoods.set(date, new Map());
+    const dayMap = dayFoods.get(date)!;
+    const foodKey = `${foodId}|${source}`;
+    if (!dayMap.has(foodKey)) dayMap.set(foodKey, { foodName: item.foodName, foodId, source });
+  }
+  return dayFoods;
+}
+
+// Every flag in a window, itemised per day, oldest day first. Home's
+// "This Week's Flags" screen is the caller; see FlaggedSubCriterion above.
+export async function getFlaggedItemsByDateRange(
+  startLocal: string,
+  endLocal: string,
+  conditionCodes: string[] = [],
+): Promise<DayFlags[]> {
+  const dayFoods = await collectLoggedDayFoods(startLocal, endLocal);
+  const days = await describeFlaggedSubCriteriaByDate(dayFoods, conditionCodes);
+  return days.sort((a, b) => a.date.localeCompare(b.date));
 }
 
 // Same real fix as getNutrientTotalsByDateRange just above, applied to the
@@ -17522,22 +17639,7 @@ export async function getSixDimensionsFlagCountsByDateRange(
   endLocal: string,
   conditionCodes: string[] = [],
 ): Promise<Record<string, number>> {
-  const items = await getMealItemsInWindow(startLocal, endOfLocalDay(endLocal));
-  const dayFoods = new Map<string, Map<string, FlagCountFood>>();
-
-  for (const item of items) {
-    if (!item.foodId) continue;
-    const [foodIdStr, source] = item.foodId.split('|');
-    const foodId = Number(foodIdStr);
-    if (!source || Number.isNaN(foodId)) continue;
-
-    const date = item.eatenAt.slice(0, 10);
-    if (!dayFoods.has(date)) dayFoods.set(date, new Map());
-    const dayMap = dayFoods.get(date)!;
-    const foodKey = `${foodId}|${source}`;
-    if (!dayMap.has(foodKey)) dayMap.set(foodKey, { foodName: item.foodName, foodId, source });
-  }
-
+  const dayFoods = await collectLoggedDayFoods(startLocal, endLocal);
   return countFlaggedSubCriteriaByDate(dayFoods, conditionCodes);
 }
 
