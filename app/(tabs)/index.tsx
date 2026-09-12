@@ -583,7 +583,12 @@ const HOME_LENS_DESTINATIONS: Partial<
   },
   worthALook: { label: 'Worth a Look', icon: 'sparkles', color: colors.tabInsights, href: '/insights' as Href },
   fuelGauges: { label: "Today's Fuel", icon: 'speedometer', color: colors.tabInsights, href: '/insights' as Href },
-  weekTrend: { label: "This Week's Trend", icon: 'trending-up', color: colors.tabTrends, href: '/trends' as Href },
+  weekTrend: {
+    label: "This Week's Trend",
+    icon: 'trending-up',
+    color: colors.tabTrends,
+    href: { pathname: '/trends', params: { openTrendsLens: 'sixDs', openTrendsRange: 'thisWeek' } } as Href,
+  },
   // The wider world, and the one that stays here. The Grocery List moved
   // from Schedules to Life on 2026-09-12 (see lib/homeSections.ts).
   groceryList: { label: 'Grocery List', icon: 'cart', color: colors.tabLife, href: '/grocery-list' as Href },
@@ -895,8 +900,14 @@ export default function HomeScreen() {
   // letting it resolve on its own after the gate already lifted was
   // exactly what made the week-trend caption visibly pop in a beat after
   // everything else, instead of the whole page appearing at once.
+  // Condition-scoped since 2026-09-12: this was the one flag count on
+  // Home the 2026-08-26 scoping pass missed, so the week's total counted
+  // every scored sub-criterion while Trends' own Condition Scores lens
+  // counted only the ones relevant to a tracked condition, and the two
+  // numbers could not agree. Same codes, same series function, same sum
+  // as the lens now shows.
   const loadWeekTrend = useCallback(() => {
-    return getSixDimensionsFlagTrendSeries(14).then((points) => {
+    return getSixDimensionsFlagTrendSeries(14, userConditionCodesRef.current).then((points) => {
       const thisWeekStart = dateStringDaysAgo(6);
       const thisWeekPoints = points.filter((point) => point.date >= thisWeekStart);
       const lastWeekPoints = points.filter((point) => point.date < thisWeekStart);
@@ -931,6 +942,12 @@ export default function HomeScreen() {
 
   const loadDigestConditionScope = useCallback(() => {
     return Promise.all([getUserConditions(), getCuriousAboutConditions()]).then(([owned, curious]) => {
+      // Written to the ref here as well as to state, 2026-09-12: the
+      // ref's own mirroring effect only runs after the next render, and
+      // load()/loadWeekTrend() below read the ref straight after this
+      // resolves, on the same tick. Without this line the first load of a
+      // launch counted flags with no conditions at all.
+      userConditionCodesRef.current = owned;
       setUserConditionCodes(owned);
       setCuriousAboutConditionCodes(curious);
     });
@@ -1154,7 +1171,11 @@ export default function HomeScreen() {
       void loadSharedFolderState();
       const isFirstLoad = !hasLoadedOnceRef.current;
       if (isFirstLoad) setLoading(true);
-      Promise.all([load(), loadWeekTrend(), loadSkyData(), loadDigestConditionScope(), refreshTestDataBanner()]).then(() => {
+      // The condition scope first, then everything that counts by it: see
+      // loadDigestConditionScope's own comment for why the order matters.
+      loadDigestConditionScope()
+        .then(() => Promise.all([load(), loadWeekTrend(), loadSkyData(), refreshTestDataBanner()]))
+        .then(() => {
         if (!isFirstLoad) return;
         hasLoadedOnceRef.current = true;
         setLoading(false);
@@ -2006,7 +2027,14 @@ export default function HomeScreen() {
     return renderBand(
       'weekTrend',
       "This Week's Trend",
-      <TouchableOpacity onPress={() => router.navigate('/trends')} activeOpacity={0.75}>
+      <TouchableOpacity
+        // Lands on the Condition Scores lens over the same seven days this
+        // number was summed from, 2026-09-12, rather than a bare /trends
+        // that resets to the picker and leaves the number with no
+        // destination. Same fix "Worth a look" got on 2026-08-29.
+        onPress={() => router.navigate({ pathname: '/trends', params: { openTrendsLens: 'sixDs', openTrendsRange: 'thisWeek' } })}
+        activeOpacity={0.75}
+      >
         <Text style={[styles.trendNumber, { color: tabColorFor('/trends') }]}>
           {weekTrend.thisWeekCount} {weekTrend.thisWeekCount === 1 ? 'flag' : 'flags'} this week
         </Text>
@@ -2017,7 +2045,7 @@ export default function HomeScreen() {
         ) : (
           <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Keep logging to compare against last week.</Text>
         )}
-        <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Tap to see Trends →</Text>
+        <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Tap to see these flags day by day →</Text>
       </TouchableOpacity>,
     );
   }

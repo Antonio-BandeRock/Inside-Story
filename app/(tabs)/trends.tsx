@@ -1,5 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -388,12 +388,6 @@ export default function TrendsScreen() {
   // closing itself first. The standalone MyItemsHub button further down
   // keeps working exactly as before regardless.
   const [myTrendsOpen, setMyTrendsOpen] = useState(false);
-  useFocusEffect(
-    useCallback(() => {
-      setRevealed(false);
-      return () => setRevealed(false);
-    }, []),
-  );
   // Still used by the four lenses whose own picker didn't change.
   const [days, setDays] = useState<7 | 30 | 90>(30);
   // The new picker, Nutrients/Condition Scores only.
@@ -402,6 +396,38 @@ export default function TrendsScreen() {
   const [customIsRange, setCustomIsRange] = useState(false);
   const [customStartDate, setCustomStartDate] = useState<string | null>(null);
   const [customEndDate, setCustomEndDate] = useState<string | null>(null);
+
+  // Deep link from Home, 2026-09-12. Direct report: "This week's trend on
+  // the Home screen just goes directly to the Trends screen without
+  // anything selected to view. It mentions on mine that I have 24 flags
+  // this week. I think when I tap to see the Trends it should show me 24
+  // flags it is talking about." The same shape insights.tsx's own
+  // openInsightsLens and schedule.tsx's own openScheduleLens already use,
+  // validated against TRENDS_LENSES so a stale link falls through to the
+  // resting picker. openTrendsRange='thisWeek' sets the exact seven days
+  // Home summed (the last six days plus today) as a custom range, since no
+  // fixed pill covers that: the 7d pill ends yesterday.
+  const { openTrendsLens, openTrendsRange } = useLocalSearchParams<{ openTrendsLens?: string; openTrendsRange?: string }>();
+  useFocusEffect(
+    useCallback(() => {
+      const requestedLens = TRENDS_LENSES.find((option) => option.key === openTrendsLens);
+      if (requestedLens) {
+        setLens(requestedLens.key);
+        if (openTrendsRange === 'thisWeek') {
+          const today = todayDateString();
+          const start = dateStringOffsetFrom(today, -6);
+          setCustomIsRange(true);
+          setCustomStartDate(start);
+          setCustomEndDate(today);
+          setDateRangeSelection({ kind: 'custom', startDate: start, endDate: today });
+        }
+        setRevealed(true);
+        return;
+      }
+      setRevealed(false);
+      return () => setRevealed(false);
+    }, [openTrendsLens, openTrendsRange]),
+  );
 
   const [selectedNutrient, setSelectedNutrient] = useState<string>(CORE_NUTRIENT_CODES[0]);
   const [nutrientLabels, setNutrientLabels] = useState<Record<string, string>>({});
@@ -868,6 +894,15 @@ export default function TrendsScreen() {
                 </View>
               ) : (
                 <View style={styles.chartCard}>
+                  {/* The total over the whole range, so a person sent here
+                      by Home's "24 flags this week" finds that same 24
+                      rather than having to add up the points. Same sum
+                      Home makes over the same series. */}
+                  {sixDsSeries && sixDsSeries.length > 0 ? (
+                    <Text style={[styles.singleDayHeading, { color: colors.statusFlagged }]}>
+                      {`${Math.round(sixDsSeries.reduce((sum, point) => sum + point.value, 0))} flagged across ${sixDsSeries.length} ${sixDsSeries.length === 1 ? 'day' : 'days'}`}
+                    </Text>
+                  ) : null}
                   <TrendLineChart
                     points={sixDsSeries ?? []}
                     yMin={0}

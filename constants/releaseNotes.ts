@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.36.7',
+    date: '2026-09-12',
+    changes: [
+      'Tapping This Week's Trend on Home now opens Trends on the Condition Scores lens, set to the same seven days the number came from, with the total stated above the chart. It used to land on the bare Trends picker with nothing to look at.',
+      'That weekly count now counts only flags relevant to the conditions you track, the same way Trends and Worth a Look already did, so Home and Trends agree.',
+    ],
+  },
+  {
     version: '1.0.36.6',
     date: '2026-09-12',
     changes: [
