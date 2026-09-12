@@ -228,9 +228,25 @@ for (const { file, sourceFile, styleBackgrounds } of parsed) {
   // real card somewhere else entirely, so its <Text> looks bare here and
   // is not. Reporting the enclosing function turns verification into one
   // check per function rather than one per line.
+  //
+  // The same reasoning covers JSX held in a local variable before it is
+  // placed: `const table = (<View>...</View>)` followed by `{table}` inside a
+  // band (NutrientsTable, 2026-09-12). The chain from the <Text> stops at the
+  // variable, so the variable's own usages are what decide it. Reported as
+  // "local:table" so the usage search stays inside this one file, since a
+  // local name means nothing anywhere else.
   function enclosingFunctionName(node) {
     let current = node.parent;
     while (current) {
+      if (
+        ts.isVariableDeclaration(current) &&
+        current.initializer &&
+        ts.isIdentifier(current.name) &&
+        !ts.isArrowFunction(current.initializer) &&
+        !ts.isFunctionExpression(current.initializer)
+      ) {
+        return 'local:' + current.name.text;
+      }
       if (ts.isFunctionDeclaration(current) && current.name) return current.name.text;
       if (
         (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) &&
@@ -261,15 +277,19 @@ for (const { file, sourceFile, styleBackgrounds } of parsed) {
 // A name with no usage found anywhere stays a finding, since there is
 // nothing to prove it safe.
 const usageCoverageCache = new Map();
-function coveredAtEveryUsage(functionName) {
+function coveredAtEveryUsage(functionName, fromFile) {
   if (functionName === '(top level)') return false;
-  if (usageCoverageCache.has(functionName)) return usageCoverageCache.get(functionName);
+  const isLocal = functionName.startsWith('local:');
+  const cacheKey = isLocal ? functionName + '@' + fromFile : functionName;
+  if (usageCoverageCache.has(cacheKey)) return usageCoverageCache.get(cacheKey);
   // Seeded before recursing so a component that renders itself, or a pair
   // that render each other, cannot loop forever here.
-  usageCoverageCache.set(functionName, false);
+  usageCoverageCache.set(cacheKey, false);
+  if (isLocal) functionName = functionName.slice('local:'.length);
 
   const usages = [];
   for (const { file, sourceFile } of parsed) {
+    if (isLocal && file !== fromFile) continue;
     function findUsages(node) {
       const isCall = ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === functionName;
       const isElement =
@@ -284,6 +304,11 @@ function coveredAtEveryUsage(functionName) {
         !ts.isFunctionDeclaration(node.parent) &&
         !ts.isVariableDeclaration(node.parent) &&
         !ts.isImportSpecifier(node.parent) &&
+        // `styles.body` and `{ body: ... }` are the same word, not a usage
+        // of the local `body`; a local JSX variable's name is routinely
+        // also a style key (FlipCard's headerRow, ConditionNoteRow's body).
+        !(ts.isPropertyAccessExpression(node.parent) && node.parent.name === node) &&
+        !(ts.isPropertyAssignment(node.parent) && node.parent.name === node) &&
         !(ts.isCallExpression(node.parent) && node.parent.expression === node);
       if (isCall || isElement || isReference) usages.push({ file, node });
       ts.forEachChild(node, findUsages);
@@ -295,11 +320,11 @@ function coveredAtEveryUsage(functionName) {
   for (const usage of usages) {
     const helpers = fileHelpers.get(usage.file);
     if (helpers.ancestorPaints(usage.node)) continue;
-    if (coveredAtEveryUsage(helpers.enclosingFunctionName(usage.node))) continue;
+    if (coveredAtEveryUsage(helpers.enclosingFunctionName(usage.node), usage.file)) continue;
     covered = false;
     break;
   }
-  usageCoverageCache.set(functionName, covered);
+  usageCoverageCache.set(cacheKey, covered);
   return covered;
 }
 
@@ -320,7 +345,7 @@ for (const { file, sourceFile } of parsed) {
           }
           walker = walker.parent;
         }
-        if (!insideText && !ancestorPaints(node) && !coveredAtEveryUsage(enclosingFunctionName(node))) {
+        if (!insideText && !ancestorPaints(node) && !coveredAtEveryUsage(enclosingFunctionName(node), file)) {
           const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
           const { names } = styleRefNames(getStyleAttr(node), sourceFile);
           findings.push({

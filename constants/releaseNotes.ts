@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.36.10',
+    date: '2026-09-12',
+    changes: [
+      'Insights > Nutrients now shows four columns for the day: Now (what has been logged so far and its status), RDA (the daily target), and End of Day (what the total will be once every meal still planned for today is eaten, judged by the same rule). Nothing is guessed for a meal that is not on the schedule.',
+      'A band above the table names the meals it is built from: what has been logged today, and what is still to come with its time.',
+      'The Nutrients lens is the first place outside Home to take the same band look: a thick left edge, thin top and bottom, running edge to edge.',
+    ],
+  },
+  {
     version: '1.0.36.9',
     date: '2026-09-12',
     changes: [

@@ -3,6 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { HOME_BAND_CONTENT_PADDING, HomeSectionBand } from '../../components/HomeSectionBand';
+import { formatTime12 } from '../../lib/timeOfDay';
 import {
   classifyPrepStateGroup,
   classifyProteinSource,
@@ -10,6 +12,8 @@ import {
   deletePersonalRule,
   getConditionStages,
   getDailyNutrientBreakdown,
+  getProjectedNutrientTotalsByDateRange,
+  listScheduledMealsForDate,
   getDailySixDimensionsBreakdown,
   getDietaryReferenceIntakesForCurrentUser,
   getFoodRankingsAcrossNutrients,
@@ -79,6 +83,7 @@ import {
   formatAmount,
   nutrientStatusSeverity,
   percentOfDailyTarget,
+  type NutrientGapEntry,
   type StatusSeverity,
 } from '../../lib/nutrientAnalysis';
 import { ageFromBirthDate } from '../../lib/profile';
@@ -597,6 +602,9 @@ export default function InsightsScreen() {
   }, []);
 
   const [nutrientBreakdown, setNutrientBreakdown] = useState<DailyNutrientBreakdown | null>(null);
+  // What today would add up to if every still-planned meal is eaten, plus
+  // the names of those meals, 2026-09-12 (see NutrientsTable's own comment).
+  const [projectedToday, setProjectedToday] = useState<ProjectedToday | null>(null);
   const [dimensionsBreakdown, setDimensionsBreakdown] = useState<DailySixDimensionsBreakdown | null>(null);
 
   // Shared across all three lenses -- drilling into "Breakfast" while
@@ -987,11 +995,27 @@ export default function InsightsScreen() {
       // 2026-08-26 -- getDailySixDimensionsBreakdown now also computes a
       // real per-condition breakdown (see lib/conditionDimensions.ts),
       // scoped to whatever the person has actually tracked in Profile.
-      Promise.all([getDailyNutrientBreakdown(date), getDailySixDimensionsBreakdown(date, personalizationProfile?.trackedConditions ?? [])])
-        .then(([nutrients, breakdown]) => {
+      Promise.all([
+        getDailyNutrientBreakdown(date),
+        getDailySixDimensionsBreakdown(date, personalizationProfile?.trackedConditions ?? []),
+        // Planned-only by construction (getProjectedIngredientsByDateRange
+        // reads status = 'planned'), so a scheduled meal already logged is
+        // never counted twice against what it added when it was eaten.
+        lens === 'nutrients' ? getProjectedNutrientTotalsByDateRange(date, date) : null,
+        lens === 'nutrients' ? listScheduledMealsForDate(date) : null,
+      ])
+        .then(([nutrients, breakdown, projected, scheduled]) => {
           if (cancelled) return;
           setNutrientBreakdown(nutrients);
           setDimensionsBreakdown(breakdown);
+          if (projected && scheduled) {
+            setProjectedToday({
+              totals: projected.dayTotals[date] ?? {},
+              plannedMeals: scheduled
+                .filter((item) => item.status === 'planned')
+                .map((item) => ({ title: item.title, time: formatTime12(item.scheduledFor.slice(11, 16)) })),
+            });
+          }
         })
         .catch((error) => {
           if (cancelled) return;
@@ -1171,7 +1195,7 @@ export default function InsightsScreen() {
               !nutrientBreakdown || nutrientBreakdown.meals.length === 0 ? (
                 <Text style={[styles.emptyText, styles.panelStandalone]}>Save a meal to see this.</Text>
               ) : (
-                <NutrientsTable breakdown={nutrientBreakdown} scope={scope} />
+                <NutrientsTable breakdown={nutrientBreakdown} scope={scope} projected={projectedToday} />
               )
             ) : lens === 'hydration' ? (
               !nutrientBreakdown || nutrientBreakdown.meals.length === 0 ? (
@@ -1381,16 +1405,68 @@ function LensLoadingCard() {
   );
 }
 
+export type ProjectedToday = {
+  // nutrientCode -> amount from every still-planned meal today.
+  totals: Record<string, number>;
+  plannedMeals: { title: string; time: string }[];
+};
+
+// The status words, short enough to sit in a table cell beside an amount.
+// NUTRIENT_STATUS_LABELS keeps the full sentence for anywhere with room.
+const SHORT_STATUS_LABELS: Record<string, string> = {
+  deficient: 'Well short',
+  low: 'Below target',
+  adequate: 'On target',
+  excess_risk: 'Over the limit',
+  within_limit: 'Within limit',
+};
+
+// 2026-09-12, direct request, arriving here from Home's "Worth a Look":
+// "the Status column is helpful but it should have 2 more columns. The
+// first column should list the RDA of each Nutrient, and the second column
+// should be the status of what the total amount of each nutrient will be
+// if they eat their entire allotted meals. The second thing I would like
+// to see on this informational table is the names of the meals it
+// represents. Also, we can use this as the first thing that will have the
+// same formatting applied to it that we just applied to the Home screen."
+//
+// So at day scope the table is four columns: Nutrient, Now (what has been
+// logged so far, with its status), RDA, and End of Day (now plus every
+// still-planned meal, with the status THAT total would earn). The end-of-day
+// figure is the same analyzeNutrientIntake run over logged plus planned
+// totals, so it is judged by exactly the rule the Now column is. Above it
+// sits a band naming the meals the table is built from, logged and still
+// to come. Both are HomeSectionBand rows (components/HomeSectionBand.tsx),
+// the first place outside Home to take that shape; the column runs edge to
+// edge by cancelling the lens body's own padding.
+//
+// At meal/side/item scope (ScopeHub) the RDA and End of Day columns are
+// meaningless, so the table keeps its older Amount and % of Day shape
+// inside the same band.
 export function NutrientsTable({
   breakdown,
   scope,
+  projected = null,
 }: {
   breakdown: DailyNutrientBreakdown;
   scope: Scope;
+  projected?: ProjectedToday | null;
 }) {
+  const [mealsOpen, setMealsOpen] = useState(true);
+  const [tableOpen, setTableOpen] = useState(true);
   const isDayScope = scope.level === 'day';
   const scopeTotals = resolveScopeNutrientTotals(breakdown, scope);
   const entries = analyzeNutrientIntake(breakdown.driRows, scopeTotals, isDayScope ? breakdown.supplementTotals : {});
+  // Now plus everything still planned, judged by the same rule as Now.
+  const projectedByCode = new Map<string, NutrientGapEntry>();
+  if (isDayScope && projected) {
+    const combined: Record<string, number> = { ...breakdown.dayTotals };
+    for (const [code, amount] of Object.entries(projected.totals)) combined[code] = (combined[code] ?? 0) + amount;
+    for (const entry of analyzeNutrientIntake(breakdown.driRows, combined, breakdown.supplementTotals)) {
+      projectedByCode.set(entry.nutrientCode, entry);
+    }
+  }
+  const loggedMealNames = Array.from(new Set(breakdown.meals.map((meal) => meal.mealName).filter(Boolean)));
 
   const sortRank: Record<string, number> = { deficient: 0, excess_risk: 0, low: 1, adequate: 2, within_limit: 2 };
   const visibleEntries = isDayScope ? entries : entries.filter((entry) => entry.combinedTotal > 0);
@@ -1408,119 +1484,181 @@ export function NutrientsTable({
   useEffect(() => setExpandedNutrientCode(null), [scope]);
   const canExpandContributors = scope.level !== 'item';
 
-  return (
-    <>
-      {isDayScope && !breakdown.profileComplete ? (
-        <View style={styles.noticeCard}>
-          <Text style={styles.noticeText}>
-            Your sex and birth date aren&apos;t set in Profile, so these targets cover every applicable population
-            rather than one tailored to you.
-          </Text>
-        </View>
-      ) : null}
+  const statusCell = (entry: NutrientGapEntry | undefined) => {
+    if (!entry) return { text: '—', style: styles.statusNeutralText };
+    return {
+      text: `${formatAmount(entry.combinedTotal, entry.unit)}\n${SHORT_STATUS_LABELS[entry.status] ?? entry.status} (${Math.round(entry.percentOfTarget)}%)`,
+      style: severityTextStyle(nutrientStatusSeverity(entry.status)),
+    };
+  };
 
-      {sorted.length === 0 ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>
-          {isDayScope
-            ? 'Nothing to compare yet. Once foods with nutrient data are logged today, targets will show up here.'
-            : "This doesn't have a measurable amount of any tracked nutrient."}
-        </Text>
-      ) : (
-        <View style={styles.table}>
-          {canExpandContributors ? (
-            <Text style={styles.tableHeading}>Tap any nutrient to see which foods contributed to it.</Text>
-          ) : null}
-          <View style={[styles.tableRow, styles.tableHeaderRow]}>
-            <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellNutrient]}>Nutrient</Text>
-            <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellAmount]}>Amount</Text>
-            <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellStatus]}>
-              {isDayScope ? 'Status' : '% of Day'}
+  const table =
+    sorted.length === 0 ? (
+      <Text style={styles.emptyText}>
+        {isDayScope
+          ? 'Nothing to compare yet. Once foods with nutrient data are logged today, targets will show up here.'
+          : "This doesn't have a measurable amount of any tracked nutrient."}
+      </Text>
+    ) : (
+      <View style={styles.bandTable}>
+        {canExpandContributors ? (
+          <Text style={styles.bandTableHint}>Tap any nutrient to see which foods contributed to it.</Text>
+        ) : null}
+        <View style={[styles.tableRow, styles.tableHeaderRow, styles.bandTableHeaderRow]}>
+          <Text style={[styles.tableCell, styles.tableHeaderCell, styles.colNutrient]}>Nutrient</Text>
+          {isDayScope ? (
+            <>
+              <Text style={[styles.tableCell, styles.tableHeaderCell, styles.colStatus]}>Now</Text>
+              <Text style={[styles.tableCell, styles.tableHeaderCell, styles.colRda]}>RDA</Text>
+              <Text style={[styles.tableCell, styles.tableHeaderCell, styles.colStatus]}>End of day</Text>
+            </>
+          ) : (
+            <>
+              <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellAmount]}>Amount</Text>
+              <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellStatus]}>% of Day</Text>
+            </>
+          )}
+        </View>
+        {sorted.map((entry, index) => {
+          const rowExpanded = canExpandContributors && expandedNutrientCode === entry.nutrientCode;
+          const contributors = rowExpanded ? contributorsForNutrient(breakdown, scope, entry.nutrientCode) : [];
+          const now = statusCell(entry);
+          const end = statusCell(projectedByCode.get(entry.nutrientCode));
+          return (
+            <View key={`${entry.nutrientCode}_${index}`}>
+              <TouchableOpacity
+                style={styles.tableRow}
+                activeOpacity={canExpandContributors ? 0.6 : 1}
+                disabled={!canExpandContributors}
+                onPress={() =>
+                  setExpandedNutrientCode((prev) => (prev === entry.nutrientCode ? null : entry.nutrientCode))
+                }
+              >
+                <Text
+                  style={[
+                    styles.tableCell,
+                    styles.colNutrient,
+                    canExpandContributors ? styles.tableCellNutrientTappable : null,
+                  ]}
+                  numberOfLines={2}
+                >
+                  {entry.displayName}
+                </Text>
+                {isDayScope ? (
+                  <>
+                    <Text style={[styles.tableCell, styles.colStatus, now.style]} numberOfLines={2}>
+                      {now.text}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.colRda]} numberOfLines={2}>
+                      {formatAmount(entry.target, entry.unit)}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.colStatus, end.style]} numberOfLines={2}>
+                      {projected ? end.text : '…'}
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={[styles.tableCell, styles.tableCellAmount]} numberOfLines={1}>
+                      {formatAmount(entry.combinedTotal, entry.unit)} / {formatAmount(entry.target, entry.unit)}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.tableCellStatus, styles.statusNeutralText]} numberOfLines={2}>
+                      {`${Math.round(entry.percentOfTarget)}%`}
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+              {rowExpanded ? (
+                <View style={styles.detailBlock}>
+                  {contributors.length === 0 ? (
+                    <Text style={styles.detailText}>Nothing logged here actually contributed to this.</Text>
+                  ) : (
+                    contributors.map((contributor, contributorIndex) => (
+                      <View key={`${contributor.label}_${contributorIndex}`} style={styles.detailFoodRow}>
+                        <Text style={styles.detailFoodName} numberOfLines={1}>
+                          {contributor.label}
+                        </Text>
+                        <Text style={styles.detailFoodTier}>
+                          {formatAmount(contributor.amount, entry.unit)}
+                          {entry.combinedTotal > 0
+                            ? ` (${Math.round((contributor.amount / entry.combinedTotal) * 100)}%)`
+                            : ''}
+                        </Text>
+                      </View>
+                    ))
+                  )}
+                </View>
+              ) : null}
+            </View>
+          );
+        })}
+      </View>
+    );
+
+  return (
+    <View style={styles.bandColumn}>
+      {isDayScope ? (
+        <HomeSectionBand
+          title="Meals in This Table"
+          icon="restaurant-outline"
+          color={TAB_COLOR}
+          expanded={mealsOpen}
+          onToggle={() => setMealsOpen((open) => !open)}
+        >
+          <View style={styles.bandBody}>
+            <Text style={styles.bandLabel}>Logged today</Text>
+            <Text style={styles.bandText}>{loggedMealNames.length > 0 ? loggedMealNames.join(', ') : 'Nothing logged yet.'}</Text>
+            <Text style={styles.bandLabel}>Still to come</Text>
+            <Text style={styles.bandText}>
+              {projected == null
+                ? '…'
+                : projected.plannedMeals.length > 0
+                  ? projected.plannedMeals.map((meal) => `${meal.title} at ${meal.time}`).join(', ')
+                  : 'Nothing else planned today, so End of day is what you have now.'}
+            </Text>
+            <Text style={styles.bandCaption}>
+              Now is what has been logged so far, food and supplements together. End of day is that plus every
+              meal still planned for today, judged by the same target. Nothing is guessed for a meal that is not
+              on the schedule.
             </Text>
           </View>
-          {sorted.map((entry, index) => {
-            const entrySeverity = isDayScope ? nutrientStatusSeverity(entry.status) : null;
-            const rowExpanded = canExpandContributors && expandedNutrientCode === entry.nutrientCode;
-            const contributors = rowExpanded ? contributorsForNutrient(breakdown, scope, entry.nutrientCode) : [];
-            return (
-              <View key={`${entry.nutrientCode}_${index}`}>
-                <TouchableOpacity
-                  style={[styles.tableRow, entrySeverity ? severityRowStyle(entrySeverity) : null]}
-                  activeOpacity={canExpandContributors ? 0.6 : 1}
-                  disabled={!canExpandContributors}
-                  onPress={() =>
-                    setExpandedNutrientCode((prev) => (prev === entry.nutrientCode ? null : entry.nutrientCode))
-                  }
-                >
-                  <Text
-                    style={[
-                      styles.tableCell,
-                      styles.tableCellNutrient,
-                      canExpandContributors ? styles.tableCellNutrientTappable : null,
-                    ]}
-                    numberOfLines={1}
-                  >
-                    {entry.displayName}
-                  </Text>
-                  <Text style={[styles.tableCell, styles.tableCellAmount]} numberOfLines={1}>
-                    {formatAmount(entry.combinedTotal, entry.unit)} / {formatAmount(entry.target, entry.unit)}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.tableCell,
-                      styles.tableCellStatus,
-                      entrySeverity ? severityTextStyle(entrySeverity) : styles.statusNeutralText,
-                    ]}
-                    numberOfLines={2}
-                  >
-                    {isDayScope
-                      ? `${NUTRIENT_STATUS_LABELS[entry.status] ?? entry.status} (${Math.round(entry.percentOfTarget)}%)`
-                      : `${Math.round(entry.percentOfTarget)}%`}
-                  </Text>
-                </TouchableOpacity>
-                {rowExpanded ? (
-                  <View style={styles.detailBlock}>
-                    {contributors.length === 0 ? (
-                      <Text style={styles.detailText}>Nothing logged here actually contributed to this.</Text>
-                    ) : (
-                      contributors.map((contributor, contributorIndex) => (
-                        <View key={`${contributor.label}_${contributorIndex}`} style={styles.detailFoodRow}>
-                          <Text style={styles.detailFoodName} numberOfLines={1}>
-                            {contributor.label}
-                          </Text>
-                          <Text style={styles.detailFoodTier}>
-                            {formatAmount(contributor.amount, entry.unit)}
-                            {entry.combinedTotal > 0
-                              ? ` (${Math.round((contributor.amount / entry.combinedTotal) * 100)}%)`
-                              : ''}
-                          </Text>
-                        </View>
-                      ))
-                    )}
-                  </View>
-                ) : null}
-              </View>
-            );
-          })}
+        </HomeSectionBand>
+      ) : null}
+
+      <HomeSectionBand
+        title={isDayScope ? 'Nutrients Against Your Targets' : 'Nutrients'}
+        icon="medical-outline"
+        color={TAB_COLOR}
+        expanded={tableOpen}
+        onToggle={() => setTableOpen((open) => !open)}
+      >
+        <View style={styles.bandBody}>
+          {isDayScope && !breakdown.profileComplete ? (
+            <View style={styles.noticeCard}>
+              <Text style={styles.noticeText}>
+                Your sex and birth date aren&apos;t set in Profile, so these targets cover every applicable population
+                rather than one tailored to you.
+              </Text>
+            </View>
+          ) : null}
+          {table}
+          {isDayScope && breakdown.unresolvedItems.length > 0 ? (
+            <Text style={styles.bandCaption}>
+              {breakdown.unresolvedItems.length} ingredient{breakdown.unresolvedItems.length === 1 ? '' : 's'} couldn&apos;t be
+              counted here: usually a solid food measured by volume, or logged as &quot;each&quot; for a food without a known
+              per-item weight yet. Log it by weight (g/oz) to have it count.
+            </Text>
+          ) : null}
+          {isDayScope && breakdown.supplementSkipped.length > 0 ? (
+            <Text style={styles.bandCaption}>
+              {breakdown.supplementSkipped.length} supplement ingredient{breakdown.supplementSkipped.length === 1 ? '' : 's'} couldn&apos;t
+              be counted here: usually an IU dose for a nutrient with no single official IU-to-mass conversion (e.g.
+              vitamin E), or a unit this app doesn&apos;t recognize yet. Check that supplement&apos;s ingredients on the Schedule
+              tab&apos;s Supplements lens.
+            </Text>
+          ) : null}
         </View>
-      )}
-
-      {isDayScope && breakdown.unresolvedItems.length > 0 ? (
-        <Text style={styles.footerNote}>
-          {breakdown.unresolvedItems.length} ingredient{breakdown.unresolvedItems.length === 1 ? '' : 's'} couldn&apos;t be
-          counted here: usually a solid food measured by volume, or logged as &quot;each&quot; for a food without a known
-          per-item weight yet. Log it by weight (g/oz) to have it count.
-        </Text>
-      ) : null}
-
-      {isDayScope && breakdown.supplementSkipped.length > 0 ? (
-        <Text style={styles.footerNote}>
-          {breakdown.supplementSkipped.length} supplement ingredient{breakdown.supplementSkipped.length === 1 ? '' : 's'} couldn&apos;t
-          be counted here: usually an IU dose for a nutrient with no single official IU-to-mass conversion (e.g.
-          vitamin E), or a unit this app doesn&apos;t recognize yet. Check that supplement&apos;s ingredients on the Schedule
-          tab&apos;s Supplements lens.
-        </Text>
-      ) : null}
-    </>
+      </HomeSectionBand>
+    </View>
   );
 }
 
@@ -3954,6 +4092,24 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     fontWeight: '400',
   },
+  // The Nutrients lens as bands, 2026-09-12 (see NutrientsTable's own
+  // comment). bandColumn cancels bodyContent's own 16px so the bands run
+  // edge to edge the way Home's do; everything inside them is inset by
+  // the band's own content padding.
+  bandColumn: { marginHorizontal: -16, gap: 10 },
+  bandBody: { gap: 8 },
+  bandLabel: { ...typography.eyebrow, color: TAB_COLOR, ...textShadow },
+  bandText: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  bandCaption: { ...typography.caption, color: colors.textMuted, lineHeight: 17, ...textShadow },
+  // The table inside a band: no border or radius of its own, the band
+  // carries those. Rows overhang the band's inset so a coloured row would
+  // reach its edges; cells put the inset back.
+  bandTable: { marginHorizontal: -HOME_BAND_CONTENT_PADDING },
+  bandTableHint: { ...typography.caption, color: TAB_COLOR, paddingHorizontal: HOME_BAND_CONTENT_PADDING, paddingBottom: 6, ...textShadow },
+  bandTableHeaderRow: { backgroundColor: 'transparent' },
+  colNutrient: { flex: 1.5 },
+  colRda: { flex: 0.9, textAlign: 'right' },
+  colStatus: { flex: 1.4, textAlign: 'right' },
   // Bumped up to `label` size -- the dimension name is the primary thing
   // being scanned in this row, so it should read a size larger than the
   // supporting "N flagged" status text next to it, not the same size.
