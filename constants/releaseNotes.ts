@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.36.6',
+    date: '2026-09-12',
+    changes: [
+      'The title on the back of a Digest card is smaller and holds to two lines, so more of the excerpt underneath shows before it needs scrolling.',
+      'Grocery List is in the Life tab menu now, first after My Life, and opens the same list Home does.',
+    ],
+  },
+  {
     version: '1.0.36.5',
     date: '2026-09-12',
     changes: [

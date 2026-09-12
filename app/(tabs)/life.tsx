@@ -1,4 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
@@ -128,7 +129,10 @@ import { parsePriceInput } from '../../lib/groceryList';
 
 const TAB_COLOR = colors.tabLife;
 
-type LifeLens = 'finances' | 'kitchen' | 'work' | 'upkeep' | 'emergency';
+// 'groceryList' is a lens in the menu only: picking it opens the grocery
+// list screen (the same one Home's own Grocery List row opens) rather than
+// a view inside this tab, so `lens` never actually holds it.
+type LifeLens = 'finances' | 'kitchen' | 'work' | 'upkeep' | 'emergency' | 'groceryList';
 type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money' | 'goals';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
@@ -269,7 +273,22 @@ const EMERGENCY_HELP_SECTIONS: HelpSection[] = [
     body: 'It never prints a blank. Anything you have not filled in is left off the card completely, because a line reading none recorded is read as no allergies by someone scanning it in a hurry, and that is a claim this app is in no position to make. It holds only where an advance directive is kept, never what it says, since nothing written in an app carries any legal weight. And it names no scheme, no law and no country, because what any of this means depends entirely on where you are.',
   },
 ];
+const GROCERY_LIST_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'What this is',
+    body: 'The same grocery list Home opens: the next few days of scheduled meals turned into a list you can shop from, priced and checked off as you go, and checked against what the kitchen already has before it tells you to buy something again.',
+  },
+];
+
 const LIFE_LENSES: LensOption<LifeLens>[] = [
+  // 2026-09-12, direct request: "create a Grocery List with the shopping
+  // cart icon in the Life tab LensHub menu. Have it be the first icon after
+  // My Life. Make sure it opens the same thing as the Home Screen linked
+  // version does." First here because the My Life tile is pinned ahead of
+  // every option by LensHub itself. The Grocery List moved from Schedules
+  // to Life the same day (see lib/homeSections.ts), and this is the door
+  // into it from the tab it now belongs to.
+  { key: 'groceryList', label: 'Grocery List', icon: 'cart-outline', help: GROCERY_LIST_HELP_SECTIONS },
   { key: 'finances', label: 'Finances', icon: 'wallet-outline', help: LIFE_HELP_SECTIONS },
   { key: 'work', label: 'Work', icon: 'briefcase-outline', help: WORK_HELP_SECTIONS },
   { key: 'upkeep', label: 'Upkeep', icon: 'construct-outline', help: UPKEEP_HELP_SECTIONS },
@@ -505,6 +524,7 @@ export default function LifeScreen() {
   const [receiptsByStream, setReceiptsByStream] = useState<Record<string, { occurredOn: string; amount: number }[]>>({});
   const [budgetForm, setBudgetForm] = useState<{ category: string; limit: string } | null>(null);
   const autoOpenLensHub = useAutoOpenLensHubSignal();
+  const router = useRouter();
 
   const month = currentMonth();
 
@@ -1691,6 +1711,12 @@ export default function LifeScreen() {
         autoOpenSignal={autoOpenLensHub}
         extraTile={{ label: 'My Life', icon: 'bookmarks-outline', onPress: () => setMyLifeOpen(true) }}
         onSelect={(key) => {
+          // Opens the grocery list screen itself, with no list id so it lands
+          // on whichever list is active, exactly what Home's own row does.
+          if (key === 'groceryList') {
+            router.push('/grocery-list');
+            return;
+          }
           setLens(key);
           setRevealed(true);
         }}

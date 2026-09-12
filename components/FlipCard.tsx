@@ -137,7 +137,12 @@ export function FlipCard({
             scroll on its own (see the component's own header comment). */}
         <TouchableOpacity onPress={toggle} activeOpacity={0.85} accessibilityRole="button" accessibilityLabel="Flip back">
           {headerRow}
-          <Text style={styles.backTitle}>{backTitle}</Text>
+          {/* Two lines at most: confirmed on-device, 2026-09-12, once the
+              scroll worked, that a big title left "only about 1 row" for
+              the body, which is the part worth reading. */}
+          <Text style={styles.backTitle} numberOfLines={2}>
+            {backTitle}
+          </Text>
           <View style={styles.backDivider} />
         </TouchableOpacity>
         {/* Scrolls instead of the card growing taller to fit -- explicitly
@@ -209,8 +214,12 @@ const styles = StyleSheet.create({
   // starts at the top and scrolls.
   frontContent: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', gap: 10 },
   hook: { ...typography.bodyEmphasis, ...textShadow, color: colors.textPrimary, textAlign: 'center', lineHeight: 21, fontWeight: '400' },
-  backTitle: { ...typography.sectionTitle, ...textShadow, color: colors.primary, textAlign: 'left', fontWeight: '400' },
-  backDivider: { height: 1, backgroundColor: colors.primaryMuted, opacity: 0.4, marginTop: 8, marginBottom: 10 },
+  // Body size rather than sectionTitle, 2026-09-12: the title is a
+  // signpost to the excerpt, not the thing being read, and at the larger
+  // size it ate the room the excerpt needed. Colour and the divider still
+  // mark it as the title.
+  backTitle: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary, textAlign: 'left', fontWeight: '400', lineHeight: 19 },
+  backDivider: { height: 1, backgroundColor: colors.primaryMuted, opacity: 0.4, marginTop: 6, marginBottom: 8 },
   backBody: { ...typography.body, ...textShadow, color: colors.textPrimary, textAlign: 'left', lineHeight: 21 },
   readMoreRow: { alignSelf: 'flex-start', marginTop: 8 },
   readMoreText: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary, fontWeight: '400' },
