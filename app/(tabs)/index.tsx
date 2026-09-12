@@ -2,7 +2,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter, type Href } from 'expo-router';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ComponentProps, type ReactNode } from 'react';
-import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import Animated, { FadeOut, ZoomIn } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
@@ -12,6 +23,7 @@ import { EDGE_SHADOW_HEIGHT, EdgeShadow } from '../../components/EdgeShadow';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
 import type { HelpSection } from '../../components/HelpButton';
+import { HOME_BAND_CONTENT_PADDING, HomeSectionBand, homeBandStyle } from '../../components/HomeSectionBand';
 import { AppActionSheet } from '../../components/AppActionSheet';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { ProgressRing } from '../../components/ProgressRing';
@@ -87,7 +99,15 @@ import { reresolveSavedDishCookingMethods } from '../../lib/db';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { getSixDimensionsFlagTrendSeries } from '../../lib/trendAnalysis';
 import { LensHub, type LensOption } from '../../components/LensHub';
-import { ALL_HOME_SECTION_KEYS, getOrderedHomeSectionKeys, isHomeSectionVisible, type HomeSectionKey } from '../../lib/visualPreferences';
+import {
+  ALL_HOME_SECTION_KEYS,
+  getOrderedHomeSectionKeys,
+  isHomeSectionExpanded,
+  isHomeSectionVisible,
+  setVisualPreferences,
+  type HomeSectionKey,
+} from '../../lib/visualPreferences';
+import { HOME_SECTION_TAB_PATH } from '../../lib/homeSections';
 import { useVisualPreferences } from '../../hooks/useVisualPreferences';
 
 // 'YYYY-MM-DD' in LOCAL time -- same helper (and same reasoning) duplicated
@@ -655,7 +675,11 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'What this page shows',
-    body: "A live dashboard, not a static page: your day's arc, today's fuel gauges, and how you've been feeling, refreshed every time you open it. Tap anything to jump to the tab it summarizes.",
+    body: "A live dashboard, not a static page: your day's arc, today's fuel gauges, and how you've been feeling, refreshed every time you open it. Tap anything inside a section to jump to the tab it summarizes.",
+  },
+  {
+    heading: 'How the sections work',
+    body: "Each section starts folded to a single row carrying just its name. Tap the row to open it and tap again to fold it away; the app remembers which ones you left open. The coloured bar down the left edge of every row is the colour of the tab that section belongs to, and sections from the same tab always sit together, so a run of the same colour is one tab's worth of information. Which sections show, and the order the groups appear in, is yours to set in Profile → Home Screen.",
   },
   {
     heading: "Today's sky & weather",
@@ -1606,44 +1630,95 @@ export default function HomeScreen() {
   // Shown until the shared folder exists, then gone for good. See the top of
   // lib/oneDriveFolders.ts for what that folder is and what the app keeps in
   // it.
-  function renderSharedFolderSetup() {
-    if (sharedFolderReady !== false || !isHomeSectionVisible(visualPrefs, 'sharedFolderSetup')) return null;
+  // 2026-09-12: every section folds to one row and opens on tap (see
+  // components/HomeSectionBand.tsx for the request and the look). The
+  // open/closed state is a visual preference rather than component state,
+  // so it survives leaving Home and relaunching: a person who always wants
+  // Your Day open should not have to open it every morning.
+  function toggleHomeSection(key: HomeSectionKey) {
+    void setVisualPreferences({ homeSectionExpanded: { [key]: !isHomeSectionExpanded(visualPrefs, key) } });
+  }
+
+  // One band per section. Colour and icon come from the tab the section is
+  // a window into (lib/homeSections.ts, the same mapping that groups them),
+  // looked up in TAB_ROUTES so they can never drift from the tab's own.
+  // The overrides exist for the one section that belongs to no tab.
+  function renderBand(
+    key: HomeSectionKey,
+    title: string,
+    children: ReactNode,
+    options?: {
+      icon?: ComponentProps<typeof Ionicons>['name'];
+      color?: string;
+      contentStyle?: StyleProp<ViewStyle>;
+    },
+  ) {
+    const tabPath = HOME_SECTION_TAB_PATH[key];
+    const route = tabPath ? TAB_ROUTES.find((r) => r.path === tabPath) : undefined;
     return (
-      <TouchableOpacity
-        style={styles.assessmentDueBanner}
-        onPress={() => router.push('/onedrive-folder')}
-        activeOpacity={0.85}
+      <HomeSectionBand
+        title={title}
+        icon={options?.icon ?? route?.icon ?? 'ellipse-outline'}
+        color={options?.color ?? route?.color ?? colors.primary}
+        expanded={isHomeSectionExpanded(visualPrefs, key)}
+        onToggle={() => toggleHomeSection(key)}
+        contentStyle={options?.contentStyle}
       >
-        <Ionicons name="cloud-outline" size={20} color={colors.primary} />
-        <View style={styles.assessmentDueTextCol}>
-          <Text style={styles.assessmentDueTitle}>Set up your shared folder</Text>
-          <Text style={styles.assessmentDueSubtitle}>
-            One folder in OneDrive for your backups, and for anything you and a partner send each other. Worth
-            doing now, before there is anything to lose.
-          </Text>
-        </View>
-        <Ionicons name="chevron-forward" size={18} color={colors.primary} />
-      </TouchableOpacity>
+        {children}
+      </HomeSectionBand>
     );
   }
 
+  // Belongs to no tab (backups and partners, not one screen's data), so it
+  // keeps colors.primary and its own cloud icon rather than borrowing a
+  // tab's. The nudge itself is the row's name, so folded it still nudges.
+  function renderSharedFolderSetup() {
+    if (sharedFolderReady !== false || !isHomeSectionVisible(visualPrefs, 'sharedFolderSetup')) return null;
+    return renderBand(
+      'sharedFolderSetup',
+      'Set up your shared folder',
+      <View style={styles.bandBody}>
+        <Text style={styles.bandCaption}>
+          One folder in OneDrive for your backups, and for anything you and a partner send each other. Worth
+          doing now, before there is anything to lose.
+        </Text>
+        <TouchableOpacity
+          style={[styles.logAgainSpeakButton, { borderColor: colors.primary }]}
+          onPress={() => router.push('/onedrive-folder')}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="cloud-outline" size={18} color={colors.primary} style={textShadow} />
+          <Text style={[styles.logAgainSpeakText, { color: colors.primary }]}>Choose the folder</Text>
+        </TouchableOpacity>
+      </View>,
+      { icon: 'cloud-outline', color: colors.primary },
+    );
+  }
+
+  // Signals' own colour, matching the corner menu's own choice for this
+  // entry, since the assessment is Signals' data even though it opens as a
+  // standalone screen.
   function renderSymptomCheckinReminder() {
     if (!assessmentDue || !isHomeSectionVisible(visualPrefs, 'symptomCheckinReminder')) return null;
-    return (
-      <TouchableOpacity style={styles.assessmentDueBanner} onPress={() => router.push('/assessment')} activeOpacity={0.85}>
-        <Ionicons name="pulse-outline" size={20} color={colors.primary} />
-        <View style={styles.assessmentDueTextCol}>
-          <Text style={styles.assessmentDueTitle}>
-            {data?.daysSinceAssessment == null ? 'Take your first symptom check-in' : 'Time for your symptom check-in'}
-          </Text>
-          <Text style={styles.assessmentDueSubtitle}>
-            {data?.daysSinceAssessment == null
-              ? "A few minutes now becomes a baseline to compare against next time."
-              : `It's been ${data.daysSinceAssessment} days since your last one. Retaking it is what turns today into a trend.`}
-          </Text>
-        </View>
-        <Ionicons name="chevron-forward" size={18} color={colors.primary} />
-      </TouchableOpacity>
+    const signalsColor = tabColorFor('/log');
+    return renderBand(
+      'symptomCheckinReminder',
+      data?.daysSinceAssessment == null ? 'Take your first symptom check-in' : 'Time for your symptom check-in',
+      <View style={styles.bandBody}>
+        <Text style={styles.bandCaption}>
+          {data?.daysSinceAssessment == null
+            ? 'A few minutes now becomes a baseline to compare against next time.'
+            : `It's been ${data.daysSinceAssessment} days since your last one. Retaking it is what turns today into a trend.`}
+        </Text>
+        <TouchableOpacity
+          style={[styles.logAgainSpeakButton, { borderColor: signalsColor }]}
+          onPress={() => router.push('/assessment')}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="pulse-outline" size={18} color={signalsColor} style={textShadow} />
+          <Text style={[styles.logAgainSpeakText, { color: signalsColor }]}>Start the check-in</Text>
+        </TouchableOpacity>
+      </View>,
     );
   }
 
@@ -1658,9 +1733,10 @@ export default function HomeScreen() {
   // as its own separate question.
   function renderTodaysCheckin() {
     if (!isHomeSectionVisible(visualPrefs, 'todaysCheckin')) return null;
-    return (
-      <View style={[styles.feelingCard, { borderColor: tabColorFor('/log') }]}>
-        <CardLabel tabPath="/log" text="Today's Check-In" />
+    return renderBand(
+      'todaysCheckin',
+      "Today's Check-In",
+      <>
         {feelingPickerOpen ? (
           <>
             <Text style={[styles.feelingPrompt, { color: tabColorFor('/log') }]}>
@@ -1723,15 +1799,16 @@ export default function HomeScreen() {
             <Text style={[styles.feelingStartButtonText, { color: tabColorFor('/log') }]}>Log how you feel today</Text>
           </TouchableOpacity>
         )}
-      </View>
+      </>,
     );
   }
 
   function renderYourDay() {
     if (!isHomeSectionVisible(visualPrefs, 'yourDay')) return null;
-    return (
-      <View style={[styles.arcCard, { borderColor: tabColorFor('/schedule') }]}>
-        <CardLabel tabPath="/schedule" text="Your Day" />
+    return renderBand(
+      'yourDay',
+      'Your Day',
+      <>
         <DayArc items={data?.scheduledToday ?? []} onPressItem={setSelectedItem} labelColor={tabColorFor('/schedule')} />
         <Text style={[styles.arcCaption, { color: tabColorFor('/schedule') }]}>
           {upNext
@@ -1740,13 +1817,19 @@ export default function HomeScreen() {
               : `Next: ${upNext.item.title} at ${formatTime12(upNext.item.scheduledFor.slice(11, 16))}`
             : 'Nothing scheduled yet today.'}
         </Text>
-      </View>
+      </>,
+      { contentStyle: styles.bandContentCentered },
     );
   }
 
+  // The two tiles keep their own small labels (CardLabel) because they
+  // point at two different tabs, one each, inside a band that carries
+  // Insights' colour for the pair.
   function renderStatTiles() {
     if (!isHomeSectionVisible(visualPrefs, 'statTiles')) return null;
-    return (
+    return renderBand(
+      'statTiles',
+      'Meals & Worth a Look',
       <View style={styles.statRow}>
         {/* 2026-08-29, direct report: this "just goes to the My Foods
             screen and the person doesn't know where to go from there."
@@ -1785,17 +1868,21 @@ export default function HomeScreen() {
             {mealsLoggedToday === 0 ? '—' : worthALookCount}
           </Text>
         </TouchableOpacity>
-      </View>
+      </View>,
     );
   }
 
+  // Home's own colour: shortcuts into several tabs, belonging to none of
+  // them in particular, the same reason the corner menu leaves it out.
   function renderQuickActions() {
     if (!isHomeSectionVisible(visualPrefs, 'quickActions')) return null;
-    return (
+    return renderBand(
+      'quickActions',
+      'Quick Actions',
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        style={styles.fullBleedScroll}
+        style={styles.bandScroll}
         contentContainerStyle={styles.quickActionsRow}
       >
         {/* Daily check-in is now first, 2026-07-28 -- explicitly
@@ -1879,7 +1966,7 @@ export default function HomeScreen() {
           <Ionicons name="walk-outline" size={18} color={tabColorFor('/log')} />
           <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/log') }]}>Log exercise</Text>
         </TouchableOpacity>
-      </ScrollView>
+      </ScrollView>,
     );
   }
 
@@ -1892,9 +1979,10 @@ export default function HomeScreen() {
   // of the reordering feature itself, not something silently lost.
   function renderHowYoureFeeling() {
     if (!isHomeSectionVisible(visualPrefs, 'howYoureFeeling')) return null;
-    return (
-      <View style={[styles.orbCard, { borderColor: tabColorFor('/log') }]}>
-        <CardLabel tabPath="/log" text="How You're Feeling" />
+    return renderBand(
+      'howYoureFeeling',
+      "How You're Feeling",
+      <>
         {/* 2026-08-29, direct question: "What is the How You're Feeling
             card for exactly? What does it provide to the user?" A fair
             question the card never answered: it showed a coloured orb and
@@ -1913,23 +2001,24 @@ export default function HomeScreen() {
           onPress={() => router.navigate('/log')}
           textColor={tabColorFor('/log')}
         />
-      </View>
+      </>,
+      { contentStyle: styles.bandContentCentered },
     );
   }
 
   function renderFuelGauges() {
     if (!isHomeSectionVisible(visualPrefs, 'fuelGauges')) return null;
     if (mealsLoggedToday === 0) {
-      return (
-        <View style={[styles.emptyCard, { borderColor: tabColorFor('/insights') }]}>
-          <CardLabel tabPath="/insights" text="Today's Fuel Gauges" />
-          <Text style={[styles.emptyText, { color: tabColorFor('/insights') }]}>Log a meal to see today's fuel gauges fill in.</Text>
-        </View>
+      return renderBand(
+        'fuelGauges',
+        "Today's Fuel Gauges",
+        <Text style={[styles.emptyText, { color: tabColorFor('/insights') }]}>Log a meal to see today's fuel gauges fill in.</Text>,
       );
     }
-    return (
-      <View style={[styles.fuelGaugesCard, { borderColor: tabColorFor('/insights') }]}>
-        <CardLabel tabPath="/insights" text="Today's Fuel Gauges" />
+    return renderBand(
+      'fuelGauges',
+      "Today's Fuel Gauges",
+      <>
         {/* 2026-08-29, direct report: "needs to explain what the
             percentages represent. Is it so far today, or does it represent
             how much they will have all day." Confirmed by reading
@@ -1965,19 +2054,16 @@ export default function HomeScreen() {
             {`Over a safe upper limit today: ${overLimitNutrients.map((entry) => entry.displayName).join(', ')}. Tap through for the detail.`}
           </Text>
         ) : null}
-      </View>
+      </>,
     );
   }
 
   function renderWeekTrend() {
     if (!weekTrend || !isHomeSectionVisible(visualPrefs, 'weekTrend')) return null;
-    return (
-      <TouchableOpacity
-        style={[styles.trendCard, { borderColor: tabColorFor('/trends') }]}
-        onPress={() => router.navigate('/trends')}
-        activeOpacity={0.75}
-      >
-        <CardLabel tabPath="/trends" text="This Week's Trend" />
+    return renderBand(
+      'weekTrend',
+      "This Week's Trend",
+      <TouchableOpacity onPress={() => router.navigate('/trends')} activeOpacity={0.75}>
         <Text style={[styles.trendNumber, { color: tabColorFor('/trends') }]}>
           {weekTrend.thisWeekCount} {weekTrend.thisWeekCount === 1 ? 'flag' : 'flags'} this week
         </Text>
@@ -1989,7 +2075,7 @@ export default function HomeScreen() {
           <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Keep logging to compare against last week.</Text>
         )}
         <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Tap to see Trends →</Text>
-      </TouchableOpacity>
+      </TouchableOpacity>,
     );
   }
 
@@ -2002,15 +2088,16 @@ export default function HomeScreen() {
   // Basic Health plus the person's own conditions, rather than a fixed
   // hand-written array, reshuffled daily, with more revealed on tap
   // rather than shown all at once.
+  //
+  // 2026-09-12: deliberately NOT a band. "The flip cards at the bottom from
+  // Digest are the only thing that I think should remain the same as they
+  // are right now." The row keeps its own 20px inset (flipRow) so the cards
+  // sit exactly where they did; the page's own side padding is gone, so the
+  // negative margin that used to cancel it is gone with it.
   function renderDigestCards() {
     if (!isHomeSectionVisible(visualPrefs, 'digestCards')) return null;
     return (
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={[styles.fullBleedScroll]}
-        contentContainerStyle={styles.flipRow}
-      >
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.flipRow}>
         {/* No "more from the Digest" card any more: the shelf is now every
             group the person actually has, so there is nothing being held back
             to reveal. Each card moves to a different entry from its own group
@@ -2081,9 +2168,10 @@ export default function HomeScreen() {
     if (!isHomeSectionVisible(visualPrefs, 'logAgain')) return null;
     const draftPhotos = data?.photoDrafts ?? [];
     const foodColor = tabColorFor('/food');
-    return (
-      <View style={[styles.logAgainCard, { borderColor: foodColor }]}>
-        <CardLabel tabPath="/food" text="Log a Meal" />
+    return renderBand(
+      'logAgain',
+      'Log a Meal',
+      <View style={styles.bandBody}>
         <Text style={styles.logAgainCaption}>
           For anything that did not go to plan: a meal out, something eaten instead of what was scheduled, or
           catching up after the fact.
@@ -2149,7 +2237,7 @@ export default function HomeScreen() {
             </ScrollView>
           </Fragment>
         ) : null}
-      </View>
+      </View>,
     );
   }
 
@@ -2165,9 +2253,10 @@ export default function HomeScreen() {
     const summary = data?.grocerySummary ?? null;
     const scheduleColor = tabColorFor('/schedule');
     const remaining = summary ? summary.itemCount - summary.checkedCount : 0;
-    return (
-      <View style={[styles.logAgainCard, { borderColor: scheduleColor }]}>
-        <CardLabel tabPath="/schedule" text="Grocery List" />
+    return renderBand(
+      'groceryList',
+      'Grocery List',
+      <View style={styles.bandBody}>
         <Text style={styles.logAgainCaption}>
           {summary
             ? `${summary.checkedCount} of ${summary.itemCount} in the cart${remaining > 0 ? `, ${remaining} to go` : ''}.${
@@ -2187,7 +2276,7 @@ export default function HomeScreen() {
             {summary ? 'Open my grocery list' : 'Build a grocery list'}
           </Text>
         </TouchableOpacity>
-      </View>
+      </View>,
     );
   }
 
@@ -2598,24 +2687,12 @@ export default function HomeScreen() {
 // shared value, used by every box below that carries a CardLabel, fixes
 // that at the source instead of nudging each label individually.
 const INFO_CARD_PADDING_HORIZONTAL = 16;
-// Also explicitly requested, same day: with borders now carrying real
-// meaning (which tab a box belongs to, see CardLabel/tabColorFor above),
-// several of the tab palette's own colors read as too close to tell apart
-// at the previous 1px width -- thickened to make the actual hue easier to
-// read at a glance, on every box whose border color is dynamically set to
-// a tab color.
-//
-// 2026-08-23, direct follow-up report: "line thicknesses need to be
-// consistent... many different thicknesses here and there." The plain
-// colors.border boxes (greetingCard, loadingCard, allSectionsHiddenCard)
-// were originally left at 1px, since their own border carries no tab-color
-// meaning to make legible -- reasonable at the time, but it read as
-// inconsistent once actually seen next to every tab-colored card on the
-// same screen. All of this screen's primary content cards now share this
-// same width; only small controls (pills, chips, buttons, the text input)
-// stay at a separate, deliberately thinner 1px, so a large card and a
-// small tappable control don't compete for the same visual weight.
-const TAB_BORDER_WIDTH = 2;
+// The 2px full border every card used to carry is gone, 2026-09-12: every
+// box on this page is now a band (components/HomeSectionBand.tsx), edge to
+// edge with a 4px accent down the left in the tab's colour, a hairline
+// top and bottom, and no right edge. The tab-colour signal the thicker
+// border used to carry now sits in the accent bar and the header row.
+// Small controls (pills, chips, buttons) keep their own 1px.
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
@@ -2652,17 +2729,32 @@ const styles = StyleSheet.create({
   // consistent with each other before this). The horizontal half of the
   // same request is each row's own `gap` (statRow/quickActionsRow/ringRow/
   // flipRow/feelingTagRow below), normalized to this same 10.
-  content: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 32, gap: 10 },
+  // paddingHorizontal 0, 2026-09-12: "use the available width of the
+  // entire screen, all the way from the left side of the screen to the
+  // right side... with the padding in effect for the text or anything else
+  // that is present, but not for the boxes." Each band carries its own
+  // inner padding (HOME_BAND_CONTENT_PADDING); the page itself no longer
+  // insets anything. gap stays at 10, the distance between entities the
+  // same request asked to keep.
+  content: { paddingHorizontal: 0, paddingTop: 12, paddingBottom: 32, gap: 10 },
+  // Shared by every band's expanded content that is a stack of things
+  // (caption, buttons, a photo strip) rather than one widget.
+  bandBody: { gap: 10 },
+  bandCaption: { ...typography.caption, ...textShadow, color: colors.textSecondary, lineHeight: 16 },
+  // For a band whose content is one centred widget (the day arc, the orb).
+  bandContentCentered: { alignItems: 'center' },
+  // A horizontal row inside a band scrolls out to the band's own edges
+  // rather than stopping at its content padding; the row re-adds the same
+  // padding so it still starts flush with the text above it at rest.
+  bandScroll: { marginHorizontal: -HOME_BAND_CONTENT_PADDING },
   // Same colors.surface "dark blue" card used everywhere else on this page
   // (arcCard, statTile, trendCard, etc.) -- every text-bearing element on
   // Home sits on this same box now, since the background underneath is a
   // photo (not the flat navy colors.background), and textPrimary's light
   // cream reads poorly floating over the photo's brighter patches.
   loadingCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: TAB_BORDER_WIDTH,
+    ...homeBandStyle,
+    padding: HOME_BAND_CONTENT_PADDING,
     borderColor: colors.border,
   },
   loadingText: { ...typography.body, ...textShadow, color: colors.textSecondary },
@@ -2671,22 +2763,19 @@ const styles = StyleSheet.create({
   // per-tab color -- this isn't about any one tab), shown only once every
   // real Home section has been individually turned off from Profile.
   allSectionsHiddenCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: TAB_BORDER_WIDTH,
+    ...homeBandStyle,
+    padding: HOME_BAND_CONTENT_PADDING,
     borderColor: colors.border,
     marginTop: 12,
   },
   allSectionsHiddenText: { ...typography.body, ...textShadow, color: colors.textSecondary },
 
   testDataBanner: {
+    ...homeBandStyle,
     backgroundColor: colors.statusYellowBg,
-    borderRadius: 12,
-    borderWidth: TAB_BORDER_WIDTH,
     borderColor: colors.statusYellowStandalone,
     paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
     marginBottom: 12,
   },
   testDataBannerText: {
@@ -2694,12 +2783,13 @@ const styles = StyleSheet.create({
     ...textShadow,
     color: colors.statusYellowStandalone,
   },
+  // The one box that is Home's own rather than a window into another tab,
+  // so its accent is Home's own tab colour: the same "which tab does this
+  // belong to" signal every band below carries, answered honestly.
   greetingCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderColor: colors.border,
+    ...homeBandStyle,
+    padding: HOME_BAND_CONTENT_PADDING,
+    borderColor: colors.tabHome,
     // marginBottom removed, 2026-08-08 -- content's own new `gap: 10`
     // handles the space after this now; keeping this too would have
     // stacked on top of it (26px instead of the real, intended 10).
@@ -2758,10 +2848,12 @@ const styles = StyleSheet.create({
   // the middle of each (7px left, 4px up).
   greetingCollapsedWrap: { position: 'absolute', top: 0, left: -3 },
   greetingExpandedCard: {
+    ...homeBandStyle,
     position: 'absolute',
     top: 12,
-    left: 20,
-    right: 20,
+    // Edge to edge, 2026-09-12, matching the resting card it grows out of.
+    left: 0,
+    right: 0,
     // 2026-08-23, direct report, second round: dropping this card's own
     // opacity: 0.92 helped ("that's a little better") but colors.surface
     // itself is only ~85% opaque by design (see that token's own comment)
@@ -2778,10 +2870,8 @@ const styles = StyleSheet.create({
     // reading as solid above everything else, not matching the ground
     // theme precisely.
     backgroundColor: colors.menuSurface,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderColor: colors.border,
+    padding: HOME_BAND_CONTENT_PADDING,
+    borderColor: colors.tabHome,
   },
 
   // Moon phase / equinox-solstice / sunrise-sunset / temp / humidity / UV /
@@ -2815,32 +2905,15 @@ const styles = StyleSheet.create({
   // card at once (see that style's own comment) rather than needing it
   // repeated, inconsistently, on each card individually.
   // CardLabel's own row -- alignSelf: 'flex-start' so it hugs the box's
-  // own left edge even inside a parent using alignItems: 'center'
-  // (arcCard, fuelGaugesCard, orbCard all center their real content).
+  // own left edge. 2026-09-12: only the two stat tiles still use this;
+  // every other section's name moved into its band's own header row.
   cardLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', marginBottom: 8 },
   // Color set inline per box (see CardLabel) to match that box's own tab.
   cardLabelText: { ...typography.eyebrow, ...textShadow,
     fontWeight: '400',
   },
-  emptyCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderColor: colors.border,
-  },
   emptyText: { ...typography.body, ...textShadow, color: colors.textSecondary },
 
-  arcCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderColor: colors.border,
-    alignItems: 'center',
-  },
   // Stays neutral (colors.textSecondary), not tab-colored -- unlike
   // statNumber/trendNumber below, this is a full descriptive sentence, not
   // a short bold headline number, and a full paragraph in a saturated
@@ -2851,14 +2924,16 @@ const styles = StyleSheet.create({
   // gap 10 (was 12), marginTop removed (content's own gap: 10 handles the
   // space before this row now) -- 2026-08-08, see content's own comment.
   statRow: { flexDirection: 'row', gap: 10 },
+  // The same accent-left shape as the bands, kept small and given a
+  // little radius since these two sit side by side inside a band rather
+  // than running edge to edge themselves.
   statTile: {
     flex: 1,
-    backgroundColor: colors.surface,
-    borderRadius: 16,
+    ...homeBandStyle,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderColor: colors.border,
   },
   // Base color (textPrimary) is a fallback only -- both call sites override
   // it inline with that tile's own tabColorFor(...) (2026-07-27, explicitly
@@ -2872,18 +2947,10 @@ const styles = StyleSheet.create({
   },
   statNumberFlagged: { color: colors.statusFlagged },
 
-  // Cancels `content`'s own paddingHorizontal: 20 on the ScrollView itself
-  // (not its contentContainerStyle), so the scrollable viewport spans the
-  // true screen width -- otherwise a horizontal row nested inside the
-  // padded page content can only ever scroll within that narrower inset,
-  // clipping the last item's edge instead of letting it reach the real
-  // screen edge. contentContainerStyle re-adds the same 20px as visual
-  // padding so the row still starts/ends flush with everything else at
-  // rest; only the *scrollable* viewport is full-bleed, not the resting look.
-  fullBleedScroll: { marginHorizontal: -20 },
   // marginTop removed, 2026-08-08 -- content's own gap: 10 handles the
-  // space before this row now; gap was already 10, unchanged.
-  quickActionsRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 20 },
+  // space before this row now; gap was already 10, unchanged. Padding is
+  // the band's own content inset since 2026-09-12 (see bandScroll).
+  quickActionsRow: { flexDirection: 'row', gap: 10, paddingHorizontal: HOME_BAND_CONTENT_PADDING },
   quickActionSecondary: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2899,19 +2966,8 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
 
-  // Log Again (quick-log phase 1), 2026-08-30. One surface holds the whole
-  // section, its heading included, per the standing "no text sits directly on
-  // the tab background" rule: a label that names one card belongs inside that
-  // card rather than floating above it.
-  logAgainCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderColor: colors.border,
-    gap: 10,
-  },
+  // Log Again (quick-log phase 1), 2026-08-30. The card itself is a band
+  // now (2026-09-12); these are what sits inside it.
   logAgainCaption: { ...typography.caption, ...textShadow, color: colors.textMuted },
   logAgainSpeakButton: {
     flexDirection: 'row',
@@ -2927,7 +2983,7 @@ const styles = StyleSheet.create({
   logAgainSpeakText: { ...typography.bodyEmphasis, ...textShadow },
   // Negative margin so the tile row can scroll all the way to the card edges
   // instead of stopping short at its padding, with that same padding handed
-  // to the content instead. Same technique as fullBleedScroll above, scoped
+  // to the content instead. Same technique as bandScroll above, scoped
   // to this one card rather than the whole screen.
   logAgainScroll: { marginHorizontal: -INFO_CARD_PADDING_HORIZONTAL },
   logAgainRow: {
@@ -2948,14 +3004,6 @@ const styles = StyleSheet.create({
   draftThumb: { width: 84, height: 84, borderRadius: 8, backgroundColor: colors.border },
   logAgainTileMeta: { ...typography.caption, ...textShadow, color: colors.textMuted },
 
-  fuelGaugesCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderColor: colors.border,
-  },
   // gap 10 (was 16), 2026-08-08 -- see content's own comment.
   ringRow: { flexDirection: 'row', gap: 10, paddingRight: 8 },
 
@@ -2986,50 +3034,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     textAlign: 'center',
   },
-  orbCard: {
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderColor: colors.border,
-  },
-
-  // The periodic-assessment due banner -- colors.primary throughout (same
-  // "no real tab owns this" reasoning as the Symptom check-in pill below
-  // it), deliberately more attention-grabbing than a plain info card
-  // (solid-tinted background, not just a bordered surface card) since the
-  // whole point is that it's hard to miss.
-  assessmentDueBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: colors.primaryMuted,
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderColor: colors.primary,
-  },
-  assessmentDueTextCol: { flex: 1 },
-  assessmentDueTitle: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary,
-    fontWeight: '400',
-  },
-  assessmentDueSubtitle: { ...typography.caption, ...textShadow, color: colors.textSecondary, marginTop: 2, lineHeight: 16 },
-
-  // Today's Check-In -- same card shape as orbCard/fuelGaugesCard above,
-  // alignItems left at the default (stretch) rather than orbCard's own
-  // 'center', since this one's real content (the tag grid, the prompt
-  // text) is naturally left-aligned, not a single centered widget.
-  feelingCard: {
-    paddingVertical: 16,
-    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderColor: colors.border,
-  },
+  // Today's Check-In. Its content is naturally left-aligned (the tag grid,
+  // the prompt text), so its band takes no centring, unlike the orb and
+  // the day arc.
   feelingPrompt: { ...typography.body, ...textShadow, marginBottom: 12 },
   feelingCategoryBlock: { marginBottom: 12 },
   feelingCategoryLabel: { ...typography.eyebrow, ...textShadow, color: colors.textMuted, marginBottom: 6,
@@ -3104,14 +3111,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
 
-  trendCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderColor: colors.border,
-  },
   // Base color is a fallback only -- overridden inline with tabColorFor('/trends'), same reasoning as statNumber above.
   trendNumber: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary,
     fontWeight: '400',
@@ -3121,27 +3120,10 @@ const styles = StyleSheet.create({
   },
   trendCaption: { ...typography.caption, ...textShadow, color: colors.textSecondary, marginTop: 4 },
 
-  // gap 10 (was 12), 2026-08-08 -- see content's own comment.
+  // gap 10 (was 12), 2026-08-08 -- see content's own comment. The 20px
+  // inset is this row's own, deliberately: the flip cards are the one
+  // thing on this page left exactly as they were on 2026-09-12.
   flipRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 20, paddingBottom: 8 },
-  // Same footprint as FlipCard's own default width/height (220x260) so it
-  // sits in this row as an equal, not an odd one out -- a plain button,
-  // not a flip card itself (no back face, no flip animation), dashed
-  // border to read as "tap for more," not "here's a fact."
-  moreFlipCard: {
-    width: 220,
-    height: 260,
-    borderRadius: 18,
-    borderWidth: TAB_BORDER_WIDTH,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    // Filled so its label is not sitting on the photo background.
-    backgroundColor: colors.surface,
-  },
-  moreFlipCardText: { ...typography.bodyEmphasis, ...textShadow, textAlign: 'center', lineHeight: 21,
-    fontWeight: '400',
-  },
 
   modalBackdrop: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(15, 23, 42, 0.4)', padding: 24 },
   modalBackdropTouchable: { ...StyleSheet.absoluteFillObject },

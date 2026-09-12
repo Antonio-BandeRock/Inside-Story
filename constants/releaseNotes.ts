@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.36.1',
+    date: '2026-09-12',
+    changes: [
+      'Home has a new shape. Every section is now a full-width band with a coloured bar down its left edge, the colour of the tab it belongs to, and sections from the same tab sit together.',
+      'Each section starts folded to one row with just its name. Tap the row to open it, tap again to fold it away, and the app remembers which ones you leave open.',
+      'The flip cards from The Digest at the bottom are exactly as they were.',
+    ],
+  },
+  {
     version: '1.0.35.5',
     date: '2026-09-09',
     changes: [

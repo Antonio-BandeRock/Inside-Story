@@ -3295,8 +3295,15 @@ export default function ProfileScreen() {
                 Shown in the person's own real current order, top to
                 bottom, matching exactly what Home itself will render. */}
             <Text style={styles.subLabelDivided}>Order</Text>
+            {/* 2026-09-12: sections from the same tab sit together on Home
+                (lib/homeSections.ts), so a move that would carry one past
+                another tab's section carries its tab-mates with it. Said
+                here rather than left to be discovered when the list jumps
+                by more than one row. */}
             <Text style={styles.helpText}>
-              Move any of these up or down to change the order they appear on Home, top to bottom.
+              Move any of these up or down to change the order they appear on Home, top to bottom. Sections that
+              belong to the same tab always stay together, so moving one past another tab&apos;s section brings
+              the rest of its tab along with it.
             </Text>
             <View style={styles.homeOrderList}>
               {getOrderedHomeSectionKeys(visualPrefs).map((key, index, order) => (

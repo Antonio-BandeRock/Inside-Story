@@ -34,6 +34,7 @@ import { File, Paths } from 'expo-file-system';
 import type { GroundTheme } from '../constants/colors';
 import type { DigestCategoryKey } from './digest';
 import { getDatabase } from './db';
+import { groupHomeSectionKeysByTab } from './homeSections';
 
 // 2026-08-09: gained 'custom' -- a real, user-uploaded image, added
 // explicitly alongside the existing three. See customBackgroundImages
@@ -241,17 +242,23 @@ export type HomeSectionKey =
   | 'weekTrend'
   | 'digestCards';
 
+// The default order, 2026-09-12: grouped by the tab each section is a
+// window into (see lib/homeSections.ts), in the same order TabHub's own
+// grid runs. The one-off shared-folder nudge leads because it disappears
+// for good once done. Whatever order a person saves in Profile is grouped
+// the same way on the way out (getOrderedHomeSectionKeys below), so this
+// default is only ever a starting point, not the one arrangement.
 export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weather',
   'sharedFolderSetup',
-  'symptomCheckinReminder',
-  'todaysCheckin',
+  'quickActions',
   'logAgain',
   'groceryList',
   'yourDay',
-  'statTiles',
-  'quickActions',
+  'symptomCheckinReminder',
+  'todaysCheckin',
   'howYoureFeeling',
+  'statTiles',
   'fuelGauges',
   'weekTrend',
   'digestCards',
@@ -278,11 +285,11 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   sharedFolderSetup: 'Shared Folder Setup',
   symptomCheckinReminder: 'Symptom Check-In Reminder',
   todaysCheckin: "Today's Check-In",
-  logAgain: 'Log a Meal (Voice, Photo, Past Meals)',
+  logAgain: 'Log a Meal',
   groceryList: 'Grocery List',
-  yourDay: 'Your Day (Schedule)',
-  statTiles: 'Meals & Worth-a-Look Tiles',
-  quickActions: 'Quick Action Shortcuts',
+  yourDay: 'Your Day',
+  statTiles: 'Meals & Worth a Look',
+  quickActions: 'Quick Actions',
   howYoureFeeling: "How You're Feeling",
   fuelGauges: "Today's Fuel Gauges",
   weekTrend: "This Week's Trend",
@@ -373,6 +380,14 @@ export type VisualPreferences = {
   // than reading this field directly, the same discipline
   // isHomeSectionVisible() already establishes for its own sibling field.
   homeSectionOrder: HomeSectionKey[];
+  // 2026-09-12, direct request: every Home section collapses "to one row
+  // height with just the name of what it is... and then when they click
+  // on it it expands." Which ones are open right now. Absence means
+  // collapsed (the resting state the request describes), the reverse of
+  // homeSectionVisibility's own "absence means visible", and deliberately
+  // so: a section added later starts folded like everything else rather
+  // than springing open. Read through isHomeSectionExpanded below.
+  homeSectionExpanded: Partial<Record<HomeSectionKey, boolean>>;
   // 2026-09-03, reported through a first-time reader of the app: the TabHub
   // button is the way to reach all nine tabs and nothing on screen says so.
   // It carries no circle, fill, border or label at rest, deliberately (see
@@ -415,12 +430,23 @@ export function isHomeSectionVisible(prefs: VisualPreferences, key: HomeSectionK
 // designed position, and any key in the saved order that no longer
 // exists (a section since removed) is silently dropped, so a stale saved
 // order can never hide a real section or crash on one that no longer is.
+//
+// 2026-09-12: the reconciled order is then regrouped so sections from the
+// same tab sit together (see groupHomeSectionKeysByTab for how a saved
+// order survives that). Done here rather than on Home alone so Profile's
+// own Order list shows the same sequence Home renders.
 export function getOrderedHomeSectionKeys(prefs: VisualPreferences): HomeSectionKey[] {
   const saved = prefs.homeSectionOrder ?? [];
   const known = new Set(REORDERABLE_HOME_SECTION_KEYS);
   const ordered = saved.filter((key) => known.has(key));
   const missing = REORDERABLE_HOME_SECTION_KEYS.filter((key) => !ordered.includes(key));
-  return [...ordered, ...missing];
+  return groupHomeSectionKeysByTab([...ordered, ...missing]);
+}
+
+// Absence of `key` in `prefs.homeSectionExpanded` means collapsed -- see
+// that field's own comment for why this is the reverse of visibility.
+export function isHomeSectionExpanded(prefs: VisualPreferences, key: HomeSectionKey): boolean {
+  return prefs.homeSectionExpanded?.[key] === true;
 }
 
 // homeBackgroundStyle/genericPalette changed 2026-08-19, direct request:
@@ -442,6 +468,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   homeSectionVisibility: {},
   growthVineEnabled: true,
   homeSectionOrder: [],
+  homeSectionExpanded: {},
   hasSeenTabHubWelcome: false,
   hasUsedTabHub: false,
 };
@@ -594,6 +621,7 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
           tabBackgroundStyle: { ...(parsed.tabBackgroundStyle ?? {}) },
           customBackgroundImages: { ...(parsed.customBackgroundImages ?? {}) },
           homeSectionVisibility: { ...(parsed.homeSectionVisibility ?? {}) },
+          homeSectionExpanded: { ...(parsed.homeSectionExpanded ?? {}) },
         };
       } catch {
         // A corrupted/unparseable blob falls back to defaults rather than
@@ -637,6 +665,11 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
     homeSectionVisibility: update.homeSectionVisibility
       ? { ...current.homeSectionVisibility, ...update.homeSectionVisibility }
       : current.homeSectionVisibility,
+    // Same again -- opening one Home section shouldn't fold every other
+    // one the person had left open.
+    homeSectionExpanded: update.homeSectionExpanded
+      ? { ...current.homeSectionExpanded, ...update.homeSectionExpanded }
+      : current.homeSectionExpanded,
   };
 
   cached = merged;

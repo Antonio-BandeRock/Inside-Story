@@ -49,6 +49,28 @@ const SURFACE_COMPONENTS = new Set([
   'DigestTopicMenu',
   // Paints colors.surface for its expanded card (see its own styles).
   'CollapsibleOverlayCard',
+  // Every Home section since 2026-09-12: the band itself is colors.surface
+  // (homeBandStyle in its own file), header row and content both inside it.
+  'HomeSectionBand',
+]);
+
+// Exported style objects confirmed to set backgroundColor, so a StyleSheet
+// entry that spreads one of them paints a surface even though no literal
+// backgroundColor appears in the entry itself. Checked by reading each
+// one, same as SURFACE_COMPONENTS above.
+// Helpers that take JSX as an ARGUMENT and place it inside one of the
+// surface components above, so a <Text> passed to them is covered even
+// though the component never appears in its ancestor chain here. Checked
+// by reading each helper, same as everything else in these lists.
+const SURFACE_RENDER_HELPERS = new Set([
+  // app/(tabs)/index.tsx: renderBand(key, title, children) wraps
+  // children in <HomeSectionBand>.
+  'renderBand',
+]);
+
+const SURFACE_STYLE_SPREADS = new Set([
+  // components/HomeSectionBand.tsx: backgroundColor: colors.surface.
+  'homeBandStyle',
 ]);
 
 const ROOTS = ['app', 'components'];
@@ -113,6 +135,10 @@ function buildStyleBackgroundMap(sourceFile) {
         const key = prop.name.getText(sourceFile).replace(/['"]/g, '');
         let paints = false;
         for (const inner of prop.initializer.properties) {
+          if (ts.isSpreadAssignment(inner) && SURFACE_STYLE_SPREADS.has(inner.expression.getText(sourceFile))) {
+            paints = true;
+            continue;
+          }
           if (!ts.isPropertyAssignment(inner)) continue;
           if (inner.name.getText(sourceFile).replace(/['"]/g, '') !== 'backgroundColor') continue;
           const value = inner.initializer.getText(sourceFile);
@@ -176,6 +202,13 @@ for (const { file, sourceFile, styleBackgrounds } of parsed) {
   function ancestorPaints(node) {
     let current = node;
     while (current) {
+      if (
+        ts.isCallExpression(current) &&
+        ts.isIdentifier(current.expression) &&
+        SURFACE_RENDER_HELPERS.has(current.expression.text)
+      ) {
+        return true;
+      }
       if (ts.isJsxElement(current) || ts.isJsxSelfClosingElement(current)) {
         const name = elementName(current);
         if (SURFACE_COMPONENTS.has(name)) return true;
