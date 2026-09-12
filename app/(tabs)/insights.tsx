@@ -531,7 +531,6 @@ const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
 
 export default function InsightsScreen() {
   useRegisterScreenHelp('Insights', INSIGHTS_HELP_SECTIONS, '/insights');
-  const scrollBottomPadding = useFloatingButtonScrollPadding();
   const autoOpenLensHub = useAutoOpenLensHubSignal();
   // Used by the three non-Food-Lookup lenses' own shared ScrollView below.
   // Food Lookup owns its own separate layout instead (see FoodLookupView's
@@ -539,6 +538,19 @@ export default function InsightsScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   const { openInsightsLens } = useLocalSearchParams<{ openInsightsLens?: string }>();
   const [lens, setLens] = useState<Lens>('nutrients');
+  // Which lenses put the ScopeHub (the funnel) in the corner is decided in
+  // this screen's own render below; the list here mirrors it exactly so
+  // the clearance and the button agree. When it shows, the last line of
+  // the lens has to scroll clear of its top edge, which sits a further
+  // button height plus the hub gap plus 15 above the row every other
+  // floating button shares (see ScopeHub's own buttonBottom), so that much
+  // is added to the shared clearance. 2026-09-12, reported on the
+  // Nutrients lens: "Make sure the Nutrients lens scrolls far enough that
+  // the text at the bottom of it can be read above the filter symbol."
+  const scopeHubLens = lens === 'nutrients' || lens === 'sixDs' || lens === 'prep';
+  const scrollBottomPadding = useFloatingButtonScrollPadding(
+    scopeHubLens ? 20 + FLOATING_BUTTON_SIZE + SECONDARY_HUB_GAP + 15 : 20
+  );
   // Whether this tab's own specific background/content is currently risen
   // (GatedTabContent.tsx) -- separate from `lens` itself, which keeps its
   // last-picked value indefinitely so LensHub can still show it highlighted
@@ -1385,13 +1397,24 @@ function LensExplainer({
   const option = LENSES.find((entry) => entry.key === lens);
   const first = option?.help?.[0];
   if (!option || !first) return null;
+  // A HomeSectionBand fold since 2026-09-12, direct report on the Nutrients
+  // lens: "the nutrient card at the top isn't following the full width of
+  // the screen and line formatting rules now in effect for all pages."
+  // Every lens shares this one explainer, so every lens's own top card
+  // takes the band look at once: edge to edge (bandColumn cancels the
+  // body's padding), the accent bar, the lens's own icon and name in the
+  // tab colour, the explanation folded beneath.
   return (
-    <View style={styles.lensExplainerCard}>
-      <TouchableOpacity style={styles.lensExplainerHeaderRow} onPress={onToggle} activeOpacity={0.75}>
-        <Text style={styles.lensLoadingHeading}>{option.label}</Text>
-        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={TAB_COLOR} />
-      </TouchableOpacity>
-      {expanded ? <Text style={styles.lensLoadingBody}>{first.body}</Text> : null}
+    <View style={[styles.bandColumn, styles.lensExplainerBand]}>
+      <HomeSectionBand
+        title={option.label}
+        icon={option.icon}
+        color={TAB_COLOR}
+        expanded={expanded}
+        onToggle={onToggle}
+      >
+        <Text style={styles.lensLoadingBody}>{first.body}</Text>
+      </HomeSectionBand>
     </View>
   );
 }
@@ -1431,8 +1454,10 @@ const SHORT_STATUS_LABELS: Record<string, string> = {
 // same formatting applied to it that we just applied to the Home screen."
 //
 // So at day scope the table is four columns: Nutrient, Now (what has been
-// logged so far, with its status), RDA, and End of Day (now plus every
-// still-planned meal, with the status THAT total would earn). The end-of-day
+// logged so far, with its status), End of Day (now plus every still-planned
+// meal, with the status THAT total would earn), and RDA last (moved to the
+// end the same day, direct request: the two judged figures sit side by
+// side and the target they are judged against closes the row). The end-of-day
 // figure is the same analyzeNutrientIntake run over logged plus planned
 // totals, so it is judged by exactly the rule the Now column is. Above it
 // sits a band naming the meals the table is built from, logged and still
@@ -1509,8 +1534,8 @@ export function NutrientsTable({
           {isDayScope ? (
             <>
               <Text style={[styles.tableCell, styles.tableHeaderCell, styles.colStatus]}>Now</Text>
-              <Text style={[styles.tableCell, styles.tableHeaderCell, styles.colRda]}>RDA</Text>
               <Text style={[styles.tableCell, styles.tableHeaderCell, styles.colStatus]}>End of day</Text>
+              <Text style={[styles.tableCell, styles.tableHeaderCell, styles.colRda]}>RDA</Text>
             </>
           ) : (
             <>
@@ -1537,6 +1562,7 @@ export function NutrientsTable({
                 <Text
                   style={[
                     styles.tableCell,
+                    styles.bandTableDataCell,
                     styles.colNutrient,
                     canExpandContributors ? styles.tableCellNutrientTappable : null,
                   ]}
@@ -1549,16 +1575,16 @@ export function NutrientsTable({
                     <Text style={[styles.tableCell, styles.colStatus, now.style]} numberOfLines={2}>
                       {now.text}
                     </Text>
-                    <Text style={[styles.tableCell, styles.colRda]} numberOfLines={2}>
-                      {formatAmount(entry.target, entry.unit)}
-                    </Text>
                     <Text style={[styles.tableCell, styles.colStatus, end.style]} numberOfLines={2}>
                       {projected ? end.text : '…'}
+                    </Text>
+                    <Text style={[styles.tableCell, styles.bandTableDataCell, styles.colRda]} numberOfLines={2}>
+                      {formatAmount(entry.target, entry.unit)}
                     </Text>
                   </>
                 ) : (
                   <>
-                    <Text style={[styles.tableCell, styles.tableCellAmount]} numberOfLines={1}>
+                    <Text style={[styles.tableCell, styles.bandTableDataCell, styles.tableCellAmount]} numberOfLines={1}>
                       {formatAmount(entry.combinedTotal, entry.unit)} / {formatAmount(entry.target, entry.unit)}
                     </Text>
                     <Text style={[styles.tableCell, styles.tableCellStatus, styles.statusNeutralText]} numberOfLines={2}>
@@ -3986,25 +4012,9 @@ const styles = StyleSheet.create({
   },
   // The loading card shown while a slow lens computes -- see
   // LensLoadingCard above for why it exists.
-  lensExplainerCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    marginBottom: 14,
-  },
-  lensExplainerHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  lensLoadingHeading: {
-    ...typography.eyebrow,
-    color: TAB_COLOR,
-    marginBottom: 8,
-    ...textShadow,
-  },
+  // The explainer band's own gap to whatever the lens renders beneath it;
+  // the band itself is bandColumn (see below).
+  lensExplainerBand: { marginBottom: 14 },
   lensLoadingBody: {
     ...typography.body,
     color: colors.textSecondary,
@@ -4100,13 +4110,22 @@ const styles = StyleSheet.create({
   bandBody: { gap: 8 },
   bandLabel: { ...typography.eyebrow, color: TAB_COLOR, ...textShadow },
   bandText: { ...typography.body, color: colors.textPrimary, ...textShadow },
-  bandCaption: { ...typography.caption, color: colors.textMuted, lineHeight: 17, ...textShadow },
+  // textPrimary rather than textMuted, 2026-09-12: textMuted measures
+  // 2.8:1 to 3.0:1 against the surface on every ground theme, under the
+  // 4.5:1 floor for caption-size text.
+  bandCaption: { ...typography.caption, color: colors.textPrimary, lineHeight: 17, ...textShadow },
   // The table inside a band: no border or radius of its own, the band
   // carries those. Rows overhang the band's inset so a coloured row would
   // reach its edges; cells put the inset back.
   bandTable: { marginHorizontal: -HOME_BAND_CONTENT_PADDING },
   bandTableHint: { ...typography.caption, color: TAB_COLOR, paddingHorizontal: HOME_BAND_CONTENT_PADDING, paddingBottom: 6, ...textShadow },
   bandTableHeaderRow: { backgroundColor: 'transparent' },
+  // Data cells (a nutrient's name, an RDA, an amount) in the readable text
+  // colour rather than the tab colour, 2026-09-12: the tab colour measures
+  // 3.7:1 on Teal at caption size. The header row, the hint and the band's
+  // own title keep the tab colour, the same title/content split Home's
+  // bands already make.
+  bandTableDataCell: { color: colors.textPrimary },
   colNutrient: { flex: 1.5 },
   colRda: { flex: 0.9, textAlign: 'right' },
   colStatus: { flex: 1.4, textAlign: 'right' },
@@ -4124,17 +4143,21 @@ const styles = StyleSheet.create({
   // A real green/yellow/red traffic light -- green is a deliberate,
   // visible color here (not just "recede to neutral"), so all three
   // states are equally legible at a glance. See severityTextStyle/
-  // severityRowStyle above.
+  // severityRowStyle above. The *OnSurface tokens, 2026-09-12: these
+  // three sit as bare text on the Nutrients table's unfilled rows, and
+  // statusYellow (built for its own statusYellowBg fill) measured 1.1:1
+  // there, "Below Target is difficult to read." See the tokens' own
+  // comment in constants/colors.ts for the measurements.
   statusGreenText: {
-    color: colors.primary,
+    color: colors.statusGreenOnSurface,
     fontWeight: '400',
   },
   statusYellowText: {
-    color: colors.statusYellow,
+    color: colors.statusYellowOnSurface,
     fontWeight: '400',
   },
   statusRedText: {
-    color: colors.danger,
+    color: colors.statusRedOnSurface,
     fontWeight: '400',
   },
   // Sub-day scopes show "% of today's target" as plain information, not a

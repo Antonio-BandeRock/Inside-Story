@@ -409,6 +409,25 @@ export const colors = {
   // hasn't been individually re-verified against a bare-text use.
   statusYellowStandalone: '#E4B267',
 
+  // The three traffic-light colours as plain TEXT on an ordinary surface,
+  // 2026-09-12. Reported on the Insights Nutrients table, whose rows carry
+  // no coloured fill: "Below Target is difficult to read." Measured rather
+  // than eyeballed, against each ground theme's surface composited over
+  // its background: statusYellow (built to sit on statusYellowBg) measures
+  // 1.1:1 to 1.5:1 as bare text, effectively invisible; danger measures
+  // 3.2:1 to 4.2:1, under the 4.5:1 AA floor for caption-size text on two
+  // of the five themes; primary 4.0:1 to 5.4:1, under it on Teal and Navy.
+  // These three are the same hues lifted until every theme clears 4.5:1
+  // (the tightest, Teal, measures 4.6/4.7/4.6), and they also clear their
+  // own matching row fills (5.6/6.6/7.5 on primaryTint/statusYellowBg/
+  // statusRedBg) so the Condition Scores scorecard, which does fill its
+  // rows, can share them. Scoped as their own tokens rather than moving
+  // primary/statusYellow/danger, which are used far more widely as fills,
+  // borders and buttons and were not part of what was reported.
+  statusGreenOnSurface: '#8FD3CF',
+  statusYellowOnSurface: '#EBC27E',
+  statusRedOnSurface: '#F2B9A8',
+
   // Notice -- a heads-up/in-progress state, distinct from both a
   // flagged/needs-attention state and the brand color.
   noticeBg: '#3A4968',

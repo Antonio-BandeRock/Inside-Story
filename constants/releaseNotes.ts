@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.36.11',
+    date: '2026-09-12',
+    changes: [
+      'Insights > Nutrients: the RDA column now sits last, so Now and End of Day read side by side and the target they are judged against closes the row.',
+      'The status words in that table (Below target, Well short, On target, Over the limit) are in colours that can actually be read on the table\'s own background. The amber in particular was close to invisible before.',
+      'The lens name and explanation at the top of every Insights lens is now the same edge-to-edge band as the rest of the Nutrients screen, with a thick left edge and thin top and bottom.',
+      'The Nutrients lens (and Condition Scores and Cooking & Prep, which share the same corner filter button) now scrolls far enough that the last line can be read above that button.',
+    ],
+  },
+  {
     version: '1.0.36.10',
     date: '2026-09-12',
     changes: [
