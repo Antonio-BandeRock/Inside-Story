@@ -25,6 +25,14 @@ This file is the standing brief a new session reads automatically: current statu
 
 The app is under active development and substantially built. Current state:
 
+**Most recent (2026-09-12, 1.0.36.4): the back of a flip card could not scroll, and most likely never had.** Reported after 1.0.36.3 landed: "The flip cards look good but the backs don't seem able to scroll vertically when there is more than what can be displayed."
+
+**The cause is Android's own nested-scroll rule, not the gesture library.** A vertical scroll view inside another vertical scroll view (a card's face, inside Home's page) hands every drag to the outer one unless the inner sets `nestedScrollEnabled`. The 2026-07-27 switch to the gesture-handler ScrollView changed which component claims the gesture and never set that flag, so the back face very likely never scrolled on a phone at all; the 2026-08-23 "cut off in mid sentence" report reads, in hindsight, as this same fault. `InlineSelectList` and `KitchenSection` already set the flag for their own nested lists, so this is the app's own precedent applied. Both faces set it now and show the scroll bar, so a face with more to read says so.
+
+**A second real gap fixed in the same place:** the two faces are stacked, and the hidden one stays in the touch tree. Unflipped, the invisible back sat on top and would have taken a vertical drag meant for the front. Whichever face is turned away now ignores touches (`pointerEvents`), which is also what makes the front's own new scroll reachable.
+
+`tsc` clean, `eslint` clean, bare-text audit 0, 22 suites passing. **Published to `preview` at Runtime version `621e8bfc...`**. **Not yet confirmed on-device**, and it is the reported gesture itself that needs trying: flip a card with a long back and drag it.
+
 **Most recent (2026-09-12, 1.0.36.3): the stat tiles split into two rows, and the Digest cards banded and headed by their category.** Confirmed on-device first ("Looks good"), then two more asks: "Separate the Meals & Worth a Look the same way," and "apply the same formatting to the Digest cards, but not have them be collapsable. They should still scroll horizontally, but the section of the Digest where they exist should be seen as a header for each card. Each card should be capable of scrolling vertically if there is more info on the front or back than can be displayed in the size of the card."
 
 **Meals Logged Today and Worth a Look are action rows carrying their count** (`HomeSectionBand` gained `value`/`valueColor` on the action kind), one under Schedules opening Today's Meals, one under Insights through the same `handleWorthALookPress` that asks which kind of flag when both contributed. A count is the whole point of each, so it sits on the row rather than behind a fold. That retired `CardLabel` entirely, since those two tiles were its last users.
