@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.36.5',
+    date: '2026-09-12',
+    changes: [
+      'Another go at the back of a Digest card scrolling. The scrolling text no longer sits inside the flip button, and the card uses the same plain scroll view every other nested list in the app uses. Tap the header or the title, or Tap to flip back, to turn it over; the body is left free to scroll.',
+    ],
+  },
+  {
     version: '1.0.36.4',
     date: '2026-09-12',
     changes: [

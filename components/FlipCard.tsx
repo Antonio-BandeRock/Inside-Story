@@ -1,28 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-// react-native-gesture-handler's ScrollView, not the plain react-native
-// one, specifically for the nested vertical scroll below -- 2026-07-27,
-// reported as moving the whole Home page instead of just the card's own
-// back content. Root cause: this card sits inside a horizontal row, but
-// that row itself sits inside Home's own OUTER vertical page ScrollView --
-// a vertical drag here is genuinely ambiguous between "scroll this card"
-// and "scroll the page" to the plain responder system, and the outer one
-// was winning. Already a real dependency in this app (the tab-swipe
-// gesture, see SwipeableTabScreen.tsx/app/_layout.tsx's own
-// GestureHandlerRootView) -- its ScrollView correctly claims this nested
-// gesture instead of leaking it to the ancestor scroll view, which the
-// plain react-native ScrollView doesn't reliably do in exactly this shape.
-//
-// 2026-09-12, direct report: "the backs don't seem able to scroll
-// vertically when there is more than what can be displayed." The missing
-// piece was nestedScrollEnabled. On Android a vertical scroll view sitting
-// inside another vertical scroll view (this card's face, inside Home's
-// own page) hands every drag to the outer one unless it opts into nested
-// scrolling explicitly; the gesture-handler swap above changed which
-// component claims the gesture but never set that flag, so the face very
-// likely never scrolled on a phone at all. Both faces now set it, and the
-// scroll indicator is shown so a face with more to read says so.
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -37,12 +14,10 @@ import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_EDGE_WIDTH } from './HomeSectionBand'
 // 2026-08-23, direct report on Home's own Digest-sourced cards: "they
 // don't link back to the information card in Digest where they refer to,
 // and they cut off in mid sentence without baiting their appetite." Two
-// real, separate problems, both fixed here rather than by shortening the
-// text passed in from the caller: `backBody` cutting off mid-scroll with
-// nothing signaling there was more, and no way to actually reach the full
-// entry this card teases. `onReadMore` is optional so this component still
-// works for any caller with nothing real to link to; every current caller
-// (Home's own Digest flip cards) passes one.
+// real, separate problems: `backBody` cutting off with nothing signaling
+// there was more, and no way to reach the full entry this card teases.
+// `onReadMore` is optional so this component still works for any caller
+// with nothing real to link to; every current caller passes one.
 //
 // 2026-09-12, direct request, three parts: "apply the same formatting to
 // the Digest cards" (the band look every other Home box now carries: a
@@ -51,8 +26,28 @@ import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_EDGE_WIDTH } from './HomeSectionBand'
 // seen as a header for each card" (the `header` prop: the Digest category
 // the card came from, as a header row on both faces), and "each card
 // should be capable of scrolling vertically if there is more info on the
-// front or back than can be displayed" (the front's hook now scrolls the
-// same way the back's body already did, centred while it still fits).
+// front or back than can be displayed".
+//
+// THE SCROLL, and why the back face is built the way it is. Reported the
+// same day, twice: "the backs don't seem able to scroll vertically." The
+// history: on 2026-07-27 a vertical drag on the back moved the whole page,
+// and the fix chosen was react-native-gesture-handler's ScrollView, on the
+// reasoning that its handler would claim the gesture. The 2026-08-23
+// "cut off in mid sentence" report and both of today's say it never did.
+// Two things stood between a finger and that scroll view, and both are
+// gone now rather than one at a time:
+//
+// 1. nestedScrollEnabled was never set. On Android a vertical scroll view
+//    inside another vertical one (this face, inside Home's page) hands
+//    every drag to the outer page unless it opts in. InlineSelectList and
+//    KitchenSection already set it for their own nested lists; this is the
+//    app's own recipe, on a plain react-native ScrollView, applied here.
+// 2. The flip button used to wrap the whole face, so a JavaScript touch
+//    responder sat above the native scroll view and the two negotiated
+//    every drag. The back face is a plain View now: its header row and the
+//    "Tap to flip back" line are the tap targets, and the scrolling body
+//    sits outside any touchable at all. The front keeps the whole-face tap,
+//    since tapping anywhere to turn a card over is the point of it.
 export function FlipCard({
   icon,
   header,
@@ -116,65 +111,59 @@ export function FlipCard({
   ) : null;
 
   return (
-    <TouchableOpacity onPress={toggle} activeOpacity={0.85} style={{ width, height }}>
+    <View style={{ width, height }}>
       {/* The two faces are stacked, and the hidden one is invisible but
           still in the touch tree: unflipped, the back face sits on top and
-          would take a vertical drag meant for the front. So whichever face
-          is turned away ignores touches entirely. */}
-      <Animated.View
-        style={[styles.face, { borderColor }, frontStyle]}
-        pointerEvents={isFlipped ? 'none' : 'auto'}
-      >
-        {headerRow}
-        {/* Scrolls if the hook outgrows the card (a larger system font, a
-            long hook), otherwise sits centred in whatever space the header
-            leaves, exactly where it always sat. The icon only leads the
-            hook when there is no header carrying it already. */}
-        <ScrollView
-          style={styles.faceScroll}
-          contentContainerStyle={styles.frontContent}
-          nestedScrollEnabled
-        >
-          {header ? null : icon}
-          <Text style={styles.hook}>{hook}</Text>
-        </ScrollView>
+          would take a drag meant for the front. So whichever face is turned
+          away ignores touches entirely. */}
+      <Animated.View style={[styles.face, { borderColor }, frontStyle]} pointerEvents={isFlipped ? 'none' : 'auto'}>
+        <TouchableOpacity onPress={toggle} activeOpacity={0.85} style={styles.faceFill} accessibilityRole="button">
+          {headerRow}
+          {/* Scrolls if the hook outgrows the card (a larger system font, a
+              long hook), otherwise sits centred in whatever space the header
+              leaves. The icon only leads the hook when there is no header
+              carrying it already. */}
+          <ScrollView style={styles.faceScroll} contentContainerStyle={styles.frontContent} nestedScrollEnabled>
+            {header ? null : icon}
+            <Text style={styles.hook}>{hook}</Text>
+          </ScrollView>
+        </TouchableOpacity>
       </Animated.View>
       <Animated.View
         style={[styles.face, { borderColor }, styles.backFace, backStyle]}
         pointerEvents={isFlipped ? 'auto' : 'none'}
       >
-        {headerRow}
-        <Text style={styles.backTitle}>{backTitle}</Text>
-        <View style={styles.backDivider} />
+        {/* Header and title flip the card back; the body below is left to
+            scroll on its own (see the component's own header comment). */}
+        <TouchableOpacity onPress={toggle} activeOpacity={0.85} accessibilityRole="button" accessibilityLabel="Flip back">
+          {headerRow}
+          <Text style={styles.backTitle}>{backTitle}</Text>
+          <View style={styles.backDivider} />
+        </TouchableOpacity>
         {/* Scrolls instead of the card growing taller to fit -- explicitly
             requested, 2026-07-27, once the bigger flip-card pool started
             including longer tips than the original 4 fixed ones. flex: 1
             lets this fill exactly the space left between the divider and
-            "Read more"/the flip hint below, whatever that is, and only
-            scrolls if the text actually overflows it. backBody itself is
-            now a short excerpt (see digestFlipCardPool's own comment in
-            app/(tabs)/index.tsx), so this scroll is a safety margin for a
-            larger system font size, not the primary way to reach the rest
-            of the text -- "Read more" below is. */}
+            "Read more"/the flip hint below, and only scrolls if the text
+            actually overflows it. The scroll bar is left visible so a face
+            with more to read says so. */}
         <ScrollView style={styles.faceScroll} nestedScrollEnabled>
           <Text style={styles.backBody}>{backBody}</Text>
         </ScrollView>
         {/* Deliberately outside the ScrollView above, not its last line --
             always visible regardless of scroll position, the actual fix
             for "give enough to catch their interest, and end with a way
-            to read more." A separate TouchableOpacity nested inside the
-            card's own outer one (which flips the card): React Native's
-            touch responder system already gives the innermost handler the
-            tap, so this reads as its own real link, not a second flip
-            trigger. */}
+            to read more." */}
         {onReadMore ? (
           <TouchableOpacity onPress={onReadMore} hitSlop={8} style={styles.readMoreRow}>
             <Text style={styles.readMoreText}>Read more →</Text>
           </TouchableOpacity>
         ) : null}
-        <Text style={styles.backHint}>Tap to flip back</Text>
+        <TouchableOpacity onPress={toggle} hitSlop={8} accessibilityRole="button" accessibilityLabel="Flip back">
+          <Text style={styles.backHint}>Tap to flip back</Text>
+        </TouchableOpacity>
       </Animated.View>
-    </TouchableOpacity>
+    </View>
   );
 }
 
@@ -196,13 +185,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: HOME_BAND_EDGE_WIDTH,
     borderRightWidth: 0,
     // borderColor itself is set inline per-render (see the component body
-    // above), not here -- the borderColor prop's own default lives on the
-    // function signature instead, so this StyleSheet entry would only ever
-    // be dead weight, immediately overridden either way.
+    // above), not here.
     backgroundColor: colors.surface,
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
+  faceFill: { flex: 1 },
   backFace: { backgroundColor: colors.primaryTint },
   headerRow: {
     flexDirection: 'row',
