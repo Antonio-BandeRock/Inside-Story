@@ -21,9 +21,19 @@ This file is the standing brief a new session reads automatically: current statu
 
 **Keep this file lean.** When a session finishes work, update the Status snapshot below in place and put the long-form account in the Notion log. Do not append to this file. That append-only habit is what grew the original to 2.05M characters and stopped Claude Code from responding at all.
 
-## Status snapshot (2026-09-05)
+## Status snapshot (2026-09-12)
 
 The app is under active development and substantially built. Current state:
+
+**Most recent (2026-09-12, 1.0.36.1): Home rebuilt as full-width bands that fold to one row, grouped by tab.** Three asks in one message: the box look seen elsewhere ("the left side line be about 4 times thicker than all of the rest and then kept the top and bottom lines at about 1 pixel... the right side of the box was left without any line"), every Home entity collapsing "to one row height with just the name of what it is" and expanding on tap, and no side padding on the boxes ("use the available width of the entire screen... with the padding in effect for the text... but not for the boxes"), grouped by tab, with the Digest flip cards left exactly as they were.
+
+**The look was InlineSelectList's own grouped-row treatment** (4px accent bar, 1px hairline, nothing on the right), now `components/HomeSectionBand.tsx`: edge to edge, no corner radius, accent and hairlines in the tab's colour, a header row carrying the tab icon and the section name in that colour, and a chevron. The header IS the label, so `CardLabel` survives only on the two stat tiles. Open/closed state is a visual preference (`homeSectionExpanded`, absence means folded), so what someone leaves open stays open across launches. The greeting card takes Home's own tab colour, the one box that belongs to Home itself.
+
+**Grouping is applied on top of the saved order rather than replacing it.** `lib/homeSections.ts` maps each section to its tab and regroups so each tab's group lands where its first member was, members keeping their relative order; a tabless section (the shared-folder nudge) is its own group and stays put. Done inside `getOrderedHomeSectionKeys` so Profile's Order list shows what Home renders, and Profile's help text now says a move past another tab's section carries the tab-mates along. The default order is regrouped in TabHub's own sequence. `scripts/test_home_sections.js` is 10 checks, 4 confirmed to fail on a mutation that skips the grouping.
+
+**The bare-text audit had to learn two things or it would have reported 33 false findings:** a StyleSheet entry that spreads `homeBandStyle` paints a surface, and JSX passed as an argument to `renderBand` lands inside one. Both are named allowlists with the reason beside them, per that script's own rule.
+
+`tsc` clean, `eslint` at the pre-existing baseline (the one unescaped apostrophe in `index.tsx`, moved not added; `profile.tsx` at 5), bare-text audit 0, all four guards clean, all 22 suites passing. **Published to `preview` at Runtime version `621e8bfc...`**, every new string confirmed in the exported bundle. **Not yet confirmed on-device**, and this one is a visual judgment: whether 4px reads as the look he remembered, and whether the folded list is what he pictured. App Guide and Walkthrough deliberately held until that verdict, since a look that may change within the hour is not worth republishing twice.
 
 **Most recent (2026-09-09, 1.0.35.1): backup was asking where to put a file it already had a folder for.** Reported directly: "The backup folder is known to it, so why is it asking me to go to the place where I want to back up to?"
 
