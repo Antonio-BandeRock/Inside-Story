@@ -18,16 +18,24 @@ import type { HomeSectionKey } from './visualPreferences';
 // the corner menu already decided what each card is a window into. The
 // symptom check-in opens the assessment, a standalone screen, but it is
 // Signals' own data and the corner menu already colours it that way.
+//
+// 2026-09-12, direct correction: "Grocery List seems to be related to
+// Schedule and I think it should instead relate to Life." It is built from
+// the schedule, but it is shopped from, priced, and checked against the
+// kitchen, all of which is Life's Kitchen and Finances ground.
 export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   weather: null,
   sharedFolderSetup: null,
-  quickActions: '/',
   logAgain: '/food',
-  groceryList: '/schedule',
+  scanProduct: '/food',
+  groceryList: '/life',
   yourDay: '/schedule',
   symptomCheckinReminder: '/log',
   todaysCheckin: '/log',
   howYoureFeeling: '/log',
+  logFlare: '/log',
+  logBloodPressure: '/log',
+  logExercise: '/log',
   statTiles: '/insights',
   fuelGauges: '/insights',
   weekTrend: '/trends',

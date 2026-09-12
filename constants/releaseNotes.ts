@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.36.2',
+    date: '2026-09-12',
+    changes: [
+      'The Quick Actions strip is gone. Scan a Product, Log a Flare, Log Blood Pressure and Log Exercise are each their own row on Home now, sitting with the tab they belong to; a row with a forward arrow does the thing when you tap it.',
+      'Log a meal is no longer repeated there, since the Log a Meal section already does that.',
+      'Symptom Check-In is always on Home now, and its row says when one is due, rather than only appearing every 30 days.',
+      'The Grocery List belongs to Life rather than Schedules, and takes that colour.',
+    ],
+  },
+  {
     version: '1.0.36.1',
     date: '2026-09-12',
     changes: [

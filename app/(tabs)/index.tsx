@@ -544,11 +544,10 @@ function CardLabel({ tabPath, text }: { tabPath: Href; text: string }) {
 // Screen), the same way The Digest's own lens list reflects the conditions
 // picked in Profile.
 //
-// Two keys are deliberately absent rather than overlooked. 'weather' renders
+// One key is deliberately absent rather than overlooked: 'weather' renders
 // inside the greeting card rather than as a section of its own, so there is
-// nothing to select. 'quickActions' is already a row of shortcuts into other
-// tabs; putting a menu entry in front of a menu of shortcuts would add a step
-// and reach nothing new.
+// nothing to select. (Until 2026-09-12 'quickActions' was absent too; that
+// row is now four separate sections, each listed here like any other.)
 // Ordered the same way TabHub's own grid is, by what you do with the thing
 // rather than by where it happens to sit on the page: what you put in, then
 // what it tells you, then the wider world. Grouping by destination tab also
@@ -574,12 +573,15 @@ const HOME_LENS_DESTINATIONS: Partial<
       renderIcon?: (size: number, color: string) => ReactNode;
       href?: Href;
       scrollTo?: true;
+      // Opens one of Home's own quick-log modals rather than navigating:
+      // blood pressure and exercise are logged right here on Home.
+      open?: 'bp' | 'exercise';
     }
   >
 > = {
   // What you put in.
   logAgain: { label: 'Log a Meal', icon: 'restaurant', color: colors.tabFood, href: '/find-meal' as Href },
-  groceryList: { label: 'Grocery List', icon: 'cart', color: colors.tabFood, href: '/grocery-list' as Href },
+  scanProduct: { label: 'Scan a Product', icon: 'barcode', color: colors.tabFood, href: '/scan-product' as Href },
   yourDay: { label: 'Your Day', icon: 'calendar', color: colors.tabSchedules, href: '/schedule' as Href },
   symptomCheckinReminder: {
     label: 'Symptom Check-In',
@@ -589,11 +591,16 @@ const HOME_LENS_DESTINATIONS: Partial<
   },
   todaysCheckin: { label: "Today's Check-In", icon: 'checkmark-circle', color: colors.tabBioCompass, href: '/log' as Href },
   howYoureFeeling: { label: "How You're Feeling", icon: 'heart', color: colors.tabBioCompass, href: '/log' as Href },
+  logFlare: { label: 'Log a Flare', icon: 'flame', color: colors.tabBioCompass, href: '/log' as Href },
+  logBloodPressure: { label: 'Log Blood Pressure', icon: 'heart-circle', color: colors.tabBioCompass, open: 'bp' },
+  logExercise: { label: 'Log Exercise', icon: 'walk', color: colors.tabBioCompass, open: 'exercise' },
   // What it tells you.
   statTiles: { label: 'Worth a Look', icon: 'sparkles', color: colors.tabInsights, href: '/insights' as Href },
   fuelGauges: { label: "Today's Fuel", icon: 'speedometer', color: colors.tabInsights, href: '/insights' as Href },
   weekTrend: { label: "This Week's Trend", icon: 'trending-up', color: colors.tabTrends, href: '/trends' as Href },
-  // The wider world, and the one that stays here.
+  // The wider world, and the one that stays here. The Grocery List moved
+  // from Schedules to Life on 2026-09-12 (see lib/homeSections.ts).
+  groceryList: { label: 'Grocery List', icon: 'cart', color: colors.tabLife, href: '/grocery-list' as Href },
   // The real awareness ribbon, not Ionicons' own "ribbon" glyph. That glyph is
   // only ever a fallback for a generic consumer of TAB_ROUTES; it was tried for
   // real once and rejected because it reads as a race or award rosette (see
@@ -619,14 +626,18 @@ const HOME_LENS_DESTINATIONS: Partial<
 // time someone reordered the literal above, so it is stated.
 const HOME_LENS_ORDER: HomeSectionKey[] = [
   'logAgain',
-  'groceryList',
+  'scanProduct',
   'yourDay',
   'symptomCheckinReminder',
   'todaysCheckin',
   'howYoureFeeling',
+  'logFlare',
+  'logBloodPressure',
+  'logExercise',
   'statTiles',
   'fuelGauges',
   'weekTrend',
+  'groceryList',
   'digestCards',
 ];
 
@@ -679,7 +690,7 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'How the sections work',
-    body: "Each section starts folded to a single row carrying just its name. Tap the row to open it and tap again to fold it away; the app remembers which ones you left open. The coloured bar down the left edge of every row is the colour of the tab that section belongs to, and sections from the same tab always sit together, so a run of the same colour is one tab's worth of information. Which sections show, and the order the groups appear in, is yours to set in Profile → Home Screen.",
+    body: "Each section starts folded to a single row carrying just its name. Tap the row to open it and tap again to fold it away; the app remembers which ones you left open. A row with a forward arrow is an action rather than a fold: tapping it does the thing, such as opening the scanner or logging a flare. The coloured bar down the left edge of every row is the colour of the tab that section belongs to, and sections from the same tab always sit together, so a run of the same colour is one tab's worth of information. Which sections show, and the order the groups appear in, is yours to set in Profile → Home Screen.",
   },
   {
     heading: "Today's sky & weather",
@@ -706,8 +717,8 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
     body: "A quick daily question: how are you feeling today, across a wide, categorized list covering digestion, energy, mood, sleep, skin, physical symptoms, and cognitive state. Pick everything that applies, positives included. One entry per day; tap it again any time today to change it. This builds a daily trend alongside Signals' own flare/reaction logging, not a replacement for it.",
   },
   {
-    heading: 'Symptom check-in reminder',
-    body: "The full symptom check-in (13 hypothyroid items, 5 digestive/IBS items, 5 wellbeing items) is a periodic, not daily, thing. A banner appears here automatically every 30 days (or the first time you haven't taken one at all) so it's easy to notice without having to remember. It stays available any time from the \"Symptom check-in\" button below, whether or not the banner is currently showing.",
+    heading: 'Symptom Check-In',
+    body: "The full symptom check-in (13 hypothyroid items, 5 digestive/IBS items, 5 wellbeing items) is a periodic, not daily, thing. Its row on Home says when one is due, every 30 days or the first time you haven't taken one at all, so it's easy to notice without having to remember, and it can be taken any time from the same row whether or not one is due.",
   },
   {
     heading: 'What is Hashimoto’s thyroiditis?',
@@ -1698,17 +1709,25 @@ export default function HomeScreen() {
   // Signals' own colour, matching the corner menu's own choice for this
   // entry, since the assessment is Signals' data even though it opens as a
   // standalone screen.
+  //
+  // Always on Home since 2026-09-12, not only when due: the old Quick
+  // Actions row carried the always-available "Symptom check-in" button and
+  // that row is gone, so this section is now the one place for both. The
+  // row's name says when one is due; the caption inside says why.
   function renderSymptomCheckinReminder() {
-    if (!assessmentDue || !isHomeSectionVisible(visualPrefs, 'symptomCheckinReminder')) return null;
+    if (!isHomeSectionVisible(visualPrefs, 'symptomCheckinReminder')) return null;
     const signalsColor = tabColorFor('/log');
+    const days = data?.daysSinceAssessment ?? null;
     return renderBand(
       'symptomCheckinReminder',
-      data?.daysSinceAssessment == null ? 'Take your first symptom check-in' : 'Time for your symptom check-in',
+      assessmentDue ? 'Symptom Check-In, due now' : 'Symptom Check-In',
       <View style={styles.bandBody}>
         <Text style={styles.bandCaption}>
-          {data?.daysSinceAssessment == null
-            ? 'A few minutes now becomes a baseline to compare against next time.'
-            : `It's been ${data.daysSinceAssessment} days since your last one. Retaking it is what turns today into a trend.`}
+          {days == null
+            ? 'The full check-in, 30 questions across three areas. A few minutes now becomes a baseline to compare against next time.'
+            : assessmentDue
+              ? `It's been ${days} days since your last one. Retaking it is what turns today into a trend.`
+              : `Last taken ${days} ${days === 1 ? 'day' : 'days'} ago. It comes around every 30 days, and can be retaken any time.`}
         </Text>
         <TouchableOpacity
           style={[styles.logAgainSpeakButton, { borderColor: signalsColor }]}
@@ -1872,105 +1891,48 @@ export default function HomeScreen() {
     );
   }
 
-  // Home's own colour: shortcuts into several tabs, belonging to none of
-  // them in particular, the same reason the corner menu leaves it out.
-  function renderQuickActions() {
-    if (!isHomeSectionVisible(visualPrefs, 'quickActions')) return null;
-    return renderBand(
-      'quickActions',
-      'Quick Actions',
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.bandScroll}
-        contentContainerStyle={styles.quickActionsRow}
-      >
-        {/* Daily check-in is now first, 2026-07-28 -- explicitly
-            requested reorder, Log a meal moved to second (right after
-            this one, unchanged otherwise). Deliberately left the generic
-            colors.primary, not tab-colored like the others below -- it
-            opens Assessment, a standalone screen outside TAB_ROUTES
-            entirely (see TabHub.tsx's own profileActive comment for the
-            same "not really a tab" situation), so there's no real tab
-            color to borrow here.
-            Relabeled "Symptom check-in," 2026-08-08 -- this opens the
-            full periodic assessment (30 real questions across 3
-            domains), which was never actually a daily action; "Daily
-            check-in" became genuinely misleading once a real daily
-            action (Today's Check-In, above) exists on this same page.
-            This pill still opens the same assessment as always -- just
-            named for what it actually is, available any time regardless
-            of whether the new 30-day due banner above is currently
-            showing. */}
-        <TouchableOpacity style={styles.quickActionSecondary} onPress={() => router.push('/assessment')} activeOpacity={0.85}>
-          <Ionicons name="pulse-outline" size={18} color={colors.primary} />
-          <Text style={styles.quickActionSecondaryText}>Symptom check-in</Text>
-        </TouchableOpacity>
-        {/* Reverted the solid green fill, same day -- just the
-            border/icon/text carry Food's color now, matching every
-            secondary pill's own outline treatment instead of standing
-            out as a differently-colored filled button. */}
-        <TouchableOpacity
-          style={[styles.quickActionSecondary, { borderColor: tabColorFor('/food') }]}
-          onPress={() => router.navigate('/food')}
-          activeOpacity={0.85}
-        >
-          <Ionicons name="add-circle-outline" size={18} color={tabColorFor('/food')} />
-          <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/food') }]}>Log a meal</Text>
-        </TouchableOpacity>
-        {/* "Scan a Product," 2026-08-17 -- a real shortcut to the
-            barcode-scanning screen (app/scan-product.tsx), moved here
-            directly per its own explicit request: "having a shortcut to
-            it on the Home screen seems appropriate." Food-colored, same
-            as "Log a meal" right above it -- the screen it opens is
-            reached from Food's own "My Foods" menu and lives entirely
-            within that tab's own real identity, even though it's a
-            standalone Stack screen, not a Food-tab lens. */}
-        <TouchableOpacity
-          style={[styles.quickActionSecondary, { borderColor: tabColorFor('/food') }]}
-          onPress={() => router.push('/scan-product')}
-          activeOpacity={0.85}
-        >
-          <Ionicons name="barcode-outline" size={18} color={tabColorFor('/food')} />
-          <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/food') }]}>Scan a product</Text>
-        </TouchableOpacity>
-        {/* These three all write to Signals's own data (flares, and
-            blood pressure/exercise under its Other lens) -- explicitly
-            requested, 2026-07-27, so a pill's own color matches where
-            its data actually lives, the same tab-color consistency
-            already applied to every info box above. Blood
-            pressure/exercise open a local modal rather than literally
-            navigating to /log, but the data they save is Signals's
-            regardless. */}
-        <TouchableOpacity
-          style={[styles.quickActionSecondary, { borderColor: tabColorFor('/log') }]}
-          onPress={() => router.navigate('/log')}
-          activeOpacity={0.85}
-        >
-          <Ionicons name="flame-outline" size={18} color={tabColorFor('/log')} />
-          <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/log') }]}>Log a flare</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.quickActionSecondary, { borderColor: tabColorFor('/log') }]}
-          onPress={() => setQuickLogModal('bp')}
-          activeOpacity={0.85}
-        >
-          <Ionicons name="heart-outline" size={18} color={tabColorFor('/log')} />
-          <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/log') }]}>Log blood pressure</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.quickActionSecondary, { borderColor: tabColorFor('/log') }]}
-          onPress={() => setQuickLogModal('exercise')}
-          activeOpacity={0.85}
-        >
-          <Ionicons name="walk-outline" size={18} color={tabColorFor('/log')} />
-          <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/log') }]}>Log exercise</Text>
-        </TouchableOpacity>
-      </ScrollView>,
+  // The four rows that used to be the Quick Actions pill strip, 2026-09-12,
+  // direct correction: "All things on the Home Screen are supposed to be
+  // Quick Actions. It makes no sense to suggest that some are Quick Actions
+  // and others are not. Separate the Quick Actions items into their own
+  // entities and grouped appropriately." Each is an action row (see
+  // HomeSectionBand's own comment): one row, tap does the thing, grouped
+  // with the tab whose data it touches. Scan a Product is Food's, the same
+  // reasoning the old pill carried; the other three all write to Signals.
+  // "Log a meal" is not here: it was a shortcut to Food's Desktop, and the
+  // Log a Meal section above already does that job properly.
+  function renderActionRow(key: HomeSectionKey, title: string, onPress: () => void) {
+    if (!isHomeSectionVisible(visualPrefs, key)) return null;
+    const tabPath = HOME_SECTION_TAB_PATH[key];
+    const route = tabPath ? TAB_ROUTES.find((r) => r.path === tabPath) : undefined;
+    return (
+      <HomeSectionBand
+        kind="action"
+        title={title}
+        icon={route?.icon ?? 'ellipse-outline'}
+        color={route?.color ?? colors.primary}
+        onPress={onPress}
+      />
     );
   }
 
-  // "How You're Feeling" (Signals, a warm peach) used to always come
+  function renderScanProduct() {
+    return renderActionRow('scanProduct', 'Scan a Product', () => router.push('/scan-product'));
+  }
+
+  function renderLogFlare() {
+    return renderActionRow('logFlare', 'Log a Flare', () => router.navigate('/log'));
+  }
+
+  function renderLogBloodPressure() {
+    return renderActionRow('logBloodPressure', 'Log Blood Pressure', () => setQuickLogModal('bp'));
+  }
+
+  function renderLogExercise() {
+    return renderActionRow('logExercise', 'Log Exercise', () => setQuickLogModal('exercise'));
+  }
+
+    // "How You're Feeling" (Signals, a warm peach) used to always come
   // right before "Today's Fuel Gauges" (Insights, a cool teal-green) --
   // explicitly ordered that way, 2026-07-27, so the two Insights-colored
   // boxes (this one and the "Worth a look" stat tile) don't stack
@@ -2251,7 +2213,8 @@ export default function HomeScreen() {
   function renderGroceryList() {
     if (!isHomeSectionVisible(visualPrefs, 'groceryList')) return null;
     const summary = data?.grocerySummary ?? null;
-    const scheduleColor = tabColorFor('/schedule');
+    // Life's colour since 2026-09-12, see lib/homeSections.ts.
+    const scheduleColor = tabColorFor('/life');
     const remaining = summary ? summary.itemCount - summary.checkedCount : 0;
     return renderBand(
       'groceryList',
@@ -2302,8 +2265,14 @@ export default function HomeScreen() {
         return renderYourDay();
       case 'statTiles':
         return renderStatTiles();
-      case 'quickActions':
-        return renderQuickActions();
+      case 'scanProduct':
+        return renderScanProduct();
+      case 'logFlare':
+        return renderLogFlare();
+      case 'logBloodPressure':
+        return renderLogBloodPressure();
+      case 'logExercise':
+        return renderLogExercise();
       case 'howYoureFeeling':
         return renderHowYoureFeeling();
       case 'fuelGauges':
@@ -2540,6 +2509,10 @@ export default function HomeScreen() {
             router.push(entry.href);
             return;
           }
+          if (entry.open) {
+            setQuickLogModal(entry.open);
+            return;
+          }
           // Stays on Home. Falls back to the top rather than doing nothing if
           // the section has not been measured yet, which can only happen if it
           // is off-screen and has never been laid out.
@@ -2727,7 +2700,7 @@ const styles = StyleSheet.create({
   // element carrying its own marginTop by hand, which is what every one of
   // those used to do (several different values -- 16, 24 -- not even
   // consistent with each other before this). The horizontal half of the
-  // same request is each row's own `gap` (statRow/quickActionsRow/ringRow/
+  // same request is each row's own `gap` (statRow/ringRow/
   // flipRow/feelingTagRow below), normalized to this same 10.
   // paddingHorizontal 0, 2026-09-12: "use the available width of the
   // entire screen, all the way from the left side of the screen to the
@@ -2743,10 +2716,7 @@ const styles = StyleSheet.create({
   bandCaption: { ...typography.caption, ...textShadow, color: colors.textSecondary, lineHeight: 16 },
   // For a band whose content is one centred widget (the day arc, the orb).
   bandContentCentered: { alignItems: 'center' },
-  // A horizontal row inside a band scrolls out to the band's own edges
-  // rather than stopping at its content padding; the row re-adds the same
-  // padding so it still starts flush with the text above it at rest.
-  bandScroll: { marginHorizontal: -HOME_BAND_CONTENT_PADDING },
+
   // Same colors.surface "dark blue" card used everywhere else on this page
   // (arcCard, statTile, trendCard, etc.) -- every text-bearing element on
   // Home sits on this same box now, since the background underneath is a
@@ -2947,25 +2917,6 @@ const styles = StyleSheet.create({
   },
   statNumberFlagged: { color: colors.statusFlagged },
 
-  // marginTop removed, 2026-08-08 -- content's own gap: 10 handles the
-  // space before this row now; gap was already 10, unchanged. Padding is
-  // the band's own content inset since 2026-09-12 (see bandScroll).
-  quickActionsRow: { flexDirection: 'row', gap: 10, paddingHorizontal: HOME_BAND_CONTENT_PADDING },
-  quickActionSecondary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.surface,
-    borderRadius: 999,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  quickActionSecondaryText: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary,
-    fontWeight: '400',
-  },
-
   // Log Again (quick-log phase 1), 2026-08-30. The card itself is a band
   // now (2026-09-12); these are what sits inside it.
   logAgainCaption: { ...typography.caption, ...textShadow, color: colors.textMuted },
@@ -2983,8 +2934,8 @@ const styles = StyleSheet.create({
   logAgainSpeakText: { ...typography.bodyEmphasis, ...textShadow },
   // Negative margin so the tile row can scroll all the way to the card edges
   // instead of stopping short at its padding, with that same padding handed
-  // to the content instead. Same technique as bandScroll above, scoped
-  // to this one card rather than the whole screen.
+  // to the content instead. Same negative-margin technique the page itself
+  // used to need before it went edge to edge, scoped to this one card.
   logAgainScroll: { marginHorizontal: -INFO_CARD_PADDING_HORIZONTAL },
   logAgainRow: {
     flexDirection: 'row',

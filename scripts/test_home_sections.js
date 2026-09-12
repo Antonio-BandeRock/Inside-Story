@@ -51,48 +51,57 @@ const declaredKeys = [...unionMatch[1].matchAll(/'([a-zA-Z]+)'/g)].map((m) => m[
 check('every declared section has a tab mapping', declaredKeys.filter((k) => !(k in HOME_SECTION_TAB_PATH)), []);
 check('no mapping for a section that no longer exists', Object.keys(HOME_SECTION_TAB_PATH).filter((k) => !declaredKeys.includes(k)), []);
 
-// The old default order, from before grouping existed, interleaved tabs:
-// Signals, then Food, then Schedules, then Insights, then Home, then
-// Signals again. Grouping pulls each tab's sections together where that tab
-// first appeared.
-const oldDefault = [
+// An order that interleaves tabs: Signals, then Food, then Schedules, then
+// Insights, then Food again, then Signals again. Grouping pulls each tab's
+// sections together where that tab first appeared.
+const interleaved = [
   'sharedFolderSetup',
   'symptomCheckinReminder',
   'todaysCheckin',
   'logAgain',
-  'groceryList',
   'yourDay',
   'statTiles',
-  'quickActions',
+  'scanProduct',
   'howYoureFeeling',
+  'logFlare',
   'fuelGauges',
   'weekTrend',
+  'groceryList',
   'digestCards',
 ];
-check('interleaved order is regrouped', groupHomeSectionKeysByTab(oldDefault), [
+check('interleaved order is regrouped', groupHomeSectionKeysByTab(interleaved), [
   'sharedFolderSetup',
   'symptomCheckinReminder',
   'todaysCheckin',
   'howYoureFeeling',
+  'logFlare',
   'logAgain',
-  'groceryList',
+  'scanProduct',
   'yourDay',
   'statTiles',
   'fuelGauges',
-  'quickActions',
   'weekTrend',
+  'groceryList',
   'digestCards',
 ]);
 
 // An already-grouped order comes back untouched.
-const grouped = ['quickActions', 'logAgain', 'groceryList', 'yourDay', 'todaysCheckin', 'howYoureFeeling', 'fuelGauges'];
+const grouped = ['logAgain', 'scanProduct', 'yourDay', 'todaysCheckin', 'howYoureFeeling', 'fuelGauges', 'groceryList'];
 check('grouped order is unchanged', groupHomeSectionKeysByTab(grouped), grouped);
 
 // Order inside a group is the person's own, not the default.
 check(
   'within-group order is kept',
-  groupHomeSectionKeysByTab(['yourDay', 'logAgain', 'groceryList']),
-  ['yourDay', 'groceryList', 'logAgain'],
+  groupHomeSectionKeysByTab(['logExercise', 'logAgain', 'logFlare']),
+  ['logExercise', 'logFlare', 'logAgain'],
+);
+
+// The Grocery List belongs to Life, not Schedules (2026-09-12), so it does
+// not get pulled up next to Your Day.
+check(
+  'grocery list is not grouped with schedules',
+  groupHomeSectionKeysByTab(['yourDay', 'weekTrend', 'groceryList']),
+  ['yourDay', 'weekTrend', 'groceryList'],
 );
 
 // Moving one section above another tab's section carries its group along:
@@ -107,12 +116,12 @@ check(
 // members of another group: it never gets pulled into one.
 check(
   'a tabless section stays where it is',
-  groupHomeSectionKeysByTab(['groceryList', 'sharedFolderSetup', 'yourDay']),
-  ['groceryList', 'yourDay', 'sharedFolderSetup'],
+  groupHomeSectionKeysByTab(['todaysCheckin', 'sharedFolderSetup', 'logFlare']),
+  ['todaysCheckin', 'logFlare', 'sharedFolderSetup'],
 );
 
 // Nothing is dropped or invented.
-const shuffled = ['digestCards', 'weekTrend', 'fuelGauges', 'statTiles', 'howYoureFeeling', 'todaysCheckin', 'symptomCheckinReminder', 'yourDay', 'groceryList', 'logAgain', 'quickActions', 'sharedFolderSetup'];
+const shuffled = ['digestCards', 'weekTrend', 'fuelGauges', 'statTiles', 'howYoureFeeling', 'todaysCheckin', 'symptomCheckinReminder', 'yourDay', 'groceryList', 'logAgain', 'scanProduct', 'logFlare', 'logBloodPressure', 'logExercise', 'sharedFolderSetup'];
 check('length is preserved', groupHomeSectionKeysByTab(shuffled).length, shuffled.length);
 check('same members', [...groupHomeSectionKeysByTab(shuffled)].sort(), [...shuffled].sort());
 check('empty stays empty', groupHomeSectionKeysByTab([]), []);

@@ -28,6 +28,15 @@
 // rest." The header row is that one row; expanded state is the caller's
 // (Home remembers it per section through visual preferences).
 //
+// 2026-09-12, same day, direct correction: "All things on the Home Screen
+// are supposed to be Quick Actions. It makes no sense to suggest that some
+// are Quick Actions and others are not." So a band can also be an action
+// row: the same one-row shape, but tapping it does the thing (opens the
+// scanner, logs a flare) rather than unfolding, and its chevron points
+// forward instead of down. There is nothing to unfold for a plain action,
+// and a fold that only ever revealed one button would be a step for
+// nothing.
+//
 // Purely presentational: no data, no navigation, so it stays reusable if
 // another tab ever wants the same treatment.
 import { Ionicons } from '@expo/vector-icons';
@@ -46,11 +55,15 @@ export const HOME_BAND_EDGE_WIDTH = 1;
 // before the bands existed, kept so nothing inside them shifts.
 export const HOME_BAND_CONTENT_PADDING = 16;
 
-type Props = {
+type CommonProps = {
   title: string;
   icon: ComponentProps<typeof Ionicons>['name'];
   // The tab colour: accent bar, hairlines, icon and title all take it.
   color: string;
+};
+
+type FoldProps = CommonProps & {
+  kind?: 'fold';
   expanded: boolean;
   onToggle: () => void;
   // Applied to the content wrapper once expanded, for a section whose
@@ -59,7 +72,33 @@ type Props = {
   children: ReactNode;
 };
 
-export function HomeSectionBand({ title, icon, color, expanded, onToggle, contentStyle, children }: Props) {
+type ActionProps = CommonProps & {
+  kind: 'action';
+  onPress: () => void;
+};
+
+export function HomeSectionBand(props: FoldProps | ActionProps) {
+  const { title, icon, color } = props;
+  if (props.kind === 'action') {
+    return (
+      <View style={[styles.band, { borderColor: color }]}>
+        <TouchableOpacity
+          style={styles.header}
+          onPress={props.onPress}
+          activeOpacity={0.75}
+          accessibilityRole="button"
+          accessibilityLabel={title}
+        >
+          <Ionicons name={icon} size={16} color={color} style={textShadow} />
+          <Text style={[styles.title, { color }]} numberOfLines={1}>
+            {title}
+          </Text>
+          <Ionicons name="chevron-forward" size={18} color={color} style={textShadow} />
+        </TouchableOpacity>
+      </View>
+    );
+  }
+  const { expanded, onToggle, contentStyle, children } = props;
   return (
     <View style={[styles.band, { borderColor: color }]}>
       <TouchableOpacity

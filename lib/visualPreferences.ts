@@ -220,6 +220,9 @@ export const GENERIC_PALETTE_LABELS: Record<GenericPalette, string> = {
 export type HomeSectionKey =
   | 'weather'
   | 'sharedFolderSetup'
+  // Since 2026-09-12 this is the standing Symptom Check-In row, not only a
+  // reminder: it is always on Home, and says "due" when it is. The key
+  // keeps its old name because saved preferences already carry it.
   | 'symptomCheckinReminder'
   | 'todaysCheckin'
   // Quick-log, 2026-08-30 -- see Home's own renderLogAgain for why this sits
@@ -236,7 +239,16 @@ export type HomeSectionKey =
   | 'groceryList'
   | 'yourDay'
   | 'statTiles'
-  | 'quickActions'
+  // 2026-09-12, the old Quick Actions row split into its own entities,
+  // direct correction: "All things on the Home Screen are supposed to be
+  // Quick Actions. It makes no sense to suggest that some are Quick
+  // Actions and others are not." Each is a one-row action, grouped with
+  // the tab whose data it touches. "Log a meal" is gone from here rather
+  // than split out, since the Log a Meal section already does that job.
+  | 'scanProduct'
+  | 'logFlare'
+  | 'logBloodPressure'
+  | 'logExercise'
   | 'howYoureFeeling'
   | 'fuelGauges'
   | 'weekTrend'
@@ -251,16 +263,21 @@ export type HomeSectionKey =
 export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weather',
   'sharedFolderSetup',
-  'quickActions',
   'logAgain',
-  'groceryList',
+  'scanProduct',
   'yourDay',
   'symptomCheckinReminder',
   'todaysCheckin',
   'howYoureFeeling',
+  'logFlare',
+  'logBloodPressure',
+  'logExercise',
   'statTiles',
   'fuelGauges',
   'weekTrend',
+  // Life sits before The Digest here even though TabHub runs the other way
+  // round, so the flip cards stay the last thing on the page.
+  'groceryList',
   'digestCards',
 ];
 
@@ -283,13 +300,16 @@ export const REORDERABLE_HOME_SECTION_KEYS: HomeSectionKey[] = ALL_HOME_SECTION_
 export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weather: 'Weather & Sunrise/Sunset',
   sharedFolderSetup: 'Shared Folder Setup',
-  symptomCheckinReminder: 'Symptom Check-In Reminder',
+  symptomCheckinReminder: 'Symptom Check-In',
   todaysCheckin: "Today's Check-In",
   logAgain: 'Log a Meal',
   groceryList: 'Grocery List',
   yourDay: 'Your Day',
   statTiles: 'Meals & Worth a Look',
-  quickActions: 'Quick Actions',
+  scanProduct: 'Scan a Product',
+  logFlare: 'Log a Flare',
+  logBloodPressure: 'Log Blood Pressure',
+  logExercise: 'Log Exercise',
   howYoureFeeling: "How You're Feeling",
   fuelGauges: "Today's Fuel Gauges",
   weekTrend: "This Week's Trend",
