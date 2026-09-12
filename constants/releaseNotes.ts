@@ -44,7 +44,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.36.8',
     date: '2026-09-12',
     changes: [
-      'This Week's Trend on Home now opens a list of the flags it counted, one row each, day by day: what was flagged, how badly, and which foods did it. Tap a row to see why. If 24 were counted, 24 are there to see.',
+      'This Week\'s Trend on Home now opens a list of the flags it counted, one row each, day by day: what was flagged, how badly, and which foods did it. Tap a row to see why. If 24 were counted, 24 are there to see.',
       'Anything flagged that is not tied to a condition you track is listed under each day too, and the Home row says how many, so a count that dropped after adding a condition is explained rather than a mystery.',
     ],
   },
