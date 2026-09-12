@@ -17497,6 +17497,20 @@ export type DayFlags = {
   other: FlaggedSubCriterion[];
 };
 
+// Two of the three oxalate sub-criteria restate the third. Oxalate Level
+// is the raw measurement ("High"), Oxalate Tolerance Note is the cited
+// per-food instruction ("Discard cooking water where applicable; pair
+// with a calcium source"), and Oxalate Load Rank is the calibrated verdict
+// both of them feed. Counting all three made one fact three flags, and the
+// Note's own "tier" is a whole sentence, which is what stretched the last
+// rows of This Week's Flags to a paragraph each (2026-09-12 report: "it
+// spreads out the last two so they are way too long"). The recipe
+// pipeline (scripts/compute_recipe_condition_data.js) already excludes
+// these two from driving severity for the same reason; this is that rule
+// applied to the live count. The Rank still flags, so nothing oxalate is
+// lost, it is just counted once.
+const RESTATED_SUB_CRITERIA = new Set(['Oxalate Level', 'Oxalate Tolerance Note']);
+
 function worstTier(a: string, b: string): string {
   const rank = (tier: string) => (tierSeverity(tier) === 'red' ? 2 : tierSeverity(tier) === 'yellow' ? 1 : 0);
   return rank(b) > rank(a) ? b : a;
@@ -17521,6 +17535,7 @@ async function describeFlaggedSubCriteriaByDate(
     const generic = new Map<string, FlaggedSubCriterion>();
     for (const food of foods.values()) {
       for (const score of scoresByFood.get(`${food.foodId}|${food.source}`) ?? []) {
+        if (RESTATED_SUB_CRITERIA.has(score.subCriterion)) continue;
         if (!isFlaggedTier(score.tier)) continue;
         const existing = generic.get(score.subCriterion);
         if (existing) {
@@ -17553,6 +17568,7 @@ async function describeFlaggedSubCriteriaByDate(
       for (const conditionCode of conditionCodes) {
         for (const score of byCondition.get(conditionCode) ?? []) {
           if (NEAR_UNIVERSAL_SUB_CRITERIA.has(score.subCriterion)) continue;
+          if (RESTATED_SUB_CRITERIA.has(score.subCriterion)) continue;
           if (!isFlaggedTier(score.tier)) continue;
           const existing = relevant.get(score.subCriterion);
           if (existing) {

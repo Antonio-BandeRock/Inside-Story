@@ -107,6 +107,15 @@ export default function WeekFlagsScreen() {
     showInfoAlert(flag.subCriterion, parts.join('\n\n'));
   }
 
+  // The badge carries the tier word when it is one ("High Risk", "Use
+  // Carefully"); a tier stored as a longer phrase gets the plain severity
+  // word instead, with the full text one tap away in the explanation. A
+  // badge is a label, not a place for a sentence.
+  function badgeLabel(tier: string): string {
+    if (tier.length <= 16) return tier;
+    return tierSeverity(tier) === 'red' ? 'Caution' : 'Watch';
+  }
+
   function renderFlag(flag: FlaggedSubCriterion, muted: boolean) {
     const severity = tierSeverity(flag.tier);
     const badgeStyle = severity === 'red' ? styles.badgeRed : styles.badgeYellow;
@@ -130,7 +139,9 @@ export default function WeekFlagsScreen() {
           ) : null}
         </View>
         <View style={[styles.badge, badgeStyle]}>
-          <Text style={[styles.badgeText, badgeText]}>{flag.tier}</Text>
+          <Text style={[styles.badgeText, badgeText]} numberOfLines={1}>
+            {badgeLabel(flag.tier)}
+          </Text>
         </View>
       </TouchableOpacity>
     );
@@ -243,7 +254,7 @@ const styles = StyleSheet.create({
   flagConditions: { ...typography.caption, color: colors.textMuted, ...textShadow },
   // The same statusRedBg/statusYellowBg pairings DimensionFlags.tsx already
   // uses for exactly this concept, contrast checked there.
-  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, borderWidth: 1 },
+  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, borderWidth: 1, maxWidth: 130 },
   badgeRed: { backgroundColor: colors.statusRedBg, borderColor: colors.danger },
   badgeYellow: { backgroundColor: colors.statusYellowBg, borderColor: colors.statusYellow },
   badgeText: { ...typography.caption, ...textShadow },

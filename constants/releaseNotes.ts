@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.36.9',
+    date: '2026-09-12',
+    changes: [
+      'The last rows on This Week\'s Flags no longer stretch into paragraphs. One oxalate rating stores a whole sentence as its label; the badge now shows a short word for it, with the sentence one tap away.',
+      'Oxalate is counted once rather than three times. Two of the three oxalate ratings restate the third, so they no longer add separate flags, the same rule the recipe cautions already follow. Weekly counts may come down a little as a result.',
+    ],
+  },
+  {
     version: '1.0.36.8',
     date: '2026-09-12',
     changes: [
