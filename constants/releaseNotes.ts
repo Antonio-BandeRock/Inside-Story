@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.36.4',
+    date: '2026-09-12',
+    changes: [
+      'The back of a Digest card scrolls now when its text is longer than the card. Android hands a drag inside a card to the page unless the card asks to keep it, and it never asked, so this has most likely never worked on a phone before. A scroll bar shows when there is more to read.',
+    ],
+  },
+  {
     version: '1.0.36.3',
     date: '2026-09-12',
     changes: [

@@ -12,6 +12,16 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 // GestureHandlerRootView) -- its ScrollView correctly claims this nested
 // gesture instead of leaking it to the ancestor scroll view, which the
 // plain react-native ScrollView doesn't reliably do in exactly this shape.
+//
+// 2026-09-12, direct report: "the backs don't seem able to scroll
+// vertically when there is more than what can be displayed." The missing
+// piece was nestedScrollEnabled. On Android a vertical scroll view sitting
+// inside another vertical scroll view (this card's face, inside Home's
+// own page) hands every drag to the outer one unless it opts into nested
+// scrolling explicitly; the gesture-handler swap above changed which
+// component claims the gesture but never set that flag, so the face very
+// likely never scrolled on a phone at all. Both faces now set it, and the
+// scroll indicator is shown so a face with more to read says so.
 import { ScrollView } from 'react-native-gesture-handler';
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { colors } from '../constants/colors';
@@ -107,7 +117,14 @@ export function FlipCard({
 
   return (
     <TouchableOpacity onPress={toggle} activeOpacity={0.85} style={{ width, height }}>
-      <Animated.View style={[styles.face, { borderColor }, frontStyle]}>
+      {/* The two faces are stacked, and the hidden one is invisible but
+          still in the touch tree: unflipped, the back face sits on top and
+          would take a vertical drag meant for the front. So whichever face
+          is turned away ignores touches entirely. */}
+      <Animated.View
+        style={[styles.face, { borderColor }, frontStyle]}
+        pointerEvents={isFlipped ? 'none' : 'auto'}
+      >
         {headerRow}
         {/* Scrolls if the hook outgrows the card (a larger system font, a
             long hook), otherwise sits centred in whatever space the header
@@ -116,13 +133,16 @@ export function FlipCard({
         <ScrollView
           style={styles.faceScroll}
           contentContainerStyle={styles.frontContent}
-          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled
         >
           {header ? null : icon}
           <Text style={styles.hook}>{hook}</Text>
         </ScrollView>
       </Animated.View>
-      <Animated.View style={[styles.face, { borderColor }, styles.backFace, backStyle]}>
+      <Animated.View
+        style={[styles.face, { borderColor }, styles.backFace, backStyle]}
+        pointerEvents={isFlipped ? 'auto' : 'none'}
+      >
         {headerRow}
         <Text style={styles.backTitle}>{backTitle}</Text>
         <View style={styles.backDivider} />
@@ -136,7 +156,7 @@ export function FlipCard({
             app/(tabs)/index.tsx), so this scroll is a safety margin for a
             larger system font size, not the primary way to reach the rest
             of the text -- "Read more" below is. */}
-        <ScrollView style={styles.faceScroll} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.faceScroll} nestedScrollEnabled>
           <Text style={styles.backBody}>{backBody}</Text>
         </ScrollView>
         {/* Deliberately outside the ScrollView above, not its last line --
