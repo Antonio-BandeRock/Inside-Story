@@ -52,6 +52,10 @@ const SURFACE_COMPONENTS = new Set([
   // Every Home section since 2026-09-12: the band itself is colors.surface
   // (homeBandStyle in its own file), header row and content both inside it.
   'HomeSectionBand',
+  // app/(tabs)/schedule.tsx, 2026-09-13: the local wrapper every Schedules
+  // lens builds its fold bands with. Renders HomeSectionBand and places
+  // its children inside it, nothing else.
+  'ScheduleBand',
 ]);
 
 // Exported style objects confirmed to set backgroundColor, so a StyleSheet

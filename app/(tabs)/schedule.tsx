@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -131,6 +131,8 @@ import { WhyExplainer } from '../../components/WhyExplainer';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from '../../components/HomeSectionBand';
+import { useBandFolds } from '../../hooks/useBandFolds';
 import { getTherapyTypesByCategory, therapyTypeLabel } from '../../lib/therapyTypes';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 
@@ -760,19 +762,66 @@ function describeRelativeDate(dateStr: string): string {
 // from the Schedules screen." It fits here better than anywhere: this lens is
 // where a planned meal sits waiting, and the voice screen is what resolves one
 // that did not happen the way it was planned.
+// 2026-09-13: an action band, the same row every Home quick action is.
 function OffPlanShortcut() {
   const router = useRouter();
   return (
-    <TouchableOpacity style={styles.offPlanButton} activeOpacity={0.85} onPress={() => router.push('/voice-log')}>
-      <Ionicons name="mic-outline" size={18} color={TAB_COLOR} />
-      <Text style={styles.offPlanButtonText}>Ate out or off-plan? Say it</Text>
-    </TouchableOpacity>
+    <View style={styles.bandOut}>
+      <HomeSectionBand
+        kind="action"
+        title="Ate out or off-plan? Say it"
+        icon="mic-outline"
+        color={TAB_COLOR}
+        onPress={() => router.push('/voice-log')}
+      />
+    </View>
+  );
+}
+
+// Every band on Schedules folds. 2026-09-13, asked how the lenses should
+// take the band look Food had just taken: "Everything folds", every band
+// closed until tapped, with its count in the title so a folded band still
+// says how much is behind it. Which bands are open is remembered per band
+// through useBandFolds (keys like "schedule:meals:day"), so a list opened
+// once stays open on the next visit rather than costing a tap each time.
+// One helper so every lens builds the same band the same way.
+type ScheduleFolds = ReturnType<typeof useBandFolds>;
+
+function ScheduleBand({
+  folds,
+  id,
+  title,
+  icon,
+  count,
+  children,
+}: {
+  folds: ScheduleFolds;
+  id: string;
+  title: string;
+  icon: ComponentProps<typeof Ionicons>['name'];
+  count?: number;
+  children: ReactNode;
+}) {
+  return (
+    <View style={styles.bandOut}>
+      <HomeSectionBand
+        kind="fold"
+        title={count == null ? title : `${title} (${count})`}
+        icon={icon}
+        color={TAB_COLOR}
+        expanded={folds.isOpen(id)}
+        onToggle={() => folds.toggle(id)}
+      >
+        {children}
+      </HomeSectionBand>
+    </View>
   );
 }
 
 function MealsLens() {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const [items, setItems] = useState<ScheduleItemRecord[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [favorites, setFavorites] = useState<FavoriteRecord[]>([]);
@@ -1273,9 +1322,9 @@ function MealsLens() {
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       <OffPlanShortcut />
       {loading ? (
-          <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+          <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
         ) : errorMessage ? (
-          <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
+          <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
         ) : (
           <>
             <View style={styles.weekStripCard}>
@@ -1493,6 +1542,13 @@ function MealsLens() {
               </View>
             )}
 
+            <ScheduleBand
+              folds={folds}
+              id="schedule:meals:day"
+              title={capitalize(describeRelativeDate(selectedDate))}
+              icon="restaurant-outline"
+              count={selectedItems.length}
+            >
             {selectedItems.length === 0 ? (
               <Text style={[styles.emptyText, styles.panelStandalone]}>Nothing scheduled for {describeRelativeDate(selectedDate)} yet.</Text>
             ) : (
@@ -1558,6 +1614,7 @@ function MealsLens() {
                 ))}
               </View>
             )}
+            </ScheduleBand>
           </>
         )}
     </ScrollView>
@@ -1709,6 +1766,7 @@ function formatPastMealDate(value: string): string {
 function PastMealsLens() {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const [items, setItems] = useState<ScheduleItemRecord[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -1739,10 +1797,12 @@ function PastMealsLens() {
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       {loading ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
-      ) : items.length === 0 ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>No past meals yet.</Text>
+        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : (
+        <ScheduleBand folds={folds} id="schedule:pastMeals:list" title="Past meals" icon="time-outline" count={items.length}>
+        {items.length === 0 ? (
+        <Text style={[styles.emptyText, styles.panelStandalone]}>No past meals yet.</Text>
+        ) : (
         <View style={styles.table}>
           {items.map((item) => {
             // A real, honest edge case, not hidden -- see
@@ -1772,6 +1832,8 @@ function PastMealsLens() {
             );
           })}
         </View>
+        )}
+        </ScheduleBand>
       )}
     </ScrollView>
   );
@@ -1832,127 +1894,187 @@ function DailyMealPlanPickRow({ pick }: { pick: DailyMealPlanPick }) {
 // own result directly rather than reading from a shared "singleDay"
 // variable, so it works identically whether there's genuinely only one
 // day or this is day 4 of a 6-week plan.
-function DailyPlanFullReport({ day }: { day: DailyMealPlanResult }) {
+//
+// 2026-09-13, the band look. Rendered two ways, since it sits in two
+// places: at the top of the lens for a one-day plan, where each section
+// is its own fold band (the rating a headerless band box, since its own
+// word is the header); and inside one day's band of a multi-day plan,
+// where a band inside a band would put its accent 16px in, so each
+// section is an inset box instead.
+function DailyPlanFullReport({
+  day,
+  folds,
+  foldId,
+}: {
+  day: DailyMealPlanResult;
+  // Present for the top-level layout; absent when nested in a day band.
+  folds?: ScheduleFolds;
+  foldId?: string;
+}) {
   const ratingColors = healthRatingColors(day.healthRating);
-  return (
+  const nested = !folds || !foldId;
+  const ratingWord = day.healthRating === 'green' ? 'Green' : day.healthRating === 'yellow' ? 'Yellow' : 'Incomplete';
+  const waterRow = day.nutrientCoverage.find((row) => row.nutrientCode === 'water');
+  const remainingMl = waterRow && waterRow.targetAmount != null ? getDailyMealPlanWaterGapMl(day) : 0;
+  const mealCount = (day.breakfast ? 1 : 0) + day.lunch.length + day.dinner.length;
+
+  const ratingBlock = (
     <>
-      <View style={[styles.formCard, { backgroundColor: ratingColors.bg, borderColor: ratingColors.border }]}>
-        <Text style={[styles.label, { color: ratingColors.text }]}>
-          {day.healthRating === 'green' ? 'Green' : day.healthRating === 'yellow' ? 'Yellow' : 'Incomplete'}
+      <Text style={[styles.label, { color: ratingColors.text }]}>{ratingWord}</Text>
+      <Text style={[styles.helperText, { color: ratingColors.text }]}>{healthRatingLabel(day.healthRating)}</Text>
+      <Text style={styles.helperText}>
+        Total carbohydrate: {Math.round(day.totalCarbGrams)}g{day.carbCeiling ? ` (target: under ${day.carbCeiling}g)` : ''}
+      </Text>
+      {day.warnings.map((warning, index) => (
+        <Text key={index} style={styles.helperText}>
+          ⚠ {warning}
         </Text>
-        <Text style={[styles.helperText, { color: ratingColors.text }]}>{healthRatingLabel(day.healthRating)}</Text>
-        <Text style={styles.helperText}>
-          Total carbohydrate: {Math.round(day.totalCarbGrams)}g{day.carbCeiling ? ` (target: under ${day.carbCeiling}g)` : ''}
-        </Text>
-        {day.warnings.map((warning, index) => (
-          <Text key={index} style={styles.helperText}>
-            ⚠ {warning}
-          </Text>
-        ))}
+      ))}
+    </>
+  );
+
+  const meals = (
+    <>
+      <View style={nested ? styles.dailyPlanSlot : styles.row}>
+        <Text style={styles.rowTitle}>Breakfast</Text>
+        {day.breakfast ? <DailyMealPlanPickRow pick={day.breakfast} /> : <Text style={styles.helperText}>No compliant option found.</Text>}
       </View>
-
-      <View style={styles.sourceList}>
-        <View style={styles.mealPlanDayRow}>
-          <Text style={styles.rowTitle}>Breakfast</Text>
-          {day.breakfast ? <DailyMealPlanPickRow pick={day.breakfast} /> : <Text style={styles.helperText}>No compliant option found.</Text>}
-        </View>
-        <View style={styles.mealPlanDayRow}>
-          <Text style={styles.rowTitle}>Lunch</Text>
-          {day.lunch.length > 0 ? (
-            day.lunch.map((pick) => <DailyMealPlanPickRow key={pick.entry.id} pick={pick} />)
-          ) : (
-            <Text style={styles.helperText}>No compliant option found.</Text>
-          )}
-        </View>
-        <View style={styles.mealPlanDayRow}>
-          <Text style={styles.rowTitle}>Dinner</Text>
-          {day.dinner.length > 0 ? (
-            day.dinner.map((pick) => <DailyMealPlanPickRow key={pick.entry.id} pick={pick} />)
-          ) : (
-            <Text style={styles.helperText}>No compliant option found.</Text>
-          )}
-        </View>
+      <View style={nested ? styles.dailyPlanSlot : styles.row}>
+        <Text style={styles.rowTitle}>Lunch</Text>
+        {day.lunch.length > 0 ? (
+          day.lunch.map((pick) => <DailyMealPlanPickRow key={pick.entry.id} pick={pick} />)
+        ) : (
+          <Text style={styles.helperText}>No compliant option found.</Text>
+        )}
       </View>
-
-      {(() => {
-        const waterRow = day.nutrientCoverage.find((row) => row.nutrientCode === 'water');
-        if (!waterRow || waterRow.targetAmount == null) return null;
-        const remainingMl = getDailyMealPlanWaterGapMl(day);
-        return (
-          <View style={styles.formCard}>
-            <Text style={styles.label}>Hydration</Text>
-            <Text style={styles.helperText}>
-              {Math.round(waterRow.amount)}ml of your {Math.round(waterRow.targetAmount)}ml daily target from this plan&apos;s food and drink
-              {waterRow.percentOfTarget !== null ? ` (${waterRow.percentOfTarget}%)` : ''}.
-            </Text>
-            <Text style={styles.helperText}>
-              {remainingMl > 0
-                ? `Drink about ${remainingMl}ml more of plain water today to reach your target, the same combined food-and-drink target the Hydration lens tracks. "Add to Schedule" turns this into real, timed reminders through the day, not just a note.`
-                : "This plan's food and drink alone already reaches your daily target."}
-            </Text>
-          </View>
-        );
-      })()}
-
-      <View style={styles.formCard}>
-        <Text style={styles.label}>Nutrient coverage</Text>
-        <Text style={styles.helperText}>
-          Against your own age/sex-based RDA targets -- informational, not the rating above. Many whole foods, nuts, seeds, and legumes
-          especially, naturally run well past 100% for a nutrient with a small RDA and a much larger real safety ceiling, so a high
-          percentage here is not automatically a problem. A row is only flagged below when the amount is genuinely close to or over that
-          real ceiling.
-        </Text>
-        {day.nutrientCoverage
-          .filter((row) => row.nutrientCode !== 'water')
-          .map((row, index) => {
-            // A ceiling row (sodium): the operative number to show
-            // against is the real limit itself, not a separate
-            // floor -- targetAmount stays at this row's own default
-            // population figure even when a personal, stricter
-            // ceiling override is set in Profile, so upperLimit is
-            // what actually reflects that override.
-            const displayTarget = row.isCeiling ? (row.upperLimit ?? row.targetAmount) : row.targetAmount;
-            const displayPercent = row.isCeiling ? row.percentOfUpperLimit ?? row.percentOfTarget : row.percentOfTarget;
-            const nearOrOverLimit = !row.isCeiling && row.percentOfUpperLimit !== null && row.percentOfUpperLimit >= 80;
-            const ceilingExceeded = row.isCeiling && displayPercent !== null && displayPercent >= 100;
-            return (
-              <View key={`${row.nutrientCode}-${index}`} style={styles.dailyPlanNutrientRow}>
-                <Text style={[styles.helperText, styles.dailyPlanNutrientLabel]}>
-                  {row.displayName}
-                  {row.isCeiling ? ' (ceiling)' : ''}
-                </Text>
-                <View style={styles.dailyPlanNutrientValue}>
-                  <Text style={[styles.helperText, { textAlign: 'right' }, ceilingExceeded && { color: colors.danger }]}>
-                    {Math.round(row.amount * 10) / 10}
-                    {row.unit} of {displayTarget}
-                    {row.unit}
-                    {displayPercent !== null ? ` (${displayPercent}%)` : ''}
-                  </Text>
-                  {nearOrOverLimit ? (
-                    <Text
-                      style={[
-                        styles.helperText,
-                        { textAlign: 'right', color: row.percentOfUpperLimit! >= 100 ? colors.danger : colors.statusYellowStandalone },
-                      ]}
-                    >
-                      {row.percentOfUpperLimit}% of the real {row.upperLimit}
-                      {row.unit} safety ceiling
-                    </Text>
-                  ) : null}
-                  {row.topContributors.length > 0 ? (
-                    <Text style={[styles.helperText, { textAlign: 'right' }]}>
-                      Mostly from: {row.topContributors.slice(0, 3).map((c) => `${c.title} (${c.percentOfDayTotal}%)`).join(', ')}
-                    </Text>
-                  ) : null}
-                </View>
-              </View>
-            );
-          })}
+      <View style={nested ? styles.dailyPlanSlot : styles.row}>
+        <Text style={styles.rowTitle}>Dinner</Text>
+        {day.dinner.length > 0 ? (
+          day.dinner.map((pick) => <DailyMealPlanPickRow key={pick.entry.id} pick={pick} />)
+        ) : (
+          <Text style={styles.helperText}>No compliant option found.</Text>
+        )}
       </View>
     </>
   );
-}
 
+  const hasHydration = !!waterRow && waterRow.targetAmount != null;
+  const hydrationBlock = waterRow && waterRow.targetAmount != null ? (
+    <>
+      <Text style={styles.helperText}>
+        {Math.round(waterRow.amount)}ml of your {Math.round(waterRow.targetAmount)}ml daily target from this plan&apos;s food and drink
+        {waterRow.percentOfTarget !== null ? ` (${waterRow.percentOfTarget}%)` : ''}.
+      </Text>
+      <Text style={styles.helperText}>
+        {remainingMl > 0
+          ? `Drink about ${remainingMl}ml more of plain water today to reach your target, the same combined food-and-drink target the Hydration lens tracks. "Add to Schedule" turns this into real, timed reminders through the day, not just a note.`
+          : "This plan's food and drink alone already reaches your daily target."}
+      </Text>
+    </>
+  ) : null;
+
+  const coverage = (
+    <>
+      <Text style={styles.helperText}>
+        Against your own age/sex-based RDA targets -- informational, not the rating above. Many whole foods, nuts, seeds, and legumes
+        especially, naturally run well past 100% for a nutrient with a small RDA and a much larger real safety ceiling, so a high
+        percentage here is not automatically a problem. A row is only flagged below when the amount is genuinely close to or over that
+        real ceiling.
+      </Text>
+      {day.nutrientCoverage
+        .filter((row) => row.nutrientCode !== 'water')
+        .map((row, index) => {
+          // A ceiling row (sodium): the operative number to show
+          // against is the real limit itself, not a separate
+          // floor -- targetAmount stays at this row's own default
+          // population figure even when a personal, stricter
+          // ceiling override is set in Profile, so upperLimit is
+          // what actually reflects that override.
+          const displayTarget = row.isCeiling ? (row.upperLimit ?? row.targetAmount) : row.targetAmount;
+          const displayPercent = row.isCeiling ? row.percentOfUpperLimit ?? row.percentOfTarget : row.percentOfTarget;
+          const nearOrOverLimit = !row.isCeiling && row.percentOfUpperLimit !== null && row.percentOfUpperLimit >= 80;
+          const ceilingExceeded = row.isCeiling && displayPercent !== null && displayPercent >= 100;
+          return (
+            <View key={`${row.nutrientCode}-${index}`} style={styles.dailyPlanNutrientRow}>
+              <Text style={[styles.helperText, styles.dailyPlanNutrientLabel]}>
+                {row.displayName}
+                {row.isCeiling ? ' (ceiling)' : ''}
+              </Text>
+              <View style={styles.dailyPlanNutrientValue}>
+                <Text style={[styles.helperText, { textAlign: 'right' }, ceilingExceeded && { color: colors.danger }]}>
+                  {Math.round(row.amount * 10) / 10}
+                  {row.unit} of {displayTarget}
+                  {row.unit}
+                  {displayPercent !== null ? ` (${displayPercent}%)` : ''}
+                </Text>
+                {nearOrOverLimit ? (
+                  <Text
+                    style={[
+                      styles.helperText,
+                      { textAlign: 'right', color: row.percentOfUpperLimit! >= 100 ? colors.danger : colors.statusYellowStandalone },
+                    ]}
+                  >
+                    {row.percentOfUpperLimit}% of the real {row.upperLimit}
+                    {row.unit} safety ceiling
+                  </Text>
+                ) : null}
+                {row.topContributors.length > 0 ? (
+                  <Text style={[styles.helperText, { textAlign: 'right' }]}>
+                    Mostly from: {row.topContributors.slice(0, 3).map((c) => `${c.title} (${c.percentOfDayTotal}%)`).join(', ')}
+                  </Text>
+                ) : null}
+              </View>
+            </View>
+          );
+        })}
+    </>
+  );
+
+  if (nested) {
+    return (
+      <View style={styles.table}>
+        <View style={[styles.row, { backgroundColor: ratingColors.bg, borderWidth: 1, borderColor: ratingColors.border }]}>{ratingBlock}</View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Meals</Text>
+          {meals}
+        </View>
+        {hasHydration ? (
+          <View style={styles.row}>
+            <Text style={styles.label}>Hydration</Text>
+            {hydrationBlock}
+          </View>
+        ) : null}
+        <View style={styles.row}>
+          <Text style={styles.label}>Nutrient coverage</Text>
+          {coverage}
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <>
+      <View style={[styles.bandBox, { backgroundColor: ratingColors.bg, borderColor: ratingColors.border }]}>{ratingBlock}</View>
+      <ScheduleBand folds={folds} id={`${foldId}:meals`} title="Meals" icon="restaurant-outline" count={mealCount}>
+        <View style={styles.table}>{meals}</View>
+      </ScheduleBand>
+      {hasHydration ? (
+        <ScheduleBand folds={folds} id={`${foldId}:hydration`} title="Hydration" icon="water-outline">
+          {hydrationBlock}
+        </ScheduleBand>
+      ) : null}
+      <ScheduleBand
+        folds={folds}
+        id={`${foldId}:coverage`}
+        title="Nutrient coverage"
+        icon="analytics-outline"
+        count={day.nutrientCoverage.filter((row) => row.nutrientCode !== 'water').length}
+      >
+        {coverage}
+      </ScheduleBand>
+    </>
+  );
+}
 // 1 day up to the same real 6-week/42-day ceiling the existing Meal
 // Plan lens already uses -- "however many weeks up to 6" is a real,
 // user-facing choice, not always the full 42.
@@ -1968,6 +2090,7 @@ const DAYS_TO_GENERATE_OPTIONS: { value: number; label: string }[] = [
 
 function DailyMealPlanLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [carbLevel, setCarbLevel] = useState<CarbLevel>('any');
   // 2026-08-26, direct request: "less than a certain amount of sugar."
@@ -2188,55 +2311,42 @@ function DailyMealPlanLens() {
       </View>
 
       {singleDay ? (
-        <DailyPlanFullReport day={singleDay} />
+        <DailyPlanFullReport day={singleDay} folds={folds} foldId="schedule:dailyPlan" />
       ) : plans.length > 1 ? (
-        // Multi-day: a condensed row per day, tappable to expand into the
-        // exact same full report the single-day case uses -- "Each week
-        // per day needs to be available for viewing so they can go
-        // through their whole week and swap things out if they need to."
-        <View style={styles.sourceList}>
-          {plans.map((day, index) => {
-            const isExpanded = expandedDayIndex === index;
-            const isRegenerating = regeneratingDayIndex === index;
-            return (
-              <View key={index} style={styles.mealPlanDayRow}>
-                <TouchableOpacity onPress={() => setExpandedDayIndex(isExpanded ? null : index)} activeOpacity={0.7}>
-                  <View style={styles.dailyPlanDayHeaderRow}>
-                    <View style={[styles.dailyPlanHealthDot, { backgroundColor: healthRatingDotColor(day.healthRating) }]} />
-                    <Text style={styles.rowTitle}>Day {index + 1}</Text>
-                    <Text style={[styles.helperText, { marginLeft: 8 }]}>{isExpanded ? 'Hide full day' : 'View full day'}</Text>
-                  </View>
+        // Multi-day: one band per day, opening into the exact same full
+        // report the single-day case uses -- "Each week per day needs to
+        // be available for viewing so they can go through their whole
+        // week and swap things out if they need to." One day open at a
+        // time (expandedDayIndex), the rating dot standing in for the
+        // band's icon so a folded day still says how it rated.
+        plans.map((day, index) => {
+          const isExpanded = expandedDayIndex === index;
+          const isRegenerating = regeneratingDayIndex === index;
+          return (
+            <View key={index} style={styles.bandOut}>
+              <HomeSectionBand
+                kind="fold"
+                title={`Day ${index + 1}`}
+                icon="calendar-outline"
+                renderIcon={() => <View style={[styles.dailyPlanHealthDot, { backgroundColor: healthRatingDotColor(day.healthRating) }]} />}
+                color={TAB_COLOR}
+                expanded={isExpanded}
+                onToggle={() => setExpandedDayIndex(isExpanded ? null : index)}
+              >
+                <DailyPlanFullReport day={day} />
+                <TouchableOpacity
+                  style={[styles.primaryButton, { marginTop: 8 }, isRegenerating && styles.primaryButtonDisabled]}
+                  activeOpacity={0.85}
+                  disabled={isRegenerating}
+                  onPress={() => regenerateDay(index)}
+                >
+                  <Text style={styles.primaryButtonText}>{isRegenerating ? "Regenerating..." : "Regenerate This Day"}</Text>
                 </TouchableOpacity>
-                {isExpanded ? (
-                  <>
-                    <DailyPlanFullReport day={day} />
-                    <TouchableOpacity
-                      style={[styles.primaryButton, { marginTop: 8 }, isRegenerating && styles.primaryButtonDisabled]}
-                      activeOpacity={0.85}
-                      disabled={isRegenerating}
-                      onPress={() => regenerateDay(index)}
-                    >
-                      <Text style={styles.primaryButtonText}>{isRegenerating ? "Regenerating..." : "Regenerate This Day"}</Text>
-                    </TouchableOpacity>
-                  </>
-                ) : (
-                  <>
-                    <Text style={styles.mealPlanSlotText}>Breakfast: {day.breakfast?.entry.title ?? "No compliant option found."}</Text>
-                    <Text style={styles.mealPlanSlotText}>
-                      Lunch: {day.lunch.length > 0 ? day.lunch.map((p) => p.entry.title).join(" with ") : "No compliant option found."}
-                    </Text>
-                    <Text style={styles.mealPlanSlotText}>
-                      Dinner: {day.dinner.length > 0 ? day.dinner.map((p) => p.entry.title).join(" with ") : "No compliant option found."}
-                    </Text>
-                    {day.warnings.length > 0 ? <Text style={styles.helperText}>⚠ {day.warnings.join(" ")}</Text> : null}
-                  </>
-                )}
-              </View>
-            );
-          })}
-        </View>
+              </HomeSectionBand>
+            </View>
+          );
+        })
       ) : null}
-
       {plans.length > 0 ? (
         <View style={styles.formCard}>
           <Text style={styles.label}>Add to your schedule</Text>
@@ -2297,6 +2407,7 @@ const MEAL_PLAN_BY_TRACK: Record<DietTrack, MealPlanDay[]> = {
 // here behaves identically to one the bulk button would have created.
 function MealPlanLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [dietTrack, setDietTrack] = useState<DietTrack>('Omnivore');
   const activePlan = MEAL_PLAN_BY_TRACK[dietTrack];
@@ -2427,8 +2538,20 @@ function MealPlanLens() {
         </Text>
       </View>
 
-      <View style={styles.sourceList}>
-        {activePlan.map((planDay) => (
+      {/* 2026-09-13: 42 days as six week bands, each day an inset box. */}
+      {Array.from({ length: Math.ceil(activePlan.length / 7) }, (_, weekIndex) => {
+        const weekDays = activePlan.slice(weekIndex * 7, weekIndex * 7 + 7);
+        return (
+      <ScheduleBand
+        key={weekIndex}
+        folds={folds}
+        id={`schedule:mealPlan:week:${weekIndex + 1}`}
+        title={`Week ${weekIndex + 1}`}
+        icon="calendar-outline"
+        count={weekDays.length}
+      >
+      <View style={styles.table}>
+        {weekDays.map((planDay) => (
           <View key={planDay.day} style={styles.mealPlanDayRow}>
             <Text style={styles.rowTitle}>Day {planDay.day}</Text>
             <Text style={styles.mealPlanSlotText}>Breakfast: {mealPlanSlotLabel(planDay.breakfast)}</Text>
@@ -2453,6 +2576,9 @@ function MealPlanLens() {
           </View>
         ))}
       </View>
+      </ScheduleBand>
+        );
+      })}
     </ScrollView>
   );
 }
@@ -2501,41 +2627,41 @@ function TodaysMealsLens() {
 
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      {errorMessage ? <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text> : null}
+      {errorMessage ? <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View> : null}
       {loading ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : meals.length === 0 ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>
+        <View style={styles.bandBox}>
+        <Text style={styles.emptyText}>
           Nothing scheduled to eat today yet. Anything you schedule on the Meals lens, or generate from a meal plan,
           shows up here with its steps ready to cook from.
         </Text>
+        </View>
       ) : (
+        // 2026-09-13: one fold band per meal, the time leading its title so
+        // the folded list still reads as the day in order. One open at a
+        // time, as before, since this is read at the stove.
         meals.map((meal) => {
           const expanded = expandedId === meal.scheduleItemId;
           return (
-            <View key={meal.scheduleItemId} style={styles.formCard}>
-              <TouchableOpacity
-                style={styles.todaysMealHeaderRow}
-                onPress={() => setExpandedId(expanded ? null : meal.scheduleItemId)}
-                activeOpacity={0.75}
+            <View key={meal.scheduleItemId} style={styles.bandOut}>
+              <HomeSectionBand
+                kind="fold"
+                title={`${formatTime12(meal.scheduledFor.slice(11, 16))} · ${meal.title}`}
+                icon="restaurant-outline"
+                color={TAB_COLOR}
+                expanded={expanded}
+                onToggle={() => setExpandedId(expanded ? null : meal.scheduleItemId)}
               >
-                <View style={styles.todaysMealHeaderText}>
-                  <Text style={styles.rowTitle}>{meal.title}</Text>
+                <View style={styles.todaysMealBody}>
                   <Text style={styles.rowMeta}>
                     {[
-                      formatTime12(meal.scheduledFor.slice(11, 16)),
                       meal.mealType ? capitalizeFirst(meal.mealType) : null,
                       meal.status === 'logged' ? 'Eaten' : meal.status === 'skipped' ? 'Skipped' : 'Planned',
                     ]
                       .filter(Boolean)
                       .join(' · ')}
                   </Text>
-                </View>
-                <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={TAB_COLOR} />
-              </TouchableOpacity>
-
-              {expanded ? (
-                <View style={styles.todaysMealBody}>
                   {!meal.hasComponents ? (
                     // A meal typed in by hand has no recipe behind it to
                     // open. Saying so plainly beats an empty panel that
@@ -2587,7 +2713,7 @@ function TodaysMealsLens() {
                   )}
                   {meal.notes ? <Text style={styles.rowMeta}>{`Note: ${meal.notes}`}</Text> : null}
                 </View>
-              ) : null}
+              </HomeSectionBand>
             </View>
           );
         })
@@ -2603,6 +2729,7 @@ function capitalizeFirst(value: string): string {
 function ShoppingListLens() {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const [daysAhead, setDaysAhead] = useState(4);
   const [sections, setSections] = useState<ShoppingListSection[]>([]);
   const [loading, setLoading] = useState(false);
@@ -2634,14 +2761,15 @@ function ShoppingListLens() {
           checked off or priced. That is what the Grocery List screen is
           for, and this is the door into it from the place someone is
           already looking at the same ingredients. */}
-      <View style={styles.formCard}>
-        <Text style={styles.label}>Taking this shopping?</Text>
-        <Text style={styles.helperText}>
-          A grocery list writes this down and keeps it, so you can say how many people are eating, check things off in the aisle, and record what they cost.
-        </Text>
-        <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={() => router.push('/grocery-list')}>
-          <Text style={styles.primaryButtonText}>Make a Grocery List</Text>
-        </TouchableOpacity>
+      <View style={styles.bandOut}>
+        <HomeSectionBand
+          kind="action"
+          title="Make a Grocery List"
+          caption="Writes this down and keeps it: say how many people are eating, check things off in the aisle, record what they cost."
+          icon="cart-outline"
+          color={TAB_COLOR}
+          onPress={() => router.push('/grocery-list')}
+        />
       </View>
 
       <View style={styles.pillRow}>
@@ -2657,19 +2785,29 @@ function ShoppingListLens() {
         ))}
       </View>
 
-      {errorMessage ? <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text> : null}
+      {errorMessage ? <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View> : null}
       {loading ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : totalItems === 0 ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>
+        <View style={styles.bandBox}>
+        <Text style={styles.emptyText}>
           Nothing scheduled in this window yet. Meals added from the Meal Plan lens (or scheduled any other way) will show up here.
         </Text>
+        </View>
       ) : (
+        // 2026-09-13: one fold band per category, each ingredient an inset row.
         sections.map((section) => (
-          <View key={section.category} style={styles.formCard}>
-            <Text style={styles.label}>{section.category}</Text>
+          <ScheduleBand
+            key={section.category}
+            folds={folds}
+            id={`schedule:shopping:${section.category}`}
+            title={section.category}
+            icon="basket-outline"
+            count={section.items.length}
+          >
+          <View style={styles.table}>
             {section.items.map((item) => (
-              <Text key={`${item.foodName}|${item.unit}`} style={styles.mealPlanSlotText}>
+              <Text key={`${item.foodName}|${item.unit}`} style={[styles.mealPlanSlotText, styles.row]}>
                 {item.foodName}:{' '}
                 {[{ quantity: item.quantity, unit: item.unit }, ...item.extraAmounts]
                   .map((amount) => `${roundForDisplay(amount.quantity)} ${amount.unit}`.trim())
@@ -2679,6 +2817,7 @@ function ShoppingListLens() {
               </Text>
             ))}
           </View>
+          </ScheduleBand>
         ))
       )}
     </ScrollView>
@@ -2701,6 +2840,7 @@ function roundForDisplay(value: number): string {
 function HydrationLens() {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const [items, setItems] = useState<ScheduleItemRecord[]>([]);
   const [loggedBeverages, setLoggedBeverages] = useState<MealRecord[]>([]);
   const [waterEntry, setWaterEntry] = useState<NutrientGapEntry | null>(null);
@@ -2934,9 +3074,9 @@ function HydrationLens() {
         actions={removePrompt?.actions ?? []}
       />
       {loading ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : errorMessage ? (
-        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
+        <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
       ) : (
         <>
           {waterEntry ? (
@@ -3086,6 +3226,7 @@ function HydrationLens() {
             </View>
           )}
 
+          <ScheduleBand folds={folds} id="schedule:hydration:today" title="Today's drinks" icon="water-outline" count={rows.length}>
           {rows.length === 0 ? (
             <Text style={[styles.emptyText, styles.panelStandalone]}>
               Nothing logged or scheduled yet today. This includes any "Beverage" meals logged directly from Meals too.
@@ -3104,6 +3245,7 @@ function HydrationLens() {
               ))}
             </View>
           )}
+          </ScheduleBand>
         </>
       )}
     </ScrollView>
@@ -3226,6 +3368,7 @@ const EVIDENCE_TIER_LABEL: Record<string, string> = {
 
 function MyMedsLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const [treatments, setTreatments] = useState<TreatmentRecord[]>([]);
   const [ingredientsByTreatment, setIngredientsByTreatment] = useState<Record<string, TreatmentNutrientRecord[]>>({});
   const [interactionWarnings, setInteractionWarnings] = useState<InteractionWarning[]>([]);
@@ -3519,8 +3662,8 @@ function MyMedsLens() {
   function renderTreatmentGroup(title: string, groupTreatments: TreatmentRecord[]) {
     if (groupTreatments.length === 0) return null;
     return (
+      <ScheduleBand folds={folds} id={`schedule:myMeds:${title}`} title={title} icon="medkit-outline" count={groupTreatments.length}>
       <View style={styles.myMedsGroup}>
-        <Text style={styles.myMedsGroupHeading}>{title}</Text>
         {groupTreatments.map((treatment) => {
           const isExpanded = expandedId === treatment.id;
           const ingredients = ingredientsByTreatment[treatment.id] ?? [];
@@ -3613,6 +3756,7 @@ function MyMedsLens() {
           );
         })}
       </View>
+      </ScheduleBand>
     );
   }
 
@@ -3621,9 +3765,9 @@ function MyMedsLens() {
       {infoAlertElement}
       {confirmSheetElement}
       {loading ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : errorMessage ? (
-        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
+        <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
       ) : (
         <>
           {addMode === null ? (
@@ -3896,8 +4040,14 @@ function MyMedsLens() {
           )}
 
           {interactionWarnings.length > 0 ? (
-            <View style={styles.interactionSection}>
-              <Text style={[styles.interactionSectionLabel, styles.groupHeadingChip]}>Things to check</Text>
+            <ScheduleBand
+              folds={folds}
+              id="schedule:myMeds:things-to-check"
+              title="Things to check"
+              icon="alert-circle-outline"
+              count={interactionWarnings.length}
+            >
+            <View style={styles.table}>
               {interactionWarnings.map((warning, index) => (
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
@@ -3907,11 +4057,18 @@ function MyMedsLens() {
                 </View>
               ))}
             </View>
+            </ScheduleBand>
           ) : null}
 
           {referenceOnlyRules.length > 0 ? (
-            <View style={styles.interactionSection}>
-              <Text style={[styles.interactionSectionLabel, styles.groupHeadingChip]}>Worth knowing (reference only, not personalized)</Text>
+            <ScheduleBand
+              folds={folds}
+              id="schedule:myMeds:worth-knowing"
+              title="Worth knowing (reference only, not personalized)"
+              icon="information-circle-outline"
+              count={referenceOnlyRules.length}
+            >
+            <View style={styles.table}>
               {referenceOnlyRules.map((rule) => (
                 <View key={rule.ruleId} style={[styles.interactionCard, styles.interactionCardReference]}>
                   <Text style={styles.interactionTitle}>{rule.title}</Text>
@@ -3921,10 +4078,11 @@ function MyMedsLens() {
                 </View>
               ))}
             </View>
+            </ScheduleBand>
           ) : null}
 
           {treatments.length === 0 ? (
-            <Text style={[styles.emptyText, styles.panelStandalone]}>Nothing tracked yet. Add a prescription, OTC drug, or supplement above.</Text>
+            <View style={styles.bandBox}><Text style={styles.emptyText}>Nothing tracked yet. Add a prescription, OTC drug, or supplement above.</Text></View>
           ) : (
             <>
               {renderTreatmentGroup('Prescriptions', treatments.filter((treatment) => treatment.treatmentType === 'prescription'))}
@@ -3948,6 +4106,7 @@ function MyMedsLens() {
 // date-range schedule to configure ahead of time.
 function SupplementsLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const [treatments, setTreatments] = useState<TreatmentRecord[]>([]);
   const [ingredientsByTreatment, setIngredientsByTreatment] = useState<Record<string, TreatmentNutrientRecord[]>>({});
   const [dosesByTreatment, setDosesByTreatment] = useState<Record<string, ScheduleItemRecord[]>>({});
@@ -4223,9 +4382,9 @@ function SupplementsLens() {
         actions={removePrompt?.actions ?? []}
       />
       {loading ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : errorMessage ? (
-        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
+        <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
       ) : (
         <>
           {!showForm ? (
@@ -4322,8 +4481,14 @@ function SupplementsLens() {
           )}
 
           {interactionWarnings.length > 0 ? (
-            <View style={styles.interactionSection}>
-              <Text style={[styles.interactionSectionLabel, styles.groupHeadingChip]}>Things to check</Text>
+            <ScheduleBand
+              folds={folds}
+              id="schedule:supplements:things-to-check"
+              title="Things to check"
+              icon="alert-circle-outline"
+              count={interactionWarnings.length}
+            >
+            <View style={styles.table}>
               {interactionWarnings.map((warning, index) => (
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
@@ -4333,11 +4498,18 @@ function SupplementsLens() {
                 </View>
               ))}
             </View>
+            </ScheduleBand>
           ) : null}
 
           {referenceOnlyRules.length > 0 ? (
-            <View style={styles.interactionSection}>
-              <Text style={[styles.interactionSectionLabel, styles.groupHeadingChip]}>Worth knowing (reference only, not personalized)</Text>
+            <ScheduleBand
+              folds={folds}
+              id="schedule:supplements:worth-knowing"
+              title="Worth knowing (reference only, not personalized)"
+              icon="information-circle-outline"
+              count={referenceOnlyRules.length}
+            >
+            <View style={styles.table}>
               <Text style={[styles.helperText, styles.panelStandalone]}>
                 This needs information this app doesn't track yet (an upcoming lab draw), so it can't be checked
                 against your actual schedule. Shown as cited background information only.
@@ -4351,8 +4523,10 @@ function SupplementsLens() {
                 </View>
               ))}
             </View>
+            </ScheduleBand>
           ) : null}
 
+          <ScheduleBand folds={folds} id="schedule:supplements:list" title="Your supplements" icon="leaf-outline" count={treatments.length}>
           {treatments.length === 0 ? (
             <Text style={[styles.emptyText, styles.panelStandalone]}>No supplements added yet.</Text>
           ) : (
@@ -4484,6 +4658,7 @@ function SupplementsLens() {
               })}
             </View>
           )}
+          </ScheduleBand>
         </>
       )}
     </ScrollView>
@@ -4512,6 +4687,7 @@ function blankPrescriptionForm(): PrescriptionFormState {
 // just what it's called, its dose, and how often it's taken.
 function PrescriptionsLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const [treatments, setTreatments] = useState<TreatmentRecord[]>([]);
   const [dosesByTreatment, setDosesByTreatment] = useState<Record<string, ScheduleItemRecord[]>>({});
   const [interactionWarnings, setInteractionWarnings] = useState<InteractionWarning[]>([]);
@@ -4725,9 +4901,9 @@ function PrescriptionsLens() {
         actions={removePrompt?.actions ?? []}
       />
       {loading ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : errorMessage ? (
-        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
+        <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
       ) : (
         <>
           {!showForm ? (
@@ -4798,8 +4974,14 @@ function PrescriptionsLens() {
           )}
 
           {interactionWarnings.length > 0 ? (
-            <View style={styles.interactionSection}>
-              <Text style={[styles.interactionSectionLabel, styles.groupHeadingChip]}>Things to check</Text>
+            <ScheduleBand
+              folds={folds}
+              id="schedule:prescriptions:things-to-check"
+              title="Things to check"
+              icon="alert-circle-outline"
+              count={interactionWarnings.length}
+            >
+            <View style={styles.table}>
               {interactionWarnings.map((warning, index) => (
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
@@ -4809,8 +4991,10 @@ function PrescriptionsLens() {
                 </View>
               ))}
             </View>
+            </ScheduleBand>
           ) : null}
 
+          <ScheduleBand folds={folds} id="schedule:prescriptions:list" title="Your prescriptions" icon="medkit-outline" count={treatments.length}>
           {treatments.length === 0 ? (
             <Text style={[styles.emptyText, styles.panelStandalone]}>No prescriptions added yet.</Text>
           ) : (
@@ -4934,6 +5118,7 @@ function PrescriptionsLens() {
               })}
             </View>
           )}
+          </ScheduleBand>
         </>
       )}
     </ScrollView>
@@ -5049,6 +5234,7 @@ const DEVICE_IMPORT_WINDOW_DAYS = 90;
 // time by a provider's office anyway.
 function AppointmentsLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const [appointments, setAppointments] = useState<ScheduleItemRecord[]>([]);
   const [interactionWarnings, setInteractionWarnings] = useState<InteractionWarning[]>([]);
   const [loading, setLoading] = useState(false);
@@ -5295,9 +5481,9 @@ function AppointmentsLens() {
         actions={removePrompt?.actions ?? []}
       />
       {loading ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : errorMessage ? (
-        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
+        <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
       ) : (
         <>
           {!showForm && !showImportPicker ? (
@@ -5467,8 +5653,14 @@ function AppointmentsLens() {
           ) : null}
 
           {interactionWarnings.length > 0 ? (
-            <View style={styles.interactionSection}>
-              <Text style={[styles.interactionSectionLabel, styles.groupHeadingChip]}>Things to check</Text>
+            <ScheduleBand
+              folds={folds}
+              id="schedule:appointments:things-to-check"
+              title="Things to check"
+              icon="alert-circle-outline"
+              count={interactionWarnings.length}
+            >
+            <View style={styles.table}>
               {interactionWarnings.map((warning, index) => (
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
@@ -5478,8 +5670,10 @@ function AppointmentsLens() {
                 </View>
               ))}
             </View>
+            </ScheduleBand>
           ) : null}
 
+          <ScheduleBand folds={folds} id="schedule:appointments:list" title="Appointments" icon="calendar-outline" count={appointments.length}>
           {appointments.length === 0 ? (
             <Text style={[styles.emptyText, styles.panelStandalone]}>Nothing scheduled. Add an appointment or import one from your phone calendar.</Text>
           ) : (
@@ -5539,6 +5733,7 @@ function AppointmentsLens() {
               ))}
             </View>
           )}
+          </ScheduleBand>
         </>
       )}
     </ScrollView>
@@ -5577,6 +5772,7 @@ function blankTherapyForm(): TherapyFormState {
 // split.
 function TherapiesLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const [sessions, setSessions] = useState<TherapySessionRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -5723,9 +5919,9 @@ function TherapiesLens() {
         actions={removePrompt?.actions ?? []}
       />
       {loading ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : errorMessage ? (
-        <Text style={[styles.errorText, styles.panelStandalone]}>{errorMessage}</Text>
+        <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
       ) : (
         <>
           {!showForm ? (
@@ -5870,6 +6066,7 @@ function TherapiesLens() {
             </View>
           ) : null}
 
+          <ScheduleBand folds={folds} id="schedule:therapies:list" title="Sessions" icon="hand-left-outline" count={sessions.length}>
           {sessions.length === 0 ? (
             <Text style={[styles.emptyText, styles.panelStandalone]}>
               No sessions logged yet. Log one after your next appointment, then keep doing your ordinary check-ins on Signals.
@@ -5913,6 +6110,7 @@ function TherapiesLens() {
               ))}
             </View>
           )}
+          </ScheduleBand>
         </>
       )}
     </ScrollView>
@@ -5930,7 +6128,7 @@ function ComingSoonLens({
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      <Text style={[styles.emptyText, styles.panelStandalone]}>{COMING_SOON_COPY[lens]}</Text>
+      <View style={styles.bandBox}><Text style={styles.emptyText}>{COMING_SOON_COPY[lens]}</Text></View>
     </ScrollView>
   );
 }
@@ -6093,24 +6291,23 @@ export default function ScheduleScreen() {
 }
 
 const styles = StyleSheet.create({
-  // 2026-08-30, the off-plan voice shortcut at the top of the Meals lens.
-  offPlanButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    backgroundColor: colors.surface,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: TAB_COLOR,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-  },
-  offPlanButtonText: { ...typography.bodyEmphasis, ...textShadow, color: TAB_COLOR },
   screen: { flex: 1 },
   body: { flex: 1 },
-  bodyContent: { padding: 16, paddingBottom: 32 },
+  // The band look, 2026-09-13 (see components/HomeSectionBand.tsx), the
+  // same as every Food screen: the column keeps its 16px so the loose
+  // buttons between bands stay inset, every band cancels it to run edge
+  // to edge, and the standard gap separates everything.
+  bodyContent: { padding: 16, paddingTop: 5, paddingBottom: 32, gap: HOME_BAND_GAP },
+  bandOut: { marginHorizontal: -16 },
+  // Rows inside a band, the standard gap apart.
+  bandRows: { gap: HOME_BAND_GAP },
+  // A headerless band box: a form, a reading, a notice.
+  bandBox: {
+    ...homeBandStyle,
+    borderColor: TAB_COLOR,
+    marginHorizontal: -16,
+    padding: HOME_BAND_CONTENT_PADDING,
+  },
   emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
   errorText: { ...typography.body, color: colors.danger, ...textShadow },
   // Outline-only until 2026-08-29, which left its label sitting straight
@@ -6123,19 +6320,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
-    marginBottom: 16,
     backgroundColor: colors.surface,
   },
 
-  // Shared surfaces for the two cases the standing rule leaves: text with
-  // no card to join (an empty state, an error line) gets panelStandalone,
-  // and a heading introducing a GROUP of separate cards gets
-  // groupHeadingChip. A heading that labels ONE card should move inside
-  // that card instead of using either of these.
+  // Since 2026-09-13 a heading introducing a group is the band's own header
+  // row (ScheduleBand), and a standalone line sits in a bandBox; what is
+  // left is the inset-row look for a line inside a band.
   // Today's Meals -- see TodaysMealsLens above.
-  todaysMealHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
-  todaysMealHeaderText: { flexShrink: 1 },
-  todaysMealBody: { marginTop: 12, gap: 10 },
+  todaysMealBody: { gap: 10 },
   todaysMealComponent: {
     borderTopWidth: 1,
     borderTopColor: colors.border,
@@ -6147,28 +6339,23 @@ const styles = StyleSheet.create({
   // Steps get real line height and a hanging indent feel: this is text
   // read a line at a time with hands busy, not scanned.
   todaysMealStep: { ...typography.body, color: colors.textPrimary, lineHeight: 21, marginTop: 4, ...textShadow },
+  // Rendered on a Text, so it takes the inset-row look (a band's own view
+  // styles cannot sit on a Text); a lens-top loading or error line is
+  // wrapped in a bandBox View instead.
   panelStandalone: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceMuted,
     borderRadius: 10,
     paddingVertical: 12,
-    paddingHorizontal: 12,
-  },
-  groupHeadingChip: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 8,
     paddingHorizontal: 12,
   },
   addButtonText: { ...typography.bodyEmphasis, color: colors.primary, ...textShadow },
   // Meals lens' own week strip, 2026-08-18 -- same border/color rule as
   // every other card on this page (a TAB_COLOR border, TAB_COLOR text).
   weekStripCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 12,
-    marginBottom: 16,
-    borderWidth: 2,
+    ...homeBandStyle,
     borderColor: TAB_COLOR,
+    marginHorizontal: -16,
+    padding: HOME_BAND_CONTENT_PADDING,
   },
   weekStripNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
   weekNavButton: { paddingHorizontal: 14, paddingVertical: 2 },
@@ -6205,24 +6392,20 @@ const styles = StyleSheet.create({
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
   // 2026-07-27.
   formCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 2,
+    ...homeBandStyle,
     borderColor: TAB_COLOR,
+    marginHorizontal: -16,
+    padding: HOME_BAND_CONTENT_PADDING,
   },
   // Same rule extended here, 2026-07-27: a border in TAB_COLOR (this card
   // had none before), and its own label/headline value both now carry
   // TAB_COLOR too, matching Home's statNumber -- the loud number is the
   // "reading" this box exists to show.
   hydrationSummaryCard: {
-    backgroundColor: colors.primaryTint,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 2,
+    ...homeBandStyle,
     borderColor: TAB_COLOR,
+    marginHorizontal: -16,
+    padding: HOME_BAND_CONTENT_PADDING,
   },
   hydrationSummaryLabel: { ...typography.eyebrow, color: TAB_COLOR, ...textShadow },
   hydrationSummaryValue: { ...typography.screenTitle, color: TAB_COLOR, marginTop: 4, ...textShadow },
@@ -6344,7 +6527,7 @@ const styles = StyleSheet.create({
   // name like "Myo-inositol + D-chiro-inositol (40:1 blend)" needs real
   // room), 2026-08-08 for My Meds.
   ingredientFormRow: { marginBottom: 4 },
-  myMedsAddRow: { flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' },
+  myMedsAddRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   // 2026-08-29, standing rule: "No font should ever be directly on the
   // tab background without its own background anywhere in the app."
   // `row` below carries no background of its own by design (it expects to
@@ -6353,24 +6536,7 @@ const styles = StyleSheet.create({
   // sitting on it. Giving the group the card fixes that whole cluster at
   // once rather than chipping each line inside it. overflow hidden so the
   // rows' full-bleed top borders stay inside the rounded corners.
-  myMedsGroup: {
-    marginBottom: 16,
-    backgroundColor: colors.surface,
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  // The group's title, sitting inside that card as its first row. Needs
-  // its own padding because the rows below are deliberately full-bleed.
-  myMedsGroupHeading: {
-    ...typography.captionEmphasis,
-    color: TAB_COLOR,
-    paddingHorizontal: 12,
-    paddingTop: 12,
-    paddingBottom: 6,
-    ...textShadow,
-  },
+  myMedsGroup: { gap: HOME_BAND_GAP },
   // The researched-content card shown once a nutrient/form (or a matched
   // common medication) is picked -- deliberately a lighter, dashed-border
   // look, distinct from formCard/interactionCard's own solid TAB_COLOR
@@ -6382,8 +6548,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderStyle: 'dashed',
     borderColor: TAB_COLOR,
-    padding: 10,
-    marginBottom: 10,
+    padding: 12,
   },
   myMedsResearchLabel: { ...typography.captionEmphasis, color: TAB_COLOR, marginTop: 4, ...textShadow },
   myMedsDetail: {
@@ -6411,11 +6576,9 @@ const styles = StyleSheet.create({
   primaryButtonDisabled: { opacity: 0.5 },
   // Meal Plan/Shopping List lenses, 2026-08-24.
   mealPlanDayRow: {
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    backgroundColor: colors.surface,
+    padding: 12,
+    borderRadius: 10,
+    backgroundColor: colors.surfaceMuted,
     gap: 2,
   },
   mealPlanSlotText: { ...typography.body, color: TAB_COLOR, ...textShadow },
@@ -6423,6 +6586,7 @@ const styles = StyleSheet.create({
   mealPlanDayDateInput: { flex: 1 },
   // Daily Meal Plan lens, 2026-08-25.
   dailyPlanPickRow: { marginTop: 4, marginBottom: 4, gap: 1 },
+  dailyPlanSlot: { marginTop: 8, gap: 2 },
   // 2026-08-26 fix: a long "Mostly from: X (Y%), Z (W%)" contributor line
   // (added the same day) had nothing constraining its own width, so it
   // pushed straight off the right edge of the screen instead of wrapping
@@ -6436,16 +6600,12 @@ const styles = StyleSheet.create({
   dailyPlanHealthDot: { width: 10, height: 10, borderRadius: 5 },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
   // 2026-07-27.
-  table: {
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-    borderRadius: 10,
-    overflow: 'hidden',
-    backgroundColor: colors.surface,
-  },
+  // A list inside a band: rows as inset boxes at the standard gap (a band
+  // inside a band would put its accent 16px in).
+  table: { gap: HOME_BAND_GAP },
   row: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderRadius: 10,
+    backgroundColor: colors.surfaceMuted,
     padding: 12,
   },
   rowMain: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
@@ -6467,7 +6627,7 @@ const styles = StyleSheet.create({
   doseRowStatus: { ...typography.caption, color: TAB_COLOR, flex: 1, ...textShadow },
   doseRowActions: { flexDirection: 'row', gap: 14 },
   doseForm: { marginTop: 8 },
-  appointmentTopActions: { gap: 10, marginBottom: 16 },
+  appointmentTopActions: { gap: HOME_BAND_GAP },
   secondaryButtonFull: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -6478,19 +6638,16 @@ const styles = StyleSheet.create({
   },
   dateInput: { flex: 1 },
   appointmentRowTime: { width: 76, lineHeight: 16 },
-  interactionSection: { marginBottom: 16 },
-  interactionSectionLabel: { ...typography.label, color: TAB_COLOR, marginBottom: 8, ...textShadow },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
   // 2026-07-27.
   interactionCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 10,
     padding: 12,
-    marginBottom: 8,
   },
-  interactionCardReference: { backgroundColor: colors.surfaceMuted },
+  // Reference-only rules are outlined rather than filled, so a warning
+  // that applies and one kept for reference do not read the same.
+  interactionCardReference: { backgroundColor: 'transparent', borderWidth: 1, borderStyle: 'dashed', borderColor: colors.border },
   interactionTitle: { ...typography.bodyEmphasis, color: TAB_COLOR, ...textShadow },
   interactionMessage: { ...typography.body, color: TAB_COLOR, marginTop: 4, ...textShadow },
   interactionCitation: { ...typography.caption, color: TAB_COLOR, marginTop: 6, ...textShadow },

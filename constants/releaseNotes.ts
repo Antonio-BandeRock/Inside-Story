@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.21',
+    date: '2026-09-13',
+    changes: [
+      'Every Schedules lens now uses the same band look as Home and Food. Each list (the day\'s meals, past meals, each week of the 6-week plan, each shopping category, today\'s drinks, prescriptions, OTC drugs, supplements, appointments, therapy sessions, and every Things to check and Worth knowing group) is one band that folds to a single row until tapped, with its count in the title, and the app remembers which bands you leave open. Rows inside a band are inset boxes at the standard spacing; forms stay open as plain band boxes; Ate out or off-plan and Make a Grocery List are action rows.',
+      'A one-day generated meal plan shows its rating, meals, hydration and nutrient coverage as separate bands; a multi-day plan shows one band per day, its rating dot on the row, opening into the full report.',
+    ],
+  },
+  {
     version: '1.0.37.20',
     date: '2026-09-13',
     changes: [

@@ -414,6 +414,12 @@ export type VisualPreferences = {
   // so: a section added later starts folded like everything else rather
   // than springing open. Read through isHomeSectionExpanded below.
   homeSectionExpanded: Partial<Record<HomeSectionKey, boolean>>;
+  // 2026-09-13, the same fold for every band outside Home (Schedules first:
+  // "Everything folds"). Keyed by a string each screen chooses
+  // ("schedule:meals:day"), absence meaning folded, exactly the contract
+  // homeSectionExpanded sets. Read and written through
+  // hooks/useBandFolds.ts rather than directly.
+  bandExpanded: Record<string, boolean>;
   // 2026-09-03, reported through a first-time reader of the app: the TabHub
   // button is the way to reach all nine tabs and nothing on screen says so.
   // It carries no circle, fill, border or label at rest, deliberately (see
@@ -495,6 +501,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   growthVineEnabled: true,
   homeSectionOrder: [],
   homeSectionExpanded: {},
+  bandExpanded: {},
   hasSeenTabHubWelcome: false,
   hasUsedTabHub: false,
 };
@@ -648,6 +655,7 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
           customBackgroundImages: { ...(parsed.customBackgroundImages ?? {}) },
           homeSectionVisibility: { ...(parsed.homeSectionVisibility ?? {}) },
           homeSectionExpanded: { ...(parsed.homeSectionExpanded ?? {}) },
+          bandExpanded: { ...(parsed.bandExpanded ?? {}) },
         };
       } catch {
         // A corrupted/unparseable blob falls back to defaults rather than
@@ -696,6 +704,7 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
     homeSectionExpanded: update.homeSectionExpanded
       ? { ...current.homeSectionExpanded, ...update.homeSectionExpanded }
       : current.homeSectionExpanded,
+    bandExpanded: update.bandExpanded ? { ...current.bandExpanded, ...update.bandExpanded } : current.bandExpanded,
   };
 
   cached = merged;
