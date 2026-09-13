@@ -9,23 +9,29 @@
 // OCR attempted on the price too (also per direct decision), always shown
 // as an editable, pre-filled confirm rather than trusted silently.
 //
-// Reached from Food's own "My Foods" hub (see app/(tabs)/food.tsx's own
-// myFoodsCategories) as a real, standalone Stack screen -- matching
-// app/connect.tsx/app/connections.tsx's established shape, not a 13th Food
-// LensHub lens, since this is a genuinely different, multi-step camera/
-// lookup/OCR flow, not "pick ingredients and save."
+// A Food lens since 2026-09-13 (it was app/scan-product.tsx, a Stack
+// screen, from 2026-08-16 until then): "only Profile should have screens
+// like [that]... All 10 tab related screens should always continue to keep
+// their own background or the shared one and not be screens like Profile
+// is." So it renders inside Food's own GatedTabContent, on the Food
+// background, with the footer band and both hub buttons, and sits in
+// Food's corner menu as Scan a Product. Reached from Home's Scan a Product
+// row and from a grocery list too, both through Food's openFoodLens param.
+// What used to be route params are props; going back is onDone, and the
+// grocery list's own return trip is onReturnToGroceryList, which the tab
+// decides how to make.
 import { Ionicons } from '@expo/vector-icons';
 import { Canvas, ColorMatrix, Image as SkiaImage, ImageFormat, useCanvasRef, useImage } from '@shopify/react-native-skia';
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import * as Speech from 'expo-speech';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AppTextInput } from '../components/AppTextInput';
-import { DraggableCropOverlay, type CropRect } from '../components/DraggableCropOverlay';
-import { SimpleSlider } from '../components/SimpleSlider';
-import { VoiceInputButton } from '../components/VoiceInputButton';
+import { AppTextInput } from './AppTextInput';
+import { DraggableCropOverlay, type CropRect } from './DraggableCropOverlay';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
+import { SimpleSlider } from './SimpleSlider';
+import { VoiceInputButton } from './VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
@@ -198,16 +204,23 @@ function chunkIntoRows<T>(items: T[], columns: number): T[][] {
   return rows;
 }
 
-export default function ScanProductScreen() {
-  const router = useRouter();
+export function ScanProductView({
+  groceryListId,
+  groceryItemId,
+  onDone,
+  onReturnToGroceryList,
+}: {
   // A scan started from inside a grocery list (2026-09-01). Both are absent
-  // for every other way this screen is reached, which is what keeps the
-  // ordinary scan flow unchanged. groceryItemId names the line that asked
-  // for this product; without it the product becomes a new line of its own.
-  const { groceryListId, groceryItemId } = useLocalSearchParams<{
-    groceryListId?: string;
-    groceryItemId?: string;
-  }>();
+  // for every other way this is reached, which is what keeps the ordinary
+  // scan flow unchanged. groceryItemId names the line that asked for this
+  // product; without it the product becomes a new line of its own.
+  groceryListId?: string;
+  groceryItemId?: string;
+  // Done: back to wherever this was opened from.
+  onDone: () => void;
+  // The product is on the list; go back to that list.
+  onReturnToGroceryList: (listId: string) => void;
+}) {
   const scrollPadding = useFloatingButtonScrollPadding();
   // Real, device-measured bottom/top inset -- see the photo-capture render
   // branch below for why the shutter button needs this directly rather
@@ -876,9 +889,7 @@ export default function ScanProductScreen() {
         priceUnit: price != null ? 'total' : null,
       });
     }
-    // replace rather than push: the scanner has done its job, and leaving it
-    // on the stack would put a camera between the list and the back button.
-    router.replace(`/grocery-list?listId=${encodeURIComponent(groceryListId)}`);
+    onReturnToGroceryList(groceryListId);
   }
 
   async function handleSavePrice() {
@@ -1033,6 +1044,7 @@ export default function ScanProductScreen() {
     const displayRect = computeContainRect(rawImage.width(), rawImage.height(), ADJUST_BOX_WIDTH, boxHeight);
     return (
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <View style={styles.panel}>
         <Text style={styles.title}>Set the Crop Area</Text>
         <Text style={styles.text}>
           Drag the corners in to keep just the ingredients text -- cutting out anything else the photo picked up helps it read more clearly.
@@ -1058,6 +1070,7 @@ export default function ScanProductScreen() {
         <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={handleCancelCrop}>
           <Text style={styles.secondaryButtonText}>Retake Photo</Text>
         </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -1097,6 +1110,7 @@ export default function ScanProductScreen() {
     const toneMatrix = buildToneMatrix(toneBrightness, toneContrast);
     return (
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <View style={styles.panel}>
         <Text style={styles.title}>Adjust Brightness &amp; Contrast</Text>
         <Text style={styles.text}>
           A shiny or dim label often reads much better once the glare is cut down -- drag either slider to see it update live.
@@ -1135,6 +1149,7 @@ export default function ScanProductScreen() {
         <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={handleBackFromTone}>
           <Text style={styles.secondaryButtonText}>Back to Crop</Text>
         </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -1153,6 +1168,7 @@ export default function ScanProductScreen() {
   if (status === 'photo-review') {
     return (
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <View style={styles.panel}>
         <Text style={styles.title}>
           {ingredientsAttempts.length} photo{ingredientsAttempts.length === 1 ? '' : 's'} of up to {MAX_INGREDIENT_ANGLES}
         </Text>
@@ -1208,6 +1224,7 @@ export default function ScanProductScreen() {
             {capturingIngredients ? 'Saving…' : ingredientsAttempts.length === 1 ? 'Use This Photo' : 'Use This One'}
           </Text>
         </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -1236,7 +1253,7 @@ export default function ScanProductScreen() {
           <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={resetForNewScan}>
             <Text style={styles.primaryButtonText}>Scan Another</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => router.back()}>
+          <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={onDone}>
             <Text style={styles.secondaryButtonText}>Done</Text>
           </TouchableOpacity>
         </View>
@@ -1262,6 +1279,7 @@ export default function ScanProductScreen() {
   if (status === 'ingredients') {
     return (
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <View style={styles.panel}>
         <Text style={styles.title}>{name}</Text>
         {brand ? <Text style={styles.text}>{brand}</Text> : null}
         <Text style={styles.sectionLabel}>Ingredients list</Text>
@@ -1356,6 +1374,7 @@ export default function ScanProductScreen() {
         >
           <Text style={styles.primaryButtonText}>{computingReport ? 'Checking…' : 'Continue'}</Text>
         </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -1369,6 +1388,7 @@ export default function ScanProductScreen() {
     const logAmountIsValid = Number.isFinite(logAmountGrams) && logAmountGrams > 0;
     return (
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <View style={styles.panel}>
         <Text style={styles.title}>{name}</Text>
         {brand ? <Text style={styles.text}>{brand}</Text> : null}
 
@@ -1513,6 +1533,7 @@ export default function ScanProductScreen() {
         <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={resetForNewScan}>
           <Text style={styles.secondaryButtonText}>Not Interested / Scan Another</Text>
         </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -1520,6 +1541,7 @@ export default function ScanProductScreen() {
   if (status === 'price-capture') {
     return (
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <View style={styles.panel}>
         <Ionicons name="checkmark-circle-outline" size={40} color={colors.accent} />
         <Text style={styles.title}>Added to My Processed Foods</Text>
         <Text style={styles.text}>
@@ -1565,6 +1587,7 @@ export default function ScanProductScreen() {
         <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={handleSkipPrice}>
           <Text style={styles.secondaryButtonText}>{groceryListId ? 'Add to My List Without a Price' : 'Skip for Now'}</Text>
         </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -1579,7 +1602,7 @@ export default function ScanProductScreen() {
         <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={resetForNewScan}>
           <Text style={styles.primaryButtonText}>Scan Another</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={onDone}>
           <Text style={styles.secondaryButtonText}>Done</Text>
         </TouchableOpacity>
       </View>
@@ -1588,13 +1611,38 @@ export default function ScanProductScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, gap: 12 },
-  centerBody: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12 },
+  // No fill of its own: the Food background shows through, as behind
+  // every builder. The band look (components/HomeSectionBand.tsx): each
+  // step one Food-coloured band edge to edge, the standard gap between.
+  screen: { flex: 1 },
+  content: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
+  panel: { ...homeBandStyle, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING, gap: 12 },
+  // A message with nothing to scroll: the same band, at the top rather
+  // than centred in the space, since the space is the tab's now.
+  centerBody: {
+    ...homeBandStyle,
+    borderColor: colors.tabFood,
+    marginTop: 5,
+    alignItems: 'center',
+    padding: HOME_BAND_CONTENT_PADDING,
+    paddingVertical: 24,
+    gap: 12,
+  },
   camera: { flex: 1 },
   scanOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
   scanFrame: { width: 260, height: 160, borderWidth: 3, borderColor: colors.accent, borderRadius: 16 },
-  scanHint: { ...typography.body, color: '#FFFFFF', marginTop: 16, textAlign: 'center', paddingHorizontal: 24, ...textShadow },
+  scanHint: {
+    ...typography.body,
+    color: '#FFFFFF',
+    marginTop: 16,
+    marginHorizontal: 24,
+    textAlign: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    ...textShadow,
+  },
   // paddingTop/paddingBottom (captureOverlay) and top (captureCancelButton)
   // are deliberately NOT set here anymore -- both are always supplied at
   // render time as insets.top/insets.bottom plus the same base numbers, so
@@ -1643,17 +1691,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   sliderRow: { alignItems: 'center' },
-  title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center', ...textShadow },
-  text: { ...typography.body, color: colors.textSecondary, textAlign: 'center', ...textShadow },
+  title: { ...typography.sectionTitle, color: colors.tabFood, textAlign: 'center', ...textShadow },
+  text: { ...typography.body, color: colors.textPrimary, textAlign: 'center', ...textShadow },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
-  card: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    gap: 6,
-  },
+  card: { padding: 12, borderRadius: 10, backgroundColor: colors.surfaceMuted, gap: 6 },
   // A real, fixed-column-count grid -- 2026-08-16, direct correction of
   // the earlier flex-wrap chip layout: "I don't want you putting every
   // word into it's own bubble... a table of information with the correct
@@ -1695,7 +1736,7 @@ const styles = StyleSheet.create({
   },
   ingredientCellDivider: { borderRightWidth: 1, borderRightColor: colors.border },
   ingredientCellText: { ...typography.caption, color: colors.textPrimary, ...textShadow },
-  gridHint: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  gridHint: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   // The multi-angle review screen's own real thumbnail grid -- one card
   // per captured angle, wrapping onto a new line rather than a fixed row,
   // so this still reads fine whether there's 1 photo or the real max of 3.
@@ -1773,7 +1814,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 12,
   },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary, ...textShadow },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   // Quick-log phase 2, 2026-08-30.
   logBanner: {
     flexDirection: 'row',
@@ -1789,7 +1830,7 @@ const styles = StyleSheet.create({
   logBannerText: { ...typography.body, color: colors.textPrimary, flex: 1, ...textShadow },
   logUndoButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   logUndoText: { ...typography.body, color: colors.accent, ...textShadow },
-  logHint: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  logHint: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   logErrorText: { ...typography.caption, color: colors.danger, ...textShadow },
   logUnitText: { ...typography.body, color: colors.textSecondary, paddingTop: 12, ...textShadow },
   logMealTypeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
@@ -1807,5 +1848,5 @@ const styles = StyleSheet.create({
   // inherit, matching primaryButtonText just below. See constants/typography.ts.
   logMealTypePillTextActive: { color: colors.background, textShadowColor: 'transparent', textShadowRadius: 0 },
   libraryLink: { alignItems: 'center', paddingVertical: 4 },
-  libraryLinkText: { ...typography.caption, color: colors.textMuted, textDecorationLine: 'underline', ...textShadow },
+  libraryLinkText: { ...typography.caption, color: colors.textSecondary, textDecorationLine: 'underline', ...textShadow },
 });

@@ -466,29 +466,11 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
-                {/* No fixed `title` here -- this screen sets its own via its
-                    own <Stack.Screen options={{title}}/> at render time (see
-                    app/food-items.tsx), since it covers every builder's every
-                    saved/favorited category, not one fixed thing the way
-                    Profile/Check-In/The Digest each are. */}
-                <Stack.Screen
-                  name="food-items"
-                  options={{
-                    headerShown: true,
-                    headerStyle: { backgroundColor: colors.background },
-                    headerTintColor: colors.textPrimary,
-                  }}
-                />
-                {/* Same "no fixed title" reasoning as food-items.tsx's own
-                    Stack.Screen just above. */}
-                <Stack.Screen
-                  name="food-item-detail"
-                  options={{
-                    headerShown: true,
-                    headerStyle: { backgroundColor: colors.background },
-                    headerTintColor: colors.textPrimary,
-                  }}
-                />
+                {/* food-items and food-item-detail were Stack screens here
+                    from 2026-08-01 to 2026-09-13; they are Food's own lenses
+                    now (components/FoodItemsView.tsx and
+                    FoodItemDetailView.tsx), opened from a row on the Food
+                    tab. */}
                 {/* 2026-08-15 -- the real receiving screen for a shared
                     item, reached via a hashimotosapp://import-shared?...
                     deep link (see lib/sharing.ts's own encodeShareLink/
@@ -616,32 +598,15 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
-                <Stack.Screen
-                  name="scan-product"
-                  options={{
-                    headerShown: true,
-                    title: 'Scan a Product',
-                    headerStyle: { backgroundColor: colors.background },
-                    headerTintColor: colors.textPrimary,
-                  }}
-                />
-                {/* No fixed `title` here, same reasoning as food-item-detail's
-                    own Stack.Screen above -- this screen sets its own via its
-                    own <Stack.Screen options={{title}}/> at render time, once
-                    the real scanned product it's showing has actually loaded.
-                    2026-08-16, reached from food-items.tsx's own
-                    itemType==='scannedProduct' case. */}
-                <Stack.Screen
-                  name="food-product-detail"
-                  options={{
-                    headerShown: true,
-                    headerStyle: { backgroundColor: colors.background },
-                    headerTintColor: colors.textPrimary,
-                  }}
-                />
+                {/* scan-product and food-product-detail were Stack screens
+                    here from 2026-08-16 to 2026-09-13; they are Food's own
+                    lenses now (components/ScanProductView.tsx and
+                    FoodProductDetailView.tsx). Scan a Product is opened with
+                    Food's openFoodLens param, from Home and from a grocery
+                    list. */}
                 {/* The Fermentation Tracker, 2026-08-20 -- reached from
-                    food-items.tsx's own "Saved Fermentations" list (a new
-                    "Track" action button) or opened bare. Sets its own fixed
+                    the Saved Fermentations list (components/FoodItemsView.tsx,
+                    a "Track" action button) or opened bare. Sets its own fixed
                     title at render (see app/fermentation-tracker.tsx), same
                     themed-header treatment as every other Stack screen. */}
                 <Stack.Screen

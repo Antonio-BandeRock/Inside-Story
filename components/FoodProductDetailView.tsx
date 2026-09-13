@@ -1,16 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { AppTextInput } from '../components/AppTextInput';
-import { useConfirmSheet } from '../components/ConfirmSheet';
-import { useInfoAlert } from '../components/InfoAlert';
-import { PageIdentityLabel } from '../components/PageIdentityLabel';
+import { AppTextInput } from './AppTextInput';
+import { useConfirmSheet } from './ConfirmSheet';
+import { useInfoAlert } from './InfoAlert';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { TrendLineChart } from '../components/TrendLineChart';
-import { VoiceInputButton } from '../components/VoiceInputButton';
+import { TrendLineChart } from './TrendLineChart';
+import { VoiceInputButton } from './VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
 import {
   deleteScannedProduct,
   getFoodNutrients,
@@ -23,6 +22,11 @@ import {
 } from '../lib/db';
 import { formatAmount } from '../lib/nutrientAnalysis';
 
+// A Food lens since 2026-09-13 (it was app/food-product-detail.tsx, a
+// Stack screen, from 2026-08-16 until then), for the same reason
+// FoodItemsView.tsx gives: a screen that belongs to a tab renders inside
+// that tab. The route's id/title are props now; Close is onClose.
+//
 // The real "My Food Products" detail screen, 2026-08-16 -- direct request:
 // "add My Food Products. This is where the scanned in foods from the store
 // should go outside of being able to use them in building some food
@@ -44,9 +48,7 @@ import { formatAmount } from '../lib/nutrientAnalysis';
 // already documented and closed more than once.
 type NutrientRow = { code: string; displayName: string; unit: string; amountPer100g: number };
 
-export default function FoodProductDetailScreen() {
-  const router = useRouter();
-  const { id, title } = useLocalSearchParams<{ id: string; title?: string }>();
+export function FoodProductDetailView({ id, onClose }: { id: string; title?: string; onClose: () => void }) {
   const productId = Number(id);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
@@ -132,13 +134,21 @@ export default function FoodProductDetailScreen() {
     });
     if (!ok) return;
     await deleteScannedProduct(product.id);
-    router.back();
+    onClose();
   }
+
+  // The way back to the list, at the top since the bottom belongs to the
+  // hub buttons now.
+  const backLink = (
+    <TouchableOpacity onPress={onClose} activeOpacity={0.7}>
+      <Text style={styles.backLink}>‹ Back</Text>
+    </TouchableOpacity>
+  );
 
   if (loading) {
     return (
       <View style={styles.screen}>
-        <Stack.Screen options={{ title: title || 'Food Product' }} />
+        <ScrollView contentContainerStyle={styles.content}>{backLink}</ScrollView>
       </View>
     );
   }
@@ -146,10 +156,12 @@ export default function FoodProductDetailScreen() {
   if (!product) {
     return (
       <View style={styles.screen}>
-        <Stack.Screen options={{ title: 'Not Found' }} />
-        <View style={styles.centerBody}>
-          <Text style={styles.text}>This product isn&apos;t here anymore -- it may have already been deleted.</Text>
-        </View>
+        <ScrollView contentContainerStyle={styles.content}>
+          {backLink}
+          <View style={styles.card}>
+            <Text style={styles.text}>This product isn&apos;t here anymore. It may have already been deleted.</Text>
+          </View>
+        </ScrollView>
       </View>
     );
   }
@@ -162,8 +174,8 @@ export default function FoodProductDetailScreen() {
 
   return (
     <View style={styles.screen}>
-      <Stack.Screen options={{ title: product.name }} />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
+        {backLink}
         {/* Name + brand + photo -- name is the one real thing this screen
             lets a person correct in place, matching updateScannedProduct's
             own already-established real use case ("a person re-scanning
@@ -205,16 +217,15 @@ export default function FoodProductDetailScreen() {
             />
             <VoiceInputButton onResult={setIngredientsText} />
           </View>
+          <TouchableOpacity
+            style={[styles.primaryButton, saving ? styles.disabled : null]}
+            activeOpacity={0.85}
+            onPress={handleSaveChanges}
+            disabled={saving}
+          >
+            <Text style={styles.primaryButtonText}>{saving ? 'Saving…' : 'Save Changes'}</Text>
+          </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          style={[styles.primaryButton, saving ? styles.disabled : null]}
-          activeOpacity={0.85}
-          onPress={handleSaveChanges}
-          disabled={saving}
-        >
-          <Text style={styles.primaryButtonText}>{saving ? 'Saving…' : 'Save Changes'}</Text>
-        </TouchableOpacity>
 
         {/* Per-100g nutrient panel -- the real, already-saved lookup result,
             reusing formatAmount (lib/nutrientAnalysis.ts) for the same
@@ -298,37 +309,46 @@ export default function FoodProductDetailScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.deleteButton} activeOpacity={0.85} onPress={handleDelete}>
-          <Ionicons name="trash-outline" size={18} color={colors.danger} />
-          <Text style={styles.deleteButtonText}>Delete This Product</Text>
-        </TouchableOpacity>
+        <View style={styles.card}>
+          <TouchableOpacity style={styles.deleteButton} activeOpacity={0.85} onPress={handleDelete}>
+            <Ionicons name="trash-outline" size={18} color={colors.danger} />
+            <Text style={styles.deleteButtonText}>Delete This Product</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
       {infoAlertElement}
       {confirmSheetElement}
-      {/* Where you are, 2026-09-13: "That is supposed to always reflect
-          where you are when using any of the Tabs. The only time they
-          should not be there at all is when the user is on one of the 10
-          Tabs." This screen is reached from Food, so it wears Food's
-          colour and names itself the way its own header does. */}
-      <PageIdentityLabel title="Food" activeLensLabel={product.name} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, paddingBottom: 48, gap: 12 },
-  centerBody: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12 },
-  text: { ...typography.body, color: colors.textSecondary, textAlign: 'center', ...textShadow },
-  caption: { ...typography.caption, color: colors.textMuted, ...textShadow },
-  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
+  // No fill of its own: the Food background shows through, as behind
+  // every builder. The band look (components/HomeSectionBand.tsx): each
+  // card a Food-coloured band edge to edge, the standard gap between.
+  screen: { flex: 1 },
+  content: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
+  backLink: {
+    ...typography.body,
+    color: colors.textOnPrimary,
+    fontWeight: '400',
+    alignSelf: 'flex-start',
+    marginLeft: HOME_BAND_CONTENT_PADDING,
+    backgroundColor: colors.tabFood,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    textShadowColor: 'transparent',
+    textShadowRadius: 0,
+  },
+  text: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  caption: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  sectionLabel: { ...typography.bodyEmphasis, color: colors.tabFood, marginTop: 4, ...textShadow },
   logPriceLabel: { marginTop: 12 },
   card: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabFood,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 6,
   },
   photo: { width: '100%', height: 160, borderRadius: 10, backgroundColor: colors.border, marginBottom: 4 },
@@ -401,7 +421,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 4,
   },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary, ...textShadow },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   dataTable: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -420,7 +440,7 @@ const styles = StyleSheet.create({
   dataTableColAmount: { flex: 1, textAlign: 'right' },
   priceList: { gap: 4, marginTop: 6 },
   priceRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  priceRowDate: { ...typography.caption, color: colors.textMuted, width: 80, ...textShadow },
+  priceRowDate: { ...typography.caption, color: colors.textSecondary, width: 80, ...textShadow },
   priceRowAmount: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   priceRowStore: { ...typography.caption, color: colors.textSecondary, flexShrink: 1, ...textShadow },
   deleteButton: {

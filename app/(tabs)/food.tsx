@@ -25,6 +25,10 @@ import { SoupBuilder } from '../../components/SoupBuilder';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { TabDesktopMenu } from '../../components/TabDesktopMenu';
 import { FindMealView } from '../../components/FindMealView';
+import { FoodItemDetailView } from '../../components/FoodItemDetailView';
+import { FoodItemsView, type FoodItemsListParams } from '../../components/FoodItemsView';
+import { FoodProductDetailView } from '../../components/FoodProductDetailView';
+import { ScanProductView } from '../../components/ScanProductView';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from '../../components/HomeSectionBand';
 import { colors } from '../../constants/colors';
@@ -75,6 +79,17 @@ type FoodLens =
   // since 2026-09-13 so it opens inside this tab like the builders do
   // rather than as a Stack screen (see components/FindMealView.tsx).
   | 'findMeal'
+  // The four Food screens that were Stack screens until 2026-09-13
+  // ("All 10 tab related screens should always continue to keep their own
+  // background or the shared one and not be screens like Profile is").
+  // scanProduct is in the corner menu; the other three are only ever
+  // reached from a row (a list from the Desktop or My Foods popup, a
+  // detail from a list), so they carry their own state (listParams and
+  // the rest below) rather than a menu entry.
+  | 'scanProduct'
+  | 'myFoodsList'
+  | 'myFoodsDetail'
+  | 'myFoodProduct'
   | 'mealBuilder'
   | 'sideBuilder'
   | 'saladBuilder'
@@ -113,6 +128,11 @@ type FoodLens =
 // table/'sauce' itemType all stay singular) -- only what's actually shown
 // on screen changed.
 const FOOD_LENS_COPY: Record<FoodLens, string> = {
+  scanProduct:
+    'Scan a store-bought product\'s barcode to look up what is in it, photograph its ingredients list, see what is worth a second look for your conditions, and keep it in My Food Products with its price so you can watch what it costs over time. Buy This and Log This as Eaten are both here.',
+  myFoodsList: 'One of your own lists: the saved or favorite dishes from one builder, or your scanned food products.',
+  myFoodsDetail: 'One saved dish: its ingredients, nutrients, condition scores and cooking notes, and whether your kitchen has what it needs.',
+  myFoodProduct: 'One scanned product: its label, nutrients per 100g, and every price you have logged for it.',
   findMeal:
     'Pick any meal you have logged or saved, one already on your schedule, or a system recipe, then log it now, log it for earlier today, put it on your schedule, or use it instead of a meal that was planned. Nothing here builds a meal; every builder does that.',
   mealBuilder:
@@ -161,6 +181,12 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
 // two lines, "what it builds" then "Builder," consistently across all
 // ten rather than some wrapping and some not depending on length alone.
 const FOOD_LENS_FULL_NAMES: Record<FoodLens, string> = {
+  scanProduct: 'Scan a\nProduct',
+  // Named by what they show (the list's title, the dish, the product) at
+  // render time; these are only the fallbacks.
+  myFoodsList: 'Saved Items',
+  myFoodsDetail: 'Saved Item',
+  myFoodProduct: 'Food Product',
   findMeal: 'Log or\nSchedule a Meal',
   mealBuilder: 'Meal\nBuilder',
   sideBuilder: 'Sides\nBuilder',
@@ -193,6 +219,12 @@ const FOOD_LENSES: LensOption<FoodLens>[] = [
     label: 'Log or Schedule',
     icon: 'search-outline',
     help: [{ heading: 'Log or Schedule a Meal', body: FOOD_LENS_COPY.findMeal }],
+  },
+  {
+    key: 'scanProduct',
+    label: 'Scan a Product',
+    icon: 'barcode-outline',
+    help: [{ heading: 'Scan a Product', body: FOOD_LENS_COPY.scanProduct }],
   },
   {
     key: 'mealBuilder',
@@ -309,13 +341,14 @@ export default function FoodScreen() {
   const router = useRouter();
   // Set when reached via a saved side's/salad's/smoothie's/fermentation's/
   // beverage's/snack's/baked good's/soup's/sauce's own Edit button (see
-  // app/food-items.tsx), 2026-08-01 (editSaladId/editSmoothieId/
+  // components/FoodItemsView.tsx), 2026-08-01 (editSaladId/editSmoothieId/
   // editFermentationId/editBeverageId/editSnackId/editBakedGoodsId/
   // editSoupId/editSauceId added 2026-08-02, same reasoning) -- pushed here
-  // as a route param rather than a prop, since food-items.tsx is a separate
-  // stack screen with no other way to hand SideBuilder/SaladBuilder/
-  // SmoothieBuilder/FermentationBuilder/BeverageBuilder/SnackBuilder/
-  // BakedGoodsBuilder/SoupBuilder/SaucesBuilder a specific record to load.
+  // as a route param rather than a prop, originally because that list was
+  // a separate stack screen. It is a lens on this same tab since
+  // 2026-09-13 and still pushes this route with the same params: a new
+  // param is what the focus effect below already reacts to, so the
+  // builder opens the same way from either place.
   // Read once below to jump straight into the right builder already
   // revealed, bypassing the normal "pick a lens from LensHub" step entirely
   // -- editing isn't a fresh choice of what to build, it's returning to
@@ -408,6 +441,10 @@ export default function FoodScreen() {
     findMealDraftId,
     findMealPhotoUri,
     findMealCapturedAt,
+    // A scan started from a grocery list (app/grocery-list.tsx) names the
+    // list, and the line if one asked for it, so the product lands there.
+    groceryListId,
+    groceryItemId,
   } = useLocalSearchParams<{
     editMealId?: string;
     editSideId?: string;
@@ -452,13 +489,43 @@ export default function FoodScreen() {
     findMealDraftId?: string;
     findMealPhotoUri?: string;
     findMealCapturedAt?: string;
+    groceryListId?: string;
+    groceryItemId?: string;
   }>();
   // Through the shared hook, switched off there on 2026-08-30. Until
   // 2026-09-13 this screen read the param directly, so Food alone still
   // opened its menu the moment it was picked from TabHub.
   const autoOpenLensHub = useAutoOpenLensHubSignal();
   const [lens, setLens] = useState<FoodLens>('mealBuilder');
-  const activeLensLabel = FOOD_LENS_FULL_NAMES[lens];
+  // Which list, dish or product the three row-opened lenses are showing
+  // (see the FoodLens type). Set as the row is tapped, read by the render
+  // switch and by the corner box's own label.
+  const [listParams, setListParams] = useState<FoodItemsListParams | null>(null);
+  const [detailParams, setDetailParams] = useState<{ itemType: string; id: string; title: string } | null>(null);
+  const [productParams, setProductParams] = useState<{ id: string; title: string } | null>(null);
+  const activeLensLabel =
+    lens === 'myFoodsList'
+      ? listParams?.title ?? FOOD_LENS_FULL_NAMES.myFoodsList
+      : lens === 'myFoodsDetail'
+        ? detailParams?.title ?? FOOD_LENS_FULL_NAMES.myFoodsDetail
+        : lens === 'myFoodProduct'
+          ? productParams?.title ?? FOOD_LENS_FULL_NAMES.myFoodProduct
+          : FOOD_LENS_FULL_NAMES[lens];
+  function openMyFoodsList(params: FoodItemsListParams) {
+    setListParams(params);
+    setLens('myFoodsList');
+    setRevealed(true);
+  }
+  // A scan that came from a grocery list goes back to that list, whether
+  // the product landed on it or the scan came to nothing. The list is
+  // still a Stack screen, so it goes on top of this tab, and the params
+  // that opened the scanner are cleared first so that coming back here (a
+  // pop, which changes no params) does not open the scanner again.
+  function returnToGroceryList(listId: string) {
+    setRevealed(false);
+    router.setParams({ openFoodLens: '', groceryListId: '', groceryItemId: '' });
+    router.push(`/grocery-list?listId=${encodeURIComponent(listId)}`);
+  }
   // Which real answer, if any, was given on BeverageSubtypePicker's own
   // screen -- 2026-08-13, see that component's own header comment for the
   // full request. null means "haven't asked yet this visit," so the
@@ -548,6 +615,11 @@ export default function FoodScreen() {
       // false on focus) instead of the record itself.
       if (openFoodLens === 'findMeal') {
         setLens('findMeal');
+        setRevealed(true);
+        return;
+      }
+      if (openFoodLens === 'scanProduct') {
+        setLens('scanProduct');
         setRevealed(true);
         return;
       }
@@ -789,7 +861,7 @@ export default function FoodScreen() {
   // a side saved a moment ago is reflected in its own count right away
   // rather than whatever was fetched the first time this screen rendered.
   // Only counts are kept here -- the real item lists are fetched again by
-  // app/food-items.tsx itself once a category is actually opened, so this
+  // FoodItemsView itself once a category is actually opened, so this
   // screen never has to hold two copies of the same data in sync.
   //
   // This array is the one place that grows as more builders get a real
@@ -834,8 +906,8 @@ export default function FoodScreen() {
   // request: "add My Food Products. This is where the scanned in foods
   // from the store should go outside of being able to use them in
   // building some food thing." A real count, refetched the same way as
-  // every other tile above, alongside a real detail screen (see
-  // app/food-product-detail.tsx) reached via app/food-items.tsx's own new
+  // every other tile above, alongside a real detail view (see
+  // components/FoodProductDetailView.tsx) reached via FoodItemsView's own
   // itemType==='scannedProduct' case -- not just the already-existing
   // "From Your Scans" quick-pick inside FoodLookup, which only ever lets a
   // scanned product be found and reused as an INGREDIENT, never browsed,
@@ -960,7 +1032,7 @@ export default function FoodScreen() {
       icon: 'barcode-outline',
       count: scannedProductCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'scannedProduct', status: 'saved', title: 'My Food Products' } }),
+        openMyFoodsList({ itemType: 'scannedProduct', status: 'saved', title: 'My Food Products' }),
     },
     {
       // "My Whole Foods" -- real home-grown harvests, tracked on the Garden
@@ -1043,7 +1115,7 @@ export default function FoodScreen() {
       icon: 'bookmark-outline',
       label: 'Saved Sides',
       count: sideCount,
-      onPress: () => router.push({ pathname: '/food-items', params: { itemType: 'side', status: 'saved', title: 'Saved Sides' } }),
+      onPress: () => openMyFoodsList({ itemType: 'side', status: 'saved', title: 'Saved Sides' }),
     },
     {
       id: 'side-favorite',
@@ -1051,7 +1123,7 @@ export default function FoodScreen() {
       label: 'Favorite Sides',
       count: sideFavoriteCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'side', status: 'favorite', title: 'Favorite Sides' } }),
+        openMyFoodsList({ itemType: 'side', status: 'favorite', title: 'Favorite Sides' }),
     },
     {
       id: 'salad-saved',
@@ -1059,7 +1131,7 @@ export default function FoodScreen() {
       label: 'Saved Salads & Bowls',
       count: saladCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'salad', status: 'saved', title: 'Saved Salads & Bowls' } }),
+        openMyFoodsList({ itemType: 'salad', status: 'saved', title: 'Saved Salads & Bowls' }),
     },
     {
       id: 'salad-favorite',
@@ -1067,10 +1139,7 @@ export default function FoodScreen() {
       label: 'Favorite Salads & Bowls',
       count: saladFavoriteCount,
       onPress: () =>
-        router.push({
-          pathname: '/food-items',
-          params: { itemType: 'salad', status: 'favorite', title: 'Favorite Salads & Bowls' },
-        }),
+        openMyFoodsList({ itemType: 'salad', status: 'favorite', title: 'Favorite Salads & Bowls' }),
     },
     {
       id: 'smoothie-saved',
@@ -1078,7 +1147,7 @@ export default function FoodScreen() {
       label: 'Saved Smoothies',
       count: smoothieCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'smoothie', status: 'saved', title: 'Saved Smoothies' } }),
+        openMyFoodsList({ itemType: 'smoothie', status: 'saved', title: 'Saved Smoothies' }),
     },
     {
       id: 'smoothie-favorite',
@@ -1086,7 +1155,7 @@ export default function FoodScreen() {
       label: 'Favorite Smoothies',
       count: smoothieFavoriteCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'smoothie', status: 'favorite', title: 'Favorite Smoothies' } }),
+        openMyFoodsList({ itemType: 'smoothie', status: 'favorite', title: 'Favorite Smoothies' }),
     },
     {
       id: 'fermentation-saved',
@@ -1094,7 +1163,7 @@ export default function FoodScreen() {
       label: 'Saved Fermentations',
       count: fermentationCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'fermentation', status: 'saved', title: 'Saved Fermentations' } }),
+        openMyFoodsList({ itemType: 'fermentation', status: 'saved', title: 'Saved Fermentations' }),
     },
     {
       id: 'fermentation-favorite',
@@ -1102,10 +1171,7 @@ export default function FoodScreen() {
       label: 'Favorite Fermentations',
       count: fermentationFavoriteCount,
       onPress: () =>
-        router.push({
-          pathname: '/food-items',
-          params: { itemType: 'fermentation', status: 'favorite', title: 'Favorite Fermentations' },
-        }),
+        openMyFoodsList({ itemType: 'fermentation', status: 'favorite', title: 'Favorite Fermentations' }),
     },
     {
       id: 'beverage-saved',
@@ -1113,7 +1179,7 @@ export default function FoodScreen() {
       label: 'Saved Beverages',
       count: beverageCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'beverage', status: 'saved', title: 'Saved Beverages' } }),
+        openMyFoodsList({ itemType: 'beverage', status: 'saved', title: 'Saved Beverages' }),
     },
     {
       id: 'beverage-favorite',
@@ -1121,17 +1187,14 @@ export default function FoodScreen() {
       label: 'Favorite Beverages',
       count: beverageFavoriteCount,
       onPress: () =>
-        router.push({
-          pathname: '/food-items',
-          params: { itemType: 'beverage', status: 'favorite', title: 'Favorite Beverages' },
-        }),
+        openMyFoodsList({ itemType: 'beverage', status: 'favorite', title: 'Favorite Beverages' }),
     },
     {
       id: 'snack-saved',
       icon: 'bookmark-outline',
       label: 'Saved Snacks',
       count: snackCount,
-      onPress: () => router.push({ pathname: '/food-items', params: { itemType: 'snack', status: 'saved', title: 'Saved Snacks' } }),
+      onPress: () => openMyFoodsList({ itemType: 'snack', status: 'saved', title: 'Saved Snacks' }),
     },
     {
       id: 'snack-favorite',
@@ -1139,7 +1202,7 @@ export default function FoodScreen() {
       label: 'Favorite Snacks',
       count: snackFavoriteCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'snack', status: 'favorite', title: 'Favorite Snacks' } }),
+        openMyFoodsList({ itemType: 'snack', status: 'favorite', title: 'Favorite Snacks' }),
     },
     {
       id: 'baked-goods-saved',
@@ -1147,7 +1210,7 @@ export default function FoodScreen() {
       label: 'Saved Baked Goods',
       count: bakedGoodsCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'bakedGoods', status: 'saved', title: 'Saved Baked Goods' } }),
+        openMyFoodsList({ itemType: 'bakedGoods', status: 'saved', title: 'Saved Baked Goods' }),
     },
     {
       id: 'baked-goods-favorite',
@@ -1155,17 +1218,14 @@ export default function FoodScreen() {
       label: 'Favorite Baked Goods',
       count: bakedGoodsFavoriteCount,
       onPress: () =>
-        router.push({
-          pathname: '/food-items',
-          params: { itemType: 'bakedGoods', status: 'favorite', title: 'Favorite Baked Goods' },
-        }),
+        openMyFoodsList({ itemType: 'bakedGoods', status: 'favorite', title: 'Favorite Baked Goods' }),
     },
     {
       id: 'soup-saved',
       icon: 'bookmark-outline',
       label: 'Saved Soups',
       count: soupCount,
-      onPress: () => router.push({ pathname: '/food-items', params: { itemType: 'soup', status: 'saved', title: 'Saved Soups' } }),
+      onPress: () => openMyFoodsList({ itemType: 'soup', status: 'saved', title: 'Saved Soups' }),
     },
     {
       id: 'soup-favorite',
@@ -1173,14 +1233,14 @@ export default function FoodScreen() {
       label: 'Favorite Soups',
       count: soupFavoriteCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'soup', status: 'favorite', title: 'Favorite Soups' } }),
+        openMyFoodsList({ itemType: 'soup', status: 'favorite', title: 'Favorite Soups' }),
     },
     {
       id: 'sauce-saved',
       icon: 'bookmark-outline',
       label: 'Saved Sauces',
       count: sauceCount,
-      onPress: () => router.push({ pathname: '/food-items', params: { itemType: 'sauce', status: 'saved', title: 'Saved Sauces' } }),
+      onPress: () => openMyFoodsList({ itemType: 'sauce', status: 'saved', title: 'Saved Sauces' }),
     },
     {
       id: 'sauce-favorite',
@@ -1188,7 +1248,7 @@ export default function FoodScreen() {
       label: 'Favorite Sauces',
       count: sauceFavoriteCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'sauce', status: 'favorite', title: 'Favorite Sauces' } }),
+        openMyFoodsList({ itemType: 'sauce', status: 'favorite', title: 'Favorite Sauces' }),
     },
     {
       id: 'handheld-saved',
@@ -1196,7 +1256,7 @@ export default function FoodScreen() {
       label: 'Saved Handhelds',
       count: handheldCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'handheld', status: 'saved', title: 'Saved Handhelds' } }),
+        openMyFoodsList({ itemType: 'handheld', status: 'saved', title: 'Saved Handhelds' }),
     },
     {
       id: 'handheld-favorite',
@@ -1204,10 +1264,7 @@ export default function FoodScreen() {
       label: 'Favorite Handhelds',
       count: handheldFavoriteCount,
       onPress: () =>
-        router.push({
-          pathname: '/food-items',
-          params: { itemType: 'handheld', status: 'favorite', title: 'Favorite Handhelds' },
-        }),
+        openMyFoodsList({ itemType: 'handheld', status: 'favorite', title: 'Favorite Handhelds' }),
     },
     {
       id: 'dessert-saved',
@@ -1215,7 +1272,7 @@ export default function FoodScreen() {
       label: 'Saved Desserts',
       count: dessertCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'dessert', status: 'saved', title: 'Saved Desserts' } }),
+        openMyFoodsList({ itemType: 'dessert', status: 'saved', title: 'Saved Desserts' }),
     },
     {
       id: 'dessert-favorite',
@@ -1223,10 +1280,7 @@ export default function FoodScreen() {
       label: 'Favorite Desserts',
       count: dessertFavoriteCount,
       onPress: () =>
-        router.push({
-          pathname: '/food-items',
-          params: { itemType: 'dessert', status: 'favorite', title: 'Favorite Desserts' },
-        }),
+        openMyFoodsList({ itemType: 'dessert', status: 'favorite', title: 'Favorite Desserts' }),
     },
     // No 'meal-saved' tile alongside it -- see mealFavoriteCount's own
     // comment above for why Meal Builder has nothing standalone to browse
@@ -1237,7 +1291,7 @@ export default function FoodScreen() {
       label: 'Favorite Meals',
       count: mealFavoriteCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'meal', status: 'favorite', title: 'Favorite Meals' } }),
+        openMyFoodsList({ itemType: 'meal', status: 'favorite', title: 'Favorite Meals' }),
     },
   ];
 
@@ -1304,6 +1358,50 @@ export default function FoodScreen() {
                 }
               }}
             />
+          ) : lens === 'scanProduct' ? (
+            <ScanProductView
+              groceryListId={groceryListId}
+              groceryItemId={groceryItemId}
+              // Done means back to where this was opened from: the grocery
+              // list when one sent us here, Home when Home did, this tab's
+              // own resting screen otherwise.
+              onDone={() => {
+                if (groceryListId) {
+                  returnToGroceryList(groceryListId);
+                } else if (openFoodLens === 'scanProduct') {
+                  router.navigate('/');
+                } else {
+                  setRevealed(false);
+                }
+              }}
+              onReturnToGroceryList={returnToGroceryList}
+            />
+          ) : lens === 'myFoodsList' && listParams ? (
+            <FoodItemsView
+              {...listParams}
+              onOpenProduct={(id, title) => {
+                setProductParams({ id, title });
+                setLens('myFoodProduct');
+              }}
+              onOpenDetail={(itemType, id, title) => {
+                setDetailParams({ itemType, id, title });
+                setLens('myFoodsDetail');
+              }}
+              // The same params the list used to push from its own Stack
+              // screen. Pushing this tab's own route with new params is
+              // what the focus effect above already reacts to.
+              onOpenBuilder={(params) => router.push({ pathname: '/food', params })}
+              // Back to the Desktop, drilled into Saved & Favorites when
+              // that is where this list lives.
+              onClose={() => {
+                setRevealed(false);
+                setDesktopSubmenu(listParams.itemType === 'scannedProduct' ? null : 'saved-favorites');
+              }}
+            />
+          ) : lens === 'myFoodsDetail' && detailParams ? (
+            <FoodItemDetailView {...detailParams} onClose={() => setLens('myFoodsList')} />
+          ) : lens === 'myFoodProduct' && productParams ? (
+            <FoodProductDetailView {...productParams} onClose={() => setLens('myFoodsList')} />
           ) : lens === 'mealBuilder' ? (
             // MealBuilder owns its own layout entirely, same reasoning as
             // every other builder below -- but never sits behind a

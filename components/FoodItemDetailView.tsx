@@ -1,20 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { NutrientsTable, PrepView, SixDsView, type Scope } from './(tabs)/insights';
-import type { ResolvedFoodSelection } from '../components/FoodLookup';
+import { NutrientsTable, PrepView, SixDsView, type Scope } from '../app/(tabs)/insights';
+import type { ResolvedFoodSelection } from './FoodLookup';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
-import { useConfirmSheet } from '../components/ConfirmSheet';
-import { useInfoAlert } from '../components/InfoAlert';
+import { useConfirmSheet } from './ConfirmSheet';
+import { useInfoAlert } from './InfoAlert';
 import { formatGroceryAmount } from '../lib/groceryList';
 import { addGroceryListItem, getActiveGroceryList, loadKitchenStock, stockIdKey, stockPairKey } from '../lib/groceryDb';
 import { applyMakePlan } from '../lib/kitchenDb';
 import { buildMakePlan, shortfallsFrom, type MakeIngredient, type MakePlan } from '../lib/kitchenUsage';
-import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { PageIdentityLabel } from '../components/PageIdentityLabel';
+import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
+import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
 import {
   getBakedGoods,
   getBakedGoodsIngredients,
@@ -143,11 +143,23 @@ async function planForIngredients(ingredients: MakeIngredient[]): Promise<MakePl
   );
 }
 
-export default function FoodItemDetailScreen() {
+// A Food lens since 2026-09-13 (it was app/food-item-detail.tsx, a Stack
+// screen, from 2026-08-01 until then), for the same reason
+// FoodItemsView.tsx gives: a screen that belongs to a tab renders inside
+// that tab. The route's itemType/id/title are props now; Close is onClose.
+export function FoodItemDetailView({
+  itemType,
+  id,
+  title,
+  onClose,
+}: {
+  itemType: string;
+  id: string;
+  title: string;
+  onClose: () => void;
+}) {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
-  const { itemType, id, title } = useLocalSearchParams<{ itemType: string; id: string; title: string }>();
 
   const [lens, setLens] = useState<DetailLens>('ingredients');
   const [side, setSide] = useState<SideDetail | null>(null);
@@ -273,6 +285,10 @@ export default function FoodItemDetailScreen() {
   }
 
   function handleWorthTesting(identity: ResolvedFoodSelection) {
+    // Keeps this view open through the trip to Signals, so coming back
+    // lands here rather than on the tab's resting screen (the same
+    // mechanism every builder uses for the same trip).
+    markPendingFoodTrialReturn();
     router.push({
       pathname: '/log',
       params: {
@@ -312,30 +328,28 @@ export default function FoodItemDetailScreen() {
 
   return (
     <View style={styles.wrapper}>
-      {/* headerLeft: () => null, 2026-08-02 -- explicitly requested: the
-          native stack header was still drawing its own back chevron at
-          the top-left even after an earlier attempt at headerBackVisible:
-          false, which is a real, valid native-stack option (confirmed
-          directly against @react-navigation/native-stack's own type
-          definitions) but apparently didn't take effect through Expo
-          Router's own Stack.Screen wrapper here -- headerLeft: () => null
-          is a more forceful override (replacing the header's whole left
-          slot with nothing, not asking it to hide a button while still
-          reserving the space) and is the standard, reliable way to fully
-          remove it. The Close button alone is enough -- no separate Back
-          control needed at all: switching lenses (changeLens) already
-          resets drilledItemIndex, so there's already a real way out of
-          an ingredient's own drill-down without a dedicated button. */}
-      <Stack.Screen options={{ title: title || side?.name || 'Saved Item', headerLeft: () => null }} />
       {confirmSheetElement}
       {infoAlertElement}
       <ScrollView contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
+        {/* The way back to the list, at the top since the bottom belongs
+            to the hub buttons now. */}
+        <TouchableOpacity onPress={onClose} activeOpacity={0.7}>
+          <Text style={styles.backLink}>‹ Back</Text>
+        </TouchableOpacity>
         {loading ? (
-          <Text style={styles.emptyText}>Loading…</Text>
+          <View style={styles.panel}>
+            <Text style={styles.emptyText}>Loading…</Text>
+          </View>
         ) : !side ? (
-          <Text style={styles.emptyText}>This item couldn&apos;t be found. It may have been deleted.</Text>
+          <View style={styles.panel}>
+            <Text style={styles.emptyText}>This item couldn&apos;t be found. It may have been deleted.</Text>
+          </View>
         ) : (
           <>
+            {/* The dish's name and its four views, one band; whichever view
+                is open sits in the band beneath it. */}
+            <View style={styles.panel}>
+            <Text style={styles.dishName}>{title || side.name}</Text>
             <View style={styles.lensRow}>
               {DETAIL_LENSES.map((option) => (
                 <TouchableOpacity
@@ -349,8 +363,10 @@ export default function FoodItemDetailScreen() {
                 </TouchableOpacity>
               ))}
             </View>
+            </View>
 
             {lens === 'ingredients' ? (
+            <View style={styles.panel}>
               <>
                 <Text style={styles.sideMeta}>
                   Serves {side.servings} · {side.servingSizeAmount} {side.servingSizeUnit} / serving
@@ -496,8 +512,15 @@ export default function FoodItemDetailScreen() {
                   </View>
                 ))}
               </>
+            </View>
             ) : null}
 
+            {/* The three Insights views bring their own surfaces (a band
+                for the nutrients table, its own table for the other two)
+                and cancel a 16px inset to run edge to edge, so they get
+                that inset and no band of their own here. */}
+            {lens !== 'ingredients' ? (
+            <View style={styles.insightsColumn}>
             {lens === 'nutrients' && nutrientBreakdown ? (
               <NutrientsTable breakdown={nutrientBreakdown} scope={scope} />
             ) : lens === 'sixDs' && dimensionsBreakdown ? (
@@ -513,9 +536,11 @@ export default function FoodItemDetailScreen() {
             ) : lens === 'prep' && dimensionsBreakdown ? (
               <PrepView breakdown={dimensionsBreakdown} scope={scope} mealNoun={mealNounFor(itemType)} />
             ) : null}
+            </View>
+            ) : null}
 
             {(lens === 'nutrients' || lens === 'sixDs' || lens === 'prep') && drilledItemIndex === null ? (
-              <>
+              <View style={styles.panel}>
                 <Text style={styles.sectionLabel}>Drill into one ingredient</Text>
                 {drillNames.map((name, index) => (
                   <TouchableOpacity key={`${name}_${index}`} style={styles.ingredientLinkRow} onPress={() => setDrilledItemIndex(index)}>
@@ -525,34 +550,11 @@ export default function FoodItemDetailScreen() {
                     <Ionicons name="chevron-forward" size={16} color={colors.textSecondary} />
                   </TouchableOpacity>
                 ))}
-              </>
+              </View>
             ) : null}
           </>
         )}
       </ScrollView>
-
-      {/* Just Close, 2026-08-02 -- a separate floating Back button was
-          added, then removed the same day: there's no real navigation it
-          would cover that isn't already handled elsewhere. Switching
-          lenses (changeLens) already resets drilledItemIndex, so an
-          ingredient's own drill-down already has a real way out without a
-          dedicated button, and Close already leaves the screen outright.
-          Two controls that both ultimately do "go back" was redundant,
-          not a real choice between two different things. */}
-      <TouchableOpacity
-        style={[styles.floatingButton, { bottom: insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET }]}
-        onPress={() => router.back()}
-        activeOpacity={0.85}
-        accessibilityLabel="Close"
-      >
-        <Ionicons name="close" size={28} color={colors.textOnPrimary} />
-      </TouchableOpacity>
-      {/* Where you are, 2026-09-13: "That is supposed to always reflect
-          where you are when using any of the Tabs. The only time they
-          should not be there at all is when the user is on one of the 10
-          Tabs." This screen is reached from Food, so it wears Food's
-          colour and names itself the way its own header does. */}
-      <PageIdentityLabel title="Food" activeLensLabel={title || side?.name || 'Saved Item'} />
     </View>
   );
 }
@@ -726,20 +728,36 @@ async function loadSide(
 }
 
 const styles = StyleSheet.create({
-  wrapper: { flex: 1, backgroundColor: colors.background },
-  container: { padding: 16, paddingTop: 12 },
+  // No fill of its own: the Food background shows through, as behind
+  // every builder. The band look (components/HomeSectionBand.tsx): no
+  // horizontal padding, each box edge to edge, the standard gap.
+  wrapper: { flex: 1 },
+  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
+  panel: { ...homeBandStyle, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING },
+  insightsColumn: { paddingHorizontal: HOME_BAND_CONTENT_PADDING },
+  backLink: {
+    ...typography.body,
+    color: colors.textOnPrimary,
+    fontWeight: '400',
+    alignSelf: 'flex-start',
+    marginLeft: HOME_BAND_CONTENT_PADDING,
+    backgroundColor: colors.tabFood,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    textShadowColor: 'transparent',
+    textShadowRadius: 0,
+  },
+  dishName: { ...typography.sectionTitle, color: colors.tabFood, marginBottom: 10, ...textShadow },
   emptyText: {
     ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 24,
+    color: colors.textPrimary,
     ...textShadow,
   },
   lensRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
-    marginBottom: 14,
   },
   lensButton: {
     paddingHorizontal: 12,
@@ -765,10 +783,8 @@ const styles = StyleSheet.create({
 
   },
   stockCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 10,
     padding: 12,
     marginBottom: 12,
     gap: 6,
@@ -811,11 +827,10 @@ const styles = StyleSheet.create({
     ...textShadow,
   },
   ingredientCard: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 10,
     padding: 10,
-    marginBottom: 8,
+    marginBottom: HOME_BAND_GAP,
   },
   ingredientName: {
     ...typography.bodyEmphasis,
@@ -851,8 +866,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     ...typography.eyebrow,
-    color: colors.textSecondary,
-    marginTop: 16,
+    color: colors.tabFood,
     marginBottom: 6,
     ...textShadow,
   },
@@ -870,20 +884,5 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 8,
     ...textShadow,
-  },
-  floatingButton: {
-    position: 'absolute',
-    alignSelf: 'center',
-    width: FLOATING_BUTTON_SIZE,
-    height: FLOATING_BUTTON_SIZE,
-    borderRadius: FLOATING_BUTTON_SIZE / 2,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 6,
   },
 });

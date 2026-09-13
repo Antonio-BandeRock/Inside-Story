@@ -522,9 +522,17 @@ export default function GroceryListScreen() {
     }
   }
 
+  // The scanner is Food's own Scan a Product lens since 2026-09-13, so
+  // this goes to the Food tab with the list named in its params, and the
+  // scanner pushes this list back on top once the product is on it.
+  // navigate rather than push: this screen sits on the Stack above the
+  // tabs, and navigate goes back down to the tabs already there rather
+  // than stacking a second copy of them.
   function handleScanForItem(item: GroceryListItemRecord) {
     if (!list) return;
-    router.push(`/scan-product?groceryListId=${encodeURIComponent(list.id)}&groceryItemId=${encodeURIComponent(item.id)}`);
+    router.navigate(
+      `/food?openFoodLens=scanProduct&groceryListId=${encodeURIComponent(list.id)}&groceryItemId=${encodeURIComponent(item.id)}`,
+    );
   }
 
   // 2026-09-01: opened from the line it is about, so the comparison knows
@@ -542,7 +550,7 @@ export default function GroceryListScreen() {
 
   function handleScanNewItem() {
     if (!list) return;
-    router.push(`/scan-product?groceryListId=${encodeURIComponent(list.id)}`);
+    router.navigate(`/food?openFoodLens=scanProduct&groceryListId=${encodeURIComponent(list.id)}`);
   }
 
   function explainPeopleCount() {

@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.9',
+    date: '2026-09-13',
+    changes: [
+      'Your saved and favorite lists, a saved dish, a scanned product and Scan a Product all open inside the Food tab now, with the Food background, the footer, the corner buttons and the where-you-are box, the way every builder does. None of them is a plain screen of its own any more.',
+      'Scan a Product is in the Food corner menu. Home\'s Scan a Product row and a grocery list\'s Scan buttons both land there, and a scan that came from a grocery list still goes back to that list when it is done.',
+      'Each of those views is laid out as bands in the Food colour with the standard gap between them, and a Back pill at the top goes back to where you came from.',
+    ],
+  },
+  {
     version: '1.0.37.8',
     date: '2026-09-13',
     changes: [

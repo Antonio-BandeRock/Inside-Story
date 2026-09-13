@@ -1,12 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
-import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { PageIdentityLabel } from '../components/PageIdentityLabel';
+import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
 import {
   deleteBakedGoods,
   deleteBeverage,
@@ -35,14 +35,20 @@ import {
   listSnacks,
   listSoups,
 } from '../lib/db';
-import { useConfirmSheet } from '../components/ConfirmSheet';
-import { useInfoAlert } from '../components/InfoAlert';
+import { useConfirmSheet } from './ConfirmSheet';
+import { useInfoAlert } from './InfoAlert';
 
-// A Stack push outside the (tabs) group, same shape as app/profile.tsx/
-// app/purple-digest.tsx -- reached by tapping a category link in
-// MyItemsHub.tsx's own popup (2026-08-01), which replaced that popup's
-// previous "show everything inline, tap nothing" list after being
-// reported as having nothing selectable in it.
+// A Food lens since 2026-09-13 (it was app/food-items.tsx, a Stack push
+// outside the (tabs) group, from 2026-08-01 until then): "only Profile
+// should have screens like the current Log or Schedule a Meal... All 10
+// tab related screens should always continue to keep their own background
+// or the shared one and not be screens like Profile is." So this renders
+// inside Food's own GatedTabContent, on the Food background, with the
+// footer band, both hub buttons and the where-you-are box all still
+// there, exactly as every builder does. Reached by tapping a category row
+// on Food's own resting Desktop or in MyItemsHub's popup; what used to be
+// route params are props, and what used to be router.push('/food', ...)
+// or router.back() are callbacks the tab decides.
 //
 // Deliberately one shared screen for every builder's own saved/favorited
 // items, not a separate route per builder -- itemType decides WHICH
@@ -64,13 +70,32 @@ import { useInfoAlert } from '../components/InfoAlert';
 // lenses elsewhere.
 type FoodItemEntry = { id: string; title: string; subtitle?: string };
 
-export default function FoodItemsScreen() {
+// Which list this is: the same three values the route used to carry.
+export type FoodItemsListParams = { itemType: string; status: string; title: string };
+
+export function FoodItemsView({
+  itemType,
+  status,
+  title,
+  onOpenProduct,
+  onOpenDetail,
+  onOpenBuilder,
+  onClose,
+}: FoodItemsListParams & {
+  // A scanned product's own detail (FoodProductDetailView).
+  onOpenProduct: (id: string, title: string) => void;
+  // A saved dish's own detail (FoodItemDetailView).
+  onOpenDetail: (itemType: string, id: string, title: string) => void;
+  // A builder, pre-loaded: the same params app/(tabs)/food.tsx has always
+  // read from the route (editSideId, fromSideFavoriteId, mealFavoriteId...).
+  onOpenBuilder: (params: Record<string, string>) => void;
+  // Back to wherever this list was opened from.
+  onClose: () => void;
+}) {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
-  const { itemType, status, title } = useLocalSearchParams<{ itemType: string; status: string; title: string }>();
   const [items, setItems] = useState<FoodItemEntry[] | null>(null);
 
   useEffect(() => {
@@ -113,21 +138,22 @@ export default function FoodItemsScreen() {
 
   return (
     <View style={styles.wrapper}>
-      {/* Sets the native header's own title to whatever category was
-          tapped ("Saved Sides," "Favorite Sides," ...) -- this screen has
-          no fixed title of its own in app/_layout.tsx's Stack.Screen list
-          (unlike profile/assessment/purple-digest) specifically because it
-          covers every builder's every category, not one fixed thing. */}
-      {/* headerLeft: () => null, 2026-08-02 -- explicitly requested: this
-          is the actual "Saved Sides" list screen (the request was about
-          this screen the whole time -- an earlier pass mistakenly edited
-          food-item-detail.tsx, a different screen, instead). The floating
-          Close button below already leaves the screen; the native
-          header's own top-left back chevron was a redundant second way to
-          do the same thing, and the one control here that didn't follow
-          this app's own bottom-anchored, thumb-reachable convention. */}
-      <Stack.Screen options={{ title: title || 'Saved Items', headerLeft: () => null }} />
       <ScrollView contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
+        {/* The way back, at the top since the bottom belongs to the hub
+            buttons now. Same pill as the Desktop's own "Back to My Foods". */}
+        <TouchableOpacity onPress={onClose} activeOpacity={0.7}>
+          <Text style={styles.backLink}>‹ Back</Text>
+        </TouchableOpacity>
+        {/* One band for the whole list, its name as the header, each item an
+            inset box beneath (the same shape Log or Schedule a Meal's
+            sections took on 2026-09-13). */}
+        <HomeSectionBand
+          kind="static"
+          title={title || 'Saved Items'}
+          icon={status === 'favorite' ? 'heart-outline' : itemType === 'scannedProduct' ? 'barcode-outline' : 'bookmark-outline'}
+          color={colors.tabFood}
+          contentStyle={styles.bandBody}
+        >
         {items === null ? null : items.length === 0 ? (
           <Text style={styles.emptyText}>Nothing here yet.</Text>
         ) : (
@@ -145,7 +171,7 @@ export default function FoodItemsScreen() {
                   // big itemType OR-chain just below that food-item-
                   // detail.tsx's own shape actually applies to.
                   if (itemType === 'scannedProduct') {
-                    router.push({ pathname: '/food-product-detail', params: { id: item.id, title: item.title } });
+                    onOpenProduct(item.id, item.title);
                     return;
                   }
                   // Only a real saved item (not yet a favorite -- those are
@@ -166,7 +192,7 @@ export default function FoodItemsScreen() {
                       itemType === 'handheld' ||
                       itemType === 'dessert')
                   ) {
-                    router.push({ pathname: '/food-item-detail', params: { itemType, id: item.id, title: item.title } });
+                    onOpenDetail(itemType, item.id, item.title);
                     return;
                   }
                   // "Use this Favorite," 2026-08-08 -- tapping a favorite
@@ -182,37 +208,37 @@ export default function FoodItemsScreen() {
                   // block already explains.
                   if (status === 'favorite') {
                     if (itemType === 'side') {
-                      router.push({ pathname: '/food', params: { fromSideFavoriteId: item.id } });
+                      onOpenBuilder({ fromSideFavoriteId: item.id });
                       return;
                     } else if (itemType === 'salad') {
-                      router.push({ pathname: '/food', params: { fromSaladFavoriteId: item.id } });
+                      onOpenBuilder({ fromSaladFavoriteId: item.id });
                       return;
                     } else if (itemType === 'smoothie') {
-                      router.push({ pathname: '/food', params: { fromSmoothieFavoriteId: item.id } });
+                      onOpenBuilder({ fromSmoothieFavoriteId: item.id });
                       return;
                     } else if (itemType === 'fermentation') {
-                      router.push({ pathname: '/food', params: { fromFermentationFavoriteId: item.id } });
+                      onOpenBuilder({ fromFermentationFavoriteId: item.id });
                       return;
                     } else if (itemType === 'beverage') {
-                      router.push({ pathname: '/food', params: { fromBeverageFavoriteId: item.id } });
+                      onOpenBuilder({ fromBeverageFavoriteId: item.id });
                       return;
                     } else if (itemType === 'snack') {
-                      router.push({ pathname: '/food', params: { fromSnackFavoriteId: item.id } });
+                      onOpenBuilder({ fromSnackFavoriteId: item.id });
                       return;
                     } else if (itemType === 'bakedGoods') {
-                      router.push({ pathname: '/food', params: { fromBakedGoodsFavoriteId: item.id } });
+                      onOpenBuilder({ fromBakedGoodsFavoriteId: item.id });
                       return;
                     } else if (itemType === 'soup') {
-                      router.push({ pathname: '/food', params: { fromSoupFavoriteId: item.id } });
+                      onOpenBuilder({ fromSoupFavoriteId: item.id });
                       return;
                     } else if (itemType === 'sauce') {
-                      router.push({ pathname: '/food', params: { fromSauceFavoriteId: item.id } });
+                      onOpenBuilder({ fromSauceFavoriteId: item.id });
                       return;
                     } else if (itemType === 'handheld') {
-                      router.push({ pathname: '/food', params: { fromHandheldFavoriteId: item.id } });
+                      onOpenBuilder({ fromHandheldFavoriteId: item.id });
                       return;
                     } else if (itemType === 'dessert') {
-                      router.push({ pathname: '/food', params: { fromDessertFavoriteId: item.id } });
+                      onOpenBuilder({ fromDessertFavoriteId: item.id });
                       return;
                     }
                     // 'meal' favorites (see saveMealFavorite in lib/db.ts),
@@ -220,7 +246,7 @@ export default function FoodItemsScreen() {
                     // favorite's own saved components (see
                     // MealBuilder.tsx's own favoriteId prop/effect).
                     if (itemType === 'meal') {
-                      router.push({ pathname: '/food', params: { mealFavoriteId: item.id } });
+                      onOpenBuilder({ mealFavoriteId: item.id });
                       return;
                     }
                   }
@@ -273,27 +299,27 @@ export default function FoodItemsScreen() {
                     // `string` pathname would widen it past what
                     // router.push's typed Href accepts.
                     if (itemType === 'side') {
-                      router.push({ pathname: '/food', params: { editSideId: item.id } });
+                      onOpenBuilder({ editSideId: item.id });
                     } else if (itemType === 'salad') {
-                      router.push({ pathname: '/food', params: { editSaladId: item.id } });
+                      onOpenBuilder({ editSaladId: item.id });
                     } else if (itemType === 'smoothie') {
-                      router.push({ pathname: '/food', params: { editSmoothieId: item.id } });
+                      onOpenBuilder({ editSmoothieId: item.id });
                     } else if (itemType === 'fermentation') {
-                      router.push({ pathname: '/food', params: { editFermentationId: item.id } });
+                      onOpenBuilder({ editFermentationId: item.id });
                     } else if (itemType === 'beverage') {
-                      router.push({ pathname: '/food', params: { editBeverageId: item.id } });
+                      onOpenBuilder({ editBeverageId: item.id });
                     } else if (itemType === 'snack') {
-                      router.push({ pathname: '/food', params: { editSnackId: item.id } });
+                      onOpenBuilder({ editSnackId: item.id });
                     } else if (itemType === 'bakedGoods') {
-                      router.push({ pathname: '/food', params: { editBakedGoodsId: item.id } });
+                      onOpenBuilder({ editBakedGoodsId: item.id });
                     } else if (itemType === 'soup') {
-                      router.push({ pathname: '/food', params: { editSoupId: item.id } });
+                      onOpenBuilder({ editSoupId: item.id });
                     } else if (itemType === 'sauce') {
-                      router.push({ pathname: '/food', params: { editSauceId: item.id } });
+                      onOpenBuilder({ editSauceId: item.id });
                     } else if (itemType === 'handheld') {
-                      router.push({ pathname: '/food', params: { editHandheldId: item.id } });
+                      onOpenBuilder({ editHandheldId: item.id });
                     } else if (itemType === 'dessert') {
-                      router.push({ pathname: '/food', params: { editDessertId: item.id } });
+                      onOpenBuilder({ editDessertId: item.id });
                     }
                   }}
                   accessibilityLabel={`Edit ${item.title}`}
@@ -312,7 +338,15 @@ export default function FoodItemsScreen() {
               {status === 'saved' && itemType === 'fermentation' ? (
                 <TouchableOpacity
                   style={styles.itemActionButton}
-                  onPress={() => router.push({ pathname: '/fermentation-tracker', params: { fermentationId: item.id, fermentationName: item.title } })}
+                  onPress={() => {
+                    // The tracker is still a Stack screen. Marking the trip
+                    // keeps this list open through it (the same mechanism
+                    // that keeps a builder open through a food-trial trip),
+                    // so coming back lands here rather than on the tab's
+                    // resting screen.
+                    markPendingFoodTrialReturn();
+                    router.push({ pathname: '/fermentation-tracker', params: { fermentationId: item.id, fermentationName: item.title } });
+                  }}
                   accessibilityLabel={`Track ${item.title}`}
                   hitSlop={8}
                 >
@@ -339,29 +373,10 @@ export default function FoodItemsScreen() {
             </View>
           ))
         )}
+        </HomeSectionBand>
       </ScrollView>
       {infoAlertElement}
       {confirmSheetElement}
-
-      {/* Same circular floating close button as profile.tsx/purple-digest.tsx's
-          own -- see purple-digest.tsx's own comment for why this stays
-          colors.primary rather than any one builder's identity color: a
-          neutral "close" affordance, not tied to whichever category this
-          happens to be showing. */}
-      <TouchableOpacity
-        style={[styles.closeButton, { bottom: insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET }]}
-        onPress={() => router.back()}
-        activeOpacity={0.85}
-        accessibilityLabel="Close"
-      >
-        <Ionicons name="close" size={28} color={colors.textOnPrimary} />
-      </TouchableOpacity>
-      {/* Where you are, 2026-09-13: "That is supposed to always reflect
-          where you are when using any of the Tabs. The only time they
-          should not be there at all is when the user is on one of the 10
-          Tabs." This screen is reached from Food, so it wears Food's
-          colour and names itself the way its own header does. */}
-      <PageIdentityLabel title="Food" activeLensLabel={title || 'Saved Items'} />
     </View>
   );
 }
@@ -618,28 +633,42 @@ async function deleteItem(itemType: string | undefined, id: string): Promise<voi
 }
 
 const styles = StyleSheet.create({
-  wrapper: { flex: 1, backgroundColor: colors.background },
-  // flexGrow + justifyContent: 'flex-end', 2026-08-02, explicitly
-  // requested -- with only a few saved items, they used to stack from the
-  // top, leaving the bottom of the screen (the easiest place for a thumb
-  // to reach one-handed) empty. flexGrow lets this container fill the
-  // ScrollView's own viewport when content is shorter than it, which is
-  // what flex-end has room to push against; once real content exceeds
-  // that height, normal scrolling takes over and this has no effect --
-  // never fights a long list, only fills empty space in a short one.
-  container: { padding: 16, paddingTop: 12, flexGrow: 1, justifyContent: 'flex-end' },
+  // No fill of its own: the Food background shows through, as it does
+  // behind every builder.
+  wrapper: { flex: 1 },
+  // The band look (components/HomeSectionBand.tsx): no horizontal padding,
+  // the band edge to edge, the standard gap. The 2026-08-02 flex-end
+  // arrangement (a short list stacked from the bottom, near the thumb)
+  // went with the move into the tab: the list now reads top-down under
+  // its own header like every other band in the app.
+  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
+  backLink: {
+    ...typography.body,
+    color: colors.textOnPrimary,
+    fontWeight: '400',
+    alignSelf: 'flex-start',
+    marginLeft: HOME_BAND_CONTENT_PADDING,
+    backgroundColor: colors.tabFood,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    textShadowColor: 'transparent',
+    textShadowRadius: 0,
+  },
+  bandBody: { gap: HOME_BAND_GAP },
   emptyText: {
     ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 24,
+    color: colors.textPrimary,
     ...textShadow,
   },
+  // An inset box inside the band rather than a second band (a band inside
+  // a band would put its accent 16px in).
   itemRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderRadius: 10,
+    backgroundColor: colors.surfaceMuted,
+    paddingLeft: 12,
   },
   // The tappable "open detail" part of the row -- everything except the
   // Edit/Delete buttons, which sit outside it as their own separate
@@ -674,20 +703,5 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginTop: 2,
     ...textShadow,
-  },
-  closeButton: {
-    position: 'absolute',
-    alignSelf: 'center',
-    width: FLOATING_BUTTON_SIZE,
-    height: FLOATING_BUTTON_SIZE,
-    borderRadius: FLOATING_BUTTON_SIZE / 2,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 6,
   },
 });

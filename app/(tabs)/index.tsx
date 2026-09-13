@@ -571,7 +571,13 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabFood,
     href: { pathname: '/food', params: { openFoodLens: 'findMeal' } } as Href,
   },
-  scanProduct: { label: 'Scan a Product', icon: 'barcode', color: colors.tabFood, href: '/scan-product' as Href },
+  scanProduct: {
+    label: 'Scan a Product',
+    icon: 'barcode',
+    color: colors.tabFood,
+    // A Food lens since 2026-09-13, opened the same way Log a Meal is.
+    href: { pathname: '/food', params: { openFoodLens: 'scanProduct' } } as Href,
+  },
   yourDay: { label: 'Your Day', icon: 'calendar', color: colors.tabSchedules, href: '/schedule' as Href },
   symptomCheckinReminder: {
     label: 'Symptom Check-In',
@@ -1936,7 +1942,9 @@ export default function HomeScreen() {
   }
 
     function renderScanProduct() {
-    return renderActionRow('scanProduct', 'Scan a Product', () => router.push('/scan-product'));
+    return renderActionRow('scanProduct', 'Scan a Product', () =>
+      router.push({ pathname: '/food', params: { openFoodLens: 'scanProduct' } }),
+    );
   }
 
   function renderLogFlare() {
