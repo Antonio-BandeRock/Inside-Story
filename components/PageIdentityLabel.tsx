@@ -123,7 +123,13 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   // Nothing to show at all until a real lens is picked, 2026-08-08 -- see
   // this file's own 2026-08-08 comment above for why the box no longer
   // shows a resting-state prompt in the meantime.
-  if (!activeLensLabel) return null;
+  // At rest on a tab (no tool picked yet) the box carries the prompt
+  // instead of going quiet, 2026-09-13, direct: "If we aren't going to
+  // place 'Tap the Food button in the corner to pick a tool.' at the top,
+  // then it has to go in the black box in the corner." So this box always
+  // says where you are: a tool's name once one is open, and until then
+  // what to do to get somewhere. A stack screen always passes a label.
+  const text = activeLensLabel ?? `Tap the ${title} button in the corner to pick a tool.`;
 
   // The currently-showing icon's own bottom edge sits buttonIconOverhangY
   // below the button's own bottom edge (the artwork is taller than the
@@ -135,14 +141,17 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   // The icon's own full vertical span (button height + its overhang on
   // both the top and bottom) -- matching this exactly is what makes the
   // box's own top edge land the same distance below the footer's
-  // iridescent line the icon's own top edge already sits.
-  const boxHeight = FLOATING_BUTTON_SIZE + buttonIconOverhangY * 2;
+  // iridescent line the icon's own top edge already sits. A minimum
+  // rather than a fixed height since 2026-09-13: a lens name fits it, and
+  // the resting prompt, a few short lines, grows the box upward from the
+  // same bottom edge rather than being clipped.
+  const boxMinHeight = FLOATING_BUTTON_SIZE + buttonIconOverhangY * 2;
   return (
     <View
-      style={[styles.container, horizontalPosition, { bottom: boxBottom, height: boxHeight, borderColor: tabColor }]}
+      style={[styles.container, horizontalPosition, { bottom: boxBottom, minHeight: boxMinHeight, borderColor: tabColor }]}
       pointerEvents="none"
     >
-      <Text style={[styles.text, { color: tabColor }]}>{activeLensLabel}</Text>
+      <Text style={[styles.text, { color: tabColor }]}>{text}</Text>
     </View>
   );
 }

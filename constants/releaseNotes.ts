@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.6',
+    date: '2026-09-13',
+    changes: [
+      'On any tab with no tool open yet, the box in the lower corner now says "Tap the [tab] button in the corner to pick a tool." Once a tool is open it names the tool, as before. The box at the top of a tab only ever describes what is below it, and a tab with nothing below has no top box.',
+    ],
+  },
+  {
     version: '1.0.37.5',
     date: '2026-09-13',
     changes: [

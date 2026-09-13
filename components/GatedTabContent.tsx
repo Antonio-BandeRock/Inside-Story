@@ -141,29 +141,23 @@ export function GatedTabContent({
               the tools are. This is that: one box, at the top of every tab's
               resting area, naming the corner button by the same icon and colour
               the button itself uses so the two read as the same thing. */}
-          <View style={[styles.prompt, { borderColor: tabColor }]}>
-            <View style={styles.promptRow}>
-              {route ? <Ionicons name={route.icon} size={20} color={tabColor} style={textShadow} /> : null}
-              <Text style={[styles.promptTitle, { color: tabColor }]}>{pageTitle}</Text>
+          {/* The header box describes what sits below it, and only that
+              (2026-09-13, direct: "It should only talk about what they will
+              find below. The same goes for every other place one of these
+              header boxes will appear"). The tap-the-button line moved to
+              the corner box the same day (see PageIdentityLabel), so a tab
+              with nothing below has no header box at all rather than one
+              that repeats the corner. */}
+          {restingIntro ? (
+            <View style={[styles.prompt, { borderColor: tabColor }]}>
+              <View style={styles.promptRow}>
+                {route ? <Ionicons name={route.icon} size={20} color={tabColor} style={textShadow} /> : null}
+                <Text style={[styles.promptTitle, { color: tabColor }]}>{pageTitle}</Text>
+              </View>
+              {restingIntro.title ? <Text style={[styles.introTitle, { color: tabColor }]}>{restingIntro.title}</Text> : null}
+              {restingIntro.body ? <Text style={styles.promptBody}>{restingIntro.body}</Text> : null}
             </View>
-            {/* The header box describes what sits below it, and only that,
-                once a tab has something below (2026-09-13, direct: "It
-                should only talk about what they will find below. The same
-                goes for every other place one of these header boxes will
-                appear"). The corner-button line stays only on a tab whose
-                resting area is otherwise empty, since there it is the one
-                thing the box has to say. */}
-            {restingIntro ? (
-              <>
-                {restingIntro.title ? <Text style={[styles.introTitle, { color: tabColor }]}>{restingIntro.title}</Text> : null}
-                {restingIntro.body ? <Text style={styles.promptBody}>{restingIntro.body}</Text> : null}
-              </>
-            ) : (
-              <Text style={styles.promptBody}>
-                Tap the {pageTitle} button in the corner to pick a tool.
-              </Text>
-            )}
-          </View>
+          ) : null}
           {restingContent ?? null}
         </View>
       )}
