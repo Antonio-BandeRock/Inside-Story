@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
 import { ScreenBackground, type BackgroundVariant } from './ScreenBackground';
 
 // 2026-07-26: replaces every non-Home tab's own distinct background always
@@ -77,6 +78,7 @@ export function GatedTabContent({
   revealed,
   children,
   restingContent,
+  restingIntro,
 }: {
   // Still required, even though this component no longer reads it itself
   // (used to feed the on-page resting prompt this component owned --
@@ -100,6 +102,11 @@ export function GatedTabContent({
   // than a new ScreenBackground of its own. Optional and unused unless a
   // caller actually passes it.
   restingContent?: ReactNode;
+  // A heading and blurb for what the tab's resting area holds, shown
+  // inside the prompt box beneath the tap-the-button line (Food's "My
+  // Foods"), so the resting area opens with one box rather than a prompt
+  // and a second intro box beneath it. 2026-09-13, direct request.
+  restingIntro?: { title: string; body?: string };
 }) {
   // 2026-08-08: which per-tab visual-preferences override (if any) applies
   // to this screen's own revealed background -- resolved from pageTitle via
@@ -130,6 +137,12 @@ export function GatedTabContent({
             <Text style={styles.promptBody}>
               Tap the {pageTitle} button in the bottom corner to choose what you want to do here.
             </Text>
+            {restingIntro ? (
+              <View style={styles.introBlock}>
+                <Text style={[styles.introTitle, { color: tabColor }]}>{restingIntro.title}</Text>
+                {restingIntro.body ? <Text style={styles.introBody}>{restingIntro.body}</Text> : null}
+              </View>
+            ) : null}
           </View>
           {restingContent ?? null}
         </View>
@@ -140,19 +153,23 @@ export function GatedTabContent({
 
 const styles = StyleSheet.create({
   body: { flex: 1 },
-  restingWrap: { flex: 1 },
+  // The prompt and whatever resting content follows it sit the standard
+  // band gap apart (2026-09-13; see HOME_BAND_GAP's own comment).
+  restingWrap: { flex: 1, gap: HOME_BAND_GAP },
+  // The band look, 2026-09-13 (see components/HomeSectionBand.tsx): the
+  // accent bar, the hairlines and the edge-to-edge reach of every other
+  // band, keeping the dark fill this box has always had so it still reads
+  // as the one signpost on the page rather than one more surface.
   prompt: {
-    marginHorizontal: 16,
-    marginTop: 16,
-    marginBottom: 4,
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    // Same rgba(0,0,0,0.55) this app already uses wherever text sits over a
-    // photo background (InfoAlert, PasswordPrompt, PageIdentityLabel).
+    ...homeBandStyle,
     backgroundColor: 'rgba(0,0,0,0.55)',
+    marginTop: 16,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 4,
   },
+  introBlock: { marginTop: 10, gap: 4 },
+  introTitle: { ...typography.sectionTitle, fontWeight: '400', ...textShadow },
+  introBody: { ...typography.body, color: colors.textSecondary, lineHeight: 19, ...textShadow },
   promptRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   promptTitle: { ...typography.bodyEmphasis, ...textShadow },
   promptBody: { ...typography.caption, color: colors.textSecondary, ...textShadow },

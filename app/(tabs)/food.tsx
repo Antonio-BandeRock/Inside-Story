@@ -24,10 +24,11 @@ import { SaucesBuilder } from '../../components/SaucesBuilder';
 import { SoupBuilder } from '../../components/SoupBuilder';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { TabDesktopMenu } from '../../components/TabDesktopMenu';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../../components/HomeSectionBand';
+import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from '../../components/HomeSectionBand';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
-import { menuLabelShadow, textShadow, typography } from '../../constants/typography';
+import { typography } from '../../constants/typography';
 import {
   listBakedGoods,
   listBeverages,
@@ -386,14 +387,6 @@ export default function FoodScreen() {
     mealType: scheduledMealType,
     title: scheduledTitle,
     templateMealId,
-    // Set by TabHub's own go() (components/TabHub.tsx) whenever Food is
-    // picked directly from the hub -- 2026-08-08, see
-    // hooks/useAutoOpenLensHubSignal.ts for the full reasoning. Read
-    // directly out of this screen's own existing useLocalSearchParams
-    // call rather than that shared hook, purely to avoid a second,
-    // redundant call to it in this one file (every other tab screen has
-    // no pre-existing params of its own to fold this into).
-    openLensHub,
   } = useLocalSearchParams<{
     editMealId?: string;
     editSideId?: string;
@@ -434,8 +427,11 @@ export default function FoodScreen() {
     mealType?: string;
     title?: string;
     templateMealId?: string;
-    openLensHub?: string;
   }>();
+  // Through the shared hook, switched off there on 2026-08-30. Until
+  // 2026-09-13 this screen read the param directly, so Food alone still
+  // opened its menu the moment it was picked from TabHub.
+  const autoOpenLensHub = useAutoOpenLensHubSignal();
   const [lens, setLens] = useState<FoodLens>('mealBuilder');
   const activeLensLabel = FOOD_LENS_FULL_NAMES[lens];
   // Which real answer, if any, was given on BeverageSubtypePicker's own
@@ -1222,17 +1218,6 @@ export default function FoodScreen() {
           <Text style={styles.desktopBackLink}>‹ Back to My Foods</Text>
         </TouchableOpacity>
       ) : null}
-      {/* The intro as a plain band box, 2026-09-12 (the band look passed
-          through to Food): edge to edge in the tab colour, the same shape
-          as Home's own greeting card. */}
-      <View style={[styles.desktopIntro, { borderColor: TAB_COLOR }]}>
-        <Text style={styles.desktopHeading}>{desktopSubmenu === 'saved-favorites' ? 'Saved & Favorites' : 'My Foods'}</Text>
-        {desktopSubmenu === 'saved-favorites' ? null : (
-          <Text style={styles.desktopSubheading}>
-            {"Everything you've built, saved, and favorited in Food, all in one place."}
-          </Text>
-        )}
-      </View>
       <TabDesktopMenu
         categories={desktopSubmenu === 'saved-favorites' ? savedAndFavoritesCategories : desktopMyFoodsCategories}
         tabColor={TAB_COLOR}
@@ -1251,7 +1236,17 @@ export default function FoodScreen() {
           revealed yet) -- once a real builder is open, only its own
           LensHub corner button can back out of it. */}
       <SwipeableTabScreen enabled={!revealed}>
-        <GatedTabContent pageTitle="Food" variant="produce" revealed={revealed} restingContent={foodDesktopContent}>
+        <GatedTabContent
+          pageTitle="Food"
+          variant="produce"
+          revealed={revealed}
+          restingContent={foodDesktopContent}
+          restingIntro={
+            desktopSubmenu === 'saved-favorites'
+              ? { title: 'Saved & Favorites' }
+              : { title: 'My Foods', body: "Everything you've built, saved, and favorited in Food, all in one place." }
+          }
+        >
           {lens === 'mealBuilder' ? (
             // MealBuilder owns its own layout entirely, same reasoning as
             // every other builder below -- but never sits behind a
@@ -1463,7 +1458,7 @@ export default function FoodScreen() {
         options={FOOD_LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
-        autoOpenSignal={openLensHub}
+        autoOpenSignal={autoOpenLensHub}
         extraTile={{ label: 'My Foods', icon: 'bookmarks-outline', onPress: () => setMyFoodsOpen(true) }}
         onSelect={(key) => {
           setLens(key);
@@ -1490,15 +1485,12 @@ const styles = StyleSheet.create({
   // Desktop is explicitly meant to read as "the same menu system," not a
   // one-off invented separately, so it borrows those exact styles rather
   // than a second, similar-but-not-identical set.
-  // No horizontal padding, 2026-09-12: the intro box and every category
-  // row are bands that run edge to edge (see TabDesktopMenu), inset only
-  // by their own content padding. The gap is the app-wide band gap.
-  desktopContent: { paddingHorizontal: 0, paddingTop: 16, gap: HOME_BAND_GAP },
-  // The intro as one band box (2026-08-29 standing rule: no text on the
-  // photo background; 2026-09-12: the band look).
-  desktopIntro: { ...homeBandStyle, padding: HOME_BAND_CONTENT_PADDING, gap: 4 },
-  desktopHeading: { ...typography.screenTitle, ...menuLabelShadow, color: TAB_COLOR, fontWeight: '400' },
-  desktopSubheading: { ...typography.body, color: colors.textSecondary, lineHeight: 19, ...textShadow },
+  // No padding at all, 2026-09-12/13: every category row is a band that
+  // runs edge to edge (see TabDesktopMenu), inset only by its own content
+  // padding, and the top starts flush because GatedTabContent's own
+  // resting column already puts the standard band gap between its prompt
+  // box (which now carries the My Foods heading and blurb) and this.
+  desktopContent: { paddingHorizontal: 0, paddingTop: 0, gap: HOME_BAND_GAP },
   desktopBackLink: {
     ...typography.body,
     color: colors.textOnPrimary,

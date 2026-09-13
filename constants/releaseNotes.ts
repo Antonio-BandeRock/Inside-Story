@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.1',
+    date: '2026-09-13',
+    changes: [
+      'Picking Food from the main menu no longer opens the Food menu by itself; it waits in the corner like every other tab\'s.',
+      'The box at the top of every tab that points to the corner button now has the same edges and full width as everything else, and sits the standard distance above what follows. On Food, the My Foods heading and its line are inside that box rather than a second box beneath it.',
+    ],
+  },
+  {
     version: '1.0.36.13',
     date: '2026-09-12',
     changes: [
