@@ -146,15 +146,23 @@ export function GatedTabContent({
               {route ? <Ionicons name={route.icon} size={20} color={tabColor} style={textShadow} /> : null}
               <Text style={[styles.promptTitle, { color: tabColor }]}>{pageTitle}</Text>
             </View>
-            <Text style={styles.promptBody}>
-              Tap the {pageTitle} button in the bottom corner to choose a tool to use here.
-            </Text>
+            {/* The header box describes what sits below it, and only that,
+                once a tab has something below (2026-09-13, direct: "It
+                should only talk about what they will find below. The same
+                goes for every other place one of these header boxes will
+                appear"). The corner-button line stays only on a tab whose
+                resting area is otherwise empty, since there it is the one
+                thing the box has to say. */}
             {restingIntro ? (
-              <View style={styles.introBlock}>
+              <>
                 {restingIntro.title ? <Text style={[styles.introTitle, { color: tabColor }]}>{restingIntro.title}</Text> : null}
                 {restingIntro.body ? <Text style={styles.promptBody}>{restingIntro.body}</Text> : null}
-              </View>
-            ) : null}
+              </>
+            ) : (
+              <Text style={styles.promptBody}>
+                Tap the {pageTitle} button in the bottom corner to choose a tool to use here.
+              </Text>
+            )}
           </View>
           {restingContent ?? null}
         </View>
@@ -179,7 +187,6 @@ const styles = StyleSheet.create({
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 4,
   },
-  introBlock: { marginTop: 6, gap: 4 },
   introTitle: { ...typography.sectionTitle, fontWeight: '400', ...textShadow },
   promptRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   promptTitle: { ...typography.bodyEmphasis, ...textShadow },

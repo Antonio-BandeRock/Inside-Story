@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.4',
+    date: '2026-09-13',
+    changes: [
+      'The header box on Food no longer mentions the corner button; it only says what is below. Any tab that gets its own resting content will read the same way.',
+    ],
+  },
+  {
     version: '1.0.37.3',
     date: '2026-09-13',
     changes: [
