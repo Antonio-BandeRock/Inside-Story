@@ -2221,7 +2221,7 @@ export function FermentationBuilder({
               resume in progress is never offered a reason to leave. */}
           {!editFermentationId && !fromFavoriteId ? (
             <View style={styles.findRecipeSection}>
-              <Text style={[styles.formLabel, { color: tabColor }]}>Find a Recipe</Text>
+              <Text style={[styles.findRecipeHeading, { color: tabColor }]}>Find a Recipe</Text>
               <TouchableOpacity
                 style={styles.findRecipeLink}
                 onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
@@ -2258,7 +2258,7 @@ export function FermentationBuilder({
                 </Text>
                 <Ionicons name="chevron-forward" size={16} color={tabColor} />
               </TouchableOpacity>
-              <Text style={[styles.formLabel, styles.createNewLabel, { color: tabColor }]}>Or Create a New Recipe</Text>
+              <Text style={[styles.findRecipeHeading, styles.createNewLabel, { color: tabColor }]}>Or Create a New Recipe</Text>
             </View>
           ) : null}
           {/* Pick a Premade Recipe -- see showRecipeMenu's own comment
@@ -3106,6 +3106,13 @@ const styles = StyleSheet.create({
   // fields.
   findRecipeSection: {
     marginBottom: 4,
+  },
+  // The two headings of the Find a Recipe section, at section-title size
+  // (2026-09-13, "a bit small of font"): they head 14px link rows and
+  // the form, so they sit a step above both rather than below them.
+  findRecipeHeading: {
+    ...typography.sectionTitle,
+    ...textShadow,
   },
   // "Or Create a New Recipe", closing the Find a Recipe section and
   // heading the form beneath it.

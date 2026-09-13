@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.19',
+    date: '2026-09-13',
+    changes: [
+      'In every builder, Find a Recipe and Or Create a New Recipe are now section-title size, a step larger than the links and fields they head, rather than the small label size they had.',
+    ],
+  },
+  {
     version: '1.0.37.18',
     date: '2026-09-13',
     changes: [
