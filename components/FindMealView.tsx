@@ -37,15 +37,14 @@
 // and a Yours/System filter keeps 300-plus curated recipes from burying a
 // handful of the person's own meals.
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { useInfoAlert } from '../components/InfoAlert';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { PageIdentityLabel } from '../components/PageIdentityLabel';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
 import {
   createMealFromComponents,
   deleteMealPhotoDraft,
@@ -137,18 +136,34 @@ function dateStringDaysFromToday(days: number): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-export default function FindMealScreen() {
-  const router = useRouter();
-  const scrollPadding = useFloatingButtonScrollPadding();
-  const [showInfoAlert, infoAlertElement] = useInfoAlert();
-  // Set only when this screen was opened to finish a photo taken earlier. The
+// 2026-09-13: a Food lens rather than a Stack screen. Direct: "Log or
+// Schedule a Meal should be treated the same way that the food builders
+// are treated when they are tapped. They go to their own screen... and
+// have the footer at the bottom. In my opinion, only Profile should have
+// screens like the current Log or Schedule a Meal... All 10 tab related
+// screens should always continue to keep their own background or the
+// shared one." So this renders inside Food's own GatedTabContent like the
+// twelve builders: the tab's background behind it, the footer band, the
+// hub buttons and the corner box all where they always are. What used to
+// arrive as route params (a photo draft to finish) arrives as props, and
+// what used to be router.back() is onDone, which the tab decides.
+export function FindMealView({
+  draftId,
+  photoUri,
+  capturedAt,
+  onDone,
+}: {
+  // Set only when this lens was opened to finish a photo taken earlier. The
   // photo goes onto whatever gets logged, and the meal is dated to when the
   // photo was taken rather than to now.
-  const { draftId, photoUri, capturedAt } = useLocalSearchParams<{
-    draftId?: string;
-    photoUri?: string;
-    capturedAt?: string;
-  }>();
+  draftId?: string;
+  photoUri?: string;
+  capturedAt?: string;
+  // Called once something has been logged or scheduled, or nothing will be.
+  onDone: () => void;
+}) {
+  const scrollPadding = useFloatingButtonScrollPadding();
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   const [query, setQuery] = useState('');
   const [scope, setScope] = useState<Scope>('yours');
@@ -373,7 +388,7 @@ export default function FindMealScreen() {
       const id = await logSelectedAt(eatenAt);
       if (!id) return;
       await clearFinishedDraft();
-      router.back();
+      onDone();
     } catch (error) {
       console.error('[FindMealScreen] Failed to log now', error);
       showInfoAlert('That did not log', 'Something went wrong saving it. Check Past Meals before trying again.');
@@ -393,7 +408,7 @@ export default function FindMealScreen() {
       const id = await logSelectedAt(`${todayLocalDateString()}T${time24}`);
       if (!id) return;
       await clearFinishedDraft();
-      router.back();
+      onDone();
     } catch (error) {
       console.error('[FindMealScreen] Failed to log earlier', error);
       showInfoAlert('That did not log', 'Something went wrong saving it. Check Past Meals before trying again.');
@@ -425,7 +440,7 @@ export default function FindMealScreen() {
           showInfoAlert('That did not schedule', failure.error);
           return;
         }
-        router.back();
+        onDone();
         return;
       }
       // Scheduling records where this came from rather than copying it: a
@@ -440,7 +455,7 @@ export default function FindMealScreen() {
         sourceFavoriteId:
           selected.kind === 'favorite' ? selected.id : selected.kind === 'planned' ? selected.favoriteId : undefined,
       });
-      router.back();
+      onDone();
     } catch (error) {
       console.error('[FindMealScreen] Failed to schedule', error);
       showInfoAlert('That did not schedule', 'Something went wrong saving it. Give it another try.');
@@ -468,7 +483,7 @@ export default function FindMealScreen() {
         );
       }
       await clearFinishedDraft();
-      router.back();
+      onDone();
     } catch (error) {
       console.error('[FindMealScreen] Failed to replace a planned meal', error);
       showInfoAlert('That did not log', 'Something went wrong saving it. Check Past Meals before trying again.');
@@ -574,7 +589,7 @@ export default function FindMealScreen() {
         data={meals}
         keyExtractor={(item) => item.key}
         ListHeaderComponent={
-          <View style={styles.listHeader}>
+          <View style={[styles.panel, styles.listHeader]}>
             {/* Says what this screen is for before anything is picked,
                 2026-09-13, the same line the Food row that opens it carries. */}
             <Text style={styles.muted}>Pick any meal you have logged or saved, one already on your schedule, or a system recipe, then log it or put it on your schedule.</Text>
@@ -632,7 +647,9 @@ export default function FindMealScreen() {
         }
         renderItem={({ item }) =>
           item.type === 'header' ? (
-            <Text style={styles.sectionHeader}>{item.label}</Text>
+            <View style={styles.sectionHeaderBand}>
+              <Text style={styles.sectionHeader}>{item.label}</Text>
+            </View>
           ) : (
             (() => {
               const expanded = expandedKey === item.key;
@@ -704,6 +721,7 @@ export default function FindMealScreen() {
     if (!selected) return null;
     return (
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <View style={styles.panel}>
         <Text style={styles.title}>{selected.name}</Text>
         <Text style={styles.muted}>{describeMeal(selected)}</Text>
 
@@ -737,6 +755,7 @@ export default function FindMealScreen() {
         <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => setMode('list')}>
           <Text style={styles.secondaryButtonText}>Back to the list</Text>
         </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -744,6 +763,7 @@ export default function FindMealScreen() {
   function renderEarlier() {
     return (
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <View style={styles.panel}>
         <Text style={styles.title}>{selected?.name}</Text>
         <Text style={styles.sectionLabel}>What time did you eat it?</Text>
         <Text style={styles.muted}>Today, at whatever time it actually happened.</Text>
@@ -759,6 +779,7 @@ export default function FindMealScreen() {
         <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => setMode('actions')}>
           <Text style={styles.secondaryButtonText}>Back</Text>
         </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -766,6 +787,7 @@ export default function FindMealScreen() {
   function renderSchedule() {
     return (
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <View style={styles.panel}>
         <Text style={styles.title}>{selected?.name}</Text>
         <Text style={styles.sectionLabel}>When should this be scheduled?</Text>
         <View style={styles.quickDateRow}>
@@ -805,6 +827,7 @@ export default function FindMealScreen() {
         <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => setMode('actions')}>
           <Text style={styles.secondaryButtonText}>Back</Text>
         </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -812,6 +835,7 @@ export default function FindMealScreen() {
   function renderReplace() {
     return (
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <View style={styles.panel}>
         <Text style={styles.title}>{selected?.name}</Text>
         <Text style={styles.sectionLabel}>Which planned meal did this replace?</Text>
         <Text style={styles.muted}>
@@ -839,13 +863,13 @@ export default function FindMealScreen() {
         <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => setMode('actions')}>
           <Text style={styles.secondaryButtonText}>Back</Text>
         </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
 
   return (
     <View style={styles.screen}>
-      <Stack.Screen options={{ title: 'Log or Schedule a Meal' }} />
       {infoAlertElement}
       {mode === 'list'
         ? renderList()
@@ -856,33 +880,36 @@ export default function FindMealScreen() {
             : mode === 'schedule'
               ? renderSchedule()
               : renderReplace()}
-      {/* Where you are, 2026-09-13: "That is supposed to always reflect
-          where you are when using any of the Tabs. The only time they
-          should not be there at all is when the user is on one of the 10
-          Tabs." This screen is reached from Food, so it wears Food's
-          colour and names itself the way its own header does. */}
-      <PageIdentityLabel title="Food" activeLensLabel="Log or Schedule a Meal" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, gap: 10 },
-  listHeader: { gap: 10, marginBottom: 4 },
+  // No fill of its own: the Food tab's background shows through, the
+  // same as behind every builder.
+  screen: { flex: 1 },
+  // The band look, 2026-09-13 (see components/HomeSectionBand.tsx), the
+  // same as every Food builder: no horizontal padding, every box edge to
+  // edge in the Food colour, the standard gap between them.
+  content: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
+  panel: { ...homeBandStyle, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING, gap: 10 },
+  listHeader: { marginBottom: 0 },
+  sectionHeaderBand: {
+    ...homeBandStyle,
+    borderColor: colors.tabFood,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+    paddingVertical: 10,
+    marginTop: HOME_BAND_GAP,
+    marginBottom: HOME_BAND_GAP,
+  },
   title: { ...typography.sectionTitle, color: colors.textPrimary, ...textShadow },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   // textPrimary rather than textMuted: textMuted measures under 3:1 on the
   // surface (2026-09-12).
   muted: { ...typography.caption, color: colors.textPrimary, ...textShadow },
-  card: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    gap: 6,
-  },
+  // The photo-draft block inside the list header's own band: a quiet inset
+  // box, since a band inside a band would put its accent 16px in.
+  card: { padding: 12, borderRadius: 10, backgroundColor: colors.surfaceMuted, gap: 6 },
   draftPhoto: { width: '100%', height: 160, borderRadius: 10, backgroundColor: colors.border },
   searchInput: {
     ...typography.body,
@@ -897,21 +924,20 @@ const styles = StyleSheet.create({
   // card holding its own ingredients, rather than a card with a separate block
   // floating under it.
   rowWrap: {
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    marginBottom: 8,
+    ...homeBandStyle,
+    borderColor: colors.tabFood,
+    marginBottom: HOME_BAND_GAP,
     overflow: 'hidden',
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
   },
   expandedBlock: {
-    paddingHorizontal: 12,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
     paddingBottom: 12,
     gap: 4,
     borderTopWidth: 1,
@@ -937,13 +963,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
   },
   scopeRow: { flexDirection: 'row', gap: 8 },
-  sectionHeader: {
-    ...typography.bodyEmphasis,
-    color: colors.accent,
-    marginTop: 10,
-    marginBottom: 6,
-    ...textShadow,
-  },
+  sectionHeader: { ...typography.bodyEmphasis, color: colors.tabFood, fontWeight: '400', ...textShadow },
   rowTextWrap: { flex: 1, gap: 2 },
   rowName: { ...typography.body, color: colors.textPrimary, ...textShadow },
   rowMeta: { ...typography.caption, color: colors.textMuted, ...textShadow },
@@ -1001,5 +1021,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 12,
   },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary, ...textShadow },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
 });

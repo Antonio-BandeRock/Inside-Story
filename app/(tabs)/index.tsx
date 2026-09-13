@@ -565,7 +565,12 @@ const HOME_LENS_DESTINATIONS: Partial<
   >
 > = {
   // What you put in.
-  logAgain: { label: 'Log a Meal', icon: 'restaurant', color: colors.tabFood, href: '/find-meal' as Href },
+  logAgain: {
+    label: 'Log a Meal',
+    icon: 'restaurant',
+    color: colors.tabFood,
+    href: { pathname: '/food', params: { openFoodLens: 'findMeal' } } as Href,
+  },
   scanProduct: { label: 'Scan a Product', icon: 'barcode', color: colors.tabFood, href: '/scan-product' as Href },
   yourDay: { label: 'Your Day', icon: 'calendar', color: colors.tabSchedules, href: '/schedule' as Href },
   symptomCheckinReminder: {
@@ -2214,7 +2219,7 @@ export default function HomeScreen() {
         <TouchableOpacity
           style={[styles.logAgainSpeakButton, { borderColor: foodColor }]}
           activeOpacity={0.8}
-          onPress={() => router.push('/find-meal')}
+          onPress={() => router.push({ pathname: '/food', params: { openFoodLens: 'findMeal' } })}
         >
           <Ionicons name="restaurant-outline" size={18} color={foodColor} style={textShadow} />
           <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Log or schedule a meal</Text>
@@ -2365,8 +2370,13 @@ export default function HomeScreen() {
               setActiveDraft(null);
               if (draft) {
                 router.push({
-                  pathname: '/find-meal',
-                  params: { draftId: draft.id, photoUri: draft.photoUri, capturedAt: draft.capturedAt },
+                  pathname: '/food',
+                  params: {
+                    openFoodLens: 'findMeal',
+                    findMealDraftId: draft.id,
+                    findMealPhotoUri: draft.photoUri,
+                    findMealCapturedAt: draft.capturedAt,
+                  },
                 });
               }
             },

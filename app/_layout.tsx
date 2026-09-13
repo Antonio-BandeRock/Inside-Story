@@ -568,17 +568,10 @@ export default function RootLayout() {
                 {/* 2026-08-16, the real barcode-scanning feature -- reached from
                     Food's own "My Foods" hub. Themed the same as every other
                     Stack screen. */}
-                {/* Quick-log, 2026-08-30 -- both reached from Home's own Log a
-                    Meal card. Themed the same as every other Stack screen. */}
-                <Stack.Screen
-                  name="find-meal"
-                  options={{
-                    headerShown: true,
-                    title: 'Log or Schedule a Meal',
-                    headerStyle: { backgroundColor: colors.background },
-                    headerTintColor: colors.textPrimary,
-                  }}
-                />
+                {/* find-meal was a Stack screen here from 2026-08-30 to
+                    2026-09-13; it is Food's own Log or Schedule a Meal lens
+                    now (components/FindMealView.tsx), opened with the
+                    openFoodLens param. */}
                 {/* This Week's Flags, 2026-09-12: the list behind Home's weekly
                     flag count. Themed the same as every other Stack screen. */}
                 <Stack.Screen

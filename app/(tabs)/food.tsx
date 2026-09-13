@@ -24,6 +24,7 @@ import { SaucesBuilder } from '../../components/SaucesBuilder';
 import { SoupBuilder } from '../../components/SoupBuilder';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { TabDesktopMenu } from '../../components/TabDesktopMenu';
+import { FindMealView } from '../../components/FindMealView';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from '../../components/HomeSectionBand';
 import { colors } from '../../constants/colors';
@@ -69,6 +70,11 @@ const TAB_COLOR = colors.tabFood;
 // builder a "scheduled meal" maps to (almost certainly Meal Builder) is
 // rebuilt -- not fixed yet.
 type FoodLens =
+  // Not a builder: the quickest way to log or schedule a meal that already
+  // exists somewhere (logged, saved, scheduled, or a system recipe). A lens
+  // since 2026-09-13 so it opens inside this tab like the builders do
+  // rather than as a Stack screen (see components/FindMealView.tsx).
+  | 'findMeal'
   | 'mealBuilder'
   | 'sideBuilder'
   | 'saladBuilder'
@@ -107,6 +113,8 @@ type FoodLens =
 // table/'sauce' itemType all stay singular) -- only what's actually shown
 // on screen changed.
 const FOOD_LENS_COPY: Record<FoodLens, string> = {
+  findMeal:
+    'Pick any meal you have logged or saved, one already on your schedule, or a system recipe, then log it now, log it for earlier today, put it on your schedule, or use it instead of a meal that was planned. Nothing here builds a meal; every builder does that.',
   mealBuilder:
     "Built 2026-08-02, last of the eleven. Name the meal (optional) and choose a meal type, then \"Add from...\" opens your own already-saved or favorited items from any builder: pick one, then say how much of THAT ONE SAVED ITEM's own stated servings you actually had (100% = the whole thing, not a share of the whole meal split between people). Repeat for as many items as the meal actually has. Checks for raw goitrogenic foods combined ACROSS the whole meal (not just within one builder's own ingredient list) before logging. Log This Now saves a meal for right now; Save & Schedule for Later saves it for a chosen time today instead. Also reachable from Past Meals' own \"Adjust\" link, to correct how much of each item a real, already-logged meal actually turned out to have. Save Changes there updates that same real meal in place, and any food trial riding on a changed item gets a real, separate prompt about whether to correct its own start date or mark it as never having happened.",
   sideBuilder:
@@ -153,6 +161,7 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
 // two lines, "what it builds" then "Builder," consistently across all
 // ten rather than some wrapping and some not depending on length alone.
 const FOOD_LENS_FULL_NAMES: Record<FoodLens, string> = {
+  findMeal: 'Log or\nSchedule a Meal',
   mealBuilder: 'Meal\nBuilder',
   sideBuilder: 'Sides\nBuilder',
   saladBuilder: 'Salads &\nBowls Builder',
@@ -179,6 +188,12 @@ const FOOD_LENS_FULL_NAMES: Record<FoodLens, string> = {
 // rather than repeated ten times over. Each `help` heading was shortened
 // to match, for the same reason -- it used to just repeat the label.
 const FOOD_LENSES: LensOption<FoodLens>[] = [
+  {
+    key: 'findMeal',
+    label: 'Log or Schedule',
+    icon: 'search-outline',
+    help: [{ heading: 'Log or Schedule a Meal', body: FOOD_LENS_COPY.findMeal }],
+  },
   {
     key: 'mealBuilder',
     label: 'Meal',
@@ -386,6 +401,13 @@ export default function FoodScreen() {
     mealType: scheduledMealType,
     title: scheduledTitle,
     templateMealId,
+    // Home's Log a Meal card and a finished photo draft open the Log or
+    // Schedule a Meal lens here (2026-09-13, it used to be its own Stack
+    // screen). The draft fields ride along the same way they used to.
+    openFoodLens,
+    findMealDraftId,
+    findMealPhotoUri,
+    findMealCapturedAt,
   } = useLocalSearchParams<{
     editMealId?: string;
     editSideId?: string;
@@ -426,6 +448,10 @@ export default function FoodScreen() {
     mealType?: string;
     title?: string;
     templateMealId?: string;
+    openFoodLens?: string;
+    findMealDraftId?: string;
+    findMealPhotoUri?: string;
+    findMealCapturedAt?: string;
   }>();
   // Through the shared hook, switched off there on 2026-08-30. Until
   // 2026-09-13 this screen read the param directly, so Food alone still
@@ -520,6 +546,11 @@ export default function FoodScreen() {
       // without this, arriving here to edit a record would still show the
       // LensHub picker for a beat (or permanently, once revealed was reset
       // false on focus) instead of the record itself.
+      if (openFoodLens === 'findMeal') {
+        setLens('findMeal');
+        setRevealed(true);
+        return;
+      }
       if (scheduleItemId) {
         setLens('mealBuilder');
         setRevealed(true);
@@ -749,6 +780,7 @@ export default function FoodScreen() {
       openSauceRecipeId,
       openHandheldRecipeId,
       openDessertRecipeId,
+      openFoodLens,
     ]),
   );
 
@@ -992,7 +1024,10 @@ export default function FoodScreen() {
       icon: 'search-outline',
       label: 'Log or Schedule a Meal',
       caption: 'Pick any meal you have logged or saved, one already on your schedule, or a system recipe, then log it or put it on your schedule.',
-      onPress: () => router.push('/find-meal'),
+      onPress: () => {
+        setLens('findMeal');
+        setRevealed(true);
+      },
     },
     ...myFoodsCategories.map((category) =>
       category.id === 'saved-favorites' ? { ...category, onPress: () => setDesktopSubmenu('saved-favorites') } : category,
@@ -1253,7 +1288,23 @@ export default function FoodScreen() {
                 }
           }
         >
-          {lens === 'mealBuilder' ? (
+          {lens === 'findMeal' ? (
+            <FindMealView
+              draftId={findMealDraftId}
+              photoUri={findMealPhotoUri}
+              capturedAt={findMealCapturedAt}
+              // Done means back to where this was opened from: Home when
+              // Home sent us here (the param says so), this tab's own
+              // resting screen otherwise.
+              onDone={() => {
+                if (openFoodLens === 'findMeal') {
+                  router.navigate('/');
+                } else {
+                  setRevealed(false);
+                }
+              }}
+            />
+          ) : lens === 'mealBuilder' ? (
             // MealBuilder owns its own layout entirely, same reasoning as
             // every other builder below -- but never sits behind a
             // connected FoodLookup (it assembles from already-saved

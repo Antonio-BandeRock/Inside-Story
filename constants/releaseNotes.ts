@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.7',
+    date: '2026-09-13',
+    changes: [
+      'Log or Schedule a Meal now opens inside the Food tab like every builder does, with the Food background, the footer, the corner buttons and the where-you-are box, rather than as a plain screen of its own. It is in the Food corner menu too. Home\'s Log a Meal card and a finished photo both land there.',
+    ],
+  },
+  {
     version: '1.0.37.6',
     date: '2026-09-13',
     changes: [
