@@ -1046,7 +1046,7 @@ export default function FoodScreen() {
   // 4-tier grouping -- "the My Foods menu should list things in the
   // following way: My Food Products... My Whole Foods... System Meals...
   // Saved & Favorites (a sub menu appears with the choices for each
-  // builder)." The real "Scan a Product" action tile that used to lead this
+  // builder)." System Meals moved to last on 2026-09-13, see its own row. The real "Scan a Product" action tile that used to lead this
   // list is gone entirely -- moved to Home, per the same direct request
   // ("Move the Scan a Product link to the home screen for now").
   const myFoodsCategories: MyItemsCategory[] = [
@@ -1079,18 +1079,6 @@ export default function FoodScreen() {
       onPress: () => router.push({ pathname: '/garden', params: { openGardenLens: 'harvestLog' } }),
     },
     {
-      // "System Meals" -- this app's own curated Recipes library (Purple
-      // Digest's real, app-authored recipe cards), not anything the user
-      // created themselves -- the real, most plausible referent for content
-      // the SYSTEM (not the user) provides, sitting between "My Whole Foods"
-      // (the user's own harvests) and "Saved & Favorites" (the user's own
-      // creations) in the request's own ordering.
-      id: 'system-meals',
-      label: 'System Meals',
-      icon: 'book-outline',
-      onPress: () => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'recipes' } }),
-    },
-    {
       // "Saved & Favorites" -- opens the second, submenu MyItemsHub instance
       // below (savedAndFavoritesCategories), holding every builder's own
       // real saved/favorite pair. See savedFavoritesOpen's own comment above
@@ -1099,6 +1087,17 @@ export default function FoodScreen() {
       label: 'Saved & Favorites',
       icon: 'bookmarks-outline',
       onPress: () => setSavedFavoritesOpen(true),
+    },
+    {
+      // "System Meals" -- this app's own curated Recipes library (the
+      // Digest's app-authored recipe cards), not anything the user created.
+      // Last, below Saved & Favorites, 2026-09-13, direct instruction: "On
+      // the Food screen, make System Meals be last under Saved & Favorites."
+      // The person's own things first, the app's library after them.
+      id: 'system-meals',
+      label: 'System Meals',
+      icon: 'book-outline',
+      onPress: () => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'recipes' } }),
     },
   ];
 

@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.17',
+    date: '2026-09-13',
+    changes: [
+      'On the Food screen, System Meals is now the last row, below Saved & Favorites, in both the Desktop list and the My Foods corner popup: your own things first, the app\'s library after them.',
+    ],
+  },
+  {
     version: '1.0.37.16',
     date: '2026-09-13',
     changes: [
