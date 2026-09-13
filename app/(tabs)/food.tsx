@@ -1247,9 +1247,9 @@ export default function FoodScreen() {
           restingContent={foodDesktopContent}
           restingIntro={
             desktopSubmenu === 'saved-favorites'
-              ? { body: 'Below are the foods you have saved and favorited from every tool here.' }
+              ? { body: 'Your saved and favorite foods from every tool here.' }
               : {
-                  body: 'Below, you will find the food combinations you have built using the tools available here (recipes), your saved and favorite foods, garden harvests, and store bought food products you allow into your diet.',
+                  body: 'Recipes you have built here, your saved and favorite foods, garden harvests, and the store-bought products you allow in your diet.',
                 }
           }
         >
@@ -1434,7 +1434,13 @@ export default function FoodScreen() {
         </GatedTabContent>
       </SwipeableTabScreen>
 
-      <PageIdentityLabel title="Food" activeLensLabel={revealed ? activeLensLabel : undefined} />
+      {/* At rest the drilled-in submenu is a place of its own, so the box
+          names it; the tab's own top level shows nothing, per the rule that
+          the box is absent only on one of the ten tabs themselves. */}
+      <PageIdentityLabel
+        title="Food"
+        activeLensLabel={revealed ? activeLensLabel : desktopSubmenu === 'saved-favorites' ? 'Saved & Favorites' : undefined}
+      />
       <MyItemsHub
         label="My Foods"
         tabColor={TAB_COLOR}

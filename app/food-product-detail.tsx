@@ -5,6 +5,8 @@ import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import { AppTextInput } from '../components/AppTextInput';
 import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
+import { PageIdentityLabel } from '../components/PageIdentityLabel';
+import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TrendLineChart } from '../components/TrendLineChart';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -50,6 +52,7 @@ export default function FoodProductDetailScreen() {
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
 
   const [loading, setLoading] = useState(true);
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [product, setProduct] = useState<ScannedProductRecord | null>(null);
   const [nutrients, setNutrients] = useState<NutrientRow[]>([]);
   const [priceHistory, setPriceHistory] = useState<ScannedProductPriceRecord[]>([]);
@@ -160,7 +163,7 @@ export default function FoodProductDetailScreen() {
   return (
     <View style={styles.screen}>
       <Stack.Screen options={{ title: product.name }} />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
         {/* Name + brand + photo -- name is the one real thing this screen
             lets a person correct in place, matching updateScannedProduct's
             own already-established real use case ("a person re-scanning
@@ -302,6 +305,12 @@ export default function FoodProductDetailScreen() {
       </ScrollView>
       {infoAlertElement}
       {confirmSheetElement}
+      {/* Where you are, 2026-09-13: "That is supposed to always reflect
+          where you are when using any of the Tabs. The only time they
+          should not be there at all is when the user is on one of the 10
+          Tabs." This screen is reached from Food, so it wears Food's
+          colour and names itself the way its own header does. */}
+      <PageIdentityLabel title="Food" activeLensLabel={product.name} />
     </View>
   );
 }

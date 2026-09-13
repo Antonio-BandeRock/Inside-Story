@@ -44,6 +44,7 @@ import { AppTextInput } from '../components/AppTextInput';
 import { useInfoAlert } from '../components/InfoAlert';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
+import { PageIdentityLabel } from '../components/PageIdentityLabel';
 import { textShadow, typography } from '../constants/typography';
 import {
   createMealFromComponents,
@@ -855,6 +856,12 @@ export default function FindMealScreen() {
             : mode === 'schedule'
               ? renderSchedule()
               : renderReplace()}
+      {/* Where you are, 2026-09-13: "That is supposed to always reflect
+          where you are when using any of the Tabs. The only time they
+          should not be there at all is when the user is on one of the 10
+          Tabs." This screen is reached from Food, so it wears Food's
+          colour and names itself the way its own header does. */}
+      <PageIdentityLabel title="Food" activeLensLabel="Log or Schedule a Meal" />
     </View>
   );
 }

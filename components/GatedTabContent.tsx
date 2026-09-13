@@ -160,7 +160,7 @@ export function GatedTabContent({
               </>
             ) : (
               <Text style={styles.promptBody}>
-                Tap the {pageTitle} button in the bottom corner to choose a tool to use here.
+                Tap the {pageTitle} button in the corner to pick a tool.
               </Text>
             )}
           </View>

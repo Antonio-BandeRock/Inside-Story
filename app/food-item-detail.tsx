@@ -13,6 +13,7 @@ import { addGroceryListItem, getActiveGroceryList, loadKitchenStock, stockIdKey,
 import { applyMakePlan } from '../lib/kitchenDb';
 import { buildMakePlan, shortfallsFrom, type MakeIngredient, type MakePlan } from '../lib/kitchenUsage';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
+import { PageIdentityLabel } from '../components/PageIdentityLabel';
 import { textShadow, typography } from '../constants/typography';
 import {
   getBakedGoods,
@@ -546,6 +547,12 @@ export default function FoodItemDetailScreen() {
       >
         <Ionicons name="close" size={28} color={colors.textOnPrimary} />
       </TouchableOpacity>
+      {/* Where you are, 2026-09-13: "That is supposed to always reflect
+          where you are when using any of the Tabs. The only time they
+          should not be there at all is when the user is on one of the 10
+          Tabs." This screen is reached from Food, so it wears Food's
+          colour and names itself the way its own header does. */}
+      <PageIdentityLabel title="Food" activeLensLabel={title || side?.name || 'Saved Item'} />
     </View>
   );
 }

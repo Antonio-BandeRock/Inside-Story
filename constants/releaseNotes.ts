@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.5',
+    date: '2026-09-13',
+    changes: [
+      'The header boxes say what they need to in fewer words.',
+      'The where-you-are box in the lower corner now shows on Saved & Favorites and on every screen reached from the Food screen (a saved list, a saved dish, a food product, Log or Schedule a Meal), in the Food colour. It is absent only on a tab itself.',
+    ],
+  },
+  {
     version: '1.0.37.4',
     date: '2026-09-13',
     changes: [
