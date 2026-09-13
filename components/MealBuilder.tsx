@@ -41,6 +41,7 @@ import {
 } from '../lib/db';
 import { getConditionStagingModel, resolveDeclaredStage, type DeclaredConditionStage } from '../lib/conditionStages';
 import { parseAmountValue } from '../lib/measurement';
+import type { BuildMealHandoff } from '../lib/mealBuilderHandoff';
 import { computeRecipeDepth, type RecipeDepthResult } from '../lib/recipeDepth';
 import { buildTime24, describeTimeInputProblem, formatTime12, type TimeOfDayInput } from '../lib/timeOfDay';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
@@ -286,6 +287,13 @@ export function MealBuilder({
   // (findTrialsAffectedByMealEdit) run right after. See this file's own
   // saveEditedMeal for the full save path.
   editMealId,
+  // A whole meal or a few dishes picked out of one on Log or Schedule a
+  // Meal, 2026-09-13, arriving through the `buildMealFrom` route param
+  // (see lib/mealBuilderHandoff.ts and the effect below).
+  buildFrom,
+  // Told once the handoff has been loaded, so the Food tab can stop
+  // passing it.
+  onBuildFromConsumed,
 }: {
   tabColor: string;
   scheduleItemId?: string;
@@ -294,6 +302,8 @@ export function MealBuilder({
   templateMealId?: string;
   favoriteId?: string;
   editMealId?: string;
+  buildFrom?: BuildMealHandoff | null;
+  onBuildFromConsumed?: () => void;
 }) {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -320,7 +330,7 @@ export function MealBuilder({
   // the assembling screen tolerate a beat of "No meal type chosen" while
   // that load is still in flight, the same way templateMealId's own
   // component list starts empty and fills in).
-  const [identityConfirmed, setIdentityConfirmed] = useState(!!scheduleItemId || !!favoriteId || !!editMealId);
+  const [identityConfirmed, setIdentityConfirmed] = useState(!!scheduleItemId || !!favoriteId || !!editMealId || !!buildFrom?.mealType);
 
   // The 2026-08-08 "nothing to build from yet" gate (Continue blocked until
   // some other builder had a saved record) is gone as of 2026-09-13: every
@@ -399,6 +409,9 @@ export function MealBuilder({
     setBrowsingStartingPoints(false);
     setStartingPoints([]);
     setStartingPointSearch('');
+    setExpandedStartingPointKey(null);
+    setStartingPointDishes({});
+    setTickedDishes({});
   }
 
   const filteredStartingPoints = useMemo(() => {
@@ -407,70 +420,187 @@ export function MealBuilder({
     return startingPoints.filter((row) => row.name.toLowerCase().includes(query));
   }, [startingPoints, startingPointSearch]);
 
-  async function chooseStartingPoint(row: StartingPoint) {
-    if (components.length > 0) {
+  // The dishes inside each whole meal, resolved once a row is expanded
+  // (2026-09-13: "They could choose an entire meal or they could choose a
+  // few sides to make up a meal"). Keyed by the row's own key; a row not
+  // yet expanded has no entry.
+  const [expandedStartingPointKey, setExpandedStartingPointKey] = useState<string | null>(null);
+  const [startingPointDishes, setStartingPointDishes] = useState<Record<string, SelectedComponent[]>>({});
+  const [loadingDishesKey, setLoadingDishesKey] = useState<string | null>(null);
+  const [tickedDishes, setTickedDishes] = useState<Record<string, Set<string>>>({});
+
+  async function resolveStartingPointDishes(row: StartingPoint): Promise<{ dishes: SelectedComponent[]; name: string; mealType: string | null } | null> {
+    let selections: MealComponentSelection[] = [];
+    let name = row.name;
+    let type: string | null = row.mealType;
+    if (row.kind === 'logged') {
+      const records = await getMealComponents(row.mealId);
+      selections = records.map((record) => ({ componentType: record.componentType, componentId: record.componentId, yourSharePercent: record.yourSharePercent }));
+    } else {
+      const favorite = await getMealFavorite(row.favoriteId);
+      if (!favorite) return null;
+      selections = favorite.components;
+      if (row.kind === 'favorite') {
+        name = favorite.name;
+        type = favorite.mealType;
+      }
+    }
+    const dishes: SelectedComponent[] = [];
+    for (const selection of selections) {
+      const detail = await getMealComponentDisplayInfo(selection.componentType, selection.componentId);
+      // A dish whose saved record is gone is dropped, the same silent-drop
+      // every other load path here makes.
+      if (!detail) continue;
+      dishes.push({
+        key: `${selection.componentType}_${selection.componentId}_${dishes.length}`,
+        componentType: selection.componentType,
+        componentId: selection.componentId,
+        name: detail.name,
+        servings: detail.servings,
+        yourSharePercent: selection.yourSharePercent,
+      });
+    }
+    return { dishes, name, mealType: type };
+  }
+
+  async function toggleStartingPointExpanded(row: StartingPoint) {
+    if (expandedStartingPointKey === row.key) {
+      setExpandedStartingPointKey(null);
+      return;
+    }
+    setExpandedStartingPointKey(row.key);
+    if (startingPointDishes[row.key]) return;
+    setLoadingDishesKey(row.key);
+    try {
+      const resolved = await resolveStartingPointDishes(row);
+      setStartingPointDishes((current) => ({ ...current, [row.key]: resolved?.dishes ?? [] }));
+    } finally {
+      setLoadingDishesKey(null);
+    }
+  }
+
+  function toggleDishTicked(rowKey: string, dishKey: string) {
+    setTickedDishes((current) => {
+      const next = new Set(current[rowKey] ?? []);
+      if (next.has(dishKey)) next.delete(dishKey);
+      else next.add(dishKey);
+      return { ...current, [rowKey]: next };
+    });
+  }
+
+  // Puts a set of dishes into this meal, replacing what is there (after
+  // asking, if anything is), then lands on the assembling screen. The one
+  // path every way of loading a whole or partial meal ends in: the
+  // Start-from picker above, and the handoff from Log or Schedule a Meal
+  // below.
+  async function loadDishesIntoMeal(
+    dishes: SelectedComponent[],
+    sourceName: string,
+    name: string | null,
+    type: string | null,
+    options?: { skipConfirm?: boolean },
+  ) {
+    if (dishes.length === 0) {
+      showInfoAlert('Nothing to load', 'None of the dishes in that meal could be found any more, so there is nothing to start from.');
+      return;
+    }
+    if (components.length > 0 && !options?.skipConfirm) {
       const ok = await confirmSheet({
         title: 'Replace what is in this meal?',
-        message: `Everything added so far will be replaced by what is in "${row.name}".`,
+        message: `Everything added so far will be replaced by what you picked from "${sourceName}".`,
         confirmLabel: 'Replace',
         destructive: true,
       });
       if (!ok) return;
     }
+    // Only fill a name or type that has not been chosen yet: reaching here
+    // from the identity step means neither has, but from the assembling
+    // screen the person may already have named this meal deliberately.
+    if (!mealName.trim() && name) setMealName(name);
+    if (!mealType && type) setMealType(type);
+    const stamp = Date.now();
+    setComponents(dishes.map((dish, index) => ({ ...dish, key: `${dish.key}_${stamp}_${index}` })));
+    // A meal type is still required to log anything, so a starting point
+    // that carries none leaves the identity step showing (with the dishes
+    // already loaded) rather than skipping past the one question left.
+    if (mealType || type) setIdentityConfirmed(true);
+    closeStartingPoints();
+  }
+
+  // The whole meal, or only the ticked dishes when asked for those.
+  async function chooseStartingPoint(row: StartingPoint, onlyTicked: boolean) {
     setLoadingStartingPoint(true);
     try {
-      let selections: MealComponentSelection[] = [];
-      let name = row.name;
-      let type: string | null = row.mealType;
-      if (row.kind === 'logged') {
-        const records = await getMealComponents(row.mealId);
-        selections = records.map((record) => ({ componentType: record.componentType, componentId: record.componentId, yourSharePercent: record.yourSharePercent }));
-      } else {
-        const favorite = await getMealFavorite(row.favoriteId);
-        if (!favorite) {
-          showInfoAlert('Meal not found', 'That meal could not be opened. It may have been removed.');
-          return;
-        }
-        selections = favorite.components;
-        if (row.kind === 'favorite') {
-          name = favorite.name;
-          type = favorite.mealType;
-        }
-      }
-      const resolved: SelectedComponent[] = [];
-      for (const selection of selections) {
-        const detail = await getMealComponentDisplayInfo(selection.componentType, selection.componentId);
-        // A component whose saved record is gone is dropped, the same
-        // silent-drop every other load path here makes.
-        if (!detail) continue;
-        resolved.push({
-          key: `${selection.componentType}_${selection.componentId}_${Date.now()}_${resolved.length}`,
-          componentType: selection.componentType,
-          componentId: selection.componentId,
-          name: detail.name,
-          servings: detail.servings,
-          yourSharePercent: selection.yourSharePercent,
-        });
-      }
-      if (resolved.length === 0) {
-        showInfoAlert('Nothing to load', 'None of the dishes in that meal could be found any more, so there is nothing to start from.');
+      const resolved = startingPointDishes[row.key]
+        ? { dishes: startingPointDishes[row.key], name: row.name, mealType: row.mealType }
+        : await resolveStartingPointDishes(row);
+      if (!resolved) {
+        showInfoAlert('Meal not found', 'That meal could not be opened. It may have been removed.');
         return;
       }
-      // Only fill a name or type that has not been chosen yet: reaching here
-      // from the identity step means neither has, but from the assembling
-      // screen the person may already have named this meal deliberately.
-      if (!mealName.trim()) setMealName(name);
-      if (!mealType && type) setMealType(type);
-      setComponents(resolved);
-      // A meal type is still required to log anything, so a starting point
-      // that carries none leaves the identity step showing (with the dishes
-      // already loaded) rather than skipping past the one question left.
-      if (mealType || type) setIdentityConfirmed(true);
-      closeStartingPoints();
+      const ticked = tickedDishes[row.key];
+      const chosen = onlyTicked && ticked && ticked.size > 0 ? resolved.dishes.filter((dish) => ticked.has(dish.key)) : resolved.dishes;
+      // A few dishes taken out of a meal are not that meal, so its name is
+      // not carried over; the whole meal is, and keeps its name.
+      const carryName = chosen.length === resolved.dishes.length ? resolved.name : null;
+      await loadDishesIntoMeal(chosen, row.name, carryName, resolved.mealType);
     } finally {
       setLoadingStartingPoint(false);
     }
   }
+
+  // The handoff from Log or Schedule a Meal (lib/mealBuilderHandoff.ts):
+  // a whole meal or a few dishes picked out of one, arriving as a route
+  // param. Runs once per distinct handoff. A system recipe among the items
+  // has no saved record yet and is made here, hidden, the same as one
+  // picked from "Add from...".
+  const handledBuildFrom = useRef<string | null>(null);
+  useEffect(() => {
+    if (!buildFrom) return;
+    const signature = JSON.stringify(buildFrom);
+    if (handledBuildFrom.current === signature) return;
+    handledBuildFrom.current = signature;
+    let isCurrent = true;
+    (async () => {
+      const dishes: SelectedComponent[] = [];
+      for (const item of buildFrom.items) {
+        if ('curatedRecipeId' in item) {
+          const made = await materializeCuratedRecipeAsMealComponent(item.curatedRecipeId);
+          if ('error' in made) continue;
+          dishes.push({
+            key: `${made.componentType}_${made.componentId}`,
+            componentType: made.componentType,
+            componentId: made.componentId,
+            name: made.name,
+            servings: made.servings,
+            yourSharePercent: 100,
+          });
+        } else {
+          const detail = await getMealComponentDisplayInfo(item.componentType, item.componentId);
+          if (!detail) continue;
+          dishes.push({
+            key: `${item.componentType}_${item.componentId}`,
+            componentType: item.componentType,
+            componentId: item.componentId,
+            name: detail.name,
+            servings: detail.servings,
+            yourSharePercent: 100,
+          });
+        }
+      }
+      if (!isCurrent) return;
+      // Arriving from another lens is a fresh start, not an edit of
+      // something half-built here, so nothing is asked before loading.
+      await loadDishesIntoMeal(dishes, buildFrom.name ?? 'that meal', buildFrom.name ?? null, buildFrom.mealType ?? null, { skipConfirm: true });
+      onBuildFromConsumed?.();
+    })();
+    return () => {
+      isCurrent = false;
+    };
+    // loadDishesIntoMeal reads the current name, type and dishes, and this
+    // must run once per handoff, not again on every edit to those.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buildFrom]);
 
   useEffect(() => {
     if (!templateMealId) return;
@@ -1267,19 +1397,73 @@ export function MealBuilder({
       rows.length === 0 ? null : (
         <View style={styles.bandOut}>
           <HomeSectionBand kind="static" title={title} icon={icon} color={tabColor} contentStyle={styles.bandRows}>
-            {rows.map((row) => (
-              <TouchableOpacity key={row.key} style={styles.savedRow} onPress={() => void chooseStartingPoint(row)} disabled={loadingStartingPoint}>
-                <View style={styles.savedRowText}>
-                  <Text style={styles.savedRowName} numberOfLines={1}>
-                    {row.name}
-                  </Text>
-                  <Text style={styles.savedRowDetail} numberOfLines={1}>
-                    {row.detail}
-                  </Text>
+            {rows.map((row) => {
+              const expanded = expandedStartingPointKey === row.key;
+              const dishes = startingPointDishes[row.key];
+              const ticked = tickedDishes[row.key];
+              const tickedCount = ticked ? ticked.size : 0;
+              return (
+                // A meal expands to the dishes it is made from, each one
+                // tickable, so the whole meal or only some of it can be
+                // taken (2026-09-13). The same shape Log or Schedule a
+                // Meal's rows have.
+                <View key={row.key} style={styles.savedRowWrap}>
+                  <TouchableOpacity style={styles.savedRow} onPress={() => void toggleStartingPointExpanded(row)} disabled={loadingStartingPoint}>
+                    <View style={styles.savedRowText}>
+                      <Text style={styles.savedRowName} numberOfLines={1}>
+                        {row.name}
+                      </Text>
+                      <Text style={styles.savedRowDetail} numberOfLines={1}>
+                        {row.detail}
+                      </Text>
+                    </View>
+                    <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={tabColor} />
+                  </TouchableOpacity>
+                  {expanded ? (
+                    <View style={styles.expandedBlock}>
+                      {loadingDishesKey === row.key || !dishes ? (
+                        <ActivityIndicator color={tabColor} />
+                      ) : dishes.length === 0 ? (
+                        <Text style={styles.savedRowDetail}>None of the dishes in this meal could be found any more.</Text>
+                      ) : (
+                        <>
+                          <Text style={styles.savedRowDetail}>Made from these dishes. Tick the ones you want, or take the whole meal.</Text>
+                          {dishes.map((dish) => {
+                            const isTicked = !!ticked?.has(dish.key);
+                            return (
+                              <TouchableOpacity key={dish.key} style={styles.dishRow} onPress={() => toggleDishTicked(row.key, dish.key)}>
+                                <Ionicons name={isTicked ? 'checkbox' : 'square-outline'} size={20} color={tabColor} />
+                                <Text style={styles.dishRowName} numberOfLines={1}>
+                                  {dish.name}
+                                </Text>
+                              </TouchableOpacity>
+                            );
+                          })}
+                          <View style={styles.buttonRow}>
+                            <TouchableOpacity
+                              style={[styles.secondaryButton, { flex: 1, borderColor: tabColor }]}
+                              onPress={() => void chooseStartingPoint(row, false)}
+                              disabled={loadingStartingPoint}
+                            >
+                              <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Use the whole meal</Text>
+                            </TouchableOpacity>
+                            {tickedCount > 0 ? (
+                              <TouchableOpacity
+                                style={[styles.primaryButton, { backgroundColor: colors.buttonColor, flex: 1, marginTop: 0 }]}
+                                onPress={() => void chooseStartingPoint(row, true)}
+                                disabled={loadingStartingPoint}
+                              >
+                                <Text style={styles.primaryButtonText}>{`Use ${tickedCount} ticked`}</Text>
+                              </TouchableOpacity>
+                            ) : null}
+                          </View>
+                        </>
+                      )}
+                    </View>
+                  ) : null}
                 </View>
-                <Ionicons name="add-circle-outline" size={22} color={tabColor} />
-              </TouchableOpacity>
-            ))}
+              );
+            })}
           </HomeSectionBand>
         </View>
       );
@@ -2203,6 +2387,12 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: colors.surfaceMuted,
   },
+  // A row that can expand to its dishes: the fill moves to this wrapper so
+  // the row and what opens under it read as one box.
+  savedRowWrap: { borderRadius: 10, backgroundColor: colors.surfaceMuted, overflow: 'hidden' },
+  expandedBlock: { paddingHorizontal: 12, paddingBottom: 12, gap: 8 },
+  dishRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
+  dishRowName: { ...typography.body, color: colors.textPrimary, flex: 1, ...textShadow },
   savedRowText: { flex: 1 },
   // colors.textPrimary, matching SideBuilder's own overviewIngredientText --
   // a plain saved-item name in a list, not the form's own identity.

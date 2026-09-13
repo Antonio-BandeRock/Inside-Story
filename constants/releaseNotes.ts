@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.13',
+    date: '2026-09-13',
+    changes: [
+      'In Log or Schedule a Meal, an opened meal now lists the dishes it is made from, each with a tick box, and a new Build a meal with this button sends the whole meal, or only the ticked dishes, into Meal Builder. A system recipe goes in as one dish. So a side from one planned dinner can go onto a different plate without the rest of that dinner.',
+      'In Meal Builder, Start from a meal you have works the same way: a meal opens to its dishes, and you take the whole meal or tick a few.',
+    ],
+  },
+  {
     version: '1.0.37.12',
     date: '2026-09-13',
     changes: [

@@ -15407,7 +15407,14 @@ export type MealPickerDetail = {
   // The saved dishes a meal was assembled from ("Sides: Roasted broccoli"),
   // empty for a single dish or a logged meal's flat ingredient list.
   components: string[];
+  // The same dishes with the identity Meal Builder needs to load one, so
+  // a dish can be picked out of a meal on its own (2026-09-13, "What if a
+  // system meal contains a side they want to use in another meal"). Empty
+  // where `components` is.
+  dishes: MealPickerDish[];
 };
+
+export type MealPickerDish = { name: string; componentType: MealComponentType; componentId: string };
 
 function distinctCookingMethods(values: (string | null | undefined)[]): string[] {
   const seen = new Set<string>();
@@ -15425,26 +15432,37 @@ function distinctCookingMethods(values: (string | null | undefined)[]): string[]
 
 export async function getMealPickerDetailForLoggedMeal(mealId: string): Promise<MealPickerDetail> {
   const items = await getMealItems(mealId);
+  // A logged meal assembled in Meal Builder still knows its dishes
+  // (meal_components); one entered as a flat ingredient list has none.
+  const records = await getMealComponents(mealId);
+  const dishes: MealPickerDish[] = [];
+  for (const record of records) {
+    const info = await getMealComponentDisplayInfo(record.componentType, record.componentId);
+    if (info) dishes.push({ name: info.name, componentType: record.componentType, componentId: record.componentId });
+  }
   return {
     ingredients: items.map((item) => ({
       foodName: item.foodName,
       amount: formatIngredientAmount(item.servingSize, item.servingUnit),
     })),
     methods: distinctCookingMethods(items.map((item) => item.cookingMethod)),
-    components: [],
+    components: dishes.map((dish) => dish.name),
+    dishes,
   };
 }
 
 export async function getMealPickerDetailForFavorite(favoriteId: string): Promise<MealPickerDetail> {
   const favorite = await getMealFavorite(favoriteId);
-  if (!favorite) return { ingredients: [], methods: [], components: [] };
+  if (!favorite) return { ingredients: [], methods: [], components: [], dishes: [] };
   const ingredients: MealIngredientLine[] = [];
   const methods: (string | undefined)[] = [];
   const components: string[] = [];
+  const dishes: MealPickerDish[] = [];
   for (const component of favorite.components) {
     const resolved = await resolveMealComponent(component);
     if (!resolved) continue;
     components.push(resolved.name);
+    dishes.push({ name: resolved.name, componentType: component.componentType, componentId: component.componentId });
     for (const ingredient of resolved.ingredients) {
       ingredients.push({
         foodName: ingredient.foodName,
@@ -15453,12 +15471,12 @@ export async function getMealPickerDetailForFavorite(favoriteId: string): Promis
       methods.push(ingredient.cookingMethod);
     }
   }
-  return { ingredients, methods: distinctCookingMethods(methods), components };
+  return { ingredients, methods: distinctCookingMethods(methods), components, dishes };
 }
 
 export async function getMealPickerDetailForCuratedRecipe(recipeId: string): Promise<MealPickerDetail> {
   const recipe = await getCuratedRecipe(recipeId);
-  if (!recipe) return { ingredients: [], methods: [], components: [] };
+  if (!recipe) return { ingredients: [], methods: [], components: [], dishes: [] };
   return {
     ingredients: recipe.ingredients.map((ingredient) => ({
       foodName: ingredient.foodName,
@@ -15466,6 +15484,7 @@ export async function getMealPickerDetailForCuratedRecipe(recipeId: string): Pro
     })),
     methods: distinctCookingMethods(recipe.ingredients.map((ingredient) => ingredient.cookingMethod)),
     components: [],
+    dishes: [],
   };
 }
 

@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -48,6 +48,7 @@ import {
   listSnacks,
   listSoups,
 } from '../../lib/db';
+import { parseBuildMealHandoff } from '../../lib/mealBuilderHandoff';
 import { consumePendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
 
 // This page's own identity color -- every box FoodLookup draws (list
@@ -434,6 +435,9 @@ export default function FoodScreen() {
     mealType: scheduledMealType,
     title: scheduledTitle,
     templateMealId,
+    // A whole meal, or dishes picked out of one, sent here from Log or
+    // Schedule a Meal to build a meal with (2026-09-13, lib/mealBuilderHandoff.ts).
+    buildMealFrom,
     // Home's Log a Meal card and a finished photo draft open the Log or
     // Schedule a Meal lens here (2026-09-13, it used to be its own Stack
     // screen). The draft fields ride along the same way they used to.
@@ -485,6 +489,7 @@ export default function FoodScreen() {
     mealType?: string;
     title?: string;
     templateMealId?: string;
+    buildMealFrom?: string;
     openFoodLens?: string;
     findMealDraftId?: string;
     findMealPhotoUri?: string;
@@ -496,6 +501,20 @@ export default function FoodScreen() {
   // 2026-09-13 this screen read the param directly, so Food alone still
   // opened its menu the moment it was picked from TabHub.
   const autoOpenLensHub = useAutoOpenLensHubSignal();
+  // Parsed once per distinct param value: Meal Builder keys its own
+  // one-run-per-handoff effect on this object, so a fresh object on every
+  // render would reload the same dishes over and over.
+  const buildMealHandoff = useMemo(() => parseBuildMealHandoff(buildMealFrom), [buildMealFrom]);
+  // A route param outlives the handoff it carried. Once Meal Builder has
+  // loaded the dishes, the same param must not open the builder again on
+  // a later focus, nor reload them when the builder remounts. The ref
+  // mirrors the state for the focus effect, which reads it without
+  // re-running on the change.
+  const [consumedBuildMealFrom, setConsumedBuildMealFrom] = useState<string | null>(null);
+  const consumedBuildMealFromRef = useRef<string | null>(null);
+  useEffect(() => {
+    consumedBuildMealFromRef.current = consumedBuildMealFrom;
+  }, [consumedBuildMealFrom]);
   const [lens, setLens] = useState<FoodLens>('mealBuilder');
   // Which list, dish or product the three row-opened lenses are showing
   // (see the FoodLens type). Set as the row is tapped, read by the render
@@ -613,6 +632,14 @@ export default function FoodScreen() {
       // without this, arriving here to edit a record would still show the
       // LensHub picker for a beat (or permanently, once revealed was reset
       // false on focus) instead of the record itself.
+      // Ahead of openFoodLens: this handoff is pushed from inside the Log or
+      // Schedule a Meal lens, which Home may have opened with its own param
+      // still in place, and a consumed handoff never fires again.
+      if (buildMealFrom && consumedBuildMealFromRef.current !== buildMealFrom) {
+        setLens('mealBuilder');
+        setRevealed(true);
+        return;
+      }
       if (openFoodLens === 'findMeal') {
         setLens('findMeal');
         setRevealed(true);
@@ -819,6 +846,7 @@ export default function FoodScreen() {
       scheduleItemId,
       mealFavoriteId,
       editMealId,
+      buildMealFrom,
       editSideId,
       editSaladId,
       editSmoothieId,
@@ -1416,6 +1444,8 @@ export default function FoodScreen() {
               templateMealId={templateMealId}
               favoriteId={mealFavoriteId}
               editMealId={editMealId}
+              buildFrom={buildMealFrom && consumedBuildMealFrom !== buildMealFrom ? buildMealHandoff : null}
+              onBuildFromConsumed={() => setConsumedBuildMealFrom(buildMealFrom ?? null)}
             />
           ) : lens === 'sideBuilder' ? (
             // SideBuilder owns its own layout entirely (a plain View while

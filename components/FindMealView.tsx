@@ -37,6 +37,7 @@
 // and a Yours/System filter keeps 300-plus curated recipes from burying a
 // handful of the person's own meals.
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState, type ComponentProps } from 'react';
 import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
@@ -47,6 +48,7 @@ import { textShadow, typography } from '../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { ALL_DIGEST_ENTRIES } from '../lib/digest';
 import { isProblemFoodEntry } from '../lib/digest/types';
+import { encodeBuildMealHandoff, type BuildMealItem } from '../lib/mealBuilderHandoff';
 import {
   createMealFromComponents,
   deleteMealPhotoDraft,
@@ -96,6 +98,12 @@ type PickableMeal =
 // The order the Digest's own Recipes category already lists these in, reused
 // rather than invented, so a system meal sits where someone who has browsed
 // Recipes would expect it.
+// One dish inside a meal, as a key for the tick state.
+function dishKey(dish: { componentType: string; componentId: string }, index: number): string {
+  // Indexed, since a meal can hold the same saved dish twice.
+  return `${dish.componentType}_${dish.componentId}_${index}`;
+}
+
 const BUILDER_SECTIONS: { type: BuilderFavoriteItemType; label: string }[] = [
   { type: 'side', label: 'Sides' },
   { type: 'salad', label: 'Salads & Bowls' },
@@ -222,6 +230,46 @@ export function FindMealView({
   // itself is reloaded whenever the search or scope changes, which is when this
   // could go stale.
   const [detailByKey, setDetailByKey] = useState<Record<string, MealPickerDetail>>({});
+  // Dishes ticked inside an expanded meal, by row key, for "Build a meal
+  // with this" (2026-09-13): the whole meal when nothing is ticked, only
+  // the ticked dishes otherwise.
+  const [tickedDishes, setTickedDishes] = useState<Record<string, Set<string>>>({});
+  const router = useRouter();
+
+  function toggleDishTicked(rowKey: string, dishKey: string) {
+    setTickedDishes((current) => {
+      const next = new Set(current[rowKey] ?? []);
+      if (next.has(dishKey)) next.delete(dishKey);
+      else next.add(dishKey);
+      return { ...current, [rowKey]: next };
+    });
+  }
+
+  // Sends a meal, or the dishes ticked out of it, into Meal Builder. A
+  // system recipe is one dish and travels by its recipe id; everything
+  // else travels as the saved records the meal is made from. Pushing this
+  // tab's own route with the new param is what its focus effect reacts
+  // to, the same way Use this Favorite already opens the builder.
+  function buildMealWith(rowKey: string, meal: PickableMeal, detail: MealPickerDetail | undefined) {
+    let items: BuildMealItem[] = [];
+    let name: string | undefined = meal.name;
+    if (meal.kind === 'curated') {
+      items = [{ curatedRecipeId: meal.id }];
+    } else if (detail) {
+      const ticked = tickedDishes[rowKey];
+      const chosen = ticked && ticked.size > 0 ? detail.dishes.filter((dish, index) => ticked.has(dishKey(dish, index))) : detail.dishes;
+      items = chosen.map((dish) => ({ componentType: dish.componentType, componentId: dish.componentId }));
+      // A few dishes taken out of a meal are not that meal, so its name
+      // is not carried over; the whole meal is, and keeps its name.
+      if (chosen.length !== detail.dishes.length) name = undefined;
+    }
+    if (items.length === 0) return;
+    const mealType = meal.kind === 'meal' || meal.kind === 'planned' ? meal.mealType : undefined;
+    // A nonce so picking the same meal twice is two distinct params, since
+    // the focus effect only reacts to a param that changed.
+    const buildMealFrom = encodeBuildMealHandoff({ name, mealType, items, nonce: Date.now() });
+    router.push({ pathname: '/food', params: { buildMealFrom } });
+  }
   const [loadingIngredientsKey, setLoadingIngredientsKey] = useState<string | null>(null);
 
   const load = useCallback(async (search: string, currentScope: Scope) => {
@@ -558,7 +606,7 @@ export function FindMealView({
       console.error('[FindMealScreen] Failed to load ingredients', error);
       // An empty list renders as "could not be read" below rather than as a
       // spinner that never stops.
-      setDetailByKey((current) => ({ ...current, [entryKey]: { ingredients: [], methods: [], components: [] } }));
+      setDetailByKey((current) => ({ ...current, [entryKey]: { ingredients: [], methods: [], components: [], dishes: [] } }));
     } finally {
       setLoadingIngredientsKey(null);
     }
@@ -749,7 +797,30 @@ export function FindMealView({
                               {item.meal.flavorProfile}
                             </Text>
                           ) : null}
-                          {detail && detail.components.length > 0 ? (
+                          {/* The dishes a meal is made from, each one
+                              tickable, so one can go into Meal Builder
+                              without the rest (2026-09-13). A system
+                              recipe is one dish and has no list. */}
+                          {detail && detail.dishes.length > 0 ? (
+                            <>
+                              <Text style={styles.detailLine}>
+                                <Text style={styles.detailLabel}>Made from these dishes. </Text>
+                                Tick any to build a meal with only those.
+                              </Text>
+                              {detail.dishes.map((dish, index) => {
+                                const key = dishKey(dish, index);
+                                const isTicked = !!tickedDishes[item.key]?.has(key);
+                                return (
+                                  <TouchableOpacity key={key} style={styles.dishRow} onPress={() => toggleDishTicked(item.key, key)}>
+                                    <Ionicons name={isTicked ? 'checkbox' : 'square-outline'} size={20} color={colors.accent} />
+                                    <Text style={styles.dishRowName} numberOfLines={1}>
+                                      {dish.name}
+                                    </Text>
+                                  </TouchableOpacity>
+                                );
+                              })}
+                            </>
+                          ) : detail && detail.components.length > 0 ? (
                             <Text style={styles.detailLine}>
                               <Text style={styles.detailLabel}>Made from: </Text>
                               {detail.components.join(', ')}
@@ -781,6 +852,26 @@ export function FindMealView({
                         <Ionicons name="checkmark-circle-outline" size={16} color={colors.background} />
                         <Text style={styles.useButtonText}>Use this meal</Text>
                       </TouchableOpacity>
+                      {/* Into Meal Builder: a system recipe as one dish, any
+                          other meal whole or only its ticked dishes. A
+                          logged meal entered as a flat ingredient list has
+                          no dishes to carry and gets no button. */}
+                      {item.meal.kind === 'curated' || (detail && detail.dishes.length > 0) ? (
+                        <TouchableOpacity
+                          style={styles.buildButton}
+                          activeOpacity={0.85}
+                          onPress={() => buildMealWith(item.key, item.meal, detail)}
+                        >
+                          <Ionicons name="construct-outline" size={16} color={colors.tabFood} />
+                          <Text style={styles.buildButtonText}>
+                            {(tickedDishes[item.key]?.size ?? 0) > 0
+                              ? `Build a meal with the ${tickedDishes[item.key]!.size} ticked`
+                              : item.meal.kind === 'curated'
+                                ? 'Build a meal with this dish'
+                                : 'Build a meal with this'}
+                          </Text>
+                        </TouchableOpacity>
+                      ) : null}
                     </View>
                   ) : null}
                 </View>
@@ -1029,6 +1120,23 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 10,
   },
+  dishRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
+  dishRowName: { ...typography.body, color: colors.textPrimary, flex: 1, ...textShadow },
+  // Outlined in the Food colour, beneath the filled Use this meal: the
+  // second action, not the primary one.
+  buildButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: colors.tabFood,
+    borderRadius: 10,
+    paddingVertical: 10,
+    backgroundColor: colors.surface,
+  },
+  buildButtonText: { ...typography.bodyEmphasis, color: colors.tabFood, ...textShadow },
   useButtonText: {
     ...typography.bodyEmphasis,
     color: colors.textOnButton,
