@@ -24,6 +24,7 @@ import { SaucesBuilder } from '../../components/SaucesBuilder';
 import { SoupBuilder } from '../../components/SoupBuilder';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { TabDesktopMenu } from '../../components/TabDesktopMenu';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../../components/HomeSectionBand';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { menuLabelShadow, textShadow, typography } from '../../constants/typography';
@@ -930,6 +931,7 @@ export default function FoodScreen() {
       // gone.
       id: 'scanned-products',
       label: 'My Food Products',
+      icon: 'barcode-outline',
       count: scannedProductCount,
       onPress: () =>
         router.push({ pathname: '/food-items', params: { itemType: 'scannedProduct', status: 'saved', title: 'My Food Products' } }),
@@ -947,6 +949,7 @@ export default function FoodScreen() {
       // real, honest, deferred follow-up rather than a misleading count.
       id: 'whole-foods',
       label: 'My Whole Foods',
+      icon: 'leaf-outline',
       onPress: () => router.push({ pathname: '/garden', params: { openGardenLens: 'harvestLog' } }),
     },
     {
@@ -958,6 +961,7 @@ export default function FoodScreen() {
       // creations) in the request's own ordering.
       id: 'system-meals',
       label: 'System Meals',
+      icon: 'book-outline',
       onPress: () => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'recipes' } }),
     },
     {
@@ -967,6 +971,7 @@ export default function FoodScreen() {
       // for how this composes with zero extra plumbing.
       id: 'saved-favorites',
       label: 'Saved & Favorites',
+      icon: 'bookmarks-outline',
       onPress: () => setSavedFavoritesOpen(true),
     },
   ];
@@ -986,6 +991,7 @@ export default function FoodScreen() {
     {
       id: 'find-a-meal',
       label: 'Find a Meal',
+      icon: 'search-outline',
       onPress: () => router.push('/find-meal'),
     },
     ...myFoodsCategories.map((category) =>
@@ -999,12 +1005,14 @@ export default function FoodScreen() {
   const savedAndFavoritesCategories: MyItemsCategory[] = [
     {
       id: 'side-saved',
+      icon: 'bookmark-outline',
       label: 'Saved Sides',
       count: sideCount,
       onPress: () => router.push({ pathname: '/food-items', params: { itemType: 'side', status: 'saved', title: 'Saved Sides' } }),
     },
     {
       id: 'side-favorite',
+      icon: 'heart-outline',
       label: 'Favorite Sides',
       count: sideFavoriteCount,
       onPress: () =>
@@ -1012,6 +1020,7 @@ export default function FoodScreen() {
     },
     {
       id: 'salad-saved',
+      icon: 'bookmark-outline',
       label: 'Saved Salads & Bowls',
       count: saladCount,
       onPress: () =>
@@ -1019,6 +1028,7 @@ export default function FoodScreen() {
     },
     {
       id: 'salad-favorite',
+      icon: 'heart-outline',
       label: 'Favorite Salads & Bowls',
       count: saladFavoriteCount,
       onPress: () =>
@@ -1029,6 +1039,7 @@ export default function FoodScreen() {
     },
     {
       id: 'smoothie-saved',
+      icon: 'bookmark-outline',
       label: 'Saved Smoothies',
       count: smoothieCount,
       onPress: () =>
@@ -1036,6 +1047,7 @@ export default function FoodScreen() {
     },
     {
       id: 'smoothie-favorite',
+      icon: 'heart-outline',
       label: 'Favorite Smoothies',
       count: smoothieFavoriteCount,
       onPress: () =>
@@ -1043,6 +1055,7 @@ export default function FoodScreen() {
     },
     {
       id: 'fermentation-saved',
+      icon: 'bookmark-outline',
       label: 'Saved Fermentations',
       count: fermentationCount,
       onPress: () =>
@@ -1050,6 +1063,7 @@ export default function FoodScreen() {
     },
     {
       id: 'fermentation-favorite',
+      icon: 'heart-outline',
       label: 'Favorite Fermentations',
       count: fermentationFavoriteCount,
       onPress: () =>
@@ -1060,6 +1074,7 @@ export default function FoodScreen() {
     },
     {
       id: 'beverage-saved',
+      icon: 'bookmark-outline',
       label: 'Saved Beverages',
       count: beverageCount,
       onPress: () =>
@@ -1067,6 +1082,7 @@ export default function FoodScreen() {
     },
     {
       id: 'beverage-favorite',
+      icon: 'heart-outline',
       label: 'Favorite Beverages',
       count: beverageFavoriteCount,
       onPress: () =>
@@ -1077,12 +1093,14 @@ export default function FoodScreen() {
     },
     {
       id: 'snack-saved',
+      icon: 'bookmark-outline',
       label: 'Saved Snacks',
       count: snackCount,
       onPress: () => router.push({ pathname: '/food-items', params: { itemType: 'snack', status: 'saved', title: 'Saved Snacks' } }),
     },
     {
       id: 'snack-favorite',
+      icon: 'heart-outline',
       label: 'Favorite Snacks',
       count: snackFavoriteCount,
       onPress: () =>
@@ -1090,6 +1108,7 @@ export default function FoodScreen() {
     },
     {
       id: 'baked-goods-saved',
+      icon: 'bookmark-outline',
       label: 'Saved Baked Goods',
       count: bakedGoodsCount,
       onPress: () =>
@@ -1097,6 +1116,7 @@ export default function FoodScreen() {
     },
     {
       id: 'baked-goods-favorite',
+      icon: 'heart-outline',
       label: 'Favorite Baked Goods',
       count: bakedGoodsFavoriteCount,
       onPress: () =>
@@ -1107,12 +1127,14 @@ export default function FoodScreen() {
     },
     {
       id: 'soup-saved',
+      icon: 'bookmark-outline',
       label: 'Saved Soups',
       count: soupCount,
       onPress: () => router.push({ pathname: '/food-items', params: { itemType: 'soup', status: 'saved', title: 'Saved Soups' } }),
     },
     {
       id: 'soup-favorite',
+      icon: 'heart-outline',
       label: 'Favorite Soups',
       count: soupFavoriteCount,
       onPress: () =>
@@ -1120,12 +1142,14 @@ export default function FoodScreen() {
     },
     {
       id: 'sauce-saved',
+      icon: 'bookmark-outline',
       label: 'Saved Sauces',
       count: sauceCount,
       onPress: () => router.push({ pathname: '/food-items', params: { itemType: 'sauce', status: 'saved', title: 'Saved Sauces' } }),
     },
     {
       id: 'sauce-favorite',
+      icon: 'heart-outline',
       label: 'Favorite Sauces',
       count: sauceFavoriteCount,
       onPress: () =>
@@ -1133,6 +1157,7 @@ export default function FoodScreen() {
     },
     {
       id: 'handheld-saved',
+      icon: 'bookmark-outline',
       label: 'Saved Handhelds',
       count: handheldCount,
       onPress: () =>
@@ -1140,6 +1165,7 @@ export default function FoodScreen() {
     },
     {
       id: 'handheld-favorite',
+      icon: 'heart-outline',
       label: 'Favorite Handhelds',
       count: handheldFavoriteCount,
       onPress: () =>
@@ -1150,6 +1176,7 @@ export default function FoodScreen() {
     },
     {
       id: 'dessert-saved',
+      icon: 'bookmark-outline',
       label: 'Saved Desserts',
       count: dessertCount,
       onPress: () =>
@@ -1157,6 +1184,7 @@ export default function FoodScreen() {
     },
     {
       id: 'dessert-favorite',
+      icon: 'heart-outline',
       label: 'Favorite Desserts',
       count: dessertFavoriteCount,
       onPress: () =>
@@ -1170,6 +1198,7 @@ export default function FoodScreen() {
     // besides its favorites.
     {
       id: 'meal-favorite',
+      icon: 'heart-outline',
       label: 'Favorite Meals',
       count: mealFavoriteCount,
       onPress: () =>
@@ -1193,12 +1222,17 @@ export default function FoodScreen() {
           <Text style={styles.desktopBackLink}>‹ Back to My Foods</Text>
         </TouchableOpacity>
       ) : null}
-      <Text style={styles.desktopHeading}>{desktopSubmenu === 'saved-favorites' ? 'Saved & Favorites' : 'My Foods'}</Text>
-      {desktopSubmenu === 'saved-favorites' ? null : (
-        <Text style={styles.desktopSubheading}>
-          {"Everything you've built, saved, and favorited in Food, all in one place."}
-        </Text>
-      )}
+      {/* The intro as a plain band box, 2026-09-12 (the band look passed
+          through to Food): edge to edge in the tab colour, the same shape
+          as Home's own greeting card. */}
+      <View style={[styles.desktopIntro, { borderColor: TAB_COLOR }]}>
+        <Text style={styles.desktopHeading}>{desktopSubmenu === 'saved-favorites' ? 'Saved & Favorites' : 'My Foods'}</Text>
+        {desktopSubmenu === 'saved-favorites' ? null : (
+          <Text style={styles.desktopSubheading}>
+            {"Everything you've built, saved, and favorited in Food, all in one place."}
+          </Text>
+        )}
+      </View>
       <TabDesktopMenu
         categories={desktopSubmenu === 'saved-favorites' ? savedAndFavoritesCategories : desktopMyFoodsCategories}
         tabColor={TAB_COLOR}
@@ -1456,37 +1490,22 @@ const styles = StyleSheet.create({
   // Desktop is explicitly meant to read as "the same menu system," not a
   // one-off invented separately, so it borrows those exact styles rather
   // than a second, similar-but-not-identical set.
-  desktopContent: { padding: 16, gap: 12 },
-    // 2026-08-29 standing rule: no text sits on the photo background.
-    // Heading and subheading carry matching top/bottom corners and no gap
-    // between them, so the pair reads as one intro block, not two boxes.
-  desktopHeading: { ...typography.screenTitle, ...menuLabelShadow, color: TAB_COLOR,
-    fontWeight: '400',
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    paddingTop: 12,
-    paddingHorizontal: 12,
-    paddingBottom: 4,
-  },
-  desktopSubheading: { ...typography.body, color: colors.textSecondary, lineHeight: 19,
-    // Cancels desktopContent's own gap so this sits flush under the
-    // heading above and the two read as one box.
-    marginTop: -12,
-
-    ...textShadow,
-
-    backgroundColor: colors.surface,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    paddingBottom: 12,
-    paddingHorizontal: 12,
-  },
+  // No horizontal padding, 2026-09-12: the intro box and every category
+  // row are bands that run edge to edge (see TabDesktopMenu), inset only
+  // by their own content padding. The gap is the app-wide band gap.
+  desktopContent: { paddingHorizontal: 0, paddingTop: 16, gap: HOME_BAND_GAP },
+  // The intro as one band box (2026-08-29 standing rule: no text on the
+  // photo background; 2026-09-12: the band look).
+  desktopIntro: { ...homeBandStyle, padding: HOME_BAND_CONTENT_PADDING, gap: 4 },
+  desktopHeading: { ...typography.screenTitle, ...menuLabelShadow, color: TAB_COLOR, fontWeight: '400' },
+  desktopSubheading: { ...typography.body, color: colors.textSecondary, lineHeight: 19, ...textShadow },
   desktopBackLink: {
     ...typography.body,
     color: colors.textOnPrimary,
     fontWeight: '400',
     alignSelf: 'flex-start',
+    // desktopContent no longer insets anything, so the pill insets itself.
+    marginLeft: HOME_BAND_CONTENT_PADDING,
     backgroundColor: TAB_COLOR,
     borderRadius: 20,
     paddingHorizontal: 14,

@@ -7,6 +7,7 @@ import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { FERMENTATION_BUILDER_CATEGORIES } from '../constants/foodBuilderCategories';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { textShadow, typography } from '../constants/typography';
 import type { FermentationSubtypeKey } from './FermentationSubtypePicker';
 import {
@@ -768,6 +769,10 @@ export function FermentationBuilder({
   // asked for "at the beginning," not something that needs to stay an
   // open form the whole time after.
   const [servingsConfirmed, setServingsConfirmed] = useState(false);
+  // The two informational bands on the review screen fold (Home's own
+  // rule); the form cards around them do not. Open by default.
+  const [nutritionOpen, setNutritionOpen] = useState(true);
+  const [conditionOpen, setConditionOpen] = useState(true);
   // 2026-08-08 -- independent of the real save; see SideBuilder.tsx's own
   // identical field for the full reasoning.
   const [alsoSaveAsFavorite, setAlsoSaveAsFavorite] = useState(!!fromFavoriteId);
@@ -1712,13 +1717,13 @@ export function FermentationBuilder({
   // live inside StepsEditor.tsx itself. Kept as a function, not inlined at
   // each call site, since it's still shared between the create-mode
   // "ready" screen and the edit-mode overview screen below.
-  function renderStepsSection() {
+  function renderStepsSection(labelled = true) {
     return (
       <StepsEditor
         steps={steps}
         onChange={setSteps}
         tabColor={tabColor}
-        label="Steps (optional)"
+        label={labelled ? 'Steps (optional)' : ''}
         addFirstLabel="+ Add Step 1"
         addAnotherLabel="+ Add Another Step"
         completeLabel="Steps Complete"
@@ -2036,8 +2041,8 @@ export function FermentationBuilder({
             <Text style={[styles.secondaryButtonText, { color: tabColor, marginTop: 8 }]}>Tap to change</Text>
           </TouchableOpacity>
 
-          <View style={[styles.formCard, { borderColor: tabColor }]}>
-            <Text style={[styles.formLabel, { color: tabColor }]}>Ingredients</Text>
+          <View style={styles.bandOut}>
+            <HomeSectionBand kind="static" title="Ingredients" icon="list-outline" color={tabColor}>
             {ingredients.length === 0 ? (
               <Text style={[styles.summaryEmptyText, { marginTop: 8 }]}>No ingredients yet</Text>
             ) : (
@@ -2069,6 +2074,7 @@ export function FermentationBuilder({
             >
               <Text style={[styles.secondaryButtonText, { color: tabColor }]}>+ Add Ingredient</Text>
             </TouchableOpacity>
+            </HomeSectionBand>
           </View>
 
           {/* Real steps, edit mode -- 2026-08-17. Its own bordered card,
@@ -2076,7 +2082,11 @@ export function FermentationBuilder({
               saved fermentation to fix something is exactly as much "the
               area that explains the whole process of making this" as
               create mode's own ready screen further down is. */}
-          <View style={[styles.formCard, { borderColor: tabColor }]}>{renderStepsSection()}</View>
+          <View style={styles.bandOut}>
+            <HomeSectionBand kind="static" title="Steps (optional)" icon="reader-outline" color={tabColor}>
+              {renderStepsSection(false)}
+            </HomeSectionBand>
+          </View>
 
           {/* "Preview Full Report" -- 2026-08-25, see SideBuilder.tsx's own
               identical button. */}
@@ -2821,6 +2831,7 @@ export function FermentationBuilder({
             // editFermentationId ? 'Save Changes' below is a defensive
             // fallback, not something this branch is actually expected to
             // render.
+            <>
             <View style={[styles.formCard, { borderColor: tabColor }]}>
               <Text style={[styles.overviewFermentationName, { color: tabColor }]}>
                 {fermentationName.trim() || 'Fermentation'}
@@ -2876,25 +2887,51 @@ export function FermentationBuilder({
                   nothing when empty rather than an empty box -- a
                   fermentation with no real standout nutrient or condition
                   flag genuinely has nothing to show here. */}
-              {nutritionHighlights.length > 0 ? (
-                <View style={[styles.recipeNutritionBox, { borderColor: tabColor }]}>
-                  <Text style={[styles.recipeNutritionLabel, { color: tabColor }]}>What This Fermentation Gives You</Text>
+            </View>
+
+            {/* The two informational boxes fold, 2026-09-12 (Home's rule for
+                informational content), so they sit between the review card above
+                and the save controls below as bands of their own rather than boxes
+                nested inside a box: nested, their accent bar would land 16px in
+                rather than at the screen's edge. The caution band takes the
+                danger colour for its bar and the on-surface red for its title,
+                since danger measures under 4.5:1 as text on the surface. */}
+            {nutritionHighlights.length > 0 ? (
+              <View style={styles.bandOut}>
+                <HomeSectionBand
+                  title="What This Fermentation Gives You"
+                  icon="nutrition-outline"
+                  color={tabColor}
+                  expanded={nutritionOpen}
+                  onToggle={() => setNutritionOpen((open) => !open)}
+                >
                   {nutritionHighlights.map((highlight, index) => (
                     <Text key={index} style={styles.recipeNutritionText}>
                       • <Text style={styles.recipeNutritionBold}>{highlight.nutrient}:</Text> {highlight.note}
                     </Text>
                   ))}
-                </View>
-              ) : null}
+                </HomeSectionBand>
+              </View>
+            ) : null}
 
-              {conditionNotes.length > 0 ? (
-                <View style={[styles.recipeConditionBox, { borderColor: colors.danger }]}>
-                  <Text style={[styles.recipeConditionLabel, { color: colors.danger }]}>Worth Knowing If You Have...</Text>
+            {conditionNotes.length > 0 ? (
+              <View style={styles.bandOut}>
+                <HomeSectionBand
+                  title="Worth Knowing If You Have..."
+                  icon="alert-circle-outline"
+                  color={colors.danger}
+                  textColor={colors.statusRedOnSurface}
+                  expanded={conditionOpen}
+                  onToggle={() => setConditionOpen((open) => !open)}
+                >
                   {conditionNotes.map((note, index) => (
                     <ConditionNoteRow key={index} note={note} onExplain={showInfoAlert} isFirst={index === 0} />
                   ))}
-                </View>
-              ) : null}
+                </HomeSectionBand>
+              </View>
+            ) : null}
+
+            <View style={[styles.formCard, { borderColor: tabColor }]}>
 
               {/* "Also save as a Favorite" only appears here now, 2026-08-17
                   (point 7) -- no longer offered on the pending-ingredient
@@ -2923,6 +2960,7 @@ export function FermentationBuilder({
                 <Text style={styles.primaryButtonText}>{editFermentationId ? 'Save Changes' : 'Complete & Save This Fermentation'}</Text>
               </TouchableOpacity>
             </View>
+            </>
           )}
         </>
       )}
@@ -2935,13 +2973,21 @@ const styles = StyleSheet.create({
   // Deliberately NOT a ScrollView -- see this component's own render-time
   // comment for why FoodLookup can never sit inside one.
   pickerScreen: { flex: 1, paddingHorizontal: 16, paddingTop: 5 },
-  scrollContent: { padding: 16, paddingTop: 5, gap: 10 },
+  scrollContent: { padding: 16, paddingTop: 5, gap: HOME_BAND_GAP },
+  // The band look, 2026-09-12 (see components/HomeSectionBand.tsx): a 4px
+  // accent and hairlines in the tab colour (borderColor is set inline at
+  // every site), no right edge, no radius, and edge to edge by cancelling
+  // scrollContent's own 16px, which stays so the loose buttons between
+  // cards keep their inset. A card with a heading of its own is a static
+  // HomeSectionBand instead (see bandOut); this is the headerless box.
   formCard: {
-    borderWidth: 2,
-    borderRadius: 10,
-    backgroundColor: colors.surface,
-    padding: 16,
+    ...homeBandStyle,
+    marginHorizontal: -16,
+    padding: HOME_BAND_CONTENT_PADDING,
   },
+  // Wraps a HomeSectionBand placed among formCards so it reaches the
+  // screen's edges the same way.
+  bandOut: { marginHorizontal: -16 },
   // "Pick a Premade Recipe," 2026-08-21 -- see showRecipeMenu's own
   // comment near the top of this file.
   recipeMenuBlock: {
@@ -3567,20 +3613,8 @@ const styles = StyleSheet.create({
     flex: 1,
     ...textShadow,
   },
-  // "What This Fermentation Gives You" -- matches RecipeCardDetail's own
-  // real nutrition callout box shape/tinting (a bordered box in this
-  // page's own tabColor), not invented fresh for this screen.
-  recipeNutritionBox: {
-    borderWidth: 2,
-    borderRadius: 10,
-    padding: 12,
-    marginTop: 14,
-  },
-  recipeNutritionLabel: {
-    ...typography.eyebrow,
-    marginBottom: 6,
-    ...textShadow,
-  },
+  // Text inside the "What This ... Gives You" band on the review screen;
+  // the band itself (components/HomeSectionBand.tsx) carries the box.
   recipeNutritionText: {
     ...typography.body,
     color: colors.textPrimary,
@@ -3588,26 +3622,6 @@ const styles = StyleSheet.create({
     ...textShadow,
   },
   recipeNutritionBold: {
-    ...typography.bodyEmphasis,
-    color: colors.textPrimary,
-    ...textShadow,
-  },
-  // "Worth Knowing If You Have..." -- a distinctly-tinted box (colors.danger
-  // border, matching RecipeCardDetail's own real condition-caution
-  // treatment) so it reads as a genuinely different kind of information
-  // than the nutrition box just above it.
-  recipeConditionBox: {
-    borderWidth: 2,
-    borderRadius: 10,
-    padding: 12,
-    marginTop: 14,
-  },
-  recipeConditionLabel: {
-    ...typography.eyebrow,
-    marginBottom: 6,
-    ...textShadow,
-  },
-  recipeConditionCondition: {
     ...typography.bodyEmphasis,
     color: colors.textPrimary,
     ...textShadow,

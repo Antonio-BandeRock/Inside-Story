@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.36.13',
+    date: '2026-09-12',
+    changes: [
+      'The Food tab takes the same band look as Home: every card in all twelve builders runs edge to edge with the thick left edge and thin top and bottom, spaced the same as everywhere else.',
+      'Ingredients and Steps on a saved dish carry a header row with their name. What This Dish Gives You and Worth Knowing If You Have fold to one row and open on tap, as do the sections of the Nutrition & Health Report.',
+      'My Foods, the resting screen on the Food tab, is a list of one-row bands with an icon, a count and a chevron, the same shape as the rows on Home.',
+    ],
+  },
+  {
     version: '1.0.36.12',
     date: '2026-09-12',
     changes: [

@@ -159,7 +159,10 @@ export function StepsEditor({
     <View style={styles.stepsSection}>
       {infoAlertElement}
       {confirmSheetElement}
-      <Text style={[styles.formLabel, { color: tabColor }]}>{label}</Text>
+      {/* An empty label means the caller's own band header already names
+          this section (the builders' edit-mode Steps band, 2026-09-12), so
+          no second heading is drawn. */}
+      {label ? <Text style={[styles.formLabel, { color: tabColor }]}>{label}</Text> : null}
       {steps.length === 0 && !composing ? (
         <Text style={[styles.summaryEmptyText, { marginTop: 4 }]}>None added yet.</Text>
       ) : (

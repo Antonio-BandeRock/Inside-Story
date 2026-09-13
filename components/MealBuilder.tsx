@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
 import { textShadow, typography } from '../constants/typography';
 import {
   correctFoodTrialStartDate,
@@ -1690,12 +1691,15 @@ export function MealBuilder({
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { padding: 16, paddingTop: 5, gap: 10 },
+  scrollContent: { padding: 16, paddingTop: 5, gap: HOME_BAND_GAP },
+  // The band look, 2026-09-12 (see components/HomeSectionBand.tsx), the
+  // same headerless box the other eleven builders use: every card here is
+  // a form or a notice whose own title sits inside it, so none carries a
+  // band header row. Edge to edge by cancelling scrollContent's own 16px.
   formCard: {
-    borderWidth: 2,
-    borderRadius: 10,
-    backgroundColor: colors.surface,
-    padding: 16,
+    ...homeBandStyle,
+    marginHorizontal: -16,
+    padding: HOME_BAND_CONTENT_PADDING,
   },
   formLabel: { ...typography.eyebrow, ...textShadow },
   formLabelSpaced: { marginTop: 14 },

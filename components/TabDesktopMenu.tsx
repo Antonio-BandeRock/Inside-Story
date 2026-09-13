@@ -1,16 +1,19 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors } from '../constants/colors';
-import { textShadow, typography } from '../constants/typography';
+import { StyleSheet, View } from 'react-native';
+import { HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
 import type { MyItemsCategory } from './MyItemsHub';
 
-// The Digest's own topic-menu look (see purple-digest.tsx's own
-// DigestTopicMenu/digestTopicMenuItem), pulled out into a real, reusable
-// component rather than copied a second time -- built 2026-08-23 for
-// Food's own new resting-screen "Desktop" (see food.tsx), but generic:
-// takes the same MyItemsCategory shape MyItemsHub's own popup already
-// uses, so any tab building its own Desktop later reads from the exact
-// same category data its own "My X" popup (if it has one) already
-// computes, no second data shape to keep in sync.
+// Built 2026-08-23 for Food's own resting-screen "Desktop" (see food.tsx)
+// as a copy of the Digest's topic-menu look, and generic: it takes the same
+// MyItemsCategory shape MyItemsHub's own popup already uses, so any tab
+// building its own Desktop reads from the exact same category data its
+// "My X" popup (if it has one) already computes, no second data shape to
+// keep in sync.
+//
+// 2026-09-12: each row is a HomeSectionBand action row (the band look
+// passed through to Food, direct request), so it reads the same as Home's
+// own Grocery List row: icon and name in the tab colour, the count at the
+// right edge, a chevron pointing forward, edge to edge. The caller's
+// ScrollView carries no horizontal padding for that reason.
 //
 // Deliberately dumb/presentational, same split DigestTopicMenu itself
 // keeps from its own screen: which categories to show, and what happens
@@ -20,28 +23,20 @@ export function TabDesktopMenu({ categories, tabColor }: { categories: MyItemsCa
   return (
     <View style={styles.list}>
       {categories.map((category) => (
-        <TouchableOpacity key={category.id} style={[styles.item, { borderColor: tabColor }]} onPress={category.onPress} activeOpacity={0.85}>
-          <Text style={[styles.itemLabel, { color: tabColor }]} numberOfLines={1}>
-            {category.label}
-          </Text>
-          {category.count !== undefined ? <Text style={styles.itemCount}>{category.count}</Text> : null}
-        </TouchableOpacity>
+        <HomeSectionBand
+          key={category.id}
+          kind="action"
+          title={category.label}
+          icon={category.icon ?? 'folder-outline'}
+          color={tabColor}
+          value={category.count !== undefined ? String(category.count) : undefined}
+          onPress={category.onPress}
+        />
       ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  list: { gap: 10 },
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.surface,
-    borderWidth: 2,
-    borderRadius: 12,
-    padding: 14,
-  },
-  itemLabel: { ...typography.label, flex: 1, marginRight: 8, ...textShadow },
-  itemCount: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  list: { gap: HOME_BAND_GAP },
 });

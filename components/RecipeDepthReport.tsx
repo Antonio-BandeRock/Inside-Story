@@ -24,8 +24,10 @@
 // computed data as props and renders it, with no data-fetching, so a
 // future builder's rollout can render this same component unchanged.
 
+import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { textShadow, typography } from '../constants/typography';
 import type { DimensionSeverity } from '../lib/recipeDepth';
 import type { ConditionStageAdvisory } from '../lib/conditionStageAdvisory';
@@ -117,24 +119,42 @@ export function RecipeDepthReport({
   onGoBack,
   saving,
 }: RecipeDepthReportProps) {
+  // Each section folds (Home's rule for informational content), open by
+  // default; the heading box and the buttons do not.
+  const [nutrientsOpen, setNutrientsOpen] = useState(true);
+  const [conditionsOpen, setConditionsOpen] = useState(true);
+  const [stageOpen, setStageOpen] = useState(true);
+  const [basisOpen, setBasisOpen] = useState(true);
   return (
-    <View style={[styles.wrap, { borderColor: tabColor }]}>
-      <Text style={[styles.eyebrow, { color: tabColor }]}>Nutrition &amp; Health Report</Text>
-      <Text style={styles.title}>{dishName}</Text>
-      <Text style={styles.yield}>
-        {yieldLabel} · {ingredientCount} ingredient{ingredientCount === 1 ? '' : 's'}
-      </Text>
+    <View style={styles.column}>
+      <View style={[styles.headingBox, { borderColor: tabColor }]}>
+        <Text style={[styles.eyebrow, { color: tabColor }]}>Nutrition &amp; Health Report</Text>
+        <Text style={styles.title}>{dishName}</Text>
+        <Text style={styles.yield}>
+          {yieldLabel} · {ingredientCount} ingredient{ingredientCount === 1 ? '' : 's'}
+        </Text>
+      </View>
 
       {nutrientChartData.length > 0 ? (
-        <View style={[styles.card, { borderColor: tabColor }]}>
-          <Text style={[styles.cardLabel, { color: tabColor }]}>Nutrient Content</Text>
+        <HomeSectionBand
+          title="Nutrient Content"
+          icon="nutrition-outline"
+          color={tabColor}
+          expanded={nutrientsOpen}
+          onToggle={() => setNutrientsOpen((open) => !open)}
+        >
           <NutrientBarChart data={nutrientChartData} color={tabColor} />
-        </View>
+        </HomeSectionBand>
       ) : null}
 
       {trackedConditions.length > 0 ? (
-        <View style={[styles.card, { borderColor: tabColor }]}>
-          <Text style={[styles.cardLabel, { color: tabColor }]}>How This Scores for Your Conditions</Text>
+        <HomeSectionBand
+          title="How This Scores for Your Conditions"
+          icon="medical-outline"
+          color={tabColor}
+          expanded={conditionsOpen}
+          onToggle={() => setConditionsOpen((open) => !open)}
+        >
           {trackedConditions.map((condition) => {
             const verdict = verdictFor(condition.code, safeForConditions, conditionCautions);
             const data = dimensionBreakdown[condition.code] ?? [];
@@ -171,7 +191,7 @@ export function RecipeDepthReport({
               </View>
             );
           })}
-        </View>
+        </HomeSectionBand>
       ) : null}
 
       {/* 2026-08-25, direct correction: "If there is nothing to advise in
@@ -184,8 +204,13 @@ export function RecipeDepthReport({
           same "always confirm, never just go quiet" rule the verdict
           pill and dimension chart above already follow. */}
       {Object.keys(declaredStages).length > 0 ? (
-        <View style={[styles.card, { borderColor: colors.statusYellow }]}>
-          <Text style={[styles.cardLabel, { color: colors.statusYellowStandalone }]}>Worth Knowing for Your Healing Stage</Text>
+        <HomeSectionBand
+          title="Worth Knowing for Your Healing Stage"
+          icon="leaf-outline"
+          color={colors.statusYellowOnSurface}
+          expanded={stageOpen}
+          onToggle={() => setStageOpen((open) => !open)}
+        >
           {stageNotes.length > 0 ? (
             stageNotes.map((note, index) => (
               <View key={index} style={index > 0 ? styles.stageNoteSpacing : undefined}>
@@ -196,15 +221,20 @@ export function RecipeDepthReport({
           ) : (
             <Text style={styles.bodyText}>Nothing in this dish is flagged for your current stage.</Text>
           )}
-        </View>
+        </HomeSectionBand>
       ) : null}
 
 
       {/* 2026-09-01. Only rendered when something actually disagrees, so a
           dish whose ingredients all resolved cleanly says nothing extra. */}
       {prepMismatchNotes.length > 0 ? (
-        <View style={styles.card}>
-          <Text style={styles.cardLabel}>What These Numbers Are Based On</Text>
+        <HomeSectionBand
+          title="What These Numbers Are Based On"
+          icon="information-circle-outline"
+          color={tabColor}
+          expanded={basisOpen}
+          onToggle={() => setBasisOpen((open) => !open)}
+        >
           <Text style={styles.bodyText}>
             The rest of this report uses the closest match this food database has. For these, that is a different
             preparation from the one you chose:
@@ -214,9 +244,9 @@ export function RecipeDepthReport({
               {note}
             </Text>
           ))}
-        </View>
+        </HomeSectionBand>
       ) : null}
-      <View style={styles.buttonRow}>
+      <View style={[styles.headingBox, styles.buttonRow, { borderColor: tabColor }]}>
         <TouchableOpacity style={[styles.secondaryButton, styles.buttonHalf, { borderColor: tabColor }]} onPress={onGoBack} disabled={saving}>
           <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Go Back and Adjust</Text>
         </TouchableOpacity>
@@ -233,27 +263,20 @@ export function RecipeDepthReport({
 }
 
 const styles = StyleSheet.create({
-  // One solid, opaque colors.surface card wrapping the whole report
-  // (2026-08-25, direct report: nothing had a real backing at all, so the
-  // Food tab's own background photo showed straight through) -- matching
-  // SideBuilder.tsx's own formCard, so every nested box below sits on a
-  // real backdrop instead of the photo behind it.
-  wrap: {
-    backgroundColor: colors.surface,
-    borderWidth: 2,
-    borderRadius: 10,
-    padding: 16,
-  },
+  // A column of bands, 2026-09-12 (see components/HomeSectionBand.tsx):
+  // the heading and the buttons are plain band boxes, every section is a
+  // fold band. Rendered inside a builder's own scrollContent, which keeps
+  // its 16px so the loose buttons around the other cards stay inset, so
+  // the column cancels that here the way the builders' own formCard does.
+  // Before this the whole report was one colors.surface card with bordered
+  // boxes nested inside it (2026-08-25).
+  column: { marginHorizontal: -16, gap: HOME_BAND_GAP },
+  headingBox: { ...homeBandStyle, padding: HOME_BAND_CONTENT_PADDING },
   eyebrow: { ...typography.eyebrow, marginBottom: 4, ...textShadow },
   title: { ...typography.sectionTitle, color: colors.textPrimary, ...textShadow },
-  yield: { ...typography.caption, color: colors.textMuted, marginBottom: 8, ...textShadow },
-  card: {
-    borderWidth: 2,
-    borderRadius: 10,
-    padding: 12,
-    marginTop: 14,
-  },
-  cardLabel: { ...typography.eyebrow, marginBottom: 6, ...textShadow },
+  // textPrimary rather than textMuted: textMuted measures under 3:1 on the
+  // surface (2026-09-12).
+  yield: { ...typography.caption, color: colors.textPrimary, ...textShadow },
   bodyText: { ...typography.body, color: colors.textPrimary, marginTop: 2, ...textShadow },
   bodyTextBold: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   conditionBlock: { marginTop: 12 },
@@ -272,10 +295,10 @@ const styles = StyleSheet.create({
 
   },
   stageContextRow: { marginTop: 4, marginBottom: 4 },
-  stageDescription: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
+  stageDescription: { ...typography.caption, color: colors.textPrimary, marginTop: 2, ...textShadow },
   setStageLink: { ...typography.captionEmphasis, marginTop: 4, textDecorationLine: 'underline', ...textShadow },
   stageNoteSpacing: { marginTop: 8 },
-  buttonRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
+  buttonRow: { flexDirection: 'row', gap: 10 },
   buttonHalf: { flex: 1 },
   primaryButton: {
     borderRadius: 8,

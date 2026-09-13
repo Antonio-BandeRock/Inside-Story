@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ComponentProps } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
@@ -68,6 +68,9 @@ export type MyItemsCategory = {
   // to open every one just to check.
   count?: number;
   onPress: () => void;
+  // The glyph an action band shows for this category (TabDesktopMenu,
+  // 2026-09-12). The popup itself does not draw it.
+  icon?: ComponentProps<typeof Ionicons>['name'];
 };
 
 export function MyItemsHub({
