@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.8',
+    date: '2026-09-13',
+    changes: [
+      'In Log or Schedule a Meal, each group (Coming up on your schedule, Meals you have logged, Sides, Soups, and the rest) is now one box with its name as the header at the top and its meals beneath, spaced the standard distance apart.',
+      'Every system recipe shows a line about the dish before you open it. Opened, a meal says its flavor, what it was made from, and how it was cooked, then the ingredients and amounts. All of it comes from what the app already holds for that dish; nothing is made up.',
+    ],
+  },
+  {
     version: '1.0.37.7',
     date: '2026-09-13',
     changes: [

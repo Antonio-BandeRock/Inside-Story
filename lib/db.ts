@@ -15323,6 +15323,85 @@ export async function getIngredientLinesForCuratedRecipe(recipeId: string): Prom
   }));
 }
 
+// What a row in Log or Schedule a Meal shows once opened, 2026-09-13:
+// "There needs to be a description of them that entices the user to want to
+// eat that meal, that also gives them an idea of the flavor and cooking
+// method and then the ingredients." The ingredients are the lines above;
+// the cooking methods are the ones already stored on every ingredient row
+// (a builder's own Cook Prep field, a curated recipe's cooking_method), so
+// nothing is invented: a dish whose ingredients were roasted and sauteed
+// says "roasted and sauteed". For a meal assembled from saved dishes the
+// dishes themselves are named too, since that is what the meal is.
+export type MealPickerDetail = {
+  ingredients: MealIngredientLine[];
+  // Distinct cooking methods across the ingredients, first letter
+  // capitalised, in the order first met. Empty when none was recorded.
+  methods: string[];
+  // The saved dishes a meal was assembled from ("Sides: Roasted broccoli"),
+  // empty for a single dish or a logged meal's flat ingredient list.
+  components: string[];
+};
+
+function distinctCookingMethods(values: (string | null | undefined)[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const value of values) {
+    const trimmed = (value ?? '').trim();
+    if (!trimmed) continue;
+    const key = trimmed.toLowerCase();
+    if (key === 'none' || key === 'n/a' || seen.has(key)) continue;
+    seen.add(key);
+    out.push(trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase());
+  }
+  return out;
+}
+
+export async function getMealPickerDetailForLoggedMeal(mealId: string): Promise<MealPickerDetail> {
+  const items = await getMealItems(mealId);
+  return {
+    ingredients: items.map((item) => ({
+      foodName: item.foodName,
+      amount: formatIngredientAmount(item.servingSize, item.servingUnit),
+    })),
+    methods: distinctCookingMethods(items.map((item) => item.cookingMethod)),
+    components: [],
+  };
+}
+
+export async function getMealPickerDetailForFavorite(favoriteId: string): Promise<MealPickerDetail> {
+  const favorite = await getMealFavorite(favoriteId);
+  if (!favorite) return { ingredients: [], methods: [], components: [] };
+  const ingredients: MealIngredientLine[] = [];
+  const methods: (string | undefined)[] = [];
+  const components: string[] = [];
+  for (const component of favorite.components) {
+    const resolved = await resolveMealComponent(component);
+    if (!resolved) continue;
+    components.push(resolved.name);
+    for (const ingredient of resolved.ingredients) {
+      ingredients.push({
+        foodName: ingredient.foodName,
+        amount: formatIngredientAmount(ingredient.quantity, ingredient.unit),
+      });
+      methods.push(ingredient.cookingMethod);
+    }
+  }
+  return { ingredients, methods: distinctCookingMethods(methods), components };
+}
+
+export async function getMealPickerDetailForCuratedRecipe(recipeId: string): Promise<MealPickerDetail> {
+  const recipe = await getCuratedRecipe(recipeId);
+  if (!recipe) return { ingredients: [], methods: [], components: [] };
+  return {
+    ingredients: recipe.ingredients.map((ingredient) => ({
+      foodName: ingredient.foodName,
+      amount: formatIngredientAmount(ingredient.quantity, ingredient.unit),
+    })),
+    methods: distinctCookingMethods(recipe.ingredients.map((ingredient) => ingredient.cookingMethod)),
+    components: [],
+  };
+}
+
 
 // ---------------------------------------------------------------------------
 // Quick-log, phase 4: photos taken before there is anything to attach them to

@@ -37,21 +37,23 @@
 // and a Yours/System filter keeps 300-plus curated recipes from burying a
 // handful of the person's own meals.
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ComponentProps } from 'react';
 import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { useInfoAlert } from '../components/InfoAlert';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
+import { ALL_DIGEST_ENTRIES } from '../lib/digest';
+import { isProblemFoodEntry } from '../lib/digest/types';
 import {
   createMealFromComponents,
   deleteMealPhotoDraft,
-  getIngredientLinesForCuratedRecipe,
-  getIngredientLinesForFavorite,
-  getIngredientLinesForLoggedMeal,
   getMealFavorite,
+  getMealPickerDetailForCuratedRecipe,
+  getMealPickerDetailForFavorite,
+  getMealPickerDetailForLoggedMeal,
   listFavorites,
   listAllCuratedRecipes,
   listRecentDistinctMeals,
@@ -64,7 +66,7 @@ import {
   scheduleMeal,
   type BuilderFavoriteItemType,
   type CuratedRecipeListRow,
-  type MealIngredientLine,
+  type MealPickerDetail,
   type RecentMealSummary,
   type ScheduleItemRecord,
 } from '../lib/db';
@@ -78,7 +80,14 @@ const LIST_LIMIT = 300;
 type PickableMeal =
   | { kind: 'meal'; id: string; name: string; mealType: string; lastEatenAt: string; timesLogged: number }
   | { kind: 'favorite'; id: string; name: string }
-  | { kind: 'curated'; id: string; name: string; builderType: BuilderFavoriteItemType; healthBenefit: string }
+  | {
+      kind: 'curated';
+      id: string;
+      name: string;
+      builderType: BuilderFavoriteItemType;
+      healthBenefit: string;
+      flavorProfile: string;
+    }
   // A meal already on the schedule and not yet eaten. Its components live on
   // the favorite the scheduling path created to carry them, which is why this
   // carries that id rather than the schedule item's.
@@ -101,9 +110,36 @@ const BUILDER_SECTIONS: { type: BuilderFavoriteItemType; label: string }[] = [
   { type: 'dessert', label: 'Desserts' },
 ];
 
-// A flat list of headers and rows, so one FlatList can render sections without
-// pulling in SectionList and its own separate rendering contract.
-type ListEntry = { type: 'header'; key: string; label: string } | { type: 'row'; key: string; meal: PickableMeal };
+// One band per section, 2026-09-13: the section's name is the band's own
+// header row ("'Coming up on your schedule' should be at the top of the
+// header box as a header inside of the box") and its meals sit beneath it,
+// spaced at the standard band gap. One FlatList over sections, so nothing
+// here needs SectionList's own rendering contract.
+type ListSection = { key: string; label: string; icon: ComponentProps<typeof Ionicons>['name']; rows: { key: string; meal: PickableMeal }[] };
+
+// The one-line teaser the Digest already carries for every system recipe,
+// keyed by the recipe id the two share. This is the enticement: it was
+// written for that dish, so nothing is invented here. Built once.
+const CURATED_TEASER_BY_ID: Map<string, string> = new Map();
+for (const entry of ALL_DIGEST_ENTRIES) {
+  if (isProblemFoodEntry(entry)) continue;
+  const linked = entry.linkedCuratedRecipeId;
+  if (linked && entry.teaser) CURATED_TEASER_BY_ID.set(linked, entry.teaser);
+}
+
+const SECTION_ICON_BY_BUILDER: Record<BuilderFavoriteItemType, ComponentProps<typeof Ionicons>['name']> = {
+  side: 'fast-food-outline',
+  salad: 'leaf-outline',
+  smoothie: 'wine-outline',
+  fermentation: 'flask-outline',
+  beverage: 'cafe-outline',
+  snack: 'nutrition-outline',
+  bakedGoods: 'pizza-outline',
+  soup: 'flame-outline',
+  sauce: 'water-outline',
+  handheld: 'layers-outline',
+  dessert: 'ice-cream-outline',
+};
 
 type Mode = 'list' | 'actions' | 'earlier' | 'schedule' | 'replace';
 
@@ -167,7 +203,7 @@ export function FindMealView({
 
   const [query, setQuery] = useState('');
   const [scope, setScope] = useState<Scope>('yours');
-  const [meals, setMeals] = useState<ListEntry[]>([]);
+  const [sections, setSections] = useState<ListSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<Mode>('list');
   const [selected, setSelected] = useState<PickableMeal | null>(null);
@@ -185,7 +221,7 @@ export function FindMealView({
   // re-resolving on every collapse and re-expand would be wasteful; the list
   // itself is reloaded whenever the search or scope changes, which is when this
   // could go stale.
-  const [ingredientsByKey, setIngredientsByKey] = useState<Record<string, MealIngredientLine[]>>({});
+  const [detailByKey, setDetailByKey] = useState<Record<string, MealPickerDetail>>({});
   const [loadingIngredientsKey, setLoadingIngredientsKey] = useState<string | null>(null);
 
   const load = useCallback(async (search: string, currentScope: Scope) => {
@@ -223,6 +259,7 @@ export function FindMealView({
           name: recipe.name,
           builderType: recipe.builderType,
           healthBenefit: recipe.healthBenefit,
+          flavorProfile: recipe.flavorProfile,
         }));
 
       // Only meals still waiting, and only those that kept a carrier favorite to
@@ -247,33 +284,38 @@ export function FindMealView({
         });
       }
 
-      const entries: ListEntry[] = [];
-      const pushSection = (label: string, rows: PickableMeal[]) => {
+      const built: ListSection[] = [];
+      const pushSection = (label: string, icon: ListSection['icon'], rows: PickableMeal[]) => {
         if (rows.length === 0) return;
-        entries.push({ type: 'header', key: `header-${label}`, label });
-        for (const meal of rows) entries.push({ type: 'row', key: `${meal.kind}-${meal.id}`, meal });
+        built.push({
+          key: `section-${label}`,
+          label,
+          icon,
+          rows: rows.map((meal) => ({ key: `${meal.kind}-${meal.id}`, meal })),
+        });
       };
 
       if (currentScope === 'yours') {
-        pushSection('Coming up on your schedule', plannedRows);
-        pushSection('Meals you have logged', mealRows);
-        pushSection('Your favorites', favoriteRows);
+        pushSection('Coming up on your schedule', 'calendar-outline', plannedRows);
+        pushSection('Meals you have logged', 'restaurant-outline', mealRows);
+        pushSection('Your favorites', 'heart-outline', favoriteRows);
       } else {
         for (const section of BUILDER_SECTIONS) {
           pushSection(
             section.label,
+            SECTION_ICON_BY_BUILDER[section.type],
             curatedRows.filter((row) => row.kind === 'curated' && row.builderType === section.type),
           );
         }
       }
-      setMeals(entries);
+      setSections(built);
       // The rows themselves just changed, so anything resolved against the old
       // ones is no longer addressable.
       setExpandedKey(null);
-      setIngredientsByKey({});
+      setDetailByKey({});
     } catch (error) {
       console.error('[FindMealScreen] Failed to load meals', error);
-      setMeals([]);
+      setSections([]);
     } finally {
       setLoading(false);
     }
@@ -498,25 +540,25 @@ export function FindMealView({
       return;
     }
     setExpandedKey(entryKey);
-    if (ingredientsByKey[entryKey]) return;
+    if (detailByKey[entryKey]) return;
     setLoadingIngredientsKey(entryKey);
     try {
       // A scheduled meal keeps its components on the favorite the scheduling
       // path created to carry them, so it resolves the same way a favorite does.
-      const lines =
+      const detail =
         meal.kind === 'meal'
-          ? await getIngredientLinesForLoggedMeal(meal.id)
+          ? await getMealPickerDetailForLoggedMeal(meal.id)
           : meal.kind === 'curated'
-            ? await getIngredientLinesForCuratedRecipe(meal.id)
+            ? await getMealPickerDetailForCuratedRecipe(meal.id)
             : meal.kind === 'planned'
-              ? await getIngredientLinesForFavorite(meal.favoriteId)
-              : await getIngredientLinesForFavorite(meal.id);
-      setIngredientsByKey((current) => ({ ...current, [entryKey]: lines }));
+              ? await getMealPickerDetailForFavorite(meal.favoriteId)
+              : await getMealPickerDetailForFavorite(meal.id);
+      setDetailByKey((current) => ({ ...current, [entryKey]: detail }));
     } catch (error) {
       console.error('[FindMealScreen] Failed to load ingredients', error);
       // An empty list renders as "could not be read" below rather than as a
       // spinner that never stops.
-      setIngredientsByKey((current) => ({ ...current, [entryKey]: [] }));
+      setDetailByKey((current) => ({ ...current, [entryKey]: { ingredients: [], methods: [], components: [] } }));
     } finally {
       setLoadingIngredientsKey(null);
     }
@@ -586,8 +628,8 @@ export function FindMealView({
       <FlatList
         style={styles.screen}
         contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}
-        data={meals}
-        keyExtractor={(item) => item.key}
+        data={sections}
+        keyExtractor={(section) => section.key}
         ListHeaderComponent={
           <View style={[styles.panel, styles.listHeader]}>
             {/* Says what this screen is for before anything is picked,
@@ -645,17 +687,14 @@ export function FindMealView({
             </View>
           )
         }
-        renderItem={({ item }) =>
-          item.type === 'header' ? (
-            <View style={styles.sectionHeaderBand}>
-              <Text style={styles.sectionHeader}>{item.label}</Text>
-            </View>
-          ) : (
-            (() => {
+        renderItem={({ item: section }) => (
+          <HomeSectionBand kind="static" title={section.label} icon={section.icon} color={colors.tabFood} contentStyle={styles.sectionBody}>
+            {section.rows.map((item) => {
               const expanded = expandedKey === item.key;
-              const lines = ingredientsByKey[item.key];
+              const detail = detailByKey[item.key];
+              const teaser = item.meal.kind === 'curated' ? CURATED_TEASER_BY_ID.get(item.meal.id) : undefined;
               return (
-                <View style={styles.rowWrap}>
+                <View key={item.key} style={styles.rowWrap}>
                   <TouchableOpacity
                     style={styles.row}
                     activeOpacity={0.8}
@@ -682,21 +721,57 @@ export function FindMealView({
                       <Text style={styles.rowMeta} numberOfLines={1}>
                         {describeMeal(item.meal)}
                       </Text>
+                      {/* The enticement, the Digest's own line for this
+                          dish, shown before anything is opened. */}
+                      {teaser ? (
+                        <Text style={styles.rowTeaser} numberOfLines={expanded ? undefined : 2}>
+                          {teaser}
+                        </Text>
+                      ) : null}
                     </View>
-                    <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textMuted} />
+                    <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textPrimary} />
                   </TouchableOpacity>
                   {expanded ? (
                     <View style={styles.expandedBlock}>
                       {loadingIngredientsKey === item.key ? (
                         <ActivityIndicator color={colors.accent} />
-                      ) : lines && lines.length > 0 ? (
-                        lines.map((line, index) => (
-                          <Text key={`${item.key}-ing-${index}`} style={styles.ingredientLine}>
-                            {line.amount ? `${line.foodName} · ${line.amount}` : line.foodName}
-                          </Text>
-                        ))
                       ) : (
-                        <Text style={styles.rowMeta}>No ingredients are saved for this one.</Text>
+                        <>
+                          {/* Flavor and method first, then the ingredients:
+                              the description someone reads before deciding,
+                              with the list beneath it. Every line here is
+                              something the app already stores for the dish;
+                              a meal with no recorded method says nothing
+                              rather than guessing one. */}
+                          {item.meal.kind === 'curated' && item.meal.flavorProfile ? (
+                            <Text style={styles.detailLine}>
+                              <Text style={styles.detailLabel}>Flavor: </Text>
+                              {item.meal.flavorProfile}
+                            </Text>
+                          ) : null}
+                          {detail && detail.components.length > 0 ? (
+                            <Text style={styles.detailLine}>
+                              <Text style={styles.detailLabel}>Made from: </Text>
+                              {detail.components.join(', ')}
+                            </Text>
+                          ) : null}
+                          {detail && detail.methods.length > 0 ? (
+                            <Text style={styles.detailLine}>
+                              <Text style={styles.detailLabel}>How it is made: </Text>
+                              {detail.methods.join(', ')}
+                            </Text>
+                          ) : null}
+                          <Text style={styles.detailLabel}>Ingredients</Text>
+                          {detail && detail.ingredients.length > 0 ? (
+                            detail.ingredients.map((line, index) => (
+                              <Text key={`${item.key}-ing-${index}`} style={styles.ingredientLine}>
+                                {line.amount ? `${line.foodName} · ${line.amount}` : line.foodName}
+                              </Text>
+                            ))
+                          ) : (
+                            <Text style={styles.rowMeta}>No ingredients are saved for this one.</Text>
+                          )}
+                        </>
                       )}
                       <TouchableOpacity
                         style={styles.useButton}
@@ -710,9 +785,9 @@ export function FindMealView({
                   ) : null}
                 </View>
               );
-            })()
-          )
-        }
+            })}
+          </HomeSectionBand>
+        )}
       />
     );
   }
@@ -894,14 +969,9 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
   panel: { ...homeBandStyle, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING, gap: 10 },
   listHeader: { marginBottom: 0 },
-  sectionHeaderBand: {
-    ...homeBandStyle,
-    borderColor: colors.tabFood,
-    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
-    paddingVertical: 10,
-    marginTop: HOME_BAND_GAP,
-    marginBottom: HOME_BAND_GAP,
-  },
+  // The rows inside a section band, the standard gap apart, no top padding
+  // since the band's header row already separates its name from the first.
+  sectionBody: { gap: HOME_BAND_GAP },
   title: { ...typography.sectionTitle, color: colors.textPrimary, ...textShadow },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   // textPrimary rather than textMuted: textMuted measures under 3:1 on the
@@ -923,28 +993,31 @@ const styles = StyleSheet.create({
   // The border and fill moved to this wrapper so an expanded row reads as one
   // card holding its own ingredients, rather than a card with a separate block
   // floating under it.
+  // A meal inside its section's band: an inset box rather than a second
+  // band (a band inside a band would put its accent 16px in).
   rowWrap: {
-    ...homeBandStyle,
-    borderColor: colors.tabFood,
-    marginBottom: HOME_BAND_GAP,
+    borderRadius: 10,
+    backgroundColor: colors.surfaceMuted,
     overflow: 'hidden',
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    paddingVertical: 12,
-    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+    padding: 12,
   },
+  rowTeaser: { ...typography.caption, color: colors.textPrimary, lineHeight: 17, marginTop: 2, ...textShadow },
+  detailLine: { ...typography.caption, color: colors.textPrimary, lineHeight: 17, ...textShadow },
+  detailLabel: { ...typography.captionEmphasis, color: colors.tabFood, fontWeight: '400', marginTop: 4, ...textShadow },
   expandedBlock: {
-    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+    paddingHorizontal: 12,
     paddingBottom: 12,
     gap: 4,
     borderTopWidth: 1,
     borderTopColor: colors.border,
     paddingTop: 10,
   },
-  ingredientLine: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  ingredientLine: { ...typography.caption, color: colors.textPrimary, ...textShadow },
   useButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -963,10 +1036,9 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
   },
   scopeRow: { flexDirection: 'row', gap: 8 },
-  sectionHeader: { ...typography.bodyEmphasis, color: colors.tabFood, fontWeight: '400', ...textShadow },
   rowTextWrap: { flex: 1, gap: 2 },
   rowName: { ...typography.body, color: colors.textPrimary, ...textShadow },
-  rowMeta: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  rowMeta: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   timeInput: {
     width: 64,
