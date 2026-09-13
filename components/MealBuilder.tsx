@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { textShadow, typography } from '../constants/typography';
 import {
   correctFoodTrialStartDate,
@@ -1263,80 +1263,73 @@ export function MealBuilder({
     const plannedRows = filteredStartingPoints.filter((row) => row.kind === 'planned');
     const favoriteRows = filteredStartingPoints.filter((row) => row.kind === 'favorite');
     const loggedRows = filteredStartingPoints.filter((row) => row.kind === 'logged');
-    const renderRows = (rows: StartingPoint[]) => (
-      <View style={styles.savedList}>
-        {rows.map((row) => (
-          <TouchableOpacity key={row.key} style={styles.savedRow} onPress={() => void chooseStartingPoint(row)} disabled={loadingStartingPoint}>
-            <View style={styles.savedRowText}>
-              <Text style={styles.savedRowName} numberOfLines={1}>
-                {row.name}
-              </Text>
-              <Text style={styles.savedRowDetail} numberOfLines={1}>
-                {row.detail}
-              </Text>
-            </View>
-            <Ionicons name="add-circle-outline" size={22} color={tabColor} />
-          </TouchableOpacity>
-        ))}
-      </View>
-    );
+    const renderGroup = (title: string, icon: 'calendar-outline' | 'heart-outline' | 'restaurant-outline', rows: StartingPoint[]) =>
+      rows.length === 0 ? null : (
+        <View style={styles.bandOut}>
+          <HomeSectionBand kind="static" title={title} icon={icon} color={tabColor} contentStyle={styles.bandRows}>
+            {rows.map((row) => (
+              <TouchableOpacity key={row.key} style={styles.savedRow} onPress={() => void chooseStartingPoint(row)} disabled={loadingStartingPoint}>
+                <View style={styles.savedRowText}>
+                  <Text style={styles.savedRowName} numberOfLines={1}>
+                    {row.name}
+                  </Text>
+                  <Text style={styles.savedRowDetail} numberOfLines={1}>
+                    {row.detail}
+                  </Text>
+                </View>
+                <Ionicons name="add-circle-outline" size={22} color={tabColor} />
+              </TouchableOpacity>
+            ))}
+          </HomeSectionBand>
+        </View>
+      );
     return (
       <>
         {infoAlertElement}
         {confirmSheetElement}
         {reconciliationSheetElement}
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
-          <TouchableOpacity style={styles.backRow} onPress={closeStartingPoints}>
-            <Ionicons name="chevron-back" size={18} color={tabColor} />
-            <Text style={[styles.backRowText, { color: tabColor }]}>{identityConfirmed ? 'Your meal' : 'Meal Builder'}</Text>
+          <TouchableOpacity style={[styles.backPill, { backgroundColor: tabColor }]} onPress={closeStartingPoints}>
+            <Text style={styles.backPillText}>{identityConfirmed ? '‹ Back to your meal' : '‹ Back'}</Text>
           </TouchableOpacity>
-          <Text style={[styles.sectionHeading, { color: tabColor }]}>Start from a meal you have</Text>
-          {startingPointsLoading || loadingStartingPoint ? (
-            <ActivityIndicator color={tabColor} style={styles.loadingSpinner} />
-          ) : startingPoints.length === 0 ? (
-            <Text style={[styles.emptyText, styles.panelStandalone]}>
-              No whole meals yet. A meal favorite, a meal on your schedule, or a meal logged from this builder would show here. Go back and add dishes one at a time instead.
-            </Text>
-          ) : (
-            <>
-              <View style={styles.categorySearchRow}>
-                <AppTextInput
-                  style={[styles.formInput, styles.categorySearchInput, { backgroundColor: inputBackground(tabColor) }]}
-                  value={startingPointSearch}
-                  onChangeText={setStartingPointSearch}
-                  placeholder="Search your meals..."
-                  placeholderTextColor={colors.textMuted}
-                />
-                <VoiceInputButton onResult={(transcript) => setStartingPointSearch(transcript)} color={tabColor} />
-              </View>
-              {filteredStartingPoints.length === 0 ? (
-                <Text style={[styles.emptyText, styles.formLabelSpaced, styles.panelStandalone]}>
-                  {`No meals match "${startingPointSearch.trim()}".`}
+          {/* One band per group of whole meals, the same shape Log or
+              Schedule a Meal's sections take: the group's name as the band
+              header, its meals as inset boxes beneath. The search sits in
+              its own band above them since it covers all three. */}
+          <View style={styles.bandOut}>
+            <HomeSectionBand kind="static" title="Start from a meal you have" icon="restaurant-outline" color={tabColor}>
+              {startingPointsLoading || loadingStartingPoint ? (
+                <ActivityIndicator color={tabColor} />
+              ) : startingPoints.length === 0 ? (
+                <Text style={styles.emptyText}>
+                  No whole meals yet. A meal favorite, a meal on your schedule, or a meal logged from this builder would show here. Go back and add dishes one at a time instead.
                 </Text>
               ) : (
                 <>
-                  {plannedRows.length > 0 ? (
-                    <>
-                      <Text style={[styles.listGroupHeading, { color: tabColor }]}>Coming up on your schedule</Text>
-                      {renderRows(plannedRows)}
-                    </>
-                  ) : null}
-                  {favoriteRows.length > 0 ? (
-                    <>
-                      <Text style={[styles.listGroupHeading, { color: tabColor }]}>Your meal favorites</Text>
-                      {renderRows(favoriteRows)}
-                    </>
-                  ) : null}
-                  {loggedRows.length > 0 ? (
-                    <>
-                      <Text style={[styles.listGroupHeading, { color: tabColor }]}>Meals you have logged</Text>
-                      {renderRows(loggedRows)}
-                    </>
+                  <View style={styles.categorySearchRow}>
+                    <AppTextInput
+                      style={[styles.formInput, styles.categorySearchInput, { backgroundColor: inputBackground(tabColor) }]}
+                      value={startingPointSearch}
+                      onChangeText={setStartingPointSearch}
+                      placeholder="Search your meals..."
+                      placeholderTextColor={colors.textMuted}
+                    />
+                    <VoiceInputButton onResult={(transcript) => setStartingPointSearch(transcript)} color={tabColor} />
+                  </View>
+                  {filteredStartingPoints.length === 0 ? (
+                    <Text style={[styles.emptyText, styles.formLabelSpaced]}>{`No meals match "${startingPointSearch.trim()}".`}</Text>
                   ) : null}
                 </>
               )}
+            </HomeSectionBand>
+          </View>
+          {!startingPointsLoading && !loadingStartingPoint ? (
+            <>
+              {renderGroup('Coming up on your schedule', 'calendar-outline', plannedRows)}
+              {renderGroup('Your meal favorites', 'heart-outline', favoriteRows)}
+              {renderGroup('Meals you have logged', 'restaurant-outline', loggedRows)}
             </>
-          )}
+          ) : null}
         </ScrollView>
       </>
     );
@@ -1356,14 +1349,16 @@ export function MealBuilder({
           {/* "Start from a meal you have", 2026-09-13: ahead of the name and
               type form, since a whole meal already carries both and picking
               one skips straight to assembling. */}
-          <TouchableOpacity style={[styles.formCard, styles.startFromCard, { borderColor: tabColor }]} onPress={() => void openStartingPoints()}>
-            <Ionicons name="restaurant-outline" size={22} color={tabColor} />
-            <View style={styles.startFromText}>
-              <Text style={[styles.startFromTitle, { color: tabColor }]}>Start from a meal you have</Text>
-              <Text style={styles.startFromCaption}>A meal favorite, one on your schedule, or one you have logged before, loaded here to adjust.</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={tabColor} />
-          </TouchableOpacity>
+          <View style={styles.bandOut}>
+            <HomeSectionBand
+              kind="action"
+              title="Start from a meal you have"
+              caption="A meal favorite, one on your schedule, or one you have logged before, loaded here to adjust."
+              icon="restaurant-outline"
+              color={tabColor}
+              onPress={() => void openStartingPoints()}
+            />
+          </View>
           {components.length > 0 ? (
             <View style={[styles.formCard, styles.emptyStateCard, { borderColor: tabColor }]}>
               <Ionicons name="checkmark-circle-outline" size={22} color={tabColor} />
@@ -1721,96 +1716,87 @@ export function MealBuilder({
     );
   }
 
-  // Browsing one category's own saved items.
+  // Browsing one category: the person's own saved dishes and the system
+  // recipes, each group its own band (2026-09-13), the search in a band
+  // above both since it covers both.
   if (browsingCategory) {
     const meta = CATEGORY_META.find((entry) => entry.type === browsingCategory)!;
+    const lower = meta.label.toLowerCase();
+    const searching = categorySearchQuery.trim().length > 0;
+    const renderOptionRows = (rows: MealComponentOption[], onPick: (option: MealComponentOption) => void, keyOf: (option: MealComponentOption) => string) =>
+      rows.map((option) => (
+        <TouchableOpacity key={keyOf(option)} style={styles.savedRow} onPress={() => onPick(option)}>
+          <View style={styles.savedRowText}>
+            <Text style={styles.savedRowName} numberOfLines={1}>
+              {option.name}
+            </Text>
+            <Text style={styles.savedRowDetail} numberOfLines={1}>
+              {option.ingredientNames || `${option.ingredientCount} ingredient${option.ingredientCount === 1 ? '' : 's'}`}
+            </Text>
+          </View>
+          <Ionicons name="add-circle-outline" size={22} color={tabColor} />
+        </TouchableOpacity>
+      ));
     return (
       <>
         {infoAlertElement}
         {confirmSheetElement}
         {reconciliationSheetElement}
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
-          <TouchableOpacity style={styles.backRow} onPress={closeCategory}>
-            <Ionicons name="chevron-back" size={18} color={tabColor} />
-            <Text style={[styles.backRowText, { color: tabColor }]}>Add from...</Text>
+          <TouchableOpacity style={[styles.backPill, { backgroundColor: tabColor }]} onPress={closeCategory}>
+            <Text style={styles.backPillText}>‹ Back to Add from...</Text>
           </TouchableOpacity>
-          <Text style={[styles.sectionHeading, { color: tabColor }]}>{meta.label}s</Text>
-          {categoryOptionsLoading ? (
-            <ActivityIndicator color={tabColor} style={styles.loadingSpinner} />
-          ) : categoryOptions.length === 0 && curatedOptions.length === 0 ? (
-            <Text style={[styles.emptyText, styles.panelStandalone]}>
-              {`Nothing here yet. Build a ${meta.label.toLowerCase()} from the ${meta.label} Builder first, then come back here to add it.`}
-            </Text>
-          ) : (
-            <>
-              <View style={styles.categorySearchRow}>
-                <AppTextInput
-                  style={[styles.formInput, styles.categorySearchInput, { backgroundColor: inputBackground(tabColor) }]}
-                  value={categorySearchQuery}
-                  onChangeText={setCategorySearchQuery}
-                  placeholder={`Search ${meta.label.toLowerCase()}s by name or ingredient...`}
-                  placeholderTextColor={colors.textMuted}
-                />
-                <VoiceInputButton onResult={(transcript) => setCategorySearchQuery(transcript)} color={tabColor} />
-              </View>
-              {filteredCategoryOptions.length === 0 && filteredCuratedOptions.length === 0 ? (
-                <Text style={[styles.emptyText, styles.formLabelSpaced, styles.panelStandalone]}>
-                  {`No ${meta.label.toLowerCase()}s match "${categorySearchQuery.trim()}".`}
-                </Text>
+          <View style={styles.bandOut}>
+            <HomeSectionBand kind="static" title={`${meta.label}s`} icon={meta.icon} color={tabColor}>
+              {categoryOptionsLoading ? (
+                <ActivityIndicator color={tabColor} />
               ) : (
-                <>
-                  {/* The person's own saved dishes lead, then the system
-                      recipes for this builder, 2026-09-13. Both headings
-                      show even when one list is empty, so it is plain which
-                      kind a row is and that the other kind was looked for. */}
-                  <Text style={[styles.listGroupHeading, { color: tabColor }]}>Your saved {meta.label.toLowerCase()}s</Text>
+                <View style={styles.categorySearchRow}>
+                  <AppTextInput
+                    style={[styles.formInput, styles.categorySearchInput, { backgroundColor: inputBackground(tabColor) }]}
+                    value={categorySearchQuery}
+                    onChangeText={setCategorySearchQuery}
+                    placeholder={`Search ${lower}s by name or ingredient...`}
+                    placeholderTextColor={colors.textMuted}
+                  />
+                  <VoiceInputButton onResult={(transcript) => setCategorySearchQuery(transcript)} color={tabColor} />
+                </View>
+              )}
+            </HomeSectionBand>
+          </View>
+          {categoryOptionsLoading ? null : (
+            <>
+              {/* Both bands show even when one is empty, so it is plain
+                  which kind a row is and that the other kind was looked
+                  for. */}
+              <View style={styles.bandOut}>
+                <HomeSectionBand kind="static" title={`Your saved ${lower}s`} icon="bookmark-outline" color={tabColor} contentStyle={styles.bandRows}>
                   {filteredCategoryOptions.length === 0 ? (
-                    <Text style={[styles.emptyText, styles.panelStandalone]}>
+                    <Text style={styles.emptyText}>
                       {categoryOptions.length === 0
                         ? `None saved yet. Anything you build in the ${meta.label} Builder shows here.`
-                        : `None of your saved ${meta.label.toLowerCase()}s match.`}
+                        : searching
+                          ? `None of your saved ${lower}s match "${categorySearchQuery.trim()}".`
+                          : `None saved yet.`}
                     </Text>
                   ) : (
-                    <View style={styles.savedList}>
-                      {filteredCategoryOptions.map((option) => (
-                        <TouchableOpacity key={option.id} style={styles.savedRow} onPress={() => selectSavedOption(option)}>
-                          <View style={styles.savedRowText}>
-                            <Text style={styles.savedRowName} numberOfLines={1}>
-                              {option.name}
-                            </Text>
-                            <Text style={styles.savedRowDetail} numberOfLines={1}>
-                              {option.ingredientNames || `${option.ingredientCount} ingredient${option.ingredientCount === 1 ? '' : 's'}`}
-                            </Text>
-                          </View>
-                          <Ionicons name="add-circle-outline" size={22} color={tabColor} />
-                        </TouchableOpacity>
-                      ))}
-                    </View>
+                    renderOptionRows(filteredCategoryOptions, selectSavedOption, (option) => option.id)
                   )}
-                  <Text style={[styles.listGroupHeading, { color: tabColor }]}>System {meta.label.toLowerCase()}s</Text>
+                </HomeSectionBand>
+              </View>
+              <View style={styles.bandOut}>
+                <HomeSectionBand kind="static" title={`System ${lower}s`} icon="library-outline" color={tabColor} contentStyle={styles.bandRows}>
                   {filteredCuratedOptions.length === 0 ? (
-                    <Text style={[styles.emptyText, styles.panelStandalone]}>
-                      {curatedOptions.length === 0 ? `No system ${meta.label.toLowerCase()}s exist yet.` : `No system ${meta.label.toLowerCase()}s match.`}
+                    <Text style={styles.emptyText}>
+                      {curatedOptions.length === 0
+                        ? `No system ${lower}s exist yet.`
+                        : `No system ${lower}s match "${categorySearchQuery.trim()}".`}
                     </Text>
                   ) : (
-                    <View style={styles.savedList}>
-                      {filteredCuratedOptions.map((option) => (
-                        <TouchableOpacity key={option.recipeId} style={styles.savedRow} onPress={() => selectCuratedOption(option)}>
-                          <View style={styles.savedRowText}>
-                            <Text style={styles.savedRowName} numberOfLines={1}>
-                              {option.name}
-                            </Text>
-                            <Text style={styles.savedRowDetail} numberOfLines={1}>
-                              {option.ingredientNames || `${option.ingredientCount} ingredient${option.ingredientCount === 1 ? '' : 's'}`}
-                            </Text>
-                          </View>
-                          <Ionicons name="add-circle-outline" size={22} color={tabColor} />
-                        </TouchableOpacity>
-                      ))}
-                    </View>
+                    renderOptionRows(filteredCuratedOptions, (option) => selectCuratedOption(option as CuratedComponentOption), (option) => `curated_${option.id}`)
                   )}
-                </>
-              )}
+                </HomeSectionBand>
+              </View>
             </>
           )}
         </ScrollView>
@@ -1932,27 +1918,36 @@ export function MealBuilder({
             screen corrects one real meal, and swapping its whole contents for
             a different meal is a different act. */}
         {!editMealId ? (
-          <TouchableOpacity style={[styles.formCard, styles.startFromCard, { borderColor: tabColor }]} onPress={() => void openStartingPoints()}>
-            <Ionicons name="restaurant-outline" size={22} color={tabColor} />
-            <View style={styles.startFromText}>
-              <Text style={[styles.startFromTitle, { color: tabColor }]}>Start from a meal you have</Text>
-              <Text style={styles.startFromCaption}>A meal favorite, one on your schedule, or one you have logged before.</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={tabColor} />
-          </TouchableOpacity>
+          <View style={styles.bandOut}>
+            <HomeSectionBand
+              kind="action"
+              title="Start from a meal you have"
+              caption="A meal favorite, one on your schedule, or one you have logged before."
+              icon="restaurant-outline"
+              color={tabColor}
+              onPress={() => void openStartingPoints()}
+            />
+          </View>
         ) : null}
 
-        <Text style={[styles.sectionHeading, styles.gridHeading, { color: tabColor }]}>Add from...</Text>
-        <Text style={styles.gridCaption}>
-          Each builder below lists your own saved dishes and the system recipes for it. Tap the (i) above to see exactly what this does.
-        </Text>
-        <View style={styles.grid}>
-          {CATEGORY_META.map((entry) => (
-            <TouchableOpacity key={entry.type} style={styles.gridTile} onPress={() => openCategory(entry.type)}>
-              <Ionicons name={entry.icon} size={26} color={tabColor} />
-              <Text style={styles.gridTileLabel}>{entry.label}</Text>
-            </TouchableOpacity>
-          ))}
+        {/* The band look, 2026-09-13: "Add from..." is one static band with
+            its caption and the category grid inside, the tiles as inset
+            boxes, instead of a heading chip, a caption chip and a loose
+            grid on the photo. */}
+        <View style={styles.bandOut}>
+          <HomeSectionBand kind="static" title="Add from..." icon="add-circle-outline" color={tabColor} contentStyle={styles.bandRows}>
+            <Text style={styles.gridCaption}>
+              Each builder below lists your own saved dishes and the system recipes for it. Tap the (i) above to see exactly what this does.
+            </Text>
+            <View style={styles.grid}>
+              {CATEGORY_META.map((entry) => (
+                <TouchableOpacity key={entry.type} style={styles.gridTile} onPress={() => openCategory(entry.type)}>
+                  <Ionicons name={entry.icon} size={26} color={tabColor} />
+                  <Text style={styles.gridTileLabel}>{entry.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </HomeSectionBand>
         </View>
 
         {components.length > 0 && editMealId ? (
@@ -2050,6 +2045,12 @@ const styles = StyleSheet.create({
     marginHorizontal: -16,
     padding: HOME_BAND_CONTENT_PADDING,
   },
+  // Wraps a HomeSectionBand placed among the formCards so it too cancels
+  // scrollContent's own 16px and runs edge to edge (the same bandOut the
+  // other builders use).
+  bandOut: { marginHorizontal: -16 },
+  // Rows or tiles inside a band, the standard gap apart.
+  bandRows: { gap: HOME_BAND_GAP },
   formLabel: { ...typography.eyebrow, ...textShadow },
   formLabelSpaced: { marginTop: 14 },
   // The "nothing saved yet" notice above the identity form, 2026-08-08 --
@@ -2058,25 +2059,7 @@ const styles = StyleSheet.create({
   // form.
   emptyStateCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   emptyStateText: { ...typography.body, color: colors.textPrimary, flex: 1, ...textShadow },
-  // "Start from a meal you have", 2026-09-13: a tappable card in the same
-  // formCard surface as the rest of the screen, icon left, chevron right.
-  startFromCard: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  startFromText: { flex: 1 },
-  startFromTitle: { ...typography.bodyEmphasis, ...textShadow },
-  startFromCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 2, ...textShadow },
-  // A heading inside a browsable list that holds more than one group of
-  // rows (your saved dishes, then the system ones), carrying its own surface
-  // per the standing no-bare-text rule.
-  listGroupHeading: {
-    ...typography.label,
-    ...textShadow,
-    marginTop: 12,
-    marginBottom: 4,
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
+
   // 2026-08-16 -- wraps the Meal Name label with its own real mic button,
   // same plain label-plus-button layout every direct-ingredient builder's
   // own prepNoteLabelRow already uses (this file has no ingredient card of
@@ -2180,74 +2163,49 @@ const styles = StyleSheet.create({
   mealTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   // Surface so the back link is not sitting on the photo (2026-08-29
   // standing rule).
-  backRow: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: 4, alignSelf: 'flex-start', backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, },
-  backRowText: { ...typography.bodyEmphasis, ...textShadow },
+  // The Back pill every converted Food screen carries at the top (see
+  // FoodItemDetailView's own backLink): the tab colour as fill, dark text.
+  backPill: { alignSelf: 'flex-start', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 },
+  backPillText: { ...typography.body, color: colors.textOnPrimary, fontWeight: '400' },
   // tabColor applied inline at both call sites -- matches SideBuilder's own
   // "Ingredients" heading (also typography.eyebrow), which gets the same
   // treatment despite being a section heading rather than a single-field
   // label.
-  sectionHeading: { ...typography.eyebrow, ...textShadow, backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12 },
-  gridHeading: { marginTop: 6 },
-  gridCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 4, marginBottom: 4, ...textShadow, backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, },
-  loadingSpinner: { marginTop: 20 },
-  // 2026-08-29, standing rule: no text sits directly on a tab's
-  // photographic background. panelStandalone is for text with no card
-  // to join (an empty state, an error or loading line);
-  // groupHeadingChip is for a heading introducing a GROUP of separate
-  // cards. A heading that labels ONE card should move inside that
-  // card instead of using either.
-  panelStandalone: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-  },
-  groupHeadingChip: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
-  savedList: { gap: 8 },
-  // A bordered box per row (not SideBuilder's own plain bottom-border list
-  // row) -- deliberately closer to app/food-items.tsx's own itemRow in
-  // spirit but boxed, since each row here is a distinct tappable saved
-  // record, not a passive divided list. Stays plain colors.border, not
-  // tabColor -- consistent with itemRow's own choice, and with formCard
-  // being the one element per step that gets the tabColor-border
-  // treatment, not every box on the page.
+  // Inside the "Add from..." band now, so no surface of its own.
+  // textPrimary rather than textSecondary: the band carries the tab
+  // colour in its header, and the content reads in the text colour, the
+  // same split Home's bands make.
+  gridCaption: { ...typography.caption, color: colors.textPrimary, ...textShadow },
+  emptyText: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  savedList: { gap: HOME_BAND_GAP },
+  // A row inside a band: an inset box rather than a second band (a band
+  // inside a band would put its accent 16px in), the same shape Log or
+  // Schedule a Meal's rows take.
   savedRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: colors.surface,
+    borderRadius: 10,
+    padding: 12,
+    backgroundColor: colors.surfaceMuted,
   },
   savedRowText: { flex: 1 },
   // colors.textPrimary, matching SideBuilder's own overviewIngredientText --
   // a plain saved-item name in a list, not the form's own identity.
   savedRowName: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
-  savedRowDetail: { ...typography.caption, color: colors.textSecondary, marginTop: 2, ...textShadow },
+  savedRowDetail: { ...typography.caption, color: colors.textPrimary, marginTop: 2, ...textShadow },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
   },
-  // Same colors.border/colors.surface reasoning as savedRow above -- a grid
-  // tile is a passive-until-tapped chrome box, not the step's own formCard.
+  // A tile inside the "Add from..." band: the same inset box a row is.
   gridTile: {
     width: '31%',
     aspectRatio: 1,
-    borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: 10,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,

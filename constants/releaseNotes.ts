@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.11',
+    date: '2026-09-13',
+    changes: [
+      'Meal Builder now has the band look the rest of Food has: Start from a meal you have is a band row, Add from... is one band with its category tiles inside, and the lists behind a category (your saved dishes, then the system ones) and behind Start from a meal you have are each one band per group with the rows as inset boxes, the standard gap apart, and a Back pill at the top.',
+    ],
+  },
+  {
     version: '1.0.37.10',
     date: '2026-09-13',
     changes: [
