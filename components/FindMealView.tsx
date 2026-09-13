@@ -228,6 +228,21 @@ export function FindMealView({
   // A name alone often will not separate two similar meals, and picking one
   // blind then backing out is worse than being able to look first.
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  // Which groups (Coming up on your schedule, Sides, Soups, and the rest)
+  // are open, 2026-09-13: "There are categories of things in the list and
+  // they need to be collapsable." Closed until tapped, so eleven system
+  // groups read as a menu rather than four hundred rows; a search opens
+  // every group that still has a match, since what was typed is the
+  // thing being looked for.
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+  function toggleSection(key: string) {
+    setOpenSections((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
   // Resolved on first expand and kept, keyed by row. Loading a meal's
   // ingredients means several queries for a favorite (one per component), so
   // re-resolving on every collapse and re-expand would be wasteful; the list
@@ -700,7 +715,12 @@ export function FindMealView({
           <View style={[styles.panel, styles.listHeader]}>
             {/* Says what this screen is for before anything is picked,
                 2026-09-13, the same line the Food row that opens it carries. */}
-            <Text style={styles.muted}>Pick any meal you have logged or saved, one already on your schedule, or a system recipe, then log it or put it on your schedule.</Text>
+            <Text style={styles.muted}>
+              Every meal you can reach without opening a builder: meals you have logged or saved, meals already on your schedule, and the system recipes. Tap a group to open it, then tap a meal to see what it is made of.
+            </Text>
+            <Text style={styles.muted}>
+              From an opened meal: Use this meal logs it now, logs it for earlier today, puts it on your schedule, or swaps it in for a meal that was planned. Or tick dishes, from as many meals as you like, and build a new meal from them.
+            </Text>
             {photoUri ? (
               <View style={styles.card}>
                 <Text style={styles.sectionLabel}>Finishing this photo</Text>
@@ -790,7 +810,15 @@ export function FindMealView({
           )
         }
         renderItem={({ item: section }) => (
-          <HomeSectionBand kind="static" title={section.label} icon={section.icon} color={colors.tabFood} contentStyle={styles.sectionBody}>
+          <HomeSectionBand
+            kind="fold"
+            title={`${section.label} (${section.rows.length})`}
+            icon={section.icon}
+            color={colors.tabFood}
+            expanded={query.trim().length > 0 || openSections.has(section.key)}
+            onToggle={() => toggleSection(section.key)}
+            contentStyle={styles.sectionBody}
+          >
             {section.rows.map((item) => {
               const expanded = expandedKey === item.key;
               const detail = detailByKey[item.key];

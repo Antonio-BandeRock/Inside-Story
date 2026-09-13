@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.15',
+    date: '2026-09-13',
+    changes: [
+      'The groups on Log or Schedule a Meal (Coming up on your schedule, Sides, Soups, and the rest) fold. Each is closed until you tap it and shows how many meals it holds; typing a search opens every group with a match.',
+      'The top of that screen now says what to do: open a group, tap a meal to see its dishes, then Use this meal, or tick dishes from any meals to build a new one. The Food tab\'s own description of the screen says the same.',
+      'Meal Builder\'s Start from a meal you have has the same folding groups and its own line of instructions.',
+    ],
+  },
+  {
     version: '1.0.37.14',
     date: '2026-09-13',
     changes: [

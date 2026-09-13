@@ -425,6 +425,18 @@ export function MealBuilder({
   // few sides to make up a meal"). Keyed by the row's own key; a row not
   // yet expanded has no entry.
   const [expandedStartingPointKey, setExpandedStartingPointKey] = useState<string | null>(null);
+  // Which groups of the picker are open, closed until tapped, the same
+  // fold Log or Schedule a Meal's groups have (2026-09-13). A search opens
+  // every group that still has a match.
+  const [openStartingPointGroups, setOpenStartingPointGroups] = useState<Set<string>>(new Set());
+  function toggleStartingPointGroup(title: string) {
+    setOpenStartingPointGroups((current) => {
+      const next = new Set(current);
+      if (next.has(title)) next.delete(title);
+      else next.add(title);
+      return next;
+    });
+  }
   const [startingPointDishes, setStartingPointDishes] = useState<Record<string, SelectedComponent[]>>({});
   const [loadingDishesKey, setLoadingDishesKey] = useState<string | null>(null);
   // One selection across every opened meal, not one per meal (2026-09-13,
@@ -1403,7 +1415,15 @@ export function MealBuilder({
     const renderGroup = (title: string, icon: 'calendar-outline' | 'heart-outline' | 'restaurant-outline', rows: StartingPoint[]) =>
       rows.length === 0 ? null : (
         <View style={styles.bandOut}>
-          <HomeSectionBand kind="static" title={title} icon={icon} color={tabColor} contentStyle={styles.bandRows}>
+          <HomeSectionBand
+            kind="fold"
+            title={`${title} (${rows.length})`}
+            icon={icon}
+            color={tabColor}
+            expanded={startingPointSearch.trim().length > 0 || openStartingPointGroups.has(title)}
+            onToggle={() => toggleStartingPointGroup(title)}
+            contentStyle={styles.bandRows}
+          >
             {rows.map((row) => {
               const expanded = expandedStartingPointKey === row.key;
               const dishes = startingPointDishes[row.key];
@@ -1497,6 +1517,9 @@ export function MealBuilder({
                 </Text>
               ) : (
                 <>
+                  <Text style={styles.savedRowDetail}>
+                    Tap a group below to open it, then tap a meal to see the dishes it is made of. Use the whole meal, or tick dishes from as many meals as you like and use those together.
+                  </Text>
                   <View style={styles.categorySearchRow}>
                     <AppTextInput
                       style={[styles.formInput, styles.categorySearchInput, { backgroundColor: inputBackground(tabColor) }]}
