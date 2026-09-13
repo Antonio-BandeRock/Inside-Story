@@ -141,23 +141,33 @@ export function GatedTabContent({
               the tools are. This is that: one box, at the top of every tab's
               resting area, naming the corner button by the same icon and colour
               the button itself uses so the two read as the same thing. */}
-          {/* The header box describes what sits below it, and only that
-              (2026-09-13, direct: "It should only talk about what they will
-              find below. The same goes for every other place one of these
-              header boxes will appear"). The tap-the-button line moved to
-              the corner box the same day (see PageIdentityLabel), so a tab
-              with nothing below has no header box at all rather than one
-              that repeats the corner. */}
-          {restingIntro ? (
-            <View style={[styles.prompt, { borderColor: tabColor }]}>
-              <View style={styles.promptRow}>
-                {route ? <Ionicons name={route.icon} size={20} color={tabColor} style={textShadow} /> : null}
-                <Text style={[styles.promptTitle, { color: tabColor }]}>{pageTitle}</Text>
-              </View>
-              {restingIntro.title ? <Text style={[styles.introTitle, { color: tabColor }]}>{restingIntro.title}</Text> : null}
-              {restingIntro.body ? <Text style={styles.promptBody}>{restingIntro.body}</Text> : null}
+          {/* Restored 2026-09-13 (1.0.37.20) to exactly the shape it had
+              before 1.0.37.6, which removed this box from every tab that
+              passes no restingIntro, nine of the ten. That commit's own
+              instruction was about where the tap-the-button LINE lives
+              (the corner box carries it too, see PageIdentityLabel); it
+              said nothing about removing the box, and the work that day
+              was on Food alone. Direct correction: "you had no reason to
+              remove anything from any of the other home screens for the
+              other tabs. Fix it." So: one box on every tab, always. A tab
+              with an intro shows it (Food); a tab without one keeps the
+              line it had. */}
+          <View style={[styles.prompt, { borderColor: tabColor }]}>
+            <View style={styles.promptRow}>
+              {route ? <Ionicons name={route.icon} size={20} color={tabColor} style={textShadow} /> : null}
+              <Text style={[styles.promptTitle, { color: tabColor }]}>{pageTitle}</Text>
             </View>
-          ) : null}
+            {restingIntro ? (
+              <>
+                {restingIntro.title ? <Text style={[styles.introTitle, { color: tabColor }]}>{restingIntro.title}</Text> : null}
+                {restingIntro.body ? <Text style={styles.promptBody}>{restingIntro.body}</Text> : null}
+              </>
+            ) : (
+              <Text style={styles.promptBody}>
+                Tap the {pageTitle} button in the corner to pick a tool.
+              </Text>
+            )}
+          </View>
           {restingContent ?? null}
         </View>
       )}

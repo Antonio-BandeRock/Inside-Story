@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.20',
+    date: '2026-09-13',
+    changes: [
+      'The header box at the top of every tab is back. Version 1.0.37.6 removed it from the nine tabs other than Home while the day\'s work was on Food; that was a mistake, and each tab now shows its box again exactly as it did before, with its name, its icon, and the line pointing at the corner button.',
+    ],
+  },
+  {
     version: '1.0.37.19',
     date: '2026-09-13',
     changes: [
