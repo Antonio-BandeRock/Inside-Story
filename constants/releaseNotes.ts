@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.36.12',
+    date: '2026-09-12',
+    changes: [
+      'The gap between the information bands on the Nutrients lens now matches the gap between the bands on Home exactly, and that one distance is the standard for every screen that takes the band look from here on.',
+    ],
+  },
+  {
     version: '1.0.36.11',
     date: '2026-09-12',
     changes: [

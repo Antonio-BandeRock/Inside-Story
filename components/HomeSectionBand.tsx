@@ -63,6 +63,19 @@ export const HOME_BAND_EDGE_WIDTH = 1;
 // before the bands existed, kept so nothing inside them shifts.
 export const HOME_BAND_CONTENT_PADDING = 16;
 
+// The distance between one band and the next, wherever bands are stacked.
+// 2026-09-12, direct instruction after the Nutrients lens took the band
+// look: "make sure the info boxes on the Nutrients lens are the same
+// distance between each other as the info boxes on the Home screen. Set
+// that distance as the standard for distance between them on every part
+// of the app." Home's own bands had sat at 10 since 2026-08-08; the
+// Nutrients lens matched that between its two bands but left 14 between
+// its explainer and the first one. One constant now, read by every
+// screen that stacks bands (Home's page column, Insights' bandColumn and
+// its explainer's gap to what follows), so the spacing cannot drift
+// again as more lenses take this shape.
+export const HOME_BAND_GAP = 10;
+
 type CommonProps = {
   title: string;
   icon: ComponentProps<typeof Ionicons>['name'];

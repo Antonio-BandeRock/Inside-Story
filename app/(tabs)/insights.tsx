@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams } from 'expo-router';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { HOME_BAND_CONTENT_PADDING, HomeSectionBand } from '../../components/HomeSectionBand';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from '../../components/HomeSectionBand';
 import { formatTime12 } from '../../lib/timeOfDay';
 import {
   classifyPrepStateGroup,
@@ -4012,9 +4012,10 @@ const styles = StyleSheet.create({
   },
   // The loading card shown while a slow lens computes -- see
   // LensLoadingCard above for why it exists.
-  // The explainer band's own gap to whatever the lens renders beneath it;
-  // the band itself is bandColumn (see below).
-  lensExplainerBand: { marginBottom: 14 },
+  // The explainer band's own gap to whatever the lens renders beneath it,
+  // the same HOME_BAND_GAP as between any two bands; the band itself is
+  // bandColumn (see below).
+  lensExplainerBand: { marginBottom: HOME_BAND_GAP },
   lensLoadingBody: {
     ...typography.body,
     color: colors.textSecondary,
@@ -4106,7 +4107,7 @@ const styles = StyleSheet.create({
   // comment). bandColumn cancels bodyContent's own 16px so the bands run
   // edge to edge the way Home's do; everything inside them is inset by
   // the band's own content padding.
-  bandColumn: { marginHorizontal: -16, gap: 10 },
+  bandColumn: { marginHorizontal: -16, gap: HOME_BAND_GAP },
   bandBody: { gap: 8 },
   bandLabel: { ...typography.eyebrow, color: TAB_COLOR, ...textShadow },
   bandText: { ...typography.body, color: colors.textPrimary, ...textShadow },

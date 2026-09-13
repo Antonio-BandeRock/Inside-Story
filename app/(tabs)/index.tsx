@@ -23,7 +23,7 @@ import { EDGE_SHADOW_HEIGHT, EdgeShadow } from '../../components/EdgeShadow';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
 import type { HelpSection } from '../../components/HelpButton';
-import { HOME_BAND_CONTENT_PADDING, HomeSectionBand, homeBandStyle } from '../../components/HomeSectionBand';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from '../../components/HomeSectionBand';
 import { AppActionSheet } from '../../components/AppActionSheet';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { ProgressRing } from '../../components/ProgressRing';
@@ -2756,12 +2756,12 @@ const styles = StyleSheet.create({
   // right side... with the padding in effect for the text or anything else
   // that is present, but not for the boxes." Each band carries its own
   // inner padding (HOME_BAND_CONTENT_PADDING); the page itself no longer
-  // insets anything. gap stays at 10, the distance between entities the
-  // same request asked to keep.
-  content: { paddingHorizontal: 0, paddingTop: 12, paddingBottom: 32, gap: 10 },
+  // insets anything. The gap between bands is HOME_BAND_GAP, the app-wide
+  // standard since 2026-09-12 (see its own comment in HomeSectionBand).
+  content: { paddingHorizontal: 0, paddingTop: 12, paddingBottom: 32, gap: HOME_BAND_GAP },
   // Shared by every band's expanded content that is a stack of things
   // (caption, buttons, a photo strip) rather than one widget.
-  bandBody: { gap: 10 },
+  bandBody: { gap: HOME_BAND_GAP },
   bandCaption: { ...typography.caption, ...textShadow, color: colors.textSecondary, lineHeight: 16 },
   // For a band whose content is one centred widget (the day arc, the orb).
   bandContentCentered: { alignItems: 'center' },
