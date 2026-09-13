@@ -1363,7 +1363,7 @@ export function MealBuilder({
             <View style={[styles.formCard, styles.emptyStateCard, { borderColor: tabColor }]}>
               <Ionicons name="checkmark-circle-outline" size={22} color={tabColor} />
               <Text style={styles.emptyStateText}>
-                {`${components.length} dish${components.length === 1 ? '' : 'es'} loaded from "${mealName.trim() || 'that meal'}". Pick a meal type to continue.`}
+                {`${components.length} dish${components.length === 1 ? '' : 'es'} in this meal so far. ${mealType ? 'Continue to keep them, or start from a different meal.' : 'Pick a meal type to continue.'}`}
               </Text>
             </View>
           ) : null}
@@ -1881,6 +1881,19 @@ export function MealBuilder({
       {confirmSheetElement}
       {reconciliationSheetElement}
       <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
+        {/* 2026-09-13, direct report after Start from a meal you have
+            landed here: "there is no way to go back once a meal is
+            selected." This screen never had a way back; the identity step
+            was a one-way Continue. Back returns to that step with the
+            name, type and every loaded dish kept, so from there a
+            different meal can be picked (it asks before replacing), the
+            type changed, or Continue pressed again. Not while adjusting a
+            past meal in place, which has no identity step to go back to. */}
+        {!editMealId ? (
+          <TouchableOpacity style={[styles.backPill, { backgroundColor: tabColor }]} onPress={() => setIdentityConfirmed(false)}>
+            <Text style={styles.backPillText}>‹ Back</Text>
+          </TouchableOpacity>
+        ) : null}
         <View style={[styles.formCard, { borderColor: tabColor }]}>
           <View style={styles.mealTitleRow}>
             <Text style={[styles.mealTitle, { color: tabColor, flex: 1 }]} numberOfLines={2}>

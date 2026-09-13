@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.12',
+    date: '2026-09-13',
+    changes: [
+      'Meal Builder has a Back pill above Your Meal. It returns to the name and type step with everything kept, so after loading a meal from Start from a meal you have you can pick a different one, change the type, or continue.',
+    ],
+  },
+  {
     version: '1.0.37.11',
     date: '2026-09-13',
     changes: [
