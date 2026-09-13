@@ -427,7 +427,13 @@ export function MealBuilder({
   const [expandedStartingPointKey, setExpandedStartingPointKey] = useState<string | null>(null);
   const [startingPointDishes, setStartingPointDishes] = useState<Record<string, SelectedComponent[]>>({});
   const [loadingDishesKey, setLoadingDishesKey] = useState<string | null>(null);
-  const [tickedDishes, setTickedDishes] = useState<Record<string, Set<string>>>({});
+  // One selection across every opened meal, not one per meal (2026-09-13,
+  // the same correction Log or Schedule a Meal took: "We need all that are
+  // ticked to be included, not just the one in the recipe that contains
+  // the button tapped"). Keyed by row and dish; the value is the dish
+  // ready to load, plus the meal it came from for the tray.
+  const [tickedDishes, setTickedDishes] = useState<Record<string, SelectedComponent & { from: string }>>({});
+  const tickedList = Object.values(tickedDishes);
 
   async function resolveStartingPointDishes(row: StartingPoint): Promise<{ dishes: SelectedComponent[]; name: string; mealType: string | null } | null> {
     let selections: MealComponentSelection[] = [];
@@ -479,12 +485,12 @@ export function MealBuilder({
     }
   }
 
-  function toggleDishTicked(rowKey: string, dishKey: string) {
+  function toggleDishTicked(key: string, dish: SelectedComponent & { from: string }) {
     setTickedDishes((current) => {
-      const next = new Set(current[rowKey] ?? []);
-      if (next.has(dishKey)) next.delete(dishKey);
-      else next.add(dishKey);
-      return { ...current, [rowKey]: next };
+      const next = { ...current };
+      if (next[key]) delete next[key];
+      else next[key] = dish;
+      return next;
     });
   }
 
@@ -527,8 +533,8 @@ export function MealBuilder({
     closeStartingPoints();
   }
 
-  // The whole meal, or only the ticked dishes when asked for those.
-  async function chooseStartingPoint(row: StartingPoint, onlyTicked: boolean) {
+  // One whole meal, keeping its name and type.
+  async function chooseStartingPoint(row: StartingPoint) {
     setLoadingStartingPoint(true);
     try {
       const resolved = startingPointDishes[row.key]
@@ -538,15 +544,16 @@ export function MealBuilder({
         showInfoAlert('Meal not found', 'That meal could not be opened. It may have been removed.');
         return;
       }
-      const ticked = tickedDishes[row.key];
-      const chosen = onlyTicked && ticked && ticked.size > 0 ? resolved.dishes.filter((dish) => ticked.has(dish.key)) : resolved.dishes;
-      // A few dishes taken out of a meal are not that meal, so its name is
-      // not carried over; the whole meal is, and keeps its name.
-      const carryName = chosen.length === resolved.dishes.length ? resolved.name : null;
-      await loadDishesIntoMeal(chosen, row.name, carryName, resolved.mealType);
+      await loadDishesIntoMeal(resolved.dishes, row.name, resolved.name, resolved.mealType);
     } finally {
       setLoadingStartingPoint(false);
     }
+  }
+
+  // Everything ticked, from however many meals. A combination is not any
+  // of the meals it was drawn from, so it carries no name and no type.
+  async function chooseTickedDishes() {
+    await loadDishesIntoMeal(tickedList, 'the meals you ticked from', null, null);
   }
 
   // The handoff from Log or Schedule a Meal (lib/mealBuilderHandoff.ts):
@@ -1400,8 +1407,7 @@ export function MealBuilder({
             {rows.map((row) => {
               const expanded = expandedStartingPointKey === row.key;
               const dishes = startingPointDishes[row.key];
-              const ticked = tickedDishes[row.key];
-              const tickedCount = ticked ? ticked.size : 0;
+
               return (
                 // A meal expands to the dishes it is made from, each one
                 // tickable, so the whole meal or only some of it can be
@@ -1427,11 +1433,12 @@ export function MealBuilder({
                         <Text style={styles.savedRowDetail}>None of the dishes in this meal could be found any more.</Text>
                       ) : (
                         <>
-                          <Text style={styles.savedRowDetail}>Made from these dishes. Tick the ones you want, or take the whole meal.</Text>
+                          <Text style={styles.savedRowDetail}>Made from these dishes. Tick any to combine with dishes from other meals, or take the whole meal.</Text>
                           {dishes.map((dish) => {
-                            const isTicked = !!ticked?.has(dish.key);
+                            const tickKey = `${row.key}::${dish.key}`;
+                            const isTicked = !!tickedDishes[tickKey];
                             return (
-                              <TouchableOpacity key={dish.key} style={styles.dishRow} onPress={() => toggleDishTicked(row.key, dish.key)}>
+                              <TouchableOpacity key={dish.key} style={styles.dishRow} onPress={() => toggleDishTicked(tickKey, { ...dish, from: row.name })}>
                                 <Ionicons name={isTicked ? 'checkbox' : 'square-outline'} size={20} color={tabColor} />
                                 <Text style={styles.dishRowName} numberOfLines={1}>
                                   {dish.name}
@@ -1442,18 +1449,18 @@ export function MealBuilder({
                           <View style={styles.buttonRow}>
                             <TouchableOpacity
                               style={[styles.secondaryButton, { flex: 1, borderColor: tabColor }]}
-                              onPress={() => void chooseStartingPoint(row, false)}
+                              onPress={() => void chooseStartingPoint(row)}
                               disabled={loadingStartingPoint}
                             >
                               <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Use the whole meal</Text>
                             </TouchableOpacity>
-                            {tickedCount > 0 ? (
+                            {tickedList.length > 0 ? (
                               <TouchableOpacity
                                 style={[styles.primaryButton, { backgroundColor: colors.buttonColor, flex: 1, marginTop: 0 }]}
-                                onPress={() => void chooseStartingPoint(row, true)}
+                                onPress={() => void chooseTickedDishes()}
                                 disabled={loadingStartingPoint}
                               >
-                                <Text style={styles.primaryButtonText}>{`Use ${tickedCount} ticked`}</Text>
+                                <Text style={styles.primaryButtonText}>{`Use all ${tickedList.length} ticked`}</Text>
                               </TouchableOpacity>
                             ) : null}
                           </View>
@@ -1507,6 +1514,42 @@ export function MealBuilder({
               )}
             </HomeSectionBand>
           </View>
+          {/* The combination so far, shown whole before it is loaded: every
+              ticked dish from every opened meal, each removable, and one
+              button that takes all of them. */}
+          {tickedList.length > 0 && !loadingStartingPoint ? (
+            <View style={styles.bandOut}>
+              <HomeSectionBand kind="static" title="Meal you are building" icon="construct-outline" color={tabColor} contentStyle={styles.bandRows}>
+                <Text style={styles.savedRowDetail}>
+                  {`${tickedList.length} dish${tickedList.length === 1 ? '' : 'es'} ticked so far. Open more meals below and tick what else belongs on the plate.`}
+                </Text>
+                {Object.entries(tickedDishes).map(([key, dish]) => (
+                  <View key={key} style={styles.savedRow}>
+                    <View style={styles.savedRowText}>
+                      <Text style={styles.savedRowName} numberOfLines={1}>
+                        {dish.name}
+                      </Text>
+                      <Text style={styles.savedRowDetail} numberOfLines={1}>
+                        {`From ${dish.from}`}
+                      </Text>
+                    </View>
+                    <TouchableOpacity onPress={() => toggleDishTicked(key, dish)} hitSlop={8}>
+                      <Ionicons name="close-circle-outline" size={22} color={colors.textMuted} />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                <TouchableOpacity
+                  style={[styles.primaryButton, { backgroundColor: colors.buttonColor, marginTop: 0 }]}
+                  onPress={() => void chooseTickedDishes()}
+                >
+                  <Text style={styles.primaryButtonText}>{`Use these ${tickedList.length} dish${tickedList.length === 1 ? '' : 'es'}`}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.secondaryButton, { borderColor: tabColor }]} onPress={() => setTickedDishes({})}>
+                  <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Clear the ticks</Text>
+                </TouchableOpacity>
+              </HomeSectionBand>
+            </View>
+          ) : null}
           {!startingPointsLoading && !loadingStartingPoint ? (
             <>
               {renderGroup('Coming up on your schedule', 'calendar-outline', plannedRows)}
@@ -1547,7 +1590,7 @@ export function MealBuilder({
             <View style={[styles.formCard, styles.emptyStateCard, { borderColor: tabColor }]}>
               <Ionicons name="checkmark-circle-outline" size={22} color={tabColor} />
               <Text style={styles.emptyStateText}>
-                {`${components.length} dish${components.length === 1 ? '' : 'es'} in this meal so far. ${mealType ? 'Continue to keep them, or start from a different meal.' : 'Pick a meal type to continue.'}`}
+                {`${components.length} dish${components.length === 1 ? '' : 'es'} in this meal so far: ${components.map((component) => component.name).join(', ')}. ${mealType ? 'Continue to keep them, or start from a different meal.' : 'Pick a meal type to continue.'}`}
               </Text>
             </View>
           ) : null}

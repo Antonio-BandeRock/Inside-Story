@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.14',
+    date: '2026-09-13',
+    changes: [
+      'Ticks now add up across meals. On Log or Schedule a Meal, tick dishes from as many meals as you like (a system recipe can be ticked as a dish too) and a Meal you are building box at the top shows every one of them, where it came from, and a button that builds a meal from all of them. Each opened meal\'s own button builds from all the ticks as well, not only its own.',
+      'Meal Builder\'s Start from a meal you have works the same way: ticks add up across meals, the combination shows above the list, and Use these N dishes loads all of them.',
+      'Before a meal type is picked, the name-and-type step now names every dish loaded so far, so the whole combination is in view before anything is created.',
+    ],
+  },
+  {
     version: '1.0.37.13',
     date: '2026-09-13',
     changes: [

@@ -95,15 +95,19 @@ type PickableMeal =
   // carries that id rather than the schedule item's.
   | { kind: 'planned'; id: string; favoriteId: string; name: string; mealType: string; scheduledFor: string };
 
-// The order the Digest's own Recipes category already lists these in, reused
-// rather than invented, so a system meal sits where someone who has browsed
-// Recipes would expect it.
 // One dish inside a meal, as a key for the tick state.
 function dishKey(dish: { componentType: string; componentId: string }, index: number): string {
   // Indexed, since a meal can hold the same saved dish twice.
   return `${dish.componentType}_${dish.componentId}_${index}`;
 }
 
+// One ticked dish, wherever it came from: what Meal Builder needs to load
+// it, plus the name and the meal it was taken from for the tray.
+type TickedDish = { name: string; from: string; item: BuildMealItem };
+
+// The order the Digest's own Recipes category already lists these in, reused
+// rather than invented, so a system meal sits where someone who has browsed
+// Recipes would expect it.
 const BUILDER_SECTIONS: { type: BuilderFavoriteItemType; label: string }[] = [
   { type: 'side', label: 'Sides' },
   { type: 'salad', label: 'Salads & Bowls' },
@@ -230,45 +234,58 @@ export function FindMealView({
   // itself is reloaded whenever the search or scope changes, which is when this
   // could go stale.
   const [detailByKey, setDetailByKey] = useState<Record<string, MealPickerDetail>>({});
-  // Dishes ticked inside an expanded meal, by row key, for "Build a meal
-  // with this" (2026-09-13): the whole meal when nothing is ticked, only
-  // the ticked dishes otherwise.
-  const [tickedDishes, setTickedDishes] = useState<Record<string, Set<string>>>({});
+  // Dishes ticked across EVERY opened meal, one selection for the whole
+  // screen, 2026-09-13. The first cut kept ticks per meal, so the button in
+  // each meal counted only its own: "each one says on the button Build a
+  // meal with the 1 ticked, instead of taking into account those that are
+  // ticked from other recipes. We need all that are ticked to be included."
+  // Keyed by row and dish so the same saved dish inside two meals is two
+  // ticks; the value carries what Meal Builder needs and where it came
+  // from, so the tray can list the combination before it is built.
+  const [tickedDishes, setTickedDishes] = useState<Record<string, TickedDish>>({});
+  const tickedList = Object.values(tickedDishes);
   const router = useRouter();
 
-  function toggleDishTicked(rowKey: string, dishKey: string) {
+  function toggleDishTicked(key: string, dish: TickedDish) {
     setTickedDishes((current) => {
-      const next = new Set(current[rowKey] ?? []);
-      if (next.has(dishKey)) next.delete(dishKey);
-      else next.add(dishKey);
-      return { ...current, [rowKey]: next };
+      const next = { ...current };
+      if (next[key]) delete next[key];
+      else next[key] = dish;
+      return next;
     });
   }
 
-  // Sends a meal, or the dishes ticked out of it, into Meal Builder. A
-  // system recipe is one dish and travels by its recipe id; everything
-  // else travels as the saved records the meal is made from. Pushing this
-  // tab's own route with the new param is what its focus effect reacts
-  // to, the same way Use this Favorite already opens the builder.
-  function buildMealWith(rowKey: string, meal: PickableMeal, detail: MealPickerDetail | undefined) {
-    let items: BuildMealItem[] = [];
-    let name: string | undefined = meal.name;
-    if (meal.kind === 'curated') {
-      items = [{ curatedRecipeId: meal.id }];
-    } else if (detail) {
-      const ticked = tickedDishes[rowKey];
-      const chosen = ticked && ticked.size > 0 ? detail.dishes.filter((dish, index) => ticked.has(dishKey(dish, index))) : detail.dishes;
-      items = chosen.map((dish) => ({ componentType: dish.componentType, componentId: dish.componentId }));
-      // A few dishes taken out of a meal are not that meal, so its name
-      // is not carried over; the whole meal is, and keeps its name.
-      if (chosen.length !== detail.dishes.length) name = undefined;
-    }
+  // Pushing this tab's own route with the new param is what its focus
+  // effect reacts to, the same way Use this Favorite already opens Meal
+  // Builder. A nonce so picking the same thing twice is two distinct
+  // params, since the focus effect only reacts to a param that changed.
+  function sendToMealBuilder(items: BuildMealItem[], name: string | undefined, mealType: string | undefined) {
     if (items.length === 0) return;
-    const mealType = meal.kind === 'meal' || meal.kind === 'planned' ? meal.mealType : undefined;
-    // A nonce so picking the same meal twice is two distinct params, since
-    // the focus effect only reacts to a param that changed.
     const buildMealFrom = encodeBuildMealHandoff({ name, mealType, items, nonce: Date.now() });
     router.push({ pathname: '/food', params: { buildMealFrom } });
+  }
+
+  // One whole meal into Meal Builder, keeping its name and type. A system
+  // recipe is one dish and travels by its recipe id; everything else
+  // travels as the saved records the meal is made from.
+  function buildMealWithWhole(meal: PickableMeal, detail: MealPickerDetail | undefined) {
+    const items: BuildMealItem[] =
+      meal.kind === 'curated'
+        ? [{ curatedRecipeId: meal.id }]
+        : (detail?.dishes ?? []).map((dish) => ({ componentType: dish.componentType, componentId: dish.componentId }));
+    const mealType = meal.kind === 'meal' || meal.kind === 'planned' ? meal.mealType : undefined;
+    sendToMealBuilder(items, meal.name, mealType);
+  }
+
+  // Everything ticked, from however many meals, as one new meal. A
+  // combination is not any of the meals it was drawn from, so it carries
+  // no name and no type: Meal Builder asks for the type first.
+  function buildMealWithTicked() {
+    sendToMealBuilder(
+      tickedList.map((dish) => dish.item),
+      undefined,
+      undefined,
+    );
   }
   const [loadingIngredientsKey, setLoadingIngredientsKey] = useState<string | null>(null);
 
@@ -679,6 +696,7 @@ export function FindMealView({
         data={sections}
         keyExtractor={(section) => section.key}
         ListHeaderComponent={
+          <View style={styles.headerStack}>
           <View style={[styles.panel, styles.listHeader]}>
             {/* Says what this screen is for before anything is picked,
                 2026-09-13, the same line the Food row that opens it carries. */}
@@ -721,6 +739,42 @@ export function FindMealView({
             />
             {loading ? <ActivityIndicator color={colors.accent} /> : null}
           </View>
+          {/* The meal being put together from ticked dishes, shown whole
+              before it is built (2026-09-13: "show the entire meal to let
+              the user choose to create this combination of food as a
+              meal"). Every ticked dish from every opened meal, each
+              removable here, and one button that builds from all of them. */}
+          {tickedList.length > 0 ? (
+            <HomeSectionBand kind="static" title="Meal you are building" icon="construct-outline" color={colors.tabFood} contentStyle={styles.sectionBody}>
+              <Text style={styles.muted}>
+                {`${tickedList.length} dish${tickedList.length === 1 ? '' : 'es'} ticked so far. Open more meals below and tick what else belongs on the plate, then build it.`}
+              </Text>
+              {Object.entries(tickedDishes).map(([key, dish]) => (
+                <View key={key} style={[styles.rowWrap, styles.row]}>
+                  <Ionicons name="checkbox" size={18} color={colors.accent} style={textShadow} />
+                  <View style={styles.rowTextWrap}>
+                    <Text style={styles.rowName} numberOfLines={1}>
+                      {dish.name}
+                    </Text>
+                    <Text style={styles.rowMeta} numberOfLines={1}>
+                      {`From ${dish.from}`}
+                    </Text>
+                  </View>
+                  <TouchableOpacity onPress={() => toggleDishTicked(key, dish)} hitSlop={8}>
+                    <Ionicons name="close-circle-outline" size={20} color={colors.textPrimary} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              <TouchableOpacity style={styles.useButton} activeOpacity={0.85} onPress={buildMealWithTicked}>
+                <Ionicons name="construct-outline" size={16} color={colors.background} />
+                <Text style={styles.useButtonText}>{`Build a meal with these ${tickedList.length} dish${tickedList.length === 1 ? '' : 'es'}`}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.buildButton} activeOpacity={0.85} onPress={() => setTickedDishes({})}>
+                <Text style={styles.buildButtonText}>Clear the ticks</Text>
+              </TouchableOpacity>
+            </HomeSectionBand>
+          ) : null}
+        </View>
         }
         ListEmptyComponent={
           loading ? null : (
@@ -798,20 +852,32 @@ export function FindMealView({
                             </Text>
                           ) : null}
                           {/* The dishes a meal is made from, each one
-                              tickable, so one can go into Meal Builder
-                              without the rest (2026-09-13). A system
-                              recipe is one dish and has no list. */}
+                              tickable into the one selection the whole
+                              screen shares (see tickedDishes), so dishes
+                              from several meals can go into Meal Builder
+                              together. A system recipe is one dish, so it
+                              gets one tick for itself. */}
                           {detail && detail.dishes.length > 0 ? (
                             <>
                               <Text style={styles.detailLine}>
                                 <Text style={styles.detailLabel}>Made from these dishes. </Text>
-                                Tick any to build a meal with only those.
+                                Tick any to combine with dishes from other meals.
                               </Text>
                               {detail.dishes.map((dish, index) => {
-                                const key = dishKey(dish, index);
-                                const isTicked = !!tickedDishes[item.key]?.has(key);
+                                const key = `${item.key}::${dishKey(dish, index)}`;
+                                const isTicked = !!tickedDishes[key];
                                 return (
-                                  <TouchableOpacity key={key} style={styles.dishRow} onPress={() => toggleDishTicked(item.key, key)}>
+                                  <TouchableOpacity
+                                    key={key}
+                                    style={styles.dishRow}
+                                    onPress={() =>
+                                      toggleDishTicked(key, {
+                                        name: dish.name,
+                                        from: item.meal.name,
+                                        item: { componentType: dish.componentType, componentId: dish.componentId },
+                                      })
+                                    }
+                                  >
                                     <Ionicons name={isTicked ? 'checkbox' : 'square-outline'} size={20} color={colors.accent} />
                                     <Text style={styles.dishRowName} numberOfLines={1}>
                                       {dish.name}
@@ -820,6 +886,20 @@ export function FindMealView({
                                 );
                               })}
                             </>
+                          ) : item.meal.kind === 'curated' ? (
+                            <TouchableOpacity
+                              style={styles.dishRow}
+                              onPress={() =>
+                                toggleDishTicked(`${item.key}::self`, {
+                                  name: item.meal.name,
+                                  from: 'System recipes',
+                                  item: { curatedRecipeId: item.meal.id },
+                                })
+                              }
+                            >
+                              <Ionicons name={tickedDishes[`${item.key}::self`] ? 'checkbox' : 'square-outline'} size={20} color={colors.accent} />
+                              <Text style={styles.dishRowName}>Tick to combine this dish with others into a meal</Text>
+                            </TouchableOpacity>
                           ) : detail && detail.components.length > 0 ? (
                             <Text style={styles.detailLine}>
                               <Text style={styles.detailLabel}>Made from: </Text>
@@ -852,23 +932,26 @@ export function FindMealView({
                         <Ionicons name="checkmark-circle-outline" size={16} color={colors.background} />
                         <Text style={styles.useButtonText}>Use this meal</Text>
                       </TouchableOpacity>
-                      {/* Into Meal Builder: a system recipe as one dish, any
-                          other meal whole or only its ticked dishes. A
+                      {/* Into Meal Builder. While anything is ticked
+                          anywhere on the screen, the button here builds
+                          from ALL of it (the tray at the top shows the
+                          combination); otherwise it takes this whole
+                          meal, or this one dish for a system recipe. A
                           logged meal entered as a flat ingredient list has
                           no dishes to carry and gets no button. */}
                       {item.meal.kind === 'curated' || (detail && detail.dishes.length > 0) ? (
                         <TouchableOpacity
                           style={styles.buildButton}
                           activeOpacity={0.85}
-                          onPress={() => buildMealWith(item.key, item.meal, detail)}
+                          onPress={() => (tickedList.length > 0 ? buildMealWithTicked() : buildMealWithWhole(item.meal, detail))}
                         >
                           <Ionicons name="construct-outline" size={16} color={colors.tabFood} />
                           <Text style={styles.buildButtonText}>
-                            {(tickedDishes[item.key]?.size ?? 0) > 0
-                              ? `Build a meal with the ${tickedDishes[item.key]!.size} ticked`
+                            {tickedList.length > 0
+                              ? `Build a meal with all ${tickedList.length} ticked`
                               : item.meal.kind === 'curated'
                                 ? 'Build a meal with this dish'
-                                : 'Build a meal with this'}
+                                : 'Build a meal with this whole meal'}
                           </Text>
                         </TouchableOpacity>
                       ) : null}
@@ -1060,6 +1143,9 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
   panel: { ...homeBandStyle, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING, gap: 10 },
   listHeader: { marginBottom: 0 },
+  // The header panel and, once anything is ticked, the tray beneath it,
+  // the standard gap apart like every other band on the screen.
+  headerStack: { gap: HOME_BAND_GAP },
   // The rows inside a section band, the standard gap apart, no top padding
   // since the band's header row already separates its name from the first.
   sectionBody: { gap: HOME_BAND_GAP },
