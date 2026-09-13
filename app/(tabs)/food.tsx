@@ -27,7 +27,6 @@ import { TabDesktopMenu } from '../../components/TabDesktopMenu';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from '../../components/HomeSectionBand';
 import { colors } from '../../constants/colors';
-import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
 import {
   listBakedGoods,
@@ -482,7 +481,6 @@ export default function FoodScreen() {
   // even once a builder is open, since this Desktop only ever shows at
   // rest (see GatedTabContent's own restingContent, passed below).
   const [desktopSubmenu, setDesktopSubmenu] = useState<'saved-favorites' | null>(null);
-  const desktopScrollPadding = useFloatingButtonScrollPadding();
   // A real food-trial round trip, 2026-08-14 -- see lib/pendingFoodTrialReturn.ts's
   // own comment for the full "why." A ref, not state, deliberately -- this
   // screen itself never unmounts on a tab switch (app/(tabs)/_layout.tsx's
@@ -1213,12 +1211,12 @@ export default function FoodScreen() {
   // description the way Digest's own topic menu gets, this tab has
   // nothing written for that yet) plus a breadcrumb back link once
   // drilled into "Saved & Favorites," the same shape Digest's own
-  // drilldown header already established. contentContainerStyle reads
-  // useFloatingButtonScrollPadding() the same way every other scrollable
-  // screen in this app already does, so the last row always clears the
-  // floating hub buttons rather than sitting behind them.
+  // drilldown header already established. No floating-button clearance
+  // at the end since 2026-09-13: GatedTabContent now insets the whole
+  // resting area above the footer band, and the hub buttons sit inside
+  // that band, so the last row already stops above them.
   const foodDesktopContent = (
-    <ScrollView contentContainerStyle={[styles.desktopContent, { paddingBottom: desktopScrollPadding }]} showsVerticalScrollIndicator={false}>
+    <ScrollView contentContainerStyle={styles.desktopContent} showsVerticalScrollIndicator={false}>
       {desktopSubmenu === 'saved-favorites' ? (
         <TouchableOpacity onPress={() => setDesktopSubmenu(null)} activeOpacity={0.7}>
           <Text style={styles.desktopBackLink}>‹ Back to My Foods</Text>
@@ -1498,7 +1496,7 @@ const styles = StyleSheet.create({
   // padding, and the top starts flush because GatedTabContent's own
   // resting column already puts the standard band gap between its prompt
   // box (which now carries the My Foods heading and blurb) and this.
-  desktopContent: { paddingHorizontal: 0, paddingTop: 0, gap: HOME_BAND_GAP },
+  desktopContent: { paddingHorizontal: 0, paddingTop: 0, paddingBottom: HOME_BAND_GAP, gap: HOME_BAND_GAP },
   desktopBackLink: {
     ...typography.body,
     color: colors.textOnPrimary,

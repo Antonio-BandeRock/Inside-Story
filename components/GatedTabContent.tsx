@@ -5,7 +5,7 @@ import { colors } from '../constants/colors';
 import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
-import { ScreenBackground, type BackgroundVariant } from './ScreenBackground';
+import { ScreenBackground, useBackgroundBottomInset, type BackgroundVariant } from './ScreenBackground';
 
 // 2026-07-26: replaces every non-Home tab's own distinct background always
 // being on screen. Instead, every one of them rests on the *same* shared
@@ -120,13 +120,22 @@ export function GatedTabContent({
 
   const route = TAB_ROUTES.find((entry) => entry.title === pageTitle);
   const tabColor = route?.color ?? colors.primary;
+  // The footer band's own height. A revealed lens renders inside
+  // ScreenBackground, whose opaque bottom mask covers anything scrolled
+  // beneath the band; the resting area has no mask and the shared band is
+  // a layer under this screen, so resting content that scrolls (Food's
+  // twenty-three-row Saved & Favorites list, reported 2026-09-13 as "the
+  // next screen doesn't have the footer at the bottom") slid over the band
+  // and hid it. Insetting the resting area by the same height keeps its
+  // scroll viewport above the band, the edge the revealed state respects.
+  const footerBandHeight = useBackgroundBottomInset();
 
   return (
     <View style={styles.body}>
       {revealed ? (
         <ScreenBackground variant={variant} routeKey={routeKey}>{children}</ScreenBackground>
       ) : (
-        <View style={styles.restingWrap}>
+        <View style={[styles.restingWrap, { paddingBottom: footerBandHeight }]}>
           {/* 2026-08-30. The menu no longer opens itself on arrival (see
               hooks/useAutoOpenLensHubSignal.ts), so something has to say where
               the tools are. This is that: one box, at the top of every tab's

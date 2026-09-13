@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.3',
+    date: '2026-09-13',
+    changes: [
+      'A long list on a tab\'s resting screen (Food\'s Saved & Favorites) no longer slides over the footer band at the bottom as it scrolls. The resting area now stops at the top of the band, the same edge every opened tool already respects.',
+    ],
+  },
+  {
     version: '1.0.37.2',
     date: '2026-09-13',
     changes: [
