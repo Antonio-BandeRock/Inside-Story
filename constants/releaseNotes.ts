@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.18',
+    date: '2026-09-13',
+    changes: [
+      'In every builder, Find a Recipe now comes first: the four links (My Kitchen, Recipes Shared With Me, the built-in Recipes, My Favorites) lead the first card, and Or Create a New Recipe heads the name and servings form beneath them.',
+    ],
+  },
+  {
     version: '1.0.37.17',
     date: '2026-09-13',
     changes: [

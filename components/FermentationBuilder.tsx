@@ -2211,6 +2211,56 @@ export function FermentationBuilder({
       >
       {!servingsConfirmed ? (
         <View style={[styles.formCard, { borderColor: tabColor }]}>
+          {/* "Find a Recipe" leads the card, 2026-09-13, direct instruction:
+              "For each of the builders, the Find a Recipe area should be
+              above and it should say at the bottom of them 'Or Create a
+              New Recipe'." The four links are unchanged from their
+              2026-08-16 form (each a deep link into the Digest category
+              that shows the full recipe); only their place and the two
+              headings moved. Same guard as before: an edit or a favorite
+              resume in progress is never offered a reason to leave. */}
+          {!editFermentationId && !fromFavoriteId ? (
+            <View style={styles.findRecipeSection}>
+              <Text style={[styles.formLabel, { color: tabColor }]}>Find a Recipe</Text>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  My Kitchen (your own saved fermentations)
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  Recipes Shared With Me
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'recipes' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  Recipes (built into the app)
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myFavorites' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  My Favorites
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <Text style={[styles.formLabel, styles.createNewLabel, { color: tabColor }]}>Or Create a New Recipe</Text>
+            </View>
+          ) : null}
           {/* Pick a Premade Recipe -- see showRecipeMenu's own comment
               above. Its own separate bordered block, sitting above the
               plain Name/Servings form rather than replacing it, so
@@ -2501,57 +2551,6 @@ export function FermentationBuilder({
           >
             <Text style={[styles.primaryButtonText, !fermentationFormReady && styles.primaryButtonTextMuted]}>Continue</Text>
           </TouchableOpacity>
-
-          {/* "Or Find a Recipe" -- 2026-08-16, see SideBuilder.tsx's own
-              identical section for the full reasoning: this used to be an
-              inline list of this builder's own curated recipe cards, shown
-              ABOVE the fields/Continue button above. Recipes shouldn't be
-              duplicated here in a stripped-down form at all -- Purple
-              Digest's own Recipes/My Kitchen/My Favorites categories
-              already show the full real detail. Each row is a real deep
-              link (openDigestLens) straight into that category. */}
-          {!editFermentationId && !fromFavoriteId ? (
-            <View style={styles.findRecipeSection}>
-              <View style={[styles.findRecipeDivider, { borderColor: tabColor }]} />
-              <Text style={[styles.formLabel, { color: tabColor }]}>Or Find a Recipe</Text>
-              <TouchableOpacity
-                style={styles.findRecipeLink}
-                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
-              >
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
-                  My Kitchen (your own saved fermentations)
-                </Text>
-                <Ionicons name="chevron-forward" size={16} color={tabColor} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.findRecipeLink}
-                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
-              >
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
-                  Recipes Shared With Me
-                </Text>
-                <Ionicons name="chevron-forward" size={16} color={tabColor} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.findRecipeLink}
-                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'recipes' } })}
-              >
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
-                  Recipes (built into the app)
-                </Text>
-                <Ionicons name="chevron-forward" size={16} color={tabColor} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.findRecipeLink}
-                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myFavorites' } })}
-              >
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
-                  My Favorites
-                </Text>
-                <Ionicons name="chevron-forward" size={16} color={tabColor} />
-              </TouchableOpacity>
-            </View>
-          ) : null}
         </View>
       ) : (
         <>
@@ -3106,12 +3105,13 @@ const styles = StyleSheet.create({
   // section for the full reasoning. Sits below Continue now, not above the
   // fields.
   findRecipeSection: {
-    marginTop: 20,
+    marginBottom: 4,
   },
-  findRecipeDivider: {
-    borderBottomWidth: 1,
+  // "Or Create a New Recipe", closing the Find a Recipe section and
+  // heading the form beneath it.
+  createNewLabel: {
+    marginTop: 16,
     marginBottom: 12,
-    opacity: 0.3,
   },
   findRecipeLink: {
     flexDirection: 'row',

@@ -1858,6 +1858,56 @@ export function SaladBuilder({
       >
       {!servingsConfirmed ? (
         <View style={[styles.formCard, { borderColor: tabColor }]}>
+          {/* "Find a Recipe" leads the card, 2026-09-13, direct instruction:
+              "For each of the builders, the Find a Recipe area should be
+              above and it should say at the bottom of them 'Or Create a
+              New Recipe'." The four links are unchanged from their
+              2026-08-16 form (each a deep link into the Digest category
+              that shows the full recipe); only their place and the two
+              headings moved. Same guard as before: an edit or a favorite
+              resume in progress is never offered a reason to leave. */}
+          {!editSaladId && !fromFavoriteId ? (
+            <View style={styles.findRecipeSection}>
+              <Text style={[styles.formLabel, { color: tabColor }]}>Find a Recipe</Text>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  My Kitchen (your own saved salads)
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  Recipes Shared With Me
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'recipes' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  Recipes (built into the app)
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myFavorites' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  My Favorites
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <Text style={[styles.formLabel, styles.createNewLabel, { color: tabColor }]}>Or Create a New Recipe</Text>
+            </View>
+          ) : null}
           {/* 2026-08-16 -- the only visible feedback left for a recipe
               loading in via the openRecipeId deep link now that the inline
               "Or Start From a Recipe" cards (each with their own tap-time
@@ -1972,72 +2022,6 @@ export function SaladBuilder({
           >
             <Text style={[styles.primaryButtonText, !saladFormReady && styles.primaryButtonTextMuted]}>Continue</Text>
           </TouchableOpacity>
-
-          {/* "Or Find a Recipe" -- 2026-08-16, direct request: this used to
-              be an inline list of this builder's own curated recipe cards,
-              shown ABOVE the fields/Continue button above. Two real,
-              separate fixes at once: the fields are the actual point of
-              this screen and belong first, not buried below a scrollable
-              card list; and recipes shouldn't be duplicated here in a
-              second, stripped-down form at all -- Digest's own
-              Recipes/My Kitchen/My Favorites categories already show the
-              full real detail (ingredients, instructions, computed
-              nutrition, condition cautions) this list never did. Each row
-              is a real deep link (openDigestLens, see purple-digest.tsx's
-              own focus effect) straight into that category, revealed
-              immediately rather than leaving someone to find it themselves
-              via LensHub afterward.
-              "Recipes Shared With Me" and "My Kitchen" both open the
-              identical myKitchen lens -- that's genuinely one real screen,
-              not two, since a share someone sent already surfaces there as
-              its own first shelf. Kept as two separate rows anyway: a
-              person reads them as two different real sources of a recipe,
-              even though they land in the same place.
-              Same !editSaladId/!fromFavoriteId guard the old inline list
-              already used -- a genuine edit or favorite-resume in progress
-              is never offered a reason to navigate away from it. */}
-          {!editSaladId && !fromFavoriteId ? (
-            <View style={styles.findRecipeSection}>
-              <View style={[styles.findRecipeDivider, { borderColor: tabColor }]} />
-              <Text style={[styles.formLabel, { color: tabColor }]}>Or Find a Recipe</Text>
-              <TouchableOpacity
-                style={styles.findRecipeLink}
-                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
-              >
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
-                  My Kitchen (your own saved salads)
-                </Text>
-                <Ionicons name="chevron-forward" size={16} color={tabColor} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.findRecipeLink}
-                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
-              >
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
-                  Recipes Shared With Me
-                </Text>
-                <Ionicons name="chevron-forward" size={16} color={tabColor} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.findRecipeLink}
-                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'recipes' } })}
-              >
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
-                  Recipes (built into the app)
-                </Text>
-                <Ionicons name="chevron-forward" size={16} color={tabColor} />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.findRecipeLink}
-                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myFavorites' } })}
-              >
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
-                  My Favorites
-                </Text>
-                <Ionicons name="chevron-forward" size={16} color={tabColor} />
-              </TouchableOpacity>
-            </View>
-          ) : null}
         </View>
       ) : (
         <>
@@ -2504,12 +2488,13 @@ const styles = StyleSheet.create({
   // builder's own recipe cards); see this section's own render-side comment
   // for the full reasoning. Sits below Continue now, not above the fields.
   findRecipeSection: {
-    marginTop: 20,
+    marginBottom: 4,
   },
-  findRecipeDivider: {
-    borderBottomWidth: 1,
+  // "Or Create a New Recipe", closing the Find a Recipe section and
+  // heading the form beneath it.
+  createNewLabel: {
+    marginTop: 16,
     marginBottom: 12,
-    opacity: 0.3,
   },
   findRecipeLink: {
     flexDirection: 'row',
