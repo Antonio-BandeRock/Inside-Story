@@ -19,14 +19,20 @@ import {
   getNutrientChartDataForIngredients,
   getUserConditions,
   listAllConditions,
+  listCuratedRecipeComponentOptions,
+  listFavorites,
   listMealComponentOptions,
+  listRecentDistinctMeals,
+  listScheduledMealsForDateRange,
   markScheduledMealLogged,
+  materializeCuratedRecipeAsMealComponent,
   resolveMealComponent,
   revertFoodTrialToWaiting,
   saveMealFavorite,
   scheduleMeal,
   setConditionStage,
   updateMealFromComponents,
+  type CuratedComponentOption,
   type MealComponentOption,
   type MealComponentSelection,
   type MealComponentType,
@@ -61,6 +67,15 @@ import { VoiceInputButton } from './VoiceInputButton';
 // Schedule already has its own independent "schedule a meal" flow that
 // doesn't require Meal Builder at all, so this isn't a hard gap the way the
 // Log Now dead end was.
+//
+// 2026-09-13: a meal is no longer assembled only from what the person has
+// built. Every "Add from..." category lists the system recipes of that
+// builder alongside the person's own saved dishes (a system pick becomes a
+// hidden carrier record the moment it is confirmed, see
+// materializeCuratedRecipeAsMealComponent in lib/db.ts), and "Start from a
+// meal you have" loads a meal favorite, a meal on the schedule, or a past
+// logged meal as the starting point. The old "nothing to build from yet"
+// gate is gone with it: there is always something to build from now.
 //
 // Same vocabulary as Schedule's own mealTypes -- kept as a separate literal
 // here rather than importing across screen files, same precedent already
@@ -110,7 +125,11 @@ const CATEGORY_META: { type: MealComponentType; label: string; icon: keyof typeo
 const MEAL_BUILDER_HELP: HelpSection[] = [
   {
     heading: '"Add from...": what it actually does',
-    body: "Each button opens your own already-saved or favorited items from that one builder: a saved side, a favorited smoothie, and so on. Tap a category, pick one of your own saved items from the list, then say how much of it you actually had. It never creates anything new here; it only pulls in something you've already built and saved elsewhere. Once a category's own list is open, a search box lets you find one by its name or by an ingredient in it.",
+    body: "Each button opens that one builder's dishes: anything you have built and saved there yourself, followed by the system recipes for that builder. Tap a category, pick a dish from either list, then say how much of it you actually had. A search box at the top of the list finds a dish by its name or by an ingredient in it, across both lists at once. Picking a system recipe never adds it to your own saved dishes; it only becomes part of this meal.",
+  },
+  {
+    heading: 'Start from a meal you have',
+    body: 'Instead of adding one dish at a time, load a whole meal as the starting point: one of your meal favorites, a meal already on your schedule, or a meal you have logged before. Everything in it lands here with its amounts, and you can add, remove, or change any of it before logging. Loading one replaces whatever is in this meal so far, and it asks first if anything is.',
   },
   {
     heading: 'What the percent under each item means',
@@ -141,6 +160,43 @@ function todayLocalDateString(): string {
   const now = new Date();
   const pad = (value: number) => String(value).padStart(2, '0');
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+// How far ahead "Start from a meal you have" looks for planned meals: one
+// whole 6-week plan, the same window Log or Schedule a Meal uses.
+const STARTING_POINT_LOOKAHEAD_DAYS = 42;
+
+function dateStringDaysFromToday(days: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+// "today at 6:30 PM", "tomorrow at 12:30 PM", or the date for anything
+// further out, from a schedule_items scheduled_for ("YYYY-MM-DDTHH:mm").
+function describeScheduledFor(scheduledFor: string): string {
+  const day = scheduledFor.slice(0, 10);
+  const time = scheduledFor.length >= 16 ? formatTime12(scheduledFor.slice(11, 16)) : '';
+  const when = day === todayLocalDateString() ? 'today' : day === dateStringDaysFromToday(1) ? 'tomorrow' : `on ${day}`;
+  return time ? `${when} at ${time}` : when;
+}
+
+// One whole meal offered as a starting point. A planned meal loads through
+// its carrier favorite (the same resolution Log Now already uses), a favorite
+// through itself, a logged meal through its own meal_components rows.
+type StartingPoint =
+  | { kind: 'planned'; key: string; favoriteId: string; name: string; mealType: string | null; detail: string }
+  | { kind: 'favorite'; key: string; favoriteId: string; name: string; mealType: string | null; detail: string }
+  | { kind: 'logged'; key: string; mealId: string; name: string; mealType: string | null; detail: string };
+
+// Name or ingredient match for the "Add from..." search box: someone might
+// remember "the side with broccoli in it" as readily as its given name, and
+// both saved and system rows carry an ingredient summary.
+function optionMatchesQuery(option: MealComponentOption, rawQuery: string): boolean {
+  const query = rawQuery.trim().toLowerCase();
+  if (!query) return true;
+  return option.name.toLowerCase().includes(query) || (option.ingredientNames ?? '').toLowerCase().includes(query);
 }
 
 // Part 5's own "Fix the date" step, 2026-08-14 -- the trial-correction date
@@ -266,38 +322,155 @@ export function MealBuilder({
   // component list starts empty and fills in).
   const [identityConfirmed, setIdentityConfirmed] = useState(!!scheduleItemId || !!favoriteId || !!editMealId);
 
-  // A meal can only be assembled FROM the other ten builders' own saved
-  // output (see this file's own top comment) -- with nothing saved
-  // anywhere yet, "Add from..." would just be ten empty lists, so
-  // Continue is blocked before that dead end is ever reached, 2026-08-08,
-  // explicitly requested: "The Meal builder should not allow the Continue
-  // button to turn green and activate... [it] should actually say
-  // something that causes the user to know they have to make sides or
-  // other things before a meal can be built." null while the real check is
-  // still in flight (Continue stays muted/disabled either way, since
-  // identityReady below requires a confirmed `true`, not just "not
-  // false") -- only flips to a definite true/false once every category has
-  // actually been checked, so this can never say "you have nothing" while
-  // still genuinely finding out. Reruns on every mount, which in practice
-  // is every time this screen is actually reached -- switching to a
-  // different builder and back is a real unmount/remount of this whole
-  // component (see food.tsx's own lens ternary), so building a first Side
-  // elsewhere and returning here always sees the fresh count, no separate
-  // focus-listener needed.
-  const [hasAnySavedComponents, setHasAnySavedComponents] = useState<boolean | null>(null);
-  useEffect(() => {
-    let isCurrent = true;
-    Promise.all(CATEGORY_META.map((entry) => listMealComponentOptions(entry.type))).then((lists) => {
-      if (isCurrent) setHasAnySavedComponents(lists.some((list) => list.length > 0));
-    });
-    return () => {
-      isCurrent = false;
-    };
-  }, []);
-
-  const identityReady = !!mealType && hasAnySavedComponents === true;
+  // The 2026-08-08 "nothing to build from yet" gate (Continue blocked until
+  // some other builder had a saved record) is gone as of 2026-09-13: every
+  // category now lists the system recipes too, so a first-time user can
+  // assemble a whole meal without having built anything first.
+  const identityReady = !!mealType;
 
   const [components, setComponents] = useState<SelectedComponent[]>([]);
+
+  // "Start from a meal you have", 2026-09-13. Three kinds of whole meal this
+  // app already holds, each loaded into `components` the same way the
+  // templateMealId/favoriteId effects below already resolve one: a meal
+  // favorite (its own components), a meal still planned on the schedule
+  // (its carrier favorite's components, the same resolution Log Now uses),
+  // and a past logged meal that was assembled from components (its own
+  // meal_components rows). A past meal entered as a flat ingredient list
+  // has no components to load and is left out rather than shown as an
+  // empty row. Loaded only when the picker is opened, since the rest of
+  // this screen never needs any of it.
+  const [browsingStartingPoints, setBrowsingStartingPoints] = useState(false);
+  const [startingPointsLoading, setStartingPointsLoading] = useState(false);
+  const [startingPoints, setStartingPoints] = useState<StartingPoint[]>([]);
+  const [startingPointSearch, setStartingPointSearch] = useState('');
+  const [loadingStartingPoint, setLoadingStartingPoint] = useState(false);
+
+  async function openStartingPoints() {
+    dismissKeyboard();
+    setBrowsingStartingPoints(true);
+    setStartingPointsLoading(true);
+    setStartingPointSearch('');
+    try {
+      const [favorites, scheduled, recent] = await Promise.all([
+        listFavorites(200, 'meal'),
+        listScheduledMealsForDateRange(todayLocalDateString(), dateStringDaysFromToday(STARTING_POINT_LOOKAHEAD_DAYS)),
+        listRecentDistinctMeals(200),
+      ]);
+      const rows: StartingPoint[] = [];
+      // One row per distinct planned name, the same dedupe Log or Schedule a
+      // Meal already makes: a 6-week plan repeats its dishes.
+      const seenPlanned = new Set<string>();
+      for (const item of scheduled) {
+        if (item.status !== 'planned' || !item.sourceFavoriteId) continue;
+        const nameKey = item.title.toLowerCase();
+        if (seenPlanned.has(nameKey)) continue;
+        seenPlanned.add(nameKey);
+        rows.push({
+          kind: 'planned',
+          key: `planned_${item.id}`,
+          favoriteId: item.sourceFavoriteId,
+          name: item.title,
+          mealType: item.mealType ?? null,
+          detail: `On your schedule ${describeScheduledFor(item.scheduledFor)}`,
+        });
+      }
+      for (const favorite of favorites) {
+        rows.push({ kind: 'favorite', key: `favorite_${favorite.id}`, favoriteId: favorite.id, name: favorite.name, mealType: null, detail: 'A meal favorite' });
+      }
+      for (const meal of recent) {
+        if (!meal.hasComponents) continue;
+        rows.push({
+          kind: 'logged',
+          key: `logged_${meal.id}`,
+          mealId: meal.id,
+          name: meal.name,
+          mealType: meal.mealType,
+          detail: `Logged ${meal.timesLogged === 1 ? 'once' : `${meal.timesLogged} times`}, last ${meal.eatenAt.slice(0, 10)}`,
+        });
+      }
+      setStartingPoints(rows);
+    } finally {
+      setStartingPointsLoading(false);
+    }
+  }
+
+  function closeStartingPoints() {
+    setBrowsingStartingPoints(false);
+    setStartingPoints([]);
+    setStartingPointSearch('');
+  }
+
+  const filteredStartingPoints = useMemo(() => {
+    const query = startingPointSearch.trim().toLowerCase();
+    if (!query) return startingPoints;
+    return startingPoints.filter((row) => row.name.toLowerCase().includes(query));
+  }, [startingPoints, startingPointSearch]);
+
+  async function chooseStartingPoint(row: StartingPoint) {
+    if (components.length > 0) {
+      const ok = await confirmSheet({
+        title: 'Replace what is in this meal?',
+        message: `Everything added so far will be replaced by what is in "${row.name}".`,
+        confirmLabel: 'Replace',
+        destructive: true,
+      });
+      if (!ok) return;
+    }
+    setLoadingStartingPoint(true);
+    try {
+      let selections: MealComponentSelection[] = [];
+      let name = row.name;
+      let type: string | null = row.mealType;
+      if (row.kind === 'logged') {
+        const records = await getMealComponents(row.mealId);
+        selections = records.map((record) => ({ componentType: record.componentType, componentId: record.componentId, yourSharePercent: record.yourSharePercent }));
+      } else {
+        const favorite = await getMealFavorite(row.favoriteId);
+        if (!favorite) {
+          showInfoAlert('Meal not found', 'That meal could not be opened. It may have been removed.');
+          return;
+        }
+        selections = favorite.components;
+        if (row.kind === 'favorite') {
+          name = favorite.name;
+          type = favorite.mealType;
+        }
+      }
+      const resolved: SelectedComponent[] = [];
+      for (const selection of selections) {
+        const detail = await getMealComponentDisplayInfo(selection.componentType, selection.componentId);
+        // A component whose saved record is gone is dropped, the same
+        // silent-drop every other load path here makes.
+        if (!detail) continue;
+        resolved.push({
+          key: `${selection.componentType}_${selection.componentId}_${Date.now()}_${resolved.length}`,
+          componentType: selection.componentType,
+          componentId: selection.componentId,
+          name: detail.name,
+          servings: detail.servings,
+          yourSharePercent: selection.yourSharePercent,
+        });
+      }
+      if (resolved.length === 0) {
+        showInfoAlert('Nothing to load', 'None of the dishes in that meal could be found any more, so there is nothing to start from.');
+        return;
+      }
+      // Only fill a name or type that has not been chosen yet: reaching here
+      // from the identity step means neither has, but from the assembling
+      // screen the person may already have named this meal deliberately.
+      if (!mealName.trim()) setMealName(name);
+      if (!mealType && type) setMealType(type);
+      setComponents(resolved);
+      // A meal type is still required to log anything, so a starting point
+      // that carries none leaves the identity step showing (with the dishes
+      // already loaded) rather than skipping past the one question left.
+      if (mealType || type) setIdentityConfirmed(true);
+      closeStartingPoints();
+    } finally {
+      setLoadingStartingPoint(false);
+    }
+  }
 
   useEffect(() => {
     if (!templateMealId) return;
@@ -423,14 +596,18 @@ export function MealBuilder({
   // useMemo filter is genuinely fast enough without needing that same
   // isolation architecture.
   const [categorySearchQuery, setCategorySearchQuery] = useState('');
+  // The system recipes of the open category, 2026-09-13, listed beneath
+  // the person's own saved dishes and searched together with them.
+  const [curatedOptions, setCuratedOptions] = useState<CuratedComponentOption[]>([]);
 
   function openCategory(type: MealComponentType) {
     dismissKeyboard();
     setBrowsingCategory(type);
     setCategoryOptionsLoading(true);
     setCategorySearchQuery('');
-    listMealComponentOptions(type).then((options) => {
-      setCategoryOptions(options);
+    Promise.all([listMealComponentOptions(type), listCuratedRecipeComponentOptions(type)]).then(([saved, curated]) => {
+      setCategoryOptions(saved);
+      setCuratedOptions(curated);
       setCategoryOptionsLoading(false);
     });
   }
@@ -438,6 +615,7 @@ export function MealBuilder({
   function closeCategory() {
     setBrowsingCategory(null);
     setCategoryOptions([]);
+    setCuratedOptions([]);
     setCategorySearchQuery('');
   }
 
@@ -445,27 +623,39 @@ export function MealBuilder({
   // summary -- someone might remember "the side with broccoli in it" as
   // readily as its own given name, and MealComponentOption already carries
   // both (see lib/db.ts's own type) with no extra query needed.
-  const filteredCategoryOptions = useMemo(() => {
-    const query = categorySearchQuery.trim().toLowerCase();
-    if (!query) return categoryOptions;
-    return categoryOptions.filter(
-      (option) => option.name.toLowerCase().includes(query) || (option.ingredientNames ?? '').toLowerCase().includes(query),
-    );
-  }, [categoryOptions, categorySearchQuery]);
+  const filteredCategoryOptions = useMemo(
+    () => categoryOptions.filter((option) => optionMatchesQuery(option, categorySearchQuery)),
+    [categoryOptions, categorySearchQuery],
+  );
+  const filteredCuratedOptions = useMemo(
+    () => curatedOptions.filter((option) => optionMatchesQuery(option, categorySearchQuery)),
+    [curatedOptions, categorySearchQuery],
+  );
 
   // A saved item tapped from categoryOptions, awaiting its own "how much of
-  // this did you have" answer before it actually joins `components`.
+  // this did you have" answer before it actually joins `components`. A
+  // system recipe carries its recipeId here instead of a componentId, since
+  // it has no saved record yet: that record is made when the amount is
+  // confirmed, not when the row is tapped.
   const [pendingSelection, setPendingSelection] = useState<{
     componentType: MealComponentType;
-    componentId: string;
+    componentId: string | null;
+    curatedRecipeId: string | null;
     name: string;
     servings: number;
   } | null>(null);
   const [pendingAmount, setPendingAmount] = useState<string | null>(null);
+  const [confirmingPending, setConfirmingPending] = useState(false);
 
   function selectSavedOption(option: MealComponentOption) {
     if (!browsingCategory) return;
-    setPendingSelection({ componentType: browsingCategory, componentId: option.id, name: option.name, servings: option.servings });
+    setPendingSelection({ componentType: browsingCategory, componentId: option.id, curatedRecipeId: null, name: option.name, servings: option.servings });
+    setPendingAmount(null);
+  }
+
+  function selectCuratedOption(option: CuratedComponentOption) {
+    if (!browsingCategory) return;
+    setPendingSelection({ componentType: browsingCategory, componentId: null, curatedRecipeId: option.recipeId, name: option.name, servings: option.servings });
     setPendingAmount(null);
   }
 
@@ -474,19 +664,38 @@ export function MealBuilder({
     setPendingAmount(null);
   }
 
-  function confirmPendingSelection() {
+  async function confirmPendingSelection() {
     if (!pendingSelection || !pendingAmount) {
       showInfoAlert('Almost there', 'Please choose how much of this you had.');
       return;
     }
+    let componentType = pendingSelection.componentType;
+    let componentId = pendingSelection.componentId;
+    let servings = pendingSelection.servings;
+    if (!componentId) {
+      if (!pendingSelection.curatedRecipeId) return;
+      setConfirmingPending(true);
+      try {
+        const made = await materializeCuratedRecipeAsMealComponent(pendingSelection.curatedRecipeId);
+        if ('error' in made) {
+          showInfoAlert('Could not add that recipe', made.error);
+          return;
+        }
+        componentType = made.componentType;
+        componentId = made.componentId;
+        servings = made.servings;
+      } finally {
+        setConfirmingPending(false);
+      }
+    }
     const chosenServings = parseAmountValue(pendingAmount);
-    const sharePercent = pendingSelection.servings > 0 ? (chosenServings / pendingSelection.servings) * 100 : 100;
+    const sharePercent = servings > 0 ? (chosenServings / servings) * 100 : 100;
     const newComponent: SelectedComponent = {
-      key: `${pendingSelection.componentType}_${pendingSelection.componentId}_${Date.now()}`,
-      componentType: pendingSelection.componentType,
-      componentId: pendingSelection.componentId,
+      key: `${componentType}_${componentId}_${Date.now()}`,
+      componentType,
+      componentId,
       name: pendingSelection.name,
-      servings: pendingSelection.servings,
+      servings,
       yourSharePercent: sharePercent,
     };
     setComponents((current) => [...current, newComponent]);
@@ -1040,19 +1249,97 @@ export function MealBuilder({
   }
 
   function handleContinuePress() {
-    if (hasAnySavedComponents !== true) {
-      showInfoAlert(
-        'Nothing to build from yet',
-        "A meal is assembled from Sides, Salads, Smoothies, and the other Food tab builders' own saved items, and there aren't any saved yet. Build one of those first (the Lens Button, bottom of the screen), then come back here.",
-      );
-      return;
-    }
     if (!mealType) {
       showInfoAlert('Almost there', 'Please choose a meal type.');
       return;
     }
     dismissKeyboard();
     setIdentityConfirmed(true);
+  }
+
+  // Picking a whole meal to start from, 2026-09-13. Reachable from both the
+  // identity step and the assembling screen, so it sits ahead of both.
+  if (browsingStartingPoints) {
+    const plannedRows = filteredStartingPoints.filter((row) => row.kind === 'planned');
+    const favoriteRows = filteredStartingPoints.filter((row) => row.kind === 'favorite');
+    const loggedRows = filteredStartingPoints.filter((row) => row.kind === 'logged');
+    const renderRows = (rows: StartingPoint[]) => (
+      <View style={styles.savedList}>
+        {rows.map((row) => (
+          <TouchableOpacity key={row.key} style={styles.savedRow} onPress={() => void chooseStartingPoint(row)} disabled={loadingStartingPoint}>
+            <View style={styles.savedRowText}>
+              <Text style={styles.savedRowName} numberOfLines={1}>
+                {row.name}
+              </Text>
+              <Text style={styles.savedRowDetail} numberOfLines={1}>
+                {row.detail}
+              </Text>
+            </View>
+            <Ionicons name="add-circle-outline" size={22} color={tabColor} />
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+    return (
+      <>
+        {infoAlertElement}
+        {confirmSheetElement}
+        {reconciliationSheetElement}
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
+          <TouchableOpacity style={styles.backRow} onPress={closeStartingPoints}>
+            <Ionicons name="chevron-back" size={18} color={tabColor} />
+            <Text style={[styles.backRowText, { color: tabColor }]}>{identityConfirmed ? 'Your meal' : 'Meal Builder'}</Text>
+          </TouchableOpacity>
+          <Text style={[styles.sectionHeading, { color: tabColor }]}>Start from a meal you have</Text>
+          {startingPointsLoading || loadingStartingPoint ? (
+            <ActivityIndicator color={tabColor} style={styles.loadingSpinner} />
+          ) : startingPoints.length === 0 ? (
+            <Text style={[styles.emptyText, styles.panelStandalone]}>
+              No whole meals yet. A meal favorite, a meal on your schedule, or a meal logged from this builder would show here. Go back and add dishes one at a time instead.
+            </Text>
+          ) : (
+            <>
+              <View style={styles.categorySearchRow}>
+                <AppTextInput
+                  style={[styles.formInput, styles.categorySearchInput, { backgroundColor: inputBackground(tabColor) }]}
+                  value={startingPointSearch}
+                  onChangeText={setStartingPointSearch}
+                  placeholder="Search your meals..."
+                  placeholderTextColor={colors.textMuted}
+                />
+                <VoiceInputButton onResult={(transcript) => setStartingPointSearch(transcript)} color={tabColor} />
+              </View>
+              {filteredStartingPoints.length === 0 ? (
+                <Text style={[styles.emptyText, styles.formLabelSpaced, styles.panelStandalone]}>
+                  {`No meals match "${startingPointSearch.trim()}".`}
+                </Text>
+              ) : (
+                <>
+                  {plannedRows.length > 0 ? (
+                    <>
+                      <Text style={[styles.listGroupHeading, { color: tabColor }]}>Coming up on your schedule</Text>
+                      {renderRows(plannedRows)}
+                    </>
+                  ) : null}
+                  {favoriteRows.length > 0 ? (
+                    <>
+                      <Text style={[styles.listGroupHeading, { color: tabColor }]}>Your meal favorites</Text>
+                      {renderRows(favoriteRows)}
+                    </>
+                  ) : null}
+                  {loggedRows.length > 0 ? (
+                    <>
+                      <Text style={[styles.listGroupHeading, { color: tabColor }]}>Meals you have logged</Text>
+                      {renderRows(loggedRows)}
+                    </>
+                  ) : null}
+                </>
+              )}
+            </>
+          )}
+        </ScrollView>
+      </>
+    );
   }
 
   // Identity step -- name (optional) + meal type (required), matching the
@@ -1066,16 +1353,22 @@ export function MealBuilder({
         {confirmSheetElement}
         {reconciliationSheetElement}
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
-          {hasAnySavedComponents === false ? (
-            // Confirmed (not just "still loading") that every one of the
-            // eleven other builders' own saved lists is empty, 2026-08-08 --
-            // shown ahead of the identity form itself, not just baked into
-            // the Continue button's own label below, so this is the very
-            // first thing explaining why nothing here can proceed yet.
+          {/* "Start from a meal you have", 2026-09-13: ahead of the name and
+              type form, since a whole meal already carries both and picking
+              one skips straight to assembling. */}
+          <TouchableOpacity style={[styles.formCard, styles.startFromCard, { borderColor: tabColor }]} onPress={() => void openStartingPoints()}>
+            <Ionicons name="restaurant-outline" size={22} color={tabColor} />
+            <View style={styles.startFromText}>
+              <Text style={[styles.startFromTitle, { color: tabColor }]}>Start from a meal you have</Text>
+              <Text style={styles.startFromCaption}>A meal favorite, one on your schedule, or one you have logged before, loaded here to adjust.</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={tabColor} />
+          </TouchableOpacity>
+          {components.length > 0 ? (
             <View style={[styles.formCard, styles.emptyStateCard, { borderColor: tabColor }]}>
-              <Ionicons name="information-circle-outline" size={22} color={tabColor} />
+              <Ionicons name="checkmark-circle-outline" size={22} color={tabColor} />
               <Text style={styles.emptyStateText}>
-                {"Nothing saved yet to build a meal from. A meal is assembled from Sides, Salads, Smoothies, and the other Food tab builders' own saved items; build one of those first (the Lens Button at the bottom of the screen), then come back here to put a meal together."}
+                {`${components.length} dish${components.length === 1 ? '' : 'es'} loaded from "${mealName.trim() || 'that meal'}". Pick a meal type to continue.`}
               </Text>
             </View>
           ) : null}
@@ -1122,9 +1415,7 @@ export function MealBuilder({
               style={[styles.primaryButton, { backgroundColor: identityReady ? colors.buttonColor : colors.border }]}
               onPress={handleContinuePress}
             >
-              <Text style={[styles.primaryButtonText, identityReady ? null : styles.primaryButtonTextMuted]}>
-                {hasAnySavedComponents === false ? 'Build a Side or Other Item First' : 'Continue'}
-              </Text>
+              <Text style={[styles.primaryButtonText, identityReady ? null : styles.primaryButtonTextMuted]}>Continue</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -1143,7 +1434,8 @@ export function MealBuilder({
           <View style={[styles.formCard, { borderColor: tabColor }]}>
             <Text style={styles.pendingName}>{pendingSelection.name}</Text>
             <Text style={styles.pendingSubtitle}>
-              Makes {pendingSelection.servings} serving{pendingSelection.servings === 1 ? '' : 's'}
+              {pendingSelection.curatedRecipeId ? 'System recipe, makes ' : 'Makes '}
+              {pendingSelection.servings} serving{pendingSelection.servings === 1 ? '' : 's'}
             </Text>
             <Text style={[styles.formLabel, styles.formLabelSpaced, { color: tabColor }]}>How much did you have?</Text>
             <PopoverSelect options={SHARE_PICKER_VALUES} selected={pendingAmount} onSelect={setPendingAmount} tabColor={tabColor} minWidth={80} />
@@ -1151,8 +1443,12 @@ export function MealBuilder({
               <TouchableOpacity style={[styles.secondaryButton, { flex: 1 }]} onPress={cancelPendingSelection}>
                 <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor, flex: 1, marginTop: 0 }]} onPress={confirmPendingSelection}>
-                <Text style={styles.primaryButtonText}>Add to Meal</Text>
+              <TouchableOpacity
+                style={[styles.primaryButton, { backgroundColor: colors.buttonColor, flex: 1, marginTop: 0, opacity: confirmingPending ? 0.6 : 1 }]}
+                onPress={() => void confirmPendingSelection()}
+                disabled={confirmingPending}
+              >
+                {confirmingPending ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Add to Meal</Text>}
               </TouchableOpacity>
             </View>
           </View>
@@ -1438,12 +1734,12 @@ export function MealBuilder({
             <Ionicons name="chevron-back" size={18} color={tabColor} />
             <Text style={[styles.backRowText, { color: tabColor }]}>Add from...</Text>
           </TouchableOpacity>
-          <Text style={[styles.sectionHeading, { color: tabColor }]}>Saved {meta.label}s</Text>
+          <Text style={[styles.sectionHeading, { color: tabColor }]}>{meta.label}s</Text>
           {categoryOptionsLoading ? (
             <ActivityIndicator color={tabColor} style={styles.loadingSpinner} />
-          ) : categoryOptions.length === 0 ? (
+          ) : categoryOptions.length === 0 && curatedOptions.length === 0 ? (
             <Text style={[styles.emptyText, styles.panelStandalone]}>
-              {`No saved ${meta.label.toLowerCase()}s yet. Build one from the ${meta.label} Builder first, then come back here to add it.`}
+              {`Nothing here yet. Build a ${meta.label.toLowerCase()} from the ${meta.label} Builder first, then come back here to add it.`}
             </Text>
           ) : (
             <>
@@ -1452,31 +1748,68 @@ export function MealBuilder({
                   style={[styles.formInput, styles.categorySearchInput, { backgroundColor: inputBackground(tabColor) }]}
                   value={categorySearchQuery}
                   onChangeText={setCategorySearchQuery}
-                  placeholder={`Search your saved ${meta.label.toLowerCase()}s...`}
+                  placeholder={`Search ${meta.label.toLowerCase()}s by name or ingredient...`}
                   placeholderTextColor={colors.textMuted}
                 />
                 <VoiceInputButton onResult={(transcript) => setCategorySearchQuery(transcript)} color={tabColor} />
               </View>
-              {filteredCategoryOptions.length === 0 ? (
+              {filteredCategoryOptions.length === 0 && filteredCuratedOptions.length === 0 ? (
                 <Text style={[styles.emptyText, styles.formLabelSpaced, styles.panelStandalone]}>
-                  {`No saved ${meta.label.toLowerCase()}s match "${categorySearchQuery.trim()}".`}
+                  {`No ${meta.label.toLowerCase()}s match "${categorySearchQuery.trim()}".`}
                 </Text>
               ) : (
-                <View style={styles.savedList}>
-                  {filteredCategoryOptions.map((option) => (
-                    <TouchableOpacity key={option.id} style={styles.savedRow} onPress={() => selectSavedOption(option)}>
-                      <View style={styles.savedRowText}>
-                        <Text style={styles.savedRowName} numberOfLines={1}>
-                          {option.name}
-                        </Text>
-                        <Text style={styles.savedRowDetail} numberOfLines={1}>
-                          {option.ingredientNames || `${option.ingredientCount} ingredient${option.ingredientCount === 1 ? '' : 's'}`}
-                        </Text>
-                      </View>
-                      <Ionicons name="add-circle-outline" size={22} color={tabColor} />
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                <>
+                  {/* The person's own saved dishes lead, then the system
+                      recipes for this builder, 2026-09-13. Both headings
+                      show even when one list is empty, so it is plain which
+                      kind a row is and that the other kind was looked for. */}
+                  <Text style={[styles.listGroupHeading, { color: tabColor }]}>Your saved {meta.label.toLowerCase()}s</Text>
+                  {filteredCategoryOptions.length === 0 ? (
+                    <Text style={[styles.emptyText, styles.panelStandalone]}>
+                      {categoryOptions.length === 0
+                        ? `None saved yet. Anything you build in the ${meta.label} Builder shows here.`
+                        : `None of your saved ${meta.label.toLowerCase()}s match.`}
+                    </Text>
+                  ) : (
+                    <View style={styles.savedList}>
+                      {filteredCategoryOptions.map((option) => (
+                        <TouchableOpacity key={option.id} style={styles.savedRow} onPress={() => selectSavedOption(option)}>
+                          <View style={styles.savedRowText}>
+                            <Text style={styles.savedRowName} numberOfLines={1}>
+                              {option.name}
+                            </Text>
+                            <Text style={styles.savedRowDetail} numberOfLines={1}>
+                              {option.ingredientNames || `${option.ingredientCount} ingredient${option.ingredientCount === 1 ? '' : 's'}`}
+                            </Text>
+                          </View>
+                          <Ionicons name="add-circle-outline" size={22} color={tabColor} />
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                  <Text style={[styles.listGroupHeading, { color: tabColor }]}>System {meta.label.toLowerCase()}s</Text>
+                  {filteredCuratedOptions.length === 0 ? (
+                    <Text style={[styles.emptyText, styles.panelStandalone]}>
+                      {curatedOptions.length === 0 ? `No system ${meta.label.toLowerCase()}s exist yet.` : `No system ${meta.label.toLowerCase()}s match.`}
+                    </Text>
+                  ) : (
+                    <View style={styles.savedList}>
+                      {filteredCuratedOptions.map((option) => (
+                        <TouchableOpacity key={option.recipeId} style={styles.savedRow} onPress={() => selectCuratedOption(option)}>
+                          <View style={styles.savedRowText}>
+                            <Text style={styles.savedRowName} numberOfLines={1}>
+                              {option.name}
+                            </Text>
+                            <Text style={styles.savedRowDetail} numberOfLines={1}>
+                              {option.ingredientNames || `${option.ingredientCount} ingredient${option.ingredientCount === 1 ? '' : 's'}`}
+                            </Text>
+                          </View>
+                          <Ionicons name="add-circle-outline" size={22} color={tabColor} />
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  )}
+                </>
               )}
             </>
           )}
@@ -1571,7 +1904,9 @@ export function MealBuilder({
           </View>
           <Text style={styles.pendingSubtitle}>{mealType ? mealType[0].toUpperCase() + mealType.slice(1) : 'No meal type chosen'}</Text>
           {components.length === 0 ? (
-            <Text style={[styles.emptyText, styles.formLabelSpaced]}>Nothing added yet. Pick a category below to add your first item.</Text>
+            <Text style={[styles.emptyText, styles.formLabelSpaced]}>
+              Nothing added yet. Pick a category below to add a dish, or start from a whole meal you already have.
+            </Text>
           ) : (
             <View style={[styles.savedList, styles.formLabelSpaced]}>
               {components.map((component) => (
@@ -1593,9 +1928,23 @@ export function MealBuilder({
           )}
         </View>
 
+        {/* Not offered while adjusting an already-logged meal in place: that
+            screen corrects one real meal, and swapping its whole contents for
+            a different meal is a different act. */}
+        {!editMealId ? (
+          <TouchableOpacity style={[styles.formCard, styles.startFromCard, { borderColor: tabColor }]} onPress={() => void openStartingPoints()}>
+            <Ionicons name="restaurant-outline" size={22} color={tabColor} />
+            <View style={styles.startFromText}>
+              <Text style={[styles.startFromTitle, { color: tabColor }]}>Start from a meal you have</Text>
+              <Text style={styles.startFromCaption}>A meal favorite, one on your schedule, or one you have logged before.</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={tabColor} />
+          </TouchableOpacity>
+        ) : null}
+
         <Text style={[styles.sectionHeading, styles.gridHeading, { color: tabColor }]}>Add from...</Text>
         <Text style={styles.gridCaption}>
-          Pick from your own already-saved or favorited items in any builder below. Tap the (i) above to see exactly what this does.
+          Each builder below lists your own saved dishes and the system recipes for it. Tap the (i) above to see exactly what this does.
         </Text>
         <View style={styles.grid}>
           {CATEGORY_META.map((entry) => (
@@ -1709,6 +2058,25 @@ const styles = StyleSheet.create({
   // form.
   emptyStateCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   emptyStateText: { ...typography.body, color: colors.textPrimary, flex: 1, ...textShadow },
+  // "Start from a meal you have", 2026-09-13: a tappable card in the same
+  // formCard surface as the rest of the screen, icon left, chevron right.
+  startFromCard: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  startFromText: { flex: 1 },
+  startFromTitle: { ...typography.bodyEmphasis, ...textShadow },
+  startFromCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 2, ...textShadow },
+  // A heading inside a browsable list that holds more than one group of
+  // rows (your saved dishes, then the system ones), carrying its own surface
+  // per the standing no-bare-text rule.
+  listGroupHeading: {
+    ...typography.label,
+    ...textShadow,
+    marginTop: 12,
+    marginBottom: 4,
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
   // 2026-08-16 -- wraps the Meal Name label with its own real mic button,
   // same plain label-plus-button layout every direct-ingredient builder's
   // own prepNoteLabelRow already uses (this file has no ingredient card of

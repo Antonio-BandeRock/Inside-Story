@@ -15201,7 +15201,11 @@ export async function logCuratedRecipeAsMeal(input: {
   const builderType = await getCuratedRecipeBuilderType(input.recipeId);
   if (!builderType) return { error: 'That recipe could not be opened.' };
 
-  const saved = await saveComponentFromCuratedPayload(builderType, recipe);
+  // Hidden, 2026-09-13. This used to leave a visible row in Saved Sides (or
+  // whichever builder's list), which contradicted the 2026-08-30 decision
+  // for the meal plan: a dish the app created so a meal could be logged is
+  // not something the person built. The meal itself still resolves it by id.
+  const saved = await saveComponentFromCuratedPayload(builderType, recipe, true);
   const created = await createMealFromComponents({
     name: recipe.name,
     mealType: input.mealType,
@@ -15231,7 +15235,8 @@ export async function scheduleCuratedRecipe(input: {
   const builderType = await getCuratedRecipeBuilderType(input.recipeId);
   if (!builderType) return { error: 'That recipe could not be opened.' };
 
-  const saved = await saveComponentFromCuratedPayload(builderType, recipe);
+  // Hidden for the same reason logCuratedRecipeAsMeal's is, above.
+  const saved = await saveComponentFromCuratedPayload(builderType, recipe, true);
   const components = [{ componentType: builderType, componentId: saved.id, yourSharePercent: 100 }];
   const favorite = await saveMealFavorite({
     name: recipe.name,
@@ -15258,6 +15263,68 @@ async function getCuratedRecipeBuilderType(recipeId: string): Promise<BuilderFav
   return (row?.builder_type as BuilderFavoriteItemType) ?? null;
 }
 
+// ---------------------------------------------------------------------------
+// System recipes inside Meal Builder's "Add from..." picker
+// ---------------------------------------------------------------------------
+// 2026-09-13, direct report: "when I go to Meal Builder not even the system
+// recipes are available for someone to choose a full meal to easily be
+// pulled from what's available in the system." Until this, the picker
+// listed only a person's own saved records, so someone with nothing saved
+// yet could not assemble any meal at all, while 411 system recipes sat one
+// tab away.
+//
+// One row per system recipe of a builder type, in the same shape
+// listMealComponentOptions returns for saved records, so the picker can show
+// the two lists side by side and search both by name or ingredient. The
+// ingredient summary is built from base_name, the purchasable identity,
+// since a system recipe's rows carry no resolved food_name of their own.
+export type CuratedComponentOption = MealComponentOption & { recipeId: string };
+
+export async function listCuratedRecipeComponentOptions(componentType: MealComponentType): Promise<CuratedComponentOption[]> {
+  const db = await getReferenceDatabase();
+  const rows = await db.getAllAsync<{ id: string; name: string; servings: number; ingredientCount: number; ingredientNames: string | null }>(
+    `
+      SELECT r.id, r.name, r.servings, COUNT(i.recipe_id) AS ingredientCount,
+             (
+               SELECT GROUP_CONCAT(base_name, ', ')
+               FROM (SELECT base_name FROM curated_recipe_ingredients WHERE recipe_id = r.id ORDER BY sort_order)
+             ) AS ingredientNames
+      FROM curated_recipes r
+      LEFT JOIN curated_recipe_ingredients i ON i.recipe_id = r.id
+      WHERE r.builder_type = ?
+      GROUP BY r.id
+      ORDER BY r.sort_order
+    `,
+    componentType,
+  );
+  return rows.map((row) => ({
+    id: row.id,
+    recipeId: row.id,
+    name: row.name,
+    servings: row.servings,
+    ingredientCount: row.ingredientCount,
+    ingredientNames: row.ingredientNames,
+  }));
+}
+
+// Turns one system recipe into the saved component a meal can hold. A
+// system recipe is reference content shared by everyone and a meal can only
+// point at one of this person's own records, so the same conversion the meal
+// plan, Log or Schedule a Meal, and every builder's "Build This Recipe"
+// already make happens here, hidden from the saved lists the same way the
+// meal plan's copies are: picking a system dish into a meal is not building
+// one. Called when the pick is confirmed with an amount, not when the row is
+// tapped, so backing out of the amount step leaves nothing behind.
+export async function materializeCuratedRecipeAsMealComponent(
+  recipeId: string,
+): Promise<{ componentType: MealComponentType; componentId: string; name: string; servings: number } | { error: string }> {
+  const recipe = await getCuratedRecipe(recipeId);
+  if (!recipe) return { error: 'That recipe could not be found.' };
+  const builderType = await getCuratedRecipeBuilderType(recipeId);
+  if (!builderType) return { error: 'That recipe could not be opened.' };
+  const saved = await saveComponentFromCuratedPayload(builderType, recipe, true);
+  return { componentType: builderType, componentId: saved.id, name: recipe.name, servings: recipe.servings };
+}
 
 // ---------------------------------------------------------------------------
 // What is actually in a meal, for the Find a Meal list

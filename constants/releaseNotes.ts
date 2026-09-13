@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.10',
+    date: '2026-09-13',
+    changes: [
+      'Meal Builder now offers the system recipes. Every "Add from..." category lists your own saved dishes first and the system recipes for that builder beneath them, and the search box finds either by name or by an ingredient. You no longer have to build a side or anything else before a meal can be put together.',
+      'Start from a meal you have: a meal favorite, a meal on your schedule, or a meal you have logged before can be loaded into Meal Builder whole, with its amounts, and adjusted from there.',
+      'A system recipe picked into a meal, or logged or scheduled from Log or Schedule a Meal, no longer shows up in your saved dishes as if you had built it.',
+    ],
+  },
+  {
     version: '1.0.37.9',
     date: '2026-09-13',
     changes: [
