@@ -30,6 +30,7 @@ export function TabDesktopMenu({ categories, tabColor }: { categories: MyItemsCa
           icon={category.icon ?? 'folder-outline'}
           color={tabColor}
           value={category.count !== undefined ? String(category.count) : undefined}
+          caption={category.caption}
           onPress={category.onPress}
         />
       ))}

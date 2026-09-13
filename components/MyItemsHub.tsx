@@ -71,6 +71,9 @@ export type MyItemsCategory = {
   // The glyph an action band shows for this category (TabDesktopMenu,
   // 2026-09-12). The popup itself does not draw it.
   icon?: ComponentProps<typeof Ionicons>['name'];
+  // A line under the label on the desktop's action band, for a row whose
+  // label alone does not say what it does. The popup does not draw it.
+  caption?: string;
 };
 
 export function MyItemsHub({

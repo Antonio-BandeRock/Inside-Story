@@ -574,6 +574,9 @@ export default function FindMealScreen() {
         keyExtractor={(item) => item.key}
         ListHeaderComponent={
           <View style={styles.listHeader}>
+            {/* Says what this screen is for before anything is picked,
+                2026-09-13, the same line the Food row that opens it carries. */}
+            <Text style={styles.muted}>Pick any meal you have logged or saved, one already on your schedule, or a system recipe, then log it or put it on your schedule.</Text>
             {photoUri ? (
               <View style={styles.card}>
                 <Text style={styles.sectionLabel}>Finishing this photo</Text>
@@ -841,7 +844,7 @@ export default function FindMealScreen() {
 
   return (
     <View style={styles.screen}>
-      <Stack.Screen options={{ title: 'Find a Meal' }} />
+      <Stack.Screen options={{ title: 'Log or Schedule a Meal' }} />
       {infoAlertElement}
       {mode === 'list'
         ? renderList()
@@ -862,7 +865,9 @@ const styles = StyleSheet.create({
   listHeader: { gap: 10, marginBottom: 4 },
   title: { ...typography.sectionTitle, color: colors.textPrimary, ...textShadow },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
-  muted: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  // textPrimary rather than textMuted: textMuted measures under 3:1 on the
+  // surface (2026-09-12).
+  muted: { ...typography.caption, color: colors.textPrimary, ...textShadow },
   card: {
     padding: 14,
     borderRadius: 12,

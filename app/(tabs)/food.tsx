@@ -985,9 +985,15 @@ export default function FoodScreen() {
     // every system recipe, which is exactly what this tab is about, so it leads
     // rather than sitting under a submenu.
     {
+      // "Log or Schedule a Meal" with a caption, 2026-09-13: "Find a Meal
+      // isn't exactly self explanatory. Are they finding a meal to edit one
+      // on their schedule? Are they finding a meal to add to their schedule?
+      // Are they finding a past meal?" The row now names what the screen
+      // does and the caption names where the meals come from.
       id: 'find-a-meal',
-      label: 'Find a Meal',
       icon: 'search-outline',
+      label: 'Log or Schedule a Meal',
+      caption: 'Pick any meal you have logged or saved, one already on your schedule, or a system recipe, then log it or put it on your schedule.',
       onPress: () => router.push('/find-meal'),
     },
     ...myFoodsCategories.map((category) =>
@@ -1243,8 +1249,10 @@ export default function FoodScreen() {
           restingContent={foodDesktopContent}
           restingIntro={
             desktopSubmenu === 'saved-favorites'
-              ? { title: 'Saved & Favorites' }
-              : { title: 'My Foods', body: "Everything you've built, saved, and favorited in Food, all in one place." }
+              ? { body: 'Below are the foods you have saved and favorited from every tool here.' }
+              : {
+                  body: 'Below, you will find the food combinations you have built using the tools available here (recipes), your saved and favorite foods, garden harvests, and store bought food products you allow into your diet.',
+                }
           }
         >
           {lens === 'mealBuilder' ? (

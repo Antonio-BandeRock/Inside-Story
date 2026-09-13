@@ -106,7 +106,10 @@ export function GatedTabContent({
   // inside the prompt box beneath the tap-the-button line (Food's "My
   // Foods"), so the resting area opens with one box rather than a prompt
   // and a second intro box beneath it. 2026-09-13, direct request.
-  restingIntro?: { title: string; body?: string };
+  // 2026-09-13, same day: the body is the same size as the prompt's own
+  // line and the title is optional, since Food's reads as one paragraph
+  // ("Honestly, I don't think we need the words 'My Foods' in there").
+  restingIntro?: { title?: string; body?: string };
 }) {
   // 2026-08-08: which per-tab visual-preferences override (if any) applies
   // to this screen's own revealed background -- resolved from pageTitle via
@@ -135,12 +138,12 @@ export function GatedTabContent({
               <Text style={[styles.promptTitle, { color: tabColor }]}>{pageTitle}</Text>
             </View>
             <Text style={styles.promptBody}>
-              Tap the {pageTitle} button in the bottom corner to choose what you want to do here.
+              Tap the {pageTitle} button in the bottom corner to choose a tool to use here.
             </Text>
             {restingIntro ? (
               <View style={styles.introBlock}>
-                <Text style={[styles.introTitle, { color: tabColor }]}>{restingIntro.title}</Text>
-                {restingIntro.body ? <Text style={styles.introBody}>{restingIntro.body}</Text> : null}
+                {restingIntro.title ? <Text style={[styles.introTitle, { color: tabColor }]}>{restingIntro.title}</Text> : null}
+                {restingIntro.body ? <Text style={styles.promptBody}>{restingIntro.body}</Text> : null}
               </View>
             ) : null}
           </View>
@@ -167,9 +170,8 @@ const styles = StyleSheet.create({
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 4,
   },
-  introBlock: { marginTop: 10, gap: 4 },
+  introBlock: { marginTop: 6, gap: 4 },
   introTitle: { ...typography.sectionTitle, fontWeight: '400', ...textShadow },
-  introBody: { ...typography.body, color: colors.textSecondary, lineHeight: 19, ...textShadow },
   promptRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   promptTitle: { ...typography.bodyEmphasis, ...textShadow },
   promptBody: { ...typography.caption, color: colors.textSecondary, ...textShadow },

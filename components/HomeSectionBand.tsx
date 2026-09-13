@@ -104,6 +104,10 @@ type ActionProps = CommonProps & {
   onPress: () => void;
   // Shown at the row's right edge, ahead of the chevron: a count, a total.
   value?: string;
+  // A line under the title saying what the row does, for a row whose name
+  // alone does not (Food's Log or Schedule a Meal, 2026-09-13). The row
+  // grows to fit it; a row without one keeps its single-line height.
+  caption?: string;
   // Only when the value itself carries a meaning of its own (a warning
   // colour for a flagged count). Defaults to the tab colour.
   valueColor?: string;
@@ -134,9 +138,18 @@ export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
           accessibilityLabel={props.value != null ? `${title}, ${props.value}` : title}
         >
           {glyph}
-          <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
-            {title}
-          </Text>
+          {props.caption ? (
+            <View style={styles.titleColumn}>
+              <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
+                {title}
+              </Text>
+              <Text style={styles.caption}>{props.caption}</Text>
+            </View>
+          ) : (
+            <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
+              {title}
+            </Text>
+          )}
           {props.value != null ? (
             <Text style={[styles.value, { color: props.valueColor ?? textColor }]}>{props.value}</Text>
           ) : null}
@@ -206,6 +219,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: HOME_BAND_CONTENT_PADDING,
   },
   title: { ...typography.bodyEmphasis, ...textShadow, flex: 1, fontWeight: '400' },
+  titleColumn: { flex: 1, gap: 2 },
+  caption: { ...typography.caption, ...textShadow, color: colors.textSecondary, lineHeight: 16 },
   // A count on an action row: larger than the name so the number reads
   // as the thing the row is about, the way the old tile's number did.
   value: { ...typography.sectionTitle, ...textShadow, fontWeight: '400', marginRight: 4 },

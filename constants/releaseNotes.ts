@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.2',
+    date: '2026-09-13',
+    changes: [
+      'Find a Meal is now Log or Schedule a Meal, on the Food screen and on Home, with a line under it saying where the meals come from and what happens next. The screen it opens says the same before anything is picked.',
+      'The box at the top of every tab now says "choose a tool to use here". On Food it goes on to say what the screen below holds, in the same size text, without a My Foods heading.',
+    ],
+  },
+  {
     version: '1.0.37.1',
     date: '2026-09-13',
     changes: [

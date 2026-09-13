@@ -574,7 +574,7 @@ export default function RootLayout() {
                   name="find-meal"
                   options={{
                     headerShown: true,
-                    title: 'Find a Meal',
+                    title: 'Log or Schedule a Meal',
                     headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.textPrimary,
                   }}
