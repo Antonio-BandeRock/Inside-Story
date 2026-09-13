@@ -307,6 +307,29 @@ export function MealBuilder({
 }) {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  // Scrolling an opened meal in the Start-from picker to the top of the
+  // screen, 2026-09-13, the same measure-then-scroll Log or Schedule a
+  // Meal and the Digest use: an opened row that stays where it was may
+  // not even be on screen once its dishes render beneath it.
+  const startingPointsScrollRef = useRef<ScrollView>(null);
+  const startingPointsScrollY = useRef(0);
+  const startingPointRowRefs = useRef<Record<string, View | null>>({});
+  function scrollStartingPointToTop(rowKey: string, attemptsLeft = 10) {
+    requestAnimationFrame(() => {
+      const row = startingPointRowRefs.current[rowKey];
+      const scrollNode = startingPointsScrollRef.current;
+      if (!row || !scrollNode) {
+        if (attemptsLeft > 0) scrollStartingPointToTop(rowKey, attemptsLeft - 1);
+        return;
+      }
+      row.measure((_x, _y, _w, _h, _rowPageX, rowPageY) => {
+        (scrollNode as unknown as View).measure((_sx, _sy, _sw, _sh, _scrollPageX, scrollPageY) => {
+          const y = Math.max(startingPointsScrollY.current + (rowPageY - scrollPageY) - 10, 0);
+          scrollNode.scrollTo({ y, animated: true });
+        });
+      });
+    });
+  }
   const activeField = useActiveField();
   const { forceClear } = useActiveInputControls();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -487,6 +510,7 @@ export function MealBuilder({
       return;
     }
     setExpandedStartingPointKey(row.key);
+    scrollStartingPointToTop(row.key);
     if (startingPointDishes[row.key]) return;
     setLoadingDishesKey(row.key);
     try {
@@ -1433,7 +1457,13 @@ export function MealBuilder({
                 // tickable, so the whole meal or only some of it can be
                 // taken (2026-09-13). The same shape Log or Schedule a
                 // Meal's rows have.
-                <View key={row.key} style={styles.savedRowWrap}>
+                <View
+                  key={row.key}
+                  style={styles.savedRowWrap}
+                  ref={(node) => {
+                    startingPointRowRefs.current[row.key] = node;
+                  }}
+                >
                   <TouchableOpacity style={styles.savedRow} onPress={() => void toggleStartingPointExpanded(row)} disabled={loadingStartingPoint}>
                     <View style={styles.savedRowText}>
                       <Text style={styles.savedRowName} numberOfLines={1}>
@@ -1499,7 +1529,15 @@ export function MealBuilder({
         {infoAlertElement}
         {confirmSheetElement}
         {reconciliationSheetElement}
-        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          ref={startingPointsScrollRef}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}
+          keyboardShouldPersistTaps="handled"
+          onScroll={(event) => {
+            startingPointsScrollY.current = event.nativeEvent.contentOffset.y;
+          }}
+          scrollEventThrottle={16}
+        >
           <TouchableOpacity style={[styles.backPill, { backgroundColor: tabColor }]} onPress={closeStartingPoints}>
             <Text style={styles.backPillText}>{identityConfirmed ? '‹ Back to your meal' : '‹ Back'}</Text>
           </TouchableOpacity>

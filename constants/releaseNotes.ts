@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.16',
+    date: '2026-09-13',
+    changes: [
+      'Tapping a meal on Log or Schedule a Meal now scrolls it to the top of the screen as it opens, so its dishes and ingredients are in view rather than somewhere below. The same on Meal Builder\'s Start from a meal you have.',
+    ],
+  },
+  {
     version: '1.0.37.15',
     date: '2026-09-13',
     changes: [

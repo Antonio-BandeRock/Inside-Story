@@ -38,7 +38,7 @@
 // handful of the person's own meals.
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useState, type ComponentProps } from 'react';
+import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react';
 import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { useInfoAlert } from '../components/InfoAlert';
@@ -78,6 +78,20 @@ import { buildTime24, describeTimeInputProblem, formatTime12, type TimeOfDayInpu
 // covered whole, and the search runs in SQL rather than over this list, so a
 // name past the cap is still reachable by typing it.
 const LIST_LIMIT = 300;
+
+// Scrolling an opened meal to the top of the list, 2026-09-13: "I tap the
+// recipe name and instead of it expanding and moving itself to the top so
+// I can read it, it just opens haphazardly and it may not even end up on
+// the screen." The same measure-then-scroll the Digest uses for its
+// shelves (scrollNodeIntoView in purple-digest.tsx), with the same 10px
+// margin under the top edge. Nothing here animates layout, so there is
+// no transition to wait out; one frame for the expanded block to render
+// is enough. Retried a few frames in case the row is not mounted yet.
+const ROW_SCROLL_TOP_MARGIN = 10;
+const ROW_SCROLL_ATTEMPTS = 10;
+type Measurable = {
+  measure: (callback: (x: number, y: number, width: number, height: number, pageX: number, pageY: number) => void) => void;
+};
 
 type PickableMeal =
   | { kind: 'meal'; id: string; name: string; mealType: string; lastEatenAt: string; timesLogged: number }
@@ -211,6 +225,26 @@ export function FindMealView({
   onDone: () => void;
 }) {
   const scrollPadding = useFloatingButtonScrollPadding();
+  const listRef = useRef<FlatList<ListSection>>(null);
+  const currentScrollY = useRef(0);
+  const rowRefs = useRef<Record<string, View | null>>({});
+
+  function scrollRowToTop(rowKey: string, attemptsLeft = ROW_SCROLL_ATTEMPTS) {
+    requestAnimationFrame(() => {
+      const row = rowRefs.current[rowKey] as unknown as Measurable | null;
+      const scrollNode = listRef.current?.getNativeScrollRef() as unknown as Measurable | null | undefined;
+      if (!row || !scrollNode) {
+        if (attemptsLeft > 0) scrollRowToTop(rowKey, attemptsLeft - 1);
+        return;
+      }
+      row.measure((_x, _y, _w, _h, _rowPageX, rowPageY) => {
+        scrollNode.measure((_sx, _sy, _sw, _sh, _scrollPageX, scrollPageY) => {
+          const offset = Math.max(currentScrollY.current + (rowPageY - scrollPageY) - ROW_SCROLL_TOP_MARGIN, 0);
+          listRef.current?.scrollToOffset({ offset, animated: true });
+        });
+      });
+    });
+  }
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   const [query, setQuery] = useState('');
@@ -620,6 +654,7 @@ export function FindMealView({
       return;
     }
     setExpandedKey(entryKey);
+    scrollRowToTop(entryKey);
     if (detailByKey[entryKey]) return;
     setLoadingIngredientsKey(entryKey);
     try {
@@ -706,8 +741,13 @@ export function FindMealView({
   function renderList() {
     return (
       <FlatList
+        ref={listRef}
         style={styles.screen}
         contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}
+        onScroll={(event) => {
+          currentScrollY.current = event.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={16}
         data={sections}
         keyExtractor={(section) => section.key}
         ListHeaderComponent={
@@ -824,7 +864,13 @@ export function FindMealView({
               const detail = detailByKey[item.key];
               const teaser = item.meal.kind === 'curated' ? CURATED_TEASER_BY_ID.get(item.meal.id) : undefined;
               return (
-                <View key={item.key} style={styles.rowWrap}>
+                <View
+                  key={item.key}
+                  style={styles.rowWrap}
+                  ref={(node) => {
+                    rowRefs.current[item.key] = node;
+                  }}
+                >
                   <TouchableOpacity
                     style={styles.row}
                     activeOpacity={0.8}
