@@ -40,7 +40,7 @@ import {
   type BackupEnvelope,
   type LocalBackupFile,
 } from '../lib/dataBackup';
-import { clearSeededTestData, seedTest90Days } from '../lib/devSeed';
+import { clearSeededTestData, seedHealthTestData, seedTest90Days } from '../lib/devSeed';
 import { seedKitchenSources } from '../lib/testData';
 import { shareFileIfAvailable } from '../lib/nativeSharing';
 import { ACTIVITY_LEVEL_INFO, ACTIVITY_LEVELS, type ActivityLevel } from '../lib/energyNeeds';
@@ -775,6 +775,7 @@ export default function ProfileScreen() {
   // Developer Tools card, 2026-08-14, __DEV__-gated, see that card's JSX
   // below for the "never in a production build" reasoning.
   const [seedingTestWeek, setSeedingTestWeek] = useState(false);
+  const [seedingHealth, setSeedingHealth] = useState(false);
   const [seedingKitchen, setSeedingKitchen] = useState(false);
   const [clearingSeededData, setClearingSeededData] = useState(false);
 
@@ -3776,13 +3777,16 @@ export default function ProfileScreen() {
           {!collapsedSections.has('developer') ? (
             <View style={styles.cardBody}>
               <Text style={styles.helpText}>
-                Only ever shown in a dev build, never a release build. Seeds a [TEST]-prefixed 90-day
-                span (60 past days already logged, today&apos;s breakfast/lunch/snack, 30 upcoming days
-                still planned, cycling through several breakfast/lunch/dinner/snack combinations
-                rather than repeating one fixed set, plus a handful of saved sides/salads/etc. and a few
-                food trials in different states) so Past Meals, Trends, and Signals all have something
-                to look at. This can take a while to finish given the scale. Clear
-                removes exactly what this tool itself created, nothing else.
+                Shown in development and on the preview channel, never in a store release. Everything
+                seeded here carries a [TEST] prefix. The 90-day span covers meals (60 past days already
+                logged, today&apos;s breakfast/lunch/snack, 30 upcoming days still planned, cycling
+                through several combinations rather than one fixed set), a handful of saved
+                sides/salads/etc., and a few food trials in different states, so Past Meals, Trends, and
+                Signals have something to look at; it takes a while. Health &amp; Reminders seeds thirty
+                days of check-ins, a weight series, blood pressure, two lab draws, two personal rules,
+                a prescription with a dose due three minutes from now, and an appointment tomorrow, so
+                Pattern Finder, the Report, and the Meds and Appointments lenses have something to
+                show and a reminder to fire. Clear removes exactly what these tools created, nothing else.
               </Text>
               <TouchableOpacity
                 style={styles.addAllergyButton}
@@ -3834,6 +3838,37 @@ export default function ProfileScreen() {
                 }}
               >
                 <Text style={styles.addAllergyButtonText}>{seedingTestWeek ? 'Seeding, this can take a while…' : 'Seed 90 Days of Test Data'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.addAllergyButton}
+                disabled={seedingHealth}
+                onPress={async () => {
+                  setSeedingHealth(true);
+                  try {
+                    const seeded = await seedHealthTestData();
+                    const lines = [
+                      `${seeded.checkins} check-ins, ${seeded.measurements} weight and blood pressure readings, ${seeded.labResults} lab results, ${seeded.rules} personal rules, one prescription with doses, one appointment.`,
+                      `Dose reminder set for ${seeded.doseReminderAt.slice(11)} today; appointment reminder an hour before ${seeded.appointmentAt.replace('T', ' ')}.`,
+                    ];
+                    if (seeded.reminderPermission === 'granted') {
+                      lines.push(`${seeded.pendingReminders} reminder(s) are pending on the phone. Leave the app and watch for the dose.`);
+                    } else if (seeded.reminderPermission === 'denied') {
+                      lines.push('Notifications are not allowed for this app, so no reminder can fire. Allow them in the phone\'s app settings, then open Schedules once.');
+                    } else {
+                      lines.push('Reminders are not available on this platform.');
+                    }
+                    showBackupAlert('Seeded', lines.join('\n\n'));
+                  } catch (error) {
+                    showBackupAlert(
+                      'Something went wrong',
+                      error instanceof Error ? error.message : 'Failed to seed health test data.',
+                    );
+                  } finally {
+                    setSeedingHealth(false);
+                  }
+                }}
+              >
+                <Text style={styles.addAllergyButtonText}>{seedingHealth ? 'Seeding…' : 'Seed Health & Reminders Test Data'}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.clearButton}

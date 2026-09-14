@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.38',
+    date: '2026-09-14',
+    changes: [
+      'The Reports tab builds its report far faster. The nutrient highlights used to be worked out nine times over, once per nutrient, which took minutes on a phone with a month of full recipes logged; they now come from one pass.',
+      'When a report cannot be built, the screen says so and why, instead of saying "Putting your report together" for good.',
+      'A blood pressure reading typed in on Home or Life now reaches the Report, and one brought in from the phone reaches Life\'s history. The two paths had been filing the same reading under different names.',
+      'Profile > Developer Tools (preview builds only) gains "Seed Health & Reminders Test Data": thirty days of check-ins, a weight series, blood pressure, two lab draws, two personal rules, a prescription with a dose due three minutes later, and an appointment tomorrow, so Pattern Finder, the Report, and the Meds and Appointments lenses have something to show and a reminder to watch for. Clear removes it all.',
+    ],
+  },
+  {
     version: '1.0.37.37',
     date: '2026-09-14',
     changes: [

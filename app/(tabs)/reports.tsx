@@ -82,16 +82,27 @@ export default function ReportsScreen() {
   // what is handed over can never differ.
   const [report, setReport] = useState<ReportDocument | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const reportText = report ? renderReportText(report) : null;
 
   const load = useCallback((forDays: 7 | 30 | 90) => {
     setLoading(true);
-    buildReport(forDays).then((doc) => {
-      setReport(doc);
-      setLoading(false);
-    });
+    setLoadError(null);
+    buildReport(forDays)
+      .then((doc) => {
+        setReport(doc);
+      })
+      .catch((error: unknown) => {
+        // Found on a phone 2026-09-14: a rejection here left the screen
+        // saying "Putting your report together" for good. Say what went
+        // wrong instead, and log it where adb logcat can read it.
+        console.error('[reports] buildReport failed', error);
+        setReport(null);
+        setLoadError(error instanceof Error ? error.message : String(error));
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   useFocusEffect(useCallback(() => { if (revealed) load(days); }, [revealed, days, load]));
@@ -153,6 +164,8 @@ export default function ReportsScreen() {
 
             {loading ? (
               <Text style={[styles.loadingText, styles.panelStandalone]}>Putting your report together…</Text>
+            ) : loadError ? (
+              <Text style={[styles.loadingText, styles.panelStandalone]}>The report could not be built. {loadError}</Text>
             ) : (
               <View style={styles.reportCard}>
                 <Text style={styles.reportText}>{reportText}</Text>

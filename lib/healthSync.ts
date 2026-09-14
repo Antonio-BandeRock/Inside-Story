@@ -23,6 +23,7 @@ import {
   getHealthSyncState,
   recordSyncedBodyMeasurement,
   recordSyncedStepCount,
+  renameSyncedBodyMeasurementType,
   setHealthSyncLastSyncAt,
   upsertHealthRecords,
   type HealthRecordInput,
@@ -420,8 +421,13 @@ async function syncWeight(fromIso: string, toIso: string): Promise<number> {
 }
 
 // A cuff reading is two figures, and body_measurements holds one per row,
-// so it becomes two rows sharing a record id with a suffix each.
+// so it becomes two rows sharing a record id with a suffix each. The type
+// names are the ones Home and Life type readings in under, so the report
+// and Life's history see both kinds (2026-09-14; the first sync used
+// shorter names, folded in here on the next pull).
 async function syncBloodPressure(fromIso: string, toIso: string): Promise<number> {
+  await renameSyncedBodyMeasurementType('systolic', 'blood_pressure_systolic');
+  await renameSyncedBodyMeasurementType('diastolic', 'blood_pressure_diastolic');
   const records = await readAllRecords('BloodPressure', fromIso, toIso);
   let written = 0;
   for (const [index, record] of records.entries()) {
@@ -430,7 +436,7 @@ async function syncBloodPressure(fromIso: string, toIso: string): Promise<number
     const systolic = await recordSyncedBodyMeasurement({
       externalId: `${baseId}:systolic`,
       loggedAt: record.time,
-      measurementType: 'systolic',
+      measurementType: 'blood_pressure_systolic',
       value: Math.round(record.systolic.inMillimetersOfMercury),
       unit: 'mmHg',
       sourceApp: source,
@@ -438,7 +444,7 @@ async function syncBloodPressure(fromIso: string, toIso: string): Promise<number
     const diastolic = await recordSyncedBodyMeasurement({
       externalId: `${baseId}:diastolic`,
       loggedAt: record.time,
-      measurementType: 'diastolic',
+      measurementType: 'blood_pressure_diastolic',
       value: Math.round(record.diastolic.inMillimetersOfMercury),
       unit: 'mmHg',
       sourceApp: source,

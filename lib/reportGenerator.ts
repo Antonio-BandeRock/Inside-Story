@@ -11,7 +11,7 @@ import {
 } from './db';
 import { getCheckinTagDefinition } from './checkinTags';
 import {
-  getNutrientTrendSeries,
+  getNutrientTrendSeriesForCodes,
   getSixDimensionsFlagTrendSeries,
   getSleepTrendPoints,
   getStepTrendPoints,
@@ -37,7 +37,7 @@ const CORE_NUTRIENT_CODES = ['iodine', 'selenium', 'zinc', 'iron', 'vitamin_d', 
 // was logged.
 //
 // Everything here reuses functions that already exist for a screen
-// (getNutrientTrendSeries and getSixDimensionsFlagTrendSeries are the
+// (getNutrientTrendSeriesForCodes and getSixDimensionsFlagTrendSeries are the
 // same per-day loops Trends runs; listAllActiveTreatments is what My Meds
 // reads; getStepTrendPoints and getSleepTrendPoints are Trends >
 // Movement), matching this app's standing "computation stays in lib/,
@@ -117,13 +117,15 @@ export async function buildReport(days: number): Promise<ReportDocument> {
     empty: 'None selected in Profile.',
   });
 
-  // Nutrient highlights -- reuses the exact real per-nutrient series Trends'
-  // own Nutrients lens already computes, just averaged across the range
-  // rather than plotted point by point.
+  // Nutrient highlights: the same per-nutrient series Trends' Nutrients
+  // lens computes, averaged across the range rather than plotted point by
+  // point. All nine come from one pass over the logged ingredients
+  // (2026-09-14): nine separate passes took minutes on a phone.
   const nutrientRows: string[][] = [];
+  const nutrientSeries = await getNutrientTrendSeriesForCodes(CORE_NUTRIENT_CODES, rangeStart, isoDate(new Date()));
   for (const code of CORE_NUTRIENT_CODES) {
-    const series = await getNutrientTrendSeries(code, days);
-    if (series.points.length === 0 || !series.displayName) continue;
+    const series = nutrientSeries.get(code);
+    if (!series || series.points.length === 0 || !series.displayName) continue;
     const avg = series.points.reduce((sum, point) => sum + point.value, 0) / series.points.length;
     nutrientRows.push([series.displayName, `${Math.round(avg)}%`, String(series.points.length)]);
   }
@@ -243,8 +245,8 @@ export async function buildReport(days: number): Promise<ReportDocument> {
         : '';
     bodyRows.push(['Weight', `${weight.value} ${weight.unit}`, weight.loggedAt.slice(0, 10), change]);
   }
-  const systolic = latestOf('systolic');
-  const diastolic = latestOf('diastolic');
+  const systolic = latestOf('blood_pressure_systolic');
+  const diastolic = latestOf('blood_pressure_diastolic');
   if (systolic && diastolic) {
     bodyRows.push([
       'Blood pressure',

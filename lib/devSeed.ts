@@ -37,19 +37,29 @@ import {
   deleteBeverage,
   deleteDessert,
   deleteFavorite,
+  createPersonalRule,
+  createPrescriptionTreatment,
+  deleteBodyMeasurement,
+  deleteCheckin,
   deleteFermentation,
   deleteFoodTrial,
   deleteHandheld,
+  deleteLabResult,
   deleteMeal,
+  deletePersonalRule,
   deleteSalad,
   deleteSauce,
   deleteSide,
   deleteSmoothie,
   deleteSnack,
   deleteSoup,
+  deleteTreatment,
   getCuratedRecipe,
   getCuratedRecipeStrainIds,
   getDatabase,
+  recordBodyMeasurement,
+  recordCheckin,
+  recordLabResult,
   resolveFoodTrial,
   saveBakedGoods,
   saveBeverage,
@@ -63,12 +73,17 @@ import {
   saveSmoothie,
   saveSnack,
   saveSoup,
+  scheduleAppointment,
   scheduleMeal,
+  schedulePrescriptionDose,
   setFermentationBatchStrains,
   settlePastScheduledMeals,
+  type CheckinType,
+  type CheckinValence,
   type MealComponentSelection,
   type MealComponentType,
 } from './db';
+import { requestReminderPermission, syncReminderNotifications } from './reminderNotifications';
 
 // Every real record this tool creates carries this exact prefix on its own
 // name/title -- the one real, human-visible signal (alongside the manifest
@@ -570,6 +585,260 @@ export async function seedTest90Days(): Promise<void> {
 // made, so there's nothing to record in the manifest for those -- every
 // one of them still carries the real NAME_PREFIX on its own name, which is
 // what this sweep matches on instead.
+// Several of lib/db.ts's record helpers build their id from Date.now()
+// alone (checkin_, lab_result_, body_measurement_, treatment_), which is
+// fine for a person tapping Save and not for a loop writing thirty rows
+// back to back. A short wait between writes keeps every id distinct.
+function nextMillisecond(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 2));
+}
+
+export type HealthSeedSummary = {
+  checkins: number;
+  measurements: number;
+  labResults: number;
+  rules: number;
+  doseReminderAt: string;
+  appointmentAt: string;
+  reminderPermission: 'granted' | 'denied' | 'unavailable';
+  pendingReminders: number;
+};
+
+// 2026-09-14. What the three native features of that day read, so each
+// can be looked at on a phone without weeks of logging first: thirty days
+// of check-ins (flares, after-meal notes, sleep, general) for Pattern
+// Finder and the report's check-in sections; a weight series and cuff
+// readings in body_measurements for the report's "Weight and blood
+// pressure" table; two lab draws two months apart for the labs table; a
+// self rule and a doctor rule for the report's marked box; and one active
+// prescription with a dose due a few minutes from now (the reminder to
+// watch for) plus a two-week 07:00 series and an appointment tomorrow
+// morning for the Schedules lenses. Steps and sleep sessions are not
+// seeded: Life > Movement pulls those from the phone's health store, and a
+// row claiming the phone recorded something it did not would be a lie the
+// charts could not tell apart from the truth. Everything else carries the
+// [TEST] prefix where it has a name and is written to the manifest, so
+// Clear removes it all.
+export async function seedHealthTestData(): Promise<HealthSeedSummary> {
+  await ensureSeedManifestTable();
+  const summary: HealthSeedSummary = {
+    checkins: 0,
+    measurements: 0,
+    labResults: 0,
+    rules: 0,
+    doseReminderAt: '',
+    appointmentAt: '',
+    reminderPermission: 'unavailable',
+    pendingReminders: 0,
+  };
+
+  // Check-ins across the last thirty days. Flares fall on a loose
+  // every-few-days rhythm with the severity varying, after-meal notes
+  // alternate between a calm one and a bloated one, and a few sleep and
+  // general notes fill the gaps, so Pattern Finder has both a signal and
+  // some noise to work with.
+  const flareDays = [-27, -23, -19, -16, -12, -9, -5, -2];
+  const flareSeverity = [2, 3, 4, 3, 2, 3, 4, 2];
+  const flareTags = [['fatigue'], ['bloating', 'fatigue'], ['bloating', 'cramping'], ['fatigue', 'low_mood'], ['bloating'], ['fatigue'], ['bloating', 'nausea'], ['fatigue']];
+  for (const [index, dayOffset] of flareDays.entries()) {
+    await nextMillisecond();
+    const id = await recordCheckin({
+      loggedAt: dateAt(dayOffset, 15, 30 + index),
+      checkinType: 'flare',
+      valence: 'negative',
+      severity: flareSeverity[index],
+      notes: `${NAME_PREFIX}Flare, seeded`,
+      tags: flareTags[index],
+    });
+    await recordSeeded('wellbeing_checkins', id);
+    summary.checkins += 1;
+  }
+  const mealNotes: { dayOffset: number; valence: CheckinValence; food: string; tags: string[] }[] = [
+    { dayOffset: -28, valence: 'negative', food: 'Oat porridge', tags: ['bloating'] },
+    { dayOffset: -26, valence: 'positive', food: 'Salmon and greens', tags: ['digestion_calm'] },
+    { dayOffset: -24, valence: 'negative', food: 'Oat porridge', tags: ['bloating', 'gas'] },
+    { dayOffset: -21, valence: 'positive', food: 'Chicken soup', tags: ['digestion_calm', 'good_energy'] },
+    { dayOffset: -18, valence: 'neutral', food: 'Rice bowl', tags: [] },
+    { dayOffset: -15, valence: 'negative', food: 'Oat porridge', tags: ['bloating'] },
+    { dayOffset: -13, valence: 'positive', food: 'Baked cod', tags: ['digestion_calm'] },
+    { dayOffset: -10, valence: 'negative', food: 'Lentil stew', tags: ['gas', 'cramping'] },
+    { dayOffset: -7, valence: 'positive', food: 'Omelette', tags: ['good_energy'] },
+    { dayOffset: -4, valence: 'negative', food: 'Oat porridge', tags: ['bloating'] },
+    { dayOffset: -3, valence: 'positive', food: 'Roast chicken', tags: ['digestion_calm'] },
+    { dayOffset: -1, valence: 'neutral', food: 'Vegetable soup', tags: [] },
+  ];
+  for (const note of mealNotes) {
+    await nextMillisecond();
+    const id = await recordCheckin({
+      loggedAt: dateAt(note.dayOffset, 13, 5),
+      checkinType: 'post_meal',
+      valence: note.valence,
+      foodName: `${NAME_PREFIX}${note.food}`,
+      tags: note.tags,
+    });
+    await recordSeeded('wellbeing_checkins', id);
+    summary.checkins += 1;
+  }
+  const otherNotes: { dayOffset: number; type: CheckinType; valence: CheckinValence; tags: string[] }[] = [
+    { dayOffset: -25, type: 'sleep', valence: 'negative', tags: ['woke_frequently', 'groggy'] },
+    { dayOffset: -20, type: 'sleep', valence: 'positive', tags: [] },
+    { dayOffset: -17, type: 'general', valence: 'positive', tags: ['calm_good_mood'] },
+    { dayOffset: -11, type: 'sleep', valence: 'negative', tags: ['trouble_falling_asleep'] },
+    { dayOffset: -8, type: 'stress', valence: 'negative', tags: ['stressed', 'irritable'] },
+    { dayOffset: -6, type: 'sleep', valence: 'positive', tags: [] },
+    { dayOffset: 0, type: 'general', valence: 'neutral', tags: [] },
+  ];
+  for (const note of otherNotes) {
+    await nextMillisecond();
+    const id = await recordCheckin({
+      loggedAt: dateAt(note.dayOffset, note.type === 'sleep' ? 7 : 20, 45),
+      checkinType: note.type,
+      valence: note.valence,
+      notes: `${NAME_PREFIX}Seeded ${note.type} check-in`,
+      tags: note.tags,
+    });
+    await recordSeeded('wellbeing_checkins', id);
+    summary.checkins += 1;
+  }
+
+  // Weight every third morning, drifting down about a kilo over the month
+  // with a little day-to-day wobble, and five cuff readings, under the
+  // same type names Home and Life type them in with.
+  for (let i = 0; i <= 9; i += 1) {
+    await nextMillisecond();
+    const dayOffset = -27 + i * 3;
+    const wobble = ((i * 7) % 3 - 1) * 0.2;
+    const id = await recordBodyMeasurement({
+      loggedAt: dateAt(dayOffset, 7, 10),
+      measurementType: 'weight',
+      value: Math.round((82.6 - i * 0.12 + wobble) * 10) / 10,
+      unit: 'kg',
+      notes: `${NAME_PREFIX}Seeded`,
+    });
+    await recordSeeded('body_measurements', id);
+    summary.measurements += 1;
+  }
+  const cuff: [number, number, number][] = [[-28, 128, 82], [-21, 131, 84], [-14, 126, 80], [-7, 124, 79], [-1, 122, 78]];
+  for (const [dayOffset, systolic, diastolic] of cuff) {
+    for (const [type, value] of [['blood_pressure_systolic', systolic], ['blood_pressure_diastolic', diastolic]] as const) {
+      await nextMillisecond();
+      const id = await recordBodyMeasurement({
+        loggedAt: dateAt(dayOffset, 8, 0),
+        measurementType: type,
+        value,
+        unit: 'mmHg',
+        notes: `${NAME_PREFIX}Seeded`,
+      });
+      await recordSeeded('body_measurements', id);
+      summary.measurements += 1;
+    }
+  }
+
+  // Two lab draws, two months apart, moving in the direction a dose
+  // adjustment would move them. Codes are lab_tests rows in the reference
+  // database; ranges are that table's typical ranges.
+  const draws: { dayOffset: number; values: [string, number, string, number, number][] }[] = [
+    {
+      dayOffset: -62,
+      values: [['tsh', 5.8, 'mIU/L', 0.4, 4.5], ['free_t4', 0.9, 'ng/dL', 0.8, 1.8], ['tpo_ab', 210, 'IU/mL', 0, 35], ['ferritin', 22, 'ng/mL', 15, 150], ['vitamin_d_test', 24, 'ng/mL', 30, 100]],
+    },
+    {
+      dayOffset: -5,
+      values: [['tsh', 3.1, 'mIU/L', 0.4, 4.5], ['free_t4', 1.1, 'ng/dL', 0.8, 1.8], ['tpo_ab', 160, 'IU/mL', 0, 35], ['ferritin', 31, 'ng/mL', 15, 150], ['vitamin_d_test', 38, 'ng/mL', 30, 100]],
+    },
+  ];
+  for (const draw of draws) {
+    for (const [testCode, value, unit, low, high] of draw.values) {
+      await nextMillisecond();
+      const id = await recordLabResult({
+        testCode,
+        value,
+        unit,
+        labRangeLow: low,
+        labRangeHigh: high,
+        testedAt: dateAt(draw.dayOffset, 0, 0).slice(0, 10),
+        labName: `${NAME_PREFIX}Community lab`,
+        notes: `${NAME_PREFIX}Seeded`,
+      });
+      await recordSeeded('lab_results', id);
+      summary.labResults += 1;
+    }
+  }
+
+  // One active prescription, its doses, and the rules that mention it.
+  await nextMillisecond();
+  const treatmentId = await createPrescriptionTreatment({
+    name: `${NAME_PREFIX}Levothyroxine`,
+    genericName: 'levothyroxine',
+    doseAmount: 75,
+    doseUnit: 'mcg',
+    frequency: 'once daily',
+    notes: `${NAME_PREFIX}Seeded`,
+  });
+  // The treatment's manifest row also covers every dose linked to it (see
+  // clearSeededTestData), so the daily series needs no manifest rows.
+  await recordSeeded('treatments', treatmentId);
+
+  const soon = new Date();
+  soon.setMinutes(soon.getMinutes() + 3);
+  const doseTime = `${pad(soon.getHours())}:${pad(soon.getMinutes())}`;
+  const doseReminderAt = `${dateAt(0, 0, 0).slice(0, 10)}T${doseTime}`;
+  await schedulePrescriptionDose({
+    treatmentId,
+    title: `${NAME_PREFIX}Levothyroxine`,
+    scheduledFor: doseReminderAt,
+    notes: `${NAME_PREFIX}The dose to watch the reminder for`,
+  });
+  await schedulePrescriptionDose({
+    treatmentId,
+    title: `${NAME_PREFIX}Levothyroxine`,
+    scheduledFor: dateAt(1, 7, 0),
+    repeat: { type: 'daily', endType: 'count', count: 14 },
+  });
+  summary.doseReminderAt = doseReminderAt;
+
+  const appointmentAt = dateAt(1, 10, 30);
+  const appointmentId = await scheduleAppointment({
+    title: `${NAME_PREFIX}Endocrinology follow-up`,
+    scheduledFor: appointmentAt,
+    appointmentType: 'doctor',
+    location: `${NAME_PREFIX}Clinic, second floor`,
+    providerName: `${NAME_PREFIX}Dr. Rivera`,
+    notes: `${NAME_PREFIX}Bring the last two lab reports`,
+  });
+  await recordSeeded('schedule_items', appointmentId);
+  summary.appointmentAt = appointmentAt;
+
+  await nextMillisecond();
+  const selfRule = await createPersonalRule({
+    description: `${NAME_PREFIX}Skip oat porridge at breakfast; bloating followed it four times this month.`,
+    source: 'self',
+    linkType: 'none',
+  });
+  await recordSeeded('personal_rules', selfRule);
+  await nextMillisecond();
+  const doctorRule = await createPersonalRule({
+    description: `${NAME_PREFIX}Take levothyroxine on an empty stomach and wait an hour before coffee or food.`,
+    source: 'doctor',
+    linkType: 'treatment',
+    linkValue: treatmentId,
+    linkLabel: `${NAME_PREFIX}Levothyroxine`,
+  });
+  await recordSeeded('personal_rules', doctorRule);
+  summary.rules = 2;
+
+  // Arm the reminders for the dose and the appointment straight away, the
+  // same reconcile Schedules runs after a change, so the seeded dose can
+  // fire without anything else being tapped first. The permission prompt
+  // is the phone's; a refusal is reported, not hidden.
+  const granted = await requestReminderPermission();
+  const synced = await syncReminderNotifications();
+  summary.reminderPermission = granted ? synced.permission : 'denied';
+  summary.pendingReminders = synced.pending;
+
+  return summary;
+}
+
 export async function clearSeededTestData(): Promise<{ deletedCount: number }> {
   await ensureSeedManifestTable();
   const db = await getDatabase();
@@ -629,6 +898,26 @@ export async function clearSeededTestData(): Promise<{ deletedCount: number }> {
         case 'food_trials':
           await deleteFoodTrial(row.record_id);
           break;
+        case 'wellbeing_checkins':
+          await db.runAsync('DELETE FROM checkin_tags WHERE checkin_id = ?', row.record_id);
+          await deleteCheckin(row.record_id);
+          break;
+        case 'body_measurements':
+          await deleteBodyMeasurement(row.record_id);
+          break;
+        case 'lab_results':
+          await deleteLabResult(row.record_id);
+          break;
+        case 'personal_rules':
+          await deletePersonalRule(row.record_id);
+          break;
+        case 'treatments':
+          // Every dose scheduled for the treatment goes with it, and the
+          // phone's pending reminders for those doses are dropped below.
+          await db.runAsync('DELETE FROM schedule_items WHERE linked_treatment_id = ?', row.record_id);
+          await db.runAsync('DELETE FROM treatment_nutrients WHERE treatment_id = ?', row.record_id);
+          await deleteTreatment(row.record_id);
+          break;
         default:
           break;
       }
@@ -658,6 +947,10 @@ export async function clearSeededTestData(): Promise<{ deletedCount: number }> {
   // own order and reports how many. One Clear button, two modules each
   // responsible for what they created.
   deletedCount += await removeKitchenSourceTestData();
+
+  // Reminders scheduled for seeded doses or appointments are cancelled by
+  // the same reconcile that created them, now that their rows are gone.
+  await syncReminderNotifications();
 
   return { deletedCount };
 }

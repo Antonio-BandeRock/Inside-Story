@@ -18791,6 +18791,21 @@ export async function getLatestSyncedBodyMeasurement(measurementType: string): P
   );
 }
 
+// 2026-09-14. The first Health Connect sync filed cuff readings as
+// 'systolic'/'diastolic' while Home and Life had always typed them in as
+// 'blood_pressure_systolic'/'blood_pressure_diastolic', so a typed-in
+// reading never reached the report and a synced one never reached Life's
+// history. One name now; this folds anything already synced under the
+// old name into it.
+export async function renameSyncedBodyMeasurementType(fromType: string, toType: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    `UPDATE body_measurements SET measurement_type = ? WHERE measurement_type = ? AND source = 'health_connect'`,
+    toType,
+    fromType,
+  );
+}
+
 // The sync switch and its bookkeeping, in app_meta like the other
 // app-wide settings. 'enabled' is the person's choice on the Movement area;
 // last_sync is the ISO instant the last successful pull finished, which the

@@ -130,8 +130,8 @@ export function MovementSection({ tabColor }: Props) {
         getLatestHealthRecord('skin_temperature'),
         getLatestHealthRecord('menstruation'),
         getLatestSyncedBodyMeasurement('weight'),
-        getLatestSyncedBodyMeasurement('systolic'),
-        getLatestSyncedBodyMeasurement('diastolic'),
+        getLatestSyncedBodyMeasurement('blood_pressure_systolic'),
+        getLatestSyncedBodyMeasurement('blood_pressure_diastolic'),
         listHealthRecords('exercise', 90),
         getStoredMeasurementSystem(),
       ]);

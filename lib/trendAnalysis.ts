@@ -92,6 +92,22 @@ export type NutrientTrendSeries = {
 // charting it as such would flood the trend with noise that has nothing to
 // do with real intake.
 export async function getNutrientTrendSeriesForRange(nutrientCode: string, startDate: string, endDate: string): Promise<NutrientTrendSeries> {
+  const bySeries = await getNutrientTrendSeriesForCodes([nutrientCode], startDate, endDate);
+  return bySeries.get(nutrientCode) ?? { points: [], latestStatus: null, displayName: null, unit: null };
+}
+
+// Several nutrients from one pass over the range (2026-09-14). The
+// expensive part is resolving every logged ingredient's nutrients for
+// every day, and that does not depend on which nutrient is asked about;
+// the per-nutrient work is a lookup in the analysed day. The Reports
+// tab asks for nine nutrients at once, and on a phone with full recipes
+// logged, running the ingredient pass nine times took minutes. One pass,
+// then nine lookups, is the same numbers in a ninth of the time.
+export async function getNutrientTrendSeriesForCodes(
+  nutrientCodes: string[],
+  startDate: string,
+  endDate: string,
+): Promise<Map<string, NutrientTrendSeries>> {
   const today = todayDateString();
   const dayTotals: Record<string, Record<string, number>> = {};
   let driRows: Awaited<ReturnType<typeof getNutrientTotalsByDateRange>>['driRows'] = [];
@@ -111,26 +127,26 @@ export async function getNutrientTrendSeriesForRange(nutrientCode: string, start
     if (Object.keys(supplementTotals).length === 0) supplementTotals = projected.supplementTotals;
   }
 
-  const points: TrendPoint[] = [];
-  let latestStatus: NutrientStatus | null = null;
-  let displayName: string | null = null;
-  let unit: string | null = null;
+  const result = new Map<string, NutrientTrendSeries>();
+  for (const code of nutrientCodes) result.set(code, { points: [], latestStatus: null, displayName: null, unit: null });
 
   for (const date of dateRangeStringsBetween(startDate, endDate)) {
     const totals = dayTotals[date];
     if (!totals) continue;
 
     const entries = analyzeNutrientIntake(driRows, totals, supplementTotals);
-    const entry = entries.find((e) => e.nutrientCode === nutrientCode);
-    if (!entry || !Number.isFinite(entry.percentOfTarget)) continue;
-
-    points.push({ date, value: entry.percentOfTarget });
-    latestStatus = entry.status;
-    displayName = entry.displayName;
-    unit = entry.unit;
+    for (const code of nutrientCodes) {
+      const entry = entries.find((e) => e.nutrientCode === code);
+      if (!entry || !Number.isFinite(entry.percentOfTarget)) continue;
+      const series = result.get(code)!;
+      series.points.push({ date, value: entry.percentOfTarget });
+      series.latestStatus = entry.status;
+      series.displayName = entry.displayName;
+      series.unit = entry.unit;
+    }
   }
 
-  return { points, latestStatus, displayName, unit };
+  return result;
 }
 
 // A plain "last N days ending today" convenience wrapper over the general
