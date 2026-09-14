@@ -14509,6 +14509,56 @@ export async function listScheduledMedDosesFrom(fromDate: string) {
   );
 }
 
+// What lib/reminderNotifications.ts turns into phone notifications: every
+// still-planned dose (of an active treatment) and every still-planned
+// appointment from now through toDate, in one query. Dose rows carry the
+// treatment's amount/unit so the notification can say "Levothyroxine,
+// 75 mcg" without a second lookup. Status 'planned' only: a dose already
+// marked taken or skipped, or an appointment completed or cancelled, has
+// no reminder to fire. The treatment join drops doses left behind by a
+// deactivated med, which the Meds lens hides for the same reason.
+export type ReminderCandidate = {
+  id: string;
+  scheduledFor: string;
+  itemType: string;
+  title: string;
+  location: string | null;
+  providerName: string | null;
+  // Prescriptions and OTC drugs carry amount/unit; supplements describe
+  // themselves as units per day of a labelled serving instead (see the
+  // treatment_nutrients comment on the table). Whichever pair is null is
+  // simply left out of the notification text.
+  doseAmount: number | null;
+  doseUnit: string | null;
+  unitsPerDay: number | null;
+  servingUnitLabel: string | null;
+};
+
+export async function listReminderCandidates(fromLocalDateTime: string, toDate: string): Promise<ReminderCandidate[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<ReminderCandidate>(
+    `
+      SELECT s.id, s.scheduled_for AS scheduledFor, s.item_type AS itemType, s.title,
+        s.location, s.provider_name AS providerName,
+        t.dose_amount AS doseAmount, t.dose_unit AS doseUnit,
+        t.units_per_day AS unitsPerDay, t.serving_unit_label AS servingUnitLabel
+      FROM schedule_items s
+      LEFT JOIN treatments t ON t.id = s.linked_treatment_id
+      WHERE s.status = 'planned'
+        AND s.scheduled_for >= ?
+        AND substr(s.scheduled_for, 1, 10) <= ?
+        AND (
+          s.item_type = 'appointment'
+          OR (s.item_type IN (${MED_DOSE_ITEM_TYPES.map(() => '?').join(', ')}) AND t.id IS NOT NULL AND t.active = 1)
+        )
+      ORDER BY s.scheduled_for ASC
+    `,
+    fromLocalDateTime,
+    toDate,
+    ...MED_DOSE_ITEM_TYPES,
+  );
+}
+
 export async function listScheduledOtcForDate(date: string) {
   const db = await getDatabase();
   return db.getAllAsync<ScheduleItemRecord>(

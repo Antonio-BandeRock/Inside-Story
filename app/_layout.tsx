@@ -5,7 +5,7 @@ import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ActiveInputProvider } from '../components/ActiveInputContext';
 import { AppKeyboard } from '../components/AppKeyboard';
@@ -18,6 +18,7 @@ import { colors } from '../constants/colors';
 import { useHomeDataReady } from '../hooks/useHomeDataReady';
 import { getReferenceDatabase, initializeDatabase, settlePastScheduledMeals } from '../lib/db';
 import { handleIncomingIsFile } from '../lib/isFileLinking';
+import { listenForReminderTaps, syncReminderNotifications } from '../lib/reminderNotifications';
 
 // Kept visible until the header's own branding font finishes loading (see
 // ScreenHeader.tsx) -- without this, the native splash screen hides itself
@@ -126,6 +127,23 @@ export default function RootLayout() {
     settlePastScheduledMeals().catch((error) =>
       console.error('settlePastScheduledMeals failed at startup', error),
     );
+  }, [dbReady]);
+
+  // Local reminders (2026-09-14): the phone's pending notifications are
+  // matched to schedule_items here at startup and every time the app comes
+  // back to the foreground, since that is the only time this app is
+  // guaranteed to run (see lib/reminderNotifications.ts). Both Schedule
+  // lenses holding reminder-bearing rows also sync after their reloads,
+  // so this is the safety net for changes made anywhere else (a med paused
+  // in Life > My Meds, a day rolling over) rather than the only trigger.
+  // Gated on dbReady for the same reason as settlePastScheduledMeals.
+  useEffect(() => {
+    if (!dbReady) return;
+    void syncReminderNotifications();
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void syncReminderNotifications();
+    });
+    return () => subscription.remove();
   }, [dbReady]);
 
   // Kicks off the real, potentially slow reference-database import here
@@ -276,6 +294,14 @@ export default function RootLayout() {
       handleIncomingIsFile(url, router.push);
     });
     return () => subscription.remove();
+  }, [referenceDbReady, router]);
+
+  // A tapped reminder lands on the Schedule lens its item lives in (Meds
+  // or Appointments). Same gating and same cold-start-plus-live shape as
+  // the .is listener above, for the same reasons.
+  useEffect(() => {
+    if (!referenceDbReady) return;
+    return listenForReminderTaps((target) => router.push(target));
   }, [referenceDbReady, router]);
 
   useEffect(() => {

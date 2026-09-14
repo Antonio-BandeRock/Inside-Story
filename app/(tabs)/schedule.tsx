@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useMemo, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
@@ -81,6 +81,7 @@ import {
   type DeviceCalendarEvent,
 } from '../../lib/deviceCalendar';
 import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../../lib/interactionRules';
+import { hasReminderPermission, requestReminderPermission, syncReminderNotifications } from '../../lib/reminderNotifications';
 import type { NutrientGapEntry } from '../../lib/nutrientAnalysis';
 import { buildTime24, describeTimeInputProblem, formatTime12, splitTime24, type TimeOfDayInput } from '../../lib/timeOfDay';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -292,6 +293,10 @@ const LENSES: LensOption<Lens>[] = [
         heading: 'Interaction checking',
         body: 'Calcium, iron and zinc timing, the fat-soluble vitamins, and levothyroxine against calcium or iron are checked automatically once reminder times are set, along with potassium supplements against blood pressure medications and metformin\'s effect on TSH readings. Anything triggered shows under "Things to check" here.',
       },
+      {
+        heading: 'Phone reminders',
+        body: 'Each dose time fires as a notification on this phone at that time, once you allow notifications for Inside Story (asked the first time you save a time, or from the band at the top). Marking a dose taken or skipped, removing it, or pausing the med in My Meds drops its reminder. Every notification says when it was last matched to your schedule; changes made while the app is closed take effect the next time it opens. Nothing leaves the phone.',
+      },
       REPEATING_SCHEDULES_HELP,
     ],
   },
@@ -303,6 +308,10 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Appointments',
         body: 'Doctor, lab/bloodwork, nutritionist, trainer, or other visits: title, type, date/time, location, and provider. Mark one completed or cancelled once it\'s past, or remove it. Appointments don\'t repeat yet; add each one as it\'s scheduled.',
+      },
+      {
+        heading: 'Phone reminders',
+        body: 'An hour before each appointment a notification fires on this phone, once you allow notifications for Inside Story (asked the first time you save one, or from the band at the top). Completing, cancelling or removing an appointment drops its reminder. Nothing leaves the phone, and this works with or without the phone calendar sync below.',
       },
       {
         heading: 'Phone calendar sync',
@@ -2867,6 +2876,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
   const [doseFormTreatmentId, setDoseFormTreatmentId] = useState<string | null>(null);
   const [doseFormTime, setDoseFormTime] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
   const [doseFormRepeat, setDoseFormRepeat] = useState<RepeatConfig>({ type: 'none' });
+  const [reminderPermissionGranted, setReminderPermissionGranted] = useState<boolean | null>(null);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
   // The handoff from Life is consumed once: the param outlives the arrival
@@ -2878,8 +2888,14 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
     setLoading(true);
     const today = todayDateString();
     ensureScheduleSeriesGenerated()
-      .then(() => Promise.all([listAllActiveTreatments(), listScheduledMedDosesFrom(today), evaluateInteractionRules(today)]))
-      .then(([loadedTreatments, doses, evaluation]) => {
+      .then(() =>
+        Promise.all([listAllActiveTreatments(), listScheduledMedDosesFrom(today), evaluateInteractionRules(today), hasReminderPermission()]),
+      )
+      .then(([loadedTreatments, doses, evaluation, reminderGranted]) => {
+        setReminderPermissionGranted(reminderGranted);
+        // Every add, taken, skip and remove above ends here, so this one
+        // call keeps the phone's pending reminders matched to the table.
+        void syncReminderNotifications();
         setTreatments(loadedTreatments);
         const byTreatment: Record<string, ScheduleItemRecord[]> = {};
         for (const dose of doses) {
@@ -2947,6 +2963,9 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
     try {
       await scheduleTreatmentDose({ treatment, scheduledFor: `${todayDateString()}T${time24}`, repeat: doseFormRepeat });
       closeDoseForm();
+      // The time is saved either way; permission only decides whether the
+      // phone rings for it. Asked after the save so a refusal costs nothing.
+      await ensureReminderPermission(reminderPermissionGranted, setReminderPermissionGranted, showInfoAlert);
       load();
     } catch (error) {
       showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
@@ -3179,6 +3198,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
           onPress={() => openMyMeds()}
         />
       </View>
+      <ReminderPermissionBand granted={reminderPermissionGranted} onGranted={setReminderPermissionGranted} noun="dose time" />
       {loading ? (
         <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : errorMessage ? (
@@ -3335,6 +3355,66 @@ async function ensureDeviceCalendarPermission(
   return granted;
 }
 
+// The notification counterpart to ensureDeviceCalendarPermission above,
+// shared by Meds and Appointments (2026-09-14, the first JS on top of the
+// expo-notifications native compiled into 1.0.37.33). Asked the first time
+// a dose time or appointment is saved, so the prompt arrives with a reason
+// attached rather than at app start. A refusal is remembered by the OS, so
+// the alert points at Settings instead of asking again.
+async function ensureReminderPermission(
+  currentlyGranted: boolean | null,
+  setGranted: (granted: boolean) => void,
+  showInfoAlert: (title: string, message: string) => void,
+): Promise<boolean> {
+  if (currentlyGranted) {
+    return true;
+  }
+  const granted = await requestReminderPermission();
+  setGranted(granted);
+  if (!granted) {
+    showInfoAlert(
+      'Reminders are off',
+      "Turn on notifications for Inside Story in your phone's Settings and the times you set here will fire as reminders.",
+    );
+  }
+  return granted;
+}
+
+// The band shown at the top of Meds and Appointments until notifications
+// are allowed. Tapping asks; once the OS has recorded a refusal the prompt
+// never shows again, so a second tap opens the app's Settings page instead.
+function ReminderPermissionBand({
+  granted,
+  onGranted,
+  noun,
+}: {
+  granted: boolean | null;
+  onGranted: (granted: boolean) => void;
+  noun: string;
+}) {
+  if (granted) return null;
+  return (
+    <View style={styles.bandOut}>
+      <HomeSectionBand
+        kind="action"
+        title="Turn on reminders"
+        caption={`Let Inside Story send notifications so each ${noun} you set here fires on this phone.`}
+        icon="notifications-outline"
+        color={TAB_COLOR}
+        onPress={() => {
+          void (async () => {
+            const allowed = await requestReminderPermission();
+            onGranted(allowed);
+            if (!allowed && granted === false) {
+              Linking.openSettings().catch(() => {});
+            }
+          })();
+        }}
+      />
+    </View>
+  );
+}
+
 type AppointmentFormState = {
   editingId: string | null;
   title: string;
@@ -3380,6 +3460,7 @@ function AppointmentsLens() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<AppointmentFormState>(blankAppointmentForm());
   const [calendarPermissionGranted, setCalendarPermissionGranted] = useState<boolean | null>(null);
+  const [reminderPermissionGranted, setReminderPermissionGranted] = useState<boolean | null>(null);
   const [showImportPicker, setShowImportPicker] = useState(false);
   const [deviceEvents, setDeviceEvents] = useState<DeviceCalendarEvent[]>([]);
   const [importLoading, setImportLoading] = useState(false);
@@ -3396,11 +3477,16 @@ function AppointmentsLens() {
       ),
       evaluateInteractionRules(today),
       hasCalendarPermission(),
+      hasReminderPermission(),
     ])
-      .then(([loadedAppointments, evaluation, granted]) => {
+      .then(([loadedAppointments, evaluation, granted, reminderGranted]) => {
         setAppointments(loadedAppointments);
         setInteractionWarnings(evaluation.warnings);
         setCalendarPermissionGranted(granted);
+        setReminderPermissionGranted(reminderGranted);
+        // Same reason as the Meds lens: every save, complete, cancel and
+        // remove reloads, so the phone's reminders get matched here.
+        void syncReminderNotifications();
       })
       .catch((error) => {
         setErrorMessage(`Could not load appointments: ${error instanceof Error ? error.message : String(error)}`);
@@ -3480,6 +3566,9 @@ function AppointmentsLens() {
         });
       }
       closeForm();
+      // Saved either way; see the Meds lens's handleSaveDose for why the
+      // permission ask comes after the save.
+      await ensureReminderPermission(reminderPermissionGranted, setReminderPermissionGranted, showInfoAlert);
       load();
     } catch (error) {
       showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
@@ -3618,6 +3707,7 @@ function AppointmentsLens() {
         message={removePrompt?.message}
         actions={removePrompt?.actions ?? []}
       />
+      <ReminderPermissionBand granted={reminderPermissionGranted} onGranted={setReminderPermissionGranted} noun="appointment" />
       {loading ? (
         <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : errorMessage ? (
