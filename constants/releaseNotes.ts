@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.26',
+    date: '2026-09-13',
+    changes: [
+      'Schedules > Hydration and Schedules > My Meds open in a moment rather than after a long wait. Both were adding up the nutrients for the day one ingredient at a time; they now use the same one-pass sum Home and Insights already use.',
+    ],
+  },
+  {
     version: '1.0.37.25',
     date: '2026-09-13',
     changes: [

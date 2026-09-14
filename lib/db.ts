@@ -16817,97 +16817,29 @@ export type DailyNutrientAnalysisResult = {
 // lib/nutrientAnalysis.ts's analyzeNutrientIntake. This is what turns
 // logging a meal into "here's what you're short on today" instead of just
 // a saved record.
+//
+// 2026-09-13: a thin layer over getDailyNutrientBreakdown below rather than
+// its own walk of the day. Reported: "When I select Schedules > Hydration it
+// takes a good 20 seconds for it to display anything. The same happens with
+// My Meds." Those two lenses are this function's only callers, and it was
+// still doing what the breakdown stopped doing on 2026-08-16: one
+// getMealItems query per meal, then one getFoodNutrients query per
+// ingredient (the sibling-fallback CTE, a CROSS JOIN and a window function
+// each time), every one serialized through the single SQLite connection.
+// The breakdown fetches the day's items in one query and every distinct
+// food's nutrients in two, and already returns the day totals, DRI rows,
+// supplement totals, unresolved items and profile flag this needs, so the
+// header comment above the breakdown saying the two were "kept in sync
+// deliberately" describes a second copy that no longer exists: there is
+// one computation, and this is its day-level summary.
 export async function getDailyNutrientAnalysis(date: string): Promise<DailyNutrientAnalysisResult> {
-  const meals = await listMealsForDate(date);
-  const foodTotals: Record<string, number> = {};
-  const unresolvedItems: { mealItemId: string; foodName: string; reason: string }[] = [];
-
-  for (const meal of meals) {
-    const items = await getMealItems(meal.id);
-
-    for (const item of items) {
-      if (!item.foodId || item.servingSize == null || !item.servingUnit) {
-        unresolvedItems.push({ mealItemId: item.id, foodName: item.foodName, reason: 'not_linked_to_a_food' });
-        continue;
-      }
-
-      const [foodIdStr, source] = item.foodId.split('|');
-      const foodId = Number(foodIdStr);
-      if (!source || Number.isNaN(foodId)) {
-        unresolvedItems.push({ mealItemId: item.id, foodName: item.foodName, reason: 'not_linked_to_a_food' });
-        continue;
-      }
-
-      let grams: number;
-
-      // 'each' is a count, not a mass/volume unit -- convertToGrams
-      // doesn't (and shouldn't) know what to do with it, since that needs
-      // a per-food "how much does one weigh" fact, not unit math. Handled
-      // as its own branch rather than folded into normalizeUnitForConversion.
-      if (item.servingUnit.trim().toLowerCase() === 'each') {
-        const unitWeight = await getFoodUnitWeight(foodId, source);
-        if (!unitWeight) {
-          unresolvedItems.push({ mealItemId: item.id, foodName: item.foodName, reason: 'no_unit_weight_data' });
-          continue;
-        }
-        grams = unitWeight.gramsPerUnit * item.servingSize;
-      } else {
-        const unit = normalizeUnitForConversion(item.servingUnit);
-        if (!unit) {
-          unresolvedItems.push({ mealItemId: item.id, foodName: item.foodName, reason: 'unsupported_unit' });
-          continue;
-        }
-
-        // Only volume units need the food's category (to resolve a density
-        // class) -- skip the extra lookup for mass units, which convert
-        // exactly regardless of what food they belong to. meal_items now
-        // stores category directly (set at save time), so this only falls
-        // back to a live lookup for rows saved before that column existed.
-        const foodCategory = !(VOLUME_UNITS as readonly string[]).includes(unit)
-          ? null
-          : item.category ?? (await getFoodCategory(foodId, source));
-
-        const conversion = convertToGrams(item.servingSize, unit, { foodCategory: foodCategory ?? undefined });
-        if (!conversion.ok) {
-          unresolvedItems.push({ mealItemId: item.id, foodName: item.foodName, reason: conversion.reason });
-          continue;
-        }
-        grams = conversion.grams;
-      }
-
-      const totalGramsForDish = grams * (item.quantity ?? 1);
-      // yourSharePercent is what actually gets used -- an even split across
-      // dishServings is only ever a rough starting assumption (two people
-      // sharing a dish rarely eat exactly equal portions), so the app
-      // tracks this person's real share directly rather than assuming
-      // 1/dishServings. Rows saved before this field existed have no
-      // yourSharePercent on file, so they fall back to the old equal-split
-      // assumption rather than losing history.
-      const shareFraction = item.yourSharePercent != null ? item.yourSharePercent / 100 : 1 / (item.dishServings ?? 1);
-      const gramsConsumedByThisPerson = totalGramsForDish * shareFraction;
-
-      const nutrients = await getFoodNutrients(foodId, source);
-      const scaled = sumFoodNutrientTotals([{ gramsConsumed: gramsConsumedByThisPerson, nutrients }]);
-
-      for (const [code, amount] of Object.entries(scaled)) {
-        foodTotals[code] = (foodTotals[code] ?? 0) + amount;
-      }
-    }
-  }
-
-  const [supplementResult, driRows, profile] = await Promise.all([
-    getSupplementNutrientTotals(),
-    getDietaryReferenceIntakesForCurrentUser(),
-    getUserProfile(),
-  ]);
-
-  const entries = analyzeNutrientIntake(driRows, foodTotals, supplementResult.totals);
-
+  const breakdown = await getDailyNutrientBreakdown(date);
+  const entries = analyzeNutrientIntake(breakdown.driRows, breakdown.dayTotals, breakdown.supplementTotals);
   return {
     entries,
-    unresolvedItems,
-    supplementSkipped: supplementResult.skipped,
-    profileComplete: profile.sex != null && profile.birthDate != null,
+    unresolvedItems: breakdown.unresolvedItems,
+    supplementSkipped: breakdown.supplementSkipped,
+    profileComplete: breakdown.profileComplete,
   };
 }
 
@@ -16951,11 +16883,10 @@ export type DailyNutrientBreakdown = {
 
 // Item -> side -> meal -> day nutrient breakdown for one date -- the
 // Nutrients lens's data source, analogous to getDailySixDimensionsBreakdown
-// but for nutrient amounts instead of D1-D6 scores. Reuses the exact same
-// unit-conversion/yourSharePercent math as getDailyNutrientAnalysis above
-// (kept in sync deliberately -- both must agree on what a food's real
-// consumed grams are), just keyed by scope instead of flattened straight to
-// one day total. Each distinct food's raw per-100g nutrient list is fetched
+// but for nutrient amounts instead of D1-D6 scores. Since 2026-09-13 this is
+// also the one place the day's consumed grams are worked out:
+// getDailyNutrientAnalysis above is a summary of this function's own
+// dayTotals rather than a second copy of the same conversion math. Each distinct food's raw per-100g nutrient list is fetched
 // at most once per date, then scaled locally per item -- the scaling can't
 // be cached since the same food can be eaten in different amounts at
 // different points in the day.
