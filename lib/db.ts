@@ -4785,6 +4785,31 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_health_records_type_date ON health_records(record_type, local_date);
 
+      -- --- Per-day nutrient totals cache (2026-09-14) -------------------
+      --
+      -- What a day's logged meals add up to, nutrient by nutrient, once
+      -- worked out. Working it out means resolving every ingredient of
+      -- every meal against the reference database (a heavy query per
+      -- distinct food), and Trends > Nutrients, Pattern Finder and the
+      -- Report each ask for a month or more of days at a time; on a phone
+      -- with full recipes logged, a 30-day report took twenty seconds of
+      -- that alone, every time it was opened. A past day's meals rarely
+      -- change, so the sum is kept here.
+      --
+      -- signature is a digest of everything the sum depends on (the meal
+      -- items of that day with their amounts, the reference database
+      -- version, and the cache format version), built in JS from the
+      -- same rows the calculation reads. A row is reused only when its
+      -- signature matches exactly, so editing, adding or deleting a meal
+      -- item recomputes that day on the next read with no invalidation
+      -- hook anywhere: there is nothing to forget to call.
+      CREATE TABLE IF NOT EXISTS daily_nutrient_totals_cache (
+        date TEXT PRIMARY KEY,
+        signature TEXT NOT NULL,
+        totals_json TEXT NOT NULL,
+        computed_at TEXT NOT NULL
+      );
+
       -- --- Finances (2026-09-05) ----------------------------------------
       --
       -- The Life tab's first area. Direct request: "Finances is much
@@ -17569,6 +17594,49 @@ export function endOfLocalDay(dateOrDateTime: string): string {
   return `${dateOrDateTime.slice(0, 10)}T23:59`;
 }
 
+// Bump when the shape of totals_json or what goes into the signature
+// changes, so every cached day is recomputed once on the next read.
+const DAILY_NUTRIENT_TOTALS_CACHE_FORMAT = 1;
+
+type CachedDayRow = { date: string; signature: string; totals_json: string };
+
+// Everything a day's total depends on, in a fixed order, so the same
+// meals always produce the same string. A meal item's id is included so
+// a replaced item (delete then re-add with identical amounts) still reads
+// as a change; that costs one recompute and never a stale total.
+function dailyNutrientTotalsSignature(items: (MealItemRecord & { eatenAt: string })[]): string {
+  const parts = items
+    .map((item) =>
+      [
+        item.id,
+        item.foodId ?? '',
+        item.category ?? '',
+        item.servingSize ?? '',
+        item.servingUnit ?? '',
+        item.quantity ?? '',
+        item.dishServings ?? '',
+        item.yourSharePercent ?? '',
+      ].join(':'),
+    )
+    .sort();
+  return `v${DAILY_NUTRIENT_TOTALS_CACHE_FORMAT}|ref${REFERENCE_DB_VERSION}|${parts.join(';')}`;
+}
+
+// Drops every cached day. Only needed when something a total depends on
+// changes without the day's meal items changing, which today is one
+// case: deleting a scanned product, whose nutrient panel lived in this
+// database and is gone with it.
+export async function clearDailyNutrientTotalsCache(): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM daily_nutrient_totals_cache');
+}
+
+// Per-day nutrient totals for every day in the range that has meals
+// logged. Days are served from daily_nutrient_totals_cache when the
+// cached row's signature matches today's meal items for that day, and
+// recomputed (then cached) otherwise; see the table's schema comment for
+// why that is safe without any invalidation hook. Only days that had to
+// be recomputed pay for the reference-database lookups.
 export async function getNutrientTotalsByDateRange(startLocal: string, endLocal: string): Promise<NutrientTotalsByDateRange> {
   const [items, supplementResult, driRows] = await Promise.all([
     getMealItemsInWindow(startLocal, endOfLocalDay(endLocal)),
@@ -17576,27 +17644,76 @@ export async function getNutrientTotalsByDateRange(startLocal: string, endLocal:
     getDietaryReferenceIntakesForCurrentUser(),
   ]);
 
+  const itemsByDate = new Map<string, (MealItemRecord & { eatenAt: string })[]>();
+  for (const item of items) {
+    const date = item.eatenAt.slice(0, 10);
+    const list = itemsByDate.get(date);
+    if (list) list.push(item);
+    else itemsByDate.set(date, [item]);
+  }
+
+  const db = await getDatabase();
+  const cachedRows = await db.getAllAsync<CachedDayRow>(
+    'SELECT date, signature, totals_json FROM daily_nutrient_totals_cache WHERE date BETWEEN ? AND ?',
+    startLocal.slice(0, 10),
+    endLocal.slice(0, 10),
+  );
+  const cachedByDate = new Map(cachedRows.map((row) => [row.date, row]));
+
   const caches = createIngredientResolutionCaches();
   const dayTotals: Record<string, Record<string, number>> = {};
+  const toStore: { date: string; signature: string; totals: Record<string, number> }[] = [];
 
-  for (const item of items) {
-    const itemTotals = await resolveIngredientNutrientTotals(
-      {
-        foodId: item.foodId,
-        category: item.category,
-        rawAmount: item.servingSize ?? 0,
-        rawUnit: item.servingUnit ?? '',
-        quantityMultiplier: item.quantity,
-        dishServings: item.dishServings,
-        yourSharePercent: item.yourSharePercent,
-      },
-      caches,
-    );
-    if (!itemTotals) continue;
+  for (const [date, dayItems] of itemsByDate) {
+    const signature = dailyNutrientTotalsSignature(dayItems);
+    const cached = cachedByDate.get(date);
+    if (cached && cached.signature === signature) {
+      try {
+        const parsed = JSON.parse(cached.totals_json) as Record<string, number>;
+        if (parsed && typeof parsed === 'object') {
+          dayTotals[date] = parsed;
+          continue;
+        }
+      } catch {
+        // Unreadable row: fall through and recompute it.
+      }
+    }
 
-    const date = item.eatenAt.slice(0, 10);
-    if (!dayTotals[date]) dayTotals[date] = {};
-    addNutrientTotalsInto(dayTotals[date], itemTotals);
+    const totals: Record<string, number> = {};
+    for (const item of dayItems) {
+      const itemTotals = await resolveIngredientNutrientTotals(
+        {
+          foodId: item.foodId,
+          category: item.category,
+          rawAmount: item.servingSize ?? 0,
+          rawUnit: item.servingUnit ?? '',
+          quantityMultiplier: item.quantity,
+          dishServings: item.dishServings,
+          yourSharePercent: item.yourSharePercent,
+        },
+        caches,
+      );
+      if (!itemTotals) continue;
+      addNutrientTotalsInto(totals, itemTotals);
+    }
+    dayTotals[date] = totals;
+    toStore.push({ date, signature, totals });
+  }
+
+  if (toStore.length > 0) {
+    const computedAt = new Date().toISOString();
+    await db.withTransactionAsync(async () => {
+      for (const entry of toStore) {
+        await db.runAsync(
+          `INSERT INTO daily_nutrient_totals_cache (date, signature, totals_json, computed_at) VALUES (?, ?, ?, ?)
+           ON CONFLICT(date) DO UPDATE SET signature = excluded.signature, totals_json = excluded.totals_json, computed_at = excluded.computed_at`,
+          entry.date,
+          entry.signature,
+          JSON.stringify(entry.totals),
+          computedAt,
+        );
+      }
+    });
   }
 
   return { dayTotals, driRows, supplementTotals: supplementResult.totals };
@@ -20393,6 +20510,9 @@ export async function updateScannedProduct(
 export async function deleteScannedProduct(id: number): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM scanned_products WHERE id = ?', id);
+  // Any day that ate this product now sums differently; its meal items
+  // did not change, so the cache's signature would not notice.
+  await clearDailyNutrientTotalsCache();
 }
 
 // getFoodNutrients' own real branch for source='Scanned' -- deliberately

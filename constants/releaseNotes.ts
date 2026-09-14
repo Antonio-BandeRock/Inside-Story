@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.39',
+    date: '2026-09-14',
+    changes: [
+      'Nutrient totals for past days are remembered once worked out. The Report, Trends > Nutrients and Pattern Finder used to add up every ingredient of every logged meal against the food database each time they opened, which took twenty seconds for a month of full recipes; now only days whose meals changed since the last look are added up again, so a second open is quick.',
+      'The remembered totals check themselves against the meals logged for that day, so editing, adding or removing a meal recomputes that day the next time it is read. Nothing to clear, nothing to refresh by hand.',
+    ],
+  },
+  {
     version: '1.0.37.38',
     date: '2026-09-14',
     changes: [
