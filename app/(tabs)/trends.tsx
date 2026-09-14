@@ -208,7 +208,7 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       },
       {
         heading: 'What it needs before it will say anything',
-        body: 'At least three sessions of the same therapy, and enough check-ins both after those sessions and on ordinary days to compare them against. Below that it says so instead of showing a percentage worked out from one good afternoon. Log sessions under Schedules > Hands-On Therapies and keep doing your ordinary check-ins on Signals.',
+        body: 'At least three sessions of the same therapy, and enough check-ins both after those sessions and on ordinary days to compare them against. Below that it says so instead of showing a percentage worked out from one good afternoon. Log sessions under Signals > Hands-On Therapies and keep doing your ordinary check-ins there too.',
       },
       {
         heading: 'What the baseline is',
@@ -1105,7 +1105,7 @@ export default function TrendsScreen() {
                 ) : !therapyResponse || therapyResponse.totalSessions === 0 ? (
                   <Text style={[styles.loadingText, styles.panelStandalone]}>
                     {
-                      'No hands-on sessions logged in this range yet. Log one under Schedules > Hands-On Therapies after your next appointment.'
+                      'No hands-on sessions logged in this range yet. Log one under Signals > Hands-On Therapies after your next appointment.'
                     }
                   </Text>
                 ) : (

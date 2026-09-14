@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.28',
+    date: '2026-09-13',
+    changes: [
+      'Hands-On Therapies moved from Schedules to Signals. A session logged there is something that already happened, which is what Signals holds; booking the next visit stays under Schedules > Appointments, and Trends > Therapy Response reads the sessions as before.',
+    ],
+  },
+  {
     version: '1.0.37.27',
     date: '2026-09-13',
     changes: [

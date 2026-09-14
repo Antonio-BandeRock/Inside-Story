@@ -15,6 +15,7 @@ import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
+import { TherapySessionsSection } from '../../components/TherapySessionsSection';
 import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { getCheckinTagsByCategory, type CheckinTagDefinition } from '../../lib/checkinTags';
@@ -68,7 +69,7 @@ const TAB_COLOR = colors.tabBioCompass;
 // out. Nocturia added the same day as a new lens -- genuinely new
 // territory, no logging schema exists for it yet (see NocturiaLens's own
 // comment).
-type Lens = 'flares' | 'foodReactions' | 'newFoods' | 'exercise' | 'bloodPressure' | 'generalNote' | 'nocturia';
+type Lens = 'flares' | 'foodReactions' | 'newFoods' | 'exercise' | 'bloodPressure' | 'therapies' | 'generalNote' | 'nocturia';
 
 // Shared caveat, appended to every lens's help -- same pattern as
 // DRILLING_DOWN_HELP (insights.tsx), REPEATING_SCHEDULES_HELP (schedule.tsx),
@@ -135,6 +136,28 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Blood Pressure',
         body: 'Log a reading (systolic, diastolic, and pulse) whenever you take one.',
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
+  // Moved from Schedules on 2026-09-13: a session here already happened,
+  // which is what this tab holds. See components/TherapySessionsSection.tsx.
+  {
+    key: 'therapies',
+    label: 'Hands-On Therapies',
+    icon: 'hand-left-outline',
+    help: [
+      {
+        heading: 'What this is for',
+        body: 'A record of hands-on sessions that actually happened: chiropractic adjustments, acupuncture, deep tissue massage, pelvic floor physical therapy, and the rest. Log each one as you have it, with who did it, what they worked on, how long it took, and what it cost.',
+      },
+      {
+        heading: 'Why the date matters more than anything else here',
+        body: 'The useful question about a hands-on session is almost never "did it feel good at the time." It is "how long did it last." Answering that needs two things: the date a session happened, and your own check-ins on the days after it. Log the session here, keep doing your ordinary check-ins, and Trends > Therapy Response works out the rest.',
+      },
+      {
+        heading: 'This is separate from appointments on purpose',
+        body: 'An appointment is something coming up that you need reminding about, and it lives on Schedules. A session here is something that already happened, and it stays in your record so it can be looked at later. Book the next visit under Schedules > Appointments and log the visit itself here once it is done.',
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -1689,6 +1712,15 @@ function BloodPressureLens() {
   );
 }
 
+function TherapiesLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      <TherapySessionsSection tabColor={TAB_COLOR} />
+    </ScrollView>
+  );
+}
+
 function GeneralNoteLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
@@ -1794,6 +1826,8 @@ export default function LogScreen() {
             <ExerciseLens />
           ) : lens === 'bloodPressure' ? (
             <BloodPressureLens />
+          ) : lens === 'therapies' ? (
+            <TherapiesLens />
           ) : lens === 'generalNote' ? (
             <GeneralNoteLens />
           ) : (
