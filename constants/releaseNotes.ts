@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.37',
+    date: '2026-09-14',
+    changes: [
+      'Reports can be shared as a PDF. "Share as PDF" lays the summary out on a page, with each section as a table or a list, and hands the file to the share sheet. It is put together on the phone; nothing is sent anywhere to make it. "Share as text" still sends the plain version.',
+      "The report has three new sections: movement and sleep from the phone's health store, the most recent weight and blood pressure with the change over the range, and the lab that reported each result. Lab tests are named rather than coded.",
+      'Personal notes and rules sit in a marked box in the PDF, labelled self-reported and not verified, so an observation is never read as a finding.',
+    ],
+  },
+  {
     version: '1.0.37.36',
     date: '2026-09-14',
     changes: [

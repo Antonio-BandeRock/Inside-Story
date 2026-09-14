@@ -4,6 +4,7 @@ import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
+import { useInfoAlert } from '../../components/InfoAlert';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
@@ -12,7 +13,8 @@ import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
-import { generateReport } from '../../lib/reportGenerator';
+import { buildReport, renderReportText, type ReportDocument } from '../../lib/reportGenerator';
+import { exportReportAsPdf } from '../../lib/reportPdf';
 
 const TAB_COLOR = colors.tabReports;
 
@@ -33,8 +35,12 @@ const REPORTS_HELP_SECTIONS: HelpSection[] = [
     body: 'This generates entirely on your device, the same as the rest of this app. Nothing is sent anywhere unless you tap Share and choose where it goes yourself.',
   },
   {
-    heading: 'A real, honest limit',
-    body: "This is a plain-text summary you can share through your phone's own share sheet, a real, working v1. A nicer, laid-out PDF is a separate piece of work, not built yet.",
+    heading: 'Two ways to share',
+    body: 'Share as PDF lays the same summary out on a page, with each section as a table or a list, for handing over, printing, or attaching to a message. Share as text sends it as plain words, which pastes into any message or note. Both are built on the phone from the same data.',
+  },
+  {
+    heading: 'What a clinician will see',
+    body: 'Each section says where its figures came from: logged meals, check-ins, the phone, or the person. Personal notes and rules sit in a marked box so an observation is never mistaken for a verified finding.',
   },
 ];
 
@@ -71,20 +77,26 @@ export default function ReportsScreen() {
   const activeLensLabel = REPORTS_LENSES.find((option) => option.key === lens)?.label;
 
   const [days, setDays] = useState<7 | 30 | 90>(30);
-  const [reportText, setReportText] = useState<string | null>(null);
+  // The document itself is what gets built (2026-09-14); the on-screen
+  // text and the PDF are two renderings of it, so what is read here and
+  // what is handed over can never differ.
+  const [report, setReport] = useState<ReportDocument | null>(null);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const reportText = report ? renderReportText(report) : null;
 
   const load = useCallback((forDays: 7 | 30 | 90) => {
     setLoading(true);
-    generateReport(forDays).then((text) => {
-      setReportText(text);
+    buildReport(forDays).then((doc) => {
+      setReport(doc);
       setLoading(false);
     });
   }, []);
 
   useFocusEffect(useCallback(() => { if (revealed) load(days); }, [revealed, days, load]));
 
-  async function handleShare() {
+  async function handleShareText() {
     if (!reportText) return;
     try {
       await Share.share({ message: reportText });
@@ -93,6 +105,24 @@ export default function ReportsScreen() {
       // versions -- silently ignored the same way this app already treats
       // a cancelled image pick elsewhere (Profile's own custom-background
       // flow), not a real error worth surfacing.
+    }
+  }
+
+  async function handleSharePdf() {
+    if (!report || exporting) return;
+    setExporting(true);
+    try {
+      const result = await exportReportAsPdf(report);
+      if (result.status === 'failed') {
+        showInfoAlert('PDF not made', result.message);
+      } else if (result.status === 'savedOnly') {
+        showInfoAlert(
+          'PDF saved, sharing not available',
+          `This phone offered no share sheet for a file, so the PDF stayed where it was written: ${result.uri}`,
+        );
+      }
+    } finally {
+      setExporting(false);
     }
   }
 
@@ -130,13 +160,19 @@ export default function ReportsScreen() {
             )}
 
             {reportText && !loading ? (
-              <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
-                <Text style={styles.shareButtonText}>Share</Text>
-              </TouchableOpacity>
+              <>
+                <TouchableOpacity style={[styles.shareButton, exporting && styles.shareButtonBusy]} onPress={handleSharePdf} disabled={exporting}>
+                  <Text style={styles.shareButtonText}>{exporting ? 'Laying out the PDF…' : 'Share as PDF'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.shareButtonSecondary} onPress={handleShareText}>
+                  <Text style={styles.shareButtonSecondaryText}>Share as text</Text>
+                </TouchableOpacity>
+              </>
             ) : null}
           </ScrollView>
         </GatedTabContent>
       </SwipeableTabScreen>
+      {infoAlertElement}
 
       <PageIdentityLabel title="Reports" activeLensLabel={revealed ? activeLensLabel : undefined} />
       <MyItemsHub
@@ -222,6 +258,19 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
   },
+  shareButtonBusy: { opacity: 0.6 },
+  // The text share keeps a filled surface (standing rule: an
+  // outline-only control sits its label on the photo).
+  shareButtonSecondary: {
+    marginTop: 10,
+    backgroundColor: colors.surface,
+    borderRadius: 999,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: TAB_COLOR,
+  },
+  shareButtonSecondaryText: { ...typography.body, color: colors.textPrimary, ...textShadow },
   shareButtonText: { ...typography.body, color: colors.textOnPrimary, fontWeight: '400',
 
     // Dark text: cancel any shadow inherited from a base style it is

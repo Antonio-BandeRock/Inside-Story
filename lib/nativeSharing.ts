@@ -31,6 +31,9 @@ import * as Sharing from 'expo-sharing';
 
 export interface ShareFileOptions {
   mimeType?: string;
+  /** iOS: the Uniform Type Identifier of the file, so the share sheet
+   *  knows what it is holding (2026-09-14, for the PDF report). */
+  UTI?: string;
   dialogTitle?: string;
 }
 
