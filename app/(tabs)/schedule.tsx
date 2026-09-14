@@ -14,18 +14,11 @@ import {
   addMealPlanDayToSchedule,
   applyRotationSelection,
   applyRotationSelectionsToIngredients,
-  createOtcTreatment,
-  createPrescriptionTreatment,
-  createSupplementTreatment,
   deleteScheduledMeal,
   deleteScheduleSeries,
-  deleteTreatment,
   ensureScheduleSeriesGenerated,
   getDailyNutrientAnalysis,
   getDietPreferences,
-  getNutrientTiming,
-  getSupplementForms,
-  getTreatmentNutrients,
   getUpcomingScheduleCountsByType,
   getUpcomingShoppingList,
   getUserConditions,
@@ -33,32 +26,25 @@ import {
   hasStandingHydrationRoutine,
   linkScheduleItemToDeviceCalendarEvent,
   listAllActiveTreatments,
-  listCommonMedications,
   listFavorites,
   listMeals,
   listMealsForDate,
   listPastScheduledMeals,
-  listPrescriptionTreatments,
   listTodaysMealsWithRecipes,
   listScheduledMealsForDate,
   listScheduledMealsForDateRange,
-  listScheduledPrescriptionDosesForTreatment,
-  listScheduledSupplementDosesForTreatment,
-  listSupplementTreatments,
-  listTrackedNutrients,
+  listScheduledMedDosesFrom,
   listUpcomingAppointments,
   markAppointmentCompleted,
   markScheduledDoseTaken,
   scheduleAppointment,
   scheduleHydrationRemindersForDay,
   scheduleMeal,
-  schedulePrescriptionDose,
-  scheduleSupplementDose,
+  scheduleTreatmentDose,
   setAppointmentCancelled,
   setScheduledMealRotationSelections,
   setScheduledMealSkipped,
   settlePastScheduledMeals,
-  setTreatmentActive,
   setUpMealPlan,
   unlinkScheduleItemFromDeviceCalendarEvent,
   createTherapySession,
@@ -66,26 +52,17 @@ import {
   listTherapySessions,
   updateTherapySession,
   updateAppointment,
-  updateOtcTreatment,
   updateScheduledMeal,
-  updatePrescriptionTreatment,
-  updateSupplementTreatment,
-  type CommonMedication,
   type FavoriteRecord,
   type MealFavoritePayload,
   type MealIngredientInput,
   type MealPlanDay,
   type MealRecord,
-  type NutrientTiming,
   type RepeatConfig,
   type RotationSelection,
   type TodaysMeal,
   type ScheduleItemRecord,
   type ShoppingListSection,
-  type SupplementForm,
-  type SupplementIngredientInput,
-  type TrackedNutrient,
-  type TreatmentNutrientRecord,
   type TreatmentRecord,
   type TherapySessionRecord,
   type UserProfile,
@@ -120,7 +97,6 @@ import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRu
 import type { NutrientGapEntry } from '../../lib/nutrientAnalysis';
 import { buildTime24, describeTimeInputProblem, formatTime12, splitTime24, type TimeOfDayInput } from '../../lib/timeOfDay';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
-import { Dropdown, type DropdownOption } from '../../components/Dropdown';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
@@ -168,9 +144,7 @@ type Lens =
   | 'dailyMealPlan'
   | 'shoppingList'
   | 'hydration'
-  | 'myMeds'
-  | 'supplements'
-  | 'prescriptions'
+  | 'meds'
   | 'appointments'
   | 'therapies'
   | 'exercise';
@@ -346,64 +320,21 @@ const LENSES: LensOption<Lens>[] = [
     ],
   },
   {
-    key: 'myMeds',
-    label: 'My Meds',
+    key: 'meds',
+    label: 'Meds',
     icon: 'flask-outline',
     help: [
       {
-        heading: 'One place for everything you take',
-        body: 'Prescriptions, over-the-counter drugs, and supplements, all in one registry: pick a prescription or OTC item from a cited reference list where it exists, or enter it yourself when it doesn\'t. A supplement asks which nutrient(s) it contains and, for the ones this app has researched, which specific form (e.g. magnesium glycinate vs. oxide); the form changes how well it absorbs.',
+        heading: 'One timeline for everything you take',
+        body: 'Prescriptions, over-the-counter drugs and supplements are all meds here. Each one that is being tracked shows its reminder times, today\'s doses sit at the top to be marked taken or skipped, and a med with no times still counts toward the day\'s totals through its Tracking switch.',
       },
       {
-        heading: 'More than a name and a dose',
-        body: 'Once a nutrient and form are picked, this shows when to take it (empty stomach, with food, before bed), what to avoid taking it with, what pairs well with it, and, where this app has the data, how much you\'re already getting from food today, so a supplement decision starts from what food is already covering, not a guess.',
-      },
-      {
-        heading: 'Interactions',
-        body: 'Reuses the same cited interaction-checking engine as Supplements and Prescriptions, extended for My Meds specifically: potassium supplements with blood pressure medications, or metformin\'s effect on TSH readings for anyone also on levothyroxine.',
-      },
-      {
-        heading: 'What this doesn\'t do yet',
-        body: 'Reminder times and repeat schedules for prescriptions and supplements still live on those two lenses, unchanged; adding an item here does not yet also set up a reminder for it. Looking up a medication this app doesn\'t already have online is a planned future capability, not built yet: for now, anything not in the list can still be tracked by entering it yourself.',
-      },
-    ],
-  },
-  {
-    key: 'supplements',
-    label: 'Supplements',
-    icon: 'medkit-outline',
-    help: [
-      {
-        heading: 'Document every ingredient',
-        body: 'For a supplement\'s contribution to count toward your daily totals, document exactly what one dose contains: each ingredient, its amount, and its unit (mg, mcg, g, or IU). A single-ingredient product gets one row; a multivitamin gets one row per nutrient on its label.',
-      },
-      {
-        heading: 'Tracking / Not tracking',
-        body: 'This one toggle covers stopping a supplement, cycling on and off it, or taking it temporarily; flip it off when you are not taking it and back on when you are. Nothing is deleted either way, so you never have to re-enter its ingredients.',
-      },
-      {
-        heading: 'Reminder times are separate from tracking',
-        body: 'A supplement\'s contribution to your daily totals always comes from the Tracking toggle alone. Adding reminder times underneath it is optional and purely a personal adherence record: for a supplement that needs a specific dose time (e.g. away from calcium, or with a meal for fat solubility), not a second way of counting it.',
+        heading: 'Defined on Life, timed here',
+        body: 'Adding a med, editing its dose or ingredients, pausing it or removing it all happen in Life > My Meds; this page never defines one. From a med there, Schedule it brings you here with that med ready for its times. Add a med at the top of this page goes the other way.',
       },
       {
         heading: 'Interaction checking',
-        body: 'Calcium/iron/zinc timing and the fat-soluble vitamins are checked automatically once reminder times are set. Biotin + an upcoming lab draw is checked too, once you\'re tracking biotin and have a "Lab / bloodwork" appointment within the next couple weeks. Anything triggered shows under "Things to check" here.',
-      },
-      REPEATING_SCHEDULES_HELP,
-    ],
-  },
-  {
-    key: 'prescriptions',
-    label: 'Prescriptions',
-    icon: 'medical-outline',
-    help: [
-      {
-        heading: 'Prescriptions',
-        body: 'Track what you take, its dose and frequency, and (optionally) specific reminder times: same on/off Tracking toggle and repeat picker as Supplements. Prescriptions don\'t contribute nutrients, so there\'s no ingredient list to document.',
-      },
-      {
-        heading: 'Interaction checking',
-        body: 'Levothyroxine + calcium/iron timing is checked automatically once you track levothyroxine as a prescription and calcium/iron as supplements with reminder times set. This app matches a prescription by name (e.g. "levothyroxine" anywhere in what you named it). Anything triggered shows under "Things to check" here.',
+        body: 'Calcium, iron and zinc timing, the fat-soluble vitamins, and levothyroxine against calcium or iron are checked automatically once reminder times are set, along with potassium supplements against blood pressure medications and metformin\'s effect on TSH readings. Anything triggered shows under "Things to check" here.',
       },
       REPEATING_SCHEDULES_HELP,
     ],
@@ -455,7 +386,7 @@ const LENSES: LensOption<Lens>[] = [
 ];
 
 const COMING_SOON_COPY: Record<
-  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments' | 'therapies'>,
+  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'meds' | 'hydration' | 'appointments' | 'therapies'>,
   string
 > = {
   exercise: 'Schedule planned workouts and activity. Not built yet.',
@@ -3252,176 +3183,88 @@ function HydrationLens() {
   );
 }
 
-type IngredientFormRow = { key: string; nutrientCode: string; amount: string; unit: string };
+// --- Meds ----------------------------------------------------------------
+//
+// One dose timeline for everything a person takes, 2026-09-13. Direct:
+// "Schedules needs to be about the actual schedules for each category or
+// topic. My Meds each need a schedule so there should be a route to do
+// that. Both prescriptions and supplements should be considered within
+// meds." Before this, Supplements and Prescriptions were two lenses here,
+// each carrying its own copy of the form that DEFINES a treatment as well
+// as its dose times, and My Meds (a third copy of the definition, with no
+// times at all) sat beside them. Now the definition lives in one place,
+// Life > My Meds (components/MyMedsSection.tsx), and this lens is only the
+// timeline: every active med, its dose times, today's doses to tick off,
+// and the interaction checks that depend on those times.
+//
+// The route in from Life is a Schedule it button on each med there, which
+// arrives here as `scheduleTreatmentId` and opens that med's reminder form
+// with its group unfolded. The route back is "Add a med" at the top and
+// "Edit in My Meds" on each row, both landing on Life with the lens open.
+// An OTC drug can be scheduled here like the other two; it never could
+// before, and My Meds's own help text used to say so.
+type MedsGroup = { title: string; treatmentType: string; icon: ComponentProps<typeof Ionicons>['name'] };
 
-function blankIngredientRow(): IngredientFormRow {
-  return { key: `ingredient_${Date.now()}_${Math.random().toString(36).slice(2)}`, nutrientCode: '', amount: '', unit: 'mg' };
-}
-
-type SupplementFormState = {
-  editingId: string | null;
-  name: string;
-  unitsPerDay: string;
-  servingUnitLabel: string;
-  notes: string;
-  ingredients: IngredientFormRow[];
-};
-
-function blankSupplementForm(): SupplementFormState {
-  return { editingId: null, name: '', unitsPerDay: '1', servingUnitLabel: '', notes: '', ingredients: [blankIngredientRow()] };
-}
-
-// Only nutrients with one unambiguous, universally agreed IU->mass
-// conversion accept IU today (see lib/supplementUnits.ts) -- offered here
-// regardless of which nutrient is picked, with any that can't be
-// normalized surfaced honestly via Insights' "couldn't be counted" note
-// rather than hidden or guessed at.
-const SUPPLEMENT_UNIT_OPTIONS: DropdownOption[] = [
-  { label: 'mg', value: 'mg' },
-  { label: 'mcg', value: 'mcg' },
-  { label: 'g', value: 'g' },
-  { label: 'IU', value: 'IU' },
+const MEDS_GROUPS: MedsGroup[] = [
+  { title: 'Prescriptions', treatmentType: 'prescription', icon: 'medkit-outline' },
+  { title: 'OTC drugs', treatmentType: 'otc', icon: 'bandage-outline' },
+  { title: 'Supplements', treatmentType: 'supplement', icon: 'leaf-outline' },
 ];
 
-// --- My Meds -----------------------------------------------------------
-//
-// A real, cited registry over the same underlying `treatments` table
-// Supplements and Prescriptions already use -- plus, as of 2026-08-08, a
-// third real treatment_type ('otc', see createOtcTreatment in lib/db.ts).
-// Direct request: "This is a place to document all prescription,
-// nonprescription over the counter drugs, and macro and micronutrients
-// regimen... exact ingredients of every supplement... true interaction
-// logic built in."
-//
-// Deliberate scope boundary, stated here and in this lens's own Info
-// content above: reminder times and repeat schedules for prescriptions and
-// supplements still live on those two lenses, unchanged -- adding an item
-// here doesn't also set up a dose reminder for it. Building a real,
-// working third parallel reminder system for OTC in the same pass as
-// everything else below would have meant either rushing it or blocking
-// everything on it; tracking on/off (which is what actually feeds
-// interaction checking and nutrient totals) works for all three types
-// today, reminders are a real, separate fast-follow.
-//
-// The "pick from a researched list, or enter it yourself" flow for
-// prescriptions/OTC (COMMON_MED_OPTIONS below) is intentionally NOT a live
-// internet lookup for medications this app doesn't already have -- that's
-// a real, separate product/architecture decision (which data source, what
-// it costs, what it means for this app's own local-first privacy stance)
-// that hasn't been made yet, not something to silently wire up. Manual
-// entry is the honest, working fallback today.
-type MyMedsCategory = 'supplement' | 'prescription' | 'otc';
-
-type MedIngredientRow = { key: string; nutrientCode: string; supplementForm: string; amount: string; unit: string };
-
-function blankMedIngredientRow(): MedIngredientRow {
-  return { key: `ingredient_${Date.now()}_${Math.random().toString(36).slice(2)}`, nutrientCode: '', supplementForm: '', amount: '', unit: 'mg' };
-}
-
-type MyMedsSupplementFormState = {
-  editingId: string | null;
-  name: string;
-  unitsPerDay: string;
-  servingUnitLabel: string;
-  notes: string;
-  ingredients: MedIngredientRow[];
-};
-
-function blankMyMedsSupplementForm(): MyMedsSupplementFormState {
-  return { editingId: null, name: '', unitsPerDay: '1', servingUnitLabel: '', notes: '', ingredients: [blankMedIngredientRow()] };
-}
-
-type MedFormState = {
-  editingId: string | null;
-  category: 'prescription' | 'otc';
-  commonMedId: string;
-  manualEntry: boolean;
-  name: string;
-  genericName: string;
-  doseAmount: string;
-  doseUnit: string;
-  frequency: string;
-  notes: string;
-};
-
-function blankMedForm(category: 'prescription' | 'otc'): MedFormState {
-  return {
-    editingId: null,
-    category,
-    commonMedId: '',
-    manualEntry: false,
-    name: '',
-    genericName: '',
-    doseAmount: '',
-    doseUnit: '',
-    frequency: '',
-    notes: '',
-  };
-}
-
-const EVIDENCE_TIER_LABEL: Record<string, string> = {
-  established: 'Established',
-  emerging: 'Emerging evidence',
-  strong: 'Strong evidence',
-  moderate: 'Moderate evidence',
-};
-
-function MyMedsLens() {
+function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
+  const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
   const [treatments, setTreatments] = useState<TreatmentRecord[]>([]);
-  const [ingredientsByTreatment, setIngredientsByTreatment] = useState<Record<string, TreatmentNutrientRecord[]>>({});
+  const [dosesByTreatment, setDosesByTreatment] = useState<Record<string, ScheduleItemRecord[]>>({});
   const [interactionWarnings, setInteractionWarnings] = useState<InteractionWarning[]>([]);
   const [referenceOnlyRules, setReferenceOnlyRules] = useState<ReferenceOnlyRule[]>([]);
-  const [nutrients, setNutrients] = useState<TrackedNutrient[]>([]);
-  const [commonMedications, setCommonMedications] = useState<CommonMedication[]>([]);
-  const [foodEntries, setFoodEntries] = useState<NutrientGapEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  const [addMode, setAddMode] = useState<MyMedsCategory | null>(null);
-  const [supplementForm, setSupplementForm] = useState<MyMedsSupplementFormState>(blankMyMedsSupplementForm());
-  const [medForm, setMedForm] = useState<MedFormState>(blankMedForm('prescription'));
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [doseFormTreatmentId, setDoseFormTreatmentId] = useState<string | null>(null);
+  const [doseFormTime, setDoseFormTime] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
+  const [doseFormRepeat, setDoseFormRepeat] = useState<RepeatConfig>({ type: 'none' });
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
-  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
-
-  // Lazily loaded, cached by nutrient code -- there's no reason to fetch
-  // supplement_forms/nutrient_timing for every nutrient this app tracks up
-  // front when a person will only ever pick a handful.
-  const [formsByNutrient, setFormsByNutrient] = useState<Record<string, SupplementForm[]>>({});
-  const [timingByNutrient, setTimingByNutrient] = useState<Record<string, NutrientTiming | null>>({});
+  const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
+  // The handoff from Life is consumed once: the param outlives the arrival
+  // (the same lesson lib/mealBuilderHandoff.ts records), so without this a
+  // later focus with the stale param would reopen the form.
+  const consumedHandoff = useRef<string | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
+    const today = todayDateString();
     ensureScheduleSeriesGenerated()
-      .then(() =>
-        Promise.all([
-          listAllActiveTreatments(),
-          listTrackedNutrients(),
-          listCommonMedications(),
-          getDailyNutrientAnalysis(todayDateString()),
-          evaluateInteractionRules(todayDateString()),
-        ]),
-      )
-      .then(async ([loadedTreatments, loadedNutrients, loadedMeds, dailyAnalysis, evaluation]) => {
+      .then(() => Promise.all([listAllActiveTreatments(), listScheduledMedDosesFrom(today), evaluateInteractionRules(today)]))
+      .then(([loadedTreatments, doses, evaluation]) => {
         setTreatments(loadedTreatments);
-        setNutrients(loadedNutrients);
-        setCommonMedications(loadedMeds);
-        setFoodEntries(dailyAnalysis.entries);
+        const byTreatment: Record<string, ScheduleItemRecord[]> = {};
+        for (const dose of doses) {
+          if (!dose.linkedTreatmentId) continue;
+          (byTreatment[dose.linkedTreatmentId] ??= []).push(dose);
+        }
+        setDosesByTreatment(byTreatment);
         setInteractionWarnings(evaluation.warnings);
         setReferenceOnlyRules(evaluation.referenceOnly);
-        const supplementTreatments = loadedTreatments.filter((treatment) => treatment.treatmentType === 'supplement');
-        const entries = await Promise.all(
-          supplementTreatments.map(async (treatment) => [treatment.id, await getTreatmentNutrients(treatment.id)] as const),
-        );
-        setIngredientsByTreatment(Object.fromEntries(entries));
+        if (scheduleTreatmentId && consumedHandoff.current !== scheduleTreatmentId) {
+          const target = loadedTreatments.find((treatment) => treatment.id === scheduleTreatmentId);
+          if (target) {
+            consumedHandoff.current = scheduleTreatmentId;
+            const group = MEDS_GROUPS.find((entry) => entry.treatmentType === target.treatmentType);
+            if (group && !folds.isOpen(`schedule:meds:${group.title}`)) folds.toggle(`schedule:meds:${group.title}`);
+            setDoseFormTreatmentId(target.id);
+            setDoseFormTime({ hour: '', minute: '', ampm: '' });
+            setDoseFormRepeat({ type: 'daily', endType: 'indefinite' });
+          }
+        }
       })
       .catch((error) => {
-        setErrorMessage(`Could not load My Meds: ${error instanceof Error ? error.message : String(error)}`);
+        setErrorMessage(`Could not load your meds: ${error instanceof Error ? error.message : String(error)}`);
       })
       .finally(() => setLoading(false));
-  }, []);
+    // folds is stable per mount; re-running on it would refetch on every fold.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scheduleTreatmentId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -3429,333 +3272,246 @@ function MyMedsLens() {
     }, [load]),
   );
 
-  // Notice this DOESN'T include activeOnly=false the way Supplements/
-  // Prescriptions do (those show every treatment ever added so re-enabling
-  // one doesn't mean re-entering it) -- My Meds is deliberately the
-  // "what am I taking right now" view; a paused/stopped item is still
-  // fully preserved in the database and still editable/re-enable-able from
-  // its own original Supplements/Prescriptions lens.
-
-  function nutrientDisplayName(code: string): string {
-    return nutrients.find((nutrient) => nutrient.code === code)?.displayName ?? code;
-  }
-
-  async function ensureNutrientDataLoaded(nutrientCode: string) {
-    if (!nutrientCode) return;
-    if (!(nutrientCode in formsByNutrient)) {
-      const forms = await getSupplementForms(nutrientCode);
-      setFormsByNutrient((current) => ({ ...current, [nutrientCode]: forms }));
-    }
-    if (!(nutrientCode in timingByNutrient)) {
-      const timing = await getNutrientTiming(nutrientCode);
-      setTimingByNutrient((current) => ({ ...current, [nutrientCode]: timing }));
-    }
-  }
-
-  function foodStatusFor(nutrientCode: string): NutrientGapEntry | null {
-    return foodEntries.find((entry) => entry.nutrientCode === nutrientCode) ?? null;
-  }
-
-  // --- Add flow: category picker ---
-  function openAddSupplement() {
-    setSupplementForm(blankMyMedsSupplementForm());
-    setAddMode('supplement');
-  }
-  function openAddMed(category: 'prescription' | 'otc') {
-    setMedForm(blankMedForm(category));
-    setAddMode(category);
-  }
-  function closeAddForm() {
-    setAddMode(null);
-    setSupplementForm(blankMyMedsSupplementForm());
-    setMedForm(blankMedForm('prescription'));
-  }
-
-  // --- Supplement ingredient rows ---
-  function addIngredientRow() {
-    setSupplementForm((current) => ({ ...current, ingredients: [...current.ingredients, blankMedIngredientRow()] }));
-  }
-  function removeIngredientRow(key: string) {
-    setSupplementForm((current) => ({ ...current, ingredients: current.ingredients.filter((row) => row.key !== key) }));
-  }
-  function updateIngredientRow(key: string, update: Partial<MedIngredientRow>) {
-    setSupplementForm((current) => ({
-      ...current,
-      ingredients: current.ingredients.map((row) => (row.key === key ? { ...row, ...update } : row)),
-    }));
-  }
-
-  async function handleSaveSupplement() {
-    if (!supplementForm.name.trim()) {
-      showInfoAlert('Almost there', "Enter the supplement's name.");
-      return;
-    }
-    const unitsPerDay = Number(supplementForm.unitsPerDay);
-    if (!unitsPerDay || unitsPerDay <= 0) {
-      showInfoAlert('Almost there', 'Enter how many are taken per day (e.g. 1 or 2).');
-      return;
-    }
-    if (!supplementForm.servingUnitLabel.trim()) {
-      showInfoAlert('Almost there', 'Enter what one dose is called (e.g. capsule, tablet, scoop, powder).');
-      return;
-    }
-    const validIngredients = supplementForm.ingredients.filter((row) => row.nutrientCode && row.amount);
-    if (validIngredients.length === 0) {
-      showInfoAlert('Almost there', 'Add at least one ingredient with an amount.');
-      return;
-    }
-
-    const ingredients: SupplementIngredientInput[] = validIngredients.map((row) => ({
-      nutrientCode: row.nutrientCode,
-      supplementForm: row.supplementForm || undefined,
-      amountPerUnit: Number(row.amount),
-      unit: row.unit,
-    }));
-
-    try {
-      if (supplementForm.editingId) {
-        await updateSupplementTreatment(supplementForm.editingId, {
-          name: supplementForm.name,
-          unitsPerDay,
-          servingUnitLabel: supplementForm.servingUnitLabel,
-          ingredients,
-          notes: supplementForm.notes,
-        });
-      } else {
-        await createSupplementTreatment({
-          name: supplementForm.name,
-          unitsPerDay,
-          servingUnitLabel: supplementForm.servingUnitLabel,
-          ingredients,
-          notes: supplementForm.notes,
-        });
-      }
-      closeAddForm();
-      load();
-    } catch (error) {
-      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
-    }
-  }
-
-  // --- Prescription / OTC form ---
-  function selectCommonMed(med: CommonMedication) {
-    setMedForm((current) => ({
-      ...current,
-      commonMedId: med.id,
-      manualEntry: false,
-      name: med.genericName,
-      genericName: med.id,
-    }));
-  }
-
-  async function handleSaveMed() {
-    if (!medForm.name.trim()) {
-      showInfoAlert('Almost there', 'Enter a name for this medication.');
-      return;
-    }
-    const input = {
-      name: medForm.name,
-      genericName: medForm.genericName || undefined,
-      doseAmount: medForm.doseAmount ? Number(medForm.doseAmount) : undefined,
-      doseUnit: medForm.doseUnit || undefined,
-      frequency: medForm.frequency || undefined,
-      notes: medForm.notes || undefined,
-    };
-    try {
-      if (medForm.editingId) {
-        if (medForm.category === 'prescription') {
-          await updatePrescriptionTreatment(medForm.editingId, input);
-        } else {
-          await updateOtcTreatment(medForm.editingId, input);
-        }
-      } else if (medForm.category === 'prescription') {
-        await createPrescriptionTreatment(input);
-      } else {
-        await createOtcTreatment(input);
-      }
-      closeAddForm();
-      load();
-    } catch (error) {
-      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
-    }
-  }
-
-  async function handleRemove(treatment: TreatmentRecord) {
-    const ok = await confirmSheet({
-      title: 'Remove this item?',
-      message: `"${treatment.name}" will be permanently deleted from My Meds.`,
-      confirmLabel: 'Remove',
-      destructive: true,
+  function openMyMeds(treatment?: TreatmentRecord) {
+    router.push({
+      pathname: '/life',
+      params: treatment ? { openLifeLens: 'myMeds', focusTreatmentId: treatment.id } : { openLifeLens: 'myMeds' },
     });
-    if (!ok) return;
-    await deleteTreatment(treatment.id);
+  }
+
+  function openDoseForm(treatmentId: string) {
+    setDoseFormTreatmentId(treatmentId);
+    setDoseFormTime({ hour: '', minute: '', ampm: '' });
+    // A dose reminder is, almost always, every day; the picker can change it.
+    setDoseFormRepeat({ type: 'daily', endType: 'indefinite' });
+  }
+
+  function closeDoseForm() {
+    setDoseFormTreatmentId(null);
+  }
+
+  async function handleSaveDose(treatment: TreatmentRecord) {
+    const time24 = buildTime24(doseFormTime.hour, doseFormTime.minute, doseFormTime.ampm);
+    if (!time24) {
+      showInfoAlert('Almost there', describeTimeInputProblem(doseFormTime.hour, doseFormTime.minute, doseFormTime.ampm));
+      return;
+    }
+    const repeatError = validateRepeat(doseFormRepeat);
+    if (repeatError) {
+      showInfoAlert('Almost there', repeatError);
+      return;
+    }
+    try {
+      await scheduleTreatmentDose({ treatment, scheduledFor: `${todayDateString()}T${time24}`, repeat: doseFormRepeat });
+      closeDoseForm();
+      load();
+    } catch (error) {
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async function handleMarkDoseTaken(item: ScheduleItemRecord) {
+    await markScheduledDoseTaken(item.id);
     load();
   }
 
-  async function handleToggleActive(treatment: TreatmentRecord) {
-    await setTreatmentActive(treatment.id, !treatment.active);
+  async function handleToggleDoseSkipped(item: ScheduleItemRecord) {
+    await setScheduledMealSkipped(item.id, item.status !== 'skipped');
     load();
   }
 
-  // useMemo, not a plain inline .map() -- PopoverSelect (unlike the old
-  // Dropdown) is memoized against referentially-stable `options`, so a
-  // fresh array on every render (e.g. every Name/Notes keystroke, which
-  // re-renders this whole lens) would otherwise force these two pickers'
-  // own popovers to rebuild for no real reason.
-  const nutrientOptions: DropdownOption[] = useMemo(
-    () => nutrients.map((nutrient) => ({ label: nutrient.displayName, value: nutrient.code })),
-    [nutrients],
-  );
-  const commonMedOptionsForCategory: DropdownOption[] = useMemo(
+  function handleRemoveDose(item: ScheduleItemRecord) {
+    if (item.repeatGroupId) {
+      setRemovePrompt({
+        title: 'Remove this reminder?',
+        message: `This time repeats. Remove just today's, or this and every future one?`,
+        actions: [
+          {
+            label: 'Just this one',
+            onPress: () => {
+              void (async () => {
+                await deleteScheduledMeal(item.id);
+                load();
+              })();
+            },
+          },
+          {
+            label: 'This and future',
+            destructive: true,
+            onPress: () => {
+              void (async () => {
+                await deleteScheduleSeries(item.repeatGroupId!);
+                load();
+              })();
+            },
+          },
+          { label: 'Cancel', onPress: () => {} },
+        ],
+      });
+      return;
+    }
+    setRemovePrompt({
+      title: 'Remove this reminder?',
+      actions: [
+        {
+          label: 'Remove',
+          destructive: true,
+          onPress: () => {
+            void (async () => {
+              await deleteScheduledMeal(item.id);
+              load();
+            })();
+          },
+        },
+        { label: 'Cancel', onPress: () => {} },
+      ],
+    });
+  }
+
+  const today = todayDateString();
+  const treatmentById = useMemo(() => new Map(treatments.map((treatment) => [treatment.id, treatment])), [treatments]);
+  const todaysDoses = useMemo(
     () =>
-      commonMedications
-        .filter((med) => med.treatmentType === medForm.category)
-        .map((med) => ({
-          label: med.commonBrandNames ? `${med.genericName} (${med.commonBrandNames})` : med.genericName,
-          value: med.id,
-        })),
-    [commonMedications, medForm.category],
+      Object.values(dosesByTreatment)
+        .flat()
+        .filter((dose) => dose.scheduledFor.slice(0, 10) === today)
+        .sort((a, b) => a.scheduledFor.localeCompare(b.scheduledFor)),
+    [dosesByTreatment, today],
   );
-  const selectedCommonMed = commonMedications.find((med) => med.id === medForm.commonMedId) ?? null;
 
-  function renderNutrientResearchCard(nutrientCode: string, chosenForm: string) {
-    const forms = formsByNutrient[nutrientCode] ?? [];
-    const timing = timingByNutrient[nutrientCode];
-    const foodStatus = foodStatusFor(nutrientCode);
-    const formDetail = forms.find((form) => form.formName === chosenForm);
-
-    if (!nutrientCode) return null;
-
+  function describeDose(treatment: TreatmentRecord): string {
+    if (treatment.treatmentType === 'supplement') {
+      return `${treatment.unitsPerDay} ${treatment.servingUnitLabel}${Number(treatment.unitsPerDay) === 1 ? '' : 's'}/day`;
+    }
     return (
-      <View style={styles.myMedsResearchCard}>
-        {formDetail ? (
+      [treatment.doseAmount ? `${treatment.doseAmount}${treatment.doseUnit ?? ''}` : null, treatment.frequency].filter(Boolean).join(', ') ||
+      'No dose details entered'
+    );
+  }
+
+  function renderDoseActions(dose: ScheduleItemRecord) {
+    return (
+      <View style={styles.doseRowActions}>
+        {dose.status === 'planned' ? (
           <>
-            <Text style={styles.myMedsResearchLabel}>
-              {formDetail.formName} · {EVIDENCE_TIER_LABEL[formDetail.evidenceStrength] ?? formDetail.evidenceStrength}
-            </Text>
-            <Text style={styles.helperText}>{formDetail.absorptionNote}</Text>
-            {formDetail.giToleranceNote ? <Text style={styles.helperText}>{formDetail.giToleranceNote}</Text> : null}
-            {formDetail.notes ? <Text style={styles.helperText}>{formDetail.notes}</Text> : null}
+            <TouchableOpacity onPress={() => handleMarkDoseTaken(dose)}>
+              <Text style={styles.actionTextPrimary}>Taken</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleToggleDoseSkipped(dose)}>
+              <Text style={styles.actionText}>Skip</Text>
+            </TouchableOpacity>
           </>
+        ) : dose.status === 'skipped' ? (
+          <TouchableOpacity onPress={() => handleToggleDoseSkipped(dose)}>
+            <Text style={styles.actionText}>Un-skip</Text>
+          </TouchableOpacity>
         ) : null}
-        {timing ? (
-          <>
-            <Text style={styles.myMedsResearchLabel}>When to take it</Text>
-            <Text style={styles.helperText}>{timing.bestTaken}</Text>
-            {timing.avoidWith ? <Text style={styles.helperText}>Avoid taking with: {timing.avoidWith}</Text> : null}
-            {timing.pairsWellWith ? <Text style={styles.helperText}>Pairs well with: {timing.pairsWellWith}</Text> : null}
-          </>
-        ) : null}
-        <Text style={styles.myMedsResearchLabel}>From food today</Text>
-        {foodStatus ? (
-          <Text style={styles.helperText}>
-            You&apos;re already getting about {Math.round(foodStatus.percentOfTarget)}% of today&apos;s {foodStatus.displayName} target
-            from food ({Math.round(foodStatus.fromFood)}{foodStatus.unit}).
-          </Text>
-        ) : (
-          <Text style={styles.helperText}>This app doesn&apos;t track {nutrientDisplayName(nutrientCode)} content in food yet.</Text>
-        )}
+        <TouchableOpacity onPress={() => handleRemoveDose(dose)}>
+          <Text style={styles.actionTextRemove}>Remove</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
-  function renderTreatmentGroup(title: string, groupTreatments: TreatmentRecord[]) {
+  function renderDoseForm(treatment: TreatmentRecord) {
+    return (
+      <View style={styles.doseForm}>
+        <View style={styles.timeRow}>
+          <AppTextInput
+            style={[styles.input, styles.timeInput]}
+            placeholder="8"
+            keyboardType="number-pad"
+            maxLength={2}
+            value={doseFormTime.hour}
+            onChangeText={(text) => setDoseFormTime((current) => ({ ...current, hour: text }))}
+          />
+          <Text style={styles.timeSeparator}>:</Text>
+          <AppTextInput
+            style={[styles.input, styles.timeInput]}
+            placeholder="00"
+            keyboardType="number-pad"
+            maxLength={2}
+            value={doseFormTime.minute}
+            onChangeText={(text) => setDoseFormTime((current) => ({ ...current, minute: text }))}
+          />
+          <View style={styles.pillRow}>
+            {(['AM', 'PM'] as const).map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={[styles.pillSmall, doseFormTime.ampm === option && styles.pillActive]}
+                onPress={() => setDoseFormTime((current) => ({ ...current, ampm: option }))}
+              >
+                <Text style={[styles.pillTextSmall, doseFormTime.ampm === option && styles.pillTextActive]}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+        <RepeatPicker repeat={doseFormRepeat} onChange={setDoseFormRepeat} />
+        <View style={styles.formActions}>
+          <TouchableOpacity style={styles.secondaryButton} onPress={closeDoseForm}>
+            <Text style={styles.secondaryButtonText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.primaryButton} onPress={() => handleSaveDose(treatment)}>
+            <Text style={styles.primaryButtonText}>Add reminder</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  function renderGroup(group: MedsGroup) {
+    const groupTreatments = treatments.filter((treatment) => treatment.treatmentType === group.treatmentType);
     if (groupTreatments.length === 0) return null;
     return (
-      <ScheduleBand folds={folds} id={`schedule:myMeds:${title}`} title={title} icon="medkit-outline" count={groupTreatments.length}>
-      <View style={styles.myMedsGroup}>
-        {groupTreatments.map((treatment) => {
-          const isExpanded = expandedId === treatment.id;
-          const ingredients = ingredientsByTreatment[treatment.id] ?? [];
-          const matchedMed = treatment.genericName ? commonMedications.find((med) => med.id === treatment.genericName) : null;
-
-          return (
-            <View key={treatment.id} style={styles.row}>
-              <TouchableOpacity style={styles.rowTextCol} onPress={() => setExpandedId(isExpanded ? null : treatment.id)}>
-                <Text style={styles.rowTitle}>{treatment.name}</Text>
-                <Text style={styles.rowMeta}>
-                  {treatment.treatmentType === 'supplement'
-                    ? `${treatment.unitsPerDay} ${treatment.servingUnitLabel}${Number(treatment.unitsPerDay) === 1 ? '' : 's'}/day`
-                    : [treatment.doseAmount ? `${treatment.doseAmount}${treatment.doseUnit ?? ''}` : null, treatment.frequency]
-                        .filter(Boolean)
-                        .join(', ') || 'No dose details entered'}
-                  {treatment.active ? '' : ' · Not tracking'}
-                </Text>
-                {ingredients.length > 0 ? (
-                  <Text style={styles.rowMeta}>
-                    {ingredients
-                      .map(
-                        (ingredient) =>
-                          `${nutrientDisplayName(ingredient.nutrientCode)}${ingredient.supplementForm ? ` (${ingredient.supplementForm})` : ''}`,
-                      )
-                      .join(', ')}
-                  </Text>
-                ) : null}
-              </TouchableOpacity>
-
-              <View style={styles.supplementRowActions}>
-                <TouchableOpacity onPress={() => handleToggleActive(treatment)}>
-                  <Text style={treatment.active ? styles.actionTextPrimary : styles.actionText}>
-                    {treatment.active ? 'Tracking' : 'Not tracking'}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setExpandedId(isExpanded ? null : treatment.id)}>
-                  <Text style={styles.actionText}>{isExpanded ? 'Hide details' : 'Details'}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleRemove(treatment)}>
-                  <Text style={styles.actionTextRemove}>Remove</Text>
-                </TouchableOpacity>
-              </View>
-
-              {isExpanded ? (
-                <View style={styles.myMedsDetail}>
-                  {treatment.treatmentType === 'supplement'
-                    ? ingredients.map((ingredient) => (
-                        <View key={ingredient.id}>
-                          <Text style={styles.myMedsResearchLabel}>
-                            {nutrientDisplayName(ingredient.nutrientCode)}: {ingredient.amountPerUnit}
-                            {ingredient.unit}/dose
-                          </Text>
-                          {renderNutrientResearchCard(ingredient.nutrientCode, ingredient.supplementForm ?? '')}
-                        </View>
-                      ))
-                    : matchedMed ? (
-                        <>
-                          <Text style={styles.myMedsResearchLabel}>{matchedMed.drugClass}</Text>
-                          <Text style={styles.helperText}>{matchedMed.commonUse}</Text>
-                          {matchedMed.thyroidRelevantNotes ? (
-                            <Text style={styles.helperText}>{matchedMed.thyroidRelevantNotes}</Text>
-                          ) : null}
-                          {matchedMed.timingGuidance ? (
-                            <>
-                              <Text style={styles.myMedsResearchLabel}>Timing</Text>
-                              <Text style={styles.helperText}>{matchedMed.timingGuidance}</Text>
-                            </>
-                          ) : null}
-                          {matchedMed.keyInteractions ? (
-                            <>
-                              <Text style={styles.myMedsResearchLabel}>Key interactions</Text>
-                              <Text style={styles.helperText}>{matchedMed.keyInteractions}</Text>
-                            </>
-                          ) : null}
-                          {matchedMed.commonSideEffects ? (
-                            <>
-                              <Text style={styles.myMedsResearchLabel}>Common side effects</Text>
-                              <Text style={styles.helperText}>{matchedMed.commonSideEffects}</Text>
-                            </>
-                          ) : null}
-                        </>
-                      ) : (
-                        <Text style={styles.helperText}>
-                          Not matched to this app&apos;s researched medication list; entered manually.
-                        </Text>
-                      )}
+      <ScheduleBand key={group.title} folds={folds} id={`schedule:meds:${group.title}`} title={group.title} icon={group.icon} count={groupTreatments.length}>
+        <View style={styles.table}>
+          {groupTreatments.map((treatment) => {
+            const doses = dosesByTreatment[treatment.id] ?? [];
+            const doseToday = doses.filter((dose) => dose.scheduledFor.slice(0, 10) === today);
+            const nextLater = doses.find((dose) => dose.scheduledFor.slice(0, 10) > today);
+            return (
+              <View key={treatment.id} style={styles.row}>
+                <View style={styles.rowTextCol}>
+                  <Text style={styles.rowTitle}>{treatment.name}</Text>
+                  <Text style={styles.rowMeta}>{describeDose(treatment)}</Text>
                 </View>
-              ) : null}
-            </View>
-          );
-        })}
-      </View>
+                <View style={styles.supplementRowActions}>
+                  <TouchableOpacity onPress={() => openMyMeds(treatment)}>
+                    <Text style={styles.actionText}>Edit in My Meds</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.doseSection}>
+                  <Text style={styles.doseSectionLabel}>Reminder times today</Text>
+                  {doseToday.length === 0 ? (
+                    <Text style={styles.helperText}>
+                      {nextLater
+                        ? `Nothing today. Next: ${nextLater.scheduledFor.slice(0, 10)} at ${formatTime12(nextLater.scheduledFor.split('T')[1] ?? '')}.`
+                        : 'No reminder times set. It still counts toward totals while tracking is on in My Meds.'}
+                    </Text>
+                  ) : (
+                    doseToday.map((dose) => (
+                      <View key={dose.id} style={styles.doseRow}>
+                        <Text style={styles.doseRowTime}>{formatTime12(dose.scheduledFor.split('T')[1] ?? '')}</Text>
+                        <Text style={styles.doseRowStatus}>
+                          {capitalize(dose.status)}
+                          {dose.repeatGroupId ? ' · Repeats' : ''}
+                        </Text>
+                        {renderDoseActions(dose)}
+                      </View>
+                    ))
+                  )}
+                  {doseFormTreatmentId === treatment.id ? (
+                    renderDoseForm(treatment)
+                  ) : (
+                    <TouchableOpacity onPress={() => openDoseForm(treatment.id)}>
+                      <Text style={styles.actionTextPrimary}>+ Add a reminder time</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            );
+          })}
+        </View>
       </ScheduleBand>
     );
   }
@@ -3763,617 +3519,6 @@ function MyMedsLens() {
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       {infoAlertElement}
-      {confirmSheetElement}
-      {loading ? (
-        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
-      ) : errorMessage ? (
-        <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
-      ) : (
-        <>
-          {addMode === null ? (
-            <View style={styles.myMedsAddRow}>
-              <TouchableOpacity style={styles.addButton} onPress={() => openAddMed('prescription')}>
-                <Text style={styles.addButtonText}>+ Prescription</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.addButton} onPress={() => openAddMed('otc')}>
-                <Text style={styles.addButtonText}>+ OTC drug</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.addButton} onPress={openAddSupplement}>
-                <Text style={styles.addButtonText}>+ Supplement</Text>
-              </TouchableOpacity>
-            </View>
-          ) : addMode === 'supplement' ? (
-            <View style={styles.formCard}>
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Name</Text>
-                <VoiceInputButton
-                  onResult={(text) => setSupplementForm((current) => ({ ...current, name: text }))}
-                  color={TAB_COLOR}
-                />
-              </View>
-              <AppTextInput
-                style={styles.input}
-                placeholder="e.g. Daily Multivitamin, or just Magnesium"
-                value={supplementForm.name}
-                onChangeText={(text) => setSupplementForm((current) => ({ ...current, name: text }))}
-              />
-
-              <Text style={styles.label}>Dose</Text>
-              <View style={styles.timeRow}>
-                <AppTextInput
-                  style={[styles.input, styles.timeInput]}
-                  keyboardType="number-pad"
-                  value={supplementForm.unitsPerDay}
-                  onChangeText={(text) => setSupplementForm((current) => ({ ...current, unitsPerDay: text }))}
-                />
-                <AppTextInput
-                  style={[styles.input, styles.doseUnitInput]}
-                  placeholder="capsule, tablet, scoop, powder…"
-                  value={supplementForm.servingUnitLabel}
-                  onChangeText={(text) => setSupplementForm((current) => ({ ...current, servingUnitLabel: text }))}
-                />
-                <Text style={styles.timeSeparator}>/ day</Text>
-              </View>
-
-              <Text style={styles.label}>Ingredients (per single dose)</Text>
-              {supplementForm.ingredients.map((row) => {
-                const forms = formsByNutrient[row.nutrientCode] ?? [];
-                const formOptions: DropdownOption[] = forms.map((form) => ({ label: form.formName, value: form.formName }));
-                return (
-                  <View key={row.key}>
-                    <View style={styles.ingredientRow}>
-                      <View style={styles.ingredientNutrientCol}>
-                        {/* colors.tabFood, not this lens's own TAB_COLOR (tabSchedules) --
-                            2026-08-08, explicitly requested to match "the same color as
-                            those on the Side Dish Builder," which passes this same
-                            constant as its own tabColor. All four PopoverSelect fields
-                            in this lens share it, for one consistent picker color. */}
-                        <PopoverSelect
-                          selected={row.nutrientCode || null}
-                          options={nutrientOptions}
-                          onSelect={(value) => {
-                            updateIngredientRow(row.key, { nutrientCode: value, supplementForm: '' });
-                            ensureNutrientDataLoaded(value);
-                          }}
-                          placeholder="Nutrient"
-                          tabColor={colors.tabFood}
-                          width={220}
-                          searchable
-                          searchPlaceholder="Search nutrients…"
-                        />
-                      </View>
-                      <AppTextInput
-                        style={[styles.input, styles.ingredientAmountInput]}
-                        placeholder="Amount"
-                        keyboardType="decimal-pad"
-                        value={row.amount}
-                        onChangeText={(text) => updateIngredientRow(row.key, { amount: text })}
-                      />
-                      <View style={styles.ingredientUnitCol}>
-                        <PopoverSelect
-                          selected={row.unit || null}
-                          options={SUPPLEMENT_UNIT_OPTIONS}
-                          onSelect={(value) => updateIngredientRow(row.key, { unit: value })}
-                          tabColor={colors.tabFood}
-                          minWidth={64}
-                        />
-                      </View>
-                      <TouchableOpacity onPress={() => removeIngredientRow(row.key)} style={styles.ingredientRemove}>
-                        <Text style={styles.actionTextRemove}>✕</Text>
-                      </TouchableOpacity>
-                    </View>
-                    {row.nutrientCode && formOptions.length > 0 ? (
-                      <View style={styles.ingredientFormRow}>
-                        <PopoverSelect
-                          selected={row.supplementForm || null}
-                          options={formOptions}
-                          onSelect={(value) => updateIngredientRow(row.key, { supplementForm: value })}
-                          placeholder="Which form? (optional, but changes absorption)"
-                          tabColor={colors.tabFood}
-                          width={240}
-                        />
-                      </View>
-                    ) : null}
-                    {row.nutrientCode ? renderNutrientResearchCard(row.nutrientCode, row.supplementForm) : null}
-                  </View>
-                );
-              })}
-              <TouchableOpacity onPress={addIngredientRow} style={styles.secondaryButton}>
-                <Text style={styles.secondaryButtonText}>+ Add ingredient</Text>
-              </TouchableOpacity>
-
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Notes (optional)</Text>
-                <VoiceInputButton
-                  onResult={(text) => setSupplementForm((current) => ({ ...current, notes: text }))}
-                  color={TAB_COLOR}
-                />
-              </View>
-              <AppTextInput
-                style={styles.input}
-                placeholder="e.g. take with food"
-                value={supplementForm.notes}
-                onChangeText={(text) => setSupplementForm((current) => ({ ...current, notes: text }))}
-              />
-
-              <View style={styles.formActions}>
-                <TouchableOpacity style={styles.secondaryButton} onPress={closeAddForm}>
-                  <Text style={styles.secondaryButtonText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.primaryButton} onPress={handleSaveSupplement}>
-                  <Text style={styles.primaryButtonText}>Add supplement</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : (
-            <View style={styles.formCard}>
-              <Text style={styles.label}>{medForm.category === 'prescription' ? 'Prescription' : 'OTC drug'}</Text>
-
-              {!medForm.manualEntry ? (
-                <>
-                  <PopoverSelect
-                    selected={medForm.commonMedId || null}
-                    options={commonMedOptionsForCategory}
-                    onSelect={(value) => {
-                      const med = commonMedications.find((candidate) => candidate.id === value);
-                      if (med) selectCommonMed(med);
-                    }}
-                    placeholder="Search this app's researched list…"
-                    tabColor={colors.tabFood}
-                    width={260}
-                    searchable
-                    searchPlaceholder="e.g. levothyroxine, metformin, ibuprofen…"
-                  />
-                  <TouchableOpacity onPress={() => setMedForm((current) => ({ ...current, manualEntry: true }))}>
-                    <Text style={styles.actionTextPrimary}>Not in the list? Enter it myself</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <TouchableOpacity onPress={() => setMedForm((current) => ({ ...current, manualEntry: false, commonMedId: '' }))}>
-                  <Text style={styles.actionTextPrimary}>Search the researched list instead</Text>
-                </TouchableOpacity>
-              )}
-
-              {selectedCommonMed ? (
-                <View style={styles.myMedsResearchCard}>
-                  <Text style={styles.myMedsResearchLabel}>
-                    {selectedCommonMed.drugClass} · {EVIDENCE_TIER_LABEL[selectedCommonMed.evidenceStrength] ?? selectedCommonMed.evidenceStrength}
-                  </Text>
-                  <Text style={styles.helperText}>{selectedCommonMed.commonUse}</Text>
-                  {selectedCommonMed.thyroidRelevantNotes ? (
-                    <Text style={styles.helperText}>{selectedCommonMed.thyroidRelevantNotes}</Text>
-                  ) : null}
-                  {selectedCommonMed.timingGuidance ? (
-                    <Text style={styles.helperText}>Timing: {selectedCommonMed.timingGuidance}</Text>
-                  ) : null}
-                  {selectedCommonMed.keyInteractions ? (
-                    <Text style={styles.helperText}>Key interactions: {selectedCommonMed.keyInteractions}</Text>
-                  ) : null}
-                </View>
-              ) : medForm.manualEntry ? (
-                <Text style={styles.helperText}>
-                  Not in this app&apos;s researched list yet, but you can still track it with the details you know. Looking this up
-                  online automatically is a planned future capability, not built yet.
-                </Text>
-              ) : null}
-
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Name</Text>
-                <VoiceInputButton onResult={(text) => setMedForm((current) => ({ ...current, name: text }))} color={TAB_COLOR} />
-              </View>
-              <AppTextInput
-                style={styles.input}
-                placeholder="e.g. Synthroid 75mcg"
-                value={medForm.name}
-                onChangeText={(text) => setMedForm((current) => ({ ...current, name: text }))}
-              />
-
-              {medForm.manualEntry ? (
-                <>
-                  <View style={styles.labelRow}>
-                    <Text style={styles.label}>Generic name (optional, helps interaction checking)</Text>
-                    <VoiceInputButton
-                      onResult={(text) => setMedForm((current) => ({ ...current, genericName: text }))}
-                      color={TAB_COLOR}
-                    />
-                  </View>
-                  <AppTextInput
-                    style={styles.input}
-                    placeholder="e.g. levothyroxine"
-                    value={medForm.genericName}
-                    onChangeText={(text) => setMedForm((current) => ({ ...current, genericName: text }))}
-                  />
-                </>
-              ) : null}
-
-              <Text style={styles.label}>Dose</Text>
-              <View style={styles.timeRow}>
-                <AppTextInput
-                  style={[styles.input, styles.timeInput]}
-                  placeholder="75"
-                  keyboardType="decimal-pad"
-                  value={medForm.doseAmount}
-                  onChangeText={(text) => setMedForm((current) => ({ ...current, doseAmount: text }))}
-                />
-                <AppTextInput
-                  style={[styles.input, styles.doseUnitInput]}
-                  placeholder="mcg, mg…"
-                  value={medForm.doseUnit}
-                  onChangeText={(text) => setMedForm((current) => ({ ...current, doseUnit: text }))}
-                />
-              </View>
-
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Frequency (optional)</Text>
-                <VoiceInputButton
-                  onResult={(text) => setMedForm((current) => ({ ...current, frequency: text }))}
-                  color={TAB_COLOR}
-                />
-              </View>
-              <AppTextInput
-                style={styles.input}
-                placeholder="e.g. once daily"
-                value={medForm.frequency}
-                onChangeText={(text) => setMedForm((current) => ({ ...current, frequency: text }))}
-              />
-
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Notes (optional)</Text>
-                <VoiceInputButton onResult={(text) => setMedForm((current) => ({ ...current, notes: text }))} color={TAB_COLOR} />
-              </View>
-              <AppTextInput
-                style={styles.input}
-                placeholder="e.g. prescribed by Dr. …"
-                value={medForm.notes}
-                onChangeText={(text) => setMedForm((current) => ({ ...current, notes: text }))}
-              />
-
-              <View style={styles.formActions}>
-                <TouchableOpacity style={styles.secondaryButton} onPress={closeAddForm}>
-                  <Text style={styles.secondaryButtonText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.primaryButton} onPress={handleSaveMed}>
-                  <Text style={styles.primaryButtonText}>{medForm.category === 'prescription' ? 'Add prescription' : 'Add OTC drug'}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-
-          {interactionWarnings.length > 0 ? (
-            <ScheduleBand
-              folds={folds}
-              id="schedule:myMeds:things-to-check"
-              title="Things to check"
-              icon="alert-circle-outline"
-              count={interactionWarnings.length}
-            >
-            <View style={styles.table}>
-              {interactionWarnings.map((warning, index) => (
-                <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
-                  <Text style={styles.interactionTitle}>{warning.title}</Text>
-                  <Text style={styles.interactionMessage}>{warning.message}</Text>
-                  <Text style={styles.interactionCitation}>{warning.citation}</Text>
-                  <WhyExplainer title={warning.title} mechanism={warning.mechanism} onPress={showInfoAlert} />
-                </View>
-              ))}
-            </View>
-            </ScheduleBand>
-          ) : null}
-
-          {referenceOnlyRules.length > 0 ? (
-            <ScheduleBand
-              folds={folds}
-              id="schedule:myMeds:worth-knowing"
-              title="Worth knowing (reference only, not personalized)"
-              icon="information-circle-outline"
-              count={referenceOnlyRules.length}
-            >
-            <View style={styles.table}>
-              {referenceOnlyRules.map((rule) => (
-                <View key={rule.ruleId} style={[styles.interactionCard, styles.interactionCardReference]}>
-                  <Text style={styles.interactionTitle}>{rule.title}</Text>
-                  <Text style={styles.interactionMessage}>{rule.guidance}</Text>
-                  <Text style={styles.interactionCitation}>{rule.citation}</Text>
-                  <WhyExplainer title={rule.title} mechanism={rule.mechanism} onPress={showInfoAlert} />
-                </View>
-              ))}
-            </View>
-            </ScheduleBand>
-          ) : null}
-
-          {treatments.length === 0 ? (
-            <View style={styles.bandBox}><Text style={styles.emptyText}>Nothing tracked yet. Add a prescription, OTC drug, or supplement above.</Text></View>
-          ) : (
-            <>
-              {renderTreatmentGroup('Prescriptions', treatments.filter((treatment) => treatment.treatmentType === 'prescription'))}
-              {renderTreatmentGroup('OTC drugs', treatments.filter((treatment) => treatment.treatmentType === 'otc'))}
-              {renderTreatmentGroup('Supplements', treatments.filter((treatment) => treatment.treatmentType === 'supplement'))}
-            </>
-          )}
-        </>
-      )}
-    </ScrollView>
-  );
-}
-
-// The Supplements lens -- a list of every supplement ever added (active or
-// not, so turning one back on later doesn't mean re-entering its whole
-// ingredient list), each independently switchable between "Tracking" and
-// "Not tracking." That single toggle is deliberately the entire mechanism
-// for "I stopped taking this," "I cycle on and off this," and "I'm only
-// taking this temporarily" -- all three are just "is this counted toward
-// today's totals right now," decided by the person in the moment, not a
-// date-range schedule to configure ahead of time.
-function SupplementsLens() {
-  const scrollBottomPadding = useFloatingButtonScrollPadding();
-  const folds = useBandFolds();
-  const [treatments, setTreatments] = useState<TreatmentRecord[]>([]);
-  const [ingredientsByTreatment, setIngredientsByTreatment] = useState<Record<string, TreatmentNutrientRecord[]>>({});
-  const [dosesByTreatment, setDosesByTreatment] = useState<Record<string, ScheduleItemRecord[]>>({});
-  const [interactionWarnings, setInteractionWarnings] = useState<InteractionWarning[]>([]);
-  const [referenceOnlyRules, setReferenceOnlyRules] = useState<ReferenceOnlyRule[]>([]);
-  const [nutrients, setNutrients] = useState<TrackedNutrient[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<SupplementFormState>(blankSupplementForm());
-  const [doseFormTreatmentId, setDoseFormTreatmentId] = useState<string | null>(null);
-  const [doseFormTime, setDoseFormTime] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
-  const [doseFormRepeat, setDoseFormRepeat] = useState<RepeatConfig>({ type: 'none' });
-  const [showInfoAlert, infoAlertElement] = useInfoAlert();
-  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
-  const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
-
-  const load = useCallback(() => {
-    setLoading(true);
-    ensureScheduleSeriesGenerated()
-      .then(() => Promise.all([listSupplementTreatments(false), listTrackedNutrients()]))
-      .then(async ([loadedTreatments, loadedNutrients]) => {
-        setTreatments(loadedTreatments);
-        setNutrients(loadedNutrients);
-        const today = todayDateString();
-        const entries = await Promise.all(
-          loadedTreatments.map(async (treatment) => [treatment.id, await getTreatmentNutrients(treatment.id)] as const),
-        );
-        setIngredientsByTreatment(Object.fromEntries(entries));
-        const doseEntries = await Promise.all(
-          loadedTreatments.map(
-            async (treatment) => [treatment.id, await listScheduledSupplementDosesForTreatment(treatment.id, today)] as const,
-          ),
-        );
-        setDosesByTreatment(Object.fromEntries(doseEntries));
-        const evaluation = await evaluateInteractionRules(today);
-        setInteractionWarnings(evaluation.warnings);
-        setReferenceOnlyRules(evaluation.referenceOnly);
-      })
-      .catch((error) => {
-        setErrorMessage(`Could not load supplements: ${error instanceof Error ? error.message : String(error)}`);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [load]),
-  );
-
-  function nutrientDisplayName(code: string): string {
-    return nutrients.find((nutrient) => nutrient.code === code)?.displayName ?? code;
-  }
-
-  function openAddForm() {
-    setForm(blankSupplementForm());
-    setShowForm(true);
-  }
-
-  function openEditForm(treatment: TreatmentRecord) {
-    const ingredients = ingredientsByTreatment[treatment.id] ?? [];
-    setForm({
-      editingId: treatment.id,
-      name: treatment.name,
-      unitsPerDay: String(treatment.unitsPerDay ?? 1),
-      servingUnitLabel: treatment.servingUnitLabel ?? '',
-      notes: treatment.notes ?? '',
-      ingredients: ingredients.length
-        ? ingredients.map((ingredient) => ({
-            key: ingredient.id,
-            nutrientCode: ingredient.nutrientCode,
-            amount: String(ingredient.amountPerUnit),
-            unit: ingredient.unit,
-          }))
-        : [blankIngredientRow()],
-    });
-    setShowForm(true);
-  }
-
-  function closeForm() {
-    setShowForm(false);
-    setForm(blankSupplementForm());
-  }
-
-  function addIngredientRow() {
-    setForm((current) => ({ ...current, ingredients: [...current.ingredients, blankIngredientRow()] }));
-  }
-
-  function removeIngredientRow(key: string) {
-    setForm((current) => ({ ...current, ingredients: current.ingredients.filter((row) => row.key !== key) }));
-  }
-
-  function updateIngredientRow(key: string, update: Partial<IngredientFormRow>) {
-    setForm((current) => ({
-      ...current,
-      ingredients: current.ingredients.map((row) => (row.key === key ? { ...row, ...update } : row)),
-    }));
-  }
-
-  async function handleSaveForm() {
-    if (!form.name.trim()) {
-      showInfoAlert('Almost there', "Enter the supplement's name.");
-      return;
-    }
-    const unitsPerDay = Number(form.unitsPerDay);
-    if (!unitsPerDay || unitsPerDay <= 0) {
-      showInfoAlert('Almost there', 'Enter how many are taken per day (e.g. 1 or 2).');
-      return;
-    }
-    if (!form.servingUnitLabel.trim()) {
-      showInfoAlert('Almost there', 'Enter what one dose is called (e.g. capsule, tablet, scoop).');
-      return;
-    }
-    const validIngredients = form.ingredients.filter((row) => row.nutrientCode && row.amount);
-    if (validIngredients.length === 0) {
-      showInfoAlert('Almost there', 'Add at least one ingredient with an amount.');
-      return;
-    }
-
-    const ingredients: SupplementIngredientInput[] = validIngredients.map((row) => ({
-      nutrientCode: row.nutrientCode,
-      amountPerUnit: Number(row.amount),
-      unit: row.unit,
-    }));
-
-    try {
-      if (form.editingId) {
-        await updateSupplementTreatment(form.editingId, {
-          name: form.name,
-          unitsPerDay,
-          servingUnitLabel: form.servingUnitLabel,
-          ingredients,
-          notes: form.notes,
-        });
-      } else {
-        await createSupplementTreatment({
-          name: form.name,
-          unitsPerDay,
-          servingUnitLabel: form.servingUnitLabel,
-          ingredients,
-          notes: form.notes,
-        });
-      }
-      closeForm();
-      load();
-    } catch (error) {
-      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
-    }
-  }
-
-  async function handleRemove(treatment: TreatmentRecord) {
-    const ok = await confirmSheet({
-      title: 'Remove this supplement?',
-      message: `"${treatment.name}" and its ingredient list will be permanently deleted.`,
-      confirmLabel: 'Remove',
-      destructive: true,
-    });
-    if (!ok) return;
-    await deleteTreatment(treatment.id);
-    load();
-  }
-
-  async function handleToggleActive(treatment: TreatmentRecord) {
-    await setTreatmentActive(treatment.id, !treatment.active);
-    load();
-  }
-
-  function openDoseForm(treatmentId: string) {
-    setDoseFormTreatmentId(treatmentId);
-    setDoseFormTime({ hour: '', minute: '', ampm: '' });
-    setDoseFormRepeat({ type: 'none' });
-  }
-
-  function closeDoseForm() {
-    setDoseFormTreatmentId(null);
-  }
-
-  async function handleSaveDose(treatment: TreatmentRecord) {
-    const time24 = buildTime24(doseFormTime.hour, doseFormTime.minute, doseFormTime.ampm);
-    if (!time24) {
-      showInfoAlert('Almost there', describeTimeInputProblem(doseFormTime.hour, doseFormTime.minute, doseFormTime.ampm));
-      return;
-    }
-    const repeatError = validateRepeat(doseFormRepeat);
-    if (repeatError) {
-      showInfoAlert('Almost there', repeatError);
-      return;
-    }
-    try {
-      await scheduleSupplementDose({
-        treatmentId: treatment.id,
-        title: treatment.name,
-        scheduledFor: `${todayDateString()}T${time24}`,
-        repeat: doseFormRepeat,
-      });
-      closeDoseForm();
-      load();
-    } catch (error) {
-      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
-    }
-  }
-
-  async function handleMarkDoseTaken(item: ScheduleItemRecord) {
-    await markScheduledDoseTaken(item.id);
-    load();
-  }
-
-  async function handleToggleDoseSkipped(item: ScheduleItemRecord) {
-    await setScheduledMealSkipped(item.id, item.status !== 'skipped');
-    load();
-  }
-
-  function handleRemoveDose(item: ScheduleItemRecord) {
-    if (item.repeatGroupId) {
-      setRemovePrompt({
-        title: 'Remove this reminder?',
-        message: `This time repeats. Remove just today's, or this and every future one?`,
-        actions: [
-          {
-            label: 'Just this one',
-            onPress: () => {
-              void (async () => {
-                await deleteScheduledMeal(item.id);
-                load();
-              })();
-            },
-          },
-          {
-            label: 'This and future',
-            destructive: true,
-            onPress: () => {
-              void (async () => {
-                await deleteScheduleSeries(item.repeatGroupId!);
-                load();
-              })();
-            },
-          },
-          { label: 'Cancel', onPress: () => {} },
-        ],
-      });
-      return;
-    }
-    setRemovePrompt({
-      title: 'Remove this reminder?',
-      actions: [
-        {
-          label: 'Remove',
-          destructive: true,
-          onPress: () => {
-            void (async () => {
-              await deleteScheduledMeal(item.id);
-              load();
-            })();
-          },
-        },
-        { label: 'Cancel', onPress: () => {} },
-      ],
-    });
-  }
-
-  const nutrientOptions: DropdownOption[] = nutrients.map((nutrient) => ({ label: nutrient.displayName, value: nutrient.code }));
-
-  return (
-    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      {infoAlertElement}
-      {confirmSheetElement}
       <AppActionSheet
         visible={removePrompt !== null}
         onClose={() => setRemovePrompt(null)}
@@ -4381,744 +3526,93 @@ function SupplementsLens() {
         message={removePrompt?.message}
         actions={removePrompt?.actions ?? []}
       />
+      <View style={styles.bandOut}>
+        <HomeSectionBand
+          kind="action"
+          title="Add or change a med in My Meds"
+          caption="A med is defined on the Life tab. Tap Schedule it there to bring it here."
+          icon="flask-outline"
+          color={TAB_COLOR}
+          onPress={() => openMyMeds()}
+        />
+      </View>
       {loading ? (
         <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : errorMessage ? (
         <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
       ) : (
         <>
-          {!showForm ? (
-            <TouchableOpacity style={styles.addButton} onPress={openAddForm}>
-              <Text style={styles.addButtonText}>+ Add a supplement</Text>
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.formCard}>
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Name</Text>
-                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, name: text }))} color={TAB_COLOR} />
-              </View>
-              <AppTextInput
-                style={styles.input}
-                placeholder="e.g. Daily Multivitamin"
-                value={form.name}
-                onChangeText={(text) => setForm((current) => ({ ...current, name: text }))}
-              />
-
-              <Text style={styles.label}>Dose</Text>
-              <View style={styles.timeRow}>
-                <AppTextInput
-                  style={[styles.input, styles.timeInput]}
-                  keyboardType="number-pad"
-                  value={form.unitsPerDay}
-                  onChangeText={(text) => setForm((current) => ({ ...current, unitsPerDay: text }))}
-                />
-                <AppTextInput
-                  style={[styles.input, styles.doseUnitInput]}
-                  placeholder="capsule, tablet, scoop…"
-                  value={form.servingUnitLabel}
-                  onChangeText={(text) => setForm((current) => ({ ...current, servingUnitLabel: text }))}
-                />
-                <Text style={styles.timeSeparator}>/ day</Text>
-              </View>
-
-              <Text style={styles.label}>Ingredients (per single dose)</Text>
-              {form.ingredients.map((row) => (
-                <View key={row.key} style={styles.ingredientRow}>
-                  <View style={styles.ingredientNutrientCol}>
-                    <Dropdown
-                      value={row.nutrientCode}
-                      options={nutrientOptions}
-                      onChange={(value) => updateIngredientRow(row.key, { nutrientCode: value })}
-                      placeholder="Nutrient"
-                      searchable
-                      searchPlaceholder="Search nutrients…"
-                    />
-                  </View>
-                  <AppTextInput
-                    style={[styles.input, styles.ingredientAmountInput]}
-                    placeholder="Amount"
-                    keyboardType="decimal-pad"
-                    value={row.amount}
-                    onChangeText={(text) => updateIngredientRow(row.key, { amount: text })}
-                  />
-                  <View style={styles.ingredientUnitCol}>
-                    <Dropdown
-                      value={row.unit}
-                      options={SUPPLEMENT_UNIT_OPTIONS}
-                      onChange={(value) => updateIngredientRow(row.key, { unit: value })}
-                      compact
-                    />
-                  </View>
-                  <TouchableOpacity onPress={() => removeIngredientRow(row.key)} style={styles.ingredientRemove}>
-                    <Text style={styles.actionTextRemove}>✕</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-              <TouchableOpacity onPress={addIngredientRow} style={styles.secondaryButton}>
-                <Text style={styles.secondaryButtonText}>+ Add ingredient</Text>
-              </TouchableOpacity>
-
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Notes (optional)</Text>
-                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, notes: text }))} color={TAB_COLOR} />
-              </View>
-              <AppTextInput
-                style={styles.input}
-                placeholder="e.g. take with food"
-                value={form.notes}
-                onChangeText={(text) => setForm((current) => ({ ...current, notes: text }))}
-              />
-
-              <View style={styles.formActions}>
-                <TouchableOpacity style={styles.secondaryButton} onPress={closeForm}>
-                  <Text style={styles.secondaryButtonText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.primaryButton} onPress={handleSaveForm}>
-                  <Text style={styles.primaryButtonText}>{form.editingId ? 'Save changes' : 'Add supplement'}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-
-          {interactionWarnings.length > 0 ? (
-            <ScheduleBand
-              folds={folds}
-              id="schedule:supplements:things-to-check"
-              title="Things to check"
-              icon="alert-circle-outline"
-              count={interactionWarnings.length}
-            >
-            <View style={styles.table}>
-              {interactionWarnings.map((warning, index) => (
-                <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
-                  <Text style={styles.interactionTitle}>{warning.title}</Text>
-                  <Text style={styles.interactionMessage}>{warning.message}</Text>
-                  <Text style={styles.interactionCitation}>{warning.citation}</Text>
-                  <WhyExplainer title={warning.title} mechanism={warning.mechanism} onPress={showInfoAlert} />
-                </View>
-              ))}
-            </View>
-            </ScheduleBand>
-          ) : null}
-
-          {referenceOnlyRules.length > 0 ? (
-            <ScheduleBand
-              folds={folds}
-              id="schedule:supplements:worth-knowing"
-              title="Worth knowing (reference only, not personalized)"
-              icon="information-circle-outline"
-              count={referenceOnlyRules.length}
-            >
-            <View style={styles.table}>
+          <ScheduleBand folds={folds} id="schedule:meds:today" title="Today" icon="time-outline" count={todaysDoses.length}>
+            {todaysDoses.length === 0 ? (
               <Text style={[styles.helperText, styles.panelStandalone]}>
-                This needs information this app doesn't track yet (an upcoming lab draw), so it can't be checked
-                against your actual schedule. Shown as cited background information only.
+                No doses on the schedule today. Add a reminder time under a med below.
               </Text>
-              {referenceOnlyRules.map((rule) => (
-                <View key={rule.ruleId} style={[styles.interactionCard, styles.interactionCardReference]}>
-                  <Text style={styles.interactionTitle}>{rule.title}</Text>
-                  <Text style={styles.interactionMessage}>{rule.guidance}</Text>
-                  <Text style={styles.interactionCitation}>{rule.citation}</Text>
-                  <WhyExplainer title={rule.title} mechanism={rule.mechanism} onPress={showInfoAlert} />
-                </View>
-              ))}
-            </View>
-            </ScheduleBand>
-          ) : null}
-
-          <ScheduleBand folds={folds} id="schedule:supplements:list" title="Your supplements" icon="leaf-outline" count={treatments.length}>
-          {treatments.length === 0 ? (
-            <Text style={[styles.emptyText, styles.panelStandalone]}>No supplements added yet.</Text>
-          ) : (
-            <View style={styles.table}>
-              {treatments.map((treatment) => {
-                const ingredients = ingredientsByTreatment[treatment.id] ?? [];
-                const doses = dosesByTreatment[treatment.id] ?? [];
-                return (
-                  <View key={treatment.id} style={styles.row}>
-                    <View style={styles.rowTextCol}>
-                      <Text style={styles.rowTitle}>{treatment.name}</Text>
-                      <Text style={styles.rowMeta}>
-                        {treatment.unitsPerDay} {treatment.servingUnitLabel}
-                        {Number(treatment.unitsPerDay) === 1 ? '' : 's'}/day
-                        {treatment.active ? '' : ' · Not tracking'}
-                      </Text>
-                      {ingredients.length > 0 ? (
+            ) : (
+              <View style={styles.table}>
+                {todaysDoses.map((dose) => (
+                  <View key={dose.id} style={styles.row}>
+                    <View style={styles.doseRow}>
+                      <Text style={styles.doseRowTime}>{formatTime12(dose.scheduledFor.split('T')[1] ?? '')}</Text>
+                      <View style={styles.rowTextCol}>
+                        <Text style={styles.rowTitle}>{treatmentById.get(dose.linkedTreatmentId ?? '')?.name ?? dose.title}</Text>
                         <Text style={styles.rowMeta}>
-                          {ingredients
-                            .map((ingredient) => `${nutrientDisplayName(ingredient.nutrientCode)} (${ingredient.amountPerUnit}${ingredient.unit})`)
-                            .join(', ')}
+                          {capitalize(dose.status)}
+                          {dose.repeatGroupId ? ' · Repeats' : ''}
                         </Text>
-                      ) : null}
+                      </View>
                     </View>
-
-                    <View style={styles.supplementRowActions}>
-                      <TouchableOpacity onPress={() => handleToggleActive(treatment)}>
-                        <Text style={treatment.active ? styles.actionTextPrimary : styles.actionText}>
-                          {treatment.active ? 'Tracking' : 'Not tracking'}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => openEditForm(treatment)}>
-                        <Text style={styles.actionText}>Edit</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => handleRemove(treatment)}>
-                        <Text style={styles.actionTextRemove}>Remove</Text>
-                      </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.doseSection}>
-                      <Text style={styles.doseSectionLabel}>Reminder times today</Text>
-                      {doses.length === 0 ? (
-                        <Text style={styles.helperText}>No dose times set; the on/off toggle above still counts it toward totals.</Text>
-                      ) : (
-                        doses
-                          .filter((dose) => dose.scheduledFor.slice(0, 10) === todayDateString())
-                          .map((dose) => (
-                            <View key={dose.id} style={styles.doseRow}>
-                              <Text style={styles.doseRowTime}>{formatTime12(dose.scheduledFor.split('T')[1] ?? '')}</Text>
-                              <Text style={styles.doseRowStatus}>
-                                {capitalize(dose.status)}
-                                {dose.repeatGroupId ? ' · Repeats' : ''}
-                              </Text>
-                              <View style={styles.doseRowActions}>
-                                {dose.status === 'planned' ? (
-                                  <>
-                                    <TouchableOpacity onPress={() => handleMarkDoseTaken(dose)}>
-                                      <Text style={styles.actionTextPrimary}>Taken</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => handleToggleDoseSkipped(dose)}>
-                                      <Text style={styles.actionText}>Skip</Text>
-                                    </TouchableOpacity>
-                                  </>
-                                ) : dose.status === 'skipped' ? (
-                                  <TouchableOpacity onPress={() => handleToggleDoseSkipped(dose)}>
-                                    <Text style={styles.actionText}>Un-skip</Text>
-                                  </TouchableOpacity>
-                                ) : null}
-                                <TouchableOpacity onPress={() => handleRemoveDose(dose)}>
-                                  <Text style={styles.actionTextRemove}>Remove</Text>
-                                </TouchableOpacity>
-                              </View>
-                            </View>
-                          ))
-                      )}
-
-                      {doseFormTreatmentId === treatment.id ? (
-                        <View style={styles.doseForm}>
-                          <View style={styles.timeRow}>
-                            <AppTextInput
-                              style={[styles.input, styles.timeInput]}
-                              placeholder="8"
-                              keyboardType="number-pad"
-                              maxLength={2}
-                              value={doseFormTime.hour}
-                              onChangeText={(text) => setDoseFormTime((current) => ({ ...current, hour: text }))}
-                            />
-                            <Text style={styles.timeSeparator}>:</Text>
-                            <AppTextInput
-                              style={[styles.input, styles.timeInput]}
-                              placeholder="00"
-                              keyboardType="number-pad"
-                              maxLength={2}
-                              value={doseFormTime.minute}
-                              onChangeText={(text) => setDoseFormTime((current) => ({ ...current, minute: text }))}
-                            />
-                            <View style={styles.pillRow}>
-                              {(['AM', 'PM'] as const).map((option) => (
-                                <TouchableOpacity
-                                  key={option}
-                                  style={[styles.pillSmall, doseFormTime.ampm === option && styles.pillActive]}
-                                  onPress={() => setDoseFormTime((current) => ({ ...current, ampm: option }))}
-                                >
-                                  <Text style={[styles.pillTextSmall, doseFormTime.ampm === option && styles.pillTextActive]}>
-                                    {option}
-                                  </Text>
-                                </TouchableOpacity>
-                              ))}
-                            </View>
-                          </View>
-                          <RepeatPicker repeat={doseFormRepeat} onChange={setDoseFormRepeat} />
-                          <View style={styles.formActions}>
-                            <TouchableOpacity style={styles.secondaryButton} onPress={closeDoseForm}>
-                              <Text style={styles.secondaryButtonText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.primaryButton} onPress={() => handleSaveDose(treatment)}>
-                              <Text style={styles.primaryButtonText}>Add reminder</Text>
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                      ) : (
-                        <TouchableOpacity onPress={() => openDoseForm(treatment.id)}>
-                          <Text style={styles.actionTextPrimary}>+ Add a reminder time</Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
+                    {renderDoseActions(dose)}
                   </View>
-                );
-              })}
-            </View>
-          )}
+                ))}
+              </View>
+            )}
           </ScheduleBand>
-        </>
-      )}
-    </ScrollView>
-  );
-}
-
-type PrescriptionFormState = {
-  editingId: string | null;
-  name: string;
-  doseAmount: string;
-  doseUnit: string;
-  frequency: string;
-  notes: string;
-};
-
-function blankPrescriptionForm(): PrescriptionFormState {
-  return { editingId: null, name: '', doseAmount: '', doseUnit: '', frequency: '', notes: '' };
-}
-
-// The Prescriptions lens -- structurally the same pattern as Supplements
-// (a list of every prescription ever added, active or not, each with its
-// own Tracking toggle and optional reminder times), but simpler: a
-// prescription is a genuinely single-substance product (see
-// createPrescriptionTreatment in lib/db.ts), so there's no per-ingredient
-// nutrient list to document the way a multivitamin supplement needs --
-// just what it's called, its dose, and how often it's taken.
-function PrescriptionsLens() {
-  const scrollBottomPadding = useFloatingButtonScrollPadding();
-  const folds = useBandFolds();
-  const [treatments, setTreatments] = useState<TreatmentRecord[]>([]);
-  const [dosesByTreatment, setDosesByTreatment] = useState<Record<string, ScheduleItemRecord[]>>({});
-  const [interactionWarnings, setInteractionWarnings] = useState<InteractionWarning[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<PrescriptionFormState>(blankPrescriptionForm());
-  const [doseFormTreatmentId, setDoseFormTreatmentId] = useState<string | null>(null);
-  const [doseFormTime, setDoseFormTime] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
-  const [doseFormRepeat, setDoseFormRepeat] = useState<RepeatConfig>({ type: 'none' });
-  const [showInfoAlert, infoAlertElement] = useInfoAlert();
-  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
-  const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
-
-  const load = useCallback(() => {
-    setLoading(true);
-    ensureScheduleSeriesGenerated()
-      .then(() => listPrescriptionTreatments(false))
-      .then(async (loadedTreatments) => {
-        setTreatments(loadedTreatments);
-        const today = todayDateString();
-        const doseEntries = await Promise.all(
-          loadedTreatments.map(
-            async (treatment) => [treatment.id, await listScheduledPrescriptionDosesForTreatment(treatment.id, today)] as const,
-          ),
-        );
-        setDosesByTreatment(Object.fromEntries(doseEntries));
-        const evaluation = await evaluateInteractionRules(today);
-        setInteractionWarnings(evaluation.warnings);
-      })
-      .catch((error) => {
-        setErrorMessage(`Could not load prescriptions: ${error instanceof Error ? error.message : String(error)}`);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [load]),
-  );
-
-  function openAddForm() {
-    setForm(blankPrescriptionForm());
-    setShowForm(true);
-  }
-
-  function openEditForm(treatment: TreatmentRecord) {
-    setForm({
-      editingId: treatment.id,
-      name: treatment.name,
-      doseAmount: treatment.doseAmount != null ? String(treatment.doseAmount) : '',
-      doseUnit: treatment.doseUnit ?? '',
-      frequency: treatment.frequency ?? '',
-      notes: treatment.notes ?? '',
-    });
-    setShowForm(true);
-  }
-
-  function closeForm() {
-    setShowForm(false);
-    setForm(blankPrescriptionForm());
-  }
-
-  async function handleSaveForm() {
-    if (!form.name.trim()) {
-      showInfoAlert('Almost there', "Enter the prescription's name.");
-      return;
-    }
-
-    const input = {
-      name: form.name,
-      doseAmount: form.doseAmount.trim() ? Number(form.doseAmount) : undefined,
-      doseUnit: form.doseUnit || undefined,
-      frequency: form.frequency || undefined,
-      notes: form.notes,
-    };
-
-    try {
-      if (form.editingId) {
-        await updatePrescriptionTreatment(form.editingId, input);
-      } else {
-        await createPrescriptionTreatment(input);
-      }
-      closeForm();
-      load();
-    } catch (error) {
-      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
-    }
-  }
-
-  async function handleRemove(treatment: TreatmentRecord) {
-    const ok = await confirmSheet({
-      title: 'Remove this prescription?',
-      message: `"${treatment.name}" will be permanently deleted.`,
-      confirmLabel: 'Remove',
-      destructive: true,
-    });
-    if (!ok) return;
-    await deleteTreatment(treatment.id);
-    load();
-  }
-
-  async function handleToggleActive(treatment: TreatmentRecord) {
-    await setTreatmentActive(treatment.id, !treatment.active);
-    load();
-  }
-
-  function openDoseForm(treatmentId: string) {
-    setDoseFormTreatmentId(treatmentId);
-    setDoseFormTime({ hour: '', minute: '', ampm: '' });
-    setDoseFormRepeat({ type: 'none' });
-  }
-
-  function closeDoseForm() {
-    setDoseFormTreatmentId(null);
-  }
-
-  async function handleSaveDose(treatment: TreatmentRecord) {
-    const time24 = buildTime24(doseFormTime.hour, doseFormTime.minute, doseFormTime.ampm);
-    if (!time24) {
-      showInfoAlert('Almost there', describeTimeInputProblem(doseFormTime.hour, doseFormTime.minute, doseFormTime.ampm));
-      return;
-    }
-    const repeatError = validateRepeat(doseFormRepeat);
-    if (repeatError) {
-      showInfoAlert('Almost there', repeatError);
-      return;
-    }
-    try {
-      await schedulePrescriptionDose({
-        treatmentId: treatment.id,
-        title: treatment.name,
-        scheduledFor: `${todayDateString()}T${time24}`,
-        repeat: doseFormRepeat,
-      });
-      closeDoseForm();
-      load();
-    } catch (error) {
-      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
-    }
-  }
-
-  async function handleMarkDoseTaken(item: ScheduleItemRecord) {
-    await markScheduledDoseTaken(item.id);
-    load();
-  }
-
-  async function handleToggleDoseSkipped(item: ScheduleItemRecord) {
-    await setScheduledMealSkipped(item.id, item.status !== 'skipped');
-    load();
-  }
-
-  function handleRemoveDose(item: ScheduleItemRecord) {
-    if (item.repeatGroupId) {
-      setRemovePrompt({
-        title: 'Remove this reminder?',
-        message: `This time repeats. Remove just today's, or this and every future one?`,
-        actions: [
-          {
-            label: 'Just this one',
-            onPress: () => {
-              void (async () => {
-                await deleteScheduledMeal(item.id);
-                load();
-              })();
-            },
-          },
-          {
-            label: 'This and future',
-            destructive: true,
-            onPress: () => {
-              void (async () => {
-                await deleteScheduleSeries(item.repeatGroupId!);
-                load();
-              })();
-            },
-          },
-          { label: 'Cancel', onPress: () => {} },
-        ],
-      });
-      return;
-    }
-    setRemovePrompt({
-      title: 'Remove this reminder?',
-      actions: [
-        {
-          label: 'Remove',
-          destructive: true,
-          onPress: () => {
-            void (async () => {
-              await deleteScheduledMeal(item.id);
-              load();
-            })();
-          },
-        },
-        { label: 'Cancel', onPress: () => {} },
-      ],
-    });
-  }
-
-  return (
-    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      {infoAlertElement}
-      {confirmSheetElement}
-      <AppActionSheet
-        visible={removePrompt !== null}
-        onClose={() => setRemovePrompt(null)}
-        title={removePrompt?.title}
-        message={removePrompt?.message}
-        actions={removePrompt?.actions ?? []}
-      />
-      {loading ? (
-        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
-      ) : errorMessage ? (
-        <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
-      ) : (
-        <>
-          {!showForm ? (
-            <TouchableOpacity style={styles.addButton} onPress={openAddForm}>
-              <Text style={styles.addButtonText}>+ Add a prescription</Text>
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.formCard}>
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Name</Text>
-                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, name: text }))} color={TAB_COLOR} />
-              </View>
-              <AppTextInput
-                style={styles.input}
-                placeholder="e.g. Levothyroxine"
-                value={form.name}
-                onChangeText={(text) => setForm((current) => ({ ...current, name: text }))}
-              />
-
-              <Text style={styles.label}>Dose (optional)</Text>
-              <View style={styles.timeRow}>
-                <AppTextInput
-                  style={[styles.input, styles.timeInput]}
-                  keyboardType="decimal-pad"
-                  placeholder="75"
-                  value={form.doseAmount}
-                  onChangeText={(text) => setForm((current) => ({ ...current, doseAmount: text }))}
-                />
-                <AppTextInput
-                  style={[styles.input, styles.doseUnitInput]}
-                  placeholder="mcg, mg, tablet…"
-                  value={form.doseUnit}
-                  onChangeText={(text) => setForm((current) => ({ ...current, doseUnit: text }))}
-                />
-              </View>
-
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Frequency (optional)</Text>
-                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, frequency: text }))} color={TAB_COLOR} />
-              </View>
-              <AppTextInput
-                style={styles.input}
-                placeholder="e.g. Once daily"
-                value={form.frequency}
-                onChangeText={(text) => setForm((current) => ({ ...current, frequency: text }))}
-              />
-
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Notes (optional)</Text>
-                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, notes: text }))} color={TAB_COLOR} />
-              </View>
-              <AppTextInput
-                style={styles.input}
-                placeholder="e.g. take on an empty stomach"
-                value={form.notes}
-                onChangeText={(text) => setForm((current) => ({ ...current, notes: text }))}
-              />
-
-              <View style={styles.formActions}>
-                <TouchableOpacity style={styles.secondaryButton} onPress={closeForm}>
-                  <Text style={styles.secondaryButtonText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.primaryButton} onPress={handleSaveForm}>
-                  <Text style={styles.primaryButtonText}>{form.editingId ? 'Save changes' : 'Add prescription'}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
 
           {interactionWarnings.length > 0 ? (
-            <ScheduleBand
-              folds={folds}
-              id="schedule:prescriptions:things-to-check"
-              title="Things to check"
-              icon="alert-circle-outline"
-              count={interactionWarnings.length}
-            >
-            <View style={styles.table}>
-              {interactionWarnings.map((warning, index) => (
-                <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
-                  <Text style={styles.interactionTitle}>{warning.title}</Text>
-                  <Text style={styles.interactionMessage}>{warning.message}</Text>
-                  <Text style={styles.interactionCitation}>{warning.citation}</Text>
-                  <WhyExplainer title={warning.title} mechanism={warning.mechanism} onPress={showInfoAlert} />
-                </View>
-              ))}
-            </View>
+            <ScheduleBand folds={folds} id="schedule:meds:things-to-check" title="Things to check" icon="alert-circle-outline" count={interactionWarnings.length}>
+              <View style={styles.table}>
+                {interactionWarnings.map((warning, index) => (
+                  <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
+                    <Text style={styles.interactionTitle}>{warning.title}</Text>
+                    <Text style={styles.interactionMessage}>{warning.message}</Text>
+                    <Text style={styles.interactionCitation}>{warning.citation}</Text>
+                    <WhyExplainer title={warning.title} mechanism={warning.mechanism} onPress={showInfoAlert} />
+                  </View>
+                ))}
+              </View>
             </ScheduleBand>
           ) : null}
 
-          <ScheduleBand folds={folds} id="schedule:prescriptions:list" title="Your prescriptions" icon="medkit-outline" count={treatments.length}>
-          {treatments.length === 0 ? (
-            <Text style={[styles.emptyText, styles.panelStandalone]}>No prescriptions added yet.</Text>
-          ) : (
-            <View style={styles.table}>
-              {treatments.map((treatment) => {
-                const doses = dosesByTreatment[treatment.id] ?? [];
-                return (
-                  <View key={treatment.id} style={styles.row}>
-                    <View style={styles.rowTextCol}>
-                      <Text style={styles.rowTitle}>{treatment.name}</Text>
-                      <Text style={styles.rowMeta}>
-                        {treatment.doseAmount != null ? `${treatment.doseAmount}${treatment.doseUnit ? ` ${treatment.doseUnit}` : ''}` : ''}
-                        {treatment.frequency ? `${treatment.doseAmount != null ? ' · ' : ''}${treatment.frequency}` : ''}
-                        {treatment.active ? '' : ' · Not tracking'}
-                      </Text>
-                    </View>
-
-                    <View style={styles.supplementRowActions}>
-                      <TouchableOpacity onPress={() => handleToggleActive(treatment)}>
-                        <Text style={treatment.active ? styles.actionTextPrimary : styles.actionText}>
-                          {treatment.active ? 'Tracking' : 'Not tracking'}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => openEditForm(treatment)}>
-                        <Text style={styles.actionText}>Edit</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => handleRemove(treatment)}>
-                        <Text style={styles.actionTextRemove}>Remove</Text>
-                      </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.doseSection}>
-                      <Text style={styles.doseSectionLabel}>Reminder times today</Text>
-                      {doses.length === 0 ? (
-                        <Text style={styles.helperText}>No dose times set; the on/off toggle above still tracks it.</Text>
-                      ) : (
-                        doses
-                          .filter((dose) => dose.scheduledFor.slice(0, 10) === todayDateString())
-                          .map((dose) => (
-                            <View key={dose.id} style={styles.doseRow}>
-                              <Text style={styles.doseRowTime}>{formatTime12(dose.scheduledFor.split('T')[1] ?? '')}</Text>
-                              <Text style={styles.doseRowStatus}>
-                                {capitalize(dose.status)}
-                                {dose.repeatGroupId ? ' · Repeats' : ''}
-                              </Text>
-                              <View style={styles.doseRowActions}>
-                                {dose.status === 'planned' ? (
-                                  <>
-                                    <TouchableOpacity onPress={() => handleMarkDoseTaken(dose)}>
-                                      <Text style={styles.actionTextPrimary}>Taken</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => handleToggleDoseSkipped(dose)}>
-                                      <Text style={styles.actionText}>Skip</Text>
-                                    </TouchableOpacity>
-                                  </>
-                                ) : dose.status === 'skipped' ? (
-                                  <TouchableOpacity onPress={() => handleToggleDoseSkipped(dose)}>
-                                    <Text style={styles.actionText}>Un-skip</Text>
-                                  </TouchableOpacity>
-                                ) : null}
-                                <TouchableOpacity onPress={() => handleRemoveDose(dose)}>
-                                  <Text style={styles.actionTextRemove}>Remove</Text>
-                                </TouchableOpacity>
-                              </View>
-                            </View>
-                          ))
-                      )}
-
-                      {doseFormTreatmentId === treatment.id ? (
-                        <View style={styles.doseForm}>
-                          <View style={styles.timeRow}>
-                            <AppTextInput
-                              style={[styles.input, styles.timeInput]}
-                              placeholder="8"
-                              keyboardType="number-pad"
-                              maxLength={2}
-                              value={doseFormTime.hour}
-                              onChangeText={(text) => setDoseFormTime((current) => ({ ...current, hour: text }))}
-                            />
-                            <Text style={styles.timeSeparator}>:</Text>
-                            <AppTextInput
-                              style={[styles.input, styles.timeInput]}
-                              placeholder="00"
-                              keyboardType="number-pad"
-                              maxLength={2}
-                              value={doseFormTime.minute}
-                              onChangeText={(text) => setDoseFormTime((current) => ({ ...current, minute: text }))}
-                            />
-                            <View style={styles.pillRow}>
-                              {(['AM', 'PM'] as const).map((option) => (
-                                <TouchableOpacity
-                                  key={option}
-                                  style={[styles.pillSmall, doseFormTime.ampm === option && styles.pillActive]}
-                                  onPress={() => setDoseFormTime((current) => ({ ...current, ampm: option }))}
-                                >
-                                  <Text style={[styles.pillTextSmall, doseFormTime.ampm === option && styles.pillTextActive]}>
-                                    {option}
-                                  </Text>
-                                </TouchableOpacity>
-                              ))}
-                            </View>
-                          </View>
-                          <RepeatPicker repeat={doseFormRepeat} onChange={setDoseFormRepeat} />
-                          <View style={styles.formActions}>
-                            <TouchableOpacity style={styles.secondaryButton} onPress={closeDoseForm}>
-                              <Text style={styles.secondaryButtonText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.primaryButton} onPress={() => handleSaveDose(treatment)}>
-                              <Text style={styles.primaryButtonText}>Add reminder</Text>
-                            </TouchableOpacity>
-                          </View>
-                        </View>
-                      ) : (
-                        <TouchableOpacity onPress={() => openDoseForm(treatment.id)}>
-                          <Text style={styles.actionTextPrimary}>+ Add a reminder time</Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
+          {referenceOnlyRules.length > 0 ? (
+            <ScheduleBand
+              folds={folds}
+              id="schedule:meds:worth-knowing"
+              title="Worth knowing (reference only, not personalized)"
+              icon="information-circle-outline"
+              count={referenceOnlyRules.length}
+            >
+              <View style={styles.table}>
+                {referenceOnlyRules.map((rule) => (
+                  <View key={rule.ruleId} style={[styles.interactionCard, styles.interactionCardReference]}>
+                    <Text style={styles.interactionTitle}>{rule.title}</Text>
+                    <Text style={styles.interactionMessage}>{rule.guidance}</Text>
+                    <Text style={styles.interactionCitation}>{rule.citation}</Text>
+                    <WhyExplainer title={rule.title} mechanism={rule.mechanism} onPress={showInfoAlert} />
                   </View>
-                );
-              })}
+                ))}
+              </View>
+            </ScheduleBand>
+          ) : null}
+
+          {treatments.length === 0 ? (
+            <View style={styles.bandBox}>
+              <Text style={styles.emptyText}>
+                Nothing to schedule yet. Add a prescription, OTC drug or supplement in Life &gt; My Meds, then tap Schedule it there.
+              </Text>
             </View>
+          ) : (
+            MEDS_GROUPS.map(renderGroup)
           )}
-          </ScheduleBand>
         </>
       )}
     </ScrollView>
@@ -5157,6 +3651,7 @@ function addDaysToDateStringLocal(dateStr: string, days: number): string {
   const pad = (value: number) => String(value).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
+
 
 // A device calendar event's startDate is a UTC ISO string (see
 // lib/deviceCalendar.ts) -- parsed back into local Y-M-D/H:M here rather
@@ -6123,7 +4618,7 @@ function TherapiesLens() {
 function ComingSoonLens({
   lens,
 }: {
-  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments' | 'therapies'>;
+  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'meds' | 'hydration' | 'appointments' | 'therapies'>;
 }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
@@ -6139,7 +4634,7 @@ export default function ScheduleScreen() {
   // own openDigestLens already established, so Profile can jump straight
   // into the Daily Meal Plan lens rather than leaving someone to find it
   // themselves via LensHub afterward.
-  const { openScheduleLens } = useLocalSearchParams<{ openScheduleLens?: string }>();
+  const { openScheduleLens, scheduleTreatmentId } = useLocalSearchParams<{ openScheduleLens?: string; scheduleTreatmentId?: string }>();
   const [lens, setLens] = useState<Lens>('meals');
   const activeLensLabel = LENSES.find((option) => option.key === lens)?.label;
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment
@@ -6186,8 +4681,12 @@ export default function ScheduleScreen() {
     return [
       { id: 'todaysMeals', label: "Today's Meals", count: undefined, onPress: openLens('todaysMeals') },
       { id: 'meals', label: 'Scheduled Meals', count: scheduleCounts.meal ?? 0, onPress: openLens('meals') },
-      { id: 'supplements', label: 'Supplements', count: scheduleCounts.supplement ?? 0, onPress: openLens('supplements') },
-      { id: 'prescriptions', label: 'Prescriptions', count: scheduleCounts.prescription ?? 0, onPress: openLens('prescriptions') },
+      {
+        id: 'meds',
+        label: 'Meds',
+        count: (scheduleCounts.supplement ?? 0) + (scheduleCounts.prescription ?? 0) + (scheduleCounts.otc ?? 0),
+        onPress: openLens('meds'),
+      },
       { id: 'appointments', label: 'Appointments', count: scheduleCounts.appointment ?? 0, onPress: openLens('appointments') },
       { id: 'hydration', label: 'Hydration', count: undefined, onPress: openLens('hydration') },
       { id: 'shoppingList', label: 'Shopping List', count: undefined, onPress: openLens('shoppingList') },
@@ -6239,12 +4738,8 @@ export default function ScheduleScreen() {
             <ShoppingListLens />
           ) : lens === 'hydration' ? (
             <HydrationLens />
-          ) : lens === 'myMeds' ? (
-            <MyMedsLens />
-          ) : lens === 'supplements' ? (
-            <SupplementsLens />
-          ) : lens === 'prescriptions' ? (
-            <PrescriptionsLens />
+          ) : lens === 'meds' ? (
+            <MedsLens scheduleTreatmentId={scheduleTreatmentId} />
           ) : lens === 'appointments' ? (
             <AppointmentsLens />
           ) : lens === 'therapies' ? (

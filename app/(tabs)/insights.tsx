@@ -382,7 +382,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'My Meds & Interactions',
-        body: 'A read-only view of what Schedule\'s own My Meds lens already tracks (prescriptions, OTC, supplements) plus every interaction warning currently triggered: calcium/iron/zinc timing, the fat-soluble vitamins, levothyroxine + calcium/iron, and biotin against an upcoming lab draw.',
+        body: 'A read-only view of what My Meds on the Life tab already holds (prescriptions, OTC, supplements) plus every interaction warning currently triggered: calcium/iron/zinc timing, the fat-soluble vitamins, levothyroxine + calcium/iron, and biotin against an upcoming lab draw.',
       },
       {
         heading: 'Your Own Rules',
@@ -390,7 +390,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Adding or editing',
-        body: "Treatments themselves (prescriptions, OTC, supplements) aren't added or edited here; use Schedule's own My Meds lens for that. Your own rules are the one thing this lens does let you add, pause, resume, and delete directly, further down under \"Manage Your Rules.\"",
+        body: "Treatments themselves (prescriptions, OTC, supplements) aren't added or edited here; use My Meds on the Life tab for that, and Schedules > Meds for their times. Your own rules are the one thing this lens does let you add, pause, resume, and delete directly, further down under \"Manage Your Rules.\"",
       },
     ],
   },
@@ -1678,8 +1678,8 @@ export function NutrientsTable({
             <Text style={styles.bandCaption}>
               {breakdown.supplementSkipped.length} supplement ingredient{breakdown.supplementSkipped.length === 1 ? '' : 's'} couldn&apos;t
               be counted here: usually an IU dose for a nutrient with no single official IU-to-mass conversion (e.g.
-              vitamin E), or a unit this app doesn&apos;t recognize yet. Check that supplement&apos;s ingredients on the Schedule
-              tab&apos;s Supplements lens.
+              vitamin E), or a unit this app doesn&apos;t recognize yet. Check that supplement&apos;s ingredients in My Meds on the
+              Life tab.
             </Text>
           ) : null}
         </View>
@@ -3636,7 +3636,7 @@ function MyMedsView({
 
       {treatments.length === 0 ? (
         <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>
-          Nothing tracked yet. Add a prescription, OTC drug, or supplement on Schedule&apos;s own My Meds lens.
+          Nothing tracked yet. Add a prescription, OTC drug, or supplement in My Meds on the Life tab.
         </Text>
       ) : (
         <>

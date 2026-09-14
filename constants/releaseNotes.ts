@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.27',
+    date: '2026-09-13',
+    changes: [
+      'My Meds moved from Schedules to the Life tab. It is the one place a prescription, OTC drug or supplement is added, edited, paused or removed, and each med there has a Schedule it button that opens Schedules with that med ready for its reminder times.',
+      'Schedules has one Meds lens in place of the separate Supplements and Prescriptions lenses: every med you are tracking, its reminder times, the doses due today to mark taken or skipped, and the interaction checks. OTC drugs can be given reminder times now too.',
+      'Add or change a med at the top of Schedules > Meds, and Edit in My Meds on each row, both go to My Meds on Life.',
+    ],
+  },
+  {
     version: '1.0.37.26',
     date: '2026-09-13',
     changes: [

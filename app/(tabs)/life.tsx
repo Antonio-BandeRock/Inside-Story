@@ -1,5 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
@@ -11,6 +11,7 @@ import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { KitchenSection } from '../../components/KitchenSection';
+import { MyMedsSection } from '../../components/MyMedsSection';
 import { UpkeepSection } from '../../components/UpkeepSection';
 import { WorkSection } from '../../components/WorkSection';
 import type { HelpSection } from '../../components/HelpButton';
@@ -132,7 +133,7 @@ const TAB_COLOR = colors.tabLife;
 // 'groceryList' is a lens in the menu only: picking it opens the grocery
 // list screen (the same one Home's own Grocery List row opens) rather than
 // a view inside this tab, so `lens` never actually holds it.
-type LifeLens = 'finances' | 'kitchen' | 'work' | 'upkeep' | 'emergency' | 'groceryList';
+type LifeLens = 'finances' | 'kitchen' | 'work' | 'upkeep' | 'emergency' | 'groceryList' | 'myMeds';
 type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money' | 'goals';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
@@ -273,6 +274,27 @@ const EMERGENCY_HELP_SECTIONS: HelpSection[] = [
     body: 'It never prints a blank. Anything you have not filled in is left off the card completely, because a line reading none recorded is read as no allergies by someone scanning it in a hurry, and that is a claim this app is in no position to make. It holds only where an advance directive is kept, never what it says, since nothing written in an app carries any legal weight. And it names no scheme, no law and no country, because what any of this means depends entirely on where you are.',
   },
 ];
+// Moved here from Schedules on 2026-09-13; the first three sections are the
+// ones that lens carried, the last is the split that came with the move.
+const MY_MEDS_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'One place for everything you take',
+    body: 'Prescriptions, over-the-counter drugs, and supplements, all in one registry: pick a prescription or OTC item from a cited reference list where it exists, or enter it yourself when it doesn\'t. A supplement asks which nutrient(s) it contains and, for the ones this app has researched, which specific form (e.g. magnesium glycinate vs. oxide); the form changes how well it absorbs.',
+  },
+  {
+    heading: 'More than a name and a dose',
+    body: 'Once a nutrient and form are picked, this shows when to take it (empty stomach, with food, before bed), what to avoid taking it with, what pairs well with it, and, where this app has the data, how much you\'re already getting from food today, so a supplement decision starts from what food is already covering, not a guess.',
+  },
+  {
+    heading: 'Interactions',
+    body: 'Reuses the same cited interaction-checking engine Schedules uses: potassium supplements with blood pressure medications, or metformin\'s effect on TSH readings for anyone also on levothyroxine.',
+  },
+  {
+    heading: 'Defined here, timed on Schedules',
+    body: 'This is where a med is added, edited, paused or removed. When it needs reminder times, tap Schedule it on its row: that opens Schedules > Meds with the med ready for its times and repeat. Schedules never defines a med, and this page never sets a time, so there is one place for each.',
+  },
+];
+
 const GROCERY_LIST_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this is',
@@ -296,6 +318,10 @@ const LIFE_LENSES: LensOption<LifeLens>[] = [
   // record of information, and an alarm icon would say exactly the thing the
   // first paragraph on the screen exists to deny.
   { key: 'emergency', label: 'Emergency', icon: 'medkit-outline', help: EMERGENCY_HELP_SECTIONS },
+  // 2026-09-13, moved from Schedules. What you take is a thing you own, like
+  // what is in the kitchen; when you take it is a schedule. See
+  // components/MyMedsSection.tsx.
+  { key: 'myMeds', label: 'My Meds', icon: 'flask-outline', help: MY_MEDS_HELP_SECTIONS },
   // 2026-09-05. What is in the house is a household-running concern, the same
   // as bills are, which is why it landed on Life rather than on Food: every
   // Food lens is a BUILDER, something you make, and an inventory is not.
@@ -499,6 +525,7 @@ function blankEntryForm(): EntryForm {
 export default function LifeScreen() {
   useRegisterScreenHelp('Life', LIFE_HELP_SECTIONS, '/life');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const { openLifeLens, focusTreatmentId } = useLocalSearchParams<{ openLifeLens?: string; focusTreatmentId?: string }>();
   const [lens, setLens] = useState<LifeLens>('finances');
   const [revealed, setRevealed] = useState(false);
   const [myLifeOpen, setMyLifeOpen] = useState(false);
@@ -546,11 +573,19 @@ export default function LifeScreen() {
       .finally(() => setLoading(false));
   }, [month, showInfoAlert]);
 
+  // A deep link opens its lens directly (Schedules > Meds sends "Add a med"
+  // and "Edit in My Meds" here); an ordinary arrival rests, as before.
   useFocusEffect(
     useCallback(() => {
+      const requested = LIFE_LENSES.find((option) => option.key === openLifeLens);
+      if (requested && requested.key !== 'groceryList') {
+        setLens(requested.key);
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
-    }, []),
+    }, [openLifeLens]),
   );
 
   useFocusEffect(useCallback(() => { if (revealed) load(); }, [revealed, load]));
@@ -1663,6 +1698,7 @@ export default function LifeScreen() {
 
             {lens === 'upkeep' ? <UpkeepSection tabColor={TAB_COLOR} /> : null}
             {lens === 'emergency' ? <EmergencySection tabColor={TAB_COLOR} /> : null}
+            {lens === 'myMeds' ? <MyMedsSection tabColor={TAB_COLOR} focusTreatmentId={focusTreatmentId} /> : null}
 
             {lens === 'finances' ? (
             <>

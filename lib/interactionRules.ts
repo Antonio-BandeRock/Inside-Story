@@ -9,6 +9,7 @@ import {
   listOtcTreatments,
   listPersonalRules,
   listPrescriptionTreatments,
+  listScheduledOtcForDate,
   listScheduledPrescriptionsForDate,
   listScheduledSupplementsForDate,
   listSupplementTreatments,
@@ -173,6 +174,7 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
     activeOtc,
     scheduledSupplementDoses,
     scheduledPrescriptionDoses,
+    scheduledOtcDoses,
     breakdown,
     upcomingAppointments,
     profile,
@@ -184,6 +186,7 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
     listOtcTreatments(true),
     listScheduledSupplementsForDate(date),
     listScheduledPrescriptionsForDate(date),
+    listScheduledOtcForDate(date),
     getDailyNutrientBreakdown(date),
     listUpcomingAppointments(date, addDaysToDateString(date, APPOINTMENT_LOOKAHEAD_WINDOW_DAYS)),
     getUserProfile(),
@@ -203,7 +206,9 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
   );
 
   const dosesByTreatmentId: Record<string, ScheduleItemRecord[]> = {};
-  for (const dose of [...scheduledSupplementDoses, ...scheduledPrescriptionDoses]) {
+  // OTC doses exist since 2026-09-13 (Schedules > Meds); they join the same
+  // map, since an OTC treatment is already matched as a prescription below.
+  for (const dose of [...scheduledSupplementDoses, ...scheduledPrescriptionDoses, ...scheduledOtcDoses]) {
     if (!dose.linkedTreatmentId) continue;
     (dosesByTreatmentId[dose.linkedTreatmentId] ??= []).push(dose);
   }

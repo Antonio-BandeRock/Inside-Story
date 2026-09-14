@@ -13813,7 +13813,12 @@ async function insertScheduleSeries(input: {
   // series (see startFermentationBatch/advanceFermentationBatch below)
   // reuses this same repeat/rolling-window machinery rather than a third,
   // parallel one.
-  itemType: 'meal' | 'supplement' | 'prescription' | 'appointment' | 'garden' | 'foodTest' | 'fermentation';
+  // 'otc' added 2026-09-13, when Schedules > Meds took over dose times for
+  // every treatment type at once: an OTC drug had never had a dose series
+  // before (My Meds's own help text named that as a gap), and it gets one
+  // now through the same machinery, under its own type rather than filed
+  // as a prescription.
+  itemType: 'meal' | 'supplement' | 'prescription' | 'otc' | 'appointment' | 'garden' | 'foodTest' | 'fermentation';
   mealType: string | null;
   title: string;
   scheduledFor: string;
@@ -14450,6 +14455,70 @@ export async function listScheduledPrescriptionDosesForTreatment(treatmentId: st
     `,
     treatmentId,
     fromDate,
+  );
+}
+
+// Dose times for every treatment type through one door, 2026-09-13, when
+// Schedules > Meds replaced the separate Supplements and Prescriptions
+// lenses. The item type follows the treatment type, so everything that
+// already reads doses by type (the interaction engine, the achievement
+// criteria) keeps working unchanged, and an OTC drug gets its own type.
+const MED_DOSE_ITEM_TYPES = ['supplement', 'prescription', 'otc'] as const;
+
+function medDoseItemType(treatmentType: string): (typeof MED_DOSE_ITEM_TYPES)[number] {
+  const match = MED_DOSE_ITEM_TYPES.find((type) => type === treatmentType);
+  if (!match) throw new Error(`Cannot schedule a dose for treatment type "${treatmentType}".`);
+  return match;
+}
+
+export async function scheduleTreatmentDose(input: {
+  treatment: TreatmentRecord;
+  scheduledFor: string;
+  notes?: string;
+  repeat?: RepeatConfig;
+}) {
+  return insertScheduleSeries({
+    // treatmentType is a plain string on the record; only these three values
+    // are ever written (createSupplementTreatment/createPrescriptionTreatment/
+    // createOtcTreatment), so anything else is refused rather than filed.
+    itemType: medDoseItemType(input.treatment.treatmentType),
+    mealType: null,
+    title: input.treatment.name,
+    scheduledFor: input.scheduledFor,
+    notes: input.notes,
+    linkedTreatmentId: input.treatment.id,
+    repeat: input.repeat ?? { type: 'none' },
+  });
+}
+
+// Every dose of every med from a date forward, keyed by treatment in JS by
+// the caller: one query for the whole lens rather than one per med.
+export async function listScheduledMedDosesFrom(fromDate: string) {
+  const db = await getDatabase();
+  return db.getAllAsync<ScheduleItemRecord>(
+    `
+      SELECT ${SCHEDULE_ITEM_COLUMNS}
+      FROM schedule_items
+      WHERE item_type IN (${MED_DOSE_ITEM_TYPES.map(() => '?').join(', ')})
+        AND linked_treatment_id IS NOT NULL
+        AND substr(scheduled_for, 1, 10) >= ?
+      ORDER BY scheduled_for ASC
+    `,
+    ...MED_DOSE_ITEM_TYPES,
+    fromDate,
+  );
+}
+
+export async function listScheduledOtcForDate(date: string) {
+  const db = await getDatabase();
+  return db.getAllAsync<ScheduleItemRecord>(
+    `
+      SELECT ${SCHEDULE_ITEM_COLUMNS}
+      FROM schedule_items
+      WHERE item_type = 'otc' AND substr(scheduled_for, 1, 10) = ?
+      ORDER BY scheduled_for ASC
+    `,
+    date,
   );
 }
 
@@ -16523,6 +16592,18 @@ export async function updateOtcTreatment(
 // its own treatmentType (already on TreatmentRecord) rather than returning
 // three separate arrays, since the whole point is one list, sorted
 // together, not three lists stacked.
+// Every treatment ever added, active or not, 2026-09-13: My Meds on Life is
+// the one place a med is defined now, so a paused med has to be reachable
+// there to be edited or turned back on.
+export async function listAllTreatments(): Promise<TreatmentRecord[]> {
+  const [supplements, prescriptions, otc] = await Promise.all([
+    listSupplementTreatments(false),
+    listPrescriptionTreatments(false),
+    listOtcTreatments(false),
+  ]);
+  return [...supplements, ...prescriptions, ...otc].sort((a, b) => a.name.localeCompare(b.name));
+}
+
 export async function listAllActiveTreatments(): Promise<TreatmentRecord[]> {
   const [supplements, prescriptions, otc] = await Promise.all([
     listSupplementTreatments(true),
