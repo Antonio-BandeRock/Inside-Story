@@ -9,10 +9,12 @@
 // in an aisle with one hand, and it has to open in one tap from Home
 // without picking a tab and then a lens first.
 //
-// Schedule's own Shopping List lens is deliberately left alone. It answers
-// a different question (what is coming up), recomputes every time, and
-// stores nothing. This one is written down once and then lived with, since
-// a list that quietly rewrote itself mid-aisle would be worse than no list.
+// Schedules' own Shopping List lens (2026-08-24 to 2026-09-13) answered a
+// different question (what is coming up), recomputed every time, and stored
+// nothing. It is the preview on this screen's build step now, under Life,
+// since a glance at the ingredients belongs on the step that turns them into
+// a list. The list itself is written down once and then lived with, since a
+// list that quietly rewrote itself mid-aisle would be worse than no list.
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -28,7 +30,7 @@ import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { recognizeTextFromImage } from '../lib/ocr';
 import { detectMeasurementSystemFromLocale } from '../lib/measurement';
-import { getStoredMeasurementSystem } from '../lib/db';
+import { getStoredMeasurementSystem, getUpcomingShoppingList, type ShoppingListSection } from '../lib/db';
 import { addKitchenItemFromPurchase } from '../lib/kitchenDb';
 import {
   addGroceryListItem,
@@ -69,6 +71,11 @@ import {
 } from '../lib/groceryList';
 
 const DEFAULT_DAYS = 3;
+
+function roundForPreview(value: number): string {
+  const rounded = Math.round(value * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+}
 const MAX_PEOPLE = 12;
 
 type Mode = 'setup' | 'list';
@@ -118,6 +125,14 @@ export default function GroceryListScreen() {
   const [daysAhead, setDaysAhead] = useState(DEFAULT_DAYS);
   const [peopleCount, setPeopleCount] = useState(1);
   const [storeName, setStoreName] = useState('');
+  // What the chosen window needs, before anything is built. This was the
+  // Schedules tab's own Shopping List lens until 2026-09-13 ("Schedules
+  // needs to be about the actual schedules for each category or topic");
+  // a glance at the ingredients belongs on the step that turns them into a
+  // list, not on a tab of its own. Recomputed whenever the window changes;
+  // the built list is the thing that is kept.
+  const [preview, setPreview] = useState<ShoppingListSection[]>([]);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   // Per-item editor
   // 2026-09-01, reported directly: "Per kg and Per lb should rely on them
@@ -247,6 +262,27 @@ export default function GroceryListScreen() {
   async function refreshItems(currentListId: string) {
     setItems(await getGroceryListItems(currentListId));
   }
+
+  useFocusEffect(
+    useCallback(() => {
+      if (mode !== 'setup') return;
+      let cancelled = false;
+      setPreviewLoading(true);
+      getUpcomingShoppingList(daysAhead)
+        .then((sections) => {
+          if (!cancelled) setPreview(sections);
+        })
+        .catch(() => {
+          if (!cancelled) setPreview([]);
+        })
+        .finally(() => {
+          if (!cancelled) setPreviewLoading(false);
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, [mode, daysAhead]),
+  );
 
   async function handleBuild() {
     setBusy(true);
@@ -631,6 +667,34 @@ export default function GroceryListScreen() {
                 ? 'Shopping every few days keeps produce fresh.'
                 : 'Longer than four days is fine, though fresh produce is unlikely to last the whole window.'}
             </Text>
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.sectionLabel}>What those days need</Text>
+            {previewLoading ? (
+              <Text style={styles.muted}>Adding it up…</Text>
+            ) : preview.length === 0 ? (
+              <Text style={styles.muted}>
+                Nothing is scheduled in that window yet. Meals scheduled on the Schedules tab, by hand or from a meal plan, show up here.
+              </Text>
+            ) : (
+              preview.map((section) => (
+                <View key={section.category} style={styles.previewSection}>
+                  <Text style={styles.previewCategory}>{section.category}</Text>
+                  {section.items.map((item) => (
+                    <Text key={`${item.foodName}|${item.unit}`} style={styles.previewLine}>
+                      {item.foodName}:{' '}
+                      {[{ quantity: item.quantity, unit: item.unit }, ...item.extraAmounts]
+                        .map((amount) => `${roundForPreview(amount.quantity)} ${amount.unit}`.trim())
+                        .join(' + ')}
+                      {item.approxAmount ? ` (${item.approxAmount})` : ''}
+                      {item.soldAs ? `, ${item.soldAs}` : ''}
+                    </Text>
+                  ))}
+                </View>
+              ))
+            )}
+            <Text style={styles.muted}>For one person. The people count below multiplies every amount when the list is built.</Text>
           </View>
 
           <View style={styles.card}>
@@ -1083,6 +1147,9 @@ const styles = StyleSheet.create({
   title: { ...typography.sectionTitle, color: colors.textPrimary, ...textShadow },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   muted: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  previewSection: { marginTop: 8, gap: 2 },
+  previewCategory: { ...typography.captionEmphasis, color: colors.textSecondary, ...textShadow },
+  previewLine: { ...typography.caption, color: colors.textPrimary, ...textShadow },
   errorText: { ...typography.body, color: colors.danger, ...textShadow },
   doneText: { ...typography.caption, color: colors.statusGood, ...textShadow },
   progressText: { ...typography.body, color: colors.textPrimary, ...textShadow },

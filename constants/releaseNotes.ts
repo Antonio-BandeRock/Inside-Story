@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.29',
+    date: '2026-09-13',
+    changes: [
+      'The Shopping List lens is gone from Schedules. What it showed, everything the next few days of scheduled meals need, now appears on the Grocery List build step under Life, as a preview of the window you pick before the list is built.',
+    ],
+  },
+  {
     version: '1.0.37.28',
     date: '2026-09-13',
     changes: [

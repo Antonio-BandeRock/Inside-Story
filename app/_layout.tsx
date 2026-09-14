@@ -586,9 +586,8 @@ export default function RootLayout() {
                   }}
                 />
                 {/* The Grocery List, 2026-09-01 -- reached from Home, from
-                    Schedule's own Shopping List lens, and from a barcode scan
-                    started inside a list. Themed like every other Stack
-                    screen. */}
+                    Life's corner menu, and from a barcode scan started
+                    inside a list. Themed like every other Stack screen. */}
                 <Stack.Screen
                   name="grocery-list"
                   options={{

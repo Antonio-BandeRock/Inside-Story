@@ -20,7 +20,6 @@ import {
   getDailyNutrientAnalysis,
   getDietPreferences,
   getUpcomingScheduleCountsByType,
-  getUpcomingShoppingList,
   getUserConditions,
   getUserProfile,
   hasStandingHydrationRoutine,
@@ -58,7 +57,6 @@ import {
   type RotationSelection,
   type TodaysMeal,
   type ScheduleItemRecord,
-  type ShoppingListSection,
   type TreatmentRecord,
   type UserProfile,
 } from '../../lib/db';
@@ -136,7 +134,6 @@ type Lens =
   | 'pastMeals'
   | 'mealPlan'
   | 'dailyMealPlan'
-  | 'shoppingList'
   | 'hydration'
   | 'meds'
   | 'appointments'
@@ -286,21 +283,6 @@ const LENSES: LensOption<Lens>[] = [
     ],
   },
   {
-    key: 'shoppingList',
-    label: 'Shopping List',
-    icon: 'cart-outline',
-    help: [
-      {
-        heading: 'What this is',
-        body: 'Every ingredient your already-scheduled meals need over the next few days, added up and grouped by aisle, so a single trip covers everything. Only counts meals you\'ve actually scheduled (from the Meal Plan, or scheduled any other way), never a guess at what you might eat.',
-      },
-      {
-        heading: 'Choosing the window',
-        body: 'Matches how often you\'d rather shop for fresh ingredients, 3 to 4 days is the usual sweet spot for produce that doesn\'t keep long, a full week works too if that suits you better.',
-      },
-    ],
-  },
-  {
     key: 'hydration',
     label: 'Hydration',
     icon: 'water-outline',
@@ -356,7 +338,7 @@ const LENSES: LensOption<Lens>[] = [
 ];
 
 const COMING_SOON_COPY: Record<
-  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'meds' | 'hydration' | 'appointments'>,
+  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments'>,
   string
 > = {
   exercise: 'Schedule planned workouts and activity. Not built yet.',
@@ -2484,13 +2466,16 @@ function MealPlanLens() {
   );
 }
 
-const SHOPPING_LIST_WINDOW_OPTIONS = [3, 4, 7];
+// The Shopping List lens that lived here from 2026-08-24 to 2026-09-13 (a
+// read-only glance at what the next few days' scheduled meals need) is now
+// the preview on the Grocery List's own build step (app/grocery-list.tsx),
+// under Life, where the list itself is made.
 
-// "receive a full shopping list for all ingredients to be purchased fresh
-// every 3 to 4 days" -- calls lib/db.ts's own getUpcomingShoppingList,
-// which resolves ANY already-planned meal in the chosen window, not just
-// ones the Meal Plan lens itself created, so this stays useful even for
-// someone who never touches that lens at all.
+function roundForDisplay(value: number): string {
+  const rounded = Math.round(value * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+}
+
 // Today's Meals -- 2026-08-29, direct request: "When I go to Meals Logged
 // Today, it makes me think that there needs to be a Today's Meals, and
 // when it opens, each meal will have the recipe available to follow so
@@ -2625,109 +2610,6 @@ function TodaysMealsLens() {
 
 function capitalizeFirst(value: string): string {
   return value.length === 0 ? value : value[0].toUpperCase() + value.slice(1);
-}
-
-function ShoppingListLens() {
-  const router = useRouter();
-  const scrollBottomPadding = useFloatingButtonScrollPadding();
-  const folds = useBandFolds();
-  const [daysAhead, setDaysAhead] = useState(4);
-  const [sections, setSections] = useState<ShoppingListSection[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-
-  const load = useCallback((window: number) => {
-    setLoading(true);
-    setErrorMessage('');
-    getUpcomingShoppingList(window)
-      .then(setSections)
-      .catch((error) => setErrorMessage(`Could not load your shopping list: ${error instanceof Error ? error.message : String(error)}`))
-      .finally(() => setLoading(false));
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      load(daysAhead);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [daysAhead]),
-  );
-
-  const totalItems = sections.reduce((sum, section) => sum + section.items.length, 0);
-
-  return (
-    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      {/* The Grocery List, 2026-09-01. This lens answers "what is coming
-          up" and recomputes every time it is opened, which is right for a
-          glance and wrong for a store: it keeps nothing, so it cannot be
-          checked off or priced. That is what the Grocery List screen is
-          for, and this is the door into it from the place someone is
-          already looking at the same ingredients. */}
-      <View style={styles.bandOut}>
-        <HomeSectionBand
-          kind="action"
-          title="Make a Grocery List"
-          caption="Writes this down and keeps it: say how many people are eating, check things off in the aisle, record what they cost."
-          icon="cart-outline"
-          color={TAB_COLOR}
-          onPress={() => router.push('/grocery-list')}
-        />
-      </View>
-
-      <View style={styles.pillRow}>
-        {SHOPPING_LIST_WINDOW_OPTIONS.map((option) => (
-          <TouchableOpacity
-            key={option}
-            style={[styles.pill, daysAhead === option && styles.pillActive]}
-            activeOpacity={0.85}
-            onPress={() => setDaysAhead(option)}
-          >
-            <Text style={[styles.pillText, daysAhead === option && styles.pillTextActive]}>Next {option} days</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {errorMessage ? <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View> : null}
-      {loading ? (
-        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
-      ) : totalItems === 0 ? (
-        <View style={styles.bandBox}>
-        <Text style={styles.emptyText}>
-          Nothing scheduled in this window yet. Meals added from the Meal Plan lens (or scheduled any other way) will show up here.
-        </Text>
-        </View>
-      ) : (
-        // 2026-09-13: one fold band per category, each ingredient an inset row.
-        sections.map((section) => (
-          <ScheduleBand
-            key={section.category}
-            folds={folds}
-            id={`schedule:shopping:${section.category}`}
-            title={section.category}
-            icon="basket-outline"
-            count={section.items.length}
-          >
-          <View style={styles.table}>
-            {section.items.map((item) => (
-              <Text key={`${item.foodName}|${item.unit}`} style={[styles.mealPlanSlotText, styles.row]}>
-                {item.foodName}:{' '}
-                {[{ quantity: item.quantity, unit: item.unit }, ...item.extraAmounts]
-                  .map((amount) => `${roundForDisplay(amount.quantity)} ${amount.unit}`.trim())
-                  .join(' + ')}
-                {item.approxAmount ? ` (${item.approxAmount})` : ''}
-                {item.soldAs ? `, ${item.soldAs}` : ''}
-              </Text>
-            ))}
-          </View>
-          </ScheduleBand>
-        ))
-      )}
-    </ScrollView>
-  );
-}
-
-function roundForDisplay(value: number): string {
-  const rounded = Math.round(value * 10) / 10;
-  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 }
 
 // The Hydration lens -- deliberately not a separate tracking system from
@@ -4211,7 +4093,7 @@ function AppointmentsLens() {
 function ComingSoonLens({
   lens,
 }: {
-  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'shoppingList' | 'meds' | 'hydration' | 'appointments'>;
+  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments'>;
 }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
@@ -4282,7 +4164,6 @@ export default function ScheduleScreen() {
       },
       { id: 'appointments', label: 'Appointments', count: scheduleCounts.appointment ?? 0, onPress: openLens('appointments') },
       { id: 'hydration', label: 'Hydration', count: undefined, onPress: openLens('hydration') },
-      { id: 'shoppingList', label: 'Shopping List', count: undefined, onPress: openLens('shoppingList') },
     ];
   }, [scheduleCounts]);
   useFocusEffect(
@@ -4327,8 +4208,6 @@ export default function ScheduleScreen() {
             <MealPlanLens />
           ) : lens === 'dailyMealPlan' ? (
             <DailyMealPlanLens />
-          ) : lens === 'shoppingList' ? (
-            <ShoppingListLens />
           ) : lens === 'hydration' ? (
             <HydrationLens />
           ) : lens === 'meds' ? (
