@@ -622,7 +622,7 @@ const HOME_LENS_DESTINATIONS: Partial<
     icon: 'ribbon',
     color: colors.tabPurpleDigest,
     // No colour passed: PurpleRibbonIcon decides, and its default is the
-    // lighter token that actually clears 3:1 on this menu surface.
+    // tab colour, the same shade as the accent bar and title beside it.
     renderIcon: () => <PurpleRibbonIcon size={23} />,
     scrollTo: true,
   },

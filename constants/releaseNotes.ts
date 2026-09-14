@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.22',
+    date: '2026-09-13',
+    changes: [
+      'The Digest ribbon icon is the same purple as the Digest header, its lines and its titles, everywhere it appears (the tab menu, the corner button, the Digest band on Home). It had been a lighter shade than everything around it.',
+    ],
+  },
+  {
     version: '1.0.37.21',
     date: '2026-09-13',
     changes: [

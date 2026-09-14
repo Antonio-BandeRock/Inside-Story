@@ -104,28 +104,31 @@ const SHADOW_LAYERS = [
 // Deriving width from height here instead keeps every call site sized to
 // match its neighboring icons, the same way it always has.
 // `color` is optional, and its default is the one place that decides what
-// shade this ribbon is drawn in, 2026-09-05.
+// shade this ribbon is drawn in.
 //
-// Every call site was passing colors.tabPurpleDigest, the Digest's fill
-// colour, and measured against the two surfaces this icon actually sits on
-// that is below the 3:1 floor this project holds non-text marks to: 2.53:1
-// on menuSurface (both hub menus and Home's lens menu) and 2.83:1 on a
-// composited card surface. colors.tabPurpleDigestText clears both, at
-// 3.53:1 and 3.96:1.
+// 2026-09-05 moved that default to colors.tabPurpleDigestText, the lighter
+// shade, on contrast arithmetic: the fill token measured under the 3:1
+// floor for a non-text mark on menuSurface (2.53:1) and on a composited
+// card (2.83:1), where the lighter shade clears both.
+// 2026-09-13, reported on-device: "the digest icon looks lighter color than
+// the color it should be like the rest of the lines and fonts for that tab."
+// Right: the Digest header box's accent bar, its Ionicons glyph and its
+// title all draw the tab colour, colors.tabPurpleDigest, and since the band
+// look reached Home and the tabs, every band title and hairline beside this
+// ribbon is that same colour too. A ribbon in the lighter text shade next
+// to all of that reads as washed out rather than as the same tab. The
+// default is the tab colour again, so the ribbon matches the lines and
+// fonts around it; the contrast figures above stay recorded for the next
+// reader, and the shadow layers this icon already draws are what keep it
+// legible on the grey menu.
 //
-// The two tokens exist for exactly this split, decided 2026-08-23 when the
-// Digest's colour was darkened: the fill token is right behind dark text on
-// a solid button or pill, and the lighter token is right when the colour
-// IS the thing being read. A glyph is the second case, so it was on the
-// wrong side of that line everywhere.
-//
-// Defaulted here rather than corrected at five call sites so there is one
-// answer rather than five that can drift. The prop stays, for a caller that
+// Defaulted here rather than set at each call site so there is one answer
+// rather than several that can drift. The prop stays, for a caller that
 // genuinely needs another colour (a ribbon drawn on a filled button would
 // want textOnPrimary, not either of these).
 export function PurpleRibbonIcon({
   size,
-  color = colors.tabPurpleDigestText,
+  color = colors.tabPurpleDigest,
 }: {
   size: number;
   color?: string;
