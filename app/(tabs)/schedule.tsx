@@ -11,7 +11,6 @@ import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
 import {
   addDaysToLocalDate,
-  addMealPlanDayToSchedule,
   applyRotationSelection,
   applyRotationSelectionsToIngredients,
   deleteScheduledMeal,
@@ -51,7 +50,6 @@ import {
   type FavoriteRecord,
   type MealFavoritePayload,
   type MealIngredientInput,
-  type MealPlanDay,
   type MealRecord,
   type RepeatConfig,
   type RotationSelection,
@@ -61,7 +59,6 @@ import {
   type UserProfile,
 } from '../../lib/db';
 import type { RecipeDietTag } from '../../lib/digest';
-import { RECIPES_ENTRIES } from '../../lib/digest/recipes';
 import { describePlanningScope, resolvePlanningScope, type PlanningScope } from '../../lib/partnerPlanning';
 import {
   dailyMealPlanToMealPlanDay,
@@ -75,9 +72,6 @@ import {
   type DailyMealPlanPick,
   type DailyMealPlanResult,
 } from '../../lib/dailyMealPlan';
-import { MEAL_PLAN } from '../../lib/mealPlan';
-import { VEGAN_MEAL_PLAN } from '../../lib/mealPlanVegan';
-import { VEGETARIAN_MEAL_PLAN } from '../../lib/mealPlanVegetarian';
 import {
   createDeviceCalendarEvent,
   deleteDeviceCalendarEvent,
@@ -134,7 +128,6 @@ type Lens =
   | 'meals'
   | 'todaysMeals'
   | 'pastMeals'
-  | 'mealPlan'
   | 'dailyMealPlan'
   | 'hydration'
   | 'meds'
@@ -234,23 +227,8 @@ const LENSES: LensOption<Lens>[] = [
     ],
   },
   {
-    key: 'mealPlan',
-    label: 'Meal Plan',
-    icon: 'calendar-outline',
-    help: [
-      {
-        heading: 'What this is',
-        body: 'A real, ready-made 6-week rotation of whole-food breakfasts, lunches, and dinners, no two days the same, built from this Digest\'s own curated recipes. "Set Up My Plan" fills your Meals schedule automatically starting from a date you choose; each day below also has its own "Add to Schedule" button if you\'d rather pick days one at a time.',
-      },
-      {
-        heading: 'Still growing',
-        body: 'The first 2 weeks are built now; more weeks are on the way in a future update. Nothing here ever repeats a day\'s own combination of meals.',
-      },
-    ],
-  },
-  {
     key: 'dailyMealPlan',
-    label: 'Daily Meal Plan',
+    label: 'Meal Plan',
     icon: 'sparkles-outline',
     help: [
       {
@@ -356,7 +334,7 @@ const LENSES: LensOption<Lens>[] = [
 ];
 
 const COMING_SOON_COPY: Record<
-  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments' | 'upkeep'>,
+  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments' | 'upkeep'>,
   string
 > = {
   exercise: 'Schedule planned workouts and activity. Not built yet.',
@@ -2267,227 +2245,13 @@ function DailyMealPlanLens() {
   );
 }
 
-// A quick, synchronous title lookup for lib/mealPlan.ts's own recipe
-// references -- built once from RECIPES_ENTRIES (already imported for the
-// whole app either way), not a DB round-trip, since this lens only needs
-// a name to show, not the full resolved ingredient list.
-const RECIPE_TITLE_BY_ID: Record<string, string> = Object.fromEntries(
-  RECIPES_ENTRIES.filter((entry): entry is typeof entry & { linkedCuratedRecipeId: string } => Boolean(entry.linkedCuratedRecipeId)).map(
-    (entry) => [entry.linkedCuratedRecipeId, entry.title],
-  ),
-);
-
-function mealPlanSlotLabel(slot: MealPlanDay['breakfast']): string {
-  const mainTitle = RECIPE_TITLE_BY_ID[slot.main.curatedRecipeId] ?? slot.main.curatedRecipeId;
-  if (!slot.side) return mainTitle;
-  const sideTitle = RECIPE_TITLE_BY_ID[slot.side.curatedRecipeId] ?? slot.side.curatedRecipeId;
-  return `${mainTitle} with ${sideTitle}`;
-}
-
-// 2026-08-24, direct follow-up to the chrononutrition pass above:
-// "we need vegan alternatives... vegan or vegetarian, or any point in
-// between." Confirmed as full, parallel 42-day tracks rather than a
-// smaller sampler. MEAL_PLAN/VEGAN_MEAL_PLAN/VEGETARIAN_MEAL_PLAN are
-// all the same real MealPlanDay[] shape (see mealPlanVegan.ts/
-// mealPlanVegetarian.ts's own header comments for how each was built),
-// so switching tracks here is just picking which array feeds everything
-// below, no separate code path per track.
-const DIET_TRACK_OPTIONS = ['Omnivore', 'Vegan', 'Vegetarian'] as const;
-type DietTrack = (typeof DIET_TRACK_OPTIONS)[number];
-const MEAL_PLAN_BY_TRACK: Record<DietTrack, MealPlanDay[]> = {
-  Omnivore: MEAL_PLAN,
-  Vegan: VEGAN_MEAL_PLAN,
-  Vegetarian: VEGETARIAN_MEAL_PLAN,
-};
-
-// 2026-08-24, direct request: "I want a button that will set it up for
-// them if they want it to, or they can go through and individually import
-// meals into the schedule." Both paths call the exact same real
-// scheduleMealPlanSlot logic under the hood (see lib/db.ts's own
-// setUpMealPlan/addMealPlanDayToSchedule), so a day added individually
-// here behaves identically to one the bulk button would have created.
-function MealPlanLens() {
-  const scrollBottomPadding = useFloatingButtonScrollPadding();
-  const folds = useBandFolds();
-  const [showInfoAlert, infoAlertElement] = useInfoAlert();
-  const [dietTrack, setDietTrack] = useState<DietTrack>('Omnivore');
-  const activePlan = MEAL_PLAN_BY_TRACK[dietTrack];
-  // 2026-08-24, direct request: "the type of diet a person is trying to
-  // follow... should be in the Profile." Defaults this picker from
-  // Profile's own new "Diet Preferences" card, still freely changeable
-  // right here -- dietTrackTouched (not persisted, a plain ref) stops a
-  // later background refetch from silently overwriting a manual pick made
-  // earlier in the same visit. Vegan wins over Vegetarian if both are
-  // selected on Profile, matching RecipeDietTag's own "vegan implies
-  // vegetarian-safe" convention; Omnivore stays the default when neither is
-  // selected, unchanged from before this.
-  const dietTrackTouched = useRef(false);
-  useFocusEffect(
-    useCallback(() => {
-      let cancelled = false;
-      getDietPreferences()
-        .then((tags) => {
-          if (cancelled || dietTrackTouched.current) return;
-          if (tags.includes('Vegan')) setDietTrack('Vegan');
-          else if (tags.includes('Vegetarian')) setDietTrack('Vegetarian');
-        })
-        .catch(() => {
-          // Best-effort only -- a failure here just means the picker falls
-          // back to its own original Omnivore default, never a broken screen.
-        });
-      return () => {
-        cancelled = true;
-      };
-    }, []),
-  );
-  const [startDate, setStartDate] = useState(todayDateString());
-  const [settingUp, setSettingUp] = useState(false);
-  const [addingDay, setAddingDay] = useState<number | null>(null);
-  // Every track has the same 42 days, so the day-number-to-date mapping
-  // stays valid across a track switch without needing to be reset.
-  const [dayDates, setDayDates] = useState<Record<number, string>>(
-    Object.fromEntries(MEAL_PLAN.map((planDay) => [planDay.day, addDaysToDateStringLocal(todayDateString(), planDay.day - 1)])),
-  );
-
-  async function handleSetUpPlan() {
-    if (!isValidDateString(startDate)) {
-      showInfoAlert('Almost there', 'Enter a valid start date (YYYY-MM-DD).');
-      return;
-    }
-    setSettingUp(true);
-    try {
-      const result = await setUpMealPlan(startDate, activePlan);
-      showInfoAlert(
-        'Plan scheduled',
-        `${result.scheduled} meal${result.scheduled === 1 ? '' : 's'} added to your schedule` +
-          (result.skipped > 0 ? `, ${result.skipped} already had something planned and were left as-is.` : '.'),
-      );
-    } catch (error) {
-      showInfoAlert('Could not set up the plan', error instanceof Error ? error.message : String(error));
-    } finally {
-      setSettingUp(false);
-    }
-  }
-
-  async function handleAddDay(planDay: MealPlanDay) {
-    const date = dayDates[planDay.day];
-    if (!isValidDateString(date)) {
-      showInfoAlert('Almost there', 'Enter a valid date (YYYY-MM-DD) for this day.');
-      return;
-    }
-    setAddingDay(planDay.day);
-    try {
-      await addMealPlanDayToSchedule(planDay, date);
-      showInfoAlert('Added', `Day ${planDay.day} was added to your schedule for ${date}.`);
-    } catch (error) {
-      showInfoAlert('Could not add this day', error instanceof Error ? error.message : String(error));
-    } finally {
-      setAddingDay(null);
-    }
-  }
-
-  return (
-    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      {infoAlertElement}
-      <View style={styles.formCard}>
-        <Text style={styles.label}>Diet track</Text>
-        <Text style={styles.helperText}>
-          The same 42-day plan, three ways: every fruit, vegetable, and whole-grain choice stays the same, only the protein changes.
-        </Text>
-        <PopoverSelect
-          selected={dietTrack}
-          options={[...DIET_TRACK_OPTIONS]}
-          onSelect={(value) => {
-            dietTrackTouched.current = true;
-            setDietTrack(value as DietTrack);
-          }}
-          placeholder="Diet track"
-          tabColor={TAB_COLOR}
-          width={220}
-        />
-      </View>
-      <View style={styles.formCard}>
-        <Text style={styles.label}>Set up the whole plan at once</Text>
-        <Text style={styles.helperText}>
-          Choose a start date and every day below fills in your Meals schedule automatically, breakfast, lunch, and dinner.
-        </Text>
-        <AppTextInput
-          style={styles.input}
-          placeholder="YYYY-MM-DD"
-          value={startDate}
-          onChangeText={setStartDate}
-        />
-        <TouchableOpacity
-          style={[styles.primaryButton, { marginTop: 12 }, settingUp && styles.primaryButtonDisabled]}
-          activeOpacity={0.85}
-          disabled={settingUp}
-          onPress={handleSetUpPlan}
-        >
-          <Text style={styles.primaryButtonText}>{settingUp ? 'Setting up…' : 'Set Up My 6-Week Plan'}</Text>
-        </TouchableOpacity>
-
-        {/* 2026-08-29: the "fix the times on meals already scheduled"
-            action deliberately lives in Profile, in the Meal Timing card
-            right below the times themselves, NOT here. Direct instruction
-            after it was first built here: "Move it to Profile next to the
-            meal times." Kept in exactly one place rather than duplicated,
-            so there is never a question of which one is real. */}
-        <Text style={[styles.helperText, { marginTop: 16 }]}>
-          Setting the plan up again leaves days already on your schedule alone, so it will not change their
-          times. To apply new meal times or a fasting window to a plan already scheduled, use Profile, under
-          Meal Timing.
-        </Text>
-      </View>
-
-      {/* 2026-09-13: 42 days as six week bands, each day an inset box. */}
-      {Array.from({ length: Math.ceil(activePlan.length / 7) }, (_, weekIndex) => {
-        const weekDays = activePlan.slice(weekIndex * 7, weekIndex * 7 + 7);
-        return (
-      <ScheduleBand
-        key={weekIndex}
-        folds={folds}
-        id={`schedule:mealPlan:week:${weekIndex + 1}`}
-        title={`Week ${weekIndex + 1}`}
-        icon="calendar-outline"
-        count={weekDays.length}
-      >
-      <View style={styles.table}>
-        {weekDays.map((planDay) => (
-          <View key={planDay.day} style={styles.mealPlanDayRow}>
-            <Text style={styles.rowTitle}>Day {planDay.day}</Text>
-            <Text style={styles.mealPlanSlotText}>Breakfast: {mealPlanSlotLabel(planDay.breakfast)}</Text>
-            <Text style={styles.mealPlanSlotText}>Lunch: {mealPlanSlotLabel(planDay.lunch)}</Text>
-            <Text style={styles.mealPlanSlotText}>Dinner: {mealPlanSlotLabel(planDay.dinner)}</Text>
-            <View style={styles.mealPlanDayFooter}>
-              <AppTextInput
-                style={[styles.input, styles.mealPlanDayDateInput]}
-                placeholder="YYYY-MM-DD"
-                value={dayDates[planDay.day] ?? ''}
-                onChangeText={(text) => setDayDates((current) => ({ ...current, [planDay.day]: text }))}
-              />
-              <TouchableOpacity
-                style={[styles.secondaryButton, addingDay === planDay.day && styles.primaryButtonDisabled]}
-                activeOpacity={0.85}
-                disabled={addingDay === planDay.day}
-                onPress={() => handleAddDay(planDay)}
-              >
-                <Text style={styles.secondaryButtonText}>{addingDay === planDay.day ? 'Adding…' : 'Add to Schedule'}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
-      </View>
-      </ScheduleBand>
-        );
-      })}
-    </ScrollView>
-  );
-}
-
-// The Shopping List lens that lived here from 2026-08-24 to 2026-09-13 (a
-// read-only glance at what the next few days' scheduled meals need) is now
-// the preview on the Grocery List's own build step (app/grocery-list.tsx),
-// under Life, where the list itself is made.
+// The fixed 6-week plan (lib/mealPlan.ts and its vegan and vegetarian
+// twins, 2026-08-24) lived here as its own lens until 2026-09-13, when the
+// two generators became one, direct: "Merge the two meal generators too."
+// The dynamic generator below does everything the fixed rotation did (up
+// to 6 weeks, no repeats, a diet preference from Profile) and is aware of
+// the conditions the fixed one was blind to, so the lens and the three
+// data files are gone.
 
 function roundForDisplay(value: number): string {
   const rounded = Math.round(value * 10) / 10;
@@ -4238,7 +4002,7 @@ function UpkeepLens() {
 function ComingSoonLens({
   lens,
 }: {
-  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments' | 'upkeep'>;
+  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments' | 'upkeep'>;
 }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
@@ -4350,8 +4114,6 @@ export default function ScheduleScreen() {
             <TodaysMealsLens />
           ) : lens === 'pastMeals' ? (
             <PastMealsLens />
-          ) : lens === 'mealPlan' ? (
-            <MealPlanLens />
           ) : lens === 'dailyMealPlan' ? (
             <DailyMealPlanLens />
           ) : lens === 'hydration' ? (

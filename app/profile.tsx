@@ -2853,8 +2853,8 @@ export default function ProfileScreen() {
           <View style={styles.cardBody}>
             <Text style={styles.helpText}>
               Select any diet you&apos;re following, or are just curious about trying. This drives the default
-              in Recipes&apos; own &quot;Filter by diet&quot; picker and the 6-Week Meal Plan&apos;s own diet
-              track, both still freely changeable in the moment. Selecting more than one is fully supported.
+              in Recipes&apos; own &quot;Filter by diet&quot; picker and what the Meal Plan on Schedules
+              generates, both still freely changeable in the moment. Selecting more than one is fully supported.
             </Text>
             <View style={styles.conditionGrid}>
               {RECIPE_DIET_TAGS.map((tag) => {

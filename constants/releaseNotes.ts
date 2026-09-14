@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.31',
+    date: '2026-09-13',
+    changes: [
+      'Schedules has one Meal Plan. The fixed 6-week rotation with its Omnivore, Vegan and Vegetarian tracks is gone; the generator that was called Daily Meal Plan is now Meal Plan, and it already does everything the fixed one did (one day up to six weeks, no repeats, your diet preference from Profile) while also planning around the conditions you track.',
+    ],
+  },
+  {
     version: '1.0.37.30',
     date: '2026-09-13',
     changes: [
