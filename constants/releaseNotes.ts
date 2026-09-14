@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.40',
+    date: '2026-09-14',
+    changes: [
+      'Sync over Wi-Fi: on the Connections screen, two partners on the same Wi-Fi can now swap what they share without a file, a folder, or any account. Both tap Sync over Wi-Fi and keep the screen open; each phone serves its sealed files for a few minutes, finds the other phone on the network, and fetches what was addressed to it. What travels is the same sealed file the share sheet sends, so nobody else on the Wi-Fi can read it, and every check a picked file gets is run on it.',
+      'The button only appears in the compiled build, since it needs the two natives added in 1.0.37.33. A phone with no key for a partner, or one that cannot be reached, says so on screen for that partner alone; the others carry on.',
+    ],
+  },
+  {
     version: '1.0.37.39',
     date: '2026-09-14',
     changes: [

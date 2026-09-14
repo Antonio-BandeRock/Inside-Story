@@ -9,7 +9,7 @@
 // real receiving/accept side of the same exchange).
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { VoiceInputButton } from '../components/VoiceInputButton';
@@ -50,6 +50,13 @@ import {
   type MailboxStatus,
 } from '../lib/oneDriveMailbox';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
+import {
+  isLanSyncAvailable,
+  startLanSync,
+  stopLanSync,
+  subscribeLanSync,
+  type LanSyncStatus,
+} from '../lib/lanSync';
 import { canEncryptTo } from '../lib/partnerCrypto';
 import {
   checkLinkedFile,
@@ -95,6 +102,12 @@ export default function ConnectionsScreen() {
   const [sharedFolderState, setSharedFolderState] = useState<SharedFolderState | null>(null);
   const [transferNote, setTransferNote] = useState<string | null>(null);
   const [transferBusy, setTransferBusy] = useState<'send' | 'check' | null>(null);
+  // The Wi-Fi session lives in lib/lanSync.ts, not in this screen, so leaving
+  // and coming back shows the same session rather than a fresh idle one. The
+  // screen mirrors it here and stops it on unmount.
+  const [lanSync, setLanSync] = useState<LanSyncStatus>({ phase: 'idle', partners: [], changed: false });
+  const lanSyncAvailable = isLanSyncAvailable();
+  const lanSyncReloaded = useRef(false);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
@@ -130,6 +143,34 @@ export default function ConnectionsScreen() {
       load();
     }, [load]),
   );
+
+  useEffect(() => {
+    const unsubscribe = subscribeLanSync((status) => {
+      // Conditions arrived over the Wi-Fi: rebuild the rows once, the first
+      // time the session reports a change.
+      if (status.changed && !lanSyncReloaded.current) {
+        lanSyncReloaded.current = true;
+        load();
+      } else if (!status.changed) {
+        lanSyncReloaded.current = false;
+      }
+      setLanSync(status);
+    });
+    return () => {
+      unsubscribe();
+      // Leaving the screen ends the session: the server should not outlive
+      // the screen that says it is running.
+      void stopLanSync();
+    };
+  }, [load]);
+
+  const handleLanSync = async () => {
+    if (lanSync.phase === 'starting' || lanSync.phase === 'listening') {
+      await stopLanSync();
+      return;
+    }
+    await startLanSync();
+  };
 
   // This screen only routes into pairing. The three message-based invites
   // that used to live here each depended on something outside this app
@@ -389,6 +430,45 @@ export default function ConnectionsScreen() {
         </TouchableOpacity>
 
         {transferNote ? <Text style={styles.fingerprintHint}>{transferNote}</Text> : null}
+
+        {/* Same sealed file, no carrier in between: when both phones are on
+            one Wi-Fi each serves its files for a few minutes and fetches the
+            other's. Both people tap, because each phone can only pull; nothing
+            is pushed onto a phone that did not ask. */}
+        {lanSyncAvailable ? (
+          <View style={styles.lanSyncBlock}>
+            <Text style={styles.fingerprintHint}>
+              In the same place? Tap Sync over Wi-Fi on both phones while they are on the same Wi-Fi and keep this
+              screen open. Each phone fetches what the other has for it, sealed the same way as a file.
+            </Text>
+            <TouchableOpacity onPress={handleLanSync} hitSlop={8} disabled={lanSync.phase === 'starting'}>
+              <Text style={styles.rowActionText}>
+                {lanSync.phase === 'starting'
+                  ? 'Starting…'
+                  : lanSync.phase === 'listening'
+                    ? 'Done Syncing'
+                    : 'Sync over Wi-Fi'}
+              </Text>
+            </TouchableOpacity>
+            {lanSync.phase === 'listening' ? (
+              <Text style={styles.fingerprintHint}>
+                Listening on this Wi-Fi{lanSync.origin ? ` at ${lanSync.origin.replace(/^https?:\/\//, '')}` : ''}.
+                Tap Done Syncing once both phones say what they got.
+              </Text>
+            ) : null}
+            {lanSync.phase === 'listening' || lanSync.phase === 'stopped' || lanSync.phase === 'failed'
+              ? lanSync.partners.map((partner) => (
+                  <Text
+                    key={partner.connectionId}
+                    style={partner.state === 'received' ? styles.lanSyncGood : partner.state === 'failed' || partner.state === 'noKey' ? styles.folderMismatch : styles.fingerprintHint}
+                  >
+                    {partner.name}: {partner.message ?? partner.state}
+                  </Text>
+                ))
+              : null}
+            {lanSync.error ? <Text style={styles.folderMismatch}>{lanSync.error}</Text> : null}
+          </View>
+        ) : null}
 
         {/* Named rather than left to be discovered as a silent omission: the
             conditions cross, the generated plan does not yet. */}
@@ -712,6 +792,10 @@ const styles = StyleSheet.create({
   // Two people pointing at differently-named folders have no mailbox at all,
   // and nothing else on this screen would ever say so.
   folderMismatch: { ...typography.caption, color: colors.statusYellowStandalone, marginTop: 6, ...textShadow },
+  // Set off from the file instructions above it with a rule, since it is a
+  // different way of moving the same thing rather than another step of one.
+  lanSyncBlock: { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8, marginTop: 4, gap: 6 },
+  lanSyncGood: { ...typography.caption, color: colors.accent, ...textShadow },
   // A step in a sequence, so it reads as an instruction to act on rather than
   // another paragraph of explanation to skim past.
   mailboxStep: { ...typography.caption, color: colors.textPrimary, marginTop: 8, ...textShadow },

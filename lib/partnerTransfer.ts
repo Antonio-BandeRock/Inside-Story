@@ -332,13 +332,64 @@ export const PARTNER_SYNC_FILE_KIND = 'partnerSync';
  * bother opening it, and neither is trusted: the one inside the sealed payload
  * is what resolveSender checks against.
  */
-type PartnerSyncFile = {
+export type PartnerSyncFile = {
   kind: typeof PARTNER_SYNC_FILE_KIND;
   v: 1;
   to: string;
   from: string;
   sealed: string;
 };
+
+/**
+ * Builds the sealed wire for one partner, whatever is going to carry it.
+ *
+ * Three carriers exist (the share sheet, a linked file, and Wi-Fi), and
+ * each used to assemble the same payload, seal and envelope in its own
+ * copy. The carrier is the only thing that differs, so this is the one
+ * place that decides what goes in and who it is sealed to; a carrier
+ * cannot send more than was granted by handing over the wrong argument,
+ * because grants are read from the partner row here.
+ *
+ * The two failure reasons are returned as codes so each carrier can word
+ * them for its own screen.
+ */
+export async function buildWireForPartner(
+  partner: Connection,
+  myFingerprint: string,
+  myConditionCodes: string[],
+): Promise<{ ok: true; wire: PartnerSyncFile } | { ok: false; reason: 'noKey' | 'sealFailed' }> {
+  if (!partner.encryptionPublicKeyBase64) return { ok: false, reason: 'noKey' };
+
+  const payload = buildSyncPayload({
+    grants: partner.grants,
+    myConditionCodes,
+    plan: [],
+    referenceDbVersion: REFERENCE_DB_VERSION,
+    fromFingerprint: myFingerprint,
+    sentAt: new Date().toISOString(),
+  });
+
+  let sealed: string;
+  try {
+    sealed = await sealForRecipient(
+      new TextEncoder().encode(JSON.stringify(payload)),
+      partner.encryptionPublicKeyBase64,
+    );
+  } catch {
+    return { ok: false, reason: 'sealFailed' };
+  }
+
+  return {
+    ok: true,
+    wire: {
+      kind: PARTNER_SYNC_FILE_KIND,
+      v: 1,
+      to: computeKeyFingerprint(partner.publicKeyBase64),
+      from: myFingerprint,
+      sealed,
+    },
+  };
+}
 
 /**
  * Builds the sealed file for one partner and opens the share sheet.
@@ -362,44 +413,19 @@ export async function sendToPartnerAsFile(connectionId: string): Promise<{
   if (partner.role !== 'partner') {
     return { sent: false, reason: `${partner.name} is not set up as a partner.` };
   }
-  if (!partner.encryptionPublicKeyBase64) {
+
+  const built = await buildWireForPartner(partner, myFingerprint, myConditions);
+  if (!built.ok) {
     return {
       sent: false,
       reason:
-        'They paired before this app could encrypt, so there is no key to seal anything to. Show each other a code once more to fix it.',
+        built.reason === 'noKey'
+          ? 'They paired before this app could encrypt, so there is no key to seal anything to. Show each other a code once more to fix it.'
+          : 'Their key could not be used to encrypt this. Pair with them again.',
     };
   }
 
-  // Read here rather than passed in, so no call site can send more than was
-  // granted by handing over the wrong argument.
-  const payload = buildSyncPayload({
-    grants: partner.grants,
-    myConditionCodes: myConditions,
-    plan: [],
-    referenceDbVersion: REFERENCE_DB_VERSION,
-    fromFingerprint: myFingerprint,
-    sentAt: new Date().toISOString(),
-  });
-
-  let sealed: string;
-  try {
-    sealed = await sealForRecipient(
-      new TextEncoder().encode(JSON.stringify(payload)),
-      partner.encryptionPublicKeyBase64,
-    );
-  } catch {
-    return { sent: false, reason: 'Their key could not be used to encrypt this. Pair with them again.' };
-  }
-
-  const wire: PartnerSyncFile = {
-    kind: PARTNER_SYNC_FILE_KIND,
-    v: 1,
-    to: computeKeyFingerprint(partner.publicKeyBase64),
-    from: myFingerprint,
-    sealed,
-  };
-
-  const uri = await writeRawIsFile(wire);
+  const uri = await writeRawIsFile(built.wire);
   if (!uri) {
     return { sent: false, reason: 'The file could not be written. There may be no room left on the device.' };
   }
@@ -648,43 +674,20 @@ export async function sendToLinkedFile(connectionId: string): Promise<{ sent: bo
       message: 'No file is linked for them yet. Send once through your share sheet, then link what you sent.',
     };
   }
-  if (!partner.encryptionPublicKeyBase64) {
+  const built = await buildWireForPartner(partner, myFingerprint, myConditions);
+  if (!built.ok) {
     return {
       sent: false,
-      message: 'They paired before this app could encrypt. Show each other your codes once more first.',
+      message:
+        built.reason === 'noKey'
+          ? 'They paired before this app could encrypt. Show each other your codes once more first.'
+          : 'Their key could not be used to encrypt this.',
     };
   }
 
-  const payload = buildSyncPayload({
-    grants: partner.grants,
-    myConditionCodes: myConditions,
-    plan: [],
-    referenceDbVersion: REFERENCE_DB_VERSION,
-    fromFingerprint: myFingerprint,
-    sentAt: new Date().toISOString(),
-  });
-
-  let sealed: string;
-  try {
-    sealed = await sealForRecipient(
-      new TextEncoder().encode(JSON.stringify(payload)),
-      partner.encryptionPublicKeyBase64,
-    );
-  } catch {
-    return { sent: false, message: 'Their key could not be used to encrypt this.' };
-  }
-
-  const wire: PartnerSyncFile = {
-    kind: PARTNER_SYNC_FILE_KIND,
-    v: 1,
-    to: computeKeyFingerprint(partner.publicKeyBase64),
-    from: myFingerprint,
-    sealed,
-  };
-
   try {
     const { File } = await import('expo-file-system');
-    new File(partner.outboxFileUri).write(JSON.stringify(wire));
+    new File(partner.outboxFileUri).write(JSON.stringify(built.wire));
   } catch {
     return {
       sent: false,
