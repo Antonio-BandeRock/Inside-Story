@@ -1897,9 +1897,18 @@ function DailyPlanFullReport({
                     {row.unit} safety ceiling
                   </Text>
                 ) : null}
+                {/* Every dish that contributed, on every row, 2026-09-14:
+                    "If a nutrient is listed for a meal, everything must be
+                    accounted for at all times." The amounts sum to the
+                    figure above by construction (see computeContributors
+                    in lib/dailyMealPlan.ts), so nothing is left unnamed. */}
                 {row.topContributors.length > 0 ? (
                   <Text style={[styles.helperText, { textAlign: 'right' }]}>
-                    Mostly from: {row.topContributors.slice(0, 3).map((c) => `${c.title} (${c.percentOfDayTotal}%)`).join(', ')}
+                    From: {row.topContributors.map((c) => `${c.title} ${Math.round(c.amount * 10) / 10}${row.unit} (${c.percentOfDayTotal}%)`).join(', ')}
+                  </Text>
+                ) : row.amount > 0 ? (
+                  <Text style={[styles.helperText, { textAlign: 'right', color: colors.danger }]}>
+                    No dish in this day accounts for this amount.
                   </Text>
                 ) : null}
               </View>
