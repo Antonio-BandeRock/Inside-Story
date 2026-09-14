@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.25',
+    date: '2026-09-13',
+    changes: [
+      'The ribbon in the Digest tab corner box sits on the first line of the sentence like every other tab icon does, rather than riding high and pushing the text down.',
+    ],
+  },
+  {
     version: '1.0.37.24',
     date: '2026-09-13',
     changes: [

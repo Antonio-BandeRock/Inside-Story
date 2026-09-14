@@ -11,6 +11,7 @@ import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
+import { PurpleRibbonIcon, RIBBON_ASPECT } from './PurpleRibbonIcon';
 import { TabRouteIcon } from './TabRouteIcon';
 
 // 2026-07-25: the page title and sub-tab label (e.g. "Insights" / "6
@@ -96,9 +97,22 @@ export function usePageIdentityBoxSpan(): { left: number; right: number } {
 }
 
 // The inline glyph's size: an Ionicons size close to the prompt's own 11px
-// font so the first line does not open up around it (the ribbon draws at
-// 23/20 of this, see TabRouteIcon).
+// font so the first line does not open up around it.
 const PROMPT_ICON_SIZE = 13;
+// The Digest is the one tab whose glyph is not a font glyph. An Ionicons
+// icon is Text, so inline it sits on the line like a letter and was
+// confirmed right on-device for the other nine tabs; the ribbon is an SVG,
+// a View, which React Native stands on the baseline at its full height, so
+// it rode high and pushed the first line down (screenshot, 2026-09-13).
+// For the ribbon the box draws the icon absolutely in its top-left corner
+// and puts an invisible spacer of the same width inline where the icon
+// would be, so the sentence still starts beside it and wraps under it
+// with the line heights untouched. Sized to the line, not to the glyph
+// size: 13px tall is the prompt's own line, and the ribbon's true aspect
+// gives its width.
+const PROMPT_RIBBON_HEIGHT = 13;
+const PROMPT_RIBBON_WIDTH = Math.ceil(PROMPT_RIBBON_HEIGHT / RIBBON_ASPECT);
+const PROMPT_RIBBON_GAP = 4;
 
 export function PageIdentityLabel({ title, activeLensLabel }: { title: string; activeLensLabel?: string }) {
   const insets = useSafeAreaInsets();
@@ -183,12 +197,23 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
       pointerEvents="none"
     >
       {resting && tabRoute ? (
-        <Text style={styles.prompt}>
-          <TabRouteIcon route={tabRoute} size={PROMPT_ICON_SIZE} />
-          {' Tap the '}
-          <Text style={{ color: tabColor }}>{title}</Text>
-          {' button in the corner to pick a tool.'}
-        </Text>
+        <>
+          {tabRoute.path === '/purple-digest' ? (
+            <View style={styles.ribbonCorner} pointerEvents="none">
+              <PurpleRibbonIcon size={PROMPT_RIBBON_HEIGHT} />
+            </View>
+          ) : null}
+          <Text style={styles.prompt}>
+            {tabRoute.path === '/purple-digest' ? (
+              <View style={styles.ribbonSpacer} />
+            ) : (
+              <TabRouteIcon route={tabRoute} size={PROMPT_ICON_SIZE} />
+            )}
+            {' Tap the '}
+            <Text style={{ color: tabColor }}>{title}</Text>
+            {' button in the corner to pick a tool.'}
+          </Text>
+        </>
       ) : (
         <Text style={[styles.text, { color: tabColor }]}>{activeLensLabel}</Text>
       )}
@@ -235,6 +260,11 @@ const styles = StyleSheet.create({
   // At rest the sentence starts at the top-left corner and wraps down,
   // rather than sitting centred the way a short tool name does.
   containerResting: { alignItems: 'stretch', justifyContent: 'flex-start', overflow: 'hidden' },
+  // The ribbon's own spot, inside the box's padding, on the first line.
+  ribbonCorner: { position: 'absolute', top: 8, left: 8 },
+  // Holds the first line open where the ribbon sits. 1px tall so it adds
+  // nothing to the line height.
+  ribbonSpacer: { width: PROMPT_RIBBON_WIDTH + PROMPT_RIBBON_GAP, height: 1 },
   prompt: {
     ...typography.caption,
     ...textShadow,
