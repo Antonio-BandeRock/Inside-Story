@@ -1,8 +1,8 @@
 # App Links hosting for insidestoryapp.com
 
-`.well-known/assetlinks.json` here is the file Android checks before it lets
-`https://insidestoryapp.com/connect` and `/import-shared` open Inside Story
-directly instead of a browser (the `autoVerify` intent filter added to
+`public/.well-known/assetlinks.json` here is the file Android checks before
+it lets `https://insidestoryapp.com/connect` and `/import-shared` open Inside
+Story directly instead of a browser (the `autoVerify` intent filter added to
 `app.json` in the 2026-09-14 rebuild, 1.0.37.33).
 
 The certificate fingerprint in it is the EAS-managed Android signing key
@@ -10,20 +10,52 @@ The certificate fingerprint in it is the EAS-managed Android signing key
 `apksigner verify --print-certs`. It only changes if the EAS keystore is
 replaced, so every later build keeps verifying against this file.
 
-## To go live
+## How it is hosted
 
-1. Serve this folder's `.well-known/assetlinks.json` at exactly
-   `https://insidestoryapp.com/.well-known/assetlinks.json`, over https, with
-   `Content-Type: application/json`, no redirect. Cloudflare Pages, Netlify or
-   GitHub Pages all do this for free from a folder; Namecheap's own hosting
-   works too as long as https is on.
-2. Point `insidestoryapp.net` at the .com with a redirect; the App Link only
-   names the .com host.
-3. Confirm with
-   `https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://insidestoryapp.com&relation=delegate_permission/common.handle_all_urls`
-   (should list the package) and on a phone with
-   `adb shell pm get-app-links com.insidestoryapp.app` (should say `verified`).
+A Cloudflare Worker named `inside-story-site` serves the `public/` folder as
+static assets (Cloudflare Pages redirected new projects to Workers as of
+2026-09-14, so this is the Pages-equivalent setup). `wrangler.jsonc` in this
+folder is the whole configuration:
 
-Until the file is hosted, the same links open in the browser, where nothing
-is served yet; `hashimotosapp://connect` and `hashimotosapp://import-shared`
-keep working regardless.
+- `public/.well-known/assetlinks.json`: the App Links statement.
+- `public/_headers`: forces `Content-Type: application/json` and a short
+  cache on that one path.
+- `public/index.html`: a placeholder home page so the apex is not blank.
+- `routes`: attaches `insidestoryapp.com` and `www.insidestoryapp.com` as
+  custom domains. Cloudflare owns the DNS records for those, which is why the
+  Namecheap parking A/CNAME records had to go first.
+
+Fallback URL, always live regardless of DNS:
+`https://inside-story-site.app-links.workers.dev/.well-known/assetlinks.json`
+
+## To update the file
+
+1. Edit `public/.well-known/assetlinks.json`.
+2. From this folder (not the repo root, which has its own `wrangler.jsonc`):
+   `npx wrangler deploy`. Log in first with `npx wrangler login` if the
+   session has expired; the account is Tonyrockdaschel@gmail.com's, id
+   `50e842969c7475bddfb22aca635bcbe8`.
+
+## DNS
+
+The domain's nameservers at Namecheap were switched to Cloudflare on
+2026-09-14 (`felipe.ns.cloudflare.com`, `sofia.ns.cloudflare.com`, zone id
+`cd9e0b10a28c0eb57da33b6f77ac56df`). The MX and TXT records Cloudflare found
+during onboarding were imported unchanged. `insidestoryapp.net` is still on
+Namecheap's default DNS and only needs a redirect to the .com if it is ever
+wanted; the App Link names the .com host only.
+
+## Verifying
+
+- `curl -sI https://insidestoryapp.com/.well-known/assetlinks.json` should
+  return 200 with `content-type: application/json` and no redirect.
+- `https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://insidestoryapp.com&relation=delegate_permission/common.handle_all_urls`
+  should list the package.
+- On a phone running a build from this keystore:
+  `adb shell pm get-app-links com.insidestoryapp.app` should say `verified`
+  (Android re-checks on install, or force it with
+  `adb shell pm verify-app-links --re-verify com.insidestoryapp.app`).
+
+Until the domain is active, the same links open in the browser;
+`hashimotosapp://connect` and `hashimotosapp://import-shared` keep working
+regardless.

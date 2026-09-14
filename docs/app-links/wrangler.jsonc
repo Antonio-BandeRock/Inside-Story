@@ -1,0 +1,19 @@
+{
+  // Cloudflare static hosting for insidestoryapp.com: the App Links
+  // assetlinks.json plus a placeholder home page. Deploy from this folder
+  // with `npx wrangler deploy` (see README.md).
+  "name": "inside-story-site",
+  "compatibility_date": "2026-09-14",
+  // Keep the workers.dev URL as a fallback alongside the custom domain.
+  "workers_dev": true,
+  "assets": {
+    "directory": "./public"
+  },
+  // Apex custom domain. Cloudflare creates the DNS record itself; it only
+  // resolves once the zone is active (nameservers at Namecheap pointed at
+  // felipe/sofia.ns.cloudflare.com, 2026-09-14).
+  "routes": [
+    { "pattern": "insidestoryapp.com", "custom_domain": true },
+    { "pattern": "www.insidestoryapp.com", "custom_domain": true }
+  ]
+}
