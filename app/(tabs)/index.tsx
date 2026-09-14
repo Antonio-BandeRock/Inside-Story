@@ -2097,10 +2097,13 @@ export default function HomeScreen() {
   // carrying its own Digest category as a header on both faces, with the
   // band look and a vertical scroll on each face (see FlipCard.tsx).
   //
-  // The band's text takes tabPurpleDigestText rather than tabPurpleDigest,
-  // the split constants/colors.ts settled on 2026-08-23: the fill token is
-  // right behind dark text on a button, the text token is right when the
-  // colour is the thing being read.
+  // The band's title and each card's header take the tab colour, the same
+  // as every other band on Home and the same as the ribbon beside them.
+  // Until 2026-09-13 they took the lighter tabPurpleDigestText (the
+  // 2026-08-23 text/fill split); once the ribbon moved to the tab colour
+  // that morning the lighter title beside it read as a mismatch, and the
+  // instruction was to match them: "match the Home band title and card
+  // headers too."
   function renderDigestCards() {
     if (!isHomeSectionVisible(visualPrefs, 'digestCards')) return null;
     return (
@@ -2110,7 +2113,6 @@ export default function HomeScreen() {
         icon="ribbon"
         renderIcon={(size) => <PurpleRibbonIcon size={size} />}
         color={colors.tabPurpleDigest}
-        textColor={colors.tabPurpleDigestText}
       >
         {/* Scrolls out to the band's own edges (the same negative-margin
             technique logAgainScroll uses), with the row re-adding the inset
@@ -2131,7 +2133,6 @@ export default function HomeScreen() {
               backBody={card.backBody}
               onReadMore={() => router.push({ pathname: '/purple-digest', params: { openEntryId: card.id } })}
               borderColor={colors.tabPurpleDigest}
-              headerColor={colors.tabPurpleDigestText}
             />
           ))}
         </ScrollView>

@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
@@ -6,6 +5,7 @@ import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
 import { ScreenBackground, useBackgroundBottomInset, type BackgroundVariant } from './ScreenBackground';
+import { TabRouteIcon } from './TabRouteIcon';
 
 // 2026-07-26: replaces every non-Home tab's own distinct background always
 // being on screen. Instead, every one of them rests on the *same* shared
@@ -154,7 +154,7 @@ export function GatedTabContent({
               line it had. */}
           <View style={[styles.prompt, { borderColor: tabColor }]}>
             <View style={styles.promptRow}>
-              {route ? <Ionicons name={route.icon} size={20} color={tabColor} style={textShadow} /> : null}
+              {route ? <TabRouteIcon route={route} size={20} /> : null}
               <Text style={[styles.promptTitle, { color: tabColor }]}>{pageTitle}</Text>
             </View>
             {restingIntro ? (

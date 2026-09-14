@@ -11,6 +11,7 @@ import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
+import { TabRouteIcon } from './TabRouteIcon';
 
 // 2026-07-25: the page title and sub-tab label (e.g. "Insights" / "6
 // Dimensions") used to live in ScreenHeader, top of screen, next to the
@@ -130,6 +131,13 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   // says where you are: a tool's name once one is open, and until then
   // what to do to get somewhere. A stack screen always passes a label.
   const text = activeLensLabel ?? `Tap the ${title} button in the corner to pick a tool.`;
+  // At rest the tab's own glyph leads the line, 2026-09-13, direct request:
+  // "Add the tab icon to each tab's lower right corner black box letting
+  // them know to tap the icon for that tab in the corner." The same
+  // TabRouteIcon the corner button and the header box draw, so the icon
+  // named here is the one to look for. Once a tool is open the box names
+  // the tool alone, as before.
+  const showIcon = activeLensLabel == null && tabRoute != null;
 
   // The currently-showing icon's own bottom edge sits buttonIconOverhangY
   // below the button's own bottom edge (the artwork is taller than the
@@ -151,7 +159,10 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
       style={[styles.container, horizontalPosition, { bottom: boxBottom, minHeight: boxMinHeight, borderColor: tabColor }]}
       pointerEvents="none"
     >
-      <Text style={[styles.text, { color: tabColor }]}>{text}</Text>
+      <View style={styles.row}>
+        {showIcon && tabRoute ? <TabRouteIcon route={tabRoute} size={16} /> : null}
+        <Text style={[styles.text, { color: tabColor }, showIcon ? styles.textBesideIcon : null]}>{text}</Text>
+      </View>
     </View>
   );
 }
@@ -192,6 +203,10 @@ const styles = StyleSheet.create({
   // different cases across the same box. fontSize matched to LensHub.tsx's
   // own buttonLabel (the label under that corner button's icon) -- these
   // two are meant to read as the same size to start with.
+  row: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  // With the glyph on the left the line takes the rest of the row and
+  // wraps beside it rather than under it.
+  textBesideIcon: { flex: 1 },
   text: {
     ...typography.caption,
     ...textShadow,

@@ -16,7 +16,7 @@ import { DessertBuilderIcon } from './FoodBuilderIcons';
 import { HelpSheet } from './HelpButton';
 import { ActiveRingCircle } from './ActiveRingCircle';
 import { TabHubPointer, TabHubWelcome, useTabHubOnboarding } from './TabHubOnboarding';
-import { PurpleRibbonIcon } from './PurpleRibbonIcon';
+import { TabRouteIcon } from './TabRouteIcon';
 
 // Thickness of the line around the popup menu card, below -- matches the
 // old card's own borderWidth (1) exactly, not just visually close -- the
@@ -62,23 +62,6 @@ const BOTTOM_OFFSET = FLOATING_BUTTON_BOTTOM_OFFSET;
 // value from this specific component that could only ever reflect the
 // butterfly.
 const ICON_PILL_SIZE = 34;
-// A bit bigger than the 20px the Ionicons "ribbon" glyph this replaced
-// rendered at (2026-07-28, explicitly asked for -- see PurpleRibbonIcon.tsx
-// for the full history of what this replaced and why).
-// 2026-09-05: 26 -> 23. The ribbon is genuinely 1.71x taller than it is wide,
-// so at a shared height it can never look like the square Ionicons beside it.
-// 26 was the size where its bounding box matched a 20px icon's AREA (395px2
-// against 400), which is the right way to match visual weight and had the side
-// effect of making it the tallest thing in the grid: 26 x 15.2 against 20 x 20.
-// Reported as looking stretched, which it is not (the aspect is true to the
-// traced shape, and a past bug that really did distort it is long fixed), but
-// it is 30% taller and 24% narrower than its neighbours, which reads the same
-// way. 23 gives 23 x 13.4 at 77% of their area: less tall, still present.
-//
-// This constant is read in exactly one place, TabRouteIcon below, so it moves
-// the TabHub grid alone. Every other caller passes its own size: 28 for Home's
-// Digest cards, 22 and the LensHub corner on the Digest tab itself.
-const PURPLE_RIBBON_SIZE = 23;
 
 // 2026-07-26: replaced the traced iridescent outline that used to render
 // here -- explicitly asked to remove it in favor of a shadow that reads as
@@ -122,39 +105,11 @@ const DESSERT_BUILDER_TAB_HUB_COLOR = colors.tabFood;
 // Centralizes the "Digest gets its own custom mark" check in one
 // place so the grid's own active/inactive branches below don't each need
 // their own copy of it.
-//
-// 2026-08-05: special-cases Digest, now that it's a real tab in
-// TAB_ROUTES (previously rendered from its own hardcoded 4th-row block,
-// which called PurpleRibbonIcon directly at PURPLE_RIBBON_SIZE rather than
-// through this shared helper). A bare Ionicons "ribbon" glyph (what
-// route.icon falls back to for any other consumer of this list) was already
-// tried and rejected here once -- see LensHub.tsx's own history: it read as
-// a race/award rosette, not an awareness ribbon -- so this renders the real
-// custom mark instead, same as it always has. PURPLE_RIBBON_SIZE, not the
-// passed-through `size` (always 20 from this grid's own call site below),
-// deliberately -- that constant was itself tuned specifically to visually
-// match a 20px Ionicons glyph's footprint (see its own comment), so
-// preserving it here keeps that same calibration rather than silently
-// changing it.
-//
-// 2026-08-17: Home used to get its own special-cased gradient-text render
-// here too (a real, animated, iridescent glyph, IridescentGlyphIcon/
-// TabHomeIcon/TabInfoIcon, since removed -- see this file's own history in
-// CLAUDE.md for the two earlier flat-color attempts that motivated it: a
-// plain colored Home icon "read as the icon slowly turning into another
-// tab's own color" once it was animated). With the animation gone entirely
-// (real, confirmed battery drain -- see constants/colors.ts's own header
-// note), that whole problem disappears too: Home now falls through to the
-// same plain, flat-colored Ionicons render every other tab already uses,
-// same as it would have all along if the icon were never animated.
-function TabRouteIcon({ route, size }: { route: TabRoute; size: number }) {
-  if (route.path === '/purple-digest') {
-    // No colour passed: the ribbon draws the tab colour by default, the
-    // same shade every other tab's glyph in this grid takes from route.color.
-    return <PurpleRibbonIcon size={PURPLE_RIBBON_SIZE} />;
-  }
-  return <Ionicons name={route.icon} size={size} color={route.color} style={textShadow} />;
-}
+// The per-tab glyph lives in components/TabRouteIcon.tsx since 2026-09-13
+// (the Digest's real ribbon, every other tab's Ionicons glyph), shared with
+// the resting header box and the corner identity box so all three draw the
+// same mark. The history of the special case, and of the animated Home
+// glyph that used to sit here too, is in that file's comment.
 
 // The popup menu card's own accent border -- 2026-08-17: used to be the
 // app's own animated iridescent rainbow (the same rotation ScreenHeader's
