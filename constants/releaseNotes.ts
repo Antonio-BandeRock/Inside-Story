@@ -46,7 +46,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     changes: [
       'The From The Digest band on Home and the headers on its cards now use the same purple as the ribbon and every other band.',
       'The Digest header box at the top of the Digest tab shows the real awareness ribbon rather than a plain ribbon glyph.',
-      'The box in the lower corner of every tab now shows that tab's icon beside the line that says to tap the button in the corner, so the button to look for is pictured.',
+      'The box in the lower corner of every tab now shows the icon of that tab beside the line that says to tap the button in the corner, so the button to look for is pictured.',
     ],
   },
   {
