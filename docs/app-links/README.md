@@ -41,9 +41,17 @@ Fallback URL, always live regardless of DNS:
 The domain's nameservers at Namecheap were switched to Cloudflare on
 2026-09-14 (`felipe.ns.cloudflare.com`, `sofia.ns.cloudflare.com`, zone id
 `cd9e0b10a28c0eb57da33b6f77ac56df`). The MX and TXT records Cloudflare found
-during onboarding were imported unchanged. `insidestoryapp.net` is still on
-Namecheap's default DNS and only needs a redirect to the .com if it is ever
-wanted; the App Link names the .com host only.
+during onboarding were imported unchanged.
+
+`insidestoryapp.net` is a second Cloudflare zone (id
+`6ca730c3ac6b02215676f71e56bc64b3`, same nameserver pair, switched at
+Namecheap the same day). It hosts nothing: a single Redirect Rule, "Redirect
+.net to insidestoryapp.com", matches all incoming requests and answers a 301
+to `concat("https://insidestoryapp.com", http.request.uri.path)` with the
+query string preserved. The imported parking A and `www` CNAME records were
+kept, proxied, so the rule has something to fire on; the MX and TXT records
+were kept so Namecheap email forwarding keeps working. The App Link names the
+.com host only, so the .net never needs an assetlinks file.
 
 ## Verifying
 
