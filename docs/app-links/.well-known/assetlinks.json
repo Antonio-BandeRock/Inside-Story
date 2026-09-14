@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.insidestoryapp.app",
+      "sha256_cert_fingerprints": [
+        "68:0E:76:D3:2E:95:F5:A4:8B:FB:53:6F:8E:E9:7A:4A:37:4A:1B:BE:CE:2E:B6:26:51:50:9E:05:0B:E1:8C:98"
+      ]
+    }
+  }
+]
