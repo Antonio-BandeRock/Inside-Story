@@ -1,12 +1,12 @@
 // Step 4 of the real device-pairing prerequisite list (see CLAUDE.md's own
 // "Sharing individual recipes between two people" security-requirement
 // note), 2026-08-15 -- the real receiving/accept screen for a connection
-// invite. Reached via a real hashimotosapp://connect?data=... deep link
-// (see lib/connections.ts's own buildConnectionInviteLink), the same real
-// shape app/import-shared.tsx already established for "receive an
-// out-of-band message, decode it, show an explicit accept/discard choice"
-// -- Expo Router already resolves this link straight to this route and
-// hands `data` here as an already-decoded query param.
+// invite. Reached from a scanned QR (app/pair.tsx), from an https App Link
+// (https://insidestoryapp.com/connect#data=CODE, see lib/connections.ts's
+// buildInviteLink, tappable in any messaging app since 2026-09-14), or from
+// an older hashimotosapp://connect?data=... link. The same shape
+// app/import-shared.tsx established for "receive an out-of-band message,
+// decode it, show an explicit accept/discard choice".
 //
 // No signature verification happens here -- there's nothing valid to
 // check one against yet (see lib/connections.ts's own header comment on
@@ -26,6 +26,7 @@ import {
   addConnection,
   decodeConnectionInvite,
   getConnectionByPublicKey,
+  parseInviteInput,
   markFingerprintVerified,
   fillMissingEncryptionKey,
   markTheyHaveMe,
@@ -47,10 +48,22 @@ type Status = 'checking' | 'preview' | 'self-invite' | 'already-connected' | 'ac
 
 export default function ConnectScreen() {
   const router = useRouter();
-  const { data } = useLocalSearchParams<{ data?: string }>();
+  // Three ways in, one decoder. A scanned QR arrives as `data` from
+  // app/pair.tsx. An https App Link (https://insidestoryapp.com/connect#data=CODE,
+  // see lib/connections.ts's buildInviteLink) arrives with the fragment
+  // exposed by Expo Router as params['#'], carrying the URL-safe form of the
+  // code. An old hashimotosapp://connect?data=CODE link still arrives as
+  // `data`. parseInviteInput reads the data= prefix and both base64
+  // alphabets, so every form lands on the same decodeConnectionInvite.
+  const params = useLocalSearchParams<{ data?: string; '#'?: string }>();
+  const rawInvite = typeof params.data === 'string' ? params.data : typeof params['#'] === 'string' ? params['#'] : null;
   const scrollPadding = useFloatingButtonScrollPadding();
 
-  const invite = useMemo<ConnectionInvite | null>(() => (typeof data === 'string' ? decodeConnectionInvite(data) : null), [data]);
+  const invite = useMemo<ConnectionInvite | null>(() => {
+    if (!rawInvite) return null;
+    const code = parseInviteInput(rawInvite);
+    return code ? decodeConnectionInvite(code) : null;
+  }, [rawInvite]);
   const [status, setStatus] = useState<Status>('checking');
   const [existingConnectionName, setExistingConnectionName] = useState<string | null>(null);
   const [existingConnectionId, setExistingConnectionId] = useState<string | null>(null);
@@ -284,14 +297,14 @@ export default function ConnectScreen() {
           </Text>
           {isPartnerInvite ? (
             <Text style={styles.text}>
-              Show them your code even if they have added you: it is what tells their phone the link is
-              finished, and it carries what you chose to share.
+              Show them your code, or send them your link, even if they have added you: it is what tells their
+              phone the link is finished, and it carries what you chose to share.
             </Text>
           ) : null}
           {/* Straight back into the pairing screen with ack set, so their
-              phone reads the one flag that makes the link mutual. They are
-              already standing next to you, which is the whole reason this
-              exchange is a camera and not a message. */}
+              phone reads the one flag that makes the link mutual. That screen
+              offers both a QR for someone in the room and an https link for
+              someone who is not. */}
           <TouchableOpacity
             style={styles.primaryButton}
             activeOpacity={0.85}
@@ -307,7 +320,7 @@ export default function ConnectScreen() {
               })
             }
           >
-            <Text style={styles.primaryButtonText}>Show Your Code to {invite.fromName}</Text>
+            <Text style={styles.primaryButtonText}>Send Your Code to {invite.fromName}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.secondaryButton, styles.doneButton]}

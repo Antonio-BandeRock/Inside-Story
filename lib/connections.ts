@@ -513,6 +513,34 @@ export function encodeInviteCode(invite: ConnectionInvite): string {
   return encodeBase64Utf8(JSON.stringify(invite));
 }
 
+/**
+ * The https form of an invite, for pairing with someone who is not in the
+ * room. Added 2026-09-14, once the App Link for insidestoryapp.com verified
+ * on both phones (1.0.37.33 plus the assetlinks.json Cloudflare serves).
+ *
+ * Messaging apps make an https link tappable, which a hashimotosapp:// link
+ * never was, and Android hands a verified App Link straight to this app with
+ * no chooser. A phone without the app opens the page Cloudflare serves at
+ * /connect instead (docs/app-links/public/connect/index.html), which explains
+ * what the link is and offers the custom-scheme fallback.
+ *
+ * The code rides in the FRAGMENT, not the query string, on purpose. A browser
+ * never sends the fragment to the server, so if the link ever lands in a
+ * browser the invite (which for a partner can name conditions) stays on the
+ * phone rather than reaching Cloudflare's logs. Expo Router exposes the
+ * fragment to app/connect.tsx as params['#'], and parseInviteInput reads the
+ * data= prefix off it the same way it reads a pasted link.
+ *
+ * URL-safe base64 (- and _ for + and /, no padding), since a + in a URL is a
+ * space to enough parsers to matter. decodeBase64Utf8 reads both alphabets.
+ */
+export const INVITE_LINK_ORIGIN = 'https://insidestoryapp.com';
+
+export function buildInviteLink(code: string): string {
+  const urlSafe = code.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return `${INVITE_LINK_ORIGIN}/connect#data=${urlSafe}`;
+}
+
 export function parseInviteInput(raw: string): string | null {
   if (typeof raw !== 'string') return null;
   const text = raw.trim();
@@ -520,27 +548,42 @@ export function parseInviteInput(raw: string): string | null {
 
   const candidates: string[] = [];
 
-  // A full link, pasted whole. Pulled out by hand rather than with a URL
-  // parser, since a custom scheme is not something every parser accepts.
-  const dataAt = text.indexOf('data=');
-  if (dataAt !== -1) {
-    // Take the leading run of characters that could BE base64, rather than
-    // splitting on a guessed list of delimiters. The first version split on
-    // whitespace, & and # and kept the closing bracket from this app's own
-    // message, which ends "...data=CODE)". Caught by testing against the real
-    // message text rather than a tidy fixture.
-    const after = text.slice(dataAt + 5).match(/^[A-Za-z0-9+/=_-]+/);
-    if (after) candidates.push(after[0]);
+  // A link that was percent-encoded somewhere along the way (an email client
+  // will do this to the + and = in a code) is tried decoded first, since the
+  // runs below would stop at the first %.
+  const texts = [text];
+  if (/%[0-9A-Fa-f]{2}/.test(text)) {
+    try {
+      texts.unshift(decodeURIComponent(text));
+    } catch {
+      // Malformed escape. The raw text still gets its turn.
+    }
   }
 
-  // The whole thing, for someone who pasted exactly the code.
-  candidates.push(text);
+  for (const source of texts) {
+    // A full link, pasted whole. Pulled out by hand rather than with a URL
+    // parser, since a custom scheme is not something every parser accepts,
+    // and since the https form carries data= after a # rather than a ?.
+    const dataAt = source.indexOf('data=');
+    if (dataAt !== -1) {
+      // Take the leading run of characters that could BE base64, rather than
+      // splitting on a guessed list of delimiters. The first version split on
+      // whitespace, & and # and kept the closing bracket from the message this
+      // app sent at the time, which ended "...data=CODE)". Caught by testing
+      // against the actual message text rather than a tidy fixture.
+      const after = source.slice(dataAt + 5).match(/^[A-Za-z0-9+/=_-]+/);
+      if (after) candidates.push(after[0]);
+    }
 
-  // Any single run of base64-ish characters long enough to be an invite,
-  // for a paste that carries surrounding words. Longest first, since the
-  // code is by far the longest such run in any message this app sends.
-  const runs = text.match(/[A-Za-z0-9+/=_-]{40,}/g);
-  if (runs) candidates.push(...[...runs].sort((a, b) => b.length - a.length));
+    // The whole thing, for someone who pasted exactly the code.
+    candidates.push(source);
+
+    // Any single run of base64-ish characters long enough to be an invite,
+    // for a paste that carries surrounding words. Longest first, since the
+    // code is by far the longest such run in any message this app sends.
+    const runs = source.match(/[A-Za-z0-9+/=_-]{40,}/g);
+    if (runs) candidates.push(...[...runs].sort((a, b) => b.length - a.length));
+  }
 
   for (const candidate of candidates) {
     const cleaned = candidate.trim();

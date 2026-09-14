@@ -50,3 +50,20 @@
 module.exports = {
   sourceSkips: ['ExpoConfigVersions', 'GitIgnore'],
 };
+
+// 2026-09-14, later the same day, the third source of drift: package.json's
+// `scripts` section is hashed too ('packageJson:scripts'). Two scripts added
+// to package.json for the Cloudflare web deploy ("deploy", "preview") moved
+// the fingerprint from the 1.0.37.33 build's a08c3d7b to d7295410, and the
+// first 1.0.37.34 publish landed on that stranded runtime. Confirmed by
+// removing just those two scripts and re-running `npx @expo/fingerprint
+// fingerprint:generate . --platform android`, which gave a08c3d7b again; the
+// update was then republished with them absent and restored afterwards.
+//
+// The fix is `SourceSkips.PackageJsonScriptsAll` (a script can never change
+// what is compiled into the app), but adding a skip changes the hash too, so
+// it has to land in the SAME commit as the next native rebuild, not before.
+// Until that rebuild, package.json's scripts must stay exactly as they were
+// at 8fb32af (start, reset-project, android, ios, web, lint) whenever
+// `eas update` runs, or the update strands. Add 'PackageJsonScriptsAll' to
+// the list below at the next rebuild and delete this sentence.

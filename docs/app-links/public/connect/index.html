@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Inside Story invite</title>
+<style>
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #244147; color: #f4efe6; font-family: Georgia, "Times New Roman", serif; }
+  main { max-width: 32rem; padding: 24px; text-align: center; }
+  h1 { font-weight: normal; font-size: 1.8rem; margin: 0 0 12px; }
+  p { margin: 0 0 14px; line-height: 1.45; opacity: .85; }
+  a.button { display: inline-block; margin: 6px 0 18px; padding: 12px 22px; border-radius: 12px; background: #f4efe6; color: #244147; text-decoration: none; font-size: 1.05rem; }
+  small { display: block; opacity: .6; line-height: 1.4; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Someone wants to connect with you on Inside Story</h1>
+  <p id="has-code">If Inside Story is installed on this phone, the link should have opened it already. If it did not, tap below.</p>
+  <p id="no-code" hidden>This page only does something when it is opened from an invite link sent by the app. Ask the person who invited you to send the link again.</p>
+  <a id="open" class="button" href="#" hidden>Open in Inside Story</a>
+  <p>Don't have the app yet? Install Inside Story on this phone, then open the same link again. The invite is part of the link itself.</p>
+  <small>The invite never leaves your phone: this page reads it from the part of the address a browser does not send to any server.</small>
+</main>
+<script>
+  // The code rides in the fragment (#data=CODE) so it never reaches the
+  // server. The fallback below hands it to the custom scheme the app has
+  // registered since its first build, for a phone where the https App Link
+  // did not verify (an old install, or a browser that swallowed the click).
+  (function () {
+    var m = /(?:^#|[#&])data=([A-Za-z0-9_\-+/=]+)/.exec(location.hash || '');
+    var open = document.getElementById('open');
+    if (m) {
+      open.href = 'hashimotosapp://connect?data=' + m[1];
+      open.hidden = false;
+    } else {
+      document.getElementById('has-code').hidden = true;
+      document.getElementById('no-code').hidden = false;
+    }
+  })();
+</script>
+</body>
+</html>

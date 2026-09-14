@@ -21,6 +21,13 @@ folder is the whole configuration:
 - `public/_headers`: forces `Content-Type: application/json` and a short
   cache on that one path.
 - `public/index.html`: a placeholder home page so the apex is not blank.
+- `public/connect/index.html` and `public/import-shared/index.html`: what a
+  phone or desktop WITHOUT the app sees when it opens an invite link. The app
+  puts the invite code in the URL fragment (`/connect#data=CODE`, see
+  `buildInviteLink` in `lib/connections.ts`), which a browser never sends to
+  the server, so these pages read `location.hash` in the browser and offer a
+  `hashimotosapp://connect?data=CODE` fallback button. Cloudflare sees a bare
+  `/connect`, never the invite. Both are `noindex`.
 - `routes`: attaches `insidestoryapp.com` and `www.insidestoryapp.com` as
   custom domains. Cloudflare owns the DNS records for those, which is why the
   Namecheap parking A/CNAME records had to go first.
@@ -28,9 +35,9 @@ folder is the whole configuration:
 Fallback URL, always live regardless of DNS:
 `https://inside-story-site.app-links.workers.dev/.well-known/assetlinks.json`
 
-## To update the file
+## To update the files
 
-1. Edit `public/.well-known/assetlinks.json`.
+1. Edit whatever changed under `public/`.
 2. From this folder (not the repo root, which has its own `wrangler.jsonc`):
    `npx wrangler deploy`. Log in first with `npx wrangler login` if the
    session has expired; the account is Tonyrockdaschel@gmail.com's, id
@@ -64,6 +71,10 @@ were kept so Namecheap email forwarding keeps working. The App Link names the
   (Android re-checks on install, or force it with
   `adb shell pm verify-app-links --re-verify com.insidestoryapp.app`).
 
-Until the domain is active, the same links open in the browser;
-`hashimotosapp://connect` and `hashimotosapp://import-shared` keep working
-regardless.
+- `curl -sI https://insidestoryapp.com/connect/` should return 200 HTML with
+  `x-robots-tag: noindex` (the bare `/connect` answers a 307 to the slash
+  form; browsers carry the fragment across that redirect).
+
+On a phone where the App Link did not verify, the same links open in the
+browser and the landing page offers the `hashimotosapp://` fallback, which
+works regardless.

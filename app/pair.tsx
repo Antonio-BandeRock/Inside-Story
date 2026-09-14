@@ -12,21 +12,26 @@
 // owns end to end. It is also what Signal, WhatsApp and Discord use to link
 // devices without a server, for exactly this reason.
 //
-// The honest cost, stated rather than buried: both people have to be in the
-// same room. For a partner you live with, which is the case this was asked
-// for, that is the normal state. Pairing with someone far away needs an
-// https:// App Link, which needs a domain and one native rebuild.
+// The QR needs both people in the same room. For a partner you live with,
+// which is the case this was asked for, that is the normal state. Since
+// 2026-09-14 the same code also goes out as an https link
+// (lib/connections.ts's buildInviteLink) for someone far away: the App Link
+// for insidestoryapp.com verifies on install, so a link tapped in WhatsApp or
+// email opens straight into app/connect.tsx on a phone that has the app. The
+// code rides in the URL fragment, so a phone without the app shows Cloudflare
+// a bare /connect and never the invite.
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { QrCode } from '../components/QrCode';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import {
   buildConnectionInvite,
+  buildInviteLink,
   buildPartnerInvite,
   encodeInviteCode,
   parseInviteInput,
@@ -64,6 +69,7 @@ export default function PairScreen() {
   const [mode, setMode] = useState<'show' | 'scan'>(params.mode === 'scan' ? 'scan' : 'show');
   const [grants, setGrants] = useState<ShareGrants>(() => defaultGrantsForRole(isPartner ? 'partner' : 'recipe'));
   const [code, setCode] = useState<string | null>(null);
+  const [fromName, setFromName] = useState<string>('');
   const [fingerprint, setFingerprint] = useState<string | null>(null);
   const [buildError, setBuildError] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
@@ -83,6 +89,7 @@ export default function PairScreen() {
         const mine = await getMyKeyFingerprint();
         if (cancelled) return;
         setCode(encodeInviteCode(invite));
+        setFromName(invite.fromName);
         setFingerprint(mine);
         setBuildError(false);
       } catch (error) {
@@ -129,6 +136,22 @@ export default function PairScreen() {
     handledScan.current = false;
     setScanError(null);
     setMode('scan');
+  }
+
+  // The far-away route. The OS share sheet, so it goes out through whatever
+  // app they already talk on; the link is the whole message, since anything
+  // wrapped around it is just more for the other person to scroll past.
+  async function sendLink() {
+    if (!code) return;
+    const link = buildInviteLink(code);
+    const who = fromName ? `${fromName} wants` : 'Someone wants';
+    const message = `${who} to connect with you on Inside Story. Open this on the phone that has the app:
+${link}`;
+    try {
+      await Share.share({ message });
+    } catch (error) {
+      console.error('[PairScreen] Failed to open the share sheet', error);
+    }
   }
 
   if (mode === 'scan') {
@@ -206,7 +229,7 @@ export default function PairScreen() {
         <Text style={styles.text}>
           {alreadyHaveYou
             ? 'You have them saved. This code tells their phone the same, which is what finishes the link on both sides.'
-            : 'They open Inside Story, go to Profile, then Connections, and tap Scan Their Code. Nothing is sent anywhere: the code goes from this screen to their camera and no further.'}
+            : 'They open Inside Story, go to Profile, then Connections, and tap Scan Their Code. Nothing is sent anywhere: the code goes from this screen to their camera and no further. Not in the same room? Send them the link instead.'}
         </Text>
 
         {buildError ? (
@@ -268,10 +291,20 @@ export default function PairScreen() {
         <Ionicons name="qr-code-outline" size={18} color={colors.textOnButton} />
         <Text style={styles.primaryButtonText}>Scan Their Code</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.secondaryButton, !code ? styles.buttonDisabled : null]}
+        activeOpacity={0.85}
+        disabled={!code}
+        onPress={sendLink}
+      >
+        <Ionicons name="link-outline" size={18} color={colors.textPrimary} />
+        <Text style={styles.secondaryButtonText}>Send a Link Instead</Text>
+      </TouchableOpacity>
       <View style={styles.noteBox}>
         <Text style={styles.noteText}>
-          Whoever goes second scans first. After that each screen says what to do next, until both phones show you are
-          connected.
+          Whoever goes second scans first, or opens the link first. After that each screen says what to do next, until
+          both phones show you are connected. The link carries this same code and opens Inside Story on a phone that
+          has it; it is only useful to someone you meant to send it to.
         </Text>
       </View>
     </ScrollView>
@@ -358,6 +391,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   secondaryButtonText: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  buttonDisabled: { opacity: 0.5 },
   camera: { flex: 1 },
   scanOverlay: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
   scanFrame: {

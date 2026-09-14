@@ -1,9 +1,10 @@
 // Step 4 of the real device-pairing prerequisite list (see CLAUDE.md's own
 // "Sharing individual recipes between two people" security-requirement
 // note), 2026-08-15 -- the real Connections management screen. Reached
-// from Profile. Pairing happens face to face by QR since 2026-09-06 (see
-// app/pair.tsx for why the two message-based routes before it never
-// arrived). This screen routes into that, and browses/
+// from Profile. Pairing happens by QR since 2026-09-06 (see app/pair.tsx for
+// why the two message-based routes before it never arrived) or, since
+// 2026-09-14, by an https link built on the same screen for someone not in
+// the room. This screen routes into that, and browses/
 // rename/remove people already paired with (see app/connect.tsx for the
 // real receiving/accept side of the same exchange).
 import { Ionicons } from '@expo/vector-icons';
@@ -130,9 +131,10 @@ export default function ConnectionsScreen() {
     }, [load]),
   );
 
-  // Pairing happens in person now, so this screen only routes into it. The
-  // three message-based invites that used to live here each depended on
-  // something outside this app cooperating, and none of them arrived.
+  // This screen only routes into pairing. The three message-based invites
+  // that used to live here each depended on something outside this app
+  // cooperating, and none of them arrived; the https link that replaced them
+  // lives on the pairing screen next to the QR, so both routes start there.
   function openPairing(role: 'partner' | 'recipe') {
     router.push({ pathname: '/pair', params: { role, mode: 'show' } });
   }

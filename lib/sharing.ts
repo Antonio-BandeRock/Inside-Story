@@ -244,13 +244,17 @@ export function encodeBase64Utf8(str: string): string {
   return result;
 }
 
+// Reads the URL-safe alphabet too (- for + and _ for /, padding optional).
+// An invite LINK carries that form since 2026-09-14, because a + in a URL
+// is read as a space by enough parsers that a link could arrive corrupted.
 export function decodeBase64Utf8(base64: string): string {
   const clean = base64.replace(/=+$/, '');
   const bytes: number[] = [];
   let buffer = 0;
   let bits = 0;
   for (let i = 0; i < clean.length; i++) {
-    const value = BASE64_CHARS.indexOf(clean[i]);
+    const ch = clean[i];
+    const value = ch === '-' ? 62 : ch === '_' ? 63 : BASE64_CHARS.indexOf(ch);
     if (value === -1) continue;
     buffer = (buffer << 6) | value;
     bits += 6;

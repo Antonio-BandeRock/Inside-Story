@@ -1,3 +1,11 @@
 /.well-known/assetlinks.json
   Content-Type: application/json
   Cache-Control: max-age=300
+
+/connect/*
+  Cache-Control: max-age=300
+  X-Robots-Tag: noindex
+
+/import-shared/*
+  Cache-Control: max-age=300
+  X-Robots-Tag: noindex
