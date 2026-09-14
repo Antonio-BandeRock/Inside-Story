@@ -102,6 +102,8 @@ import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from '../../components/HomeSectionBand';
 import { useBandFolds } from '../../hooks/useBandFolds';
+import { describeUpkeepStanding, DUE_SOON_DAYS, upkeepCategoryLabel, upkeepStanding, type UpkeepItem, type UpkeepStanding } from '../../lib/upkeep';
+import { listUpkeepItems, markUpkeepDone } from '../../lib/upkeepDb';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -137,6 +139,7 @@ type Lens =
   | 'hydration'
   | 'meds'
   | 'appointments'
+  | 'upkeep'
   | 'exercise';
 
 // A repeat picker exists on Meals, Supplements' own reminder times, and
@@ -330,6 +333,21 @@ const LENSES: LensOption<Lens>[] = [
     ],
   },
   {
+    key: 'upkeep',
+    label: 'Upkeep',
+    icon: 'construct-outline',
+    help: [
+      {
+        heading: 'Read from Life, not entered here',
+        body: 'Everything under Life > Upkeep that has a date (a service on its interval, a document that runs out) is laid out here by when it is due: overdue, due in the next few weeks, and later. Anything missing the piece it needs to be placed on a calendar is listed too, with what is missing, rather than left off so the list looks complete.',
+      },
+      {
+        heading: 'Done today',
+        body: 'Marks a recurring item as done on this date and works out its next due date from its own interval, the same as doing it from Life. Adding an item, changing its interval, or renewing something that expires happens in Life > Upkeep, one tap away from any row.',
+      },
+    ],
+  },
+  {
     key: 'exercise',
     label: 'Exercise',
     icon: 'barbell-outline',
@@ -338,7 +356,7 @@ const LENSES: LensOption<Lens>[] = [
 ];
 
 const COMING_SOON_COPY: Record<
-  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments'>,
+  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments' | 'upkeep'>,
   string
 > = {
   exercise: 'Schedule planned workouts and activity. Not built yet.',
@@ -4087,13 +4105,140 @@ function AppointmentsLens() {
   );
 }
 
+// --- Upkeep --------------------------------------------------------------
+//
+// The first schedule sourced from Life rather than entered here, 2026-09-13.
+// Direct: "There will be maintenance schedules, hobby schedules, etc. Many
+// schedules will be because of things contained in Life." Upkeep on Life
+// already holds every item with its interval and last-done date, or its
+// expiry; this lens is the timeline read off those, nothing re-entered:
+// what is overdue, what is due in the next few weeks, what is further out,
+// and what cannot be placed on a calendar yet because a piece is missing.
+// Done today writes back through the same markUpkeepDone Life uses, so the
+// two never disagree; anything else (a new item, a renewal date, an
+// interval) is changed in Life, one tap away.
+type UpkeepBucket = { key: string; title: string; icon: ComponentProps<typeof Ionicons>['name']; rows: UpkeepStanding[] };
+
+function UpkeepLens() {
+  const router = useRouter();
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
+  const [items, setItems] = useState<UpkeepItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+
+  const load = useCallback(() => {
+    setLoading(true);
+    listUpkeepItems()
+      .then(setItems)
+      .catch((error) => setErrorMessage(`Could not load upkeep: ${error instanceof Error ? error.message : String(error)}`))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
+
+  const today = todayDateString();
+  const buckets = useMemo<UpkeepBucket[]>(() => {
+    const standings = items.filter((item) => item.active).map((item) => upkeepStanding(item, today));
+    const dated = standings.filter((standing) => standing.dueOn != null).sort((a, b) => (a.daysAway ?? 0) - (b.daysAway ?? 0));
+    return [
+      { key: 'overdue', title: 'Overdue', icon: 'alert-circle-outline', rows: dated.filter((standing) => standing.overdue) },
+      { key: 'soon', title: `Due in the next ${DUE_SOON_DAYS} days`, icon: 'time-outline', rows: dated.filter((standing) => standing.dueSoon) },
+      { key: 'later', title: 'Later', icon: 'calendar-outline', rows: dated.filter((standing) => !standing.overdue && !standing.dueSoon) },
+      { key: 'setup', title: 'Needs a piece before it can be placed', icon: 'help-circle-outline', rows: standings.filter((standing) => standing.missing != null) },
+    ];
+  }, [items, today]);
+
+  function openUpkeep() {
+    router.push({ pathname: '/life', params: { openLifeLens: 'upkeep' } });
+  }
+
+  async function handleDoneToday(standing: UpkeepStanding) {
+    try {
+      const result = await markUpkeepDone(standing.item.id, today);
+      showInfoAlert(
+        'Recorded',
+        result.nextDueOn ? `${standing.item.name} done today. Next due ${result.nextDueOn}.` : `${standing.item.name} done today.`,
+      );
+      load();
+    } catch (error) {
+      showInfoAlert('Could not record that', error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
+      <View style={styles.bandOut}>
+        <HomeSectionBand
+          kind="action"
+          title="Add or change something in Upkeep"
+          caption="Services, filters, registrations, renewals: each is defined on the Life tab and its dates show up here."
+          icon="construct-outline"
+          color={TAB_COLOR}
+          onPress={openUpkeep}
+        />
+      </View>
+      {loading ? (
+        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
+      ) : errorMessage ? (
+        <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
+      ) : items.filter((item) => item.active).length === 0 ? (
+        <View style={styles.bandBox}>
+          <Text style={styles.emptyText}>
+            Nothing in Upkeep yet. Add a service, a filter, a registration or a passport under Life &gt; Upkeep and its dates appear here.
+          </Text>
+        </View>
+      ) : (
+        buckets.map((bucket) =>
+          bucket.rows.length === 0 ? null : (
+            <ScheduleBand key={bucket.key} folds={folds} id={`schedule:upkeep:${bucket.key}`} title={bucket.title} icon={bucket.icon} count={bucket.rows.length}>
+              <View style={styles.table}>
+                {bucket.rows.map((standing) => (
+                  <View key={standing.item.id} style={styles.row}>
+                    <View style={styles.rowTextCol}>
+                      <Text style={styles.rowTitle}>{standing.item.name}</Text>
+                      <Text style={styles.rowMeta}>
+                        {upkeepCategoryLabel(standing.item.category)}
+                        {standing.dueOn ? ` · ${standing.dueOn}` : ''}
+                      </Text>
+                      <Text style={styles.rowMeta}>{describeUpkeepStanding(standing)}</Text>
+                    </View>
+                    <View style={styles.supplementRowActions}>
+                      {standing.item.cadence === 'recurring' && standing.missing !== 'noInterval' ? (
+                        <TouchableOpacity onPress={() => handleDoneToday(standing)}>
+                          <Text style={styles.actionTextPrimary}>Done today</Text>
+                        </TouchableOpacity>
+                      ) : null}
+                      <TouchableOpacity onPress={openUpkeep}>
+                        <Text style={styles.actionText}>
+                          {standing.missing ? 'Set it up in Upkeep' : standing.item.cadence === 'expires' && standing.item.renewable ? 'Renew in Upkeep' : 'Edit in Upkeep'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </ScheduleBand>
+          ),
+        )
+      )}
+    </ScrollView>
+  );
+}
+
 // A short, honest placeholder for the remaining schedule type not built
 // yet -- same "coming soon" pattern already used for the Trends/Reports
 // bottom tabs, one level deeper inside Schedule.
 function ComingSoonLens({
   lens,
 }: {
-  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments'>;
+  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'mealPlan' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments' | 'upkeep'>;
 }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
@@ -4164,6 +4309,7 @@ export default function ScheduleScreen() {
       },
       { id: 'appointments', label: 'Appointments', count: scheduleCounts.appointment ?? 0, onPress: openLens('appointments') },
       { id: 'hydration', label: 'Hydration', count: undefined, onPress: openLens('hydration') },
+      { id: 'upkeep', label: 'Upkeep', count: undefined, onPress: openLens('upkeep') },
     ];
   }, [scheduleCounts]);
   useFocusEffect(
@@ -4214,6 +4360,8 @@ export default function ScheduleScreen() {
             <MedsLens scheduleTreatmentId={scheduleTreatmentId} />
           ) : lens === 'appointments' ? (
             <AppointmentsLens />
+          ) : lens === 'upkeep' ? (
+            <UpkeepLens />
           ) : (
             <ComingSoonLens lens={lens} />
           )}

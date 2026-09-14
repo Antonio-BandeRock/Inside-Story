@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.30',
+    date: '2026-09-13',
+    changes: [
+      'Schedules has an Upkeep lens, read straight from Life > Upkeep: everything with a date laid out as overdue, due in the next 45 days, and later, plus anything still missing the piece it needs to be placed. Done today records it and works out the next date; adding, editing or renewing stays in Life, one tap away, and Life links back here.',
+    ],
+  },
+  {
     version: '1.0.37.29',
     date: '2026-09-13',
     changes: [

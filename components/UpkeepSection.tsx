@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
@@ -84,6 +85,7 @@ function blankForm(): ItemForm {
 }
 
 export function UpkeepSection({ tabColor }: Props) {
+  const router = useRouter();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [items, setItems] = useState<UpkeepItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -192,6 +194,12 @@ export function UpkeepSection({ tabColor }: Props) {
             <Text style={styles.primaryButtonText}>+ Add something</Text>
           </TouchableOpacity>
         ) : null}
+        {/* The timeline of these dates is Schedules > Upkeep, 2026-09-13:
+            items are defined here and read there, the same split as My
+            Meds and Schedules > Meds. */}
+        <TouchableOpacity onPress={() => router.push({ pathname: '/schedule', params: { openScheduleLens: 'upkeep' } })}>
+          <Text style={styles.actionText}>See these by date on Schedules &gt; Upkeep</Text>
+        </TouchableOpacity>
       </View>
 
       {form ? (
