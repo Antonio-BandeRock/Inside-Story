@@ -36,6 +36,17 @@
 // without that alone forcing a new native build. Verified locally after
 // adding this: the same "1.0.29.8" vs "1.0.29.9" test that used to change
 // the hash no longer does.
+//
+// 2026-09-14, the second source of silent drift, found the same way. An EAS
+// Update for a JS-only fix came back with a runtime that did not match the
+// installed build, with nothing native touched. The one difference in the
+// working tree was an uncommitted edit to .gitignore, and this tool hashes
+// .gitignore as a source of its own ('bareGitIgnore', see
+// node_modules/@expo/fingerprint/build/sourcer/Bare.js). A .gitignore line
+// can never change what gets compiled into the app, so it has no business
+// in the runtime version: `SourceSkips.GitIgnore` exists for exactly this.
+// Adding it moves the fingerprint once (this is why the 2026-09-14 rebuild
+// happened), after which .gitignore edits no longer strand OTA updates.
 module.exports = {
-  sourceSkips: ['ExpoConfigVersions'],
+  sourceSkips: ['ExpoConfigVersions', 'GitIgnore'],
 };

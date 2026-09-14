@@ -3,7 +3,7 @@
     "name": "Inside Story",
     "slug": "inside-story",
     "owner": "inside-story",
-    "version": "1.0.37.32",
+    "version": "1.0.37.33",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "hashimotosapp",
@@ -56,7 +56,27 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.READ_CALENDAR",
-        "android.permission.WRITE_CALENDAR"
+        "android.permission.WRITE_CALENDAR",
+        "android.permission.health.READ_STEPS",
+        "android.permission.health.READ_DISTANCE",
+        "android.permission.health.READ_EXERCISE",
+        "android.permission.health.READ_SLEEP",
+        "android.permission.health.READ_BLOOD_GLUCOSE",
+        "android.permission.health.READ_MENSTRUATION",
+        "android.permission.health.READ_WEIGHT",
+        "android.permission.health.READ_BLOOD_PRESSURE",
+        "android.permission.health.READ_HEART_RATE",
+        "android.permission.health.READ_RESTING_HEART_RATE",
+        "android.permission.health.READ_HEART_RATE_VARIABILITY",
+        "android.permission.health.READ_OXYGEN_SATURATION",
+        "android.permission.health.READ_SKIN_TEMPERATURE",
+        "android.permission.health.READ_HYDRATION",
+        "android.permission.health.READ_NUTRITION",
+        "android.permission.health.WRITE_HYDRATION",
+        "android.permission.health.WRITE_NUTRITION",
+        "android.permission.health.WRITE_EXERCISE",
+        "android.permission.CHANGE_WIFI_MULTICAST_STATE",
+        "android.permission.ACCESS_WIFI_STATE"
       ],
       "intentFilters": [
         {
@@ -77,6 +97,26 @@
               "mimeType": "*/*",
               "host": "*",
               "pathPattern": ".*\\.is"
+            }
+          ]
+        },
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "category": [
+            "DEFAULT",
+            "BROWSABLE"
+          ],
+          "data": [
+            {
+              "scheme": "https",
+              "host": "insidestoryapp.com",
+              "pathPrefix": "/connect"
+            },
+            {
+              "scheme": "https",
+              "host": "insidestoryapp.com",
+              "pathPrefix": "/import-shared"
             }
           ]
         }
@@ -141,8 +181,28 @@
       [
         "rn-mlkit-ocr",
         {
-          "ocrModels": ["latin"],
+          "ocrModels": [
+            "latin"
+          ],
           "ocrUseBundled": true
+        }
+      ],
+      "react-native-health-connect",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "minSdkVersion": 26
+          }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/android-icon-monochrome.png",
+          "color": "#244147"
         }
       ]
     ],
