@@ -4749,6 +4749,42 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_therapy_sessions_performed_at ON therapy_sessions(performed_at);
 
+      -- --- Phone health data (2026-09-14) --------------------------------
+      --
+      -- What Health Connect handed over, kept as read. One row per record
+      -- for the signals that have no table of their own (sleep sessions,
+      -- heart rate, glucose, a cycle day, a workout the watch logged), so
+      -- Trends and Pattern Finder can query a local table instead of
+      -- asking the phone's store on every render. Steps land in
+      -- daily_step_counts and weight and blood pressure in
+      -- body_measurements, the tables typed-in readings already use, so a
+      -- chart never has to know which way a figure arrived.
+      --
+      -- Read, never inferred: a row here says what a device recorded and
+      -- when, and nothing about what it means. value and value2 hold the
+      -- one or two numbers the signal has (hours slept; average and peak
+      -- heart rate; systolic and diastolic), unit names them, and
+      -- detail_json keeps whatever else came with the record (sleep stages,
+      -- the workout type, which meal a glucose reading was near).
+      -- external_id is Health Connect's record id, and the primary key is
+      -- built from it, so a re-sync of the same window replaces rows
+      -- instead of stacking duplicates.
+      CREATE TABLE IF NOT EXISTS health_records (
+        id TEXT PRIMARY KEY,
+        record_type TEXT NOT NULL,
+        started_at TEXT NOT NULL,
+        ended_at TEXT,
+        local_date TEXT NOT NULL,
+        value REAL,
+        value2 REAL,
+        unit TEXT,
+        detail_json TEXT,
+        source_app TEXT,
+        external_id TEXT,
+        imported_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_health_records_type_date ON health_records(record_type, local_date);
+
       -- --- Finances (2026-09-05) ----------------------------------------
       --
       -- The Life tab's first area. Direct request: "Finances is much
@@ -6669,12 +6705,24 @@ async function runDatabaseInitialization() {
       ['connections', 'outbox_file_uri'],
       ['connections', 'inbox_file_uri'],
       ['connections', 'mailbox_folder'],
+      // Phone health data, 2026-09-14. A scale or cuff reading that came
+      // in through Health Connect lands in body_measurements next to the
+      // typed-in ones; source says which ('health_connect', or null for
+      // typed in) and external_id is the store's record id, so a re-sync
+      // finds the row it already wrote instead of adding it again.
+      ['body_measurements', 'source'],
+      ['body_measurements', 'external_id'],
     ] as const) {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (columns.length > 0 && !columns.some((entry) => entry.name === column)) {
         await db.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} TEXT;`);
       }
     }
+
+    // After the loop, since the column it indexes may have just been added.
+    await db.execAsync(
+      'CREATE INDEX IF NOT EXISTS idx_body_measurements_external_id ON body_measurements(external_id);',
+    );
 
     // receipt_given is INTEGER, so like amount_is_estimate below it stays out
     // of the loop above, which adds every column as TEXT. Same trap: the
@@ -18496,7 +18544,11 @@ export async function getBodyMeasurementTrend(measurementType: string) {
   );
 }
 
-export type StepCountSource = 'device_sensor' | 'manual';
+// 'health_connect' added 2026-09-14: a day the phone's health store
+// supplied. A manual row is never overwritten by a synced one (see
+// recordSyncedStepCount), since a typed-in figure is a deliberate
+// correction and the store may simply be missing that day's watch data.
+export type StepCountSource = 'device_sensor' | 'manual' | 'health_connect';
 
 export type DailyStepCount = {
   date: string;
@@ -18548,6 +18600,237 @@ export async function getStepCountTrend(days = 30) {
     days,
   );
   return rows.reverse();
+}
+
+// --- Phone health data (2026-09-14) ------------------------------------
+//
+// Storage for what lib/healthSync.ts pulls out of Health Connect. Every
+// function here is a plain read or write; the decisions about which
+// window to read and what to keep live in healthSync, and the decisions
+// about what to say about it live on the screens.
+
+// Steps from the phone's store. Only ever fills a day nobody typed in:
+// ON CONFLICT leaves a 'manual' row alone and replaces anything else, so
+// the store can keep correcting its figure for a day the watch synced late
+// without ever undoing a deliberate entry.
+export async function recordSyncedStepCount(date: string, stepCount: number) {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO daily_step_counts (date, step_count, source, updated_at)
+      VALUES (?, ?, 'health_connect', ?)
+      ON CONFLICT(date) DO UPDATE SET
+        step_count = excluded.step_count,
+        source = excluded.source,
+        updated_at = excluded.updated_at
+      WHERE daily_step_counts.source != 'manual'
+    `,
+    date,
+    stepCount,
+    now,
+  );
+}
+
+export type HealthRecordType =
+  | 'distance'
+  | 'sleep'
+  | 'heart_rate'
+  | 'resting_heart_rate'
+  | 'hrv'
+  | 'spo2'
+  | 'glucose'
+  | 'skin_temperature'
+  | 'menstruation'
+  | 'exercise';
+
+export type HealthRecord = {
+  id: string;
+  recordType: HealthRecordType;
+  startedAt: string;
+  endedAt: string | null;
+  localDate: string;
+  value: number | null;
+  value2: number | null;
+  unit: string | null;
+  detailJson: string | null;
+  sourceApp: string | null;
+  externalId: string | null;
+  importedAt: string;
+};
+
+export type HealthRecordInput = Omit<HealthRecord, 'importedAt'>;
+
+// Replace-on-id, so the same window can be synced again and again. Held in
+// one transaction because a sync can hand over a few thousand heart rate
+// rows at once.
+export async function upsertHealthRecords(records: HealthRecordInput[]) {
+  if (records.length === 0) return;
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  await db.withTransactionAsync(async () => {
+    for (const record of records) {
+      await db.runAsync(
+        `
+          INSERT OR REPLACE INTO health_records
+            (id, record_type, started_at, ended_at, local_date, value, value2, unit, detail_json, source_app, external_id, imported_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `,
+        record.id,
+        record.recordType,
+        record.startedAt,
+        record.endedAt,
+        record.localDate,
+        record.value,
+        record.value2,
+        record.unit,
+        record.detailJson,
+        record.sourceApp,
+        record.externalId,
+        now,
+      );
+    }
+  });
+}
+
+const HEALTH_RECORD_COLUMNS = `
+  id, record_type AS recordType, started_at AS startedAt, ended_at AS endedAt, local_date AS localDate,
+  value, value2, unit, detail_json AS detailJson, source_app AS sourceApp, external_id AS externalId,
+  imported_at AS importedAt
+`;
+
+// Oldest first, over the last `days` calendar days, the shape a chart wants.
+export async function listHealthRecords(recordType: HealthRecordType, days = 90): Promise<HealthRecord[]> {
+  const db = await getDatabase();
+  const since = new Date();
+  since.setDate(since.getDate() - (days - 1));
+  const sinceDate = `${since.getFullYear()}-${String(since.getMonth() + 1).padStart(2, '0')}-${String(since.getDate()).padStart(2, '0')}`;
+  return db.getAllAsync<HealthRecord>(
+    `
+      SELECT ${HEALTH_RECORD_COLUMNS}
+      FROM health_records
+      WHERE record_type = ? AND local_date >= ?
+      ORDER BY started_at ASC
+    `,
+    recordType,
+    sinceDate,
+  );
+}
+
+export async function getLatestHealthRecord(recordType: HealthRecordType): Promise<HealthRecord | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<HealthRecord>(
+    `
+      SELECT ${HEALTH_RECORD_COLUMNS}
+      FROM health_records
+      WHERE record_type = ?
+      ORDER BY started_at DESC
+      LIMIT 1
+    `,
+    recordType,
+  );
+}
+
+export async function countHealthRecords(recordType: HealthRecordType): Promise<number> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ count: number }>(
+    'SELECT COUNT(*) AS count FROM health_records WHERE record_type = ?',
+    recordType,
+  );
+  return row?.count ?? 0;
+}
+
+// A scale or cuff reading from the store, into the same table typed-in
+// readings use. Skipped when its external id is already here, so a re-sync
+// is idempotent; nothing typed in is ever touched.
+export async function recordSyncedBodyMeasurement(input: {
+  externalId: string;
+  loggedAt: string;
+  measurementType: string;
+  value: number;
+  unit: string;
+  sourceApp: string | null;
+}): Promise<boolean> {
+  const db = await getDatabase();
+  const existing = await db.getFirstAsync<{ id: string }>(
+    'SELECT id FROM body_measurements WHERE external_id = ? LIMIT 1',
+    input.externalId,
+  );
+  if (existing) return false;
+  const id = `body_measurement_hc_${input.externalId}`;
+  await db.runAsync(
+    `
+      INSERT OR IGNORE INTO body_measurements (id, logged_at, measurement_type, value, unit, notes, created_at, source, external_id)
+      VALUES (?, ?, ?, ?, ?, NULL, ?, 'health_connect', ?)
+    `,
+    id,
+    input.loggedAt,
+    input.measurementType,
+    input.value,
+    input.unit,
+    new Date().toISOString(),
+    input.externalId,
+  );
+  return true;
+}
+
+// The newest reading of one type that arrived through the store, for the
+// Movement area's rows. Typed-in readings are left out on purpose: the row
+// is answering "what has the phone sent", not "what do I weigh".
+export async function getLatestSyncedBodyMeasurement(measurementType: string): Promise<BodyMeasurementRecord | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<BodyMeasurementRecord>(
+    `
+      SELECT id, logged_at AS loggedAt, measurement_type AS measurementType, value, unit, notes, created_at AS createdAt
+      FROM body_measurements
+      WHERE measurement_type = ? AND source = 'health_connect'
+      ORDER BY logged_at DESC
+      LIMIT 1
+    `,
+    measurementType,
+  );
+}
+
+// The sync switch and its bookkeeping, in app_meta like the other
+// app-wide settings. 'enabled' is the person's choice on the Movement area;
+// last_sync is the ISO instant the last successful pull finished, which the
+// next pull uses to size its window.
+export type HealthSyncState = {
+  enabled: boolean;
+  lastSyncAt: string | null;
+};
+
+export async function getHealthSyncState(): Promise<HealthSyncState> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ key: string; value: string }>(
+    "SELECT key, value FROM app_meta WHERE key IN ('health_connect_enabled', 'health_connect_last_sync')",
+  );
+  const byKey = new Map(rows.map((row) => [row.key, row.value]));
+  return {
+    enabled: byKey.get('health_connect_enabled') === '1',
+    lastSyncAt: byKey.get('health_connect_last_sync') || null,
+  };
+}
+
+async function setAppMetaValue(key: string, value: string) {
+  const db = await getDatabase();
+  await db.runAsync(
+    `
+      INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+    `,
+    key,
+    value,
+    new Date().toISOString(),
+  );
+}
+
+export async function setHealthSyncEnabled(enabled: boolean) {
+  await setAppMetaValue('health_connect_enabled', enabled ? '1' : '0');
+}
+
+export async function setHealthSyncLastSyncAt(iso: string) {
+  await setAppMetaValue('health_connect_last_sync', iso);
 }
 
 // Exercise sessions and body measurements over the same window, so a

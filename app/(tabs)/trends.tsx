@@ -32,6 +32,11 @@ import {
   dimensionLabel,
 } from '../../lib/workMeaning';
 import {
+  MOVEMENT_CAVEAT,
+  describeMovementComparison,
+  describeMovementRefusal,
+} from '../../lib/movementMeaning';
+import {
   getDietaryReferenceIntakesForCurrentUser,
   getFoodIdentity,
   getLabResultTrend,
@@ -60,6 +65,8 @@ import {
   getNutrientTrendSeriesForRange,
   getSixDimensionsFlagTrendSeriesForRange,
   getEatingWindowTrend,
+  getSleepTrendPoints,
+  getStepTrendPoints,
   getWeightTrendPoints,
   paddedTrendRange,
   type EatingWindowTrend,
@@ -76,7 +83,7 @@ import { CORE_NUTRIENT_CODES } from './index';
 // identity. Matches the same rule applied there, 2026-07-27.
 const TAB_COLOR = colors.tabTrends;
 
-type TrendsLens = 'nutrients' | 'sixDs' | 'symptoms' | 'eatingWindow' | 'weight' | 'labs' | 'groceries' | 'patterns' | 'therapyResponse';
+type TrendsLens = 'nutrients' | 'sixDs' | 'symptoms' | 'eatingWindow' | 'weight' | 'movement' | 'labs' | 'groceries' | 'patterns' | 'therapyResponse';
 
 // Shared across all three lenses' own Info content below -- the same
 // caveat applies regardless of which chart you're looking at. Reworded
@@ -160,6 +167,32 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: 'Weight',
         body: "Every reading you've logged on Profile, over time. The chart's own vertical range is scaled tight around your actual values, not pinned to zero, so real day-to-day movement is actually visible.",
+      },
+    ],
+  },
+  // 2026-09-14. What the phone's health store brought in through Life >
+  // Movement: steps per day and hours slept per night. Charted, not
+  // interpreted.
+  {
+    key: 'movement',
+    label: 'Movement',
+    icon: 'walk-outline',
+    help: [
+      {
+        heading: 'Steps',
+        body: 'Steps per day, from the phone and watch by way of Health Connect, counted together without double counting. A day typed in by hand sits on the same line. A day with nothing recorded is left off rather than drawn as zero, because a phone whose step syncing is off has nothing to say, not nothing done.',
+      },
+      {
+        heading: 'Sleep',
+        body: 'Hours per night, dated by the morning it ended. Where the watch recorded stages, this is time asleep; where it only recorded the session, this is time in bed.',
+      },
+      {
+        heading: 'Where it comes from',
+        body: "Life > Movement connects the phone's health store and syncs it each time that area opens. Nothing is read in the background. If these charts are empty, start there.",
+      },
+      {
+        heading: 'Beside symptoms',
+        body: 'Pattern Finder shows weeks with less movement beside weeks with more, and the symptoms logged in each, once there are enough weeks to compare. Nothing here says one caused the other.',
       },
     ],
   },
@@ -368,6 +401,10 @@ const TRENDS_HELP_SECTIONS: HelpSection[] = [
     body: "Pick a test to see every result you've logged for it, over time, with a dashed line at its typical reference range's midpoint where one exists.",
   },
   {
+    heading: 'Movement',
+    body: "Steps per day and hours slept per night, as the phone's health store recorded them by way of Life > Movement. Days with nothing recorded are left off rather than drawn as zero.",
+  },
+  {
     heading: 'Pattern Finder',
     body: "Looks at what you actually ate before each flare or reaction you've logged, and surfaces whatever shows up more than once -- a real count from your own data, not a diagnosis. Each food candidate carries a direct way to start a real trial and actually test it.",
   },
@@ -443,6 +480,7 @@ export default function TrendsScreen() {
   // perfect compliance.
   const [eatingWindowProfile, setEatingWindowProfile] = useState<{ start: string; end: string } | null>(null);
   const [weightSeries, setWeightSeries] = useState<TrendPoint[] | null>(null);
+  const [movementSeries, setMovementSeries] = useState<{ steps: TrendPoint[]; sleep: TrendPoint[] } | null>(null);
   const [measurementSystem, setMeasurementSystem] = useState<'metric' | 'imperial' | null>(null);
   const [labTests, setLabTests] = useState<LabTest[]>([]);
   const [selectedTestCode, setSelectedTestCode] = useState<string | null>(null);
@@ -552,6 +590,11 @@ export default function TrendsScreen() {
     } else if (lens === 'weight') {
       getWeightTrendPoints(days).then((points) => {
         setWeightSeries(points);
+        setLoading(false);
+      });
+    } else if (lens === 'movement') {
+      Promise.all([getStepTrendPoints(days), getSleepTrendPoints(days)]).then(([steps, sleep]) => {
+        setMovementSeries({ steps, sleep });
         setLoading(false);
       });
     } else if (lens === 'patterns') {
@@ -1012,6 +1055,53 @@ export default function TrendsScreen() {
                   );
                 })()
               )
+            ) : lens === 'movement' ? (
+              loading ? (
+                <Text style={[styles.loadingText, styles.panelStandalone]}>Loading…</Text>
+              ) : (
+                (() => {
+                  const steps = movementSeries?.steps ?? [];
+                  const sleep = movementSeries?.sleep ?? [];
+                  const stepsRange = paddedTrendRange(steps.map((point) => point.value));
+                  const sleepRange = paddedTrendRange(sleep.map((point) => point.value));
+                  const stepsAverage = steps.length > 0 ? steps.reduce((sum, point) => sum + point.value, 0) / steps.length : null;
+                  const sleepAverage = sleep.length > 0 ? sleep.reduce((sum, point) => sum + point.value, 0) / sleep.length : null;
+                  return (
+                    <>
+                      <View style={styles.chartCard}>
+                        <Text style={styles.patternSectionHeading}>Steps per day</Text>
+                        <TrendLineChart
+                          points={steps}
+                          yMin={Math.max(0, stepsRange.yMin)}
+                          yMax={stepsRange.yMax}
+                          valueFormatter={(value) => `${Math.round(value).toLocaleString()} steps`}
+                          emptyMessage="Nothing recorded in this range. Connect the phone's health store under Life > Movement, or check that step syncing is on in its health app."
+                        />
+                        {stepsAverage !== null ? (
+                          <Text style={styles.caption}>
+                            {Math.round(stepsAverage).toLocaleString()} a day over {steps.length} recorded day{steps.length === 1 ? '' : 's'}
+                          </Text>
+                        ) : null}
+                      </View>
+                      <View style={styles.chartCard}>
+                        <Text style={styles.patternSectionHeading}>Hours slept</Text>
+                        <TrendLineChart
+                          points={sleep}
+                          yMin={Math.max(0, sleepRange.yMin)}
+                          yMax={sleepRange.yMax}
+                          valueFormatter={(value) => `${value.toFixed(1)} h`}
+                          emptyMessage="No sleep sessions in this range. Sleep needs a watch, ring or sleep app that writes to Health Connect; without one there is nothing to read."
+                        />
+                        {sleepAverage !== null ? (
+                          <Text style={styles.caption}>
+                            {sleepAverage.toFixed(1)} h a night over {sleep.length} recorded night{sleep.length === 1 ? '' : 's'}
+                          </Text>
+                        ) : null}
+                      </View>
+                    </>
+                  );
+                })()
+              )
             ) : lens === 'groceries' ? (
               <>
                 <PopoverSelect
@@ -1340,6 +1430,31 @@ export default function TrendsScreen() {
                         <Text style={styles.patternRowCaption}>{STRAIN_CAVEAT}</Text>
                       </>
                     )}
+                  </View>
+                ) : null}
+
+                {!loading && patternResult ? (
+                  <View style={styles.chartCard}>
+                    <Text style={styles.patternSectionHeading}>Movement, week by week</Text>
+                    {patternResult.movementRefusal ? (
+                      <Text style={styles.patternRowCaption}>
+                        {describeMovementRefusal(patternResult.movementRefusal)}
+                      </Text>
+                    ) : patternResult.movementComparison ? (
+                      <>
+                        <View style={styles.patternRow}>
+                          <View style={styles.patternRowText}>
+                            <Text style={styles.patternRowTitle}>
+                              Steps a day{patternResult.movementComparison.notable ? '' : ' \u00b7 nothing in it'}
+                            </Text>
+                            <Text style={styles.patternRowCaption}>
+                              {describeMovementComparison(patternResult.movementComparison)}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text style={styles.patternRowCaption}>{MOVEMENT_CAVEAT}</Text>
+                      </>
+                    ) : null}
                   </View>
                 ) : null}
               </>

@@ -11,6 +11,7 @@ import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { KitchenSection } from '../../components/KitchenSection';
+import { MOVEMENT_HELP_SECTIONS, MovementSection } from '../../components/MovementSection';
 import { MyMedsSection } from '../../components/MyMedsSection';
 import { UpkeepSection } from '../../components/UpkeepSection';
 import { WorkSection } from '../../components/WorkSection';
@@ -133,7 +134,7 @@ const TAB_COLOR = colors.tabLife;
 // 'groceryList' is a lens in the menu only: picking it opens the grocery
 // list screen (the same one Home's own Grocery List row opens) rather than
 // a view inside this tab, so `lens` never actually holds it.
-type LifeLens = 'finances' | 'kitchen' | 'work' | 'upkeep' | 'emergency' | 'groceryList' | 'myMeds';
+type LifeLens = 'finances' | 'kitchen' | 'work' | 'upkeep' | 'emergency' | 'groceryList' | 'myMeds' | 'movement';
 type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money' | 'goals';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
@@ -326,6 +327,12 @@ const LIFE_LENSES: LensOption<LifeLens>[] = [
   // as bills are, which is why it landed on Life rather than on Food: every
   // Food lens is a BUILDER, something you make, and an inventory is not.
   { key: 'kitchen', label: 'Kitchen', icon: 'file-tray-full-outline', help: KITCHEN_HELP_SECTIONS },
+  // 2026-09-14. What the phone's health store has: steps, sleep, a scale or
+  // cuff reading, whatever a watch wrote. It lives here rather than on
+  // Trends because it is a connection to manage, the way My Meds is a list
+  // to keep; Trends reads what this area brings in. See
+  // components/MovementSection.tsx.
+  { key: 'movement', label: 'Movement', icon: 'walk-outline', help: MOVEMENT_HELP_SECTIONS },
 ];
 
 const DIRECTION_OPTIONS = [
@@ -1699,6 +1706,7 @@ export default function LifeScreen() {
             {lens === 'upkeep' ? <UpkeepSection tabColor={TAB_COLOR} /> : null}
             {lens === 'emergency' ? <EmergencySection tabColor={TAB_COLOR} /> : null}
             {lens === 'myMeds' ? <MyMedsSection tabColor={TAB_COLOR} focusTreatmentId={focusTreatmentId} /> : null}
+            {lens === 'movement' ? <MovementSection tabColor={TAB_COLOR} /> : null}
 
             {lens === 'finances' ? (
             <>

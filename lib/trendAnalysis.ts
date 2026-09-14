@@ -1,6 +1,8 @@
 import {
   getBodyMeasurementTrend,
   getNutrientTotalsByDateRange,
+  getStepCountTrend,
+  listHealthRecords,
   getOutsideEatingWindowCountsByDateRange,
   getProjectedNutrientTotalsByDateRange,
   getProjectedSixDimensionsFlagCountsByDateRange,
@@ -197,6 +199,37 @@ export async function getWeightTrendPoints(days: number): Promise<TrendPoint[]> 
   return rows
     .map((row) => ({ date: row.loggedAt.slice(0, 10), value: row.value }))
     .filter((point) => point.date >= rangeStart);
+}
+
+// Movement, 2026-09-14: what the phone's health store brought in (see
+// lib/healthSync.ts). Steps come from daily_step_counts, one row per day
+// whatever the source, so a day typed in by hand and a day the phone
+// counted sit on the same line. A day with no row is left out rather than
+// plotted as zero: the store only holds what something wrote, and a phone
+// with step syncing off has nothing, not nothing done.
+export async function getStepTrendPoints(days: number): Promise<TrendPoint[]> {
+  const rangeStart = dateStringDaysAgo(days - 1);
+  const rows = await getStepCountTrend(days);
+  return rows
+    .filter((row) => row.date >= rangeStart)
+    .map((row) => ({ date: row.date, value: row.stepCount }));
+}
+
+// Hours asleep per night, dated by the morning the session ended. Where the
+// watch recorded stages, the time asleep (value2) is used; otherwise time in
+// bed (value) is the only figure there is, and it is used as recorded. Two
+// sessions ending the same morning (a nap after a night) are added.
+export async function getSleepTrendPoints(days: number): Promise<TrendPoint[]> {
+  const rows = await listHealthRecords('sleep', days);
+  const byDate = new Map<string, number>();
+  for (const row of rows) {
+    const hours = row.value2 ?? row.value;
+    if (hours === null) continue;
+    byDate.set(row.localDate, (byDate.get(row.localDate) ?? 0) + hours);
+  }
+  return [...byDate.entries()]
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([date, value]) => ({ date, value: Math.round(value * 10) / 10 }));
 }
 
 // Eating-window exceptions over time -- 2026-08-30, closing the gap the

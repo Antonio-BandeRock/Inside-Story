@@ -41,6 +41,31 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.36',
+    date: '2026-09-14',
+    changes: [
+      "Life has a Movement area that connects to the phone's health store (Health Connect on Android). Once connected, it brings in steps, distance, workouts, sleep, weight, blood pressure, heart rate, resting heart rate, heart rate variability, blood oxygen, skin temperature, blood glucose and cycle days, each time the area opens. The area shows what the phone has for each, and says plainly when a signal has no source on this phone rather than showing a zero.",
+      "Trends has a Movement lens: steps per day and hours slept, from the same data. Days the phone did not record are left off, not drawn as zero.",
+      'Pattern Finder puts your weeks with fewer steps beside your weeks with more, and the flares or reactions logged in each, once there are six recorded weeks to compare. Which side had more is all it says.',
+      "Life > Movement can also send today's water and today's nutrition totals to the phone's health store, so what is logged here counts in other apps that read it.",
+      'Weight and blood pressure brought in this way appear in the same places a typed-in measurement does, marked as coming from the phone.',
+    ],
+  },
+  {
+    version: '1.0.37.35',
+    date: '2026-09-14',
+    changes: [
+      'Meds doses and appointments now fire phone notifications. A dose is announced at its scheduled time and an appointment an hour before, and the list is rebuilt whenever Meds or Appointments change, so an edit never leaves a stale reminder behind. On Android 12 and later a phone that is asleep can deliver a few minutes late.',
+    ],
+  },
+  {
+    version: '1.0.37.34',
+    date: '2026-09-14',
+    changes: [
+      'Pairing with another person can be done with a link. "Send a Link Instead" on the pairing screen shares an insidestoryapp.com link that opens this app on a phone that has it, and a plain page explaining what it is on one that does not.',
+    ],
+  },
+  {
     version: '1.0.37.31',
     date: '2026-09-13',
     changes: [

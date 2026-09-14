@@ -1,6 +1,13 @@
-import { getConditionScoresForFoodsBulk, getMealItemsInWindow, listCheckins } from './db';
+import { getConditionScoresForFoodsBulk, getMealItemsInWindow, getStepCountTrend, listCheckins } from './db';
 import { isFlaggedTier } from './sixDimensionsReference';
 import { listWorkCheckins } from './workDb';
+import {
+  compareMovementAgainstSymptoms,
+  isMovementRefusal,
+  weeksFromDailySteps,
+  type MovementComparison,
+  type MovementRefusal,
+} from './movementMeaning';
 import {
   compareStrainAgainstSymptoms,
   isStrainRefusal,
@@ -95,6 +102,11 @@ export type PatternFinderResult = {
    *  workStrainRefusal names which piece is missing. */
   workStrainComparisons: StrainComparison[];
   workStrainRefusal: StrainRefusal | null;
+  /** Steps a day, week by week, beside the same flares (2026-09-14). Null
+   *  when there is not enough to say anything, in which case
+   *  movementRefusal names which piece is missing. */
+  movementComparison: MovementComparison | null;
+  movementRefusal: MovementRefusal | null;
 };
 
 // Same 'YYYY-MM-DD' local-time convention already duplicated across this
@@ -310,6 +322,20 @@ export async function findFoodPatterns(
     weeks: [...symptomsByWeek.entries()].map(([week, symptomCount]) => ({ weekOf: week, symptomCount })),
   });
 
+  // Movement, the same way: the weeks the phone recorded enough days of
+  // steps for, each beside the flares logged in it. A week the phone has no
+  // steps for is unknown rather than still, so it contributes nothing.
+  const stepDays = (await getStepCountTrend(days)).filter((row) => row.date >= rangeStart);
+  const movementWeeks = weeksFromDailySteps(stepDays);
+  const symptomsByMovementWeek = new Map<string, number>();
+  for (const week of movementWeeks) symptomsByMovementWeek.set(week.weekOf, 0);
+  for (const checkin of symptomCheckins) {
+    const week = weekOf(checkin.loggedAt.slice(0, 10));
+    if (!symptomsByMovementWeek.has(week)) continue;
+    symptomsByMovementWeek.set(week, (symptomsByMovementWeek.get(week) ?? 0) + 1);
+  }
+  const movement = compareMovementAgainstSymptoms({ weeks: movementWeeks, symptomsByWeek: symptomsByMovementWeek });
+
   return {
     totalSymptomInstances: symptomCheckins.length,
     foodCandidates,
@@ -317,5 +343,7 @@ export async function findFoodPatterns(
     categoryCandidates,
     workStrainComparisons: isStrainRefusal(strain) ? [] : strain.comparisons,
     workStrainRefusal: isStrainRefusal(strain) ? strain : null,
+    movementComparison: isMovementRefusal(movement) ? null : movement,
+    movementRefusal: isMovementRefusal(movement) ? movement : null,
   };
 }
