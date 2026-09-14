@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.24',
+    date: '2026-09-13',
+    changes: [
+      'The box in the lower corner of every tab is a fixed size again, the same on every tab. At rest the tab icon sits at its top left with the sentence starting beside it and wrapping beneath, in the same light text as the header box, with the tab name in that tab colour.',
+    ],
+  },
+  {
     version: '1.0.37.23',
     date: '2026-09-13',
     changes: [

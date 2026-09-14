@@ -95,6 +95,11 @@ export function usePageIdentityBoxSpan(): { left: number; right: number } {
       };
 }
 
+// The inline glyph's size: an Ionicons size close to the prompt's own 11px
+// font so the first line does not open up around it (the ribbon draws at
+// 23/20 of this, see TabRouteIcon).
+const PROMPT_ICON_SIZE = 13;
+
 export function PageIdentityLabel({ title, activeLensLabel }: { title: string; activeLensLabel?: string }) {
   const insets = useSafeAreaInsets();
   const tabRoute = TAB_ROUTES.find((route) => route.title === title);
@@ -130,14 +135,25 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   // then it has to go in the black box in the corner." So this box always
   // says where you are: a tool's name once one is open, and until then
   // what to do to get somewhere. A stack screen always passes a label.
-  const text = activeLensLabel ?? `Tap the ${title} button in the corner to pick a tool.`;
   // At rest the tab's own glyph leads the line, 2026-09-13, direct request:
   // "Add the tab icon to each tab's lower right corner black box letting
   // them know to tap the icon for that tab in the corner." The same
   // TabRouteIcon the corner button and the header box draw, so the icon
   // named here is the one to look for. Once a tool is open the box names
   // the tool alone, as before.
-  const showIcon = activeLensLabel == null && tabRoute != null;
+  //
+  // Same day, on the shape: "Place the icon at the top left, start the
+  // 'Tap the (tab name) button...' statement after it on the same row,
+  // allowing the sentence to auto-wrap to the next lines using the same
+  // white font you used on the screen headers, but make sure the name of
+  // each tab is in the color for that tab." So the glyph is INLINE in the
+  // sentence (a View inside Text, which React Native lays out on the
+  // first line's baseline) rather than a column beside it: text wraps
+  // back to the left edge under the icon the way a paragraph wraps under
+  // a drop cap, not in a narrower column to its right. The sentence is
+  // in the same colors.textSecondary the header box body uses, and the
+  // tab name alone is in the tab colour.
+  const resting = activeLensLabel == null && tabRoute != null;
 
   // The currently-showing icon's own bottom edge sits buttonIconOverhangY
   // below the button's own bottom edge (the artwork is taller than the
@@ -149,20 +165,33 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   // The icon's own full vertical span (button height + its overhang on
   // both the top and bottom) -- matching this exactly is what makes the
   // box's own top edge land the same distance below the footer's
-  // iridescent line the icon's own top edge already sits. A minimum
-  // rather than a fixed height since 2026-09-13: a lens name fits it, and
-  // the resting prompt, a few short lines, grows the box upward from the
-  // same bottom edge rather than being clipped.
-  const boxMinHeight = FLOATING_BUTTON_SIZE + buttonIconOverhangY * 2;
+  // iridescent line the icon's own top edge already sits. Briefly a
+  // minimum rather than a fixed height on 2026-09-13, so the resting
+  // prompt could grow the box; reversed the same day, direct: "Make sure
+  // that the box in the lower right corner doesn't grow larger on any
+  // tab's screen." Fixed again, and the prompt fits inside it: at 11px
+  // the sentence runs to four lines at most on a phone, 78px holds four.
+  const boxHeight = FLOATING_BUTTON_SIZE + buttonIconOverhangY * 2;
   return (
     <View
-      style={[styles.container, horizontalPosition, { bottom: boxBottom, minHeight: boxMinHeight, borderColor: tabColor }]}
+      style={[
+        styles.container,
+        horizontalPosition,
+        { bottom: boxBottom, height: boxHeight, borderColor: tabColor },
+        resting ? styles.containerResting : null,
+      ]}
       pointerEvents="none"
     >
-      <View style={styles.row}>
-        {showIcon && tabRoute ? <TabRouteIcon route={tabRoute} size={16} /> : null}
-        <Text style={[styles.text, { color: tabColor }, showIcon ? styles.textBesideIcon : null]}>{text}</Text>
-      </View>
+      {resting && tabRoute ? (
+        <Text style={styles.prompt}>
+          <TabRouteIcon route={tabRoute} size={PROMPT_ICON_SIZE} />
+          {' Tap the '}
+          <Text style={{ color: tabColor }}>{title}</Text>
+          {' button in the corner to pick a tool.'}
+        </Text>
+      ) : (
+        <Text style={[styles.text, { color: tabColor }]}>{activeLensLabel}</Text>
+      )}
     </View>
   );
 }
@@ -203,10 +232,16 @@ const styles = StyleSheet.create({
   // different cases across the same box. fontSize matched to LensHub.tsx's
   // own buttonLabel (the label under that corner button's icon) -- these
   // two are meant to read as the same size to start with.
-  row: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  // With the glyph on the left the line takes the rest of the row and
-  // wraps beside it rather than under it.
-  textBesideIcon: { flex: 1 },
+  // At rest the sentence starts at the top-left corner and wraps down,
+  // rather than sitting centred the way a short tool name does.
+  containerResting: { alignItems: 'stretch', justifyContent: 'flex-start', overflow: 'hidden' },
+  prompt: {
+    ...typography.caption,
+    ...textShadow,
+    fontSize: 11,
+    color: colors.textSecondary,
+    textAlign: 'left',
+  },
   text: {
     ...typography.caption,
     ...textShadow,
