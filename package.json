@@ -1,14 +1,16 @@
 {
   "name": "hashimotos-app",
   "main": "expo-router/entry",
-  "version": "1.0.37.44",
+  "version": "1.0.38.1",
   "scripts": {
     "start": "node ./scripts/start-with-qr.js",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "node ./scripts/start-with-qr.js --android",
     "ios": "node ./scripts/start-with-qr.js --ios",
     "web": "node ./scripts/start-with-qr.js --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "deploy": "npx expo export -p web && wrangler deploy",
+    "preview": "npx expo export -p web && wrangler dev"
   },
   "dependencies": {
     "@dr.pogodin/react-native-static-server": "^0.28.0",
@@ -72,7 +74,8 @@
     "@types/react": "~19.1.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "wrangler": "^4.131.2"
   },
   "private": true,
   "allowScripts": {

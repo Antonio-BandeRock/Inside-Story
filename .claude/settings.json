@@ -11,6 +11,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"C:\\Dev\\hashimotos-app\\scripts\\claude-md-guard.mjs\""
+          },
+          {
+            "type": "command",
             "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"C:\\Dev\\hashimotos-app\\scripts\\auto-commit.ps1\""
           }
         ]

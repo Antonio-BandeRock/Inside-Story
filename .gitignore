@@ -112,3 +112,16 @@ CLAUDE.md.bak
 
 # Python bytecode cache from running one-off scripts/*.py content-authoring scripts
 scripts/__pycache__/
+
+_recovered/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
+
+# Firebase config for the push relay (project inside-story-app). Holds app
+# identifiers, so it stays out of git; eas build still uploads it because
+# .easignore, not this file, decides what goes to the build server.
+google-services.json
