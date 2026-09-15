@@ -58,6 +58,23 @@ const LAN_SYNC_DIR = 'lan-sync';
 export const LAN_SYNC_TIMEOUT_MS = 5 * 60 * 1000;
 /** How long one fetch from a partner may take before it is given up on. */
 const FETCH_TIMEOUT_MS = 10 * 1000;
+/**
+ * How many times one partner's file is fetched before the session reports
+ * failure, and the pause between tries. The first resolve can arrive before
+ * the other phone's server answers, and a phone that just re-joined the
+ * Wi-Fi can refuse the first connection outright, so one try is not a
+ * verdict. Four tries five seconds apart stay well inside the five-minute
+ * session.
+ */
+const FETCH_ATTEMPTS = 4;
+const FETCH_RETRY_MS = 5 * 1000;
+/**
+ * How often the session asks the network again for partner phones. A
+ * partner that tapped Sync after this phone's first scan is announced, but
+ * Android's resolver has been seen to sit on an announcement it heard once
+ * and never report it again, so the scan is repeated.
+ */
+const RESCAN_MS = 20 * 1000;
 
 export type LanSyncPhase = 'idle' | 'starting' | 'listening' | 'stopped' | 'failed';
 
@@ -103,6 +120,7 @@ type Session = {
   } | null;
   serviceName: string | null;
   timer: ReturnType<typeof setTimeout> | null;
+  rescanTimer: ReturnType<typeof setInterval> | null;
   dirUri: string | null;
   stopping: boolean;
 };
@@ -245,32 +263,51 @@ async function pullFromPartner(
 
   // IPv6 literals need brackets in a URL; Android hands them over bare.
   const hostInUrl = host.includes(':') && !host.startsWith('[') ? `[${host}]` : host;
-  const url = `http://${hostInUrl}:${port}/${fileNameFor(current.myCompact)}`;
+  const where = `${hostInUrl}:${port}`;
+  const url = `http://${where}/${fileNameFor(current.myCompact)}`;
 
-  let text: string;
-  try {
-    const response = await fetchWithTimeout(url);
-    if (response.status === 404) {
-      current.fetched.delete(partner.id);
-      setPartnerState(
-        current,
-        partner.id,
-        'failed',
-        `${partner.name}'s phone is on the network but has nothing for you. They may not have you paired as a partner, or may have paired before this app could encrypt.`,
-      );
-      return;
+  let text: string | null = null;
+  let lastError: unknown = null;
+  for (let attempt = 1; attempt <= FETCH_ATTEMPTS && !current.stopping; attempt += 1) {
+    try {
+      const response = await fetchWithTimeout(url);
+      if (response.status === 404) {
+        current.fetched.delete(partner.id);
+        setPartnerState(
+          current,
+          partner.id,
+          'failed',
+          `${partner.name}'s phone is on the network but has nothing for you. They may not have you paired as a partner, or may have paired before this app could encrypt.`,
+        );
+        return;
+      }
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      text = await response.text();
+      break;
+    } catch (error) {
+      lastError = error;
+      if (attempt < FETCH_ATTEMPTS) {
+        setPartnerState(
+          current,
+          partner.id,
+          'fetching',
+          `Found ${partner.name}'s phone at ${where}, no answer yet. Trying again (${attempt} of ${FETCH_ATTEMPTS})…`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, FETCH_RETRY_MS));
+      }
     }
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    text = await response.text();
-  } catch (error) {
-    // Let a later announcement retry it; the first resolve can race the
-    // other phone's server coming up.
+  }
+  if (text === null) {
+    // Let a later announcement retry it. The address is in the message on
+    // purpose: "could not reach" on its own said nothing about whether the
+    // phone was even asking the right place.
     current.fetched.delete(partner.id);
+    if (current.stopping) return;
     setPartnerState(
       current,
       partner.id,
       'failed',
-      `Could not reach ${partner.name}'s phone (${error instanceof Error ? error.message : 'no response'}). Both phones need to be on the same Wi-Fi.`,
+      `Could not reach ${partner.name}'s phone at ${where} (${lastError instanceof Error ? lastError.message : 'no response'}) after ${FETCH_ATTEMPTS} tries. Both phones need to be on the same Wi-Fi, and some routers keep devices from seeing each other (a guest network, or a setting called client or AP isolation).`,
     );
     return;
   }
@@ -326,6 +363,7 @@ export async function startLanSync(): Promise<LanSyncStatus> {
     zeroconf: null,
     serviceName: null,
     timer: null,
+    rescanTimer: null,
     dirUri: null,
     stopping: false,
   };
@@ -379,7 +417,11 @@ export async function startLanSync(): Promise<LanSyncStatus> {
       console.warn('[lanSync] zeroconf error', error);
     });
 
-    const serviceName = `Inside Story ${myCompact}`;
+    // A fresh name per session, so a second tap on this phone shows up on
+    // the other phone as a new service rather than as the one it already
+    // resolved (and possibly failed on) minutes ago. The fingerprint that
+    // matters travels in the TXT record, not the name.
+    const serviceName = `Inside Story ${myCompact} ${Date.now().toString(36).slice(-4)}`;
     current.serviceName = serviceName;
     zeroconf.publishService(LAN_SYNC_SERVICE_TYPE, LAN_SYNC_PROTOCOL, LAN_SYNC_DOMAIN, serviceName, server.port, {
       fp: myCompact,
@@ -387,6 +429,15 @@ export async function startLanSync(): Promise<LanSyncStatus> {
       [LAN_SYNC_TXT_ADDRESS]: server.hostname,
     });
     zeroconf.scan(LAN_SYNC_SERVICE_TYPE, LAN_SYNC_PROTOCOL, LAN_SYNC_DOMAIN);
+    current.rescanTimer = setInterval(() => {
+      if (current.stopping) return;
+      try {
+        zeroconf.stop();
+        zeroconf.scan(LAN_SYNC_SERVICE_TYPE, LAN_SYNC_PROTOCOL, LAN_SYNC_DOMAIN);
+      } catch (error) {
+        console.warn('[lanSync] rescan failed', error);
+      }
+    }, RESCAN_MS);
 
     current.timer = setTimeout(() => {
       void stopLanSync('The Wi-Fi sync stopped after five minutes. Tap Sync over Wi-Fi again on both phones to try once more.');
@@ -411,6 +462,10 @@ async function teardown(current: Session): Promise<void> {
   if (current.timer) {
     clearTimeout(current.timer);
     current.timer = null;
+  }
+  if (current.rescanTimer) {
+    clearInterval(current.rescanTimer);
+    current.rescanTimer = null;
   }
   const zeroconf = current.zeroconf;
   if (zeroconf) {

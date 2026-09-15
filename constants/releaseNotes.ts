@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.43',
+    date: '2026-09-14',
+    changes: [
+      'Sync over Wi-Fi: a phone that does not answer on the first try is asked again, four times over twenty seconds, before the sync gives up on it. The first attempt can land before the other phone is ready.',
+      'Sync over Wi-Fi: when a phone still cannot be reached, the message now names the address and port it tried, so the two of you can tell whether it was even asking the right place.',
+      'Sync over Wi-Fi: each phone keeps looking for the other for the whole five minutes, and tapping Sync again on one phone shows up as new on the other.',
+    ],
+  },
+  {
     version: '1.0.37.42',
     date: '2026-09-14',
     changes: [
