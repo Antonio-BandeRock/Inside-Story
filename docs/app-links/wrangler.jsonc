@@ -1,14 +1,32 @@
 {
-  // Cloudflare static hosting for insidestoryapp.com: the App Links
-  // assetlinks.json plus a placeholder home page. Deploy from this folder
-  // with `npx wrangler deploy` (see README.md).
+  // Cloudflare hosting for insidestoryapp.com: the App Links assetlinks.json,
+  // the two landing pages, and (since 2026-09-15) the partner sync relay under
+  // /relay/v1/*. Deploy from this folder with `npx wrangler deploy`
+  // (see README.md).
   "name": "inside-story-site",
   "compatibility_date": "2026-09-14",
   // Keep the workers.dev URL as a fallback alongside the custom domain.
   "workers_dev": true,
+  // The Worker script. Static assets are still served first; anything that
+  // matches no file in ./public falls through to here, which is how /relay/v1/*
+  // is reached without a route list to keep in step.
+  "main": "./src/index.js",
   "assets": {
-    "directory": "./public"
+    "directory": "./public",
+    // Bound so the Worker can hand a non-relay request back to the asset layer.
+    "binding": "ASSETS"
   },
+  // The relay's whole storage. D1 rather than KV for two reasons: it is
+  // strongly consistent, so a plan sent from one phone is collectable from the
+  // other immediately rather than after KV's propagation window, and its free
+  // tier allows 100,000 writes a day against KV's 1,000.
+  "d1_databases": [
+    {
+      "binding": "RELAY_DB",
+      "database_name": "inside-story-relay",
+      "database_id": "3de4da77-362a-4fd7-9889-db253a35bc77"
+    }
+  ],
   // Apex custom domain. Cloudflare creates the DNS record itself; it only
   // resolves once the zone is active (nameservers at Namecheap pointed at
   // felipe/sofia.ns.cloudflare.com, 2026-09-14).

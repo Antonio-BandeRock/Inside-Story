@@ -26,7 +26,7 @@ import {
   type Connection,
 } from '../lib/connections';
 import {
-  PARTNER_SHARING_NOT_LIVE,
+  PARTNER_SHARING_STATE,
   describeGrants,
   describeLinkState,
   fingerprintStanding,
@@ -49,6 +49,13 @@ import {
   sendViaOneDrive,
   type MailboxStatus,
 } from '../lib/oneDriveMailbox';
+import {
+  describeRelayReceive,
+  describeRelaySend,
+  peekRelay,
+  receiveViaRelay,
+  sendViaRelay,
+} from '../lib/relayMailbox';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 import {
   isLanSyncAvailable,
@@ -102,6 +109,11 @@ export default function ConnectionsScreen() {
   const [sharedFolderState, setSharedFolderState] = useState<SharedFolderState | null>(null);
   const [transferNote, setTransferNote] = useState<string | null>(null);
   const [transferBusy, setTransferBusy] = useState<'send' | 'check' | null>(null);
+  // The relay keeps its own note rather than sharing transferNote, because
+  // the two carriers sit in separate cards and a result under the wrong one
+  // reads as though the other carrier did something it did not.
+  const [relayNote, setRelayNote] = useState<string | null>(null);
+  const [relayBusy, setRelayBusy] = useState<'send' | 'check' | null>(null);
   // The Wi-Fi session lives in lib/lanSync.ts, not in this screen, so leaving
   // and coming back shows the same session rather than a fresh idle one. The
   // screen mirrors it here and stops it on unmount.
@@ -272,6 +284,43 @@ export default function ConnectionsScreen() {
     // Conditions may have arrived, so the rows have to be rebuilt rather
     // than left showing what was true before the check.
     await load();
+  };
+
+  const handleSendViaRelay = async () => {
+    setRelayBusy('send');
+    setRelayNote('Sending...');
+    try {
+      const result = await sendViaRelay();
+      setRelayNote(describeRelaySend(result.outcomes));
+    } finally {
+      setRelayBusy(null);
+    }
+  };
+
+  // Asks how much is waiting before asking for it. An empty mailbox is the
+  // common answer, and answering it without collecting anything means the
+  // usual tap neither signs a request nor changes what any screen shows.
+  const handleCheckRelay = async () => {
+    setRelayBusy('check');
+    setRelayNote('Checking the relay...');
+    try {
+      const waiting = await peekRelay();
+      if (!waiting.ok) {
+        setRelayNote(waiting.reason);
+        return;
+      }
+      if (waiting.waiting === 0) {
+        setRelayNote('Nothing addressed to this phone is waiting at the relay.');
+        return;
+      }
+      const result = await receiveViaRelay();
+      setRelayNote(describeRelayReceive(result.outcomes, result.reason));
+      // Conditions and a plan may have arrived, so the rows have to be
+      // rebuilt rather than left showing what was true before the check.
+      await load();
+    } finally {
+      setRelayBusy(null);
+    }
   };
 
   const handleLinkOutbox = (id: string) =>
@@ -470,12 +519,55 @@ export default function ConnectionsScreen() {
           </View>
         ) : null}
 
-        {/* Named rather than left to be discovered as a silent omission: the
-            conditions cross, the generated plan does not yet. */}
+        {/* Named rather than left to be discovered: what crosses is decided
+            per partner by the switches on their row, not by the carrier. */}
         <Text style={styles.fingerprintHint}>
-          What crosses today is which conditions each of you tracks, which is what a meal plan gets built around.
-          Carrying the generated plan itself across is the next piece.
+          What crosses is which conditions each of you tracks and, if you allow it, the meal plan built around both
+          of you. Each of you chooses that separately on the other person’s row above.
         </Text>
+      </View>
+
+      {/* THE ONE CARRIER THAT PUTS A MACHINE OF OURS IN THE PATH.
+
+          Every other way of sending here moves bytes between the two phones
+          or through storage the person already pays for. This one leaves a
+          sealed message on a server at insidestoryapp.com until the other
+          phone asks for it, which is what makes it work when the two people
+          are apart and neither is awake at the same moment.
+
+          The card says what that server holds and what it can work out, in
+          the same words used in the code that runs it, because a carrier that
+          describes itself as private and stops there is not telling anyone
+          enough to choose it or avoid it. */}
+      <View style={styles.fingerprintCard}>
+        <Text style={styles.fingerprintLabel}>Through the relay</Text>
+        <Text style={styles.fingerprintHint}>
+          Leaves a sealed message waiting at insidestoryapp.com until the other phone picks it up. Nothing to sign
+          in to, no folder to share, and you do not both have to be here at once. Tap Send on one phone and Check
+          on the other whenever it suits.
+        </Text>
+        <Text style={styles.fingerprintHint}>
+          What sits there is the same sealed message every other way of sending here uses, addressed by the two
+          codes above. Nothing on that server can open it, and no name, email or account is attached to either
+          code. It does see that one code sent something to another code, and how big it was.
+        </Text>
+        <Text style={styles.fingerprintHint}>
+          A message is deleted as soon as the other phone has used it, and after 30 days whether anyone collected
+          it or not.
+        </Text>
+        <View style={styles.folderActions}>
+          <TouchableOpacity onPress={handleSendViaRelay} hitSlop={8} disabled={relayBusy !== null}>
+            <Text style={styles.rowActionText}>
+              {relayBusy === 'send' ? 'Sending…' : 'Send Mine to Everyone'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleCheckRelay} hitSlop={8} disabled={relayBusy !== null}>
+            <Text style={styles.rowActionText}>
+              {relayBusy === 'check' ? 'Checking…' : 'Check the Relay'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {relayNote ? <Text style={styles.fingerprintHint}>{relayNote}</Text> : null}
       </View>
 
       {/* A partner link is its own invitation rather than a setting applied
@@ -576,7 +668,7 @@ export default function ConnectionsScreen() {
                           discover. A partner card that lists what is shared,
                           while nothing can actually travel between the phones,
                           reads as a working feature. */}
-                      <Text style={styles.rowPending}>{PARTNER_SHARING_NOT_LIVE}</Text>
+                      <Text style={styles.rowPending}>{PARTNER_SHARING_STATE}</Text>
                       {/* SHOWING A CODE AGAIN IS HOW CONDITIONS ACTUALLY CROSS,
                           and this was gated behind the missing-key case, so for
                           anyone already holding a key it was invisible.

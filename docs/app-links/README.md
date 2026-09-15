@@ -43,6 +43,89 @@ Fallback URL, always live regardless of DNS:
    session has expired; the account is Tonyrockdaschel@gmail.com's, id
    `50e842969c7475bddfb22aca635bcbe8`.
 
+## The partner sync relay
+
+`src/index.js` is the Worker script. Static assets are still served first;
+anything under `/relay/v1/` matches no file in `public/` and falls through to
+the script, and the script hands everything else back to the `ASSETS` binding.
+That is why there is no route list here to keep in step with the pages.
+
+It is a mailbox for sealed blobs and nothing else. A row is one sealed message
+waiting for one person from one other person, addressed by two key
+fingerprints. The Worker cannot open what it holds; the sealing happened on the
+sending phone in `lib/partnerCrypto.ts` and only the recipient's device has the
+other half. What it can see is written down honestly in the file's own header:
+that one anonymous 16-character address sent something to another, and how big
+it was.
+
+**How it knows who is asking without accounts.** The mailbox address IS a key
+fingerprint, and the credential is an Ed25519 signature from the key that
+fingerprint came from, over a canonical string (protocol, verb, mailbox, time,
+nonce, body hash). `lib/relayProtocol.ts` in the app is the other half of that
+string and has to agree with `canonicalMessage` here byte for byte. There is no
+password, no account, and nothing on this side worth stealing.
+
+**Storage.** D1, not KV, for two reasons: D1 is strongly consistent, so a plan
+sent from one phone is collectable from the other immediately rather than after
+KV's propagation window, and the D1 free tier allows 100,000 writes a day
+against KV's 1,000. Database `inside-story-relay`, id
+`3de4da77-362a-4fd7-9889-db253a35bc77`, region WNAM.
+
+Apply or re-apply the schema (`--remote` is what makes it hit the live
+database rather than a local copy):
+
+```
+npx wrangler d1 execute inside-story-relay --remote --file=./relay-schema.sql
+```
+
+### Routes
+
+| Route | Signed by | What it does |
+| --- | --- | --- |
+| `GET /relay/v1/health` | nobody | Protocol name, TTL, size ceiling. |
+| `GET /relay/v1/peek?mailbox=FP` | nobody | How many messages wait and the newest time. Never who from. |
+| `POST /relay/v1/send` | the sender | Stores one sealed blob for one recipient. |
+| `POST /relay/v1/collect` | the mailbox owner | Hands back what is waiting, without deleting it. |
+| `POST /relay/v1/ack` | the mailbox owner | Deletes only the senders the phone names. |
+
+Collect and ack are separate on purpose, the same discipline the OneDrive
+mailbox follows: a payload that failed one of the four arrival checks in
+`lib/partnerTransfer.ts` stays put, so a fixable problem can be fixed and the
+same message read again rather than thrown away unread.
+
+### Limits, and the lever if they are ever not enough
+
+Set as constants at the top of `src/index.js`: 256 KB per message, 25 distinct
+senders per mailbox, 5,000 rows across the whole relay, 10 items per collect,
+30-day expiry, and a 120-second clock-skew window. The two row ceilings are
+what bound abuse to a fixed ceiling instead of an unbounded D1 bill. Expiry is
+swept opportunistically on each request rather than by a cron trigger, which
+can quietly stop running without anybody noticing.
+
+If a flood ever gets past those, the lever is a Cloudflare Rate Limiting rule
+on `/relay/v1/*` in the dashboard, which needs no deploy.
+
+### Verifying the relay
+
+```
+curl -s https://insidestoryapp.com/relay/v1/health
+curl -s "https://insidestoryapp.com/relay/v1/peek?mailbox=0000000000000000"
+```
+
+The first should answer
+`{"ok":true,"protocol":"inside-story/relay/v1","ttlDays":30,"maxBodyBytes":262144}`
+and the second `{"ok":true,"waiting":0,"newest":null}`.
+
+A full round trip (send, collect, ack, plus every refusal the Worker is
+supposed to make) needs two signing keys, so it is a script rather than a curl:
+`relay-roundtrip.mjs` in this folder, run with
+`node docs/app-links/relay-roundtrip.mjs` from the repo root. It uses the
+repo's own `tweetnacl` to stand in for two phones, and answered 15 passed, 0
+failed against production on 2026-09-15. It proved WebCrypto Ed25519 works in
+Workers and that the Worker's SHA-512 fingerprint matches
+`computeKeyFingerprint` byte for byte. It writes and then clears two throwaway
+mailboxes, so it is safe to re-run against the live relay.
+
 ## DNS
 
 The domain's nameservers at Namecheap were switched to Cloudflare on

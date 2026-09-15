@@ -37,7 +37,7 @@ import {
   parseInviteInput,
 } from '../lib/connections';
 import {
-  PARTNER_SHARING_NOT_LIVE,
+  PARTNER_SHARING_STATE,
   SHARE_SCOPES,
   defaultGrantsForRole,
   type ShareGrants,
@@ -282,7 +282,7 @@ ${link}`;
             </TouchableOpacity>
           ))}
           <View style={styles.pendingBox}>
-            <Text style={styles.pendingText}>{PARTNER_SHARING_NOT_LIVE}</Text>
+            <Text style={styles.pendingText}>{PARTNER_SHARING_STATE}</Text>
           </View>
         </View>
       ) : null}

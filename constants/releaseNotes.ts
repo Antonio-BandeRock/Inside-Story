@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.38.3',
+    date: '2026-09-15',
+    changes: [
+      'A fifth way to send what you share: through the relay. It leaves a sealed message waiting at insidestoryapp.com until the other phone picks it up, so neither of you has to be here at the same time, on the same Wi-Fi, or signed in to anything.',
+      'Connections says plainly what that relay holds: the sealed message and two codes made from your keys, with no name, email or account attached. It cannot open what it holds. It does see that one code sent something to another, and how big it was.',
+      'A message is deleted as soon as the other phone has used it, and after 30 days whether anyone collected it or not.',
+      'The partner screens no longer say passing a plan between two phones is unbuilt, which stopped being true in the last update. They now say what crosses and what still does not: shopping lists do not travel yet.',
+    ],
+  },
+  {
     version: '1.0.38.2',
     date: '2026-09-15',
     changes: [

@@ -82,13 +82,13 @@ export const SHARE_SCOPES: {
   {
     code: 'meals',
     label: 'Meals',
-    what: 'Permission to see what is planned for each day, once the two phones can pass a plan between them.',
+    what: 'Permission to see what is planned for each day. The plan itself crosses when one of you sends it.',
     defaultOn: true,
   },
   {
     code: 'shopping',
     label: 'Shopping lists',
-    what: 'Permission to see the list, so either of you can be the one who actually goes.',
+    what: 'Permission to see the list, so either of you can be the one who actually goes. The list itself does not cross between two phones yet.',
     defaultOn: true,
   },
   {
@@ -121,19 +121,19 @@ export function describeGrants(grants: ShareGrants): string {
 /**
  * The honest state of a partner link, today.
  *
- * Pairing is real and finished: the keys are exchanged, the role is stored, and
- * these permissions are recorded. What does NOT exist yet is any way for one
- * phone to hand a meal plan to the other, so nothing actually moves between the
- * two devices.
+ * Pairing is finished: the keys are exchanged, the role is stored, and these
+ * permissions are recorded. Two of the three things a permission can cover now
+ * actually move between two phones, over any of the five carriers. The third,
+ * the shopping list, does not yet.
  *
  * This is deliberately one string in one place rather than wording scattered
- * across the screens, so that when transport ships there is exactly one thing
- * to delete rather than several claims to hunt down. Until then the app says so
- * plainly, because a partner screen that reads as finished while nothing flows
- * is the same overclaiming this project refuses everywhere else.
+ * across the screens, so that what the app claims about itself is changed in
+ * exactly one edit when the last piece ships. It was called
+ * PARTNER_SHARING_NOT_LIVE while nothing moved at all; the name changed with
+ * the facts rather than being left to quietly mean the opposite of what it says.
  */
-export const PARTNER_SHARING_NOT_LIVE =
-  'Which conditions you track crosses when you show each other your codes, and a meal plan you generate is then built around both of you. Passing the plan itself, and shopping lists, between two phones is not built yet.';
+export const PARTNER_SHARING_STATE =
+  'Which conditions you track, and the meal plan built around both of you, cross between two paired phones whenever one of you sends them. Shopping lists do not travel between phones yet.';
 
 // --- Whether the link actually works both ways -------------------------------
 //
