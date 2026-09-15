@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.44',
+    date: '2026-09-14',
+    changes: [
+      'Check for Updates: when a newer version is found but the download stalls, the app now asks for it up to three times before giving up, and the message says what went wrong instead of assuming the phone is offline.',
+    ],
+  },
+  {
     version: '1.0.37.43',
     date: '2026-09-14',
     changes: [

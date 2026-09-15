@@ -852,6 +852,15 @@ export default function ProfileScreen() {
   // busy/disabled state, not shared with backupBusy above, since a stuck
   // update check should never also lock out Export/Restore.
   const [updateCheckBusy, setUpdateCheckBusy] = useState(false);
+  const UPDATE_DOWNLOAD_ATTEMPTS = 3;
+  const UPDATE_DOWNLOAD_RETRY_MS = 3000;
+  function describeUpdateError(error: unknown): string {
+    if (!(error instanceof Error)) return 'no reason given';
+    // expo-updates nests the native reason after a "Caused by:" line;
+    // that line is the part a person can act on.
+    const caused = error.message.split(/Caused by:\s*/)[1];
+    return (caused ?? error.message).trim().replace(/\s+/g, ' ');
+  }
   async function handleCheckForUpdates() {
     if (updateCheckBusy) return;
     setUpdateCheckBusy(true);
@@ -900,8 +909,40 @@ export default function ProfileScreen() {
         setUpdateCheckBusy(false);
         return;
       }
-      showBusy('Downloading update…');
-      await Updates.fetchUpdateAsync();
+      // Tried more than once, 2026-09-14, after both phones reported
+      // "Could not check for updates" on the same evening: logcat showed
+      // the check itself succeeding and the download's manifest request
+      // then timing out reading the server's reply (an okhttp
+      // Http2Stream StreamTimeout inside FileDownloader.downloadRemoteUpdate),
+      // with the phone's connection to Expo's servers fine before and
+      // after. A single ten-second stall was the whole verdict. The
+      // download is idempotent, so it is simply asked for again, and the
+      // final message names the reason instead of guessing at the
+      // internet connection.
+      let downloaded = false;
+      let lastDownloadError: unknown = null;
+      for (let attempt = 1; attempt <= UPDATE_DOWNLOAD_ATTEMPTS && !downloaded; attempt += 1) {
+        showBusy(attempt === 1 ? 'Downloading update…' : `Downloading update (try ${attempt} of ${UPDATE_DOWNLOAD_ATTEMPTS})…`);
+        try {
+          await Updates.fetchUpdateAsync();
+          downloaded = true;
+        } catch (error) {
+          lastDownloadError = error;
+          console.error('fetchUpdateAsync failed, attempt', attempt, error);
+          if (attempt < UPDATE_DOWNLOAD_ATTEMPTS) {
+            await new Promise((resolve) => setTimeout(resolve, UPDATE_DOWNLOAD_RETRY_MS));
+          }
+        }
+      }
+      if (!downloaded) {
+        hideBusy();
+        setUpdateCheckBusy(false);
+        showBackupAlert(
+          'Could Not Download the Update',
+          `A newer version was found, but downloading it did not finish after ${UPDATE_DOWNLOAD_ATTEMPTS} tries (${describeUpdateError(lastDownloadError)}). Nothing changed on this phone. Try again in a minute; if it keeps happening, check that this phone can reach the internet.`,
+        );
+        return;
+      }
       showBusy('Restarting to finish…');
       // reloadAsync tears the whole JS context down and relaunches on a
       // fresh bundle on success, so nothing after this line runs in that
