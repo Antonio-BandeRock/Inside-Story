@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.41',
+    date: '2026-09-14',
+    changes: [
+      'A fresh install is needed for this one: the app now carries its Firebase configuration, which is what lets one phone wake another for the cross-device features to come. No health data goes through Firebase; it is a doorbell, not a courier.',
+      'Reminders on Android can now ask for exact timing, so a dose or appointment reminder on a phone that has been idle for a while arrives at its time rather than a few minutes late. Android may ask once whether to allow it.',
+    ],
+  },
+  {
     version: '1.0.37.40',
     date: '2026-09-14',
     changes: [

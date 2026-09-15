@@ -1,0 +1,79 @@
+# Decides what eas build uploads. When this file exists, eas-cli uses it
+# INSTEAD of .gitignore for the upload (node_modules/eas-cli/build/vcs/local.js),
+# which is the whole reason it exists: google-services.json is git-ignored
+# but the Android build needs it compiled in, and this is the documented way
+# to upload a git-ignored file without an app.config.js and a file secret.
+# Everything else mirrors .gitignore. @expo/fingerprint hashes this file, so
+# an edit here moves the runtime version: change it only with a rebuild.
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env*.local
+
+# typescript
+*.tsbuildinfo
+
+app-example
+
+# generated native folders
+/ios
+/android
+
+assets/data/*.bak*
+assets/data/test_alt_shape.db
+assets/data/test_current_shape.db
+ClaudeWork/
+unified-database/.cache/
+unified-database/audit-tool/audit-data.json
+unified-database/audit-tool/unified-audit-built.html
+unified-database/_*.sqlite
+unified-database/_*.json
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+tsc_out*.txt
+tsc_check*.txt
+scripts/digest-tracker/digest-tracker-data.json
+CLAUDE.md.bak
+scripts/__pycache__/
+_recovered/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
+
+# The separate database project (its sqlite alone is ~115MB) and the git
+# history of this brief are never part of the compiled app; leaving them
+# out shortens every upload.
+unified-database/
+docs/CLAUDE-ARCHIVE*.md

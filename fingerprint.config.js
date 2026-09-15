@@ -48,7 +48,7 @@
 // Adding it moves the fingerprint once (this is why the 2026-09-14 rebuild
 // happened), after which .gitignore edits no longer strand OTA updates.
 module.exports = {
-  sourceSkips: ['ExpoConfigVersions', 'GitIgnore'],
+  sourceSkips: ['ExpoConfigVersions', 'GitIgnore', 'PackageJsonScriptsAll'],
 };
 
 // 2026-09-14, later the same day, the third source of drift: package.json's
@@ -62,8 +62,16 @@ module.exports = {
 //
 // The fix is `SourceSkips.PackageJsonScriptsAll` (a script can never change
 // what is compiled into the app), but adding a skip changes the hash too, so
-// it has to land in the SAME commit as the next native rebuild, not before.
-// Until that rebuild, package.json's scripts must stay exactly as they were
-// at 8fb32af (start, reset-project, android, ios, web, lint) whenever
-// `eas update` runs, or the update strands. Add 'PackageJsonScriptsAll' to
-// the list below at the next rebuild and delete this sentence.
+// it had to land in the SAME commit as the next native rebuild, not before.
+// Until then package.json's scripts had to stay exactly as they were at
+// 8fb32af (start, reset-project, android, ios, web, lint) whenever
+// `eas update` ran, or the update stranded. Landed with the 1.0.37.41
+// rebuild (Firebase config and the exact-alarm permission), after which the
+// scripts section can change freely.
+//
+// The same rebuild added .easignore, which this tool also hashes
+// ('easBuild'). It exists because google-services.json is kept out of git,
+// and eas-cli only uploads git-ignored files when an .easignore takes over
+// from .gitignore (see node_modules/eas-cli/build/vcs/local.js). Both files
+// are hashed on the build server and locally, so keeping .easignore
+// committed and the Firebase file in place keeps the two in step.
