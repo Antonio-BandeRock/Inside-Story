@@ -27,6 +27,7 @@ import { getDatabase, getMailboxFolderName, getUserConditions, getUserProfile } 
 import { getDeviceIdentity } from './deviceIdentity';
 import { decodeBase64Utf8, encodeBase64Utf8 } from './sharing';
 import { canEncryptTo } from './partnerCrypto';
+import { clearPartnerMealPlan } from './mealPlanSync';
 import { defaultGrantsForRole, type ConnectionRole, type ShareGrants } from './partners';
 
 export type Connection = {
@@ -205,9 +206,18 @@ export async function renameConnection(id: string, name: string): Promise<void> 
   await db.runAsync('UPDATE connections SET name = ? WHERE id = ?', trimmedName, id);
 }
 
+/**
+ * Removes somebody, and everything held about them.
+ *
+ * The condition codes they sent live on the row itself, so they go with it.
+ * A meal plan they sent does not: it has its own table, keyed by connection
+ * id, and a row left behind there would be a stranger's dinners sitting in
+ * the database under an id nothing points at any more.
+ */
 export async function removeConnection(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM connections WHERE id = ?', id);
+  await clearPartnerMealPlan(id);
 }
 
 // --- Partner links -----------------------------------------------------

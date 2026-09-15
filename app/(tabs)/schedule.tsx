@@ -60,6 +60,9 @@ import {
 } from '../../lib/db';
 import type { RecipeDietTag } from '../../lib/digest';
 import { describePlanningScope, resolvePlanningScope, type PlanningScope } from '../../lib/partnerPlanning';
+import { getMealPlanningPartner } from '../../lib/connections';
+import { getPartnerMealPlanNamed, type PartnerMealPlanNamed } from '../../lib/mealPlanSync';
+import { daysSinceSent } from '../../lib/partnerSync';
 import {
   dailyMealPlanToMealPlanDay,
   FREQUENCY_RULES,
@@ -1985,6 +1988,24 @@ const DAYS_TO_GENERATE_OPTIONS: { value: number; label: string }[] = [
   { value: 42, label: '6 Weeks' },
 ];
 
+const PARTNER_SLOT_LABELS: Record<'breakfast' | 'lunch' | 'dinner', string> = {
+  breakfast: 'Breakfast',
+  lunch: 'Lunch',
+  dinner: 'Dinner',
+};
+
+// How old what is on screen is, said plainly. A plan two people are cooking
+// from is only useful if its age is visible: a week-old one is worth a nudge to
+// sync again, and silence there reads as up to date.
+function describePartnerPlanFreshness(sentAt: string | null): string {
+  if (!sentAt) return 'What they last sent.';
+  const days = daysSinceSent(sentAt, todayDateString());
+  if (days == null) return 'What they last sent.';
+  if (days === 0) return 'They sent this today.';
+  if (days === 1) return 'They sent this yesterday.';
+  return `They sent this ${days} days ago.`;
+}
+
 function DailyMealPlanLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
@@ -2018,6 +2039,10 @@ function DailyMealPlanLens() {
   // shows a busy state.
   const [expandedDayIndex, setExpandedDayIndex] = useState<number | null>(null);
   const [regeneratingDayIndex, setRegeneratingDayIndex] = useState<number | null>(null);
+  // What a partner last sent, shown beside the person's own plan rather than
+  // mixed into it. Two people planning together still each have a plan, and a
+  // screen that merged them would have to invent a rule for whose dinner wins.
+  const [partnerPlan, setPartnerPlan] = useState<{ name: string; plan: PartnerMealPlanNamed } | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -2032,6 +2057,22 @@ function DailyMealPlanLens() {
           // Best-effort only -- a failure here just means generation runs
           // with no declared condition/diet narrowing, the same as
           // someone who genuinely hasn't set either on Profile yet.
+        });
+      // On focus rather than once, because a plan arrives through a sync the
+      // person runs on the Connections screen and then comes straight back
+      // here to look at it.
+      getMealPlanningPartner()
+        .then(async ({ partner }) => {
+          if (cancelled || !partner) {
+            if (!cancelled) setPartnerPlan(null);
+            return;
+          }
+          const plan = await getPartnerMealPlanNamed(partner.id);
+          if (!cancelled) setPartnerPlan({ name: partner.name, plan });
+        })
+        .catch(() => {
+          // Nobody linked, or nothing sent yet. Both are ordinary, and both
+          // mean the same thing on screen: no band.
         });
       return () => {
         cancelled = true;
@@ -2206,6 +2247,36 @@ function DailyMealPlanLens() {
           </View>
         ) : null}
       </View>
+
+      {partnerPlan && partnerPlan.plan.days.length > 0 ? (
+        <ScheduleBand
+          folds={folds}
+          id="schedule:mealPlan:partner"
+          title={`${partnerPlan.name}'s Plan`}
+          icon="people-outline"
+          count={partnerPlan.plan.days.length}
+        >
+          <Text style={styles.helperText}>{describePartnerPlanFreshness(partnerPlan.plan.sentAt)}</Text>
+          <View style={styles.table}>
+            {partnerPlan.plan.days.map((day) => (
+              <View key={day.date} style={styles.row}>
+                <Text style={styles.rowTitle}>{capitalizeFirst(describeRelativeDate(day.date))}</Text>
+                {day.slots.map((slot) => (
+                  <Text key={slot.slot} style={styles.rowMeta}>
+                    {PARTNER_SLOT_LABELS[slot.slot]}: {slot.names.join(', ')}
+                  </Text>
+                ))}
+              </View>
+            ))}
+          </View>
+          {partnerPlan.plan.unknown > 0 ? (
+            <Text style={styles.helperText}>
+              {partnerPlan.plan.unknown} {partnerPlan.plan.unknown === 1 ? 'dish' : 'dishes'} could not be named on this phone, which
+              usually means the two apps are on different versions.
+            </Text>
+          ) : null}
+        </ScheduleBand>
+      ) : null}
 
       {singleDay ? (
         <DailyPlanFullReport day={singleDay} folds={folds} foldId="schedule:dailyPlan" />

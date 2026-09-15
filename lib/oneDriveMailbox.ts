@@ -26,6 +26,7 @@ import { computeKeyFingerprint, getMyKeyFingerprint, sealForRecipient } from './
 import { listConnections } from './connections';
 import { getUserConditions } from './db';
 import { buildSyncPayload } from './partnerSync';
+import { getMealPlanForSync } from './mealPlanSync';
 import { applySyncFileText, PARTNER_SYNC_FILE_KIND } from './partnerTransfer';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { buildSyncFileName, incomingFilesFor } from './syncInbox';
@@ -98,10 +99,13 @@ export async function sendViaOneDrive(): Promise<{
   const status = await getMailboxStatus();
   if (status.state !== 'ready') return { status, outcomes: [] };
 
-  const [connections, myFingerprint, myConditions] = await Promise.all([
+  // Read once for the whole send, not per partner: it is the same plan for
+  // everybody, and buildSyncPayload is what decides who is allowed to see it.
+  const [connections, myFingerprint, myConditions, myPlan] = await Promise.all([
     listConnections(),
     getMyKeyFingerprint(),
     getUserConditions(),
+    getMealPlanForSync(),
   ]);
 
   const partners = connections.filter((connection) => connection.role === 'partner');
@@ -137,7 +141,7 @@ export async function sendViaOneDrive(): Promise<{
     const payload = buildSyncPayload({
       grants: partner.grants,
       myConditionCodes: myConditions,
-      plan: [],
+      plan: myPlan,
       referenceDbVersion: REFERENCE_DB_VERSION,
       fromFingerprint: myFingerprint,
       sentAt: new Date().toISOString(),

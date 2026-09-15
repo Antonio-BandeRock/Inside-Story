@@ -12,12 +12,12 @@
 // whole loop, because lib/partnerPlanning.ts already reads a partner's stored
 // codes and plans around both people once they are there.
 //
-// WHAT IT DOES NOT CARRY YET: the generated meal plan itself. Sending that means
-// resolving each scheduled meal through its carrier favorite to the curated
-// recipe ids underneath, which is a real several-step read this has not been
-// wired to. The payload format already has the field and the tests already cover
-// it, so this is a wiring gap rather than a design one, and it is named here
-// rather than left for somebody to discover as a silent omission.
+// IT ALSO CARRIES THE MEAL PLAN, as of 2026-09-15. The gap that kept it out was
+// never the transport: nothing on the phone could answer which curated recipes
+// were on the schedule, because scheduleMealPlanSlot resolved them into saved
+// dishes and dropped the pointer. lib/mealPlanSync.ts now keeps that pointer and
+// reads it back, so the field the payload format has always had finally has
+// something in it. Two weeks forward, and only what is still actually scheduled.
 //
 // SENDING IS PER RECIPIENT, AND SO IS THE OUTCOME. One partner having no
 // encryption key must not stop another partner's file being written, so each one
@@ -33,6 +33,7 @@ import {
 } from './connections';
 import { getUserConditions } from './db';
 import { buildSyncPayload, readSyncPayload, type SyncPlanDay } from './partnerSync';
+import { getMealPlanForSync, setPartnerMealPlan } from './mealPlanSync';
 import { resolveSender } from './syncInbox';
 import {
   readInboxFromFolder,
@@ -62,11 +63,18 @@ export async function sendToPartners(options?: { plan?: SyncPlanDay[] }): Promis
   outcomes: SendOutcome[];
   folderProblem: SyncFolderProblem | null;
 }> {
-  const [connections, myFingerprint, myConditions] = await Promise.all([
+  // The plan is read once for the whole send rather than per partner: it is the
+  // same plan for everybody, and buildSyncPayload below is what decides whether
+  // a given partner is allowed to see it. An explicit plan in options still
+  // wins, which is what lets a caller send a plan that is not on the schedule
+  // yet.
+  const [connections, myFingerprint, myConditions, scheduledPlan] = await Promise.all([
     listConnections(),
     getMyKeyFingerprint(),
     getUserConditions(),
+    getMealPlanForSync(),
   ]);
+  const plan = options?.plan ?? scheduledPlan;
 
   const partners = connections.filter((connection) => connection.role === 'partner');
   if (partners.length === 0) return { outcomes: [], folderProblem: null };
@@ -96,7 +104,7 @@ export async function sendToPartners(options?: { plan?: SyncPlanDay[] }): Promis
     const payload = buildSyncPayload({
       grants: partner.grants,
       myConditionCodes,
-      plan: options?.plan ?? [],
+      plan,
       referenceDbVersion: REFERENCE_DB_VERSION,
       fromFingerprint: myFingerprint,
       sentAt,
@@ -363,7 +371,7 @@ export async function buildWireForPartner(
   const payload = buildSyncPayload({
     grants: partner.grants,
     myConditionCodes,
-    plan: [],
+    plan: await getMealPlanForSync(),
     referenceDbVersion: REFERENCE_DB_VERSION,
     fromFingerprint: myFingerprint,
     sentAt: new Date().toISOString(),
@@ -531,6 +539,15 @@ export async function applySyncFileText(
   const codes = result.payload.conditionCodes ?? [];
   if (codes.length > 0) await setPartnerConditionCodes(connection.id, codes);
 
+  // The plan, stored rather than mentioned and dropped, 2026-09-15. Only when
+  // readSyncPayload says it is usable: on a reference-database mismatch it has
+  // already been discarded there, deliberately, so there is nothing here to
+  // second-guess.
+  const plan = result.planUsable ? (result.payload.plan ?? []) : [];
+  if (plan.length > 0) {
+    await setPartnerMealPlan(connection.id, plan, result.payload.sentAt);
+  }
+
   const parts: string[] = [];
   if (codes.length > 0) {
     parts.push(
@@ -539,13 +556,16 @@ export async function applySyncFileText(
   } else {
     parts.push(`${connection.name} did not share which conditions they track.`);
   }
+  if (plan.length > 0) {
+    parts.push(`Their meal plan covers ${plan.length} ${plan.length === 1 ? 'day' : 'days'}.`);
+  }
   if (result.planRefusal === 'differentReferenceDatabase') {
     parts.push(
       'Their meal plan was left out because the two apps are on different versions of the food database. Updating both fixes it.',
     );
   }
 
-  return { applied: codes.length > 0, message: parts.join(' ') };
+  return { applied: codes.length > 0 || plan.length > 0, message: parts.join(' ') };
 }
 /**
  * Reads a file a partner handed over, after the person picks it.

@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.38.2',
+    date: '2026-09-15',
+    changes: [
+      'Your meal plan now travels to a partner. Whichever way you send (a file, the OneDrive folder, or Sync over Wi-Fi), the next two weeks of what you have scheduled goes with it, and only meals still on your schedule are included.',
+      'Schedules > Meal Plan shows what your partner last sent, dish by dish, with how long ago they sent it.',
+      'Removing someone now clears the plan they sent along with the rest of what was held about them.',
+    ],
+  },
+  {
     version: '1.0.37.44',
     date: '2026-09-14',
     changes: [
