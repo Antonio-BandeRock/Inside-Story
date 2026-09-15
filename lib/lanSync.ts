@@ -44,6 +44,14 @@ const LAN_SYNC_PROTOCOL = 'tcp';
 const LAN_SYNC_DOMAIN = 'local.';
 /** Bump if what is served or how it is addressed changes. */
 const LAN_SYNC_WIRE_VERSION = '1';
+/**
+ * The TXT key carrying the address the server actually listens on. The
+ * static server binds to the one IPv4 address it picked, while Android's
+ * mDNS resolver hands back whichever address it heard first, which on a
+ * phone with IPv6 enabled can be a link-local IPv6 one nothing is listening
+ * on. Carrying the bound address in the announcement removes the guess.
+ */
+const LAN_SYNC_TXT_ADDRESS = 'a';
 /** The cache folder the server reads from, under Paths.cache. */
 const LAN_SYNC_DIR = 'lan-sync';
 /** How long a session stays up on its own before stopping itself. */
@@ -202,6 +210,26 @@ async function fetchWithTimeout(url: string): Promise<Response> {
 }
 
 /**
+ * The address to fetch from: the one the other phone's server announced it
+ * is bound to, else the first IPv4 the resolver heard, else whatever it
+ * offered. An IPv6 zone suffix ("%wlan0") is dropped since a URL cannot
+ * carry it.
+ */
+function pickHost(
+  announced: string | undefined,
+  addresses: string[] | undefined,
+  fallback: string | undefined,
+): string | null {
+  const candidates = [announced, ...(addresses ?? []), fallback].filter(
+    (value): value is string => typeof value === 'string' && value.trim().length > 0,
+  );
+  if (candidates.length === 0) return null;
+  const ipv4 = candidates.find((value) => /^\d{1,3}(\.\d{1,3}){3}$/.test(value.trim()));
+  const chosen = (ipv4 ?? candidates[0]).trim();
+  return chosen.includes('%') ? chosen.slice(0, chosen.indexOf('%')) : chosen;
+}
+
+/**
  * A partner's phone was heard on the network: fetch the file it holds for
  * this phone and run it through the same checks a picked file gets.
  */
@@ -342,7 +370,7 @@ export async function startLanSync(): Promise<LanSyncStatus> {
       if (!fp || fp === current.myCompact) return;
       const partner = current.partnersByCompact.get(fp);
       if (!partner) return;
-      const host = service.addresses?.[0] ?? service.host;
+      const host = pickHost(service.txt?.[LAN_SYNC_TXT_ADDRESS], service.addresses, service.host);
       if (!host || !service.port) return;
       void pullFromPartner(current, partner, host, service.port);
     });
@@ -356,6 +384,7 @@ export async function startLanSync(): Promise<LanSyncStatus> {
     zeroconf.publishService(LAN_SYNC_SERVICE_TYPE, LAN_SYNC_PROTOCOL, LAN_SYNC_DOMAIN, serviceName, server.port, {
       fp: myCompact,
       v: LAN_SYNC_WIRE_VERSION,
+      [LAN_SYNC_TXT_ADDRESS]: server.hostname,
     });
     zeroconf.scan(LAN_SYNC_SERVICE_TYPE, LAN_SYNC_PROTOCOL, LAN_SYNC_DOMAIN);
 

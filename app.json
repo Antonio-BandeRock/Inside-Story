@@ -3,7 +3,7 @@
     "name": "Inside Story",
     "slug": "inside-story",
     "owner": "inside-story",
-    "version": "1.0.37.41",
+    "version": "1.0.37.42",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "hashimotosapp",
@@ -153,6 +153,7 @@
       "./plugins/withWindowBackground.js",
       "./plugins/withAutofillDisabled.js",
       "./plugins/withNoCompressDb.js",
+      "./plugins/withCleartextLan.js",
       [
         "expo-calendar",
         {

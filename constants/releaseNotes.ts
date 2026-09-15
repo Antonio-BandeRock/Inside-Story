@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.37.42',
+    date: '2026-09-14',
+    changes: [
+      'Sync over Wi-Fi: the first try between two paired phones ended in "Could not reach" on both sides even though each had found the other. Android refuses the plain local-network connection the sync uses unless the app declares it, so that declaration is added; it takes effect with the next fresh install, not this update.',
+      'Sync over Wi-Fi: each phone now tells the other the exact address it is listening on, so a phone that answers on more than one address is still reached.',
+    ],
+  },
+  {
     version: '1.0.37.41',
     date: '2026-09-14',
     changes: [
