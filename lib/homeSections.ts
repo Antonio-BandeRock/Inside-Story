@@ -26,12 +26,26 @@ import type { HomeSectionKey } from './visualPreferences';
 export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   weather: null,
   sharedFolderSetup: null,
-  // Home's own, so it sits in Home's group: what it changes is how the
-  // whole app looks, not what any one tab holds (2026-09-16).
-  lowStimulation: '/',
+  // Profile's, since 1.0.39.7. It is the same switch Profile carries,
+  // surfaced on the page a person is already on, so it belongs under
+  // Profile's name rather than under Home's. Home itself has no group:
+  // every card on the page is already a way into somewhere else, and a
+  // Home group inside Home would only ever mean "the rest".
+  //
+  // /profile is not a TAB_ROUTE (it is a Stack screen TabHub opens with
+  // router.push), so its name, icon and colour come from
+  // HOME_GROUP_IDENTITY in app/(tabs)/index.tsx instead.
+  lowStimulation: '/profile',
   logAgain: '/food',
   scanProduct: '/food',
   groceryList: '/life',
+  // 2026-09-16, direct request: "make sure there is a Group for
+  // Gardening on the Home screen, as there will most definitely be quick
+  // access things from that group. The same goes for Reports, as well as
+  // Profile."
+  makeReport: '/reports',
+  gardenTasks: '/garden',
+  logHarvest: '/garden',
   yourDay: '/schedule',
   todaysReminders: '/schedule',
   symptomCheckinReminder: '/log',

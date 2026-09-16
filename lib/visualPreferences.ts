@@ -276,6 +276,15 @@ export type HomeSectionKey =
   | 'howYoureFeeling'
   | 'fuelGauges'
   | 'weekTrend'
+  // 2026-09-16, direct request: "make sure there is a Group for
+  // Gardening on the Home screen... The same goes for Reports, as well
+  // as Profile." A group only appears once something real is in it
+  // (renderHomeTabGroup drops an empty one), so each of the three got a
+  // card worth having rather than a heading over nothing. Profile
+  // already had one: Low Stimulation, which moved there from Home.
+  | 'makeReport'
+  | 'gardenTasks'
+  | 'logHarvest'
   | 'digestCards';
 
 // The default order, 2026-09-12: grouped by the tab each section is a
@@ -287,25 +296,43 @@ export type HomeSectionKey =
 export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weather',
   'sharedFolderSetup',
+  // Profile. TabHub puts it second, immediately after Home, and so does
+  // this (2026-09-16). It is not a TAB_ROUTE, so Home reads its name,
+  // icon and colour from HOME_GROUP_IDENTITY in app/(tabs)/index.tsx.
   'lowStimulation',
+  // Food.
   'logAgain',
   'scanProduct',
+  // Schedules. mealsLoggedToday is stated here beside its tab-mates
+  // rather than further down: the grouping pulled it up anyway, and a
+  // default order that needs regrouping to read correctly is a trap.
   'yourDay',
   'todaysReminders',
+  'mealsLoggedToday',
+  // Signals.
   'symptomCheckinReminder',
   'todaysCheckin',
   'howYoureFeeling',
   'logFlare',
   'logBloodPressure',
   'logExercise',
-  'mealsLoggedToday',
+  // Insights.
   'worthALook',
   'fuelGauges',
+  // Trends.
   'weekTrend',
-  // Life sits before The Digest here even though TabHub runs the other way
-  // round, so the flip cards stay the last thing on the page.
-  'groceryList',
+  // Reports.
+  'makeReport',
+  // Garden.
+  'gardenTasks',
+  'logHarvest',
+  // The Digest, then Life. 2026-09-16, direct instruction: "Put them
+  // into the order they exist in the TabHub menu." That retires the one
+  // deliberate exception this list used to carry, which ran Life ahead of
+  // The Digest so the flip cards stayed last. The menu order wins, and
+  // anyone who wants the old arrangement still has Profile > Home Screen.
   'digestCards',
+  'groceryList',
 ];
 
 // 2026-08-23, direct request: "they should be able to move the things on
@@ -343,6 +370,9 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   howYoureFeeling: "How You're Feeling",
   fuelGauges: "Today's Fuel Gauges",
   weekTrend: "This Week's Trend",
+  makeReport: 'Make a Report',
+  gardenTasks: 'Garden Tasks',
+  logHarvest: 'Log a Harvest',
   digestCards: 'Digest Cards',
 };
 
@@ -814,14 +844,17 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
 // change with one tap.
 //
 // Two things are exempt, 2026-09-16, because the switch now lives on Home
-// as well: its section and the Home group holding it. Folding shut the
-// panel someone is looking at, at the moment they use it, hides the way
-// back off. Every other section and every other group still folds.
+// as well: its section and the group holding it. Folding shut the panel
+// someone is looking at, at the moment they use it, hides the way back
+// off. Every other section and every other group still folds.
+//
+// That group is Profile's, not Home's, since 1.0.39.7: the switch is a
+// Profile setting surfaced on Home, and Home gained no group of its own.
 export async function setLowStimulation(enabled: boolean): Promise<VisualPreferences> {
   const current = await getVisualPreferences();
   if (!enabled) return setVisualPreferences({ lowStimulation: false });
 
-  const homeGroupBandKey = `${HOME_TAB_GROUP_BAND_KEY_PREFIX}/`;
+  const switchGroupBandKey = `${HOME_TAB_GROUP_BAND_KEY_PREFIX}/profile`;
   const homeSectionExpanded: Partial<Record<HomeSectionKey, boolean>> = {};
   for (const key of Object.keys(current.homeSectionExpanded) as HomeSectionKey[]) {
     if (key === 'lowStimulation') continue;
@@ -829,7 +862,7 @@ export async function setLowStimulation(enabled: boolean): Promise<VisualPrefere
   }
   const bandExpanded: Record<string, boolean> = {};
   for (const key of Object.keys(current.bandExpanded ?? {})) {
-    if (key === homeGroupBandKey) continue;
+    if (key === switchGroupBandKey) continue;
     if (current.bandExpanded[key]) bandExpanded[key] = false;
   }
 

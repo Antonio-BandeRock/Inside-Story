@@ -79,6 +79,7 @@ import {
   listScheduledMealsForDate,
   listSymptomAssessments,
   listTodaysReminders,
+  listUpcomingGardenTasks,
   recordBodyMeasurement,
   recordCheckin,
   recordExercise,
@@ -467,6 +468,10 @@ type DashboardData = {
   // Check-In). Null means unset, in which case ASSESSMENT_DUE_AFTER_DAYS
   // applies, exactly as it did before this setting existed.
   checkinReminderDays: number | null;
+  // Planned garden work from today on, 1.0.39.7. These are schedule_items
+  // with item_type 'garden', so they are the same kind of thing Today's
+  // Reminders shows, just not bound to today.
+  gardenTasks: (ScheduleItemRecord & { plotId: string | null; plantingId: string | null })[];
 };
 
 // The periodic symptom check-in's own automatic re-prompt cadence --
@@ -523,6 +528,45 @@ function weekTrendLabel(direction: ReturnType<typeof weekTrendDirection>): strin
 // own source-of-truth colors.
 function tabColorFor(tabPath: Href): string {
   return TAB_ROUTES.find((route) => route.path === tabPath)?.color ?? colors.border;
+}
+
+// The name, icon and colour a Home group and the cards inside it wear.
+// Ten of the eleven come straight from TAB_ROUTES, so they can never
+// drift from the tab's own. Profile is the exception: TabHub's menu puts
+// it second, right after Home, but it is a Stack screen rather than a
+// tab, and adding it to TAB_ROUTES would make it an eleventh swipeable
+// tab. So its identity is stated here, matching TabHub’s own tile
+// (components/TabHub.tsx, renderProfileTile).
+const HOME_GROUP_IDENTITY: Record<
+  string,
+  { title: string; icon: ComponentProps<typeof Ionicons>['name']; color: string }
+> = {
+  '/profile': { title: 'Profile', icon: 'person-circle', color: colors.tabProfile },
+};
+
+function homeGroupIdentity(tabPath: string | null | undefined) {
+  if (!tabPath) return undefined;
+  const route = TAB_ROUTES.find((r) => r.path === tabPath);
+  if (route) return { title: route.title, icon: route.icon, color: route.color };
+  return HOME_GROUP_IDENTITY[tabPath];
+}
+
+// The three windows Reports itself offers (DAY_RANGE_OPTIONS in
+// app/(tabs)/reports.tsx). Spelled out in words here because a Home card
+// has room for it and "7d" on its own says nothing.
+const REPORT_WINDOW_OPTIONS = [
+  { days: 7, label: 'Last 7 days' },
+  { days: 30, label: 'Last 30 days' },
+  { days: 90, label: 'Last 90 days' },
+] as const;
+
+// A garden task can be weeks out, so its row carries a date rather than
+// the clock time Today's Reminders shows: everything in that card is
+// today, and nothing here has to be.
+function gardenTaskDayLabel(scheduledFor: string, today: string): string {
+  const day = scheduledFor.slice(0, 10);
+  if (day === today) return 'Today';
+  return new Date(`${day}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
 // What each Home section is a window INTO, 2026-09-05.
@@ -625,8 +669,26 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabTrends,
     href: '/week-flags' as Href,
   },
+  makeReport: {
+    label: 'Make a Report',
+    icon: 'document-text',
+    color: colors.tabReports,
+    href: { pathname: '/reports', params: { openReportDays: '30' } } as Href,
+  },
   // The wider world, and the one that stays here. The Grocery List moved
   // from Schedules to Life on 2026-09-12 (see lib/homeSections.ts).
+  gardenTasks: {
+    label: 'Garden Tasks',
+    icon: 'leaf',
+    color: colors.tabGarden,
+    href: { pathname: '/garden', params: { openGardenLens: 'upcomingTasks' } } as Href,
+  },
+  logHarvest: {
+    label: 'Log a Harvest',
+    icon: 'basket',
+    color: colors.tabGarden,
+    href: { pathname: '/garden', params: { openGardenLens: 'harvestLog' } } as Href,
+  },
   groceryList: { label: 'Grocery List', icon: 'cart', color: colors.tabLife, href: '/grocery-list' as Href },
   // The real awareness ribbon, not Ionicons' own "ribbon" glyph. That glyph is
   // only ever a fallback for a generic consumer of TAB_ROUTES; it was tried for
@@ -666,8 +728,11 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'worthALook',
   'fuelGauges',
   'weekTrend',
-  'groceryList',
+  'makeReport',
+  'gardenTasks',
+  'logHarvest',
   'digestCards',
+  'groceryList',
 ];
 
 // The Digest's own corner shortcut, 2026-07-27 -- explicitly
@@ -1095,6 +1160,11 @@ export default function HomeScreen() {
       // join, appended last to keep the destructure below the stable
       // append-only list its own comment above already asks for.
       listTodaysReminders(date),
+      // Garden Tasks, 2026-09-16. Appended last for the same reason every
+      // addition above it was: the destructure below stays append-only.
+      // Five rather than the default twenty, since this is a Home card and
+      // the lens itself is one tap away.
+      listUpcomingGardenTasks(5),
     ]).then(
       ([
         todaysMeals,
@@ -1109,6 +1179,7 @@ export default function HomeScreen() {
         photoDrafts,
         grocerySummary,
         todaysReminders,
+        gardenTasks,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1143,6 +1214,7 @@ export default function HomeScreen() {
           feelingCheckin,
           daysSinceAssessment,
           checkinReminderDays: profile.checkinReminderDays,
+          gardenTasks,
         });
       },
     );
@@ -1774,13 +1846,12 @@ export default function HomeScreen() {
       contentStyle?: StyleProp<ViewStyle>;
     },
   ) {
-    const tabPath = HOME_SECTION_TAB_PATH[key];
-    const route = tabPath ? TAB_ROUTES.find((r) => r.path === tabPath) : undefined;
+    const identity = homeGroupIdentity(HOME_SECTION_TAB_PATH[key]);
     return (
       <HomeSectionBand
         title={title}
-        icon={options?.icon ?? route?.icon ?? 'ellipse-outline'}
-        color={options?.color ?? route?.color ?? colors.primary}
+        icon={options?.icon ?? identity?.icon ?? 'ellipse-outline'}
+        color={options?.color ?? identity?.color ?? colors.primary}
         expanded={isHomeSectionExpanded(visualPrefs, key)}
         onToggle={() => toggleHomeSection(key)}
         contentStyle={options?.contentStyle}
@@ -2068,14 +2139,13 @@ export default function HomeScreen() {
     options?: { value?: string; valueColor?: string },
   ) {
     if (!isHomeSectionVisible(visualPrefs, key)) return null;
-    const tabPath = HOME_SECTION_TAB_PATH[key];
-    const route = tabPath ? TAB_ROUTES.find((r) => r.path === tabPath) : undefined;
+    const identity = homeGroupIdentity(HOME_SECTION_TAB_PATH[key]);
     return (
       <HomeSectionBand
         kind="action"
         title={title}
-        icon={route?.icon ?? 'ellipse-outline'}
-        color={route?.color ?? colors.primary}
+        icon={identity?.icon ?? 'ellipse-outline'}
+        color={identity?.color ?? colors.primary}
         onPress={onPress}
         value={options?.value}
         valueColor={options?.valueColor}
@@ -2454,7 +2524,7 @@ export default function HomeScreen() {
   // time it is looked at. No local copy, nothing to drift.
   function renderLowStimulation() {
     if (!isHomeSectionVisible(visualPrefs, 'lowStimulation')) return null;
-    const homeColor = TAB_ROUTES.find((route) => route.path === '/')?.color ?? colors.primary;
+    const homeColor = homeGroupIdentity('/profile')?.color ?? colors.primary;
     return renderBand(
       'lowStimulation',
       'Low Stimulation',
@@ -2485,6 +2555,92 @@ export default function HomeScreen() {
     );
   }
 
+  // Reports, 2026-09-16. The window is the only choice that page asks for
+  // before it can build anything, so asking it here means one tap from
+  // Home lands on a finished report rather than on the picker.
+  function renderMakeReport() {
+    if (!isHomeSectionVisible(visualPrefs, 'makeReport')) return null;
+    const reportsColor = tabColorFor('/reports');
+    return renderBand(
+      'makeReport',
+      'Make a Report',
+      <View style={styles.bandBody}>
+        <Text style={styles.bandCaption}>
+          Everything logged over a stretch of days, pulled into one summary to read, print, or hand to a
+          doctor. Pick how far back it goes.
+        </Text>
+        <View style={styles.pillRow}>
+          {REPORT_WINDOW_OPTIONS.map((option) => (
+            <TouchableOpacity
+              key={option.days}
+              style={[styles.pill, { borderColor: reportsColor }]}
+              activeOpacity={0.8}
+              onPress={() =>
+                router.push({ pathname: '/reports', params: { openReportDays: String(option.days) } })
+              }
+            >
+              <Text style={styles.pillText}>{option.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>,
+    );
+  }
+
+  // Garden, 2026-09-16. Garden tasks are schedule_items the same way doses
+  // and appointments are (item_type 'garden', see listUpcomingGardenTasks),
+  // so this is the same row shape as Today's Reminders, dated rather than
+  // timed. A row opens the Upcoming Tasks lens, which is where a task is
+  // actually marked done.
+  function renderGardenTasks() {
+    if (!isHomeSectionVisible(visualPrefs, 'gardenTasks')) return null;
+    const tasks = data?.gardenTasks ?? [];
+    const today = todayDateString();
+    return renderBand(
+      'gardenTasks',
+      'Garden Tasks',
+      <View style={styles.bandBody}>
+        {tasks.length === 0 ? (
+          <Text style={styles.bandCaption}>Nothing planned in the garden from today on.</Text>
+        ) : (
+          tasks.map((task) => (
+            <TouchableOpacity
+              key={task.id}
+              style={styles.reminderRow}
+              activeOpacity={0.8}
+              onPress={() =>
+                router.push({ pathname: '/garden', params: { openGardenLens: 'upcomingTasks' } })
+              }
+            >
+              <Text style={styles.reminderTime} numberOfLines={1}>
+                {gardenTaskDayLabel(task.scheduledFor, today)}
+              </Text>
+              <View style={styles.reminderBody}>
+                <Text style={styles.reminderTitle} numberOfLines={1}>
+                  {task.title}
+                </Text>
+                {task.notes ? (
+                  <Text style={styles.reminderDetail} numberOfLines={1}>
+                    {task.notes}
+                  </Text>
+                ) : null}
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
+      </View>,
+    );
+  }
+
+  // The other half of Garden's group: picking something is the thing that
+  // happens away from the phone and gets remembered later, so it is a
+  // one-tap row into the Harvest Log rather than a card to read.
+  function renderLogHarvest() {
+    return renderActionRow('logHarvest', 'Log a Harvest', () =>
+      router.push({ pathname: '/garden', params: { openGardenLens: 'harvestLog' } }),
+    );
+  }
+
   // One tab's worth of Home, as a band that opens to the cards inside it.
   //
   // 2026-09-16, direct correction: "the things that are already on the
@@ -2501,7 +2657,7 @@ export default function HomeScreen() {
   // check-in that is not due, a section turned off in Profile), and a
   // band that opens onto nothing is worse than no band at all.
   function renderHomeTabGroup(group: Extract<HomeSectionDisplayGroup, { kind: 'tab' }>) {
-    const route = TAB_ROUTES.find((r) => r.path === group.path);
+    const identity = homeGroupIdentity(group.path);
     const members = group.keys.map((key) => ({ key, node: renderHomeSection(key) }));
     const shown = members.filter((member) => member.node !== null);
     if (shown.length === 0) return null;
@@ -2518,9 +2674,9 @@ export default function HomeScreen() {
         }}
       >
         <HomeSectionBand
-          title={route?.title ?? 'More'}
-          icon={route?.icon ?? 'ellipse-outline'}
-          color={route?.color ?? colors.primary}
+          title={identity?.title ?? 'More'}
+          icon={identity?.icon ?? 'ellipse-outline'}
+          color={identity?.color ?? colors.primary}
           expanded={tabGroupFolds.isOpen(foldKey)}
           onToggle={() => tabGroupFolds.toggle(foldKey)}
           contentStyle={styles.homeTabGroupBody}
@@ -2575,6 +2731,12 @@ export default function HomeScreen() {
         return renderFuelGauges();
       case 'weekTrend':
         return renderWeekTrend();
+      case 'makeReport':
+        return renderMakeReport();
+      case 'gardenTasks':
+        return renderGardenTasks();
+      case 'logHarvest':
+        return renderLogHarvest();
       case 'digestCards':
         return renderDigestCards();
       default:

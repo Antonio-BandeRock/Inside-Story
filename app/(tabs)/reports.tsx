@@ -1,5 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -60,6 +61,12 @@ export default function ReportsScreen() {
   const [lens, setLens] = useState<ReportsLens>('overview');
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
+  const [days, setDays] = useState<7 | 30 | 90>(30);
+  // Home's Make a Report card names the window it wants (1.0.39.7), the
+  // same way Food and Garden already take a lens name. Without it a tap
+  // from Home landed on this page’s resting picker, which is one more
+  // tap than the card exists to save.
+  const { openReportDays } = useLocalSearchParams<{ openReportDays?: string }>();
   // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as
   // Food's own identical addition (app/(tabs)/food.tsx): lets LensHub's
   // new "My Reports" top-left tile (see its extraTile prop below) open
@@ -69,14 +76,18 @@ export default function ReportsScreen() {
   const [myReportsOpen, setMyReportsOpen] = useState(false);
   useFocusEffect(
     useCallback(() => {
+      if (openReportDays === '7' || openReportDays === '30' || openReportDays === '90') {
+        setDays(Number(openReportDays) as 7 | 30 | 90);
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
-    }, []),
+    }, [openReportDays]),
   );
   const autoOpenLensHub = useAutoOpenLensHubSignal();
   const activeLensLabel = REPORTS_LENSES.find((option) => option.key === lens)?.label;
 
-  const [days, setDays] = useState<7 | 30 | 90>(30);
   // The document itself is what gets built (2026-09-14); the on-screen
   // text and the PDF are two renderings of it, so what is read here and
   // what is handed over can never differ.

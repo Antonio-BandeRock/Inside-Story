@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.7',
+    date: '2026-09-16',
+    changes: [
+      'Home has a Garden group. Garden Tasks lists what is planned from today on, each row opening Upcoming Tasks where you mark it done, and Log a Harvest goes straight to the Harvest Log.',
+      'Home has a Reports group. Make a Report asks the one thing that page needs before it can build anything, how far back to go, so Last 7, 30 or 90 days lands on the finished report rather than on a picker.',
+      'Home has a Profile group, and Low Stimulation moved into it. It is a Profile setting shown on the page you are already on, so it now sits under Profile\u2019s name and colour rather than under Home\u2019s.',
+      'The groups run in the order the main menu runs: Profile, Food, Schedules, Signals, Insights, Trends, Reports, Garden, The Digest, Life. Life moved after The Digest to match it.',
+      'Turning Low Stimulation on still leaves its switch reachable: the Profile group holding it stays open now, the way the Home group did before it moved.',
+      'All three new cards are Home sections like any other, so they can be moved or turned off in Profile > Home Screen, and each is in the corner menu.',
+    ],
+  },
+  {
     version: '1.0.39.6',
     date: '2026-09-16',
     changes: [

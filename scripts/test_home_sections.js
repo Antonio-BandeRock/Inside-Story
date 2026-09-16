@@ -5,6 +5,10 @@
 //
 // Exits non-zero on any failure.
 
+// eslint-config-expo lints this repo as app code, which has no __dirname.
+// This is a plain Node script run with node, so it does (2026-09-16).
+/* global __dirname */
+
 const fs = require('fs');
 const path = require('path');
 const ts = require('typescript');
@@ -138,12 +142,56 @@ check('a tabless section is a group of its own', groupHomeSectionsForDisplay(['s
   { kind: 'tab', path: '/food', keys: ['logAgain'] },
 ]);
 
-// Low Stimulation is Home\u2019s own, so it lands in a Home group rather
-// than beside another tab\u2019s cards.
-check('low stimulation sits in the home group', groupHomeSectionsForDisplay(['logAgain', 'lowStimulation']), [
+// Low Stimulation is a Profile setting surfaced on Home, so it lands in
+// Profile's group rather than beside another tab's cards (1.0.39.7; it
+// was Home's own group for the day between).
+check('low stimulation sits in the profile group', groupHomeSectionsForDisplay(['logAgain', 'lowStimulation']), [
   { kind: 'tab', path: '/food', keys: ['logAgain'] },
-  { kind: 'tab', path: '/', keys: ['lowStimulation'] },
+  { kind: 'tab', path: '/profile', keys: ['lowStimulation'] },
 ]);
+
+// Home itself has no group: nothing maps to it. A Home group inside
+// Home could only ever have meant "the rest".
+check('nothing maps to home itself', Object.values(HOME_SECTION_TAB_PATH).filter((p) => p === '/'), []);
+
+// Garden and Reports, 1.0.39.7. Each needed a card of its own before a
+// group would appear at all, since renderHomeTabGroup drops an empty one.
+check('garden sections share one group', groupHomeSectionsForDisplay(['gardenTasks', 'logHarvest']), [
+  { kind: 'tab', path: '/garden', keys: ['gardenTasks', 'logHarvest'] },
+]);
+check('make a report is reports own group', groupHomeSectionsForDisplay(['weekTrend', 'makeReport']), [
+  { kind: 'tab', path: '/trends', keys: ['weekTrend'] },
+  { kind: 'tab', path: '/reports', keys: ['makeReport'] },
+]);
+
+// The default order comes out in TabHub menu order, 2026-09-16, direct
+// instruction: "Put them into the order they exist in the TabHub menu."
+// That menu is Home, Profile, Info, then TAB_ROUTES minus Home
+// (components/TabHub.tsx, lines 708-711). Home has no group and Info is
+// a help sheet rather than a destination, so what is left is Profile
+// followed by every tab after Home, in TAB_ROUTES' own order. Read from
+// both real files rather than retyped, so reordering either one fails
+// here instead of quietly changing the page.
+const tabsSource = fs.readFileSync(path.join(__dirname, '..', 'constants/tabs.ts'), 'utf8');
+const tabPaths = [...tabsSource.matchAll(/\{ path: '([^']+)'/g)].map((m) => m[1]);
+const orderMatch = prefsSource.match(/export const ALL_HOME_SECTION_KEYS: HomeSectionKey\[\] = \[([\s\S]*?)\n\];/);
+const defaultOrder = orderMatch[1]
+  .split('\n')
+  .filter((line) => !line.trim().startsWith('//'))
+  .join('\n')
+  .match(/'([a-zA-Z]+)'/g)
+  .map((s) => s.replace(/'/g, ''))
+  .filter((key) => key !== 'weather');
+const defaultGroupPaths = groupHomeSectionsForDisplay(defaultOrder)
+  .filter((g) => g.kind === 'tab')
+  .map((g) => g.path);
+check('default order runs in TabHub menu order', defaultGroupPaths, ['/profile', ...tabPaths.slice(1)]);
+
+// Every declared section is in the default order, and nothing is in it
+// twice: a key added to the union but left out of the list would land at
+// the bottom of Home on a fresh install and nowhere near its tab-mates.
+check('default order holds every section', [...defaultOrder, 'weather'].sort(), [...declaredKeys].sort());
+check('default order has no duplicates', defaultOrder.length, new Set(defaultOrder).size);
 
 // An interleaved order regroups first, so one tab never gets two bands.
 const interleavedPaths = groupHomeSectionsForDisplay(interleaved).filter((g) => g.kind === 'tab').map((g) => g.path);
