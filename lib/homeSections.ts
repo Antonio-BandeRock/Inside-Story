@@ -30,6 +30,7 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   scanProduct: '/food',
   groceryList: '/life',
   yourDay: '/schedule',
+  todaysReminders: '/schedule',
   symptomCheckinReminder: '/log',
   todaysCheckin: '/log',
   howYoureFeeling: '/log',

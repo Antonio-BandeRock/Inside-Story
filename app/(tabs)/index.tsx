@@ -78,6 +78,7 @@ import {
   listMealsForDate,
   listScheduledMealsForDate,
   listSymptomAssessments,
+  listTodaysReminders,
   recordBodyMeasurement,
   recordCheckin,
   recordExercise,
@@ -87,6 +88,7 @@ import {
   type MealPhotoDraft,
   type MealRecord,
   type ScheduleItemRecord,
+  type TodaysReminder,
   type WellbeingCheckin,
 } from '../../lib/db';
 import {
@@ -437,6 +439,9 @@ type DashboardData = {
   // which is the ordinary state most days.
   grocerySummary: GroceryListSummary | null;
   scheduledToday: ScheduleItemRecord[];
+  // Doses and appointments for today, every status. Separate from
+  // scheduledToday above, which is meals and only meals.
+  todaysReminders: TodaysReminder[];
   nutrientEntries: NutrientGapEntry[];
   sixDsFlagCount: number;
   recentMaxSeverity: number | null;
@@ -579,6 +584,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     href: { pathname: '/food', params: { openFoodLens: 'scanProduct' } } as Href,
   },
   yourDay: { label: 'Your Day', icon: 'calendar', color: colors.tabSchedules, href: '/schedule' as Href },
+  todaysReminders: {
+    label: "Today's Reminders",
+    icon: 'alarm',
+    color: colors.tabSchedules,
+    href: { pathname: '/schedule', params: { openScheduleLens: 'meds' } } as Href,
+  },
   symptomCheckinReminder: {
     label: 'Symptom Check-In',
     icon: 'pulse',
@@ -635,6 +646,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'logAgain',
   'scanProduct',
   'yourDay',
+  'todaysReminders',
   'symptomCheckinReminder',
   'todaysCheckin',
   'howYoureFeeling',
@@ -679,6 +691,44 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
 const DIGEST_CATEGORY_LABEL_BY_KEY: Partial<Record<DigestCategoryKey, string>> = Object.fromEntries(
   DIGEST_CATEGORY_META.map((meta) => [meta.key, meta.label]),
 );
+
+// Same two shapes a dose can describe itself in that the notification text
+// uses (describeDose in lib/reminderNotifications.ts): prescriptions and OTC
+// drugs carry an amount and a unit, supplements carry units per day of a
+// labelled serving. Whichever pair is null is simply left out.
+function describeReminderDose(reminder: TodaysReminder): string | null {
+  if (reminder.doseAmount != null && reminder.doseUnit) {
+    return `${reminder.doseAmount} ${reminder.doseUnit}`;
+  }
+  if (reminder.unitsPerDay != null && reminder.servingUnitLabel) {
+    return `${reminder.unitsPerDay} ${reminder.servingUnitLabel}`;
+  }
+  return null;
+}
+
+// Wording matched to the Meds lens, which is where these get acted on, so a
+// dose does not read as "Taken" here and "Logged" there. A planned dose whose
+// time has not come yet says nothing at all: the time is already on the row,
+// and a word saying so would only be noise on every future row of the day.
+// Colour carries the same split: what still wants attention keeps the accent,
+// what is settled recedes to muted.
+function describeReminderState(
+  reminder: TodaysReminder,
+  nowKey: string,
+): { label: string; color: string } | null {
+  switch (reminder.status) {
+    case 'logged':
+      return { label: 'Taken', color: colors.textMuted };
+    case 'completed':
+      return { label: 'Done', color: colors.textMuted };
+    case 'skipped':
+      return { label: 'Skipped', color: colors.textMuted };
+    case 'cancelled':
+      return { label: 'Cancelled', color: colors.textMuted };
+    default:
+      return reminder.scheduledFor < nowKey ? { label: 'Due', color: colors.accent } : null;
+  }
+}
 
 type UpNext = { item: ScheduleItemRecord; isPast: boolean };
 
@@ -1025,6 +1075,10 @@ export default function HomeScreen() {
       // The Grocery List, 2026-09-01. One row plus one count, see
       // getActiveGroceryListSummary.
       getActiveGroceryListSummary(),
+      // Today’s Reminders, 2026-09-16. One day-scoped query with a single
+      // join, appended last to keep the destructure below the stable
+      // append-only list its own comment above already asks for.
+      listTodaysReminders(date),
     ]).then(
       ([
         todaysMeals,
@@ -1038,6 +1092,7 @@ export default function HomeScreen() {
         recentAssessments,
         photoDrafts,
         grocerySummary,
+        todaysReminders,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1064,6 +1119,7 @@ export default function HomeScreen() {
           photoDrafts,
           grocerySummary,
           scheduledToday,
+          todaysReminders,
           nutrientEntries,
           sixDsFlagCount,
           recentMaxSeverity,
@@ -1879,6 +1935,76 @@ export default function HomeScreen() {
     );
   }
 
+  // 2026-09-16, direct report after a day of dose reminders arrived: there
+  // is "no quick access on the Home screen for reminders for the day to see
+  // what they say. I saw the reminders but I didn’t realize I needed to pay
+  // closer attention yet." A notification is gone the second it is swiped,
+  // and Your Day above could not stand in for it: that arc is meals and only
+  // meals (listScheduledMealsForDate). So nothing on Home carried a dose at
+  // all, and the one place the wording survived was the Meds lens, three taps
+  // away and only if you knew to look there.
+  //
+  // Every status shows, not just what is still pending, because "did I take
+  // it?" is most of why someone comes back here. A dose already taken answers
+  // that; hiding it would leave the same blank that caused the report.
+  //
+  // A row opens the lens where that kind of thing is acted on, the same
+  // destination a tapped notification lands on (resolveReminderTap in
+  // lib/reminderNotifications.ts). Marking a dose taken stays in the Meds
+  // lens rather than being duplicated here.
+  function renderTodaysReminders() {
+    if (!isHomeSectionVisible(visualPrefs, 'todaysReminders')) return null;
+    const reminders = data?.todaysReminders ?? [];
+    const nowKey = `${todayDateString()}T${nowTimeString24()}`;
+    return renderBand(
+      'todaysReminders',
+      "Today's Reminders",
+      <View style={styles.bandBody}>
+        {reminders.length === 0 ? (
+          <Text style={styles.bandCaption}>No doses or appointments on today’s schedule.</Text>
+        ) : (
+          reminders.map((reminder) => {
+            const isAppointment = reminder.itemType === 'appointment';
+            const detail = isAppointment
+              ? [reminder.location, reminder.providerName ? `with ${reminder.providerName}` : null]
+                  .filter(Boolean)
+                  .join(', ')
+              : describeReminderDose(reminder);
+            const state = describeReminderState(reminder, nowKey);
+            return (
+              <TouchableOpacity
+                key={reminder.id}
+                style={styles.reminderRow}
+                activeOpacity={0.8}
+                onPress={() =>
+                  router.navigate({
+                    pathname: '/schedule',
+                    params: { openScheduleLens: isAppointment ? 'appointments' : 'meds' },
+                  })
+                }
+              >
+                <Text style={styles.reminderTime}>{formatTime12(reminder.scheduledFor.slice(11, 16))}</Text>
+                <View style={styles.reminderBody}>
+                  <Text style={styles.reminderTitle} numberOfLines={1}>
+                    {reminder.title}
+                  </Text>
+                  {detail ? (
+                    <Text style={styles.reminderDetail} numberOfLines={1}>
+                      {detail}
+                    </Text>
+                  ) : null}
+                </View>
+                {state ? (
+                  <Text style={[styles.reminderState, { color: state.color }]}>{state.label}</Text>
+                ) : null}
+              </TouchableOpacity>
+            );
+          })
+        )}
+      </View>,
+    );
+  }
+
   // The two stat tiles, each its own row since 2026-09-12 ("Separate the
   // Meals & Worth a Look the same way"). A count is the whole point of
   // each, so it sits on the row itself rather than behind a fold.
@@ -2001,7 +2127,7 @@ export default function HomeScreen() {
       return renderBand(
         'fuelGauges',
         "Today's Fuel Gauges",
-        <Text style={[styles.emptyText, { color: tabColorFor('/insights') }]}>Log a meal to see today's fuel gauges fill in.</Text>,
+        <Text style={[styles.emptyText, { color: tabColorFor('/insights') }]}>Log a meal to see today’s fuel gauges fill in.</Text>,
       );
     }
     return renderBand(
@@ -2324,6 +2450,8 @@ export default function HomeScreen() {
         return renderGroceryList();
       case 'yourDay':
         return renderYourDay();
+      case 'todaysReminders':
+        return renderTodaysReminders();
       case 'mealsLoggedToday':
         return renderMealsLoggedToday();
       case 'worthALook':
@@ -2784,6 +2912,24 @@ const styles = StyleSheet.create({
   bandCaption: { ...typography.caption, ...textShadow, color: colors.textSecondary, lineHeight: 16 },
   // For a band whose content is one centred widget (the day arc, the orb).
   bandContentCentered: { alignItems: 'center' },
+
+  // One reminder from today. The time leads at a fixed width so a column of
+  // them lines up and the day reads down the left edge; the title takes what
+  // is left, and the state word closes the row.
+  reminderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+  },
+  reminderTime: { ...typography.caption, ...textShadow, color: colors.textMuted, width: 62 },
+  reminderBody: { flex: 1, gap: 2 },
+  reminderTitle: { ...typography.body, ...textShadow, color: colors.textPrimary },
+  reminderDetail: { ...typography.caption, ...textShadow, color: colors.textMuted },
+  reminderState: { ...typography.caption, ...textShadow },
 
   // Same colors.surface "dark blue" card used everywhere else on this page
   // (arcCard, statTile, trendCard, etc.) -- every text-bearing element on

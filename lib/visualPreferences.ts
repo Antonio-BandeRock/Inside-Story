@@ -238,6 +238,11 @@ export type HomeSectionKey =
   // no shortcut at all.
   | 'groceryList'
   | 'yourDay'
+  // 2026-09-16, direct report after a day of dose reminders arrived and were
+  // glanced at: "there is no quick access on the Home screen for reminders
+  // for the day to see what they say." Your Day above is meals only (see
+  // listScheduledMealsForDate), so nothing on Home carried a dose at all.
+  | 'todaysReminders'
   // 2026-09-12: the two stat tiles ("Meals logged today", "Worth a look")
   // split into their own rows, each with its own tab, direct request:
   // "Separate the Meals & Worth a Look the same way."
@@ -270,6 +275,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'logAgain',
   'scanProduct',
   'yourDay',
+  'todaysReminders',
   'symptomCheckinReminder',
   'todaysCheckin',
   'howYoureFeeling',
@@ -310,6 +316,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   logAgain: 'Log a Meal',
   groceryList: 'Grocery List',
   yourDay: 'Your Day',
+  todaysReminders: "Today's Reminders",
   mealsLoggedToday: 'Meals Logged Today',
   worthALook: 'Worth a Look',
   scanProduct: 'Scan a Product',

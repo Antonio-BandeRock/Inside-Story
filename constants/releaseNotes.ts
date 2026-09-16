@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.2',
+    date: '2026-09-16',
+    changes: [
+      'Home has a Today’s Reminders section: every dose and appointment on today’s schedule, with the time, what to take, and whether you have taken it yet. A notification is gone the moment you swipe it away, so this is where you can still read what it said.',
+      'A dose whose time has passed and is still untaken is marked Due. One already taken says Taken, and a skipped one says Skipped, so a glance answers whether anything is still waiting.',
+      'Tapping a row opens the same place a tapped reminder does: Schedules > Meds for a dose, Appointments for an appointment.',
+      'You can turn it off or reorder it in Profile > Home Screen, the same as every other Home section.',
+    ],
+  },
+  {
     version: '1.0.38.3',
     date: '2026-09-15',
     changes: [
