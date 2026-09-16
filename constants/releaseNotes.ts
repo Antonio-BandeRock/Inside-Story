@@ -41,6 +41,19 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.5',
+    date: '2026-09-16',
+    changes: [
+      'Home has a Quick Access section: the settings you change most, without the trip through Profile.',
+      'It opens to a group for each tab, in the same order the tabs themselves run, each in that tab\u2019s colour. Open one and you get that tab\u2019s switches: its background (Photo, Generic or Off), and which of its sections are showing on Home.',
+      'Low Stimulation is the first switch in the Home group, so the quiet day it was built for now takes two taps from the page you are already on.',
+      'Schedules carries its four reminder switches there too, so the day a batch of water reminders is too much you can stop them where you are standing.',
+      'Nothing here is a second copy of a setting. Every switch writes the same preference Profile writes, so changing it in one place has already changed it in the other.',
+      'Turning Low Stimulation on still folds Home shut, with one exception now: Quick Access stays open. Folding away the panel holding the switch at the moment you use it would hide the way back.',
+      'Quick Access is itself a Home section, so it can be moved or turned off in Profile > Home Screen like any other.',
+    ],
+  },
+  {
     version: '1.0.39.4',
     date: '2026-09-16',
     changes: [

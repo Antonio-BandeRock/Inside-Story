@@ -49,6 +49,25 @@ export type BackgroundStyle = 'photo' | 'generic' | 'off' | 'custom';
 // separately.
 export const SHARED_BACKGROUND_SCOPE_KEY = 'shared';
 
+// The three styles a picker offers directly. Custom is deliberately not
+// in this list: it opens an image picker rather than setting a value, so
+// every screen that offers it has to handle that itself (Profile does;
+// Home's Quick Access does not, and points at Profile instead). Moved
+// here from Profile 2026-09-16, once a second screen needed the same
+// three labels, so the two cannot drift apart.
+export const BACKGROUND_STYLE_OPTIONS: { value: BackgroundStyle; label: string }[] = [
+  { value: 'photo', label: 'Photo' },
+  { value: 'generic', label: 'Generic' },
+  { value: 'off', label: 'Off' },
+];
+
+// The prefix Home's Quick Access groups use for their band folds
+// ("quickAccess:/food"). Named here rather than typed at the call site
+// because setLowStimulation below has to recognise them (see its
+// comment) and a retyped string that drifted would fold the panel shut
+// under the finger that just used it.
+export const QUICK_ACCESS_BAND_KEY_PREFIX = 'quickAccess:';
+
 // A second, real set of 8 TabHub icon choices, 2026-08-12 -- explicitly
 // requested alongside the condition icons: "Create new TabHub menu icons
 // from these 8 new images... available to be selected to be the TabHub
@@ -220,6 +239,16 @@ export const GENERIC_PALETTE_LABELS: Record<GenericPalette, string> = {
 export type HomeSectionKey =
   | 'weather'
   | 'sharedFolderSetup'
+  // 2026-09-16, direct request: "Low Stimulation needs to be available as
+  // a quick access setting on the Home page. Create a Quick Access group
+  // for each of the tabs on the Home screen and group them per tab within
+  // those." One section holding a collapsible group per tab, rather than
+  // ten top-level rows all named Quick Access and told apart only by
+  // colour. Each group carries the switches that change that tab: its
+  // background, which of its sections show on Home, and anything else
+  // that is honestly that tab's (Schedules owns the reminder kinds, Home
+  // owns Low Stimulation and the growth vine).
+  | 'quickAccess'
   // Since 2026-09-12 this is the standing Symptom Check-In row, not only a
   // reminder: it is always on Home, and says "due" when it is. The key
   // keeps its old name because saved preferences already carry it.
@@ -272,6 +301,7 @@ export type HomeSectionKey =
 export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weather',
   'sharedFolderSetup',
+  'quickAccess',
   'logAgain',
   'scanProduct',
   'yourDay',
@@ -311,6 +341,7 @@ export const REORDERABLE_HOME_SECTION_KEYS: HomeSectionKey[] = ALL_HOME_SECTION_
 export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weather: 'Weather & Sunrise/Sunset',
   sharedFolderSetup: 'Shared Folder Setup',
+  quickAccess: 'Quick Access',
   symptomCheckinReminder: 'Symptom Check-In',
   todaysCheckin: "Today's Check-In",
   logAgain: 'Log a Meal',
@@ -795,16 +826,23 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
 // folds alone: reopening what a person chose to fold is their call, and
 // guessing at it would mean storing a second copy of a state they can
 // change with one tap.
+//
+// Quick Access is the one exception, 2026-09-16, because the switch now
+// lives inside it: folding shut the panel someone is looking at, at the
+// moment they use it, hides the way back off. Its section fold and
+// its per-tab group folds are both left exactly as they are.
 export async function setLowStimulation(enabled: boolean): Promise<VisualPreferences> {
   const current = await getVisualPreferences();
   if (!enabled) return setVisualPreferences({ lowStimulation: false });
 
   const homeSectionExpanded: Partial<Record<HomeSectionKey, boolean>> = {};
   for (const key of Object.keys(current.homeSectionExpanded) as HomeSectionKey[]) {
+    if (key === 'quickAccess') continue;
     if (current.homeSectionExpanded[key]) homeSectionExpanded[key] = false;
   }
   const bandExpanded: Record<string, boolean> = {};
   for (const key of Object.keys(current.bandExpanded ?? {})) {
+    if (key.startsWith(QUICK_ACCESS_BAND_KEY_PREFIX)) continue;
     if (current.bandExpanded[key]) bandExpanded[key] = false;
   }
 

@@ -26,6 +26,10 @@ import type { HomeSectionKey } from './visualPreferences';
 export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   weather: null,
   sharedFolderSetup: null,
+  // Quick Access is about every tab, so it borrows none of their
+  // colours and stands on its own in the order (2026-09-16). Its
+  // groups inside carry the tab colours instead.
+  quickAccess: null,
   logAgain: '/food',
   scanProduct: '/food',
   groceryList: '/life',

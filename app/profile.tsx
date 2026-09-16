@@ -118,6 +118,7 @@ import {
   GENERIC_PALETTE_LABELS,
   getOrderedHomeSectionKeys,
   HOME_SECTION_LABELS,
+  BACKGROUND_STYLE_OPTIONS,
   isHomeSectionVisible,
   setLowStimulation,
   setVisualPreferences,
@@ -143,12 +144,6 @@ import {
 const SHOW_DEVELOPER_TOOLS = __DEV__ || Updates.channel === 'preview';
 
 const BACKGROUND_TAB_ROUTES = TAB_ROUTES.filter((route) => route.path !== '/');
-
-const BACKGROUND_STYLE_OPTIONS: { value: BackgroundStyle; label: string }[] = [
-  { value: 'photo', label: 'Photo' },
-  { value: 'generic', label: 'Generic' },
-  { value: 'off', label: 'Off' },
-];
 
 // 2026-08-17: was a hand-typed 4-entry list (the original lavender/seafoam/
 // sand/dusk set), left behind unchanged when GenericPalette itself grew to
