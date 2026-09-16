@@ -49,24 +49,12 @@ export type BackgroundStyle = 'photo' | 'generic' | 'off' | 'custom';
 // separately.
 export const SHARED_BACKGROUND_SCOPE_KEY = 'shared';
 
-// The three styles a picker offers directly. Custom is deliberately not
-// in this list: it opens an image picker rather than setting a value, so
-// every screen that offers it has to handle that itself (Profile does;
-// Home's Quick Access does not, and points at Profile instead). Moved
-// here from Profile 2026-09-16, once a second screen needed the same
-// three labels, so the two cannot drift apart.
-export const BACKGROUND_STYLE_OPTIONS: { value: BackgroundStyle; label: string }[] = [
-  { value: 'photo', label: 'Photo' },
-  { value: 'generic', label: 'Generic' },
-  { value: 'off', label: 'Off' },
-];
-
-// The prefix Home's Quick Access groups use for their band folds
-// ("quickAccess:/food"). Named here rather than typed at the call site
-// because setLowStimulation below has to recognise them (see its
+// The prefix Home's per-tab group bands use for their fold state
+// ("homeTab:/food"). Named here rather than typed at the call site
+// because setLowStimulation below has to recognise one of them (see its
 // comment) and a retyped string that drifted would fold the panel shut
 // under the finger that just used it.
-export const QUICK_ACCESS_BAND_KEY_PREFIX = 'quickAccess:';
+export const HOME_TAB_GROUP_BAND_KEY_PREFIX = 'homeTab:';
 
 // A second, real set of 8 TabHub icon choices, 2026-08-12 -- explicitly
 // requested alongside the condition icons: "Create new TabHub menu icons
@@ -240,15 +228,13 @@ export type HomeSectionKey =
   | 'weather'
   | 'sharedFolderSetup'
   // 2026-09-16, direct request: "Low Stimulation needs to be available as
-  // a quick access setting on the Home page. Create a Quick Access group
-  // for each of the tabs on the Home screen and group them per tab within
-  // those." One section holding a collapsible group per tab, rather than
-  // ten top-level rows all named Quick Access and told apart only by
-  // colour. Each group carries the switches that change that tab: its
-  // background, which of its sections show on Home, and anything else
-  // that is honestly that tab's (Schedules owns the reminder kinds, Home
-  // owns Low Stimulation and the growth vine).
-  | 'quickAccess'
+  // a quick access setting on the Home page... Low Stimulation needs to be
+  // a switch accessible in Quick Access." Everything on Home is already a
+  // quick way into another tab, so this is a section like any other rather
+  // than a settings panel bolted on: the same switch Profile has, writing
+  // the same function, sitting in Home's group because what it changes is
+  // how the whole app looks rather than what any one tab holds.
+  | 'lowStimulation'
   // Since 2026-09-12 this is the standing Symptom Check-In row, not only a
   // reminder: it is always on Home, and says "due" when it is. The key
   // keeps its old name because saved preferences already carry it.
@@ -301,7 +287,7 @@ export type HomeSectionKey =
 export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weather',
   'sharedFolderSetup',
-  'quickAccess',
+  'lowStimulation',
   'logAgain',
   'scanProduct',
   'yourDay',
@@ -341,7 +327,7 @@ export const REORDERABLE_HOME_SECTION_KEYS: HomeSectionKey[] = ALL_HOME_SECTION_
 export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weather: 'Weather & Sunrise/Sunset',
   sharedFolderSetup: 'Shared Folder Setup',
-  quickAccess: 'Quick Access',
+  lowStimulation: 'Low Stimulation',
   symptomCheckinReminder: 'Symptom Check-In',
   todaysCheckin: "Today's Check-In",
   logAgain: 'Log a Meal',
@@ -827,22 +813,23 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
 // guessing at it would mean storing a second copy of a state they can
 // change with one tap.
 //
-// Quick Access is the one exception, 2026-09-16, because the switch now
-// lives inside it: folding shut the panel someone is looking at, at the
-// moment they use it, hides the way back off. Its section fold and
-// its per-tab group folds are both left exactly as they are.
+// Two things are exempt, 2026-09-16, because the switch now lives on Home
+// as well: its section and the Home group holding it. Folding shut the
+// panel someone is looking at, at the moment they use it, hides the way
+// back off. Every other section and every other group still folds.
 export async function setLowStimulation(enabled: boolean): Promise<VisualPreferences> {
   const current = await getVisualPreferences();
   if (!enabled) return setVisualPreferences({ lowStimulation: false });
 
+  const homeGroupBandKey = `${HOME_TAB_GROUP_BAND_KEY_PREFIX}/`;
   const homeSectionExpanded: Partial<Record<HomeSectionKey, boolean>> = {};
   for (const key of Object.keys(current.homeSectionExpanded) as HomeSectionKey[]) {
-    if (key === 'quickAccess') continue;
+    if (key === 'lowStimulation') continue;
     if (current.homeSectionExpanded[key]) homeSectionExpanded[key] = false;
   }
   const bandExpanded: Record<string, boolean> = {};
   for (const key of Object.keys(current.bandExpanded ?? {})) {
-    if (key.startsWith(QUICK_ACCESS_BAND_KEY_PREFIX)) continue;
+    if (key === homeGroupBandKey) continue;
     if (current.bandExpanded[key]) bandExpanded[key] = false;
   }
 

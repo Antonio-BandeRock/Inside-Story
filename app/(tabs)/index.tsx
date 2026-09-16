@@ -39,19 +39,12 @@ import {
   mixHex,
 } from '../../constants/colors';
 import { getSharedFolder } from '../../lib/oneDriveFolders';
-import { syncReminderNotifications } from '../../lib/reminderNotifications';
-import {
-  ALL_REMINDER_KIND_KEYS,
-  isReminderKindEnabled,
-  REMINDER_KIND_LABELS,
-  setReminderKindEnabled,
-} from '../../lib/reminderPreferences';
 import { FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import {
   formatReleaseNotesMessage,
   getReleaseNotesSince,
 } from '../../constants/releaseNotes';
-import { TAB_ROUTES, type TabRoute } from '../../constants/tabs';
+import { TAB_ROUTES } from '../../constants/tabs';
 import { APP_VERSION } from '../../constants/version';
 import { textShadow, typography } from '../../constants/typography';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
@@ -111,22 +104,23 @@ import { dateStringOffsetFrom } from '../../lib/trendAnalysis';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import {
   ALL_HOME_SECTION_KEYS,
-  BACKGROUND_STYLE_OPTIONS,
   getOrderedHomeSectionKeys,
-  HOME_SECTION_LABELS,
+  HOME_TAB_GROUP_BAND_KEY_PREFIX,
   isHomeSectionExpanded,
   isHomeSectionVisible,
   modalAnimationType,
-  QUICK_ACCESS_BAND_KEY_PREFIX,
   setLowStimulation,
   setVisualPreferences,
   type HomeSectionKey,
 } from '../../lib/visualPreferences';
-import { HOME_SECTION_TAB_PATH } from '../../lib/homeSections';
+import {
+  groupHomeSectionsForDisplay,
+  HOME_SECTION_TAB_PATH,
+  type HomeSectionDisplayGroup,
+} from '../../lib/homeSections';
 import { useVisualPreferences } from '../../hooks/useVisualPreferences';
-import { useReminderPreferences } from '../../hooks/useReminderPreferences';
-import { useReducedMotion } from '../../hooks/useReducedMotion';
 import { useBandFolds } from '../../hooks/useBandFolds';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 // 'YYYY-MM-DD' in LOCAL time -- same helper (and same reasoning) duplicated
 // in food.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's calendar date is
@@ -844,13 +838,10 @@ export default function HomeScreen() {
   // 2026-09-16: the greeting still collapses into its badge and grows
   // back out with low stimulation on, it just does it without the zoom.
   const reducedMotion = useReducedMotion();
-  // Quick Access reads and writes the same two preference stores Profile
-  // does, live, so a switch moved in either place is already moved in the
-  // other by the time it is looked at.
-  const reminderPrefs = useReminderPreferences();
-  // The fold state of Quick Access's per-tab groups, kept under
-  // "quickAccess:/food" and the rest (see QUICK_ACCESS_BAND_KEY_PREFIX).
-  const quickAccessFolds = useBandFolds();
+  // Which of Home's per-tab groups are open, kept under "homeTab:/food"
+  // and the rest (see HOME_TAB_GROUP_BAND_KEY_PREFIX). A group is a band
+  // like any other, so it remembers its fold the same way.
+  const tabGroupFolds = useBandFolds();
 
   // Built from what is actually on Home, in the order it is on Home, so the
   // menu and the page can never disagree about what exists.
@@ -2455,197 +2446,90 @@ export default function HomeScreen() {
     );
   }
 
-  // The app’s switch: a pair of pills with the live one filled.
-  // There is no React Native Switch anywhere in this app, and one here
-  // would be the only control on the page that looked borrowed from
-  // somewhere else. Filled in the group’s tab colour so a glance down
-  // the panel says which tab each row belongs to.
-  function renderQuickAccessSwitch(color: string, value: boolean, onChange: (next: boolean) => void) {
-    return (
-      <View style={styles.pillRow}>
-        {[false, true].map((option) => {
-          const active = value === option;
-          return (
-            <TouchableOpacity
-              key={option ? 'on' : 'off'}
-              style={[styles.pillSmall, active && { backgroundColor: color, borderColor: color }]}
-              onPress={() => onChange(option)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: active }}
-            >
-              <Text style={[styles.pillText, active && styles.pillTextActive]}>{option ? 'On' : 'Off'}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-    );
-  }
-
-  // One tab’s group inside Quick Access. Everything in here already
-  // exists somewhere in Profile and is written through the same function,
-  // so the two screens cannot disagree about what is on.
-  function renderQuickAccessGroup(route: TabRoute) {
-    const path = route.path as string;
-    const isHome = path === '/';
-    const foldKey = `${QUICK_ACCESS_BAND_KEY_PREFIX}${path}`;
-    // Home draws the shared resting background rather than one of its
-    // own (see BACKGROUND_TAB_ROUTES in Profile), so its group sets that.
-    const backgroundStyle = isHome
-      ? visualPrefs.homeBackgroundStyle
-      : (visualPrefs.tabBackgroundStyle[path] ?? 'photo');
-    // A section with no tab of its own (the weather line inside the
-    // greeting, the shared-folder nudge) counts as Home’s, since Home is
-    // where it shows. Quick Access itself is left out on purpose: a switch
-    // that hides the panel holding it is a trapdoor, and Profile still
-    // has it.
-    const sectionKeys = ALL_HOME_SECTION_KEYS.filter(
-      (key) => key !== 'quickAccess' && (HOME_SECTION_TAB_PATH[key] ?? '/') === path,
-    );
-    return (
-      <HomeSectionBand
-        key={path}
-        title={route.title}
-        icon={route.icon}
-        color={route.color}
-        expanded={quickAccessFolds.isOpen(foldKey)}
-        onToggle={() => quickAccessFolds.toggle(foldKey)}
-      >
-        <View style={styles.bandBody}>
-          {isHome ? (
-            <>
-              <Text style={styles.quickAccessLabel}>Low Stimulation</Text>
-              <Text style={styles.bandCaption}>
-                Flat backgrounds, nothing moving on its own, and whatever is open folded shut, in one switch.
-              </Text>
-              {renderQuickAccessSwitch(route.color, visualPrefs.lowStimulation, (next) => {
-                void setLowStimulation(next);
-              })}
-              <Text style={styles.quickAccessLabel}>Growth vine in the header</Text>
-              {renderQuickAccessSwitch(route.color, visualPrefs.growthVineEnabled, (next) => {
-                void setVisualPreferences({ growthVineEnabled: next });
-              })}
-            </>
-          ) : null}
-          <Text style={styles.quickAccessLabel}>{isHome ? 'Shared background' : 'Background'}</Text>
-          <View style={styles.pillRow}>
-            {BACKGROUND_STYLE_OPTIONS.map((option) => {
-              const active = option.value === backgroundStyle;
-              return (
-                <TouchableOpacity
-                  key={option.value}
-                  style={[styles.pillSmall, active && { backgroundColor: route.color, borderColor: route.color }]}
-                  onPress={() =>
-                    void setVisualPreferences(
-                      isHome
-                        ? { homeBackgroundStyle: option.value }
-                        : { tabBackgroundStyle: { [path]: option.value } },
-                    )
-                  }
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: active }}
-                >
-                  <Text style={[styles.pillText, active && styles.pillTextActive]}>{option.label}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-          {backgroundStyle === 'custom' ? (
-            <Text style={styles.bandCaption}>
-              Your picture is the background here. Picking one of these three sets it aside rather than
-              deleting it, and Profile puts it back.
-            </Text>
-          ) : null}
-          {sectionKeys.length > 0 ? (
-            <>
-              <Text style={styles.quickAccessLabel}>Showing on Home</Text>
-              <View style={styles.pillRow}>
-                {sectionKeys.map((key) => {
-                  const shown = isHomeSectionVisible(visualPrefs, key);
-                  return (
-                    <TouchableOpacity
-                      key={key}
-                      style={[
-                        styles.pillSmall,
-                        shown && { backgroundColor: route.color, borderColor: route.color },
-                      ]}
-                      onPress={() => void setVisualPreferences({ homeSectionVisibility: { [key]: !shown } })}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected: shown }}
-                    >
-                      <Text style={[styles.pillText, shown && styles.pillTextActive]}>
-                        {HOME_SECTION_LABELS[key]}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </>
-          ) : null}
-          {path === '/schedule' ? (
-            <>
-              <Text style={styles.quickAccessLabel}>Reminders allowed to arrive</Text>
-              <View style={styles.pillRow}>
-                {ALL_REMINDER_KIND_KEYS.map((key) => {
-                  const on = isReminderKindEnabled(reminderPrefs, key);
-                  return (
-                    <TouchableOpacity
-                      key={key}
-                      style={[styles.pillSmall, on && { backgroundColor: route.color, borderColor: route.color }]}
-                      onPress={() => {
-                        void setReminderKindEnabled(key, !on).then(() => syncReminderNotifications());
-                      }}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected: on }}
-                    >
-                      <Text style={[styles.pillText, on && styles.pillTextActive]}>
-                        {REMINDER_KIND_LABELS[key]}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </>
-          ) : null}
-        </View>
-      </HomeSectionBand>
-    );
-  }
-
-  // Quick Access, 2026-09-16, direct request: "Low Stimulation needs to be
-  // available as a quick access setting on the Home page. Create a Quick
-  // Access group for each of the tabs on the Home screen and group them per
-  // tab within those. Low Stimulation needs to be a switch accessible in
-  // Quick Access."
-  //
-  // Read as one section holding a group per tab rather than ten top-level
-  // bands: ten rows all named Quick Access, told apart only by colour,
-  // would say the same word ten times and roughly double the length of the
-  // page. Folded, this is one row; opened, it is ten; opened twice, it is
-  // one tab’s switches.
-  //
-  // Groups run in TAB_ROUTES order, the same order TabHub’s grid and the
-  // swipe both use, so the panel reads in the order the tabs already do.
-  // Garden and Reports have no sections on Home, so their groups carry
-  // only a background; that is honest rather than empty.
-  function renderQuickAccess() {
-    if (!isHomeSectionVisible(visualPrefs, 'quickAccess')) return null;
+  // The same switch Profile carries, on the page a person is already on.
+  // 2026-09-16, direct request: "Low Stimulation needs to be available as
+  // a quick access setting on the Home page." It calls setLowStimulation,
+  // exactly as Profile does, and both screens read the same store, so a
+  // switch moved in either place is already moved in the other by the
+  // time it is looked at. No local copy, nothing to drift.
+  function renderLowStimulation() {
+    if (!isHomeSectionVisible(visualPrefs, 'lowStimulation')) return null;
+    const homeColor = TAB_ROUTES.find((route) => route.path === '/')?.color ?? colors.primary;
     return renderBand(
-      'quickAccess',
-      'Quick Access',
+      'lowStimulation',
+      'Low Stimulation',
       <View style={styles.bandBody}>
         <Text style={styles.bandCaption}>
-          The settings changed most often, grouped by the tab they belong to. Every one of them is the same
-          switch Profile has, so moving it here moves it there.
+          Flat backgrounds, nothing moving on its own, and whatever is open folded shut, in one switch.
+          Nothing is deleted: every picture and colour you picked comes back the moment you switch it off.
         </Text>
-        {visualPrefs.lowStimulation ? (
-          <Text style={styles.bandCaption}>
-            Low Stimulation is on, so every background is flat at the moment whatever is picked below. What you
-            pick is saved and appears again when you switch it off.
-          </Text>
-        ) : null}
-        {TAB_ROUTES.map((route) => renderQuickAccessGroup(route))}
+        <View style={styles.pillRow}>
+          {[false, true].map((value) => {
+            const active = visualPrefs.lowStimulation === value;
+            return (
+              <TouchableOpacity
+                key={value ? 'on' : 'off'}
+                style={[styles.pill, active && { backgroundColor: homeColor, borderColor: homeColor }]}
+                onPress={() => {
+                  void setLowStimulation(value);
+                }}
+                accessibilityRole="button"
+                accessibilityState={{ selected: active }}
+              >
+                <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>,
-      { icon: 'options-outline', color: colors.primary },
+    );
+  }
+
+  // One tab's worth of Home, as a band that opens to the cards inside it.
+  //
+  // 2026-09-16, direct correction: "the things that are already on the
+  // Home screen are already all quick access things from other tabs. What
+  // I meant was to group the existing quick access elements into their
+  // overarching category, rather than something labeled as Quick Access."
+  // The category is the tab, so the band carries that tab’s name, icon
+  // and colour, and the cards inside keep theirs: a card's colour said
+  // which tab it belonged to before, and now the band it sits in says the
+  // same thing in words.
+  //
+  // The contents are built before the header so an empty group can be
+  // dropped whole. Most of these sections return null on their own (a
+  // check-in that is not due, a section turned off in Profile), and a
+  // band that opens onto nothing is worse than no band at all.
+  function renderHomeTabGroup(group: Extract<HomeSectionDisplayGroup, { kind: 'tab' }>) {
+    const route = TAB_ROUTES.find((r) => r.path === group.path);
+    const members = group.keys.map((key) => ({ key, node: renderHomeSection(key) }));
+    const shown = members.filter((member) => member.node !== null);
+    if (shown.length === 0) return null;
+    const foldKey = `${HOME_TAB_GROUP_BAND_KEY_PREFIX}${group.path}`;
+    return (
+      <View
+        key={group.path}
+        onLayout={(event) => {
+          // Every member reports the GROUP's y rather than its own: folded,
+          // a card inside has no position to give, and the corner menu
+          // opens the group before it jumps, so the name it just opened is
+          // where it should land anyway.
+          for (const { key } of members) sectionOffsets.current[key] = event.nativeEvent.layout.y;
+        }}
+      >
+        <HomeSectionBand
+          title={route?.title ?? 'More'}
+          icon={route?.icon ?? 'ellipse-outline'}
+          color={route?.color ?? colors.primary}
+          expanded={tabGroupFolds.isOpen(foldKey)}
+          onToggle={() => tabGroupFolds.toggle(foldKey)}
+          contentStyle={styles.homeTabGroupBody}
+        >
+          {shown.map((member) => (
+            <Fragment key={member.key}>{member.node}</Fragment>
+          ))}
+        </HomeSectionBand>
+      </View>
     );
   }
 
@@ -2659,8 +2543,8 @@ export default function HomeScreen() {
     switch (key) {
       case 'sharedFolderSetup':
         return renderSharedFolderSetup();
-      case 'quickAccess':
-        return renderQuickAccess();
+      case 'lowStimulation':
+        return renderLowStimulation();
       case 'symptomCheckinReminder':
         return renderSymptomCheckinReminder();
       case 'todaysCheckin':
@@ -2813,19 +2697,23 @@ export default function HomeScreen() {
             </View>
           ) : (
             <>
-              {getOrderedHomeSectionKeys(visualPrefs).map((key) => (
-                // A bare View, no style: React Native does not collapse
-                // margins, so wrapping changes nothing about the layout, and
-                // it is what gives each section a y to scroll to.
-                <View
-                  key={key}
-                  onLayout={(event) => {
-                    sectionOffsets.current[key] = event.nativeEvent.layout.y;
-                  }}
-                >
-                  {renderHomeSection(key)}
-                </View>
-              ))}
+              {groupHomeSectionsForDisplay(getOrderedHomeSectionKeys(visualPrefs)).map((group) =>
+                group.kind === 'tab' ? (
+                  renderHomeTabGroup(group)
+                ) : (
+                  // A bare View, no style: React Native does not collapse
+                  // margins, so wrapping changes nothing about the layout, and
+                  // it is what gives each section a y to scroll to.
+                  <View
+                    key={group.key}
+                    onLayout={(event) => {
+                      sectionOffsets.current[group.key] = event.nativeEvent.layout.y;
+                    }}
+                  >
+                    {renderHomeSection(group.key)}
+                  </View>
+                ),
+              )}
             </>
           )}
 
@@ -2938,9 +2826,17 @@ export default function HomeScreen() {
             setQuickLogModal(entry.open);
             return;
           }
-          // Stays on Home. Falls back to the top rather than doing nothing if
-          // the section has not been measured yet, which can only happen if it
-          // is off-screen and has never been laid out.
+          // Stays on Home. The section now lives inside its tab’s group,
+          // so open that first: jumping to a folded band would land on a
+          // closed row and look like nothing happened (2026-09-16).
+          const tabPath = HOME_SECTION_TAB_PATH[key];
+          if (tabPath) {
+            const foldKey = `${HOME_TAB_GROUP_BAND_KEY_PREFIX}${tabPath}`;
+            if (!tabGroupFolds.isOpen(foldKey)) tabGroupFolds.toggle(foldKey);
+          }
+          // Falls back to the top rather than doing nothing if the section
+          // has not been measured yet, which can only happen if it is
+          // off-screen and has never been laid out.
           const y = sectionOffsets.current[key];
           scrollRef.current?.scrollTo({ y: y != null ? Math.max(0, y - 12) : 0, animated: true });
         }}
@@ -3138,6 +3034,15 @@ const styles = StyleSheet.create({
   // Shared by every band's expanded content that is a stack of things
   // (caption, buttons, a photo strip) rather than one widget.
   bandBody: { gap: HOME_BAND_GAP },
+  // A tab group's contents: the cards inside keep the full width on their
+  // right, the way every band on Home does, and are inset on the left so
+  // the group’s accent bar and theirs read as two levels rather than one
+  // thick line.
+  homeTabGroupBody: {
+    gap: HOME_BAND_GAP,
+    paddingLeft: HOME_BAND_CONTENT_PADDING,
+    paddingRight: 0,
+  },
   bandCaption: { ...typography.caption, ...textShadow, color: colors.textSecondary, lineHeight: 16 },
   // For a band whose content is one centred widget (the day arc, the orb).
   bandContentCentered: { alignItems: 'center' },
@@ -3536,19 +3441,6 @@ const styles = StyleSheet.create({
   },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, flexShrink: 1 },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
-  // Quick Access packs several switches into one group, so its pills take
-  // Profile's smaller size rather than the full one used for a single
-  // choice on a card of its own.
-  pillSmall: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  // Names the row of switches under it. Not a heading with a surface of
-  // its own to find: it is already inside a band.
-  quickAccessLabel: { ...typography.label, ...textShadow, color: colors.textPrimary },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   pillText: { ...typography.caption, ...textShadow, color: colors.textPrimary },
   pillTextActive: { color: colors.textOnPrimary,

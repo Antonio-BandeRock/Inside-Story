@@ -26,10 +26,9 @@ import type { HomeSectionKey } from './visualPreferences';
 export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   weather: null,
   sharedFolderSetup: null,
-  // Quick Access is about every tab, so it borrows none of their
-  // colours and stands on its own in the order (2026-09-16). Its
-  // groups inside carry the tab colours instead.
-  quickAccess: null,
+  // Home's own, so it sits in Home's group: what it changes is how the
+  // whole app looks, not what any one tab holds (2026-09-16).
+  lowStimulation: '/',
   logAgain: '/food',
   scanProduct: '/food',
   groceryList: '/life',
@@ -55,6 +54,41 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
 // section in Profile carries its tab-mates along with it rather than
 // being silently undone. A section with no tab is its own group of one
 // and stays exactly where it was.
+// The same grouping, one step further: each run of tab-mates becomes a
+// band the person opens, so Home at rest is a short list of tab names
+// rather than a column of every card at once.
+//
+// 2026-09-16, direct correction: "the things that are already on the Home
+// screen are already all quick access things from other tabs. What I
+// meant was to group the existing quick access elements into their
+// overarching category, rather than something labeled as Quick Access."
+// So the category is the tab itself, named and coloured like it, and
+// there is no band called Quick Access: the whole page is that.
+//
+// A section belonging to no tab (the shared-folder nudge) stays a row at
+// the top level, since there is no category to put it under.
+export type HomeSectionDisplayGroup =
+  | { kind: 'solo'; key: HomeSectionKey }
+  | { kind: 'tab'; path: string; keys: HomeSectionKey[] };
+
+export function groupHomeSectionsForDisplay(ordered: HomeSectionKey[]): HomeSectionDisplayGroup[] {
+  const groups: HomeSectionDisplayGroup[] = [];
+  // Regrouped first rather than trusting the caller, so this is correct
+  // on any list and can be checked on its own. Already-grouped input
+  // comes back untouched, so the second pass costs nothing.
+  for (const key of groupHomeSectionKeysByTab(ordered)) {
+    const path = HOME_SECTION_TAB_PATH[key];
+    if (path == null) {
+      groups.push({ kind: 'solo', key });
+      continue;
+    }
+    const last = groups[groups.length - 1];
+    if (last && last.kind === 'tab' && last.path === path) last.keys.push(key);
+    else groups.push({ kind: 'tab', path, keys: [key] });
+  }
+  return groups;
+}
+
 export function groupHomeSectionKeysByTab(ordered: HomeSectionKey[]): HomeSectionKey[] {
   const groups = new Map<string, HomeSectionKey[]>();
   for (const key of ordered) {

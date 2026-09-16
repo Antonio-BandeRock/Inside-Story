@@ -22,7 +22,7 @@ function load(relPath) {
   return module.exports;
 }
 
-const { groupHomeSectionKeysByTab, HOME_SECTION_TAB_PATH } = load('lib/homeSections.ts');
+const { groupHomeSectionKeysByTab, groupHomeSectionsForDisplay, HOME_SECTION_TAB_PATH } = load('lib/homeSections.ts');
 
 let failures = 0;
 let checks = 0;
@@ -125,6 +125,35 @@ const shuffled = ['digestCards', 'weekTrend', 'fuelGauges', 'worthALook', 'meals
 check('length is preserved', groupHomeSectionKeysByTab(shuffled).length, shuffled.length);
 check('same members', [...groupHomeSectionKeysByTab(shuffled)].sort(), [...shuffled].sort());
 check('empty stays empty', groupHomeSectionKeysByTab([]), []);
+
+// The per-tab bands Home draws (2026-09-16). Each run of tab-mates
+// becomes one group; a section with no tab is a row of its own.
+check('display groups are one per tab', groupHomeSectionsForDisplay(['logAgain', 'scanProduct', 'yourDay']), [
+  { kind: 'tab', path: '/food', keys: ['logAgain', 'scanProduct'] },
+  { kind: 'tab', path: '/schedule', keys: ['yourDay'] },
+]);
+
+check('a tabless section is a group of its own', groupHomeSectionsForDisplay(['sharedFolderSetup', 'logAgain']), [
+  { kind: 'solo', key: 'sharedFolderSetup' },
+  { kind: 'tab', path: '/food', keys: ['logAgain'] },
+]);
+
+// Low Stimulation is Home\u2019s own, so it lands in a Home group rather
+// than beside another tab\u2019s cards.
+check('low stimulation sits in the home group', groupHomeSectionsForDisplay(['logAgain', 'lowStimulation']), [
+  { kind: 'tab', path: '/food', keys: ['logAgain'] },
+  { kind: 'tab', path: '/', keys: ['lowStimulation'] },
+]);
+
+// An interleaved order regroups first, so one tab never gets two bands.
+const interleavedPaths = groupHomeSectionsForDisplay(interleaved).filter((g) => g.kind === 'tab').map((g) => g.path);
+check('no tab gets two bands', interleavedPaths.length, new Set(interleavedPaths).size);
+
+// Nothing is dropped on the way into groups.
+const regrouped = groupHomeSectionsForDisplay(shuffled)
+  .flatMap((g) => (g.kind === 'tab' ? g.keys : [g.key]));
+check('display grouping keeps every section', [...regrouped].sort(), [...shuffled].sort());
+check('display grouping of nothing is nothing', groupHomeSectionsForDisplay([]), []);
 
 if (failures > 0) {
   console.error(`\n${failures} of ${checks} checks failed`);
