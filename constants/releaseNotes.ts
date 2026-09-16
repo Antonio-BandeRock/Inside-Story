@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.4',
+    date: '2026-09-16',
+    changes: [
+      'Profile has a Low Stimulation switch, at the top of How the App Looks. One tap makes the whole app quieter on a day a busy screen is too much, instead of asking you to find the six or seven settings that add up to the same thing.',
+      'While it is on, every background goes flat: the same color as the header and footer behind Home and every tab, with no photo and no gradient behind anything you are reading.',
+      'Movement stops too. The greeting no longer zooms, cards turn over without the flip, menus and pop-ups open without fading, and a swiped tab changes without flying off the edge. Dragging still follows your finger, since that is the screen answering you rather than moving on its own.',
+      'Turning it on folds shut whatever you had open on Home and in the expandable bands elsewhere, so a screen opens as a short list rather than a wall. Open any of them again whenever you like.',
+      'Nothing you chose is overwritten. Your backgrounds, your color combination and your hub icon are all still saved, untouched, and they appear again the moment you switch Low Stimulation back off. The one thing it does not undo is the folding, since reopening sections you have since arranged yourself would be guessing.',
+      'The background pickers say so while it is on, so a photo picked on one of those quiet days does not look like a setting that is broken.',
+    ],
+  },
+  {
     version: '1.0.39.3',
     date: '2026-09-16',
     changes: [

@@ -103,6 +103,7 @@ import { useBandFolds } from '../../hooks/useBandFolds';
 import { describeUpkeepStanding, DUE_SOON_DAYS, upkeepCategoryLabel, upkeepStanding, type UpkeepItem, type UpkeepStanding } from '../../lib/upkeep';
 import { listUpkeepItems, markUpkeepDone } from '../../lib/upkeepDb';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
+import { modalAnimationType } from '../../lib/visualPreferences';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -1317,7 +1318,7 @@ function MealsLens() {
                       sourceMatches.length === 0 ? (
                         <Text style={styles.helperText}>
                           No {capitalize(form.mealType)} templates or favorites yet. Save a meal as a favorite, or
-                          switch to "Something unplanned" below.
+                          switch to &ldquo;Something unplanned&rdquo; below.
                         </Text>
                       ) : (
                         <View style={styles.sourceList}>
@@ -1343,7 +1344,7 @@ function MealsLens() {
                     ) : (
                       <>
                         <Text style={styles.helperText}>
-                          Didn't go as planned? Log your best guess of what you actually had (or plan to).
+                          Didn&apos;t go as planned? Log your best guess of what you actually had (or plan to).
                         </Text>
                         <View style={styles.labelRow}>
                           <AppTextInput
@@ -1510,7 +1511,7 @@ function MealsLens() {
         )}
     </ScrollView>
 
-    <Modal visible={rotatingItem !== null} transparent animationType="slide" onRequestClose={closeRotateSheet}>
+    <Modal visible={rotatingItem !== null} transparent animationType={modalAnimationType('slide')} onRequestClose={closeRotateSheet}>
       <View style={styles.backdrop}>
         <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={closeRotateSheet} />
         <View style={styles.rotateSheet}>
@@ -1522,7 +1523,7 @@ function MealsLens() {
           </View>
           <Text style={styles.helperText}>
             Tap any alternate to make it current for this meal, or randomize. This only applies to this one scheduled
-            meal; other scheduled meals from the same favorite are unaffected. "Log now" for this meal will use
+            meal; other scheduled meals from the same favorite are unaffected. &ldquo;Log now&rdquo; for this meal will use
             whatever you pick here.
           </Text>
 
@@ -2209,7 +2210,7 @@ function DailyMealPlanLens() {
           width={220}
         />
         <Text style={[styles.label, { marginTop: 12 }]}>Carb level</Text>
-        <Text style={styles.helperText}>Applies to each day's own total, not any one meal alone.</Text>
+        <Text style={styles.helperText}>Applies to each day&apos;s own total, not any one meal alone.</Text>
         <PopoverSelect
           selected={CARB_LEVEL_OPTIONS.find((option) => option.value === carbLevel)?.label ?? 'Any'}
           options={CARB_LEVEL_OPTIONS.map((option) => option.label)}
@@ -2735,11 +2736,11 @@ function HydrationLens() {
         <>
           {waterEntry ? (
             <View style={styles.hydrationSummaryCard}>
-              <Text style={styles.hydrationSummaryLabel}>Today's water</Text>
+              <Text style={styles.hydrationSummaryLabel}>Today&apos;s water</Text>
               <Text style={styles.hydrationSummaryValue}>
                 {Math.round(waterEntry.combinedTotal)} / {Math.round(waterEntry.target)} ml
               </Text>
-              <Text style={styles.hydrationSummaryMeta}>{Math.round(waterEntry.percentOfTarget)}% of today's target</Text>
+              <Text style={styles.hydrationSummaryMeta}>{Math.round(waterEntry.percentOfTarget)}% of today&apos;s target</Text>
             </View>
           ) : null}
 
@@ -2774,7 +2775,7 @@ function HydrationLens() {
                     sourceMatches.length === 0 ? (
                       <Text style={styles.helperText}>
                         No Beverage templates or favorites yet. Save a beverage as a favorite on the Food tab, or
-                        switch to "Something unplanned" below.
+                        switch to &ldquo;Something unplanned&rdquo; below.
                       </Text>
                     ) : (
                       <View style={styles.sourceList}>
@@ -2883,7 +2884,7 @@ function HydrationLens() {
           <ScheduleBand folds={folds} id="schedule:hydration:today" title="Today's drinks" icon="water-outline" count={rows.length}>
           {rows.length === 0 ? (
             <Text style={[styles.emptyText, styles.panelStandalone]}>
-              Nothing logged or scheduled yet today. This includes any "Beverage" meals logged directly from Meals too.
+              Nothing logged or scheduled yet today. This includes any &ldquo;Beverage&rdquo; meals logged directly from Meals too.
             </Text>
           ) : (
             <View style={styles.table}>

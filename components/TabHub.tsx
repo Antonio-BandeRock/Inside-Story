@@ -10,7 +10,7 @@ import { getTabHubIconRenderSize, TAB_HUB_ICON_SOURCES } from '../constants/tabH
 import { TAB_ROUTES, type TabRoute } from '../constants/tabs';
 import { menuLabelShadow, textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
-import type { TabHubIconChoice } from '../lib/visualPreferences';
+import { modalAnimationType, type TabHubIconChoice } from '../lib/visualPreferences';
 import { useCurrentPageHelp } from './CurrentPageHelp';
 import { DessertBuilderIcon } from './FoodBuilderIcons';
 import { HelpSheet } from './HelpButton';
@@ -667,7 +667,7 @@ export function TabHub() {
       <Modal
         visible={open}
         transparent
-        animationType="fade"
+        animationType={modalAnimationType('fade')}
         statusBarTranslucent
         navigationBarTranslucent
         onShow={handleModalShow}

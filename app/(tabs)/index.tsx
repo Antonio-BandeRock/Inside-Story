@@ -107,11 +107,13 @@ import {
   getOrderedHomeSectionKeys,
   isHomeSectionExpanded,
   isHomeSectionVisible,
+  modalAnimationType,
   setVisualPreferences,
   type HomeSectionKey,
 } from '../../lib/visualPreferences';
 import { HOME_SECTION_TAB_PATH } from '../../lib/homeSections';
 import { useVisualPreferences } from '../../hooks/useVisualPreferences';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 // 'YYYY-MM-DD' in LOCAL time -- same helper (and same reasoning) duplicated
 // in food.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's calendar date is
@@ -826,6 +828,9 @@ export default function HomeScreen() {
   // want" reasoning. Read the same live way every other visual preference
   // already is, so a toggle flipped on Profile reaches Home immediately.
   const visualPrefs = useVisualPreferences();
+  // 2026-09-16: the greeting still collapses into its badge and grows
+  // back out with low stimulation on, it just does it without the zoom.
+  const reducedMotion = useReducedMotion();
 
   // Built from what is actually on Home, in the order it is on Home, so the
   // menu and the page can never disagree about what exists.
@@ -2661,12 +2666,20 @@ export default function HomeScreen() {
             transparent than the resting card look so it reads as a
             temporary overlay rather than a permanent fixture. */}
         {greetingCardState === 'collapsed' ? (
-          <Animated.View entering={ZoomIn.springify()} exiting={FadeOut} style={styles.greetingCollapsedWrap}>
+          <Animated.View
+            entering={reducedMotion ? undefined : ZoomIn.springify()}
+            exiting={reducedMotion ? undefined : FadeOut}
+            style={styles.greetingCollapsedWrap}
+          >
             {renderGreetingSeedBadge('expand')}
           </Animated.View>
         ) : null}
         {greetingCardState === 'expanded' ? (
-          <Animated.View entering={ZoomIn.springify()} exiting={FadeOut} style={styles.greetingExpandedCard}>
+          <Animated.View
+            entering={reducedMotion ? undefined : ZoomIn.springify()}
+            exiting={reducedMotion ? undefined : FadeOut}
+            style={styles.greetingExpandedCard}
+          >
             {renderGreetingCardFull()}
           </Animated.View>
         ) : null}
@@ -2717,7 +2730,7 @@ export default function HomeScreen() {
         }}
       />
 
-      <Modal visible={selectedItem != null} transparent animationType="fade" onRequestClose={() => setSelectedItem(null)}>
+      <Modal visible={selectedItem != null} transparent animationType={modalAnimationType('fade')} onRequestClose={() => setSelectedItem(null)}>
           <View style={styles.modalBackdrop}>
             <Pressable style={styles.modalBackdropTouchable} onPress={() => setSelectedItem(null)} />
             {selectedItem ? (
@@ -2748,7 +2761,7 @@ export default function HomeScreen() {
           </View>
         </Modal>
 
-        <Modal visible={quickLogModal != null} transparent animationType="fade" onRequestClose={closeQuickLogModal}>
+        <Modal visible={quickLogModal != null} transparent animationType={modalAnimationType('fade')} onRequestClose={closeQuickLogModal}>
           <View style={styles.modalBackdrop}>
             <Pressable style={styles.modalBackdropTouchable} onPress={closeQuickLogModal} />
             <View style={styles.modalCard}>

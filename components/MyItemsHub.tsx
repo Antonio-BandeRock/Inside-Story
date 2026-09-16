@@ -14,6 +14,7 @@ import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { ActiveRingCircle } from './ActiveRingCircle';
+import { modalAnimationType } from '../lib/visualPreferences';
 
 // 2026-07-28: fills the gap deliberately left between the LensHub button
 // and the butterfly -- a "My Foods"/"My Insights"/"My Schedules"/etc.
@@ -197,7 +198,7 @@ export function MyItemsHub({
       <Modal
         visible={open}
         transparent
-        animationType="fade"
+        animationType={modalAnimationType('fade')}
         statusBarTranslucent
         navigationBarTranslucent
         onRequestClose={() => setOpen(false)}

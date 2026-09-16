@@ -2,6 +2,7 @@ import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Modal, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
+import { modalAnimationType } from '../lib/visualPreferences';
 
 // A real, reusable "this is genuinely still working" overlay -- 2026-08-16,
 // direct request following real, on-device backup/restore testing: "there
@@ -52,7 +53,7 @@ export function useBusyOverlay(): [(message: string) => void, () => void, ReactN
   }, []);
 
   const element = (
-    <Modal visible={message !== null} transparent animationType="fade">
+    <Modal visible={message !== null} transparent animationType={modalAnimationType('fade')}>
       <View style={styles.backdrop}>
         <View style={styles.card}>
           <ActivityIndicator size="large" color={colors.primary} />

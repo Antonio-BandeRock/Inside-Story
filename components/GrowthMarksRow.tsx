@@ -5,6 +5,7 @@ import Animated, { ZoomIn } from 'react-native-reanimated';
 import { DOT_ROUTES, ROW_EDGE_PADDING } from './TabPositionDots';
 import { evaluateAchievementCriteria } from '../lib/achievementCriteria';
 import { getGrowthVineState, type GrowthVineState, type LeafStage } from '../lib/growthVine';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 // Phase 2 of the header growth vine/Timeline plan (2026-08-21, see the
 // Notion App Development Log and the "Header Vine, Timeline & Life" phased
@@ -32,6 +33,9 @@ import { getGrowthVineState, type GrowthVineState, type LeafStage } from '../lib
 // architecture already designs around.
 export function GrowthMarksRow({ enabled }: { enabled: boolean }) {
   const [vineState, setVineState] = useState<GrowthVineState | null>(null);
+  // 2026-09-16: a mark that has been earned still shows under its tab
+  // with low stimulation on, it just appears rather than springing in.
+  const reducedMotion = useReducedMotion();
 
   useFocusEffect(
     useCallback(() => {
@@ -72,13 +76,13 @@ export function GrowthMarksRow({ enabled }: { enabled: boolean }) {
             {tabState.fruitStage === 'ripe' ? (
               <Animated.View
                 key="fruit"
-                entering={ZoomIn.springify()}
+                entering={reducedMotion ? undefined : ZoomIn.springify()}
                 style={[styles.fruit, { backgroundColor: FRUIT_PLACEHOLDER_COLOR }]}
               />
             ) : tabState.leafStage !== 'none' ? (
               <Animated.View
                 key={tabState.leafStage}
-                entering={ZoomIn.springify()}
+                entering={reducedMotion ? undefined : ZoomIn.springify()}
                 style={[
                   styles.leaf,
                   LEAF_STAGE_SIZE[tabState.leafStage],

@@ -446,12 +446,61 @@ export type VisualPreferences = {
   // an existing one here, the same limit constants/releaseNotes.ts already
   // documents for last_seen_app_version, and one dismissible overlay is the
   // harmless side of that trade.
+  // 2026-09-16: one switch that makes the whole app quieter, rather than
+  // asking someone to find the six settings that add up to the same thing.
+  // Everything it does is an override read at the point of use, never a
+  // bulk write over what the person chose: turning it off puts every
+  // background, every palette and every icon back exactly as they were,
+  // because none of them were touched. Read through
+  // resolveBackgroundStyle, isMotionReduced and modalAnimationType below
+  // rather than testing this field directly, so the list of what it
+  // covers stays in one place.
+  //
+  // The one thing it does write is the fold state, and only at the moment
+  // it is switched on (setLowStimulation): whatever was left open on Home
+  // and in every band folds shut, since an override there would lock the
+  // screen closed and leave no way to read anything.
+  lowStimulation: boolean;
   hasSeenTabHubWelcome: boolean;
   // Set the first time the TabHub button is actually tapped. Tapping is the
   // only thing that clears the pointer: dismissing the welcome does not, since
   // reading about a button is not the same as knowing where it is.
   hasUsedTabHub: boolean;
 };
+
+// Which background a given scope actually draws, once low stimulation has
+// had its say. `routeKey` is a real TAB_ROUTES path for an individual tab
+// and undefined for the shared resting layer, matching what
+// ScreenBackground.tsx passes. Low stimulation answers 'off' for every
+// scope: a photograph behind text is the single loudest thing on screen,
+// and 'off' leaves the same flat ground color the header and footer
+// already use rather than swapping one image for another.
+export function resolveBackgroundStyle(prefs: VisualPreferences, routeKey?: string): BackgroundStyle {
+  if (prefs.lowStimulation) return 'off';
+  return routeKey ? (prefs.tabBackgroundStyle[routeKey] ?? 'photo') : prefs.homeBackgroundStyle;
+}
+
+// Whether motion that exists for polish rather than for meaning should be
+// skipped: the greeting's zoom, a card's flip, the growth marks arriving,
+// a modal fading in, a swiped tab flying off the edge. Dragging still
+// follows the finger, and nothing that carries information is removed;
+// what goes is the part that moves on its own after the finger has left.
+// Its own function rather than a bare field read, so a separate
+// reduce-motion switch can be split out later without touching every call
+// site.
+export function isMotionReduced(prefs: VisualPreferences): boolean {
+  return prefs.lowStimulation;
+}
+
+// The animationType for a Modal. Read synchronously from the module cache
+// rather than through the hook, the same way getGroundThemeSync already
+// reads its own value, because a Modal mounts fresh every time it opens:
+// by the time one is on screen the cache is current, and a preference
+// changed while a modal is open should not restyle the modal underneath
+// the person's hand anyway.
+export function modalAnimationType(preferred: 'fade' | 'slide'): 'fade' | 'slide' | 'none' {
+  return isMotionReduced(getCachedVisualPreferences()) ? 'none' : preferred;
+}
 
 // Absence of `key` in `prefs.homeSectionVisibility` means visible -- see
 // that field's own comment for why. Every Home render check and Profile's
@@ -509,6 +558,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   homeSectionOrder: [],
   homeSectionExpanded: {},
   bandExpanded: {},
+  lowStimulation: false,
   hasSeenTabHubWelcome: false,
   hasUsedTabHub: false,
 };
@@ -731,6 +781,34 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
 
   notifyListeners();
   return merged;
+}
+
+// Turning low stimulation on or off. A plain setVisualPreferences call
+// would do for the flag itself; this exists for the fold, which cannot be
+// an override without locking every section shut.
+//
+// Switching on folds whatever was open, on Home and in every band on every
+// other screen. That has to be written key by key with an explicit false,
+// because setVisualPreferences merges both of those maps rather than
+// replacing them (see its own comment), so passing an empty object would
+// leave every open section exactly as it was. Switching off leaves the
+// folds alone: reopening what a person chose to fold is their call, and
+// guessing at it would mean storing a second copy of a state they can
+// change with one tap.
+export async function setLowStimulation(enabled: boolean): Promise<VisualPreferences> {
+  const current = await getVisualPreferences();
+  if (!enabled) return setVisualPreferences({ lowStimulation: false });
+
+  const homeSectionExpanded: Partial<Record<HomeSectionKey, boolean>> = {};
+  for (const key of Object.keys(current.homeSectionExpanded) as HomeSectionKey[]) {
+    if (current.homeSectionExpanded[key]) homeSectionExpanded[key] = false;
+  }
+  const bandExpanded: Record<string, boolean> = {};
+  for (const key of Object.keys(current.bandExpanded ?? {})) {
+    if (current.bandExpanded[key]) bandExpanded[key] = false;
+  }
+
+  return setVisualPreferences({ lowStimulation: true, homeSectionExpanded, bandExpanded });
 }
 
 // Subscribed to by useVisualPreferences below -- every mounted consumer

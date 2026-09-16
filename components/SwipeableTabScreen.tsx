@@ -4,6 +4,7 @@ import { StyleSheet, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { TAB_ROUTES } from '../constants/tabs';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 // Left-to-right order of the bottom tabs, as routes -- derived from the one
 // shared list in constants/tabs.ts, also used by TabHub and (for name/title
@@ -68,6 +69,14 @@ export function SwipeableTabScreen({
   const pathname = usePathname();
   const { width } = useWindowDimensions();
   const translateX = useSharedValue(0);
+  // 2026-09-16, low stimulation mode: the drag itself still follows the
+  // finger, since that is the screen answering a touch rather than
+  // moving on its own. What goes is the part that happens after the
+  // finger has lifted, the fly-off and the spring back, both replaced
+  // by landing there immediately. Read at render and captured by the
+  // worklet below, which is why this is the hook rather than a
+  // synchronous read.
+  const reducedMotion = useReducedMotion();
 
   function goToOffset(offset: 1 | -1) {
     const currentIndex = TAB_ORDER.indexOf(pathname as Href);
@@ -108,6 +117,13 @@ export function SwipeableTabScreen({
             : 0;
 
       if (passedThreshold !== 0) {
+        if (reducedMotion) {
+          // The tab still changes, and in the direction swiped; it just
+          // changes now instead of after a slide.
+          translateX.value = 0;
+          runOnJS(goToOffset)(passedThreshold);
+          return;
+        }
         // Flies fully off in the swipe's own direction before the actual
         // tab switch fires -- see EXIT_DURATION_MS's own comment.
         translateX.value = withTiming(passedThreshold === 1 ? -width : width, { duration: EXIT_DURATION_MS }, (finished) => {
@@ -117,7 +133,7 @@ export function SwipeableTabScreen({
         // Didn't clear the threshold -- springs back to resting rather
         // than snapping instantly, same "this is a real, physical surface"
         // feel as the drag itself.
-        translateX.value = withSpring(0);
+        translateX.value = reducedMotion ? 0 : withSpring(0);
       }
     });
 

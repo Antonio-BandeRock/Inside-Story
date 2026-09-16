@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_EDGE_WIDTH } from './HomeSectionBand';
@@ -84,10 +85,14 @@ export function FlipCard({
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const flipped = useSharedValue(0);
+  // 2026-09-16: the card still turns over, it just arrives there at
+  // once when low stimulation is on. Nothing is hidden either way, so
+  // this is a duration change rather than a second render path.
+  const reducedMotion = useReducedMotion();
 
   function toggle() {
     const next = !isFlipped;
-    flipped.value = withTiming(next ? 1 : 0, { duration: 400 });
+    flipped.value = withTiming(next ? 1 : 0, { duration: reducedMotion ? 0 : 400 });
     setIsFlipped(next);
   }
 

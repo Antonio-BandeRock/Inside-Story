@@ -15,6 +15,7 @@ import { TAB_REVEAL_DURATION_MS } from '../constants/tabReveal';
 import { menuLabelShadow, textShadow, typography } from '../constants/typography';
 import { HelpSheet, type HelpSection } from './HelpButton';
 import { ActiveRingCircle } from './ActiveRingCircle';
+import { modalAnimationType } from '../lib/visualPreferences';
 
 export type LensOption<T extends string> = {
   key: T;
@@ -767,7 +768,7 @@ export function LensHub<T extends string>({
       <Modal
         visible={open}
         transparent
-        animationType="fade"
+        animationType={modalAnimationType('fade')}
         statusBarTranslucent
         navigationBarTranslucent
         onShow={() => setCardReady(true)}

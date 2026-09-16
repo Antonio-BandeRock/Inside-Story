@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import { useFooterBandHeight } from '../constants/floatingButton';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
-import { SHARED_BACKGROUND_SCOPE_KEY } from '../lib/visualPreferences';
+import { resolveBackgroundStyle, SHARED_BACKGROUND_SCOPE_KEY } from '../lib/visualPreferences';
 import { EDGE_SHADOW_HEIGHT, EdgeShadow } from './EdgeShadow';
 import { GenericBackground } from './GenericBackground';
 
@@ -104,9 +104,12 @@ export function ScreenBackground({
   const background = BACKGROUNDS[variant];
 
   const visualPrefs = useVisualPreferences();
-  const effectiveStyle = routeKey
-    ? (visualPrefs.tabBackgroundStyle[routeKey] ?? 'photo')
-    : visualPrefs.homeBackgroundStyle;
+  // 2026-09-16: the scope’s own choice, unless low stimulation is on,
+  // in which case every scope answers ‘off’ (see resolveBackgroundStyle
+  // in lib/visualPreferences.ts). Nothing the person picked is
+  // overwritten, so switching the mode back off restores every one of
+  // these images at once.
+  const effectiveStyle = resolveBackgroundStyle(visualPrefs, routeKey);
   // 2026-08-09: the real, uploaded image for this exact scope (see
   // lib/customBackgroundImage.ts) -- undefined if 'custom' was somehow
   // selected with no image actually stored (a real edge case handled

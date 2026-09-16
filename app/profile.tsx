@@ -119,6 +119,7 @@ import {
   getOrderedHomeSectionKeys,
   HOME_SECTION_LABELS,
   isHomeSectionVisible,
+  setLowStimulation,
   setVisualPreferences,
   SHARED_BACKGROUND_SCOPE_KEY,
   type BackgroundStyle,
@@ -284,6 +285,7 @@ const ALL_CARD_SECTION_KEYS = [
   // Growing Your Own
   'garden-details',
   // How the App Looks
+  'low-stimulation',
   'home-screen',
   'header-growth',
   'appearance',
@@ -3353,6 +3355,66 @@ export default function ProfileScreen() {
       </View>
 
       {renderGroupHeading('How the App Looks')}
+      {/* Low Stimulation, 2026-09-16. Everything it does could already be
+          done by hand: set every background to Off one tab at a time, fold
+          each Home section, and live with the motion. That is six or more
+          settings in three places, which is a lot to ask of someone on the
+          day they most need the app to be quiet. One switch instead, placed
+          first in this group so it is found before the pickers it overrides.
+
+          It writes almost nothing: backgrounds and motion are answered on
+          its behalf at the point of use (resolveBackgroundStyle and
+          isMotionReduced in lib/visualPreferences.ts), so every photo,
+          palette and icon the person chose survives untouched and returns
+          the instant this goes off. Fold state is the one exception and is
+          written once, at switch-on: an override there would hold every
+          section shut with no way to read anything. */}
+      <View style={styles.card}>
+        {renderCardHeader('low-stimulation', 'Low Stimulation')}
+        {!collapsedSections.has('low-stimulation') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              One switch for a quieter app on the days a busy screen is too much, instead of hunting down
+              the settings that add up to the same thing. Nothing is hidden, nothing is deleted, and every
+              choice you have made here is kept exactly as it is.
+            </Text>
+            <View style={styles.pillRow}>
+              {[false, true].map((value) => {
+                const active = visualPrefs.lowStimulation === value;
+                return (
+                  <TouchableOpacity
+                    key={value ? 'on' : 'off'}
+                    style={[styles.pill, active && styles.pillActive]}
+                    onPress={() => {
+                      void setLowStimulation(value);
+                    }}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <Text style={styles.helpText}>
+              Backgrounds: every tab shows the same flat color as the header and footer, with no photo and
+              no gradient behind anything you are reading. Your own picks are untouched and come back the
+              moment you turn this off.
+            </Text>
+            <Text style={styles.helpText}>
+              Movement: the greeting stops zooming in and out, cards turn over without the flip, menus and
+              pop-ups open without fading, and a swiped tab changes without flying off the edge. Dragging
+              still follows your finger, since that is the screen answering you rather than moving on its
+              own.
+            </Text>
+            <Text style={styles.helpText}>
+              Sections: whatever is open on Home, and in every expandable band elsewhere, folds shut when
+              you turn this on, so a screen opens as a short list rather than a wall. Open any of them
+              again whenever you want. Turning this back off leaves your folds alone rather than reopening
+              them for you.
+            </Text>
+          </View>
+        ) : null}
+      </View>
+
       {/* Home Screen, 2026-08-21, direct request: "make it capable of
           turning on and off whatever the user wants to from the home
           screen so they are able to dial in on what they want to have
@@ -3543,6 +3605,16 @@ export default function ProfileScreen() {
               </>
             ) : null}
 
+            {/* 2026-09-16: without this line, picking a background while Low
+                Stimulation is on looks like a setting that does nothing. Said
+                here, above both background sub-sections, rather than repeated
+                inside each one. */}
+            {visualPrefs.lowStimulation ? (
+              <Text style={styles.helpText}>
+                Low Stimulation is on, so every background below is off for now, whatever is picked here.
+                Your choices are still saved and appear again as soon as you switch it off.
+              </Text>
+            ) : null}
             {renderAppearanceSubsectionHeader('sharedBackground', 'Shared background', false)}
             {!collapsedAppearanceSubsections.has('sharedBackground') ? (
               <>

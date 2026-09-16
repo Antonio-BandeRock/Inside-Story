@@ -3,6 +3,7 @@ import { Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View }
 import { colors } from '../constants/colors';
 import { NAVIGATION_HAND } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { modalAnimationType } from '../lib/visualPreferences';
 
 export type PasswordPromptMode = 'set' | 'enter';
 
@@ -80,7 +81,7 @@ export function usePasswordPrompt(): [
   }
 
   const element = (
-    <Modal visible={request !== null} transparent animationType="fade" onRequestClose={() => close(null)}>
+    <Modal visible={request !== null} transparent animationType={modalAnimationType('fade')} onRequestClose={() => close(null)}>
       <View style={styles.backdrop}>
         <Pressable style={StyleSheet.absoluteFill} onPress={() => close(null)} />
         <View style={styles.card}>

@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { modalAnimationType } from '../lib/visualPreferences';
 
 export type HelpSection = { heading: string; body: string };
 
@@ -48,7 +49,7 @@ export function HelpSheet({
     // Android edge-to-edge gap, same fix.
     <Modal
       visible={visible}
-      animationType="slide"
+      animationType={modalAnimationType('slide')}
       transparent
       statusBarTranslucent
       navigationBarTranslucent

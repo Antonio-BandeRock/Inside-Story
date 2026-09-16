@@ -125,6 +125,7 @@ import {
 } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
+import { modalAnimationType } from '../../lib/visualPreferences';
 
 // 'YYYY-MM-DD' in LOCAL time -- same reasoning as the rest of the app
 // (see lib/db.ts/app/(tabs)/index.tsx): UTC's calendar date is wrong for
@@ -2112,7 +2113,7 @@ function ScopeHub<M extends NavigableMeal>({
         </ActiveRingCircle>
       </TouchableOpacity>
 
-      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
+      <Modal visible={open} transparent animationType={modalAnimationType('fade')} onRequestClose={() => setOpen(false)}>
         <View style={styles.backdrop}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
           <View style={[styles.scopeCard, { bottom: cardBottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN, borderColor: TAB_COLOR }]}>

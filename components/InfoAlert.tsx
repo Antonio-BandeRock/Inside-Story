@@ -3,6 +3,7 @@ import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'r
 import { colors } from '../constants/colors';
 import { NAVIGATION_HAND } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { modalAnimationType } from '../lib/visualPreferences';
 
 type InfoAlertRequest = { title: string; message: string };
 
@@ -74,7 +75,7 @@ export function useInfoAlert(): [(title: string, message: string) => void, React
   }
 
   const element = (
-    <Modal visible={request !== null} transparent animationType="fade" onRequestClose={close}>
+    <Modal visible={request !== null} transparent animationType={modalAnimationType('fade')} onRequestClose={close}>
       <View style={styles.backdrop}>
         <Pressable style={StyleSheet.absoluteFill} onPress={close} />
         <View style={styles.card}>
