@@ -19,7 +19,24 @@ export type CheckinTagCategory =
   | 'sleep'
   | 'skin'
   | 'pain_physical'
-  | 'cognitive';
+  | 'cognitive'
+  // Both added 2026-09-16. The 36 tags this list started with described a
+  // body: what the gut, the joints, the skin and the sleep did. Two things
+  // people report constantly had nowhere to go.
+  //
+  // Appetite is the one closest to this app's purpose. Whether someone ate
+  // at all sits upstream of every food correlation the Pattern Finder can
+  // draw, and "no appetite" is a documented experience in Hashimoto's,
+  // IBD, chronic kidney disease and half the medications in My Meds. The
+  // app could see what was logged and never why nothing was.
+  //
+  // Sensory and regulation covers being overwhelmed by noise, light or
+  // crowds, and what follows when that does not let up. Named for
+  // neurodivergent users, who asked for it, but not only theirs: light and
+  // sound sensitivity is core to migraine, and the crash after too much
+  // input is familiar to anyone managing fatigue.
+  | 'appetite'
+  | 'sensory_regulation';
 
 export type CheckinTagDefinition = {
   code: string;
@@ -34,12 +51,14 @@ export type CheckinTagDefinition = {
 
 export const CHECKIN_TAG_CATEGORIES: Record<CheckinTagCategory, string> = {
   digestive: 'Digestive / IBS',
+  appetite: 'Appetite & Eating',
   energy: 'Energy',
   mood_stress: 'Mood & Stress',
   sleep: 'Sleep',
   skin: 'Skin',
   pain_physical: 'Pain & Physical',
   cognitive: 'Cognitive',
+  sensory_regulation: 'Sensory & Regulation',
 };
 
 export const CHECKIN_TAGS: CheckinTagDefinition[] = [
@@ -54,10 +73,21 @@ export const CHECKIN_TAGS: CheckinTagDefinition[] = [
   { code: 'nausea', label: 'Nausea', category: 'digestive', usualValence: 'negative' },
   { code: 'digestion_calm', label: 'Digestion felt calm/normal', category: 'digestive', usualValence: 'positive' },
 
+  // Appetite & Eating. Deliberately about the wanting and the doing, not
+  // the digesting: what happened after food is already covered above.
+  // 'forgot_to_eat' is the one that started this group, and it is the one
+  // the meal reminders added the same day are meant to act on.
+  { code: 'no_appetite', label: 'No appetite', category: 'appetite', usualValence: 'negative' },
+  { code: 'forgot_to_eat', label: 'Forgot to eat', category: 'appetite', usualValence: 'negative' },
+  { code: 'constant_hunger', label: 'Hungry all the time', category: 'appetite', usualValence: 'negative' },
+  { code: 'food_aversion', label: "Couldn't face eating", category: 'appetite', usualValence: 'negative' },
+  { code: 'ate_normally', label: 'Ate normally', category: 'appetite', usualValence: 'positive' },
+
   // Energy
   { code: 'fatigue', label: 'Fatigue', category: 'energy', usualValence: 'negative' },
   { code: 'energy_crash', label: 'Energy crash', category: 'energy', usualValence: 'negative' },
   { code: 'wired_jittery', label: 'Wired / jittery', category: 'energy', usualValence: 'negative' },
+  { code: 'restless', label: "Restless / couldn't settle", category: 'energy', usualValence: 'negative' },
   { code: 'good_energy', label: 'Good, steady energy', category: 'energy', usualValence: 'positive' },
 
   // Mood & Stress
@@ -89,7 +119,25 @@ export const CHECKIN_TAGS: CheckinTagDefinition[] = [
 
   // Cognitive
   { code: 'brain_fog', label: 'Brain fog', category: 'cognitive', usualValence: 'negative' },
+  // Both negative, which is a judgement about this list's purpose rather
+  // than about the states themselves. Hyperfocus is not a bad thing to
+  // experience; it is worth tagging here because of what it displaces, and
+  // marking it negative is also what puts it in front of someone filling
+  // in the Log tab's flare/reaction picker, which offers negative tags
+  // only (see NEGATIVE_TAG_GROUPS in app/(tabs)/log.tsx).
+  { code: 'hyperfocused', label: 'Hyperfocused / lost track of time', category: 'cognitive', usualValence: 'negative' },
+  { code: 'couldnt_get_started', label: "Couldn't get started", category: 'cognitive', usualValence: 'negative' },
   { code: 'clear_headed', label: 'Clear-headed / focused', category: 'cognitive', usualValence: 'positive' },
+
+  // Sensory & Regulation. Ordered as the day tends to run: too much input,
+  // then the two ways that goes when it does not stop. Meltdown and
+  // shutdown are kept apart on purpose, because they look nothing alike
+  // from outside and a person knows which one they had.
+  { code: 'overstimulated', label: 'Overstimulated', category: 'sensory_regulation', usualValence: 'negative' },
+  { code: 'noise_light_sensitivity', label: 'Noise or light felt painful', category: 'sensory_regulation', usualValence: 'negative' },
+  { code: 'meltdown', label: 'Meltdown', category: 'sensory_regulation', usualValence: 'negative' },
+  { code: 'shutdown', label: 'Shutdown / withdrew', category: 'sensory_regulation', usualValence: 'negative' },
+  { code: 'felt_regulated', label: 'Felt settled and regulated', category: 'sensory_regulation', usualValence: 'positive' },
 ];
 
 export function getCheckinTagsByCategory(): { category: CheckinTagCategory; label: string; tags: CheckinTagDefinition[] }[] {

@@ -1,13 +1,29 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { listReminderCandidates, type ReminderCandidate } from './db';
+import { getReminderPreferences, isReminderKindEnabled, type ReminderKindKey } from './reminderPreferences';
 import { formatTime12 } from './timeOfDay';
 
-// Local reminders: the scheduled doses in Schedules > Meds and the visits in
-// Schedules > Appointments fire as phone notifications, entirely on the
-// device, through expo-notifications (compiled into the 1.0.37.33 rebuild).
+// Local reminders: the scheduled doses in Schedules > Meds, the visits in
+// Schedules > Appointments, and, since 2026-09-16, the meals and the drinks
+// on the schedule fire as phone notifications, entirely on the device,
+// through expo-notifications (compiled into the 1.0.37.33 rebuild).
 // Nothing here talks to a server; the content-blind push relay the
 // architecture notes describe is a separate, later piece.
+//
+// Four kinds, each with its own switch in Profile > Reminders (see
+// lib/reminderPreferences.ts for why meals default on and drinks default
+// off). A kind switched off is dropped before anything is scheduled, so
+// turning one off clears what it had already queued at the next reconcile
+// rather than leaving a week of stale notifications behind.
+//
+// Meals and drinks are one item_type in the schedule and are told apart by
+// meal_type, which is why they arrive here in the same query and split into
+// two kinds only at buildPlanned. A meal fires at the time it was planned
+// for, not ahead of it: the case this was asked for is someone who did not
+// notice they had skipped eating, and a nudge an hour early answers a
+// different question. An appointment keeps its hour of lead because getting
+// there is the part that needs the warning.
 //
 // How it stays correct without hooking every create/edit/delete path: the
 // schedule_items table is the one source of truth, and
@@ -41,17 +57,34 @@ const IDENTIFIER_PREFIX = 'inside-story-reminder:';
 const LOOKAHEAD_DAYS = 7;
 // iOS caps pending local notifications at 64; keeping under that on both
 // platforms means the nearest week never silently loses its tail.
+//
+// With meals and drinks switched on a day can hold a dozen of these, so the
+// cap is reached well inside the seven-day window rather than at the end of
+// it. The list is sorted by time before it is cut, so what survives is
+// always the soonest, and the next reconcile (app start, or any return to
+// the foreground) extends it again. Nothing is lost that was not going to
+// be recomputed anyway.
 const MAX_PENDING = 60;
 const APPOINTMENT_LEAD_MINUTES = 60;
+// Two Android channels, because a dose and a glass of water do not deserve
+// the same interruption. Doses and appointments keep the high-importance
+// channel they have always used; meals and drinks get a quieter one the
+// person can mute on its own from Android's own notification settings
+// without touching the channel the medication reminders use.
 const ANDROID_CHANNEL_ID = 'reminders';
+const ANDROID_ROUTINE_CHANNEL_ID = 'routines';
 
-export type ReminderKind = 'dose' | 'appointment';
+// Same four keys as ReminderKindKey in lib/reminderPreferences.ts, which is
+// what decides whether each one fires.
+export type ReminderKind = ReminderKindKey;
+
+type ReminderLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration';
 
 type ReminderPayload = {
   kind: ReminderKind;
   scheduleItemId: string;
   fireAt: string;
-  lens: 'meds' | 'appointments';
+  lens: ReminderLens;
 };
 
 type PlannedNotification = {
@@ -141,6 +174,27 @@ function describeDose(candidate: ReminderCandidate): string | null {
   return null;
 }
 
+// Which switch governs this row. A 'meal' row carrying meal_type
+// 'beverage' is a drink, which is how the Hydration lens and the Daily Meal
+// Plan's water-gap filler both write one (see
+// scheduleHydrationRemindersForDay in lib/db.ts).
+function reminderKindFor(candidate: ReminderCandidate): ReminderKind {
+  if (candidate.itemType === 'appointment') return 'appointment';
+  if (candidate.itemType !== 'meal') return 'dose';
+  return candidate.mealType === 'beverage' ? 'hydration' : 'meal';
+}
+
+// "Breakfast", "Snack", "Smoothie". The schedule stores these lowercase and
+// there is no shared label map for them, so the one thing worth doing is not
+// showing a lowercase word at the front of a notification title. Anything
+// unrecognised is left alone rather than guessed at.
+function mealTypeLabel(mealType: string | null): string | null {
+  if (!mealType) return null;
+  const trimmed = mealType.trim();
+  if (!trimmed) return null;
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
 function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotification | null {
   const scheduledFor = parseLocalDateTime(candidate.scheduledFor);
   if (!scheduledFor) return null;
@@ -166,6 +220,42 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
   }
 
   if (scheduledFor.getTime() <= now.getTime()) return null;
+
+  if (candidate.itemType === 'meal') {
+    const isDrink = candidate.mealType === 'beverage';
+    if (isDrink) {
+      // The title a drink row already carries is written as an instruction
+      // ("Drink about 355ml (~12oz) of water") or is the name of something
+      // on a standing hydration routine. Either reads correctly on its own,
+      // so nothing is prefixed onto it.
+      return {
+        identifier: `${IDENTIFIER_PREFIX}hydration:${candidate.id}`,
+        title: candidate.title,
+        body: freshness(scheduledFor),
+        fireAt: scheduledFor,
+        payload: {
+          kind: 'hydration',
+          scheduleItemId: candidate.id,
+          fireAt: scheduledFor.toISOString(),
+          lens: 'hydration',
+        },
+      };
+    }
+    const label = mealTypeLabel(candidate.mealType);
+    return {
+      identifier: `${IDENTIFIER_PREFIX}meal:${candidate.id}`,
+      title: label ? `${label}: ${candidate.title}` : `Time to eat: ${candidate.title}`,
+      body: freshness(scheduledFor),
+      fireAt: scheduledFor,
+      payload: {
+        kind: 'meal',
+        scheduleItemId: candidate.id,
+        fireAt: scheduledFor.toISOString(),
+        lens: 'todaysMeals',
+      },
+    };
+  }
+
   const dose = describeDose(candidate);
   return {
     identifier: `${IDENTIFIER_PREFIX}dose:${candidate.id}`,
@@ -176,7 +266,7 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
   };
 }
 
-async function ensureAndroidChannel(): Promise<void> {
+async function ensureAndroidChannels(): Promise<void> {
   if (Platform.OS !== 'android') return;
   await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
     name: 'Reminders',
@@ -186,6 +276,18 @@ async function ensureAndroidChannel(): Promise<void> {
     vibrationPattern: [0, 250, 250, 250],
     lightColor: '#244147',
   });
+  await Notifications.setNotificationChannelAsync(ANDROID_ROUTINE_CHANNEL_ID, {
+    name: 'Meals & drinks',
+    description: 'Scheduled meals and anything on your hydration schedule.',
+    importance: Notifications.AndroidImportance.DEFAULT,
+    sound: 'default',
+    vibrationPattern: [0, 180],
+    lightColor: '#244147',
+  });
+}
+
+function channelFor(kind: ReminderKind): string {
+  return kind === 'meal' || kind === 'hydration' ? ANDROID_ROUTINE_CHANNEL_ID : ANDROID_CHANNEL_ID;
 }
 
 function isOurs(identifier: string): boolean {
@@ -227,15 +329,19 @@ async function runSync(): Promise<ReminderSyncResult> {
     await cancelAllOurs();
     return { permission: 'denied', pending: 0 };
   }
-  await ensureAndroidChannel();
+  await ensureAndroidChannels();
 
   const now = new Date();
   const horizon = new Date(now);
   horizon.setDate(horizon.getDate() + LOOKAHEAD_DAYS);
-  const candidates = await listReminderCandidates(localDateTimeString(now), localDateString(horizon));
+  const [candidates, preferences] = await Promise.all([
+    listReminderCandidates(localDateTimeString(now), localDateString(horizon)),
+    getReminderPreferences(),
+  ]);
 
   const desired = new Map<string, PlannedNotification>();
   for (const candidate of candidates) {
+    if (!isReminderKindEnabled(preferences, reminderKindFor(candidate))) continue;
     const planned = buildPlanned(candidate, now);
     if (planned) desired.set(planned.identifier, planned);
   }
@@ -272,7 +378,7 @@ async function runSync(): Promise<ReminderSyncResult> {
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,
           date: planned.fireAt,
-          channelId: ANDROID_CHANNEL_ID,
+          channelId: channelFor(planned.payload.kind),
         },
       });
       scheduled += 1;
@@ -285,7 +391,7 @@ async function runSync(): Promise<ReminderSyncResult> {
 
 export type ReminderTapTarget = {
   pathname: '/schedule';
-  params: { openScheduleLens: 'meds' | 'appointments' };
+  params: { openScheduleLens: ReminderLens };
 };
 
 // Where a tapped reminder should land: the lens the item lives in. Null for
@@ -294,7 +400,10 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   const request = response?.notification.request;
   if (!request || !isOurs(request.identifier)) return null;
   const data = request.content.data as Partial<ReminderPayload> | undefined;
-  const lens = data?.lens === 'appointments' ? 'appointments' : 'meds';
+  const lens: ReminderLens =
+    data?.lens === 'appointments' || data?.lens === 'todaysMeals' || data?.lens === 'hydration'
+      ? data.lens
+      : 'meds';
   return { pathname: '/schedule', params: { openScheduleLens: lens } };
 }
 

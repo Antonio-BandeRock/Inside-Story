@@ -14684,18 +14684,33 @@ export async function listScheduledMedDosesFrom(fromDate: string) {
 }
 
 // What lib/reminderNotifications.ts turns into phone notifications: every
-// still-planned dose (of an active treatment) and every still-planned
-// appointment from now through toDate, in one query. Dose rows carry the
-// treatment's amount/unit so the notification can say "Levothyroxine,
-// 75 mcg" without a second lookup. Status 'planned' only: a dose already
-// marked taken or skipped, or an appointment completed or cancelled, has
-// no reminder to fire. The treatment join drops doses left behind by a
-// deactivated med, which the Meds lens hides for the same reason.
+// still-planned dose (of an active treatment), every still-planned
+// appointment, and, since 2026-09-16, every still-planned meal and drink
+// from now through toDate, in one query.
+//
+// Meals and drinks are the same item_type here, which is how the schedule
+// has always stored them: a drink is a 'meal' row whose meal_type is
+// 'beverage' (see scheduleHydrationRemindersForDay above, and the
+// Hydration lens, which both write exactly that shape). mealType comes back
+// so the notification module can tell the two apart without a second
+// lookup, and so each can be switched on or off by itself in Profile >
+// Reminders. Nothing here filters on that preference: this query answers
+// what exists, and lib/reminderPreferences.ts answers what fires.
+//
+// Dose rows carry the treatment's amount/unit so the notification can say
+// "Levothyroxine, 75 mcg" without a second lookup. Status 'planned' only: a
+// dose already marked taken or skipped, an appointment completed or
+// cancelled, or a meal already logged has no reminder left to fire. The
+// treatment join drops doses left behind by a deactivated med, which the
+// Meds lens hides for the same reason.
 export type ReminderCandidate = {
   id: string;
   scheduledFor: string;
   itemType: string;
   title: string;
+  // Only ever set on a 'meal' row: breakfast, lunch, dinner, snack, salad,
+  // smoothie, or beverage. Null for a dose or an appointment.
+  mealType: string | null;
   location: string | null;
   providerName: string | null;
   // Prescriptions and OTC drugs carry amount/unit; supplements describe
@@ -14713,6 +14728,7 @@ export async function listReminderCandidates(fromLocalDateTime: string, toDate: 
   return db.getAllAsync<ReminderCandidate>(
     `
       SELECT s.id, s.scheduled_for AS scheduledFor, s.item_type AS itemType, s.title,
+        s.meal_type AS mealType,
         s.location, s.provider_name AS providerName,
         t.dose_amount AS doseAmount, t.dose_unit AS doseUnit,
         t.units_per_day AS unitsPerDay, t.serving_unit_label AS servingUnitLabel
@@ -14723,6 +14739,7 @@ export async function listReminderCandidates(fromLocalDateTime: string, toDate: 
         AND substr(s.scheduled_for, 1, 10) <= ?
         AND (
           s.item_type = 'appointment'
+          OR s.item_type = 'meal'
           OR (s.item_type IN (${MED_DOSE_ITEM_TYPES.map(() => '?').join(', ')}) AND t.id IS NOT NULL AND t.active = 1)
         )
       ORDER BY s.scheduled_for ASC

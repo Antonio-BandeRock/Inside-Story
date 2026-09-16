@@ -41,6 +41,19 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.3',
+    date: '2026-09-16',
+    changes: [
+      'Reminders now cover meals and drinks, not just doses and appointments. A scheduled meal fires at the time you planned it for, which is the one that helps on a day you would otherwise look up at three in the afternoon and realise you have not eaten.',
+      'A new Reminders card in Profile has a switch for each of the four kinds. Meals start on; water and drinks start off, because a day the Meal Plan has filled a water gap for can hold six of them and that should be something you ask for.',
+      'On Android, meals and drinks come through their own quieter notification channel, so you can mute those in your phone settings without touching the one your medication reminders use.',
+      'The check-in tag list grew from 33 to 46. Two new groups: Appetite & Eating (no appetite, forgot to eat, hungry all the time, could not face eating, ate normally) and Sensory & Regulation (overstimulated, noise or light felt painful, meltdown, shutdown, felt settled and regulated).',
+      'Three more tags joined groups that already existed: hyperfocused and could not get started under Cognitive, and restless under Energy.',
+      'Anything you tag carries through the way the older tags already did, with no setup: it stays on the check-in, and it shows by name rather than by code in the symptom table of the PDF report you hand a doctor.',
+      'One honest limit: the Pattern Finder still lines up what you ate against how severe a flare or a reaction was, not against tags, so a run of overstimulated days will not surface there yet.',
+    ],
+  },
+  {
     version: '1.0.39.2',
     date: '2026-09-16',
     changes: [

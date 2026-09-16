@@ -25,6 +25,7 @@ import { getBackupsFolder, getSharedFolder } from '../lib/oneDriveFolders';
 import type { DriveItemRef } from '../lib/oneDriveGraph';
 import { downloadText, listFiles, uploadText } from '../lib/oneDriveGraph';
 import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreferences';
+import { useReminderPreferences } from '../hooks/useReminderPreferences';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
@@ -46,6 +47,15 @@ import { shareFileIfAvailable } from '../lib/nativeSharing';
 import { ACTIVITY_LEVEL_INFO, ACTIVITY_LEVELS, type ActivityLevel } from '../lib/energyNeeds';
 import { GENERAL_HEALTH_RULES } from '../lib/generalHealthRules';
 import { setTopicMuted } from '../lib/generalHealthPreferences';
+import { syncReminderNotifications } from '../lib/reminderNotifications';
+import {
+  ALL_REMINDER_KIND_KEYS,
+  isReminderKindEnabled,
+  REMINDER_KIND_CAPTIONS,
+  REMINDER_KIND_LABELS,
+  setReminderKindEnabled,
+  type ReminderKindKey,
+} from '../lib/reminderPreferences';
 import { USDA_ZONES } from '../lib/gardenZones';
 import {
   CUSTOM_BACKGROUND_MAX_DIMENSION,
@@ -265,6 +275,7 @@ const ALL_CARD_SECTION_KEYS = [
   // Your Health
   'conditions',
   'general-health',
+  'reminders',
   // How You Eat
   'diet-preferences',
   'meal-schedule',
@@ -679,6 +690,19 @@ export default function ProfileScreen() {
   const generalHealthPrefs = useGeneralHealthPreferences();
   function toggleGeneralHealthTopic(topicId: string) {
     setTopicMuted(topicId, !generalHealthPrefs.mutedTopics[topicId]);
+  }
+
+  // Which reminders are allowed to fire, 2026-09-16, added in the same
+  // pass that gave meals and drinks reminders of their own. Same
+  // one-key-at-a-time shape as toggleGeneralHealthTopic above. The
+  // reconcile runs straight afterwards rather than waiting for the next
+  // app start, so switching a kind off drops what it had already queued
+  // while the person is still looking at the switch they moved.
+  const reminderPrefs = useReminderPreferences();
+  function toggleReminderKind(key: ReminderKindKey) {
+    void setReminderKindEnabled(key, !isReminderKindEnabled(reminderPrefs, key)).then(() =>
+      syncReminderNotifications(),
+    );
   }
 
   // Home Screen section toggles, 2026-08-21, direct request: "make it
@@ -2221,7 +2245,7 @@ export default function ProfileScreen() {
     >
       <Text style={styles.intro}>
         Everything below is optional. This app works fine with nothing set here; unset fields simply mean
-        you'll see recommendations for every applicable population instead of one tailored to you. Nothing here
+        you’ll see recommendations for every applicable population instead of one tailored to you. Nothing here
         is guessed on your behalf.
       </Text>
       {savedFlash ? <Text style={styles.savedFlash}>Saved</Text> : null}
@@ -2370,7 +2394,7 @@ export default function ProfileScreen() {
 
             <Text style={styles.subLabelDivided}>Height</Text>
             <Text style={styles.helpText}>
-              Used for the step-counter's distance estimate, and useful alongside the rest of this section for a
+              Used for the step-counter’s distance estimate, and useful alongside the rest of this section for a
               doctor report. Follows your Units setting above.
             </Text>
             <View style={styles.dateRow}>
@@ -2683,7 +2707,7 @@ export default function ProfileScreen() {
 
             {selectedConditions.includes('hashimotos') ? (
               <>
-                <Text style={styles.subLabelDivided}>Where you're at</Text>
+                <Text style={styles.subLabelDivided}>Where you’re at</Text>
                 <Text style={styles.helpText}>
                   A short check-in covering hypothyroid symptoms, digestive/IBS symptoms, and overall wellbeing.
                   Early on, day-to-day change can feel invisible because everything is happening at once; this
@@ -2692,7 +2716,7 @@ export default function ProfileScreen() {
                 {lastAssessment ? (
                   <Text style={styles.derivedText}>Last taken {daysAgoLabel(lastAssessment.completedAt)}.</Text>
                 ) : (
-                  <Text style={styles.derivedText}>You haven't taken this yet. Your first one becomes your baseline.</Text>
+                  <Text style={styles.derivedText}>You haven’t taken this yet. Your first one becomes your baseline.</Text>
                 )}
                 <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/assessment')}>
                   <Text style={styles.checkinButtonText}>
@@ -2876,6 +2900,49 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      {/* Reminders, 2026-09-16. Doses and appointments have fired since
+          1.0.37.35 with no switch at all, which was fine while those were
+          the only two kinds. Meals and drinks joined them in this pass and
+          changed the volume enough to need one: a day can carry three or
+          four meals and, once the Daily Meal Plan has filled a water gap,
+          six drinks on top of the doses. Unasked, that is how someone ends
+          up switching off notifications for this app entirely and losing
+          the medication reminders with them. See
+          lib/reminderPreferences.ts for why meals start on and drinks
+          start off. */}
+      <View style={styles.card}>
+        {renderCardHeader('reminders', 'Reminders')}
+        {!collapsedSections.has('reminders') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Which of your scheduled things send a notification to this phone. Turning one off leaves the
+              schedule itself untouched, it only stops the reminder. None of these can fire until you have
+              allowed notifications for Inside Story, which Schedules &gt; Meds asks for the first time you set a
+              dose time.
+            </Text>
+            <View style={styles.pillRow}>
+              {ALL_REMINDER_KIND_KEYS.map((key) => {
+                const on = isReminderKindEnabled(reminderPrefs, key);
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    style={[styles.pill, on && styles.pillActive]}
+                    onPress={() => toggleReminderKind(key)}
+                  >
+                    <Text style={[styles.pillText, on && styles.pillTextActive]}>{REMINDER_KIND_LABELS[key]}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            {ALL_REMINDER_KIND_KEYS.map((key) => (
+              <Text key={key} style={styles.helpText}>
+                {REMINDER_KIND_LABELS[key]}: {REMINDER_KIND_CAPTIONS[key]}
+              </Text>
+            ))}
+          </View>
+        ) : null}
+      </View>
+
       {renderGroupHeading('How You Eat')}
       {/* Diet Preferences, 2026-08-24, direct request: "the type of diet a
           person is trying to follow or is interested in trying should be
@@ -2988,7 +3055,7 @@ export default function ProfileScreen() {
             <Text style={styles.subLabelDivided}>Fasting / eating window</Text>
             <Text style={styles.helpText}>
               If you do intermittent fasting, set the window you actually eat within. Once both times are set here,
-              the Schedule tab won't let you schedule a meal outside that window.
+              the Schedule tab won’t let you schedule a meal outside that window.
             </Text>
             <View style={styles.pillRow}>
               {([
