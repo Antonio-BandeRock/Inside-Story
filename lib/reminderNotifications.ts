@@ -28,10 +28,14 @@ import { formatTime12 } from './timeOfDay';
 // platforms, so the reconcile only ever runs in the foreground.
 //
 // Android accuracy: expo-notifications uses an exact alarm when the app may
-// schedule them and an inexact one otherwise. The manifest does not carry
-// SCHEDULE_EXACT_ALARM (a rebuild-gated permission), so on Android 12+ a
-// reminder can land a few minutes after its time when the phone is dozing.
-// Adding that permission belongs in the next native rebuild.
+// schedule them and an inexact one otherwise. The manifest carries
+// SCHEDULE_EXACT_ALARM as of the 1.0.37.41 rebuild, so a phone that allows
+// it fires these at the time they were set for. It stays a permission the
+// person can withdraw (Alarms & reminders in Android's settings), and some
+// Android versions do not grant it by default; the alarm is then inexact and
+// a reminder can land a few minutes late while the phone is dozing. Nothing
+// here tries to detect which case applies, because a dose reminder a few
+// minutes late is still the right reminder.
 
 const IDENTIFIER_PREFIX = 'inside-story-reminder:';
 const LOOKAHEAD_DAYS = 7;
