@@ -50,9 +50,11 @@ import { setTopicMuted } from '../lib/generalHealthPreferences';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import {
   ALL_REMINDER_KIND_KEYS,
+  isNudgeUntilDoneEnabled,
   isReminderKindEnabled,
   REMINDER_KIND_CAPTIONS,
   REMINDER_KIND_LABELS,
+  setNudgeUntilDone,
   setReminderKindEnabled,
   type ReminderKindKey,
 } from '../lib/reminderPreferences';
@@ -703,6 +705,16 @@ export default function ProfileScreen() {
   const reminderPrefs = useReminderPreferences();
   function toggleReminderKind(key: ReminderKindKey) {
     void setReminderKindEnabled(key, !isReminderKindEnabled(reminderPrefs, key)).then(() =>
+      syncReminderNotifications(),
+    );
+  }
+
+  // Same shape, because it reconciles the same way: switching nudging on
+  // queues the follow-ups for everything already scheduled, and switching
+  // it off clears them, both while the person is still looking at the
+  // switch they moved.
+  function toggleNudgeUntilDone() {
+    void setNudgeUntilDone(!isNudgeUntilDoneEnabled(reminderPrefs)).then(() =>
       syncReminderNotifications(),
     );
   }
@@ -2911,7 +2923,13 @@ export default function ProfileScreen() {
           up switching off notifications for this app entirely and losing
           the medication reminders with them. See
           lib/reminderPreferences.ts for why meals start on and drinks
-          start off. */}
+          start off.
+
+          Four more kinds in 1.0.39.8, and they need no change here: the
+          pills and the captions both render from ALL_REMINDER_KIND_KEYS,
+          so garden tasks, bills, upkeep and work benefits arrived with
+          the list. What did need adding is the nudge switch below, which
+          is not a kind and governs all of them at once. */}
       <View style={styles.card}>
         {renderCardHeader('reminders', 'Reminders')}
         {!collapsedSections.has('reminders') ? (
@@ -2941,6 +2959,29 @@ export default function ProfileScreen() {
                 {REMINDER_KIND_LABELS[key]}: {REMINDER_KIND_CAPTIONS[key]}
               </Text>
             ))}
+            <View style={styles.pillRow}>
+              <TouchableOpacity
+                style={[styles.pill, isNudgeUntilDoneEnabled(reminderPrefs) && styles.pillActive]}
+                onPress={toggleNudgeUntilDone}
+              >
+                <Text
+                  style={[
+                    styles.pillText,
+                    isNudgeUntilDoneEnabled(reminderPrefs) && styles.pillTextActive,
+                  ]}
+                >
+                  Keep reminding until it is done
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.helpText}>
+              Keep reminding until it is done: a reminder comes back instead of firing once and being gone.
+              A dose, a meal, a drink or a garden task asks again after 15 minutes, 45 minutes and an hour
+              and a half, and something in Upkeep asks each morning while it is overdue, up to two weeks.
+              Marking the thing done is what stops it. Appointments never repeat, and bills and work
+              benefits cannot, because nothing here records that one month&apos;s bill got paid or that an
+              allowance was finished with.
+            </Text>
           </View>
         ) : null}
       </View>

@@ -41,6 +41,20 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.8',
+    date: '2026-09-16',
+    changes: [
+      'Four more things can remind you. Garden tasks arrive at the time you planned them for. Bills from Life > Finances speak three days ahead and again on the day. Upkeep and renewals speak a fortnight ahead, three days ahead, then the day itself. A work benefit about to reset with some of it unused speaks a month ahead and again a week ahead, while there is still time to book something.',
+      'Each has its own switch in Profile > Reminders, alongside the four that were already there, and all four start on. They are quiet by nature: a handful of bills a month, a service or two a year.',
+      'A bill set to pay itself never reminds you, and neither does money coming in. A benefit you have already spent to the last dollar does not tell you it is resetting.',
+      'New: keep reminding until it is done. A reminder comes back instead of firing once and being gone, for anyone whose hands were full the first time. A dose, a meal, a drink or a garden task asks again after 15 minutes, 45 minutes and an hour and a half. Something in Upkeep asks each morning while it is overdue, then gives up after a fortnight.',
+      'It is off until you turn it on, in Profile > Reminders, because for anyone who does not want it that is nagging. Marking the thing done is what stops it.',
+      'Appointments never repeat, and bills and work benefits cannot, because nothing here records that one month\u2019s bill got paid or that an allowance was finished with. Rather than ask about something it cannot tell the state of, it stays quiet.',
+      'Tapping any of these opens the lens it came from: Garden > Upcoming Tasks, or Life > Finances, Upkeep or Work.',
+      'On Android the new ones arrive on their own notification channels, so you can quieten bills and garden work in Android\u2019s own settings without touching the channel your medication reminders use.',
+    ],
+  },
+  {
     version: '1.0.39.7',
     date: '2026-09-16',
     changes: [

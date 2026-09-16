@@ -14740,6 +14740,13 @@ export async function listReminderCandidates(fromLocalDateTime: string, toDate: 
         AND (
           s.item_type = 'appointment'
           OR s.item_type = 'meal'
+          -- Garden work, 2026-09-16. A garden task has been a real
+          -- schedule_items row since the Garden tab was built
+          -- (scheduleGardenTask, below), so reminding about one needed
+          -- nothing here but saying so: it already has a title, a time,
+          -- and the same 'planned' status that takes a dose out of this
+          -- list once it is marked done.
+          OR s.item_type = 'garden'
           OR (s.item_type IN (${MED_DOSE_ITEM_TYPES.map(() => '?').join(', ')}) AND t.id IS NOT NULL AND t.active = 1)
         )
       ORDER BY s.scheduled_for ASC

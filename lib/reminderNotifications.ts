@@ -1,21 +1,54 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { listReminderCandidates, type ReminderCandidate } from './db';
-import { getReminderPreferences, isReminderKindEnabled, type ReminderKindKey } from './reminderPreferences';
+import {
+  getReminderPreferences,
+  isNudgeUntilDoneEnabled,
+  isReminderKindEnabled,
+  type ReminderKindKey,
+} from './reminderPreferences';
+import {
+  datedReminderDays,
+  describeLead,
+  NUDGE_FOLLOW_UP_MINUTES,
+  REMINDER_HOUR,
+  type DatedReminderKind,
+} from './reminderSchedule';
+import {
+  listDatedReminderSources,
+  type DatedReminderLens,
+  type DatedReminderSource,
+} from './reminderSources';
 import { formatTime12 } from './timeOfDay';
 
 // Local reminders: the scheduled doses in Schedules > Meds, the visits in
-// Schedules > Appointments, and, since 2026-09-16, the meals and the drinks
-// on the schedule fire as phone notifications, entirely on the device,
-// through expo-notifications (compiled into the 1.0.37.33 rebuild).
-// Nothing here talks to a server; the content-blind push relay the
+// Schedules > Appointments, the meals and drinks on the schedule, the work
+// planned in Garden > Upcoming Tasks, and, since 2026-09-16, the bills,
+// upkeep and work benefits in Life fire as phone notifications, entirely on
+// the device, through expo-notifications (compiled into the 1.0.37.33
+// rebuild). Nothing here talks to a server; the content-blind push relay the
 // architecture notes describe is a separate, later piece.
 //
-// Four kinds, each with its own switch in Profile > Reminders (see
-// lib/reminderPreferences.ts for why meals default on and drinks default
-// off). A kind switched off is dropped before anything is scheduled, so
+// Eight kinds, each with its own switch in Profile > Reminders (see
+// lib/reminderPreferences.ts for why drinks default off and the rest default
+// on). A kind switched off is dropped before anything is scheduled, so
 // turning one off clears what it had already queued at the next reconcile
 // rather than leaving a week of stale notifications behind.
+//
+// TWO SHAPES OF REMINDER, and the difference is the whole of 1.0.39.8.
+//
+// A TIMED one comes from a schedule_items row, which carries a wall-clock
+// time. Doses, appointments, meals, drinks and garden tasks are all of these,
+// which is why garden work cost almost nothing to add: it was already a
+// schedule_items row and only ever needed a kind.
+//
+// A DATED one comes from a table in Life that keeps a date and no time at
+// all: a bill due on the 5th, a service due six months after it was last
+// done, a work allowance that resets with money still in it. There is no
+// moment to fire at, so one gets picked (REMINDER_HOUR), and firing on the
+// day would be useless anyway, so each kind speaks up a stated number of days
+// ahead instead. lib/reminderSchedule.ts holds those lead days and the
+// reasoning behind each; lib/reminderSources.ts reads the three tables.
 //
 // Meals and drinks are one item_type in the schedule and are told apart by
 // meal_type, which is why they arrive here in the same query and split into
@@ -25,16 +58,30 @@ import { formatTime12 } from './timeOfDay';
 // different question. An appointment keeps its hour of lead because getting
 // there is the part that needs the warning.
 //
+// NUDGING, the second half of the same request: "a reminder that comes back
+// until it is marked done, rather than firing once and being gone. Someone
+// who swipes a notification away with their hands full has lost the thought
+// entirely, so one-shot is the same as none." Off by default and switched on
+// in Profile > Reminders, because for anybody else that is nagging. What it
+// does depends on the shape: a timed reminder comes back three times over the
+// next hour and a half, and an upkeep item keeps arriving every morning while
+// it is overdue. It reaches only the kinds where the app can honestly tell
+// the thing was dealt with, which leaves out appointments (nothing marks one
+// done), bills (nothing here records that one month of one bill got paid) and
+// benefits (used down gradually rather than finished).
+//
 // How it stays correct without hooking every create/edit/delete path: the
-// schedule_items table is the one source of truth, and
-// syncReminderNotifications() reconciles the phone's pending notifications
-// against it. It runs when the app starts, every time it returns to the
-// foreground, and after either lens finishes loading (every mutation in
-// those lenses ends in a reload). A notification exists for a schedule row
-// only while that row is still planned, so marking a dose taken, cancelling
-// an appointment, deactivating a med, or removing a series all drop the
+// source tables are the one truth, and syncReminderNotifications()
+// reconciles the phone's pending notifications against them. It runs when the
+// app starts, every time it returns to the foreground, and after either
+// schedule lens finishes loading (every mutation in those lenses ends in a
+// reload). A notification exists only while its row still says the thing is
+// outstanding, so marking a dose taken, cancelling an appointment,
+// deactivating a med, paying off a service or removing a series all drop the
 // reminder at the next sync, and the rolling-window series generator in
-// lib/db.ts keeps new occurrences flowing in.
+// lib/db.ts keeps new occurrences flowing in. That is also what stops a
+// nudge: opening the app is both how something gets marked done and what
+// triggers the reconcile, so the two happen together.
 //
 // Freshness, per the architecture note that a reminder should say what it
 // was based on: every notification body ends with "Based on your schedule
@@ -64,27 +111,49 @@ const LOOKAHEAD_DAYS = 7;
 // always the soonest, and the next reconcile (app start, or any return to
 // the foreground) extends it again. Nothing is lost that was not going to
 // be recomputed anyway.
+//
+// Nudges are filled in only after every first-time reminder has its slot,
+// rather than competing with them on time alone. Otherwise switching nudging
+// on would quadruple the queue and pull the window in from a week to about a
+// day, which would trade reminders for something that is not a real reminder
+// at all: three more copies of one somebody has already seen.
 const MAX_PENDING = 60;
 const APPOINTMENT_LEAD_MINUTES = 60;
-// Two Android channels, because a dose and a glass of water do not deserve
-// the same interruption. Doses and appointments keep the high-importance
-// channel they have always used; meals and drinks get a quieter one the
-// person can mute on its own from Android's own notification settings
-// without touching the channel the medication reminders use.
+// Three Android channels, because a dose, a glass of water and a bill due
+// next week do not deserve the same interruption. Doses and appointments
+// keep the high-importance channel they have always used; the routine
+// things and the dated ones get quieter ones the person can mute
+// separately from Android's own notification settings without touching the
+// channel the medication reminders use.
 const ANDROID_CHANNEL_ID = 'reminders';
 const ANDROID_ROUTINE_CHANNEL_ID = 'routines';
+const ANDROID_DATED_CHANNEL_ID = 'upcoming';
 
-// Same four keys as ReminderKindKey in lib/reminderPreferences.ts, which is
+// Same eight keys as ReminderKindKey in lib/reminderPreferences.ts, which is
 // what decides whether each one fires.
 export type ReminderKind = ReminderKindKey;
 
-type ReminderLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration';
+// Which kinds come back when nudging is on. Every one of these leaves the
+// candidate list the moment the thing is marked done, which is what lets the
+// next reconcile cancel the follow-ups that have not fired yet. An
+// appointment is deliberately absent: there is nothing to mark, and repeating
+// an hour-ahead warning three times just makes it late.
+const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden'];
+
+type ScheduleLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration';
+type ReminderTab = 'schedule' | 'garden' | 'life';
 
 type ReminderPayload = {
   kind: ReminderKind;
+  /** The schedule_items id, or for a dated kind the row's own id in its own
+   *  table. Only ever read back for debugging; the identifier is what the
+   *  reconcile matches on. */
   scheduleItemId: string;
   fireAt: string;
-  lens: ReminderLens;
+  /** Which tab a tap opens. Absent on anything queued before 1.0.39.8, and
+   *  read back as 'schedule', which is the only thing it could have been. */
+  tab?: ReminderTab;
+  lens: ScheduleLens | 'upcomingTasks' | DatedReminderLens;
 };
 
 type PlannedNotification = {
@@ -153,6 +222,16 @@ function parseLocalDateTime(value: string): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
+// A plain 'YYYY-MM-DD' at the hour dated reminders speak, as local
+// wall-clock time for the same reason as above.
+function atReminderHour(dateStr: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr);
+  if (!match) return null;
+  const [, year, month, day] = match.map(Number);
+  const parsed = new Date(year, month - 1, day, REMINDER_HOUR, 0, 0, 0);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 // "7:45 AM" when the reminder fires the same day it was computed, "Sep 14,
@@ -180,6 +259,7 @@ function describeDose(candidate: ReminderCandidate): string | null {
 // scheduleHydrationRemindersForDay in lib/db.ts).
 function reminderKindFor(candidate: ReminderCandidate): ReminderKind {
   if (candidate.itemType === 'appointment') return 'appointment';
+  if (candidate.itemType === 'garden') return 'garden';
   if (candidate.itemType !== 'meal') return 'dose';
   return candidate.mealType === 'beverage' ? 'hydration' : 'meal';
 }
@@ -215,11 +295,36 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
       title: `${candidate.title} at ${time}`,
       body: `${where ? `${where}. ` : ''}In about an hour. ${freshness(fireAt)}`,
       fireAt,
-      payload: { kind: 'appointment', scheduleItemId: candidate.id, fireAt: fireAt.toISOString(), lens: 'appointments' },
+      payload: {
+        kind: 'appointment',
+        scheduleItemId: candidate.id,
+        fireAt: fireAt.toISOString(),
+        tab: 'schedule',
+        lens: 'appointments',
+      },
     };
   }
 
   if (scheduledFor.getTime() <= now.getTime()) return null;
+
+  if (candidate.itemType === 'garden') {
+    // The title a garden task carries is already a job ("Water the tomato
+    // bed"), so it is labelled rather than rewritten, and the tap lands on
+    // Upcoming Tasks, which is where one gets marked done.
+    return {
+      identifier: `${IDENTIFIER_PREFIX}garden:${candidate.id}`,
+      title: `Garden: ${candidate.title}`,
+      body: freshness(scheduledFor),
+      fireAt: scheduledFor,
+      payload: {
+        kind: 'garden',
+        scheduleItemId: candidate.id,
+        fireAt: scheduledFor.toISOString(),
+        tab: 'garden',
+        lens: 'upcomingTasks',
+      },
+    };
+  }
 
   if (candidate.itemType === 'meal') {
     const isDrink = candidate.mealType === 'beverage';
@@ -237,6 +342,7 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
           kind: 'hydration',
           scheduleItemId: candidate.id,
           fireAt: scheduledFor.toISOString(),
+          tab: 'schedule',
           lens: 'hydration',
         },
       };
@@ -251,6 +357,7 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
         kind: 'meal',
         scheduleItemId: candidate.id,
         fireAt: scheduledFor.toISOString(),
+        tab: 'schedule',
         lens: 'todaysMeals',
       },
     };
@@ -262,8 +369,84 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
     title: `Time for ${candidate.title}`,
     body: `${dose ? `${dose}. ` : ''}${freshness(scheduledFor)}`,
     fireAt: scheduledFor,
-    payload: { kind: 'dose', scheduleItemId: candidate.id, fireAt: scheduledFor.toISOString(), lens: 'meds' },
+    payload: {
+      kind: 'dose',
+      scheduleItemId: candidate.id,
+      fireAt: scheduledFor.toISOString(),
+      tab: 'schedule',
+      lens: 'meds',
+    },
   };
+}
+
+// --- The dated kinds: bills, upkeep, work benefits --------------------------
+
+// What each one is called at the front of its notification, so the line says
+// which part of Life it came from before it says anything else. A bill needs
+// no such word: the name of the bill plus a date is already unambiguous.
+const DATED_KIND_PREFIX: Record<DatedReminderKind, string | null> = {
+  bill: null,
+  upkeep: 'Upkeep',
+  benefit: 'Work benefit',
+};
+
+// What the date actually means for each, which differs enough to be worth
+// saying: a bill is owed, a service is due, a benefit resets and takes
+// whatever is left with it.
+function describeDatedDue(kind: DatedReminderKind, lead: number): string {
+  const when = describeLead(lead);
+  if (kind === 'benefit') return `Resets ${when}`;
+  return lead < 0 ? `Was due ${when}` : `Due ${when}`;
+}
+
+function buildDatedPlanned(
+  source: DatedReminderSource,
+  day: { on: string; lead: number },
+  now: Date,
+): PlannedNotification | null {
+  const fireAt = atReminderHour(day.on);
+  if (!fireAt) return null;
+  const prefix = DATED_KIND_PREFIX[source.kind];
+  const pieces = [describeDatedDue(source.kind, day.lead), source.detail].filter(Boolean);
+  return {
+    // The day is part of the identifier because one source produces several
+    // of these: the same bill speaks three days out and again on the day,
+    // and they have to be able to coexist rather than replace each other.
+    identifier: `${IDENTIFIER_PREFIX}${source.kind}:${source.sourceId}:${day.on}`,
+    title: prefix ? `${prefix}: ${source.title}` : source.title,
+    body: `${pieces.join('. ')}. Based on your records as of ${describeFreshness(now, fireAt)}.`,
+    fireAt,
+    payload: {
+      kind: source.kind,
+      scheduleItemId: source.sourceId,
+      fireAt: fireAt.toISOString(),
+      tab: 'life',
+      lens: source.lens,
+    },
+  };
+}
+
+// --- Nudges -----------------------------------------------------------------
+
+// The same reminder again, a little later, while it is still outstanding.
+// Same title on purpose: this is one reminder coming back, not a new thing
+// to read. The body is what changes, because by now the useful information
+// is that it is still sitting there.
+function buildNudges(planned: PlannedNotification, now: Date): PlannedNotification[] {
+  if (!NUDGEABLE_TIMED_KINDS.includes(planned.payload.kind)) return [];
+  const nudges: PlannedNotification[] = [];
+  NUDGE_FOLLOW_UP_MINUTES.forEach((minutes, index) => {
+    const fireAt = new Date(planned.fireAt.getTime() + minutes * 60_000);
+    if (fireAt.getTime() <= now.getTime()) return;
+    nudges.push({
+      identifier: `${planned.identifier}#nudge${index + 1}`,
+      title: planned.title,
+      body: `Still showing as not done. Based on your schedule as of ${describeFreshness(now, fireAt)}.`,
+      fireAt,
+      payload: { ...planned.payload, fireAt: fireAt.toISOString() },
+    });
+  });
+  return nudges;
 }
 
 async function ensureAndroidChannels(): Promise<void> {
@@ -277,8 +460,16 @@ async function ensureAndroidChannels(): Promise<void> {
     lightColor: '#244147',
   });
   await Notifications.setNotificationChannelAsync(ANDROID_ROUTINE_CHANNEL_ID, {
-    name: 'Meals & drinks',
-    description: 'Scheduled meals and anything on your hydration schedule.',
+    name: 'Meals, drinks & garden',
+    description: 'Scheduled meals, anything on your hydration schedule, and planned garden work.',
+    importance: Notifications.AndroidImportance.DEFAULT,
+    sound: 'default',
+    vibrationPattern: [0, 180],
+    lightColor: '#244147',
+  });
+  await Notifications.setNotificationChannelAsync(ANDROID_DATED_CHANNEL_ID, {
+    name: 'Dates coming up',
+    description: 'Bills, upkeep and renewals, and work benefits about to reset.',
     importance: Notifications.AndroidImportance.DEFAULT,
     sound: 'default',
     vibrationPattern: [0, 180],
@@ -287,7 +478,9 @@ async function ensureAndroidChannels(): Promise<void> {
 }
 
 function channelFor(kind: ReminderKind): string {
-  return kind === 'meal' || kind === 'hydration' ? ANDROID_ROUTINE_CHANNEL_ID : ANDROID_CHANNEL_ID;
+  if (kind === 'bill' || kind === 'upkeep' || kind === 'benefit') return ANDROID_DATED_CHANNEL_ID;
+  if (kind === 'meal' || kind === 'hydration' || kind === 'garden') return ANDROID_ROUTINE_CHANNEL_ID;
+  return ANDROID_CHANNEL_ID;
 }
 
 function isOurs(identifier: string): boolean {
@@ -303,10 +496,10 @@ async function cancelAllOurs(): Promise<number> {
 
 let inFlight: Promise<ReminderSyncResult> | null = null;
 
-// Reconciles pending notifications with schedule_items. Safe to call from
-// anywhere at any time; overlapping calls share one run. Never throws: a
-// reminder that could not be scheduled is logged, and the schedule itself
-// is untouched either way.
+// Reconciles pending notifications with everything that has a date. Safe to
+// call from anywhere at any time; overlapping calls share one run. Never
+// throws: a reminder that could not be scheduled is logged, and the records
+// themselves are untouched either way.
 export function syncReminderNotifications(): Promise<ReminderSyncResult> {
   if (!supported) return Promise.resolve({ permission: 'unavailable', pending: 0 });
   if (inFlight) return inFlight;
@@ -332,20 +525,48 @@ async function runSync(): Promise<ReminderSyncResult> {
   await ensureAndroidChannels();
 
   const now = new Date();
+  const today = localDateString(now);
   const horizon = new Date(now);
   horizon.setDate(horizon.getDate() + LOOKAHEAD_DAYS);
-  const [candidates, preferences] = await Promise.all([
+  const [candidates, datedSources, preferences] = await Promise.all([
     listReminderCandidates(localDateTimeString(now), localDateString(horizon)),
+    listDatedReminderSources(today),
     getReminderPreferences(),
   ]);
+  const nudging = isNudgeUntilDoneEnabled(preferences);
 
-  const desired = new Map<string, PlannedNotification>();
+  const first = new Map<string, PlannedNotification>();
+  const followUps = new Map<string, PlannedNotification>();
+
   for (const candidate of candidates) {
     if (!isReminderKindEnabled(preferences, reminderKindFor(candidate))) continue;
     const planned = buildPlanned(candidate, now);
-    if (planned) desired.set(planned.identifier, planned);
+    if (!planned) continue;
+    first.set(planned.identifier, planned);
+    if (nudging) {
+      for (const nudge of buildNudges(planned, now)) followUps.set(nudge.identifier, nudge);
+    }
   }
-  const kept = [...desired.values()].sort((a, b) => a.fireAt.getTime() - b.fireAt.getTime()).slice(0, MAX_PENDING);
+
+  // A dated source turns into one notification per day it speaks on, and the
+  // days past or beyond the window are dropped here rather than in the date
+  // arithmetic, which has no clock to compare against.
+  for (const source of datedSources) {
+    if (!isReminderKindEnabled(preferences, source.kind)) continue;
+    for (const day of datedReminderDays(source.kind, source.dueOn, today, nudging)) {
+      const planned = buildDatedPlanned(source, day, now);
+      if (!planned) continue;
+      if (planned.fireAt.getTime() <= now.getTime() || planned.fireAt.getTime() > horizon.getTime()) continue;
+      // An overdue day only exists because nudging is on, so it is filled in
+      // after the first-time reminders rather than competing with them.
+      (day.lead < 0 ? followUps : first).set(planned.identifier, planned);
+    }
+  }
+
+  const byTime = (a: PlannedNotification, b: PlannedNotification) => a.fireAt.getTime() - b.fireAt.getTime();
+  const kept = [...first.values()].sort(byTime).slice(0, MAX_PENDING);
+  const room = MAX_PENDING - kept.length;
+  if (room > 0) kept.push(...[...followUps.values()].sort(byTime).slice(0, room));
   const keptById = new Map(kept.map((planned) => [planned.identifier, planned]));
 
   const pending = await Notifications.getAllScheduledNotificationsAsync();
@@ -389,21 +610,33 @@ async function runSync(): Promise<ReminderSyncResult> {
   return { permission: 'granted', pending: scheduled };
 }
 
-export type ReminderTapTarget = {
-  pathname: '/schedule';
-  params: { openScheduleLens: ReminderLens };
-};
+export type ReminderTapTarget =
+  | { pathname: '/schedule'; params: { openScheduleLens: ScheduleLens } }
+  | { pathname: '/garden'; params: { openGardenLens: 'upcomingTasks' } }
+  | { pathname: '/life'; params: { openLifeLens: DatedReminderLens } };
 
-// Where a tapped reminder should land: the lens the item lives in. Null for
+const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 'hydration'];
+const DATED_LENSES: DatedReminderLens[] = ['finances', 'upkeep', 'work'];
+
+// Where a tapped reminder should land: the lens the thing lives in. Null for
 // any notification this module did not create.
+//
+// Everything read here came off a notification the phone has been holding,
+// possibly since before an update, so each piece is checked against what it
+// is allowed to be rather than trusted. A payload with no tab at all is one
+// queued before 1.0.39.8, when Schedules was the only place a reminder could
+// send anybody.
 export function resolveReminderTap(response: Notifications.NotificationResponse | null): ReminderTapTarget | null {
   const request = response?.notification.request;
   if (!request || !isOurs(request.identifier)) return null;
   const data = request.content.data as Partial<ReminderPayload> | undefined;
-  const lens: ReminderLens =
-    data?.lens === 'appointments' || data?.lens === 'todaysMeals' || data?.lens === 'hydration'
-      ? data.lens
-      : 'meds';
+
+  if (data?.tab === 'garden') return { pathname: '/garden', params: { openGardenLens: 'upcomingTasks' } };
+  if (data?.tab === 'life') {
+    const lens = DATED_LENSES.find((option) => option === data.lens) ?? 'finances';
+    return { pathname: '/life', params: { openLifeLens: lens } };
+  }
+  const lens = SCHEDULE_LENSES.find((option) => option === data?.lens) ?? 'meds';
   return { pathname: '/schedule', params: { openScheduleLens: lens } };
 }
 
