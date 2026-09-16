@@ -99,6 +99,8 @@ import {
   type NutrientGapEntry,
 } from '../../lib/nutrientAnalysis';
 import { getActiveGroceryListSummary, type GroceryListSummary } from '../../lib/groceryDb';
+import { describeInbox } from '../../lib/captureNotes';
+import { getCaptureInboxCounts } from '../../lib/captureNotesDb';
 import { reresolveSavedDishCookingMethods } from '../../lib/db';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { dateStringOffsetFrom } from '../../lib/trendAnalysis';
@@ -472,6 +474,7 @@ type DashboardData = {
   // with item_type 'garden', so they are the same kind of thing Today's
   // Reminders shows, just not bound to today.
   gardenTasks: (ScheduleItemRecord & { plotId: string | null; plantingId: string | null })[];
+  captureCounts: { waiting: number; sorted: number };
 };
 
 // The periodic symptom check-in's own automatic re-prompt cadence --
@@ -690,6 +693,14 @@ const HOME_LENS_DESTINATIONS: Partial<
     href: { pathname: '/garden', params: { openGardenLens: 'harvestLog' } } as Href,
   },
   groceryList: { label: 'Grocery List', icon: 'cart', color: colors.tabLife, href: '/grocery-list' as Href },
+  // Belongs to no tab, so it keeps colors.primary the way the shared-
+  // folder nudge does.
+  captureInbox: {
+    label: 'Capture',
+    icon: 'file-tray-outline',
+    color: colors.primary,
+    href: '/capture' as Href,
+  },
   // The real awareness ribbon, not Ionicons' own "ribbon" glyph. That glyph is
   // only ever a fallback for a generic consumer of TAB_ROUTES; it was tried for
   // real once and rejected because it reads as a race or award rosette (see
@@ -714,6 +725,7 @@ const HOME_LENS_DESTINATIONS: Partial<
 // page. Object key order would work today and would break silently the first
 // time someone reordered the literal above, so it is stated.
 const HOME_LENS_ORDER: HomeSectionKey[] = [
+  'captureInbox',
   'logAgain',
   'scanProduct',
   'yourDay',
@@ -1165,6 +1177,11 @@ export default function HomeScreen() {
       // Five rather than the default twenty, since this is a Home card and
       // the lens itself is one tap away.
       listUpcomingGardenTasks(5),
+      // The capture inbox, 2026-09-16. Appended last for the same reason
+      // as everything above it. One aggregate query over one small table,
+      // and it reads no note text: Home only needs to know whether there
+      // is anything there.
+      getCaptureInboxCounts(),
     ]).then(
       ([
         todaysMeals,
@@ -1180,6 +1197,7 @@ export default function HomeScreen() {
         grocerySummary,
         todaysReminders,
         gardenTasks,
+        captureCounts,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1215,6 +1233,7 @@ export default function HomeScreen() {
           daysSinceAssessment,
           checkinReminderDays: profile.checkinReminderDays,
           gardenTasks,
+          captureCounts,
         });
       },
     );
@@ -2632,6 +2651,48 @@ export default function HomeScreen() {
     );
   }
 
+  // Capture, 2026-09-16. Two rows and a line, and the line says nothing
+  // at all when the inbox is empty, because empty is the normal state and
+  // a card announcing "0 waiting" every morning is noise.
+  //
+  // Both rows land on the same screen. Say it starts the microphone on
+  // arrival rather than waiting to be tapped again, since somebody who
+  // picked the speaking row has already chosen, the same thing
+  // app/voice-log.tsx does with its own autoStart.
+  function renderCaptureInbox() {
+    if (!isHomeSectionVisible(visualPrefs, 'captureInbox')) return null;
+    const counts = data?.captureCounts ?? { waiting: 0, sorted: 0 };
+    const summary = describeInbox({ ...counts, done: 0 });
+    return renderBand(
+      'captureInbox',
+      'Capture',
+      <View style={styles.bandBody}>
+        <Text style={styles.bandCaption}>
+          Somewhere to throw a thought before it is gone. Nothing is asked of you: no category, no date, no
+          form. Sorting it out can wait until you have a minute.
+        </Text>
+        <TouchableOpacity
+          style={[styles.logAgainSpeakButton, { borderColor: colors.primary }]}
+          onPress={() => router.push('/capture')}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="create-outline" size={18} color={colors.primary} style={textShadow} />
+          <Text style={[styles.logAgainSpeakText, { color: colors.primary }]}>Type it</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.logAgainSpeakButton, { borderColor: colors.primary }]}
+          onPress={() => router.push({ pathname: '/capture', params: { speak: '1' } })}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="mic-outline" size={18} color={colors.primary} style={textShadow} />
+          <Text style={[styles.logAgainSpeakText, { color: colors.primary }]}>Say it</Text>
+        </TouchableOpacity>
+        {summary ? <Text style={styles.bandCaption}>{summary}</Text> : null}
+      </View>,
+      { icon: 'file-tray-outline', color: colors.primary },
+    );
+  }
+
   // The other half of Garden's group: picking something is the thing that
   // happens away from the phone and gets remembered later, so it is a
   // one-tap row into the Harvest Log rather than a card to read.
@@ -2699,6 +2760,8 @@ export default function HomeScreen() {
     switch (key) {
       case 'sharedFolderSetup':
         return renderSharedFolderSetup();
+      case 'captureInbox':
+        return renderCaptureInbox();
       case 'lowStimulation':
         return renderLowStimulation();
       case 'symptomCheckinReminder':

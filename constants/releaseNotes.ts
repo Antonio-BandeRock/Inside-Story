@@ -41,6 +41,21 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.9',
+    date: '2026-09-16',
+    changes: [
+      'Somewhere to throw a thought. Capture leads the Home screen now: type it or say it, and it is kept. Nothing is asked of you at that moment, no category, no date, no form, because the two seconds it takes is the whole point.',
+      'What you said is kept exactly as you said it. Double spaces and stray line breaks go, nothing else is corrected or tidied. A spoken note is marked as spoken, so a strange-looking line later reads as something a microphone heard rather than something you typed.',
+      'Sorting happens later, on your own time. Open Capture and each waiting note offers seven places it might belong: on the calendar, to buy, in the garden, upkeep, money, health, or just a thought. Picking one groups it under that heading and puts an Open button beside it.',
+      'Sorting never creates anything by itself. A garden task needs a date, an upkeep item needs a cadence and a bill needs a rule, and five words carry none of those, so the app will not invent them. Open takes you to the lens where you add it properly, with the note in front of you.',
+      'Nothing is lost by guessing wrong. A note is not used up by being sorted: tap the same choice again and it goes back to waiting. Long-press any of the seven to read what belongs there.',
+      'Tap a note to correct it, which is mostly for fixing what a recognizer misheard. Mark it done when it is dealt with, straight from the waiting pile if it never needed a category at all. Done notes fold away and are kept for two months.',
+      'The Home card says how many are waiting and how many are sorted but not finished with, and says nothing at all when there is nothing there.',
+      'Nothing is sent anywhere. Notes live on this phone, in the same database as everything else here.',
+      'Capture is a Home section like any other, so it can be moved or turned off in Profile > Home Screen, and it is in the corner menu.',
+    ],
+  },
+  {
     version: '1.0.39.8',
     date: '2026-09-16',
     changes: [

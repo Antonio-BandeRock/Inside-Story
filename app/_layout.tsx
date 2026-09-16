@@ -600,6 +600,21 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* The capture inbox, 2026-09-16. A Stack screen rather
+                    than a lens on any tab, because the whole point is
+                    that a thought arriving has not been assigned to an
+                    area yet: putting it inside one would ask the
+                    question this screen exists to postpone. Reached from
+                    Home's own card, typing or speaking. */}
+                <Stack.Screen
+                  name="capture"
+                  options={{
+                    headerShown: true,
+                    title: 'Capture',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 {/* Which of two brands is actually cheaper, 2026-09-01. Reached
                     from a grocery list line, or on its own. */}
                 <Stack.Screen

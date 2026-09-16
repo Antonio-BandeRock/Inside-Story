@@ -26,6 +26,12 @@ import type { HomeSectionKey } from './visualPreferences';
 export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   weather: null,
   sharedFolderSetup: null,
+  // Capture, 2026-09-16. Null is the honest answer rather than a
+  // default: a thought nobody has given a category to yet belongs to no
+  // tab, which is also the whole reason the screen exists. Being null
+  // here is what keeps it a top-level row instead of a card inside a
+  // band, so reaching it is one tap rather than two.
+  captureInbox: null,
   // Profile's, since 1.0.39.7. It is the same switch Profile carries,
   // surfaced on the page a person is already on, so it belongs under
   // Profile's name rather than under Home's. Home itself has no group:

@@ -5009,6 +5009,43 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_upkeep_items_active ON upkeep_items(active);
 
+      -- --- The capture inbox: somewhere to throw a thought (2026-09-16) ------
+      --
+      -- The one table in this file that deliberately knows nothing about what
+      -- it is holding. Everywhere else here, the shape of the row says what
+      -- the thing is before it can be written: a meal has foods, a dose has a
+      -- time, an upkeep item has a cadence. That is exactly the tax this one
+      -- exists to remove. "Call the dentist" is not a meal, an appointment, a
+      -- bill or a task until someone decides it is, and forcing that decision
+      -- at the moment a thought arrives is how the thought gets lost.
+      --
+      -- So: text, and when it arrived. Everything else is nullable and gets
+      -- filled in later or never. destination stays NULL for as long as the
+      -- person likes; a note nobody ever sorts is still a note they can read.
+      --
+      -- Nothing is deleted on being dealt with, because the value of an inbox
+      -- is partly in looking back at what kept turning up. See
+      -- lib/captureNotes.ts for the sorting rules and the destination list.
+      CREATE TABLE IF NOT EXISTS capture_notes (
+        id TEXT PRIMARY KEY,
+        -- Kept exactly as it arrived, beyond collapsing whitespace. A capture
+        -- that silently rewrites what someone said is worse than one that
+        -- keeps a typo.
+        text TEXT NOT NULL,
+        -- typed or spoken. A strange-looking line reads differently when you
+        -- can see a microphone wrote it.
+        source TEXT NOT NULL DEFAULT 'typed',
+        -- waiting, sorted or done.
+        status TEXT NOT NULL DEFAULT 'waiting',
+        -- One of lib/captureNotes.ts CAPTURE_DESTINATIONS, or NULL while
+        -- nothing has been decided.
+        destination TEXT,
+        created_at TEXT NOT NULL,
+        sorted_at TEXT,
+        done_at TEXT
+      );
+      CREATE INDEX IF NOT EXISTS idx_capture_notes_status ON capture_notes(status, created_at);
+
       -- --- Emergency & Essentials: what someone else needs to know (2026-09-05) --
       --
       -- Life gains its fifth area. NOTHING HERE IS AN ALERT SYSTEM, and the

@@ -227,6 +227,11 @@ export const GENERIC_PALETTE_LABELS: Record<GenericPalette, string> = {
 export type HomeSectionKey =
   | 'weather'
   | 'sharedFolderSetup'
+  // The capture inbox, 2026-09-16. Belongs to no tab on purpose, so it
+  // renders as a top-level row rather than inside a band: a thought
+  // arriving has not been assigned to an area yet, and a band to open
+  // first is a tap the two seconds cannot afford.
+  | 'captureInbox'
   // 2026-09-16, direct request: "Low Stimulation needs to be available as
   // a quick access setting on the Home page... Low Stimulation needs to be
   // a switch accessible in Quick Access." Everything on Home is already a
@@ -296,6 +301,9 @@ export type HomeSectionKey =
 export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weather',
   'sharedFolderSetup',
+  // Capture leads, behind only the one-off folder nudge: it is the one
+  // card whose whole value is being reachable before a thought is gone.
+  'captureInbox',
   // Profile. TabHub puts it second, immediately after Home, and so does
   // this (2026-09-16). It is not a TAB_ROUTE, so Home reads its name,
   // icon and colour from HOME_GROUP_IDENTITY in app/(tabs)/index.tsx.
@@ -354,6 +362,7 @@ export const REORDERABLE_HOME_SECTION_KEYS: HomeSectionKey[] = ALL_HOME_SECTION_
 export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weather: 'Weather & Sunrise/Sunset',
   sharedFolderSetup: 'Shared Folder Setup',
+  captureInbox: 'Capture',
   lowStimulation: 'Low Stimulation',
   symptomCheckinReminder: 'Symptom Check-In',
   todaysCheckin: "Today's Check-In",
