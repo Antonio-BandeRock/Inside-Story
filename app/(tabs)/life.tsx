@@ -252,12 +252,16 @@ const ROUTINES_HELP_SECTIONS: HelpSection[] = [
     body: 'Walking a routine shows a single step, large, and nothing else. A list of nine is a thing to be scanned and re-scanned and lost your place in, which hands the problem straight back. Done moves on, Back goes one step up, and Skip moves on while remembering that you skipped it.',
   },
   {
-    heading: 'A step can answer a question later',
-    body: 'Attach a step to something in Did I Do It and finishing the routine records it. Walking your morning at 7 then answers whether you took your pill at 11, with nothing extra to remember and no second tap. A step you skipped records nothing, because a skipped step is you saying you did not do that one.',
+    heading: 'Checking things off as you go',
+    body: 'Attach a check to a step and that step carries a box to tap while you are standing there doing it. Tapping it writes the time right then, so walking your morning at 7 answers whether you took your pill at 11 with nothing else to remember. Stopping part way keeps whatever you already checked off, because you did those things. A step you skipped writes nothing, since a skipped step is you saying you did not do that one.',
+  },
+  {
+    heading: 'When it happens is yours to add to',
+    body: 'Morning, bedtime and leaving the house are there to start with. If what you need is not on the list, add it while you are making the routine: Work, the school run, the workshop. It is on the list from then on, so a second Work routine goes straight under the same heading. Give it hours and those routines come to the top while the clock is inside them.',
   },
   {
     heading: 'What it will not do',
-    body: 'No routine ever starts on its own and nothing here goes off. When it happens is used for the order they are listed in and nothing else. Nothing is written down until the last step either, so stopping part way leaves no record of a half done routine.',
+    body: 'No routine ever starts on its own and nothing here goes off. When it happens is used for the order they are listed in and nothing else. The routine itself only counts as done once you reach the last step.',
   },
 ];
 
@@ -265,6 +269,10 @@ const DID_I_DO_IT_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this is for',
     body: 'One question, asked later. Did I take my pill, did I lock the back door, did I pay the electric bill. The whole value is being able to look, so the answer costs a glance rather than a walk back upstairs or a second payment of the same bill.',
+  },
+  {
+    heading: 'This is the record your routines write',
+    body: 'Most of these get ticked off while you walk a routine, at the step that does them, the moment you tap. So they are listed here under the routine they belong to, and a heading will walk that routine for you. The ones nothing walks past are gathered at the end, and those are the ones the button on the card is for.',
   },
   {
     heading: 'It is not a reminder and not a task list',

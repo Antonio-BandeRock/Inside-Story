@@ -109,6 +109,7 @@ import {
   describeRoutineStanding,
   orderRoutinesForNow,
   summarizeChecks,
+  type CustomOccasion,
   type DoneCheck,
   type Routine,
 } from '../../lib/routines';
@@ -495,6 +496,9 @@ type DashboardData = {
   // number cannot carry.
   routines: Routine[];
   doneChecks: DoneCheck[];
+  // The occasions the person made themselves, needed here only so the
+  // band can order by the clock the same way Life does.
+  routineOccasions: CustomOccasion[];
   // How many scheduled things have gone by without an answer, plus how
   // many the app answered for on somebody's behalf. Two numbers, not the
   // rows themselves: Home never reads what any of them were.
@@ -1347,6 +1351,7 @@ export default function HomeScreen() {
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
           routines: routinesHome.routines,
           doneChecks: routinesHome.checks,
+          routineOccasions: routinesHome.occasions,
         });
       },
     );
@@ -2722,7 +2727,7 @@ export default function HomeScreen() {
   function renderRoutines() {
     if (!isHomeSectionVisible(visualPrefs, 'routines')) return null;
     const now = new Date();
-    const routines = orderRoutinesForNow(data?.routines ?? [], now);
+    const routines = orderRoutinesForNow(data?.routines ?? [], now, data?.routineOccasions ?? []);
     return renderBand(
       'routines',
       'Routines',

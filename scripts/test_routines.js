@@ -35,17 +35,28 @@ function load(relPath) {
 const {
   ALL_CHECK_CADENCES,
   ALL_ROUTINE_OCCASIONS,
+  checkIdsInRoutine,
   checkStanding,
   cleanRoutineText,
+  describeCheckRoutine,
   describeChecksSummary,
   describeMarkMoment,
+  describeOccasionHours,
   describeRoutineStanding,
+  findOccasion,
+  formatHour,
   formatMarkClock,
+  groupChecksByRoutine,
+  isKnownOccasion,
   isRoutineTextUsable,
+  LOOSE_CHECKS_HEADING,
   moveRoutineStep,
+  occasionChoices,
   orderRoutinesForNow,
   periodStart,
   routineDoneToday,
+  routineForCheck,
+  routineOccasionLabel,
   routineProgressLabel,
   startOfLocalWeek,
   suggestedOccasion,
@@ -328,6 +339,103 @@ check(
   moveRoutineStep(steps, 0, 3).map((s) => s.id),
   ['a', 'b', 'c'],
 );
+
+// ------------------------------------------------------------ a when it happens of their own
+
+check('midnight is said as twelve', formatHour(0), '12am');
+check('noon is said as twelve too', formatHour(12), '12pm');
+check('the morning hour reads plainly', formatHour(7), '7am');
+check('the afternoon hour comes back round', formatHour(17), '5pm');
+
+check('a range reads as a range', describeOccasionHours(9, 17), 'Around 9am to 5pm.');
+check('no hours is no line', describeOccasionHours(null, null), null);
+check('half a range is no line', describeOccasionHours(9, null), null);
+// A range that starts and ends on the same hour is no range at all, and
+// saying "around 9am to 9am" would be worse than saying nothing.
+check('an empty range is no line', describeOccasionHours(9, 9), null);
+
+const work = { id: 'occ_work', name: 'Work', hourFrom: 9, hourTo: 17, position: 0 };
+const workshop = { id: 'occ_shed', name: 'The workshop', hourFrom: null, hourTo: null, position: 1 };
+const mine = [work, workshop];
+
+check('theirs lead the list', occasionChoices(mine).map((o) => o.key).slice(0, 2), ['occ_work', 'occ_shed']);
+check('the built in four are still there', occasionChoices(mine).length, 6);
+check('the built in four stand alone', occasionChoices().length, 4);
+check('one they made is theirs to change', findOccasion('occ_work', mine).mine, true);
+check('one that shipped is not', findOccasion('morning', mine).mine, false);
+check('a name they typed is the label', routineOccasionLabel('occ_work', mine), 'Work');
+// The one that matters if an occasion is ever removed: the routine keeps
+// working and is listed under something a person can read.
+check('an occasion that is gone falls back', routineOccasionLabel('occ_gone', mine), 'Something else');
+check('and is not known any more', isKnownOccasion('occ_gone', mine), false);
+check('one with no hours says nothing extra', findOccasion('occ_shed', mine).example, null);
+
+// Work runs 9 to 5 and Morning runs 4 to 11, so ten in the morning is
+// covered by both. Theirs wins, because they typed it.
+check('their own beats a built in', suggestedOccasion(new Date(2026, 8, 16, 10, 0), mine), 'occ_work');
+check('outside their hours the built in returns', suggestedOccasion(new Date(2026, 8, 16, 6, 0), mine), 'morning');
+check('one with no hours never leads', suggestedOccasion(new Date(2026, 8, 16, 15, 0), [workshop]), null);
+
+const withWork = [
+  makeRoutine({ id: 'morn', name: 'Morning', occasion: 'morning', position: 0 }),
+  makeRoutine({ id: 'desk', name: 'Starting work', occasion: 'occ_work', position: 1 }),
+];
+check(
+  'the work one leads inside work hours',
+  orderRoutinesForNow(withWork, new Date(2026, 8, 16, 10, 0), mine).map((r) => r.id),
+  ['desk', 'morn'],
+);
+check(
+  'and the morning one leads before them',
+  orderRoutinesForNow(withWork, new Date(2026, 8, 16, 6, 0), mine).map((r) => r.id),
+  ['morn', 'desk'],
+);
+
+// ------------------------------------------------------------ the record reads under its routine
+
+function makeCheckStep(id, position, checkId) {
+  return { id, routineId: 'r1', text: id, detail: null, position, checkId };
+}
+
+// Written out of order on purpose: the steps come back from the database
+// sorted, but nothing here should depend on that.
+const morningWalk = makeRoutine({
+  id: 'morn',
+  name: 'Morning',
+  position: 0,
+  steps: [
+    makeCheckStep('s2', 1, 'pill'),
+    makeCheckStep('s1', 0, 'door'),
+    makeCheckStep('s3', 2, 'pill'),
+    makeStep('s4', 3),
+  ],
+});
+
+check('the checks a routine ticks off come in step order', checkIdsInRoutine(morningWalk), ['door', 'pill']);
+check('a check two steps point at is named once', checkIdsInRoutine(morningWalk).length, 2);
+check('a routine with no checks ticks nothing off', checkIdsInRoutine(makeRoutine({ steps: [makeStep('s1', 0)] })), []);
+
+check('the routine that ticks it off is found', routineForCheck('pill', [morningWalk]).id, 'morn');
+check('one nothing walks past has no routine', routineForCheck('bins', [morningWalk]), null);
+check('the line says where it gets ticked off', describeCheckRoutine('pill', [morningWalk]), 'Ticked off while walking Morning.');
+check('and says nothing when nothing walks past it', describeCheckRoutine('bins', [morningWalk]), null);
+
+const grouped = groupChecksByRoutine(
+  [makeCheck({ id: 'pill' }), makeCheck({ id: 'bins' }), makeCheck({ id: 'door' })],
+  [morningWalk],
+);
+check('a routine heading and the loose one', grouped.map((g) => g.heading), ['Morning', LOOSE_CHECKS_HEADING]);
+check('both of the routine checks sit under it', grouped[0].checks.map((c) => c.id), ['pill', 'door']);
+// The ones nothing walks past go last, so the list ends with the odds and
+// ends rather than opening with them.
+check('the loose ones come last', grouped[grouped.length - 1].routine, null);
+check('and carry the one nothing walks past', grouped[1].checks.map((c) => c.id), ['bins']);
+check(
+  'with no routines at all everything is loose',
+  groupChecksByRoutine([makeCheck({ id: 'bins' })], []).map((g) => g.heading),
+  [LOOSE_CHECKS_HEADING],
+);
+check('and an empty list groups into nothing', groupChecksByRoutine([], [morningWalk]).length, 0);
 
 // ------------------------------------------------------------ nothing goes unnamed
 

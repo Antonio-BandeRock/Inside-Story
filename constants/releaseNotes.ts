@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.21',
+    date: '2026-09-17',
+    changes: [
+      'When it happens is now yours to add to. Morning, bedtime and leaving the house are there to start with, and if what you need is not on the list you can add it while you are making the routine: Work, the school run, the workshop. It stays on the list from then on, so a second Work routine goes straight under the same heading. Give it hours and those routines come to the top while the clock is inside them.',
+      'You can rename or remove one you made. Removing it puts the routines that used it back under Something else and deletes none of them.',
+      'Checking things off now happens while you walk, at the step that does it, the moment you tap. It used to wait until you reached the last step, which meant taking your pill at step two and then answering the door left no record of it at all. What you check off stays checked off even if you stop half way.',
+      'A step with a check attached shows it as a box to tap on the step itself, with the time it went down, and a second tap takes it back.',
+      'A new check can be made from the step that does it, without going over to Did I Do It first.',
+      'Did I Do It now reads as the record your routines write. The checks are listed under the routine that ticks them off, each heading will walk that routine for you, and the ones nothing walks past are gathered at the end.',
+    ],
+  },
+  {
     version: '1.0.39.20',
     date: '2026-09-17',
     changes: [

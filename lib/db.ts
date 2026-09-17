@@ -5095,11 +5095,37 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_done_check_marks_check ON done_check_marks(check_id, marked_at);
 
+      -- One more "when it happens" than the four that ship, 2026-09-17:
+      -- "There needs to be a way for them to add a new When it happens...
+      -- and when they create it, it can then be something that can be
+      -- selected in the list again if they ever create another routine for
+      -- work for instance that has a lot of routines." Work, the school
+      -- run, the workshop.
+      --
+      -- routines.occasion holds either a built-in key or one of these ids,
+      -- in the same column, because both answer the same question. There is
+      -- deliberately NO foreign key for that reason, so removing one here
+      -- has to reset the routines that used it by hand: see
+      -- deleteRoutineOccasion in lib/routinesDb.ts.
+      CREATE TABLE IF NOT EXISTS routine_occasions (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        -- Which part of the day this covers, start inclusive, end exclusive,
+        -- both null for one that is about a place rather than an hour. Used
+        -- for nothing but putting the routine that fits the clock at the top
+        -- of the list.
+        hour_from INTEGER,
+        hour_to INTEGER,
+        position INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       CREATE TABLE IF NOT EXISTS routines (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        -- One of lib/routines.ts ROUTINE_OCCASIONS: morning, bedtime,
-        -- leaving, other. Wording and ordering only, never a schedule.
+        -- A built-in key from lib/routines.ts ROUTINE_OCCASIONS (morning,
+        -- bedtime, leaving, other) or the id of a routine_occasions row the
+        -- person made. Wording and ordering only, never a schedule.
         occasion TEXT NOT NULL DEFAULT 'other',
         active INTEGER NOT NULL DEFAULT 1,
         position INTEGER NOT NULL DEFAULT 0,

@@ -7,15 +7,16 @@
 import { getDatabase } from './db';
 import {
   ALL_CHECK_CADENCES,
-  ALL_ROUTINE_OCCASIONS,
   cleanRoutineText,
   isRoutineTextUsable,
   MAX_CHECK_NAME,
+  MAX_OCCASION_NAME,
   MAX_ROUTINE_NAME,
   MAX_STEP_DETAIL,
   MAX_STEP_TEXT,
   type CheckCadence,
   type CheckMarkVia,
+  type CustomOccasion,
   type DoneCheck,
   type Routine,
   type RoutineOccasion,
@@ -192,6 +193,119 @@ export async function moveDoneCheck(id: string, direction: -1 | 1): Promise<void
   }
 }
 
+// --------------------------------------------------- when it happens, theirs
+//
+// 2026-09-17: "There needs to be a way for them to add a new When it happens
+// so they can create a routine specific to something that isn't on the list,
+// and when they create it, it can then be something that can be selected in
+// the list again if they ever create another routine for work for instance
+// that has a lot of routines."
+
+type OccasionRow = {
+  id: string;
+  name: string;
+  hourFrom: number | null;
+  hourTo: number | null;
+  position: number;
+};
+
+const OCCASION_COLUMNS = `id, name, hour_from AS hourFrom, hour_to AS hourTo, position`;
+
+/** An hour as the database should hold it: a whole 0 to 23, or null for one
+ *  that does not belong to a time of day. Anything else is somebody's typo
+ *  and becomes null rather than a routine that sorts oddly forever. */
+function cleanHour(hour: number | null): number | null {
+  if (hour === null || !Number.isFinite(hour)) return null;
+  const whole = Math.trunc(hour);
+  if (whole < 0 || whole > 23) return null;
+  return whole;
+}
+
+function toOccasion(row: OccasionRow): CustomOccasion {
+  return {
+    id: row.id,
+    name: row.name,
+    hourFrom: cleanHour(row.hourFrom),
+    hourTo: cleanHour(row.hourTo),
+    position: row.position,
+  };
+}
+
+export async function getRoutineOccasions(): Promise<CustomOccasion[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<OccasionRow>(
+    `SELECT ${OCCASION_COLUMNS} FROM routine_occasions ORDER BY position ASC, name ASC`,
+  );
+  return rows.map(toOccasion);
+}
+
+export async function createRoutineOccasion(
+  name: string,
+  hourFrom: number | null = null,
+  hourTo: number | null = null,
+): Promise<string | null> {
+  if (!isRoutineTextUsable(name)) return null;
+  const db = await getDatabase();
+  const id = newId('occasion');
+  const next = await db.getFirstAsync<{ next: number }>(
+    `SELECT COALESCE(MAX(position), -1) + 1 AS next FROM routine_occasions`,
+  );
+  await db.runAsync(
+    `INSERT INTO routine_occasions (id, name, hour_from, hour_to, position, created_at)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    id,
+    trimTo(name, MAX_OCCASION_NAME),
+    cleanHour(hourFrom),
+    cleanHour(hourTo),
+    next?.next ?? 0,
+    new Date().toISOString(),
+  );
+  return id;
+}
+
+export async function updateRoutineOccasion(
+  id: string,
+  name: string,
+  hourFrom: number | null = null,
+  hourTo: number | null = null,
+): Promise<boolean> {
+  if (!isRoutineTextUsable(name)) return false;
+  const db = await getDatabase();
+  await db.runAsync(
+    `UPDATE routine_occasions SET name = ?, hour_from = ?, hour_to = ? WHERE id = ?`,
+    trimTo(name, MAX_OCCASION_NAME),
+    cleanHour(hourFrom),
+    cleanHour(hourTo),
+    id,
+  );
+  return true;
+}
+
+/** Removing one puts every routine that used it back on Something else, by
+ *  hand, because routines.occasion holds built-in keys as well as these ids
+ *  and so cannot carry a foreign key. Without this the routines would still
+ *  be there and would still be walkable, but would be listed under a name
+ *  nothing can look up. */
+export async function deleteRoutineOccasion(id: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(`UPDATE routines SET occasion = 'other' WHERE occasion = ?`, id);
+  await db.runAsync(`DELETE FROM routine_occasions WHERE id = ?`, id);
+}
+
+export async function moveRoutineOccasion(id: string, direction: -1 | 1): Promise<void> {
+  const db = await getDatabase();
+  const occasions = await getRoutineOccasions();
+  const index = occasions.findIndex((entry) => entry.id === id);
+  const target = index + direction;
+  if (index < 0 || target < 0 || target >= occasions.length) return;
+  const reordered = [...occasions];
+  const [held] = reordered.splice(index, 1);
+  reordered.splice(target, 0, held);
+  for (let position = 0; position < reordered.length; position += 1) {
+    await db.runAsync(`UPDATE routine_occasions SET position = ? WHERE id = ?`, position, reordered[position].id);
+  }
+}
+
 // ------------------------------------------------------------------ routines
 
 type RoutineRow = {
@@ -223,14 +337,16 @@ function toStep(row: StepRow): RoutineStep {
   };
 }
 
+/** The occasion comes back exactly as it was written. It used to be forced
+ *  to one of the four built-ins here, which would now throw away the id of
+ *  every occasion somebody made. One that no longer exists is handled where
+ *  it is read instead, by routineOccasionLabel falling back to Something
+ *  else, so the routine keeps working either way. */
 function toRoutine(row: RoutineRow, steps: RoutineStep[]): Routine {
-  const occasion = ALL_ROUTINE_OCCASIONS.includes(row.occasion as RoutineOccasion)
-    ? (row.occasion as RoutineOccasion)
-    : 'other';
   return {
     id: row.id,
     name: row.name,
-    occasion,
+    occasion: row.occasion,
     active: row.active !== 0,
     position: row.position,
     lastCompletedAt: row.lastCompletedAt,
@@ -287,7 +403,7 @@ export async function createRoutine(name: string, occasion: RoutineOccasion): Pr
     `INSERT INTO routines (id, name, occasion, active, position, created_at) VALUES (?, ?, ?, 1, ?, ?)`,
     id,
     trimTo(name, MAX_ROUTINE_NAME),
-    ALL_ROUTINE_OCCASIONS.includes(occasion) ? occasion : 'other',
+    occasion || 'other',
     next?.next ?? 0,
     new Date().toISOString(),
   );
@@ -300,7 +416,7 @@ export async function updateRoutine(id: string, name: string, occasion: RoutineO
   await db.runAsync(
     `UPDATE routines SET name = ?, occasion = ? WHERE id = ?`,
     trimTo(name, MAX_ROUTINE_NAME),
-    ALL_ROUTINE_OCCASIONS.includes(occasion) ? occasion : 'other',
+    occasion || 'other',
     id,
   );
   return true;
@@ -396,33 +512,39 @@ export async function saveStepOrder(steps: RoutineStep[]): Promise<void> {
 // ------------------------------------------------------------- finishing one
 
 /**
- * A routine reaching its last step. Stamps the routine, then marks every
- * check any step pointed at with the same moment, which is the join the
- * whole design rests on: walking the morning routine answers "did I take my
- * pill" without being recorded twice.
+ * A routine reaching its last step. Stamps the routine, and nothing else.
  *
- * Steps that were skipped are passed in as skippedStepIds and mark nothing,
- * because a skipped step is the person saying they did not do that one, and
- * recording it anyway would make the record worse than useless.
+ * This used to gather up every step's check and write them all here, at the
+ * end. 2026-09-17: "Did I do it is the user selecting to check the item off
+ * as they are doing it." So the marks are written at the step now, by the
+ * walking screen, the moment the person ticks one. That is both what they
+ * asked for and the more honest record: somebody who takes their pill at
+ * step two and then answers the door has still taken their pill, and used
+ * to end up with no record of it at all.
+ *
+ * What is left here is the routine's own stamp, which still means what it
+ * always meant: the last step was reached.
  */
-export async function completeRoutine(routineId: string, skippedStepIds: string[] = []): Promise<void> {
+export async function completeRoutine(routineId: string): Promise<void> {
   const db = await getDatabase();
-  const finishedAt = new Date().toISOString();
-  await db.runAsync(`UPDATE routines SET last_completed_at = ? WHERE id = ?`, finishedAt, routineId);
-  const steps = await db.getAllAsync<{ id: string; checkId: string | null }>(
-    `SELECT id, check_id AS checkId FROM routine_steps WHERE routine_id = ? AND check_id IS NOT NULL`,
+  await db.runAsync(
+    `UPDATE routines SET last_completed_at = ? WHERE id = ?`,
+    new Date().toISOString(),
     routineId,
   );
-  const skipped = new Set(skippedStepIds);
-  for (const step of steps) {
-    if (skipped.has(step.id) || !step.checkId) continue;
-    await markDoneCheck(step.checkId, 'routine', routineId, finishedAt);
-  }
 }
 
 // ------------------------------------------------------------ what Home reads
 
-export async function getRoutinesHomeData(): Promise<{ routines: Routine[]; checks: DoneCheck[] }> {
-  const [routines, checks] = await Promise.all([getRoutines(), getDoneChecks()]);
-  return { routines, checks };
+export async function getRoutinesHomeData(): Promise<{
+  routines: Routine[];
+  checks: DoneCheck[];
+  occasions: CustomOccasion[];
+}> {
+  const [routines, checks, occasions] = await Promise.all([
+    getRoutines(),
+    getDoneChecks(),
+    getRoutineOccasions(),
+  ]);
+  return { routines, checks, occasions };
 }

@@ -8,14 +8,24 @@
 // screen is the thing to do now, said in the person's own words, at a size
 // that can be read from across the room with both hands full.
 //
-// Three answers, not one. Done moves on. Skip moves on and remembers that it
-// was skipped, because a skipped step must not write a "did it" mark later.
+// Three answers, not one. Done moves on. Skip moves on and records nothing,
+// because a skipped step is the person saying they did not do that one.
 // Back exists because people press the wrong thing.
 //
-// Nothing is saved until the walk ends. Half a routine is not a routine, and
-// a record saying somebody did their morning at 7:03 when they got two steps
-// in and answered the door would be worse than no record. The one exception
-// is leaving early on purpose: Stop here saves nothing and says so.
+// What gets written, and when. 2026-09-17, direct correction: "While they
+// are walking through a routine, they are also checking off things that they
+// need to do while running the routine. Did I do it is the user selecting to
+// check the item off as they are doing it." So a step carrying a check shows
+// that check on the card, and ticking it writes the mark then and there.
+// Pressing Done writes it too, for anyone who treats Done as the tick.
+//
+// This screen used to gather the whole walk up and write it at the end,
+// reasoning that half a routine is not a routine. That is still true of the
+// routine's finished stamp, which is why it is still written last. It was
+// never true of the checks: somebody who takes their pill at step two and
+// then answers the door has taken their pill, and deserves to be told so at
+// eleven o'clock. The one thing that stays unwritten on an abandoned walk is
+// the claim that the whole routine was done.
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -24,12 +34,21 @@ import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import {
+  formatMarkClock,
   routineOccasionLabel,
   routineProgressLabel,
+  type CustomOccasion,
   type DoneCheck,
   type Routine,
 } from '../lib/routines';
-import { completeRoutine, getDoneChecks, getRoutine } from '../lib/routinesDb';
+import {
+  completeRoutine,
+  getDoneChecks,
+  getRoutine,
+  getRoutineOccasions,
+  markDoneCheck,
+  undoLastCheckMark,
+} from '../lib/routinesDb';
 
 export default function RoutineWalkScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
@@ -39,9 +58,15 @@ export default function RoutineWalkScreen() {
 
   const [routine, setRoutine] = useState<Routine | null>(null);
   const [checks, setChecks] = useState<DoneCheck[]>([]);
+  const [occasions, setOccasions] = useState<CustomOccasion[]>([]);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
   const [skipped, setSkipped] = useState<string[]>([]);
+  // Which steps this walk has already written a mark for, and at what time,
+  // keyed by step rather than by check so that two steps pointing at one
+  // check stay two separate acts. Also the thing that keeps a second press
+  // from writing a second mark for one act.
+  const [ticked, setTicked] = useState<Record<string, string>>({});
   const [finished, setFinished] = useState(false);
 
   const load = useCallback(async () => {
@@ -49,9 +74,14 @@ export default function RoutineWalkScreen() {
       setLoading(false);
       return;
     }
-    const [found, allChecks] = await Promise.all([getRoutine(routineId), getDoneChecks(true)]);
+    const [found, allChecks, allOccasions] = await Promise.all([
+      getRoutine(routineId),
+      getDoneChecks(true),
+      getRoutineOccasions(),
+    ]);
     setRoutine(found);
     setChecks(allChecks);
+    setOccasions(allOccasions);
     setLoading(false);
   }, [routineId]);
 
@@ -67,28 +97,70 @@ export default function RoutineWalkScreen() {
     if (!step?.checkId) return null;
     return checks.find((entry) => entry.id === step.checkId)?.name ?? null;
   }, [checks, step]);
+  const tickedAt = step ? ticked[step.id] ?? null : null;
 
-  // What the finished card lists. Worked out from the steps that were not
-  // skipped, so it says exactly what was written and nothing more.
+  // What the finished card lists: what was actually written during this
+  // walk, in the order the steps come, and nothing more.
   const recorded = useMemo(() => {
-    const names: string[] = [];
+    const lines: { name: string; at: string }[] = [];
     for (const entry of steps) {
-      if (!entry.checkId || skipped.includes(entry.id)) continue;
+      const at = ticked[entry.id];
+      if (!at || !entry.checkId) continue;
       const name = checks.find((check) => check.id === entry.checkId)?.name;
-      if (name && !names.includes(name)) names.push(name);
+      if (name) lines.push({ name, at });
     }
-    return names;
-  }, [checks, skipped, steps]);
+    return lines;
+  }, [checks, steps, ticked]);
+
+  /** The tick itself, which is the person saying they have just done this
+   *  one. Tapping again takes it back, since the likeliest mistake on a
+   *  screen with one big target is hitting it by accident. */
+  async function toggleTick() {
+    if (!step?.checkId || !routine) return;
+    const stepId = step.id;
+    const checkId = step.checkId;
+    if (ticked[stepId]) {
+      await undoLastCheckMark(checkId);
+      setTicked((current) => {
+        const next = { ...current };
+        delete next[stepId];
+        return next;
+      });
+      return;
+    }
+    const markedAt = new Date().toISOString();
+    await markDoneCheck(checkId, 'routine', routine.id, markedAt);
+    setTicked((current) => ({ ...current, [stepId]: markedAt }));
+    setSkipped((current) => current.filter((id) => id !== stepId));
+  }
 
   async function advance(skipThisOne: boolean) {
     if (!step || !routine) return;
-    const nextSkipped = skipThisOne ? [...skipped, step.id] : skipped;
-    setSkipped(nextSkipped);
+    const stepId = step.id;
+    const checkId = step.checkId;
+    if (skipThisOne) {
+      // Skipping a step already ticked this walk is two opposite claims
+      // about one act, and the later one is what the person means now.
+      if (checkId && ticked[stepId]) {
+        await undoLastCheckMark(checkId);
+        setTicked((current) => {
+          const next = { ...current };
+          delete next[stepId];
+          return next;
+        });
+      }
+      setSkipped((current) => (current.includes(stepId) ? current : [...current, stepId]));
+    } else if (checkId && !ticked[stepId]) {
+      // Done counts as the tick, for anyone who never taps the row itself.
+      const markedAt = new Date().toISOString();
+      await markDoneCheck(checkId, 'routine', routine.id, markedAt);
+      setTicked((current) => ({ ...current, [stepId]: markedAt }));
+    }
     if (index + 1 < steps.length) {
       setIndex(index + 1);
       return;
     }
-    await completeRoutine(routine.id, nextSkipped);
+    await completeRoutine(routine.id);
     setFinished(true);
   }
 
@@ -147,10 +219,26 @@ export default function RoutineWalkScreen() {
               <Text style={styles.stepText}>{step.text}</Text>
               {step.detail ? <Text style={styles.stepDetail}>{step.detail}</Text> : null}
               {checkName ? (
-                <View style={styles.alsoRow}>
-                  <Ionicons name="checkmark-done-outline" size={15} color={colors.accent} />
-                  <Text style={styles.alsoText}>Also records: {checkName}</Text>
-                </View>
+                <TouchableOpacity
+                  style={[styles.tickRow, tickedAt ? styles.tickRowOn : null]}
+                  onPress={toggleTick}
+                >
+                  <Ionicons
+                    name={tickedAt ? 'checkmark-circle' : 'ellipse-outline'}
+                    size={22}
+                    color={tickedAt ? colors.accent : colors.textSecondary}
+                  />
+                  <View style={styles.tickTextColumn}>
+                    <Text style={[styles.tickText, tickedAt ? styles.tickTextOn : null]}>
+                      {tickedAt ? checkName : `Check off: ${checkName}`}
+                    </Text>
+                    <Text style={styles.tickHint}>
+                      {tickedAt
+                        ? `Checked off at ${formatMarkClock(new Date(tickedAt))}. Tap to take that back.`
+                        : 'Tap it as you do it, and Did I Do It can answer for you later.'}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
               ) : null}
             </View>
 
@@ -181,13 +269,17 @@ export default function RoutineWalkScreen() {
             </View>
 
             <TouchableOpacity style={styles.stopButton} onPress={() => router.back()}>
-              <Text style={styles.stopButtonText}>Stop here. Nothing gets recorded.</Text>
+              <Text style={styles.stopButtonText}>
+                {recorded.length > 0
+                  ? 'Stop here. What you checked off stays checked off.'
+                  : 'Stop here. Nothing has been checked off yet.'}
+              </Text>
             </TouchableOpacity>
 
             <View style={styles.footCard}>
               <Text style={styles.footText}>
-                {routineOccasionLabel(routine.occasion)}. Nothing is written down until the last step, so
-                stopping part way leaves no record of a half done routine.
+                {routineOccasionLabel(routine.occasion, occasions)}. Anything you check off is written down
+                the moment you tap it. The routine itself only counts as done once you reach the last step.
               </Text>
             </View>
           </>
@@ -208,11 +300,13 @@ export default function RoutineWalkScreen() {
 
             {recorded.length > 0 ? (
               <View style={styles.card}>
-                <Text style={styles.cardTitle}>Recorded for you</Text>
-                {recorded.map((name) => (
-                  <View key={name} style={styles.recordedRow}>
+                <Text style={styles.cardTitle}>Checked off along the way</Text>
+                {recorded.map((line) => (
+                  <View key={`${line.name}_${line.at}`} style={styles.recordedRow}>
                     <Ionicons name="checkmark-done-outline" size={16} color={colors.accent} />
-                    <Text style={styles.bodyText}>{name}</Text>
+                    <Text style={styles.bodyText}>
+                      {line.name}, {formatMarkClock(new Date(line.at))}
+                    </Text>
                   </View>
                 ))}
                 <Text style={styles.footText}>
@@ -273,8 +367,25 @@ const styles = StyleSheet.create({
   },
   stepText: { ...typography.screenTitle, color: colors.textPrimary, ...textShadow },
   stepDetail: { ...typography.body, color: colors.textSecondary, ...textShadow },
-  alsoRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  alsoText: { ...typography.caption, color: colors.accent, ...textShadow },
+  // A target, not a label. This used to be a line of text saying what would
+  // be recorded for you at the end. It is now the thing you press to record
+  // it, which is what the person asked for and what the act actually is.
+  tickRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceMuted,
+  },
+  tickRowOn: { borderColor: colors.accent },
+  tickTextColumn: { flex: 1, gap: 2 },
+  tickText: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  tickTextOn: { color: colors.accent },
+  tickHint: { ...typography.caption, color: colors.textMuted, ...textShadow },
   primaryButton: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -24,6 +24,16 @@
 // produced either two records of one act, or a screen telling somebody at
 // 11am that they had not done the thing they did at 7.
 //
+// 2026-09-17, direct correction, and the thing to keep hold of: "Did I Do
+// it should be related to Routines, not treated separately. While they are
+// walking through a routine, they are also checking off things that they
+// need to do while running the routine. Did I do it is the user selecting
+// to check the item off as they are doing it." Two things follow. The mark
+// is written AT THE STEP, the moment the person ticks it, not gathered up
+// and written when the walk ends: somebody who takes the pill at step two
+// and then answers the door has still taken the pill. And the record is
+// read grouped under the routine it belongs to, not as a second list.
+//
 // Pure on purpose: no database, no React, no colours, so these rules can be
 // checked in plain node (scripts/test_routines.js), and so the screens and
 // the database module can both read them without a cycle.
@@ -33,11 +43,25 @@
 /** Which moment a routine belongs to. Grouping and wording only: every
  *  routine is walked the same way whichever this is. 'leaving' has no hour
  *  of its own on purpose, because leaving the house happens whenever it
- *  happens, which is exactly why it is the one most often half done. */
-export type RoutineOccasion = 'morning' | 'bedtime' | 'leaving' | 'other';
+ *  happens, which is exactly why it is the one most often half done.
+ *
+ *  A plain string rather than a union of four, because the set is open.
+ *  2026-09-17, direct instruction: "There needs to be a way for them to add
+ *  a new When it happens so they can create a routine specific to something
+ *  that isn't on the list, and when they create it, it can then be something
+ *  that can be selected in the list again." So this holds either one of the
+ *  four built-in keys below or the id of one somebody made themselves, in
+ *  the same column, because both answer the same question. Resolve one
+ *  through findOccasion or routineOccasionLabel, never by comparing it to a
+ *  literal. */
+export type RoutineOccasion = string;
+
+/** The four that ship. Named apart from RoutineOccasion so the code that
+ *  genuinely means one of these four can still say so. */
+export type BuiltInOccasion = 'morning' | 'bedtime' | 'leaving' | 'other';
 
 export const ROUTINE_OCCASIONS: {
-  key: RoutineOccasion;
+  key: BuiltInOccasion;
   label: string;
   example: string;
   /** Local hours this occasion covers, start inclusive, end exclusive, or
@@ -71,10 +95,109 @@ export const ROUTINE_OCCASIONS: {
   },
 ];
 
-export const ALL_ROUTINE_OCCASIONS: RoutineOccasion[] = ROUTINE_OCCASIONS.map((entry) => entry.key);
+export const ALL_ROUTINE_OCCASIONS: BuiltInOccasion[] = ROUTINE_OCCASIONS.map((entry) => entry.key);
 
-export function routineOccasionLabel(occasion: RoutineOccasion): string {
-  return ROUTINE_OCCASIONS.find((entry) => entry.key === occasion)?.label ?? 'Something else';
+/**
+ * One "when it happens" somebody made themselves: Work, the school run,
+ * the workshop. Added 2026-09-17, because "Something else" is a place to
+ * put one routine and no place at all to put six.
+ *
+ * The hours are optional and mean what they mean for a built-in: which
+ * part of the day this covers, used for nothing but putting the routine
+ * that fits the clock at the top of the list. One with no hours behaves
+ * exactly like Something else, which is the right default for a name that
+ * is about a place or a person rather than an hour.
+ */
+export type CustomOccasion = {
+  id: string;
+  name: string;
+  /** Local hours covered, start inclusive, end exclusive, or both null for
+   *  one that does not belong to a time of day. A range that wraps midnight
+   *  is written with from greater than to, the same as the built-ins. */
+  hourFrom: number | null;
+  hourTo: number | null;
+  position: number;
+};
+
+/** A built-in and a person's own seen the same way: what the picker lists,
+ *  what a label lookup reads, and what the clock is compared against. */
+export type OccasionChoice = {
+  key: RoutineOccasion;
+  label: string;
+  /** The line under the picker, or null for a custom one with no hours,
+   *  where there is nothing to say that the name does not say already. */
+  example: string | null;
+  hours: { from: number; to: number } | null;
+  /** Whether this is one the person made, which is the only thing that can
+   *  be renamed or removed. */
+  mine: boolean;
+};
+
+/** A clock hour the way somebody says it: 7am, 12pm, 12am. */
+export function formatHour(hour: number): string {
+  const wrapped = ((Math.trunc(hour) % 24) + 24) % 24;
+  const suffix = wrapped < 12 ? 'am' : 'pm';
+  const shown = wrapped % 12 === 0 ? 12 : wrapped % 12;
+  return `${shown}${suffix}`;
+}
+
+/** The line a custom occasion's hours read as, or null when it has none.
+ *  A range that starts and ends on the same hour is no range at all and
+ *  reads as none, rather than as a day long or a moment long. */
+export function describeOccasionHours(hourFrom: number | null, hourTo: number | null): string | null {
+  if (hourFrom === null || hourTo === null || hourFrom === hourTo) return null;
+  return `Around ${formatHour(hourFrom)} to ${formatHour(hourTo)}.`;
+}
+
+function customOccasionHours(entry: CustomOccasion): { from: number; to: number } | null {
+  if (entry.hourFrom === null || entry.hourTo === null) return null;
+  if (entry.hourFrom === entry.hourTo) return null;
+  return { from: entry.hourFrom, to: entry.hourTo };
+}
+
+/**
+ * Every occasion there is, the person's own first. Theirs lead because a
+ * name somebody typed is more specific than one that shipped with the app,
+ * and because the four built-ins are what a list falls back to rather than
+ * what it starts from once there are others. That order also settles which
+ * one wins when two cover the same hour: see suggestedOccasion.
+ */
+export function occasionChoices(custom: CustomOccasion[] = []): OccasionChoice[] {
+  const mine: OccasionChoice[] = [...custom]
+    .sort((a, b) => a.position - b.position)
+    .map((entry) => ({
+      key: entry.id,
+      label: entry.name,
+      example: describeOccasionHours(entry.hourFrom, entry.hourTo),
+      hours: customOccasionHours(entry),
+      mine: true,
+    }));
+  const built: OccasionChoice[] = ROUTINE_OCCASIONS.map((entry) => ({
+    key: entry.key,
+    label: entry.label,
+    example: entry.example,
+    hours: entry.hours,
+    mine: false,
+  }));
+  return [...mine, ...built];
+}
+
+export function findOccasion(
+  occasion: RoutineOccasion,
+  custom: CustomOccasion[] = [],
+): OccasionChoice | null {
+  return occasionChoices(custom).find((entry) => entry.key === occasion) ?? null;
+}
+
+export function routineOccasionLabel(occasion: RoutineOccasion, custom: CustomOccasion[] = []): string {
+  return findOccasion(occasion, custom)?.label ?? 'Something else';
+}
+
+/** Whether an occasion still exists, which is the whole of what saving a
+ *  routine has to check. An id whose occasion was removed is not known any
+ *  more and falls back to Something else. */
+export function isKnownOccasion(occasion: RoutineOccasion, custom: CustomOccasion[] = []): boolean {
+  return findOccasion(occasion, custom) !== null;
 }
 
 export type RoutineStep = {
@@ -151,6 +274,7 @@ export const MAX_ROUTINE_NAME = 60;
 export const MAX_STEP_TEXT = 140;
 export const MAX_STEP_DETAIL = 200;
 export const MAX_CHECK_NAME = 60;
+export const MAX_OCCASION_NAME = 40;
 
 /** Whitespace collapsed, nothing else touched. The same refusal to rewrite
  *  somebody's words that lib/captureNotes.ts makes. */
@@ -276,10 +400,16 @@ function describeCheckStanding(
 // ---------------------------------------------------------- what Home reads
 
 /** Which occasion the clock is currently in, or null when it is the middle
- *  of the day and no routine is the obvious one. */
-export function suggestedOccasion(now: Date): RoutineOccasion | null {
+ *  of the day and no routine is the obvious one.
+ *
+ *  A person's own occasions are checked before the built-in four, so a
+ *  Work that runs 9 to 5 wins over Morning between 9 and 11 rather than
+ *  losing to it. Two of the person's own covering the same hour are
+ *  settled by the order they put them in, which is the only answer they
+ *  have a say in. */
+export function suggestedOccasion(now: Date, custom: CustomOccasion[] = []): RoutineOccasion | null {
   const hour = now.getHours();
-  for (const entry of ROUTINE_OCCASIONS) {
+  for (const entry of occasionChoices(custom)) {
     if (!entry.hours) continue;
     const { from, to } = entry.hours;
     const inside = from <= to ? hour >= from && hour < to : hour >= from || hour < to;
@@ -293,8 +423,12 @@ export function suggestedOccasion(now: Date): RoutineOccasion | null {
  * in the order it was put in. Leaving the house never leads, because it has
  * no hour: a list that guessed at it would be wrong most of the day.
  */
-export function orderRoutinesForNow(routines: Routine[], now: Date): Routine[] {
-  const fits = suggestedOccasion(now);
+export function orderRoutinesForNow(
+  routines: Routine[],
+  now: Date,
+  custom: CustomOccasion[] = [],
+): Routine[] {
+  const fits = suggestedOccasion(now, custom);
   const byPosition = routines.filter((routine) => routine.active).sort((a, b) => a.position - b.position);
   if (!fits) return byPosition;
   return [
@@ -358,6 +492,77 @@ export function describeChecksSummary(summary: ChecksSummary): string | null {
   if (summary.waiting === 0) return null;
   const things = summary.waiting === 1 ? '1 thing' : `${summary.waiting} things`;
   return `${things} not recorded yet.`;
+}
+
+// ------------------------------------------- the checks a routine ticks off
+//
+// 2026-09-17, direct instruction: "Did I Do it should be related to
+// Routines, not treated separately. While they are walking through a
+// routine, they are also checking off things that they need to do while
+// running the routine."
+//
+// So a check is not a second list living next to the routines. It is the
+// part of a routine that is worth being able to look up afterwards, and
+// the record reads that way: grouped under the routine that ticks it off,
+// with the ones nothing walks past kept together at the end.
+
+/** The checks a routine ticks off, in step order, each named once however
+ *  many steps point at it. */
+export function checkIdsInRoutine(routine: Routine): string[] {
+  const ids: string[] = [];
+  for (const step of [...routine.steps].sort((a, b) => a.position - b.position)) {
+    if (step.checkId && !ids.includes(step.checkId)) ids.push(step.checkId);
+  }
+  return ids;
+}
+
+/** The routine that ticks a check off, or null for one nothing walks past.
+ *  The earliest routine when more than one does, because a heading has to
+ *  pick one and there is no better answer than the order the person put
+ *  their routines in. */
+export function routineForCheck(checkId: string, routines: Routine[]): Routine | null {
+  const ordered = [...routines].sort((a, b) => a.position - b.position);
+  return ordered.find((routine) => checkIdsInRoutine(routine).includes(checkId)) ?? null;
+}
+
+export type CheckGroup = {
+  /** Null for the group of checks no routine touches. */
+  routine: Routine | null;
+  heading: string;
+  checks: DoneCheck[];
+};
+
+export const LOOSE_CHECKS_HEADING = 'Not part of a routine';
+
+/**
+ * Checks grouped under the routine that ticks them off. Groups come out in
+ * the order their first check appears rather than in routine order, so the
+ * list keeps whatever order the person put the checks in: sorted by routine
+ * instead, moving one check would silently move a whole heading with it.
+ */
+export function groupChecksByRoutine(checks: DoneCheck[], routines: Routine[]): CheckGroup[] {
+  const ordered = [...routines].sort((a, b) => a.position - b.position);
+  const groups: CheckGroup[] = [];
+  const loose: DoneCheck[] = [];
+  for (const check of checks) {
+    const routine = routineForCheck(check.id, ordered);
+    if (!routine) {
+      loose.push(check);
+      continue;
+    }
+    const existing = groups.find((group) => group.routine?.id === routine.id);
+    if (existing) existing.checks.push(check);
+    else groups.push({ routine, heading: routine.name, checks: [check] });
+  }
+  if (loose.length > 0) groups.push({ routine: null, heading: LOOSE_CHECKS_HEADING, checks: loose });
+  return groups;
+}
+
+/** The line under a check saying where it gets ticked off, or null when
+ *  nothing walks past it and the only way it is ever recorded is a tap. */
+export function describeCheckRoutine(checkId: string, routines: Routine[]): string | null {
+  const routine = routineForCheck(checkId, routines);
+  return routine ? `Ticked off while walking ${routine.name}.` : null;
 }
 
 // ---------------------------------------------------------------- reordering

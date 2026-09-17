@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
@@ -12,16 +13,21 @@ import {
   CHECK_CADENCES,
   checkCadenceLabel,
   checkStanding,
+  describeCheckRoutine,
   describeChecksSummary,
+  groupChecksByRoutine,
   MAX_CHECK_NAME,
   summarizeChecks,
   type CheckCadence,
+  type CheckStanding,
   type DoneCheck,
+  type Routine,
 } from '../lib/routines';
 import {
   createDoneCheck,
   deleteDoneCheck,
   getDoneChecks,
+  getRoutines,
   markDoneCheck,
   moveDoneCheck,
   undoLastCheckMark,
@@ -48,9 +54,19 @@ import {
 // overdue on would be the app inventing a deadline, which is the same refusal
 // the rest of this app makes about numbers nobody chose.
 //
-// A step in a routine can write these marks, so walking the morning routine
-// answers the pill question without a second tap. See components/
-// RoutinesSection.tsx.
+// HOW THIS RELATES TO ROUTINES, which is the whole of it, 2026-09-17: "Did I
+// Do it should be related to Routines, not treated separately. While they are
+// walking through a routine, they are also checking off things that they need
+// to do while running the routine. Did I do it is the user selecting to check
+// the item off as they are doing it."
+//
+// So this is not a second list of tasks sitting beside routines. It is the
+// record those ticks write, read back later, and it says so on screen: the
+// checks are grouped under the routine that ticks them off, each heading can
+// walk that routine, and only the ones nothing walks past are gathered at the
+// end. Most marks arrive from app/routine.tsx, at the step, the moment the
+// person taps. The button on a card here is for the times they did the thing
+// without walking anything.
 
 type Props = { tabColor: string };
 
@@ -59,8 +75,10 @@ const CADENCE_OPTIONS = CHECK_CADENCES.map((entry) => ({ label: entry.label, val
 type CheckForm = { id: string | null; name: string; cadence: CheckCadence };
 
 export function DidIDoItSection({ tabColor }: Props) {
+  const router = useRouter();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [checks, setChecks] = useState<DoneCheck[]>([]);
+  const [routines, setRoutines] = useState<Routine[]>([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<CheckForm | null>(null);
   const [confirm, setConfirm] = useState<{
@@ -73,8 +91,11 @@ export function DidIDoItSection({ tabColor }: Props) {
 
   const load = useCallback(() => {
     setLoading(true);
-    getDoneChecks(true)
-      .then(setChecks)
+    Promise.all([getDoneChecks(true), getRoutines(true)])
+      .then(([loadedChecks, loadedRoutines]) => {
+        setChecks(loadedChecks);
+        setRoutines(loadedRoutines);
+      })
       .catch((error) => showInfoAlert('Could not load', error instanceof Error ? error.message : String(error)))
       .finally(() => setLoading(false));
   }, [showInfoAlert]);
@@ -85,14 +106,20 @@ export function DidIDoItSection({ tabColor }: Props) {
   // again only when the checks themselves change. Read fresh on each render
   // instead, the rows and the count could be answering about two different
   // moments, which on this screen is the one thing that must not happen.
-  const { rows, summary } = useMemo(() => {
+  const { standings, summary } = useMemo(() => {
     const now = new Date();
-    return {
-      rows: checks.map((check) => checkStanding(check, now)),
-      summary: summarizeChecks(checks, now),
-    };
+    const map = new Map<string, CheckStanding>();
+    for (const check of checks) map.set(check.id, checkStanding(check, now));
+    return { standings: map, summary: summarizeChecks(checks, now) };
   }, [checks]);
   const summaryLine = describeChecksSummary(summary);
+
+  const groups = useMemo(() => groupChecksByRoutine(checks, routines), [checks, routines]);
+
+  // Headings earn their place only when at least one routine walks past
+  // something. With no routines at all every check would sit under one
+  // heading reading "Not part of a routine", which tells nobody anything.
+  const showHeadings = groups.some((group) => group.routine !== null);
 
   async function saveCheck() {
     if (!form) return;
@@ -142,8 +169,9 @@ export function DidIDoItSection({ tabColor }: Props) {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Did I Do It</Text>
         <Text style={styles.bodyText}>
-          Things you want to be able to check on later. Nothing here goes off and nothing here is asking to be
-          done. Tap one when it happens, and the answer is here when you need it.
+          What you ticked off, and when. Most of these get ticked while you walk a routine, at the step that
+          does them, so they are listed under the routine they belong to. Nothing here goes off and nothing
+          here is asking to be done. The answer is just here when you need it.
         </Text>
         {summaryLine ? <Text style={styles.rowMeta}>{summaryLine}</Text> : null}
         {!form ? (
@@ -213,57 +241,86 @@ export function DidIDoItSection({ tabColor }: Props) {
         </View>
       ) : null}
 
-      {rows.map((standing, position) => {
-        const check = standing.check;
-        const done = standing.doneThisPeriod === true;
-        return (
-          <View
-            key={check.id}
-            style={[styles.card, check.active ? null : styles.dimmed, done ? styles.cardDone : null]}
-          >
-            <Text style={styles.cardTitle}>{check.name}</Text>
-            <Text style={[styles.rowMeta, done ? styles.metaDone : null]}>{standing.line}</Text>
-            <Text style={styles.rowMeta}>{checkCadenceLabel(check.cadence)}.</Text>
-
-            {check.active ? (
-              <TouchableOpacity
-                style={styles.primaryButton}
-                onPress={async () => { await markDoneCheck(check.id, 'tap'); load(); }}
-              >
-                <Text style={styles.primaryButtonText}>
-                  {done ? 'Did it again just now' : 'Yes, just did it'}
+      {groups.map((group) => (
+        <View key={group.routine ? group.routine.id : 'loose'}>
+          {showHeadings ? (
+            <View style={styles.groupHeadingChip}>
+              <Text style={styles.groupHeadingText}>{group.heading}</Text>
+              {group.routine ? (
+                <>
+                  <Text style={styles.rowMeta}>
+                    {describeCheckRoutine(group.checks[0].id, routines)}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() =>
+                      router.push({ pathname: '/routine', params: { id: group.routine?.id ?? '' } })
+                    }
+                  >
+                    <Text style={styles.actionText}>Walk it</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <Text style={styles.rowMeta}>
+                  The only way these get ticked off is a tap here.
                 </Text>
-              </TouchableOpacity>
-            ) : null}
-
-            <View style={styles.rowActions}>
-              {check.lastMarkedAt ? (
-                <TouchableOpacity onPress={async () => { await undoLastCheckMark(check.id); load(); }}>
-                  <Text style={styles.actionText}>That was a mistake</Text>
-                </TouchableOpacity>
-              ) : null}
-              <TouchableOpacity
-                onPress={() => setForm({ id: check.id, name: check.name, cadence: check.cadence })}
-              >
-                <Text style={styles.actionText}>Change</Text>
-              </TouchableOpacity>
-              {position > 0 ? (
-                <TouchableOpacity onPress={async () => { await moveDoneCheck(check.id, -1); load(); }}>
-                  <Text style={styles.actionText}>Move up</Text>
-                </TouchableOpacity>
-              ) : null}
-              {position < checks.length - 1 ? (
-                <TouchableOpacity onPress={async () => { await moveDoneCheck(check.id, 1); load(); }}>
-                  <Text style={styles.actionText}>Move down</Text>
-                </TouchableOpacity>
-              ) : null}
-              <TouchableOpacity onPress={() => confirmRemove(check)}>
-                <Text style={styles.actionTextRemove}>Remove</Text>
-              </TouchableOpacity>
+              )}
             </View>
-          </View>
-        );
-      })}
+          ) : null}
+
+          {group.checks.map((check) => {
+            const standing = standings.get(check.id);
+            const done = standing?.doneThisPeriod === true;
+            const position = checks.indexOf(check);
+            return (
+              <View
+                key={check.id}
+                style={[styles.card, check.active ? null : styles.dimmed, done ? styles.cardDone : null]}
+              >
+                <Text style={styles.cardTitle}>{check.name}</Text>
+                <Text style={[styles.rowMeta, done ? styles.metaDone : null]}>{standing?.line}</Text>
+                <Text style={styles.rowMeta}>{checkCadenceLabel(check.cadence)}.</Text>
+
+                {check.active ? (
+                  <TouchableOpacity
+                    style={styles.primaryButton}
+                    onPress={async () => { await markDoneCheck(check.id, 'tap'); load(); }}
+                  >
+                    <Text style={styles.primaryButtonText}>
+                      {done ? 'Did it again just now' : 'Yes, just did it'}
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+
+                <View style={styles.rowActions}>
+                  {check.lastMarkedAt ? (
+                    <TouchableOpacity onPress={async () => { await undoLastCheckMark(check.id); load(); }}>
+                      <Text style={styles.actionText}>That was a mistake</Text>
+                    </TouchableOpacity>
+                  ) : null}
+                  <TouchableOpacity
+                    onPress={() => setForm({ id: check.id, name: check.name, cadence: check.cadence })}
+                  >
+                    <Text style={styles.actionText}>Change</Text>
+                  </TouchableOpacity>
+                  {position > 0 ? (
+                    <TouchableOpacity onPress={async () => { await moveDoneCheck(check.id, -1); load(); }}>
+                      <Text style={styles.actionText}>Move up</Text>
+                    </TouchableOpacity>
+                  ) : null}
+                  {position < checks.length - 1 ? (
+                    <TouchableOpacity onPress={async () => { await moveDoneCheck(check.id, 1); load(); }}>
+                      <Text style={styles.actionText}>Move down</Text>
+                    </TouchableOpacity>
+                  ) : null}
+                  <TouchableOpacity onPress={() => confirmRemove(check)}>
+                    <Text style={styles.actionTextRemove}>Remove</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      ))}
     </>
   );
 }
@@ -290,6 +347,15 @@ function makeStyles(tabColor: string) {
 
     rowMeta: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
     metaDone: { color: colors.textSecondary },
+
+    // A heading introducing a group of separate cards, so it carries its own
+    // surface rather than sitting on the tab's photograph.
+    groupHeadingChip: {
+      backgroundColor: colors.surfaceMuted, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12,
+      marginBottom: 10, borderLeftWidth: 3, borderLeftColor: tabColor,
+    },
+    groupHeadingText: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+
     rowActions: { flexDirection: 'row', gap: 14, marginTop: 10, flexWrap: 'wrap' },
     actionText: { ...typography.caption, color: tabColor, ...textShadow },
     actionTextRemove: { ...typography.caption, color: colors.danger, ...textShadow },
