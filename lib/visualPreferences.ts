@@ -298,7 +298,13 @@ export type HomeSectionKey =
   | 'makeReport'
   | 'gardenTasks'
   | 'logHarvest'
-  | 'digestCards';
+  | 'digestCards'
+  // Routines and the Did I Do It record, 2026-09-17. Both are Life's,
+  // and both are on Home for the same reason: the question they answer
+  // is asked while standing somewhere, and an answer two taps deep is an
+  // answer nobody waits for.
+  | 'routines'
+  | 'doneChecks';
 
 // The default order, 2026-09-12: grouped by the tab each section is a
 // window into (see lib/homeSections.ts), in the same order TabHub's own
@@ -354,6 +360,8 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   // anyone who wants the old arrangement still has Profile > Home Screen.
   'digestCards',
   'groceryList',
+  'routines',
+  'doneChecks',
 ];
 
 // Everything on Home that can be moved. 2026-08-23 carved the greeting
@@ -399,6 +407,8 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   gardenTasks: 'Garden Tasks',
   logHarvest: 'Log a Harvest',
   digestCards: 'Digest Cards',
+  routines: 'Routines',
+  doneChecks: 'Did I Do It',
 };
 
 export type VisualPreferences = {

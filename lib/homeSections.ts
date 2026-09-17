@@ -76,6 +76,11 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   fuelGauges: '/insights',
   weekTrend: '/trends',
   digestCards: '/purple-digest',
+  // Life's, 2026-09-17, alongside the Grocery List for the same reason:
+  // these are the things a day is actually run on, and Life is where both
+  // are built.
+  routines: '/life',
+  doneChecks: '/life',
 };
 
 // Regroups an already-ordered list so sections from the same tab sit

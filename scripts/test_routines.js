@@ -1,0 +1,344 @@
+// Checks the routine and Did I Do It rules (lib/routines.ts): whether a
+// recorded thing still counts for the period it is in, what each line says,
+// which routine the clock puts first, and that reordering steps loses
+// nothing. Pure, so it runs here rather than needing a phone.
+//
+// The dates below are built with the local-time Date constructor on
+// purpose. Everything in this module answers a question somebody asks
+// standing in their own kitchen ("did I already do it"), so the day and the
+// week are the local ones, and a test written in UTC would be checking a
+// different question.
+//
+// Exits non-zero on any failure.
+
+// eslint-config-expo lints this repo as app code, which has no __dirname.
+// This is a plain Node script run with node, so it does (2026-09-17).
+/* global __dirname */
+
+const fs = require('fs');
+const path = require('path');
+const ts = require('typescript');
+
+function load(relPath) {
+  const source = fs.readFileSync(path.join(__dirname, '..', relPath), 'utf8');
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+    fileName: path.basename(relPath),
+  });
+  const module = { exports: {} };
+  new Function('exports', 'module', 'require', outputText)(module.exports, module, () => {
+    throw new Error('lib/routines.ts must stay free of runtime imports');
+  });
+  return module.exports;
+}
+
+const {
+  ALL_CHECK_CADENCES,
+  ALL_ROUTINE_OCCASIONS,
+  checkStanding,
+  cleanRoutineText,
+  describeChecksSummary,
+  describeMarkMoment,
+  describeRoutineStanding,
+  formatMarkClock,
+  isRoutineTextUsable,
+  moveRoutineStep,
+  orderRoutinesForNow,
+  periodStart,
+  routineDoneToday,
+  routineProgressLabel,
+  startOfLocalWeek,
+  suggestedOccasion,
+  summarizeChecks,
+} = load('lib/routines.ts');
+
+let failures = 0;
+let checks = 0;
+function check(label, actual, expected) {
+  checks += 1;
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    failures += 1;
+    console.error(`FAIL  ${label}`);
+    console.error(`      expected ${JSON.stringify(expected)}`);
+    console.error(`      actual   ${JSON.stringify(actual)}`);
+  }
+}
+
+function makeCheck(overrides) {
+  return {
+    id: 'c1',
+    name: 'Take the morning pill',
+    cadence: 'daily',
+    active: true,
+    position: 0,
+    lastMarkedAt: null,
+    lastMarkedVia: null,
+    ...overrides,
+  };
+}
+
+function makeStep(id, position) {
+  return { id, routineId: 'r1', text: id, detail: null, position, checkId: null };
+}
+
+function makeRoutine(overrides) {
+  return {
+    id: 'r1',
+    name: 'Morning',
+    occasion: 'morning',
+    active: true,
+    position: 0,
+    lastCompletedAt: null,
+    steps: [],
+    ...overrides,
+  };
+}
+
+// A Wednesday, mid-morning. Every clock question below is asked from here.
+const wednesday = new Date(2026, 8, 16, 9, 30, 0);
+
+// ------------------------------------------------------------ the week runs Monday to Sunday
+
+check('Monday is its own week start', startOfLocalWeek(new Date(2026, 8, 14, 23, 59)).getDate(), 14);
+check('Wednesday belongs to Monday', startOfLocalWeek(wednesday).getDate(), 14);
+check('Sunday trails the week it ends', startOfLocalWeek(new Date(2026, 8, 20, 0, 1)).getDate(), 14);
+
+check('a day period starts at midnight', periodStart('daily', wednesday).getHours(), 0);
+check('a month period starts on the first', periodStart('monthly', wednesday).getDate(), 1);
+// The one that matters most: a thing with no pattern has no deadline, so
+// the app never invents one for it.
+check('no pattern means no period', periodStart('anytime', wednesday), null);
+
+// ------------------------------------------------------------ does the last mark still count
+
+const markedThisMorning = new Date(2026, 8, 16, 7, 12, 0).toISOString();
+const markedLastWeek = new Date(2026, 8, 8, 7, 12, 0).toISOString();
+
+check(
+  'a mark from this morning counts today',
+  checkStanding(makeCheck({ lastMarkedAt: markedThisMorning }), wednesday).doneThisPeriod,
+  true,
+);
+check(
+  'a mark from last week does not count today',
+  checkStanding(makeCheck({ lastMarkedAt: markedLastWeek }), wednesday).doneThisPeriod,
+  false,
+);
+check(
+  'a mark from last week does not count this week either',
+  checkStanding(makeCheck({ cadence: 'weekly', lastMarkedAt: markedLastWeek }), wednesday).doneThisPeriod,
+  false,
+);
+check(
+  'a mark from this Monday counts this week',
+  checkStanding(
+    makeCheck({ cadence: 'weekly', lastMarkedAt: new Date(2026, 8, 14, 20, 0).toISOString() }),
+    wednesday,
+  ).doneThisPeriod,
+  true,
+);
+// Not false: a smoke alarm battery is not late, because nothing said when
+// it was due.
+check(
+  'a thing with no pattern is never late',
+  checkStanding(makeCheck({ cadence: 'anytime', lastMarkedAt: markedLastWeek }), wednesday).doneThisPeriod,
+  null,
+);
+check(
+  'nonsense in the column reads as nothing recorded',
+  checkStanding(makeCheck({ lastMarkedAt: 'not a date' }), wednesday).lastMarkedAt,
+  null,
+);
+
+// ------------------------------------------------------------ the line somebody reads
+
+check('noon reads as 12', formatMarkClock(new Date(2026, 8, 16, 12, 5)), '12:05pm');
+check('midnight reads as 12 too', formatMarkClock(new Date(2026, 8, 16, 0, 5)), '12:05am');
+check('the hour keeps its zero', formatMarkClock(new Date(2026, 8, 16, 7, 2)), '7:02am');
+
+check('today keeps its clock', describeMarkMoment(markedThisMorning, wednesday), 'today at 7:12am');
+check(
+  'yesterday keeps its clock',
+  describeMarkMoment(new Date(2026, 8, 15, 21, 40).toISOString(), wednesday),
+  'yesterday at 9:40pm',
+);
+check(
+  'inside the week it is named by its day',
+  describeMarkMoment(new Date(2026, 8, 13, 8, 0).toISOString(), wednesday),
+  'Sunday at 8:00am',
+);
+check('past a week the clock is noise', describeMarkMoment(markedLastWeek, wednesday), 'over a week ago');
+check(
+  'past a fortnight it counts in weeks',
+  describeMarkMoment(new Date(2026, 7, 20, 8, 0).toISOString(), wednesday),
+  '3 weeks ago',
+);
+
+check(
+  'a daily thing done today says when',
+  checkStanding(makeCheck({ lastMarkedAt: markedThisMorning }), wednesday).line,
+  'Done, 7:12am.',
+);
+check(
+  'a daily thing not done today says so and says when it last was',
+  checkStanding(makeCheck({ lastMarkedAt: markedLastWeek }), wednesday).line,
+  'Not today. Last done over a week ago.',
+);
+check(
+  'a daily thing never done says only that',
+  checkStanding(makeCheck({}), wednesday).line,
+  'Not recorded today.',
+);
+check(
+  'a weekly thing done says which period it covers',
+  checkStanding(
+    makeCheck({ cadence: 'weekly', lastMarkedAt: new Date(2026, 8, 14, 20, 0).toISOString() }),
+    wednesday,
+  ).line,
+  'Done this week, Monday at 8:00pm.',
+);
+check(
+  'a thing with no pattern says when, and nothing else',
+  checkStanding(makeCheck({ cadence: 'anytime', lastMarkedAt: markedLastWeek }), wednesday).line,
+  'Last done over a week ago.',
+);
+check(
+  'a thing with no pattern and no history says nothing more',
+  checkStanding(makeCheck({ cadence: 'anytime' }), wednesday).line,
+  'Nothing recorded yet.',
+);
+
+// ------------------------------------------------------------ the card's own line
+
+const waitingAndDone = [
+  makeCheck({ id: 'a', lastMarkedAt: markedThisMorning }),
+  makeCheck({ id: 'b' }),
+  makeCheck({ id: 'c', cadence: 'anytime' }),
+  makeCheck({ id: 'd', active: false }),
+];
+check('a switched off check counts for nothing', summarizeChecks(waitingAndDone, wednesday), {
+  total: 3,
+  waiting: 1,
+  done: 1,
+  noPeriod: 1,
+});
+check('one waiting is said in the singular', describeChecksSummary(summarizeChecks(waitingAndDone, wednesday)), '1 thing not recorded yet.');
+check(
+  'nothing waiting says nothing at all',
+  describeChecksSummary(summarizeChecks([makeCheck({ lastMarkedAt: markedThisMorning })], wednesday)),
+  null,
+);
+check('an empty list says nothing at all', describeChecksSummary(summarizeChecks([], wednesday)), null);
+
+// ------------------------------------------------------------ which routine the clock puts first
+
+check('early is the morning', suggestedOccasion(new Date(2026, 8, 16, 6, 0)), 'morning');
+check('late is bedtime', suggestedOccasion(new Date(2026, 8, 16, 22, 0)), 'bedtime');
+check('after midnight is still bedtime', suggestedOccasion(new Date(2026, 8, 16, 1, 0)), 'bedtime');
+// The middle of the afternoon belongs to nothing, and guessing would be
+// wrong more often than not.
+check('the afternoon is nobody s', suggestedOccasion(new Date(2026, 8, 16, 15, 0)), null);
+
+const routines = [
+  makeRoutine({ id: 'bed', name: 'Bedtime', occasion: 'bedtime', position: 0 }),
+  makeRoutine({ id: 'out', name: 'Leaving', occasion: 'leaving', position: 1 }),
+  makeRoutine({ id: 'morn', name: 'Morning', occasion: 'morning', position: 2 }),
+  makeRoutine({ id: 'off', name: 'Retired', occasion: 'morning', position: 3, active: false }),
+];
+check(
+  'the morning one leads at breakfast',
+  orderRoutinesForNow(routines, new Date(2026, 8, 16, 7, 0)).map((r) => r.id),
+  ['morn', 'bed', 'out'],
+);
+check(
+  'the bedtime one leads at night',
+  orderRoutinesForNow(routines, new Date(2026, 8, 16, 22, 0)).map((r) => r.id),
+  ['bed', 'out', 'morn'],
+);
+check(
+  'the afternoon leaves the order alone',
+  orderRoutinesForNow(routines, new Date(2026, 8, 16, 15, 0)).map((r) => r.id),
+  ['bed', 'out', 'morn'],
+);
+check(
+  'a switched off routine is not offered',
+  orderRoutinesForNow(routines, wednesday).every((r) => r.id !== 'off'),
+  true,
+);
+
+// ------------------------------------------------------------ the line under a routine name
+
+check(
+  'a routine with no steps says what is missing',
+  describeRoutineStanding(makeRoutine({}), wednesday),
+  'No steps yet. Add the first one to make this walkable.',
+);
+check(
+  'one step is said in the singular',
+  describeRoutineStanding(makeRoutine({ steps: [makeStep('s1', 0)] }), wednesday),
+  '1 step. Not walked yet.',
+);
+check(
+  'finished today says so',
+  describeRoutineStanding(
+    makeRoutine({ steps: [makeStep('s1', 0), makeStep('s2', 1)], lastCompletedAt: markedThisMorning }),
+    wednesday,
+  ),
+  '2 steps. Finished today at 7:12am.',
+);
+check(
+  'finished before today is last finished',
+  describeRoutineStanding(
+    makeRoutine({ steps: [makeStep('s1', 0), makeStep('s2', 1)], lastCompletedAt: markedLastWeek }),
+    wednesday,
+  ),
+  '2 steps. Last finished over a week ago.',
+);
+check('done today is today only', routineDoneToday(makeRoutine({ lastCompletedAt: markedLastWeek }), wednesday), false);
+check(
+  'done today is true for this morning',
+  routineDoneToday(makeRoutine({ lastCompletedAt: markedThisMorning }), wednesday),
+  true,
+);
+
+check('progress counts from one', routineProgressLabel(0, 7), 'Step 1 of 7');
+check('progress never runs past the end', routineProgressLabel(9, 7), 'Step 7 of 7');
+check('no steps means no progress line', routineProgressLabel(0, 0), '');
+
+// ------------------------------------------------------------ typing, and reordering
+
+check('runs of spaces collapse', cleanRoutineText('  take   the  pill  '), 'take the pill');
+check('a line of spaces is not usable', isRoutineTextUsable('    '), false);
+check('a word is usable', isRoutineTextUsable(' pill '), true);
+
+const steps = [makeStep('a', 0), makeStep('b', 1), makeStep('c', 2)];
+check(
+  'a step dragged to the top lands there',
+  moveRoutineStep(steps, 2, 0).map((s) => s.id),
+  ['c', 'a', 'b'],
+);
+check(
+  'positions are renumbered without gaps',
+  moveRoutineStep(steps, 2, 0).map((s) => s.position),
+  [0, 1, 2],
+);
+check('a move loses nothing', moveRoutineStep(steps, 0, 2).length, 3);
+check(
+  'a move off the end does nothing',
+  moveRoutineStep(steps, 0, 3).map((s) => s.id),
+  ['a', 'b', 'c'],
+);
+
+// ------------------------------------------------------------ nothing goes unnamed
+
+check('every cadence is listed', ALL_CHECK_CADENCES.length, 4);
+check('every occasion is listed', ALL_ROUTINE_OCCASIONS.length, 4);
+for (const cadence of ALL_CHECK_CADENCES) {
+  check(`${cadence} has a standing line`, checkStanding(makeCheck({ cadence }), wednesday).line.length > 0, true);
+}
+
+if (failures > 0) {
+  console.error(`\n${failures} of ${checks} checks failed`);
+  process.exit(1);
+}
+console.log(`All ${checks} checks passed`);

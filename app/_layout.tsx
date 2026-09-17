@@ -615,6 +615,21 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* Walking a routine, 2026-09-17. A Stack screen rather
+                    than part of the Life lens that builds routines,
+                    because the two are opposite jobs: building one wants
+                    every step visible at once to get the order right, and
+                    walking it must show exactly one. The title is replaced
+                    by the routine's own name once it loads. */}
+                <Stack.Screen
+                  name="routine"
+                  options={{
+                    headerShown: true,
+                    title: 'Routine',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 {/* Reconciliation, 1.0.39.15. A Stack screen for the same
                     reason Capture is one: it belongs to no tab because it asks
                     about all of them at once, and putting it inside one would

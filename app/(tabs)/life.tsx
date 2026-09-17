@@ -10,7 +10,9 @@ import { FinanceGoalsSection } from '../../components/FinanceGoalsSection';
 import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
+import { DidIDoItSection } from '../../components/DidIDoItSection';
 import { KitchenSection } from '../../components/KitchenSection';
+import { RoutinesSection } from '../../components/RoutinesSection';
 import { MOVEMENT_HELP_SECTIONS, MovementSection } from '../../components/MovementSection';
 import { MyMedsSection } from '../../components/MyMedsSection';
 import { UpkeepSection } from '../../components/UpkeepSection';
@@ -134,7 +136,17 @@ const TAB_COLOR = colors.tabLife;
 // 'groceryList' is a lens in the menu only: picking it opens the grocery
 // list screen (the same one Home's own Grocery List row opens) rather than
 // a view inside this tab, so `lens` never actually holds it.
-type LifeLens = 'finances' | 'kitchen' | 'work' | 'upkeep' | 'emergency' | 'groceryList' | 'myMeds' | 'movement';
+type LifeLens =
+  | 'finances'
+  | 'kitchen'
+  | 'work'
+  | 'upkeep'
+  | 'emergency'
+  | 'groceryList'
+  | 'myMeds'
+  | 'movement'
+  | 'routines'
+  | 'didIDoIt';
 type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money' | 'goals';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
@@ -225,6 +237,49 @@ const WORK_HELP_SECTIONS: HelpSection[] = [
 // alternatives because the mechanism was already proven three times the same
 // day, and because the documents half matters most to anyone whose papers
 // have to be renewed somewhere other than where they were issued.
+// Routines and Did I Do It, 2026-09-17. Two lenses for two halves of one
+// mechanism, from the daily-living program (CLAUDE.md item 28). The wording
+// on both is deliberately literal: the person these are for is standing on
+// the stairs trying to remember something, and a clever name is one more
+// thing to translate.
+const ROUTINES_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'What belongs here',
+    body: 'An order you do not want to hold in your head. Morning, bedtime, leaving the house, closing up the kitchen. Anything where the difficulty is not the steps themselves but keeping your place in them.',
+  },
+  {
+    heading: 'One step at a time, on purpose',
+    body: 'Walking a routine shows a single step, large, and nothing else. A list of nine is a thing to be scanned and re-scanned and lost your place in, which hands the problem straight back. Done moves on, Back goes one step up, and Skip moves on while remembering that you skipped it.',
+  },
+  {
+    heading: 'A step can answer a question later',
+    body: 'Attach a step to something in Did I Do It and finishing the routine records it. Walking your morning at 7 then answers whether you took your pill at 11, with nothing extra to remember and no second tap. A step you skipped records nothing, because a skipped step is you saying you did not do that one.',
+  },
+  {
+    heading: 'What it will not do',
+    body: 'No routine ever starts on its own and nothing here goes off. When it happens is used for the order they are listed in and nothing else. Nothing is written down until the last step either, so stopping part way leaves no record of a half done routine.',
+  },
+];
+
+const DID_I_DO_IT_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'What this is for',
+    body: 'One question, asked later. Did I take my pill, did I lock the back door, did I pay the electric bill. The whole value is being able to look, so the answer costs a glance rather than a walk back upstairs or a second payment of the same bill.',
+  },
+  {
+    heading: 'It is not a reminder and not a task list',
+    body: 'Nothing here goes off, and nothing here is asking to be done. Each line holds exactly one fact: whether a thing has happened, and when. Something you record today keeps its clock time, because the hour is the part that answers the question.',
+  },
+  {
+    heading: 'How often it comes round',
+    body: 'Every day, every week, every month, or no set pattern. A week runs Monday to Sunday and a month is the calendar month. Something with no set pattern is never shown as late, because there is nothing for it to be late for: it shows when it last happened and leaves the judgement to you.',
+  },
+  {
+    heading: 'Mistakes are expected',
+    body: 'Tapping the wrong line is the likeliest thing to go wrong on this screen, so That was a mistake takes the last mark back and puts the one before it on the line. A record you cannot correct is one you stop trusting.',
+  },
+];
+
 const UPKEEP_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What belongs here',
@@ -333,6 +388,12 @@ const LIFE_LENSES: LensOption<LifeLens>[] = [
   // to keep; Trends reads what this area brings in. See
   // components/MovementSection.tsx.
   { key: 'movement', label: 'Movement', icon: 'walk-outline', help: MOVEMENT_HELP_SECTIONS },
+  // 2026-09-17. Both from the daily-living program. footsteps-outline for
+  // an order you walk through, and a finished tick for the record of what
+  // has already happened. They sit next to each other because a routine
+  // step can write a check, which is the join the whole design rests on.
+  { key: 'routines', label: 'Routines', icon: 'footsteps-outline', help: ROUTINES_HELP_SECTIONS },
+  { key: 'didIDoIt', label: 'Did I Do It', icon: 'checkmark-done-outline', help: DID_I_DO_IT_HELP_SECTIONS },
 ];
 
 const DIRECTION_OPTIONS = [
@@ -1707,6 +1768,8 @@ export default function LifeScreen() {
             {lens === 'emergency' ? <EmergencySection tabColor={TAB_COLOR} /> : null}
             {lens === 'myMeds' ? <MyMedsSection tabColor={TAB_COLOR} focusTreatmentId={focusTreatmentId} /> : null}
             {lens === 'movement' ? <MovementSection tabColor={TAB_COLOR} /> : null}
+            {lens === 'routines' ? <RoutinesSection tabColor={TAB_COLOR} /> : null}
+            {lens === 'didIDoIt' ? <DidIDoItSection tabColor={TAB_COLOR} /> : null}
 
             {lens === 'finances' ? (
             <>

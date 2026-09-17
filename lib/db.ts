@@ -5046,6 +5046,83 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_capture_notes_status ON capture_notes(status, created_at);
 
+      -- --- Routines, and the record of what is already done (2026-09-17) ---
+      --
+      -- Four tables for two features that turned out to be one, so the
+      -- reasoning for all four sits here once. lib/routines.ts holds the
+      -- rules and the wording; this holds the shape.
+      --
+      -- A ROUTINE is an order somebody does not want to hold in their head,
+      -- walked one step at a time on app/routine.tsx. A CHECK is one
+      -- question asked later: did I take my pill, did I lock the door.
+      --
+      -- WHY routine_steps.check_id EXISTS, and why it is the whole point:
+      -- a step can also be a check. Walking "take your levothyroxine" at 7am
+      -- has to answer "did I take my pill" at 11am. Without that column the
+      -- app would either record one act twice or tell somebody at 11am that
+      -- they had not done the thing they did at 7. The checks are declared
+      -- first here only because the steps point at them.
+      CREATE TABLE IF NOT EXISTS done_checks (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        -- One of lib/routines.ts CHECK_CADENCES: 'daily', 'weekly',
+        -- 'monthly', or 'anytime' for a thing with no pattern, where the
+        -- honest answer is when it last happened rather than yes or no.
+        cadence TEXT NOT NULL DEFAULT 'daily',
+        active INTEGER NOT NULL DEFAULT 1,
+        position INTEGER NOT NULL DEFAULT 0,
+        -- Carried on the row as well as in done_check_marks, because every
+        -- screen that shows a check needs exactly this one value.
+        last_marked_at TEXT,
+        -- 'tap' or 'routine'. Which one it was changes how the line reads
+        -- back: a tap is somebody saying they did it, a routine mark is
+        -- them having walked past it inside the routine.
+        last_marked_via TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- Every mark kept, not just the last one, so that "when do I usually
+      -- do this" and "did I miss three days running" stay answerable later.
+      -- Nothing reads the history yet. It costs one row a day to keep and
+      -- cannot be reconstructed if it is not written now.
+      CREATE TABLE IF NOT EXISTS done_check_marks (
+        id TEXT PRIMARY KEY,
+        check_id TEXT NOT NULL REFERENCES done_checks(id) ON DELETE CASCADE,
+        marked_at TEXT NOT NULL,
+        via TEXT NOT NULL DEFAULT 'tap',
+        -- Which routine wrote it, when a routine did. Null for a tap.
+        routine_id TEXT
+      );
+      CREATE INDEX IF NOT EXISTS idx_done_check_marks_check ON done_check_marks(check_id, marked_at);
+
+      CREATE TABLE IF NOT EXISTS routines (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        -- One of lib/routines.ts ROUTINE_OCCASIONS: morning, bedtime,
+        -- leaving, other. Wording and ordering only, never a schedule.
+        occasion TEXT NOT NULL DEFAULT 'other',
+        active INTEGER NOT NULL DEFAULT 1,
+        position INTEGER NOT NULL DEFAULT 0,
+        -- When the LAST step was finished, not when the walk began. A
+        -- routine abandoned half way through has not been done.
+        last_completed_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS routine_steps (
+        id TEXT PRIMARY KEY,
+        routine_id TEXT NOT NULL REFERENCES routines(id) ON DELETE CASCADE,
+        text TEXT NOT NULL,
+        -- One line shown only while this is the step on screen: which
+        -- drawer, how many, where the spare key lives.
+        detail TEXT,
+        position INTEGER NOT NULL DEFAULT 0,
+        -- ON DELETE SET NULL, because deleting the check should cost the
+        -- step its answer, not the step itself.
+        check_id TEXT REFERENCES done_checks(id) ON DELETE SET NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_routine_steps_routine ON routine_steps(routine_id, position);
+
       -- --- Emergency & Essentials: what someone else needs to know (2026-09-05) --
       --
       -- Life gains its fifth area. NOTHING HERE IS AN ALERT SYSTEM, and the

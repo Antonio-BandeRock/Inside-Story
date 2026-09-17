@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.20',
+    date: '2026-09-17',
+    changes: [
+      'Life has two new places: Routines, and Did I Do It. A routine is an order you would rather not hold in your head, and walking one shows a single step at a time, large, with nothing else on the screen. Done moves on, Back goes one step up, and Skip moves on while remembering that you skipped it.',
+      'Did I Do It answers one question, later. Did I take it, did I lock it, did I pay it. Each line says whether the thing has happened and when, and something recorded today keeps its clock time, because the hour is the part that answers the question. Nothing here goes off and nothing here is a task asking to be done.',
+      'The two are joined. Attach a step to something in Did I Do It and finishing the routine records it, so walking your morning at seven answers whether you took your pill at eleven, with no second tap. A step you skipped records nothing.',
+      'Tapping the wrong line is the likeliest thing to go wrong on that screen, so That was a mistake takes the last mark back and puts the one before it on the line.',
+      'Both are on Home as well, under Life, and can be moved, folded or switched off from Profile like every other card there.',
+    ],
+  },
+  {
     version: '1.0.39.19',
     date: '2026-09-16',
     changes: [

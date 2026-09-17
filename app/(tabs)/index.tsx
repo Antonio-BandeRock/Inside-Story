@@ -103,6 +103,16 @@ import { getActiveGroceryListSummary, type GroceryListSummary } from '../../lib/
 import { describeInbox } from '../../lib/captureNotes';
 import { getCaptureInboxCounts } from '../../lib/captureNotesDb';
 import { describeReconcileQueue, lookbackDateString } from '../../lib/reconciliation';
+import {
+  checkStanding,
+  describeChecksSummary,
+  describeRoutineStanding,
+  orderRoutinesForNow,
+  summarizeChecks,
+  type DoneCheck,
+  type Routine,
+} from '../../lib/routines';
+import { getRoutinesHomeData } from '../../lib/routinesDb';
 import { reresolveSavedDishCookingMethods } from '../../lib/db';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { dateStringOffsetFrom } from '../../lib/trendAnalysis';
@@ -479,6 +489,12 @@ type DashboardData = {
   // Reminders shows, just not bound to today.
   gardenTasks: (ScheduleItemRecord & { plotId: string | null; plantingId: string | null })[];
   captureCounts: { waiting: number; sorted: number };
+  // Routines and the Did I Do It record, 2026-09-17. Both arrive whole
+  // rather than as counts: the routine list is short by nature, and the
+  // whole point of the checks is reading what each one says, which a
+  // number cannot carry.
+  routines: Routine[];
+  doneChecks: DoneCheck[];
   // How many scheduled things have gone by without an answer, plus how
   // many the app answered for on somebody's behalf. Two numbers, not the
   // rows themselves: Home never reads what any of them were.
@@ -705,6 +721,18 @@ const HOME_LENS_DESTINATIONS: Partial<
     href: { pathname: '/garden', params: { openGardenLens: 'harvestLog' } } as Href,
   },
   groceryList: { label: 'Grocery List', icon: 'cart', color: colors.tabLife, href: '/grocery-list' as Href },
+  routines: {
+    label: 'Routines',
+    icon: 'footsteps',
+    color: colors.tabLife,
+    href: { pathname: '/life', params: { openLifeLens: 'routines' } } as Href,
+  },
+  doneChecks: {
+    label: 'Did I Do It',
+    icon: 'checkmark-done',
+    color: colors.tabLife,
+    href: { pathname: '/life', params: { openLifeLens: 'didIDoIt' } } as Href,
+  },
   // Belongs to no tab, so it keeps colors.primary the way the shared-
   // folder nudge does.
   captureInbox: {
@@ -749,6 +777,8 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'logHarvest',
   'digestCards',
   'groceryList',
+  'routines',
+  'doneChecks',
 ];
 
 // The Digest's own corner shortcut, 2026-07-27 -- explicitly
@@ -1255,6 +1285,10 @@ export default function HomeScreen() {
       // a week of rows nobody has answered for.
       countOpenScheduleItems(lookbackDateString(new Date())),
       countAssumedScheduleItems(lookbackDateString(new Date())),
+      // Routines and checks, 2026-09-17. Appended last for the same reason
+      // as everything above it. Three small queries inside one call, over
+      // tables that only ever hold what somebody typed themselves.
+      getRoutinesHomeData(),
     ]).then(
       ([
         todaysMeals,
@@ -1273,6 +1307,7 @@ export default function HomeScreen() {
         captureCounts,
         openToAnswer,
         assumedToConfirm,
+        routinesHome,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1310,6 +1345,8 @@ export default function HomeScreen() {
           gardenTasks,
           captureCounts,
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
+          routines: routinesHome.routines,
+          doneChecks: routinesHome.checks,
         });
       },
     );
@@ -2674,6 +2711,110 @@ export default function HomeScreen() {
     );
   }
 
+  // Routines, 2026-09-17. The band lists what there is and starts one, and
+  // nothing more: building a routine wants every step visible at once,
+  // which is a screenful, and it lives in Life where it was made.
+  //
+  // Ordered by what time it is rather than by the order they were made,
+  // so the morning one is the first thing under the hand at seven. The
+  // order is a suggestion and nothing is hidden by it; see
+  // orderRoutinesForNow.
+  function renderRoutines() {
+    if (!isHomeSectionVisible(visualPrefs, 'routines')) return null;
+    const now = new Date();
+    const routines = orderRoutinesForNow(data?.routines ?? [], now);
+    return renderBand(
+      'routines',
+      'Routines',
+      <View style={styles.bandBody}>
+        {routines.length === 0 ? (
+          <Text style={styles.bandCaption}>
+            An order you would rather not hold in your head. Build one in Life and it shows up here, one step
+            at a time.
+          </Text>
+        ) : (
+          routines.map((routine) => (
+            <TouchableOpacity
+              key={routine.id}
+              style={styles.reminderRow}
+              activeOpacity={0.8}
+              onPress={() => router.push({ pathname: '/routine', params: { id: routine.id } })}
+            >
+              <View style={styles.reminderBody}>
+                <Text style={styles.reminderTitle} numberOfLines={1}>
+                  {routine.name}
+                </Text>
+                <Text style={styles.reminderDetail} numberOfLines={2}>
+                  {describeRoutineStanding(routine, now)}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} style={textShadow} />
+            </TouchableOpacity>
+          ))
+        )}
+      </View>,
+    );
+  }
+
+  // Did I Do It, 2026-09-17. Read-only here on purpose. The question this
+  // answers is asked on the stairs, so the whole value is being able to
+  // look; recording something is a decision, and a decision belongs on the
+  // screen that can also take it back.
+  //
+  // The summary line above the rows says nothing when nothing is waiting,
+  // the same refusal the capture inbox makes: a card announcing that there
+  // is nothing to say is noise every morning.
+  function renderDoneChecks() {
+    if (!isHomeSectionVisible(visualPrefs, 'doneChecks')) return null;
+    const now = new Date();
+    const checks = data?.doneChecks ?? [];
+    const summaryLine = describeChecksSummary(summarizeChecks(checks, now));
+    return renderBand(
+      'doneChecks',
+      'Did I Do It',
+      <View style={styles.bandBody}>
+        {checks.length === 0 ? (
+          <Text style={styles.bandCaption}>
+            One question, asked later. Did I take it, did I lock it, did I pay it. Add what you keep
+            wondering about in Life.
+          </Text>
+        ) : (
+          <>
+            {summaryLine ? <Text style={styles.bandCaption}>{summaryLine}</Text> : null}
+            {checks.map((check) => {
+              const standing = checkStanding(check, now);
+              return (
+                <TouchableOpacity
+                  key={check.id}
+                  style={styles.reminderRow}
+                  activeOpacity={0.8}
+                  onPress={() =>
+                    router.push({ pathname: '/life', params: { openLifeLens: 'didIDoIt' } })
+                  }
+                >
+                  <View style={styles.reminderBody}>
+                    <Text style={styles.reminderTitle} numberOfLines={1}>
+                      {check.name}
+                    </Text>
+                    <Text style={styles.reminderDetail} numberOfLines={2}>
+                      {standing.line}
+                    </Text>
+                  </View>
+                  <Ionicons
+                    name={standing.doneThisPeriod === true ? 'checkmark-circle' : 'ellipse-outline'}
+                    size={18}
+                    color={standing.doneThisPeriod === true ? colors.accent : colors.textSecondary}
+                    style={textShadow}
+                  />
+                </TouchableOpacity>
+              );
+            })}
+          </>
+        )}
+      </View>,
+    );
+  }
+
   // Capture, 2026-09-16. Rows and a line, and the line says nothing at all
   // when the inbox is empty, because empty is the normal state and a card
   // announcing "0 waiting" every morning is noise.
@@ -2869,6 +3010,10 @@ export default function HomeScreen() {
         return renderLogHarvest();
       case 'digestCards':
         return renderDigestCards();
+      case 'routines':
+        return renderRoutines();
+      case 'doneChecks':
+        return renderDoneChecks();
       default:
         return null;
     }
