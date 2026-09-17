@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.13',
+    date: '2026-09-16',
+    changes: [
+      'The row of ten dots under My Inside Story is now one icon: whichever tab you are standing on, in the colour that tab carries everywhere, the same icon the main menu shows for it.',
+      'The other nine dimmed dots are gone. They only ever said where you were by position, and the icon says it outright.',
+    ],
+  },
+  {
     version: '1.0.39.12',
     date: '2026-09-16',
     changes: [

@@ -24,9 +24,12 @@ export type TabGrowthState = {
 };
 
 export type GrowthVineState = {
-  // One entry per real, non-Home tab (same exclusion TabPositionDots
-  // already makes -- Home was never part of this system, direct request:
-  // "Home doesn't need to be represented in the top").
+  // One entry per tab except Home. Home was left out here on the same
+  // 2026-08-21 reasoning the position dots used at the time: "Home
+  // doesn't need to be represented in the top." The dots themselves took
+  // Home back on 2026-09-05 and became a single tab glyph in 1.0.39.13;
+  // this exclusion has never been revisited, so Home still draws an empty
+  // slot in GrowthMarksRow.
   perTab: TabGrowthState[];
   isMature: boolean;
 };

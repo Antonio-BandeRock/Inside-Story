@@ -8,7 +8,7 @@ import { colors } from '../constants/colors';
 import { EDGE_SHADOW_HEIGHT, EdgeShadow } from './EdgeShadow';
 import { GENERIC_BACKGROUND_PALETTES } from './GenericBackground';
 import { GrowthMarksRow } from './GrowthMarksRow';
-import { TabPositionDots } from './TabPositionDots';
+import { TAB_MARK_ROW_HEIGHT, TabPositionMark } from './TabPositionMark';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { getUserProfile } from '../lib/db';
 
@@ -20,12 +20,13 @@ import { getUserProfile } from '../lib/db';
 const ROW_HORIZONTAL_PADDING = 4;
 
 // 2026-08-21, Phase 0 of the header growth vine/Timeline plan: the tab-
-// position dots row (TabPositionDots) needs real vertical space, carved
-// out of the title text's own existing budget rather than added on top --
-// see HEADER_ROW_HEIGHT's own comment below for why the total must stay
-// exactly what it was before this. Declared first since HEADER_TEXT_HEIGHT
-// is now defined in terms of it.
-const TAB_DOTS_ROW_HEIGHT = 16;
+// position mark row (TabPositionMark) needs vertical space of its own,
+// carved out of the title text's own existing budget rather than added on
+// top. See HEADER_ROW_HEIGHT's own comment below for why the total must
+// stay exactly what it was before this. It is imported rather than declared
+// here as of 1.0.39.13, when the row of dots became one tab glyph: the row
+// and the glyph inside it now have to agree about the height, so one file
+// owns the number and this one reads it.
 // Same day, on-device follow-up: a second reserved band, directly below
 // the dots, for each tab's own small growing mark (a leaf/flower, not
 // built yet -- see the phased plan's Phase 2 onward). Direct request:
@@ -52,7 +53,7 @@ const GROWTH_MARKS_ROW_HEIGHT = 14;
 // what they need. Direct instruction: "let's move the Title up as far as
 // we can. Then, we need to add size back to it" -- reclaiming dead padding
 // rather than the header growing is what makes both true at once.
-const HEADER_TEXT_HEIGHT = 60 + 20 - TAB_DOTS_ROW_HEIGHT - GROWTH_MARKS_ROW_HEIGHT;
+const HEADER_TEXT_HEIGHT = 60 + 20 - TAB_MARK_ROW_HEIGHT - GROWTH_MARKS_ROW_HEIGHT;
 // The *maximum* size -- a long first name (e.g. "Alexandria's Inside
 // Story") shrinks down from here to actually fit, same idea as native
 // Text's adjustsFontSizeToFit, just done by hand since SVG text has no
@@ -108,7 +109,7 @@ const HIGHLIGHT_OFFSET = -1.5;
 // does, so this is a true constant per device, not an estimate. 2026-08-21:
 // the flat divider line (1px) and its two shadow-fade bars (2px+2px, 5px
 // total) are gone, replaced by EdgeShadow's own taller EDGE_SHADOW_HEIGHT.
-// Same day: TAB_DOTS_ROW_HEIGHT and GROWTH_MARKS_ROW_HEIGHT both joined
+// Same day: TAB_MARK_ROW_HEIGHT and GROWTH_MARKS_ROW_HEIGHT both joined
 // this sum during Phase 0, carved out of HEADER_TEXT_HEIGHT so the total
 // stayed unchanged -- direct requirement at the time: "the header area is
 // not to become bigger than it is." A later same-day pass (see
@@ -119,7 +120,7 @@ const HIGHLIGHT_OFFSET = -1.5;
 // actually a little smaller, which is the direct point of "move the title
 // up as far as we can," not a violation of the "don't grow" rule, growing
 // was never asked for, only shrinking the dead space was.
-const HEADER_ROW_HEIGHT = HEADER_TEXT_HEIGHT + TAB_DOTS_ROW_HEIGHT + GROWTH_MARKS_ROW_HEIGHT + EDGE_SHADOW_HEIGHT;
+const HEADER_ROW_HEIGHT = HEADER_TEXT_HEIGHT + TAB_MARK_ROW_HEIGHT + GROWTH_MARKS_ROW_HEIGHT + EDGE_SHADOW_HEIGHT;
 
 // Mirrors `styles.wrapper.paddingTop` below (they have to move together --
 // both were 12, both are now 4, see that style's own 2026-08-21 comment
@@ -319,12 +320,15 @@ export function ScreenHeader() {
           </Svg>
           </View>
         </Pressable>
-        {/* Always-on "you are here" indicator, one dot per real tab --
-            see TabPositionDots.tsx's own header comment for why this is
-            a discrete snap to the current route rather than a live
-            drag-follow, and for the second job this same component gains
-            once the Timeline (Phase 6) exists. */}
-        <TabPositionDots />
+        {/* Always-on "you are here" indicator: the glyph of whichever tab
+            you are standing on, in that tab's colour. See
+            TabPositionMark.tsx's own header comment for why it is a
+            discrete snap to the current route rather than a live
+            drag-follow, and for why it stopped being ten dots. It carries
+            its own height (TAB_MARK_ROW_HEIGHT, in the sum above), so it
+            is rendered bare here rather than inside a fixed-height box the
+            way the growth marks below are. */}
+        <TabPositionMark />
         {/* 2026-08-21, Phase 2: the reserved band above now renders real,
             data-backed marks (placeholder geometry, real leaf/fruit art is
             Phase 3) instead of staying empty. Height still comes from

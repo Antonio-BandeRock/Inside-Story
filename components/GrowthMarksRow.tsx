@@ -2,18 +2,23 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
-import { DOT_ROUTES, ROW_EDGE_PADDING } from './TabPositionDots';
+import { ROW_EDGE_PADDING, TAB_MARK_ROUTES } from './TabPositionMark';
 import { evaluateAchievementCriteria } from '../lib/achievementCriteria';
 import { getGrowthVineState, type GrowthVineState, type LeafStage } from '../lib/growthVine';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
 // Phase 2 of the header growth vine/Timeline plan (2026-08-21, see the
 // Notion App Development Log and the "Header Vine, Timeline & Life" phased
-// build plan). Fills the reserved band Phase 0 opened up under the dots
-// (ScreenHeader's own GROWTH_MARKS_ROW_HEIGHT) with real, data-backed
-// marks, one per tab, aligned directly under that tab's own dot (shares
-// DOT_ROUTES/ROW_EDGE_PADDING with TabPositionDots rather than a second
-// copy of that layout math).
+// build plan). Fills the reserved band Phase 0 opened up under the tab
+// mark (ScreenHeader's own GROWTH_MARKS_ROW_HEIGHT) with data-backed
+// marks, one per tab, spread across the full width in tab order.
+//
+// Each mark sat directly under that tab's own dot until 1.0.39.13, when
+// the row above became a single glyph for the tab you are standing on.
+// There is nothing overhead to line up with any more, so this row keeps
+// the ten slots on its own. It still reads TAB_MARK_ROUTES and
+// ROW_EDGE_PADDING from TabPositionMark rather than keeping a second copy
+// of that layout math, so the tab list and the edge inset stay one thing.
 //
 // Deliberately placeholder geometry, not real illustration -- "logic
 // before art" (see the phased plan's own Phase 2/3 split). A circle
@@ -67,7 +72,7 @@ export function GrowthMarksRow({ enabled }: { enabled: boolean }) {
 
   return (
     <View style={styles.row} pointerEvents="none">
-      {DOT_ROUTES.map((route) => {
+      {TAB_MARK_ROUTES.map((route) => {
         const tabState = vineState.perTab.find((state) => state.tab.toString() === route.path.toString());
         if (!tabState) return <View key={route.path.toString()} style={styles.slot} />;
 
@@ -117,9 +122,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: ROW_EDGE_PADDING,
   },
-  // A fixed-width slot per tab, matching TabPositionDots' own dot
-  // footprint closely enough that a mark reads as belonging to the dot
-  // directly above it, not drifting sideways as its own size changes.
+  // A fixed-width slot per tab, so a mark holds its place in the row
+  // rather than drifting sideways as its own size changes. It was sized
+  // to match the dot that used to sit directly above it; the dots became
+  // one centred glyph in 1.0.39.13, but the fixed slot is still what keeps
+  // a growing leaf from shoving its neighbours along.
   slot: {
     width: 12,
     height: 10,
