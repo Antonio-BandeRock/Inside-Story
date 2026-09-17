@@ -464,13 +464,20 @@ export type VisualPreferences = {
   homeSectionVisibility: Partial<Record<HomeSectionKey, boolean>>;
   // 2026-08-21, Phase 0 of the header growth vine/Timeline plan (see the
   // Notion App Development Log, same date): whether the header's own
-  // growth vine renders at all. Scaffolded here ahead of the vine itself
-  // (which doesn't exist yet -- see later phases), a plain on/off rather
-  // than homeSectionVisibility's per-key shape, since there's only ever
-  // one vine, not a list of independently-toggleable pieces. Defaults to
-  // true (ON) -- unlike homeSectionVisibility's "absence means visible"
+  // growth vine renders at all. A plain on/off rather than
+  // homeSectionVisibility's per-key shape, since there was only ever one
+  // vine, not a list of independently-toggleable pieces. Defaults to true
+  // (ON) -- unlike homeSectionVisibility's "absence means visible"
   // contract, this field is always present once DEFAULT_VISUAL_PREFERENCES
   // is spread in, so it's read directly rather than through a helper.
+  //
+  // Nothing reads it as of 1.0.39.14: the marks left the header and their
+  // Profile control went with them. The key is deliberately kept rather
+  // than dropped, because the recognition it governed is coming back as
+  // milestones and occasional short animations in Profile, and anybody who
+  // already turned this off should not have that choice quietly forgotten
+  // when it does. Dropping it would also make every stored preference blob
+  // carry a field the type no longer admits.
   growthVineEnabled: boolean;
   // 2026-08-23: which order Home's own reorderable sections render top to
   // bottom (see REORDERABLE_HOME_SECTION_KEYS' own comment above for

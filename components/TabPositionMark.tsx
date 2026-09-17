@@ -59,10 +59,11 @@ export function TabPositionMark() {
   );
 }
 
-// The row still spans the full width and still carries the same edge
-// padding it did as ten dots, so GrowthMarksRow's own per-tab slots (which
-// share this constant) line up the way they always have.
-export const ROW_EDGE_PADDING = 20;
+// The row still spans the full width and still carries the same edge inset
+// it did as ten dots. It was exported until 1.0.39.14 so GrowthMarksRow
+// could line its own per-tab slots up with the dots above them; nothing
+// draws under the mark any more, so the inset is this file's alone again.
+const ROW_EDGE_PADDING = 20;
 
 const styles = StyleSheet.create({
   row: {

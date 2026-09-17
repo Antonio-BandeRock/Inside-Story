@@ -7,7 +7,7 @@ import Svg, { Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { EDGE_SHADOW_HEIGHT, EdgeShadow } from './EdgeShadow';
 import { GENERIC_BACKGROUND_PALETTES } from './GenericBackground';
-import { GrowthMarksRow } from './GrowthMarksRow';
+
 import { TAB_MARK_ROW_HEIGHT, TabPositionMark } from './TabPositionMark';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { getUserProfile } from '../lib/db';
@@ -27,15 +27,23 @@ const ROW_HORIZONTAL_PADDING = 4;
 // here as of 1.0.39.13, when the row of dots became one tab glyph: the row
 // and the glyph inside it now have to agree about the height, so one file
 // owns the number and this one reads it.
-// Same day, on-device follow-up: a second reserved band, directly below
-// the dots, for each tab's own small growing mark (a leaf/flower, not
-// built yet -- see the phased plan's Phase 2 onward). Direct request:
-// "the header text and dots need to move up to make room" for this,
-// explicitly choosing to carve the space out of the title's own budget
-// again rather than let the header grow. Empty for now (GrowthMarksRow
-// below is a plain reserved placeholder, not real content yet) -- the
-// layout is real today even though what fills it isn't.
-const GROWTH_MARKS_ROW_HEIGHT = 14;
+// 14px that was reserved on 2026-08-21 for a second band under the tab
+// mark, holding one small growing mark per tab (GrowthMarksRow, Phase 2 of
+// the header growth vine plan). Nothing renders there as of 1.0.39.14.
+// Direct instruction: "The reward concept, yes it stays, but not the dots,
+// and not under Inside Story as it is. Remove them. I think we need to take
+// advantage of as much screenspace as we can without things cluttering the
+// data." The recognition itself moves to Profile as milestones plus
+// occasional short animations tied to actual events; the criteria registry
+// and the vine state it feeds (lib/achievementCriteria.ts,
+// lib/growthVine.ts) are untouched and waiting for it.
+//
+// The number survives as a constant for one reason: it is subtracted from
+// HEADER_TEXT_HEIGHT below and deliberately absent from HEADER_ROW_HEIGHT.
+// So the title's box is exactly the size it has been since 2026-08-21, and
+// the 14px leaves the header altogether rather than being handed back to
+// the title, which is what turns it into content space on every screen.
+const RETIRED_GROWTH_MARKS_HEIGHT = 14;
 // 2026-08-21, same-day on-device correction: the previous pass carved the
 // dots/growth rows entirely out of the title's own box and left the
 // header's outer padding untouched, which made the title read as too
@@ -53,7 +61,7 @@ const GROWTH_MARKS_ROW_HEIGHT = 14;
 // what they need. Direct instruction: "let's move the Title up as far as
 // we can. Then, we need to add size back to it" -- reclaiming dead padding
 // rather than the header growing is what makes both true at once.
-const HEADER_TEXT_HEIGHT = 60 + 20 - TAB_MARK_ROW_HEIGHT - GROWTH_MARKS_ROW_HEIGHT;
+const HEADER_TEXT_HEIGHT = 60 + 20 - TAB_MARK_ROW_HEIGHT - RETIRED_GROWTH_MARKS_HEIGHT;
 // The *maximum* size -- a long first name (e.g. "Alexandria's Inside
 // Story") shrinks down from here to actually fit, same idea as native
 // Text's adjustsFontSizeToFit, just done by hand since SVG text has no
@@ -109,10 +117,14 @@ const HIGHLIGHT_OFFSET = -1.5;
 // does, so this is a true constant per device, not an estimate. 2026-08-21:
 // the flat divider line (1px) and its two shadow-fade bars (2px+2px, 5px
 // total) are gone, replaced by EdgeShadow's own taller EDGE_SHADOW_HEIGHT.
-// Same day: TAB_MARK_ROW_HEIGHT and GROWTH_MARKS_ROW_HEIGHT both joined
-// this sum during Phase 0, carved out of HEADER_TEXT_HEIGHT so the total
-// stayed unchanged -- direct requirement at the time: "the header area is
-// not to become bigger than it is." A later same-day pass (see
+// Same day: TAB_MARK_ROW_HEIGHT and the growth-marks band both joined this
+// sum during Phase 0, carved out of HEADER_TEXT_HEIGHT so the total stayed
+// unchanged -- direct requirement at the time: "the header area is not to
+// become bigger than it is." The growth-marks band left this sum again in
+// 1.0.39.14 without being added back to the title's box, so the header is
+// now 14px shorter than it has been since 2026-08-21 and every screen gets
+// those 14px as content (see getScreenHeaderHeight below, which is what
+// each tab pads its own scroll view by). A later same-day pass (see
 // HEADER_TEXT_HEIGHT's own comment) reclaims real outer padding instead
 // (row's own paddingVertical, previously the leading `12` here, is now 0)
 // and hands it to the title's box rather than growing the header -- so
@@ -120,7 +132,7 @@ const HIGHLIGHT_OFFSET = -1.5;
 // actually a little smaller, which is the direct point of "move the title
 // up as far as we can," not a violation of the "don't grow" rule, growing
 // was never asked for, only shrinking the dead space was.
-const HEADER_ROW_HEIGHT = HEADER_TEXT_HEIGHT + TAB_MARK_ROW_HEIGHT + GROWTH_MARKS_ROW_HEIGHT + EDGE_SHADOW_HEIGHT;
+const HEADER_ROW_HEIGHT = HEADER_TEXT_HEIGHT + TAB_MARK_ROW_HEIGHT + EDGE_SHADOW_HEIGHT;
 
 // Mirrors `styles.wrapper.paddingTop` below (they have to move together --
 // both were 12, both are now 4, see that style's own 2026-08-21 comment
@@ -215,7 +227,7 @@ export function ScreenHeader() {
   // Generic background option, now doing double duty. Direct request: "the
   // font be the lighter color in each of the generic color combinations, as
   // well as the line in the header and footer."
-  const { genericPalette, growthVineEnabled } = useVisualPreferences();
+  const { genericPalette } = useVisualPreferences();
   const accentColor = GENERIC_BACKGROUND_PALETTES[genericPalette].lighter;
 
   // Refetched on every focus of the (tabs) group as a whole (not just once
@@ -325,19 +337,12 @@ export function ScreenHeader() {
             TabPositionMark.tsx's own header comment for why it is a
             discrete snap to the current route rather than a live
             drag-follow, and for why it stopped being ten dots. It carries
-            its own height (TAB_MARK_ROW_HEIGHT, in the sum above), so it
-            is rendered bare here rather than inside a fixed-height box the
-            way the growth marks below are. */}
+            its own height (TAB_MARK_ROW_HEIGHT, in the sum above), so it is
+            rendered bare here rather than inside a fixed-height box. It is
+            the last thing in the header now: the growth-marks band that sat
+            under it from 2026-08-21 to 1.0.39.14 is gone, and so is its
+            14px (see RETIRED_GROWTH_MARKS_HEIGHT's own comment above). */}
         <TabPositionMark />
-        {/* 2026-08-21, Phase 2: the reserved band above now renders real,
-            data-backed marks (placeholder geometry, real leaf/fruit art is
-            Phase 3) instead of staying empty. Height still comes from
-            GROWTH_MARKS_ROW_HEIGHT regardless of whether growthVineEnabled
-            is on, so toggling it in Profile never shifts the header's own
-            layout. */}
-        <View style={{ height: GROWTH_MARKS_ROW_HEIGHT }}>
-          <GrowthMarksRow enabled={growthVineEnabled} />
-        </View>
       {/* The flat divider line + two shadow-fade bars that used to render
           here are replaced outright, 2026-08-21, direct request: "the
           bottom edge of the header... to look shaded for depth so it

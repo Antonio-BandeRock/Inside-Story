@@ -27,9 +27,13 @@ export type GrowthVineState = {
   // One entry per tab except Home. Home was left out here on the same
   // 2026-08-21 reasoning the position dots used at the time: "Home
   // doesn't need to be represented in the top." The dots themselves took
-  // Home back on 2026-09-05 and became a single tab glyph in 1.0.39.13;
-  // this exclusion has never been revisited, so Home still draws an empty
-  // slot in GrowthMarksRow.
+  // Home back on 2026-09-05 and became a single tab glyph in 1.0.39.13.
+  // Worth revisiting whenever this state finds its next home: nothing has
+  // rendered it since 1.0.39.14, when the marks left the header (see
+  // RETIRED_GROWTH_MARKS_HEIGHT in components/ScreenHeader.tsx). This file
+  // and the criteria registry it reads are kept intact on purpose, because
+  // the recognition itself stays: "The reward concept, yes it stays, but
+  // not the dots, and not under Inside Story as it is."
   perTab: TabGrowthState[];
   isMature: boolean;
 };

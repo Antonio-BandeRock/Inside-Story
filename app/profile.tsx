@@ -289,7 +289,6 @@ const ALL_CARD_SECTION_KEYS = [
   // How the App Looks
   'low-stimulation',
   'home-screen',
-  'header-growth',
   'appearance',
   // Device & Account
   'connections',
@@ -750,12 +749,6 @@ export default function ProfileScreen() {
     setVisualPreferences({ homeSectionOrder: reordered });
   }
 
-  // Header growth vine toggle, 2026-08-21, Phase 0 of the header growth
-  // vine/Timeline plan -- a plain boolean flip, unlike toggleHomeSection
-  // above there's only ever one vine, not a per-key map to merge into.
-  function toggleGrowthVine() {
-    setVisualPreferences({ growthVineEnabled: !visualPrefs.growthVineEnabled });
-  }
 
   // Local text-field buffers, kept separate from `profile` so the person
   // can type a partial value (e.g. just a year) without it being parsed/
@@ -3550,33 +3543,14 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* Header Growth, 2026-08-21, Phase 0 of the header growth
-          vine/Timeline plan (see the Notion App Development Log and the
-          "Header Vine, Timeline & Life" phased build plan, same date). The
-          vine itself doesn't exist yet -- this is the toggle scaffold
-          only, so the preference and its Profile control are in place
-          before Phase 2 gives it anything to actually turn on or off. */}
-      <View style={styles.card}>
-        {renderCardHeader('header-growth', 'Header Growth')}
-        {!collapsedSections.has('header-growth') ? (
-          <View style={styles.cardBody}>
-            <Text style={styles.helpText}>
-              A small plant grows in the header over time as you use the app and reach your own goals. Turn
-              it off if you&apos;d rather the header stay plain.
-            </Text>
-            <View style={styles.pillRow}>
-              <TouchableOpacity
-                style={[styles.pill, visualPrefs.growthVineEnabled && styles.pillActive]}
-                onPress={toggleGrowthVine}
-              >
-                <Text style={[styles.pillText, visualPrefs.growthVineEnabled && styles.pillTextActive]}>
-                  {visualPrefs.growthVineEnabled ? 'On' : 'Off'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ) : null}
-      </View>
+      {/* The Header Growth card stood here from 2026-08-21 to 1.0.39.14: one
+          On/Off pill for the small plant that grew in the header as criteria
+          were met. The marks it controlled are gone from the header, so the
+          control went with them rather than staying on screen doing nothing.
+          The preference key itself is kept (lib/visualPreferences.ts), since
+          the recognition it governed is moving into this screen as milestones
+          plus occasional short animations, and somebody who already turned it
+          off should not have that choice quietly forgotten. */}
 
       {/* Appearance & Navigation, 2026-08-09, regrouped from 3 separate
           cards (TabHub Icon, Shared background, Individual tab

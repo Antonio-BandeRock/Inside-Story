@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.14',
+    date: '2026-09-16',
+    changes: [
+      'The small marks under the tab icon are gone from the header, and so is the space they took. Every screen gets it back as room for what you came to see.',
+      'The recognition they stood for is not going away. It is moving into Profile as milestones, with short one-off moments when you actually reach something.',
+      'Profile lost the Header Growth switch, since there is nothing left in the header for it to turn off.',
+    ],
+  },
+  {
     version: '1.0.39.13',
     date: '2026-09-16',
     changes: [
