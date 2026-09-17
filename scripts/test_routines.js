@@ -37,7 +37,10 @@ const {
   ALL_ROUTINE_OCCASIONS,
   checkIdsInRoutine,
   checkStanding,
+  cleanReminderTime,
   cleanRoutineText,
+  describeReminderDays,
+  describeRoutineReminder,
   describeCheckRoutine,
   describeChecksSummary,
   describeMarkMoment,
@@ -46,19 +49,26 @@ const {
   findOccasion,
   formatHour,
   formatMarkClock,
+  formatReminderClock,
   groupChecksByRoutine,
   isKnownOccasion,
   isRoutineTextUsable,
   LOOSE_CHECKS_HEADING,
+  hasRoutineReminder,
   moveRoutineStep,
+  nextReminderTimes,
   occasionChoices,
   orderRoutinesForNow,
+  parseReminderDays,
   periodStart,
+  reminderFiresOnDay,
   routineDoneToday,
   routineForCheck,
   routineOccasionLabel,
   routineProgressLabel,
+  serializeReminderDays,
   startOfLocalWeek,
+  toggleReminderDay,
   suggestedOccasion,
   summarizeChecks,
 } = load('lib/routines.ts');
@@ -100,6 +110,9 @@ function makeRoutine(overrides) {
     active: true,
     position: 0,
     lastCompletedAt: null,
+    reminderTime: null,
+    reminderDays: [],
+    reminderOn: false,
     steps: [],
     ...overrides,
   };
@@ -437,6 +450,124 @@ check(
 );
 check('and an empty list groups into nothing', groupChecksByRoutine([], [morningWalk]).length, 0);
 
+
+// ------------------------------------------------------------ the reminder that starts it
+//
+// A routine is the one thing in Life that carries its own pattern rather than
+// sitting on a schedule somewhere, so the pattern is worked out here: a local
+// wall-clock time, the days of the week it speaks on, and a switch. Everything
+// below is asked from the same Wednesday morning as the rest of this file.
+
+check('a plain time is padded', cleanReminderTime('7:05'), '07:05');
+check('an already padded one is left alone', cleanReminderTime('07:05'), '07:05');
+check('surrounding space does not matter', cleanReminderTime(' 7:00 '), '07:00');
+check('an hour of 24 is not a time anybody picked', cleanReminderTime('24:00'), null);
+check('and neither is a minute of 60', cleanReminderTime('7:60'), null);
+check('a time with no colon is not a time', cleanReminderTime('700'), null);
+check('nothing is not a time', cleanReminderTime(null), null);
+
+check('days come back sorted and deduped', parseReminderDays('5,1,3,3'), [1, 3, 5]);
+check('anything out of range is dropped', parseReminderDays('1,9,-2,6'), [1, 6]);
+check('an empty list is no days at all', parseReminderDays(''), []);
+check('and so is nothing', parseReminderDays(null), []);
+
+check('every day stores nothing', serializeReminderDays([0, 1, 2, 3, 4, 5, 6]), null);
+check('and so does no day', serializeReminderDays([]), null);
+check('anything else stores itself, in order', serializeReminderDays([5, 1, 3]), '1,3,5');
+
+check('turning one off inside every day leaves the other six', toggleReminderDay([], 3), [0, 1, 2, 4, 5, 6]);
+check('turning one on adds it', toggleReminderDay([1, 2], 3), [1, 2, 3]);
+check('turning the last one off means every day again', toggleReminderDay([3], 3), []);
+
+check('a whole hour says only the hour', formatReminderClock('07:00'), '7am');
+check('and minutes show when there are any', formatReminderClock('07:15'), '7:15am');
+check('noon is 12pm', formatReminderClock('12:00'), '12pm');
+check('and half past midnight is 12:30am', formatReminderClock('00:30'), '12:30am');
+check('the afternoon wraps', formatReminderClock('13:05'), '1:05pm');
+
+check('no days is every day', describeReminderDays([]), 'every day');
+check('and so is all seven', describeReminderDays([0, 1, 2, 3, 4, 5, 6]), 'every day');
+check('Monday to Friday has a name', describeReminderDays([1, 2, 3, 4, 5]), 'weekdays');
+check('so does the other two', describeReminderDays([0, 6]), 'weekends');
+check('anything else says itself', describeReminderDays([5, 1, 3]), 'Mon, Wed, Fri');
+
+check(
+  'a switch with a time behind it is a reminder',
+  hasRoutineReminder(makeRoutine({ reminderTime: '07:00', reminderOn: true })),
+  true,
+);
+check(
+  'a switch with no time is not',
+  hasRoutineReminder(makeRoutine({ reminderTime: null, reminderOn: true })),
+  false,
+);
+check(
+  'and a time with the switch off is not either',
+  hasRoutineReminder(makeRoutine({ reminderTime: '07:00', reminderOn: false })),
+  false,
+);
+
+check(
+  'Wednesday is one of the days it speaks on',
+  reminderFiresOnDay(makeRoutine({ reminderTime: '07:00', reminderOn: true, reminderDays: [3] }), wednesday),
+  true,
+);
+check(
+  'and Monday only is not',
+  reminderFiresOnDay(makeRoutine({ reminderTime: '07:00', reminderOn: true, reminderDays: [1] }), wednesday),
+  false,
+);
+check(
+  'no days named means it speaks today too',
+  reminderFiresOnDay(makeRoutine({ reminderTime: '07:00', reminderOn: true }), wednesday),
+  true,
+);
+
+check('a routine with no time says nothing at all', describeRoutineReminder(makeRoutine({})), null);
+check(
+  'one that speaks says when',
+  describeRoutineReminder(makeRoutine({ reminderTime: '07:00', reminderOn: true })),
+  'Nudges at 7am, every day.',
+);
+check(
+  'and one switched off still shows the time it is keeping',
+  describeRoutineReminder(
+    makeRoutine({ reminderTime: '07:00', reminderOn: false, reminderDays: [1, 2, 3, 4, 5] }),
+  ),
+  'A nudge at 7am, weekdays, switched off.',
+);
+
+check('nothing to say, nothing to schedule', nextReminderTimes(makeRoutine({}), wednesday, 7).length, 0);
+
+// 7am on a Wednesday morning at half past nine has already gone, so the next
+// two days are what is left inside a two-day window.
+{
+  const morning = makeRoutine({ reminderTime: '07:00', reminderOn: true });
+  const times = nextReminderTimes(morning, wednesday, 2);
+  check('this morning has gone, so the next two days are what is left', times.length, 2);
+  check('the first is tomorrow at seven', times[0].getTime(), new Date(2026, 8, 17, 7, 0, 0, 0).getTime());
+  check('and the last is the day after', times[1].getTime(), new Date(2026, 8, 18, 7, 0, 0, 0).getTime());
+}
+
+{
+  const evening = makeRoutine({ reminderTime: '18:00', reminderOn: true });
+  check('tonight is still ahead', nextReminderTimes(evening, wednesday, 0).length, 1);
+  const walked = makeRoutine({
+    reminderTime: '18:00',
+    reminderOn: true,
+    lastCompletedAt: '2026-09-16T06:10:00',
+  });
+  check('and a routine already walked today stays quiet', nextReminderTimes(walked, wednesday, 0).length, 0);
+  check('though the rest of the week is untouched by that', nextReminderTimes(walked, wednesday, 2).length, 2);
+}
+
+{
+  const fridays = makeRoutine({ reminderTime: '09:00', reminderOn: true, reminderDays: [5] });
+  const times = nextReminderTimes(fridays, wednesday, 9);
+  check('a Friday routine speaks twice inside nine days', times.length, 2);
+  check('starting this Friday', times[0].getTime(), new Date(2026, 8, 18, 9, 0, 0, 0).getTime());
+  check('and again the Friday after', times[1].getTime(), new Date(2026, 8, 25, 9, 0, 0, 0).getTime());
+}
 // ------------------------------------------------------------ nothing goes unnamed
 
 check('every cadence is listed', ALL_CHECK_CADENCES.length, 4);

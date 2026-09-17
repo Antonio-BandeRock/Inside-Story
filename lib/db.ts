@@ -5132,6 +5132,19 @@ async function runDatabaseInitialization() {
         -- When the LAST step was finished, not when the walk began. A
         -- routine abandoned half way through has not been done.
         last_completed_at TEXT,
+        -- The reminder that starts it, 2026-09-17. A local wall-clock
+        -- 'HH:mm', the days of the week it speaks on as a comma list of
+        -- 0..6 with 0 for Sunday (NULL meaning every day), and its own
+        -- switch. The time is kept while the switch is off so that
+        -- turning a reminder off for a fortnight does not lose it.
+        --
+        -- Nothing here schedules anything by itself: see
+        -- lib/reminderNotifications.ts, which reads these three columns
+        -- at every reconcile and puts the next seven days of them on the
+        -- phone. Tapping one opens the walk. It never walks anything.
+        reminder_time TEXT,
+        reminder_days TEXT,
+        reminder_on INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
       CREATE TABLE IF NOT EXISTS routine_steps (
@@ -6985,6 +6998,22 @@ async function runDatabaseInitialization() {
     // instead, once, so the column means the same thing on both paths.
     if (connectionColumns.length > 0 && connectionColumns.some((entry) => entry.name === 'role')) {
       await db.execAsync(`UPDATE connections SET role = 'recipe' WHERE role IS NULL;`);
+    }
+
+    // The routine reminder columns, 1.0.39.22. The routines table shipped a
+    // day earlier in 1.0.39.20, so a phone can already have it without
+    // these: same conditional pattern every other added column here uses.
+    const routineColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(routines)');
+    if (routineColumns.length > 0) {
+      if (!routineColumns.some((column) => column.name === 'reminder_time')) {
+        await db.execAsync('ALTER TABLE routines ADD COLUMN reminder_time TEXT;');
+      }
+      if (!routineColumns.some((column) => column.name === 'reminder_days')) {
+        await db.execAsync('ALTER TABLE routines ADD COLUMN reminder_days TEXT;');
+      }
+      if (!routineColumns.some((column) => column.name === 'reminder_on')) {
+        await db.execAsync('ALTER TABLE routines ADD COLUMN reminder_on INTEGER NOT NULL DEFAULT 0;');
+      }
     }
 
     // The Grocery List's own two later columns, 2026-09-01. The table shipped

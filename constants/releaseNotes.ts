@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.22',
+    date: '2026-09-17',
+    changes: [
+      'A routine can now have a nudge. Give it a time and the days of the week it should speak on, and the phone says the name of it then. Tapping that opens the walk at the first step, so the thing that reminds you and the thing that walks you through it are one tap apart.',
+      'The nudge waits, it never walks anything for you. A day you have already finished the routine stays quiet, and if you switch the nudge off for a week away the time is kept for when you switch it back on.',
+      'Routines has its own switch under Reminders in Profile, alongside doses, meals, bills and the rest.',
+      'Routines and Did I Do It on Home now lead somewhere. Each band ends with a row that opens Life at the place the thing gets built, whether the band is empty or already has six in it. They used to say build one in Life as flat text, which is a sentence pointing at a door rather than a door.',
+    ],
+  },
+  {
     version: '1.0.39.21',
     date: '2026-09-17',
     changes: [

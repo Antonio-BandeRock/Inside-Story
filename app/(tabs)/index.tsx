@@ -2716,6 +2716,29 @@ export default function HomeScreen() {
     );
   }
 
+  // The last row of a band that leads to where the thing gets built,
+  // 2026-09-17. A band with nothing in it used to say "build one in Life"
+  // as flat text, which is a sentence pointing at a door rather than a
+  // door. This is the door, and it is there whether the band is empty or
+  // full, because the moment somebody wants a second routine is the
+  // moment the band is no longer empty.
+  function renderBandWayIn(lens: string, title: string, detail: string) {
+    return (
+      <TouchableOpacity
+        style={styles.bandWayInRow}
+        activeOpacity={0.8}
+        onPress={() => router.push({ pathname: '/life', params: { openLifeLens: lens } })}
+      >
+        <Ionicons name="add-circle-outline" size={18} color={colors.tabLife} style={textShadow} />
+        <View style={styles.reminderBody}>
+          <Text style={styles.reminderTitle}>{title}</Text>
+          <Text style={styles.reminderDetail}>{detail}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} style={textShadow} />
+      </TouchableOpacity>
+    );
+  }
+
   // Routines, 2026-09-17. The band lists what there is and starts one, and
   // nothing more: building a routine wants every step visible at once,
   // which is a screenful, and it lives in Life where it was made.
@@ -2732,30 +2755,30 @@ export default function HomeScreen() {
       'routines',
       'Routines',
       <View style={styles.bandBody}>
-        {routines.length === 0 ? (
-          <Text style={styles.bandCaption}>
-            An order you would rather not hold in your head. Build one in Life and it shows up here, one step
-            at a time.
-          </Text>
-        ) : (
-          routines.map((routine) => (
-            <TouchableOpacity
-              key={routine.id}
-              style={styles.reminderRow}
-              activeOpacity={0.8}
-              onPress={() => router.push({ pathname: '/routine', params: { id: routine.id } })}
-            >
-              <View style={styles.reminderBody}>
-                <Text style={styles.reminderTitle} numberOfLines={1}>
-                  {routine.name}
-                </Text>
-                <Text style={styles.reminderDetail} numberOfLines={2}>
-                  {describeRoutineStanding(routine, now)}
-                </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} style={textShadow} />
-            </TouchableOpacity>
-          ))
+        {routines.map((routine) => (
+          <TouchableOpacity
+            key={routine.id}
+            style={styles.reminderRow}
+            activeOpacity={0.8}
+            onPress={() => router.push({ pathname: '/routine', params: { id: routine.id } })}
+          >
+            <View style={styles.reminderBody}>
+              <Text style={styles.reminderTitle} numberOfLines={1}>
+                {routine.name}
+              </Text>
+              <Text style={styles.reminderDetail} numberOfLines={2}>
+                {describeRoutineStanding(routine, now)}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} style={textShadow} />
+          </TouchableOpacity>
+        ))}
+        {renderBandWayIn(
+          'routines',
+          routines.length === 0 ? 'Build your first routine' : 'Add or change a routine',
+          routines.length === 0
+            ? 'An order you would rather not hold in your head. Write the steps once in Life and it shows up here, one step at a time.'
+            : 'Opens Life, where the steps get written.',
         )}
       </View>,
     );
@@ -2778,43 +2801,39 @@ export default function HomeScreen() {
       'doneChecks',
       'Did I Do It',
       <View style={styles.bandBody}>
-        {checks.length === 0 ? (
-          <Text style={styles.bandCaption}>
-            One question, asked later. Did I take it, did I lock it, did I pay it. Add what you keep
-            wondering about in Life.
-          </Text>
-        ) : (
-          <>
-            {summaryLine ? <Text style={styles.bandCaption}>{summaryLine}</Text> : null}
-            {checks.map((check) => {
-              const standing = checkStanding(check, now);
-              return (
-                <TouchableOpacity
-                  key={check.id}
-                  style={styles.reminderRow}
-                  activeOpacity={0.8}
-                  onPress={() =>
-                    router.push({ pathname: '/life', params: { openLifeLens: 'didIDoIt' } })
-                  }
-                >
-                  <View style={styles.reminderBody}>
-                    <Text style={styles.reminderTitle} numberOfLines={1}>
-                      {check.name}
-                    </Text>
-                    <Text style={styles.reminderDetail} numberOfLines={2}>
-                      {standing.line}
-                    </Text>
-                  </View>
-                  <Ionicons
-                    name={standing.doneThisPeriod === true ? 'checkmark-circle' : 'ellipse-outline'}
-                    size={18}
-                    color={standing.doneThisPeriod === true ? colors.accent : colors.textSecondary}
-                    style={textShadow}
-                  />
-                </TouchableOpacity>
-              );
-            })}
-          </>
+        {summaryLine ? <Text style={styles.bandCaption}>{summaryLine}</Text> : null}
+        {checks.map((check) => {
+          const standing = checkStanding(check, now);
+          return (
+            <TouchableOpacity
+              key={check.id}
+              style={styles.reminderRow}
+              activeOpacity={0.8}
+              onPress={() => router.push({ pathname: '/life', params: { openLifeLens: 'didIDoIt' } })}
+            >
+              <View style={styles.reminderBody}>
+                <Text style={styles.reminderTitle} numberOfLines={1}>
+                  {check.name}
+                </Text>
+                <Text style={styles.reminderDetail} numberOfLines={2}>
+                  {standing.line}
+                </Text>
+              </View>
+              <Ionicons
+                name={standing.doneThisPeriod === true ? 'checkmark-circle' : 'ellipse-outline'}
+                size={18}
+                color={standing.doneThisPeriod === true ? colors.accent : colors.textSecondary}
+                style={textShadow}
+              />
+            </TouchableOpacity>
+          );
+        })}
+        {renderBandWayIn(
+          'didIDoIt',
+          checks.length === 0 ? 'Add your first check' : 'Add or change a check',
+          checks.length === 0
+            ? 'One question, asked later. Did I take it, did I lock it, did I pay it. Name what you keep wondering about and it waits here.'
+            : 'Opens Life, where these get named and ticked off.',
         )}
       </View>,
     );
@@ -3494,6 +3513,20 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 8,
     paddingHorizontal: 10,
+  },
+  // The way-in row at the foot of a band. Same box as a reminder row so a
+  // band reads as one column, with the tab colour down its left edge so it
+  // is plainly the way out of the band rather than another of its items.
+  bandWayInRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.tabLife,
   },
   reminderTime: { ...typography.caption, ...textShadow, color: colors.textMuted, width: 62 },
   reminderBody: { flex: 1, gap: 2 },

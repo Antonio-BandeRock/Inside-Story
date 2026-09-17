@@ -25,6 +25,7 @@ export type ReminderKindKey =
   | 'meal'
   | 'hydration'
   | 'garden'
+  | 'routine'
   | 'bill'
   | 'upkeep'
   | 'benefit'
@@ -46,6 +47,10 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   'meal',
   'hydration',
   'garden',
+  // 1.0.39.22. The one kind that comes from nothing on a schedule at all:
+  // a routine speaks on the days and at the time it was given, and the
+  // notification opens the walk rather than marking anything done.
+  'routine',
   'bill',
   'upkeep',
   'benefit',
@@ -63,6 +68,7 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   meal: 'Meals',
   hydration: 'Water & drinks',
   garden: 'Garden tasks',
+  routine: 'Routines',
   bill: 'Bills',
   upkeep: 'Upkeep & renewals',
   benefit: 'Work benefits',
@@ -76,6 +82,8 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
   hydration:
     'Every drink on your Hydration schedule. A day the Meal Plan has filled a water gap for can hold six of these, so this one starts off.',
   garden: 'Anything planned in Garden > Upcoming Tasks, at the time it is set for.',
+  routine:
+    'A routine from Life > Routines, at the time and on the days you gave it. Tapping it opens the walk at the first step.',
   bill:
     'A bill from Life > Finances, three days ahead and again on the day. Anything set to pay itself is left out.',
   upkeep:
@@ -106,6 +114,10 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   meal: true,
   hydration: false,
   garden: true,
+  // On. A routine reminder exists only because somebody went into that
+  // routine and typed a time into it, which is as clear a request to be
+  // spoken to as this app ever gets.
+  routine: true,
   bill: true,
   upkeep: true,
   benefit: true,

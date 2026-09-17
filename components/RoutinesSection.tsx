@@ -12,13 +12,18 @@ import { textShadow, typography } from '../constants/typography';
 import {
   CHECK_CADENCES,
   describeOccasionHours,
+  describeReminderDays,
+  describeRoutineReminder,
   describeRoutineStanding,
   findOccasion,
   formatHour,
+  formatReminderClock,
   moveRoutineStep,
   occasionChoices,
+  REMINDER_DAY_NAMES,
   routineOccasionLabel,
   suggestedOccasion,
+  toggleReminderDay,
   MAX_CHECK_NAME,
   MAX_OCCASION_NAME,
   MAX_ROUTINE_NAME,
@@ -43,10 +48,12 @@ import {
   getRoutines,
   moveRoutine,
   saveStepOrder,
+  setRoutineReminder,
   updateRoutine,
   updateRoutineOccasion,
   updateRoutineStep,
 } from '../lib/routinesDb';
+import { syncReminderNotifications } from '../lib/reminderNotifications';
 
 // Routines: an order you do not want to hold in your head.
 //
@@ -80,8 +87,16 @@ const ADD_OCCASION = '__add_occasion__';
 const ADD_CHECK = '__add_check__';
 const NO_CHECK = 'none';
 const ANY_HOUR = 'any';
+const NO_NUDGE = 'off';
 
-type RoutineForm = { id: string | null; name: string; occasion: RoutineOccasion };
+type RoutineForm = {
+  id: string | null;
+  name: string;
+  occasion: RoutineOccasion;
+  /** 'HH:mm', or null for a routine nothing speaks about. */
+  reminderTime: string | null;
+  reminderDays: number[];
+};
 type OccasionForm = { id: string | null; name: string; hourFrom: number | null; hourTo: number | null };
 type StepForm = {
   routineId: string;
@@ -103,6 +118,34 @@ function hourValue(hour: number | null): string {
 
 function readHour(value: string): number | null {
   return value === ANY_HOUR ? null : Number(value);
+}
+
+// The nudge picker. Its own list rather than HOUR_OPTIONS above, because
+// the empty choice means a different thing here: no hours on an occasion is
+// a place rather than a time, and no hour here is silence.
+const NUDGE_HOUR_OPTIONS = [
+  { label: 'No nudge', value: NO_NUDGE },
+  ...Array.from({ length: 24 }, (unused, hour) => ({ label: formatHour(hour), value: String(hour) })),
+];
+
+// Five-minute steps. Sixty rows for a reminder somebody is setting for
+// themselves is a list to scroll rather than a choice to make, and nobody
+// needs their morning routine to start at 7:03.
+const NUDGE_MINUTE_OPTIONS = Array.from({ length: 12 }, (unused, index) => ({
+  label: `:${String(index * 5).padStart(2, '0')}`,
+  value: String(index * 5),
+}));
+
+function nudgeHourValue(time: string | null): string {
+  return time ? String(Number(time.split(':')[0])) : NO_NUDGE;
+}
+
+function nudgeMinuteValue(time: string | null): string {
+  return time ? String(Number(time.split(':')[1])) : '0';
+}
+
+function buildTime(hour: number, minute: number): string {
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 }
 
 export function RoutinesSection({ tabColor }: Props) {
@@ -178,8 +221,16 @@ export function RoutinesSection({ tabColor }: Props) {
       showInfoAlert('Almost there', 'Give it a name you will recognise, like "Morning" or "Leaving the house".');
       return;
     }
-    if (form.id) await updateRoutine(form.id, form.name, form.occasion);
-    else await createRoutine(form.name, form.occasion);
+    let id = form.id;
+    if (id) await updateRoutine(id, form.name, form.occasion);
+    else id = await createRoutine(form.name, form.occasion);
+    // The reminder is written whether or not there is one, so that clearing
+    // it clears the row as well as the form, and reconciled straight after,
+    // so the notification is on the phone before this screen has redrawn.
+    if (id) {
+      await setRoutineReminder(id, form.reminderTime, form.reminderDays, form.reminderTime !== null);
+      void syncReminderNotifications();
+    }
     setForm(null);
     setOccasionForm(null);
     load();
@@ -305,7 +356,7 @@ export function RoutinesSection({ tabColor }: Props) {
             style={styles.primaryButton}
             onPress={() => {
               setOccasionForm(null);
-              setForm({ id: null, name: '', occasion: fits ?? 'other' });
+              setForm({ id: null, name: '', occasion: fits ?? 'other', reminderTime: null, reminderDays: [] });
             }}
           >
             <Text style={styles.primaryButtonText}>+ Add a routine</Text>
@@ -315,7 +366,7 @@ export function RoutinesSection({ tabColor }: Props) {
 
       {form ? (
         <View style={styles.formCard}>
-          <Text style={styles.cardTitle}>{form.id ? 'Rename this routine' : 'A new routine'}</Text>
+          <Text style={styles.cardTitle}>{form.id ? 'Change this routine' : 'A new routine'}</Text>
 
           <View style={styles.labelRow}>
             <Text style={styles.label}>What is it called</Text>
@@ -348,8 +399,9 @@ export function RoutinesSection({ tabColor }: Props) {
             <Text style={styles.helperText}>{chosenOccasion.example}</Text>
           ) : null}
           <Text style={styles.helperText}>
-            This decides nothing but the order they are listed in. No routine ever starts on its own. If what
-            you need is not on the list, add it once and it is there for every routine after this one.
+            This decides nothing but the order they are listed in. Nothing goes off because of it: the nudge
+            below is the only thing that speaks. If what you need is not on the list, add it once and it is
+            there for every routine after this one.
           </Text>
 
           {chosenOccasion?.mine && !occasionForm ? (
@@ -426,6 +478,71 @@ export function RoutinesSection({ tabColor }: Props) {
             </View>
           ) : null}
 
+          {/* The reminder that starts it, 1.0.39.22, and the one thing a
+              routine could not do before: be remembered by anything other
+              than the person who wrote it. An hour is the whole of the
+              decision, since a routine given no time is simply one nothing
+              speaks about. */}
+          <Text style={styles.label}>A nudge to start it</Text>
+          <View style={styles.clockRow}>
+            <PopoverSelect
+              options={NUDGE_HOUR_OPTIONS}
+              selected={nudgeHourValue(form.reminderTime)}
+              onSelect={(value) =>
+                setForm({
+                  ...form,
+                  reminderTime:
+                    value === NO_NUDGE
+                      ? null
+                      : buildTime(Number(value), Number(nudgeMinuteValue(form.reminderTime))),
+                })
+              }
+              tabColor={tabColor}
+            />
+            {form.reminderTime ? (
+              <PopoverSelect
+                options={NUDGE_MINUTE_OPTIONS}
+                selected={nudgeMinuteValue(form.reminderTime)}
+                minWidth={64}
+                onSelect={(value) =>
+                  setForm({
+                    ...form,
+                    reminderTime: buildTime(Number(nudgeHourValue(form.reminderTime)), Number(value)),
+                  })
+                }
+                tabColor={tabColor}
+              />
+            ) : null}
+          </View>
+
+          {form.reminderTime ? (
+            <>
+              <Text style={styles.label}>On these days</Text>
+              <View style={styles.dayRow}>
+                {REMINDER_DAY_NAMES.map((name, day) => {
+                  const on = form.reminderDays.length === 0 || form.reminderDays.includes(day);
+                  return (
+                    <TouchableOpacity
+                      key={name}
+                      style={[styles.dayPill, on ? styles.dayPillOn : null]}
+                      onPress={() => setForm({ ...form, reminderDays: toggleReminderDay(form.reminderDays, day) })}
+                    >
+                      <Text style={[styles.dayPillText, on ? styles.dayPillTextOn : null]}>{name}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              <Text style={styles.helperText}>
+                {`At ${formatReminderClock(form.reminderTime)}, ${describeReminderDays(form.reminderDays)}. Tapping it opens the walk at the first step. It never walks anything by itself, and a day you have already finished it stays quiet.`}
+              </Text>
+            </>
+          ) : (
+            <Text style={styles.helperText}>
+              Leave this alone for a routine you reach for yourself. Give it a time and the phone says the
+              name of it on the days you pick, and tapping that opens the walk.
+            </Text>
+          )}
+
           <View style={styles.formActions}>
             <TouchableOpacity style={styles.primaryButton} onPress={saveRoutine}>
               <Text style={styles.primaryButtonText}>Save</Text>
@@ -460,6 +577,9 @@ export function RoutinesSection({ tabColor }: Props) {
             <Text style={styles.rowMeta}>
               {routineOccasionLabel(routine.occasion, occasions)}. {describeRoutineStanding(routine, now)}
             </Text>
+            {describeRoutineReminder(routine) ? (
+              <Text style={styles.rowMeta}>{describeRoutineReminder(routine)}</Text>
+            ) : null}
 
             {routine.steps.length > 0 ? (
               <TouchableOpacity
@@ -479,10 +599,16 @@ export function RoutinesSection({ tabColor }: Props) {
               <TouchableOpacity
                 onPress={() => {
                   setOccasionForm(null);
-                  setForm({ id: routine.id, name: routine.name, occasion: routine.occasion });
+                  setForm({
+                    id: routine.id,
+                    name: routine.name,
+                    occasion: routine.occasion,
+                    reminderTime: routine.reminderTime,
+                    reminderDays: routine.reminderDays,
+                  });
                 }}
               >
-                <Text style={styles.actionText}>Rename</Text>
+                <Text style={styles.actionText}>Change</Text>
               </TouchableOpacity>
               {position > 0 ? (
                 <TouchableOpacity onPress={async () => { await moveRoutine(routine.id, -1); load(); }}>
@@ -691,6 +817,15 @@ function makeStyles(tabColor: string) {
     rowTitle: { ...typography.body, color: colors.textPrimary, ...textShadow },
     rowMeta: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
     rowActions: { flexDirection: 'row', gap: 14, marginTop: 10, flexWrap: 'wrap' },
+    clockRow: { flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap' },
+    dayRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+    dayPill: {
+      backgroundColor: colors.surfaceMuted, borderRadius: 10, borderWidth: 1, borderColor: colors.border,
+      paddingVertical: 8, paddingHorizontal: 10,
+    },
+    dayPillOn: { backgroundColor: tabColor, borderColor: tabColor },
+    dayPillText: { ...typography.caption, color: colors.textMuted, ...textShadow },
+    dayPillTextOn: { color: colors.textOnButton, textShadowColor: 'transparent', textShadowRadius: 0 },
     actionText: { ...typography.caption, color: tabColor, ...textShadow },
     actionTextRemove: { ...typography.caption, color: colors.danger, ...textShadow },
 

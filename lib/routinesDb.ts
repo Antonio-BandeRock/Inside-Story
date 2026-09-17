@@ -7,8 +7,12 @@
 import { getDatabase } from './db';
 import {
   ALL_CHECK_CADENCES,
+  cleanReminderTime,
   cleanRoutineText,
+  hasRoutineReminder,
   isRoutineTextUsable,
+  parseReminderDays,
+  serializeReminderDays,
   MAX_CHECK_NAME,
   MAX_OCCASION_NAME,
   MAX_ROUTINE_NAME,
@@ -315,6 +319,9 @@ type RoutineRow = {
   active: number;
   position: number;
   lastCompletedAt: string | null;
+  reminderTime: string | null;
+  reminderDays: string | null;
+  reminderOn: number;
 };
 
 type StepRow = {
@@ -350,12 +357,19 @@ function toRoutine(row: RoutineRow, steps: RoutineStep[]): Routine {
     active: row.active !== 0,
     position: row.position,
     lastCompletedAt: row.lastCompletedAt,
+    reminderTime: cleanReminderTime(row.reminderTime),
+    reminderDays: parseReminderDays(row.reminderDays),
+    // A switch that is on with no time is off, because there is nothing
+    // for it to fire at. Resolved here rather than at each of the four
+    // places that read it.
+    reminderOn: row.reminderOn !== 0 && cleanReminderTime(row.reminderTime) !== null,
     steps,
   };
 }
 
 const ROUTINE_COLUMNS = `id, name, occasion, active, position,
-     last_completed_at AS lastCompletedAt`;
+     last_completed_at AS lastCompletedAt,
+     reminder_time AS reminderTime, reminder_days AS reminderDays, reminder_on AS reminderOn`;
 
 const STEP_COLUMNS = `id, routine_id AS routineId, text, detail, position, check_id AS checkId`;
 
@@ -420,6 +434,63 @@ export async function updateRoutine(id: string, name: string, occasion: RoutineO
     id,
   );
   return true;
+}
+
+/**
+ * The time a routine speaks at, the days it speaks on, and whether it
+ * speaks at all. Three columns written together because they only ever
+ * mean anything together.
+ *
+ * The time survives the switch going off, so somebody who silences their
+ * morning routine for a week away gets it back exactly as it was.
+ *
+ * Nothing is scheduled here. The caller reconciles afterwards with
+ * syncReminderNotifications, the same contract lib/reminderPreferences.ts
+ * keeps, so this file never imports the notification module.
+ */
+export async function setRoutineReminder(
+  id: string,
+  time: string | null,
+  days: number[],
+  on: boolean,
+): Promise<void> {
+  const db = await getDatabase();
+  const cleaned = cleanReminderTime(time);
+  await db.runAsync(
+    `UPDATE routines SET reminder_time = ?, reminder_days = ?, reminder_on = ? WHERE id = ?`,
+    cleaned,
+    serializeReminderDays(days),
+    cleaned && on ? 1 : 0,
+    id,
+  );
+}
+
+/**
+ * Just enough of every routine that speaks to build its notifications:
+ * the name, the time, the days, whether it has been walked today, and
+ * whether it has any steps at all. The steps themselves are deliberately
+ * not loaded, since a reminder never shows them.
+ *
+ * A routine with no steps is left out here rather than filtered later. A
+ * notification that opens a walk with nothing to walk is worse than
+ * silence, and it is the normal state of a routine somebody named and has
+ * not finished writing.
+ */
+export async function listRoutineReminders(): Promise<Routine[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<RoutineRow>(
+    `SELECT ${ROUTINE_COLUMNS} FROM routines
+      WHERE active = 1 AND reminder_on = 1 AND reminder_time IS NOT NULL
+      ORDER BY position ASC, name ASC`,
+  );
+  if (rows.length === 0) return [];
+  const counts = await db.getAllAsync<{ routineId: string; total: number }>(
+    `SELECT routine_id AS routineId, COUNT(*) AS total FROM routine_steps GROUP BY routine_id`,
+  );
+  const stepped = new Set(counts.filter((entry) => entry.total > 0).map((entry) => entry.routineId));
+  return rows
+    .map((row) => toRoutine(row, []))
+    .filter((routine) => stepped.has(routine.id) && hasRoutineReminder(routine));
 }
 
 export async function setRoutineActive(id: string, active: boolean): Promise<void> {

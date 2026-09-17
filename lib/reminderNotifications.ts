@@ -19,6 +19,8 @@ import {
   type DatedReminderLens,
   type DatedReminderSource,
 } from './reminderSources';
+import { describeReminderDays, nextReminderTimes, type Routine } from './routines';
+import { listRoutineReminders } from './routinesDb';
 import { formatTime12 } from './timeOfDay';
 
 // Local reminders: the scheduled doses in Schedules > Meds, the visits in
@@ -141,10 +143,14 @@ export type ReminderKind = ReminderKindKey;
 // 'reminder' belongs here for the same reason the rest do: it leaves the
 // candidate list the moment somebody answers for it, which is exactly what
 // the Reconciliation screen exists to let them do.
-const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden', 'reminder'];
+// 'routine' belongs here too, and it is the one kind that can answer for
+// itself without anybody tapping anything: finishing the walk stamps
+// last_completed_at, and nextReminderTimes drops the rest of today the
+// moment that happens, so the next reconcile cancels the follow-ups.
+const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden', 'reminder', 'routine'];
 
 type ScheduleLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration';
-type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile';
+type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine';
 
 type ReminderPayload = {
   kind: ReminderKind;
@@ -156,7 +162,7 @@ type ReminderPayload = {
   /** Which tab a tap opens. Absent on anything queued before 1.0.39.8, and
    *  read back as 'schedule', which is the only thing it could have been. */
   tab?: ReminderTab;
-  lens: ScheduleLens | 'upcomingTasks' | DatedReminderLens | 'reconcile';
+  lens: ScheduleLens | 'upcomingTasks' | DatedReminderLens | 'reconcile' | 'walk';
 };
 
 type PlannedNotification = {
@@ -454,6 +460,36 @@ function buildDatedPlanned(
   };
 }
 
+// --- Routines: the one kind with no row on any schedule ---------------------
+//
+// Everything else here starts from something already dated: a schedule_items
+// row, a bill, a service. A routine carries its own pattern instead (a time,
+// and the days of the week it speaks on), so the dates are worked out here,
+// one per firing day inside the lookahead window.
+//
+// The day is part of the identifier for the same reason it is on a dated
+// one: a routine that speaks every morning produces seven of these and they
+// have to coexist rather than replace each other.
+function buildRoutinePlanned(routine: Routine, fireAt: Date, now: Date): PlannedNotification {
+  return {
+    identifier: `${IDENTIFIER_PREFIX}routine:${routine.id}:${localDateString(fireAt)}`,
+    title: routine.name,
+    // The name they gave it is the whole title, unprefixed, for the same
+    // reason a captured thought keeps its own words: they wrote it to
+    // recognise it. What the body adds is the one thing a notification can
+    // usefully say, which is that tapping it starts the walk.
+    body: `Tap to walk it one step at a time, ${describeReminderDays(routine.reminderDays)}. Based on your routines as of ${describeFreshness(now, fireAt)}.`,
+    fireAt,
+    payload: {
+      kind: 'routine',
+      scheduleItemId: routine.id,
+      fireAt: fireAt.toISOString(),
+      tab: 'routine',
+      lens: 'walk',
+    },
+  };
+}
+
 // --- Nudges -----------------------------------------------------------------
 
 // The same reminder again, a little later, while it is still outstanding.
@@ -488,8 +524,9 @@ async function ensureAndroidChannels(): Promise<void> {
     lightColor: '#244147',
   });
   await Notifications.setNotificationChannelAsync(ANDROID_ROUTINE_CHANNEL_ID, {
-    name: 'Meals, drinks & garden',
-    description: 'Scheduled meals, anything on your hydration schedule, and planned garden work.',
+    name: 'Routines, meals & drinks',
+    description:
+      'Routines at the time you set them, scheduled meals, anything on your hydration schedule, and planned garden work.',
     importance: Notifications.AndroidImportance.DEFAULT,
     sound: 'default',
     vibrationPattern: [0, 180],
@@ -507,7 +544,7 @@ async function ensureAndroidChannels(): Promise<void> {
 
 function channelFor(kind: ReminderKind): string {
   if (kind === 'bill' || kind === 'upkeep' || kind === 'benefit') return ANDROID_DATED_CHANNEL_ID;
-  if (kind === 'meal' || kind === 'hydration' || kind === 'garden' || kind === 'reminder')
+  if (kind === 'meal' || kind === 'hydration' || kind === 'garden' || kind === 'reminder' || kind === 'routine')
     return ANDROID_ROUTINE_CHANNEL_ID;
   return ANDROID_CHANNEL_ID;
 }
@@ -557,9 +594,10 @@ async function runSync(): Promise<ReminderSyncResult> {
   const today = localDateString(now);
   const horizon = new Date(now);
   horizon.setDate(horizon.getDate() + LOOKAHEAD_DAYS);
-  const [candidates, datedSources, preferences] = await Promise.all([
+  const [candidates, datedSources, routines, preferences] = await Promise.all([
     listReminderCandidates(localDateTimeString(now), localDateString(horizon)),
     listDatedReminderSources(today),
+    listRoutineReminders(),
     getReminderPreferences(),
   ]);
   const nudging = isNudgeUntilDoneEnabled(preferences);
@@ -574,6 +612,23 @@ async function runSync(): Promise<ReminderSyncResult> {
     first.set(planned.identifier, planned);
     if (nudging) {
       for (const nudge of buildNudges(planned, now)) followUps.set(nudge.identifier, nudge);
+    }
+  }
+
+  // A routine turns into one notification per firing day in the window. Only
+  // the first is a first-time reminder; the rest of the week is real but
+  // less urgent, so they queue behind everything else's follow-ups and get
+  // dropped first when the phone runs out of room.
+  if (isReminderKindEnabled(preferences, 'routine')) {
+    for (const routine of routines) {
+      const times = nextReminderTimes(routine, now, LOOKAHEAD_DAYS);
+      times.forEach((fireAt, index) => {
+        const planned = buildRoutinePlanned(routine, fireAt, now);
+        (index === 0 ? first : followUps).set(planned.identifier, planned);
+        if (nudging && index === 0) {
+          for (const nudge of buildNudges(planned, now)) followUps.set(nudge.identifier, nudge);
+        }
+      });
     }
   }
 
@@ -643,6 +698,7 @@ export type ReminderTapTarget =
   | { pathname: '/schedule'; params: { openScheduleLens: ScheduleLens } }
   | { pathname: '/garden'; params: { openGardenLens: 'upcomingTasks' } }
   | { pathname: '/life'; params: { openLifeLens: DatedReminderLens } }
+  | { pathname: '/routine'; params: { id: string } }
   | { pathname: '/reconcile' };
 
 const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 'hydration'];
@@ -662,6 +718,13 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   const data = request.content.data as Partial<ReminderPayload> | undefined;
 
   if (data?.tab === 'reconcile') return { pathname: '/reconcile' };
+  // A routine opens the walk itself rather than the list it was built in,
+  // which is the whole point of giving it a time. An id that has since been
+  // deleted lands on Life > Routines instead of a blank screen, which
+  // app/routine.tsx already does for an unknown id.
+  if (data?.tab === 'routine' && typeof data.scheduleItemId === 'string' && data.scheduleItemId) {
+    return { pathname: '/routine', params: { id: data.scheduleItemId } };
+  }
   if (data?.tab === 'garden') return { pathname: '/garden', params: { openGardenLens: 'upcomingTasks' } };
   if (data?.tab === 'life') {
     const lens = DATED_LENSES.find((option) => option === data.lens) ?? 'finances';

@@ -260,8 +260,12 @@ const ROUTINES_HELP_SECTIONS: HelpSection[] = [
     body: 'Morning, bedtime and leaving the house are there to start with. If what you need is not on the list, add it while you are making the routine: Work, the school run, the workshop. It is on the list from then on, so a second Work routine goes straight under the same heading. Give it hours and those routines come to the top while the clock is inside them.',
   },
   {
+    heading: 'A nudge at the time you set',
+    body: 'Give a routine a time, and the days of the week it should speak on, and the phone says the name of it then. Tapping that opens the walk at the first step. Every routine starts with no nudge until you set one, the time is kept if you switch it off for a week away, and a day you have already finished it stays quiet. Routines has its own switch under Reminders in Profile, alongside everything else that speaks.',
+  },
+  {
     heading: 'What it will not do',
-    body: 'No routine ever starts on its own and nothing here goes off. When it happens is used for the order they are listed in and nothing else. The routine itself only counts as done once you reach the last step.',
+    body: 'When it happens is used for the order they are listed in and nothing else: it never makes anything go off. Only a nudge does that, and only at the time you gave it. Even then the nudge says the name of the routine and waits, because tapping it is what opens the walk. Nothing here walks a step for you, and the routine only counts as done once you reach the last step.',
   },
 ];
 

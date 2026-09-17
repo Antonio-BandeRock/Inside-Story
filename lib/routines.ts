@@ -223,6 +223,13 @@ export type Routine = {
   /** When the last step was finished, not when the walk started. A routine
    *  abandoned half way through has not been done. */
   lastCompletedAt: string | null;
+  /** 'HH:mm' local wall-clock, or null for a routine nothing reminds
+   *  anybody about. Kept even while reminderOn is false, so switching the
+   *  reminder off and on again does not lose the time they picked. */
+  reminderTime: string | null;
+  /** Which days it speaks on, 0 for Sunday. Empty means every day. */
+  reminderDays: number[];
+  reminderOn: boolean;
   steps: RoutineStep[];
 };
 
@@ -464,6 +471,149 @@ export function routineProgressLabel(index: number, total: number): string {
   if (total <= 0) return '';
   const shown = Math.min(Math.max(index + 1, 1), total);
   return `Step ${shown} of ${total}`;
+}
+
+// ------------------------------------------- the reminder that starts one
+//
+// 2026-09-17, and it closes the one honest hole in everything above: a
+// routine could only ever be remembered by the person who built it. The
+// thing somebody needs held for them is not the order of the steps, which
+// this already holds. It is the moment.
+//
+// What a reminder is here, stated once so nothing drifts: a time of day, on
+// the days of the week they picked, that puts a notification on the phone.
+// Tapping it opens the walk at step one. It does not walk anything by
+// itself and it does not tick anything off, because a notification cannot
+// know whether anyone got up.
+//
+// The days are numbers, 0 for Sunday, exactly as Date.getDay() returns
+// them, so the one place they are compared needs no conversion. An empty
+// list means every day: a routine given a time and no days is a daily one,
+// which is what most of them turn out to be.
+
+export const REMINDER_DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+export const ALL_REMINDER_DAYS = [0, 1, 2, 3, 4, 5, 6];
+
+const WEEKDAY_SET = [1, 2, 3, 4, 5];
+const WEEKEND_SET = [0, 6];
+
+function sameDays(days: number[], other: number[]): boolean {
+  return days.length === other.length && other.every((day) => days.includes(day));
+}
+
+/** 'HH:mm' or null. Anything else, including an hour of 24 or a minute of
+ *  60, comes back null rather than being nudged into range, because a
+ *  reminder at a time nobody chose is worse than no reminder. */
+export function cleanReminderTime(value: string | null | undefined): string | null {
+  if (typeof value !== 'string') return null;
+  const match = /^(\d{1,2}):(\d{2})$/.exec(value.trim());
+  if (!match) return null;
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
+  if (!Number.isInteger(hour) || hour < 0 || hour > 23) return null;
+  if (!Number.isInteger(minute) || minute < 0 || minute > 59) return null;
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
+
+/** The stored form is a plain comma list. Sorted, with duplicates and
+ *  anything out of range dropped, so the row can be read back with no
+ *  further checking anywhere else. */
+export function parseReminderDays(raw: string | null | undefined): number[] {
+  if (typeof raw !== 'string' || !raw.trim()) return [];
+  const days = raw
+    .split(',')
+    .map((piece) => Number(piece.trim()))
+    .filter((day) => Number.isInteger(day) && day >= 0 && day <= 6);
+  return [...new Set(days)].sort((a, b) => a - b);
+}
+
+/** Null for every day, which is both the default and the shortest thing to
+ *  store for the commonest case. */
+export function serializeReminderDays(days: number[]): string | null {
+  const cleaned = parseReminderDays(days.join(','));
+  if (cleaned.length === 0 || cleaned.length === 7) return null;
+  return cleaned.join(',');
+}
+
+/** Turning the last day off means every day rather than no days, because a
+ *  reminder set for nothing is a reminder that silently never speaks. */
+export function toggleReminderDay(days: number[], day: number): number[] {
+  const current = parseReminderDays(days.join(','));
+  const on = current.length === 0 ? [...ALL_REMINDER_DAYS] : current;
+  const next = on.includes(day) ? on.filter((one) => one !== day) : [...on, day];
+  return parseReminderDays(next.join(','));
+}
+
+/** '7am', '7:15am', '12pm'. The same voice formatHour speaks in, with the
+ *  minutes left off when there are none. */
+export function formatReminderClock(time: string): string {
+  const cleaned = cleanReminderTime(time);
+  if (!cleaned) return '';
+  const [hour, minute] = cleaned.split(':').map(Number);
+  const base = formatHour(hour);
+  if (minute === 0) return base;
+  const suffix = base.slice(-2);
+  return `${base.slice(0, -2)}:${String(minute).padStart(2, '0')}${suffix}`;
+}
+
+/** 'every day', 'weekdays', 'weekends', or the days themselves. */
+export function describeReminderDays(days: number[]): string {
+  const cleaned = parseReminderDays(days.join(','));
+  if (cleaned.length === 0 || cleaned.length === 7) return 'every day';
+  if (sameDays(cleaned, WEEKDAY_SET)) return 'weekdays';
+  if (sameDays(cleaned, WEEKEND_SET)) return 'weekends';
+  return cleaned.map((day) => REMINDER_DAY_NAMES[day]).join(', ');
+}
+
+/** A reminder exists only when it is switched on AND has a time. Both are
+ *  checked in one place so that switching it off keeps the time for when it
+ *  is switched back on. */
+export function hasRoutineReminder(routine: Routine): boolean {
+  return routine.reminderOn && cleanReminderTime(routine.reminderTime) !== null;
+}
+
+export function reminderFiresOnDay(routine: Routine, date: Date): boolean {
+  if (!hasRoutineReminder(routine)) return false;
+  const days = parseReminderDays(routine.reminderDays.join(','));
+  return days.length === 0 || days.includes(date.getDay());
+}
+
+/** The line under a routine that has one. Null for one that does not, so
+ *  the row says nothing at all rather than saying there is no reminder. */
+export function describeRoutineReminder(routine: Routine): string | null {
+  const time = cleanReminderTime(routine.reminderTime);
+  if (!time) return null;
+  const when = `${formatReminderClock(time)}, ${describeReminderDays(routine.reminderDays)}`;
+  if (!routine.reminderOn) return `A nudge at ${when}, switched off.`;
+  return `Nudges at ${when}.`;
+}
+
+/**
+ * Every moment this routine should speak between now and the horizon, in
+ * order. Local wall-clock time throughout, so a reminder set for seven is at
+ * seven in whatever place the phone is standing, not seven where it was set.
+ *
+ * Today is skipped when the routine has already been walked today, which is
+ * the difference between a reminder and a nag: somebody who got up at six and
+ * did the whole thing does not need to be told at seven to start it.
+ */
+export function nextReminderTimes(routine: Routine, now: Date, withinDays: number): Date[] {
+  if (!hasRoutineReminder(routine)) return [];
+  const time = cleanReminderTime(routine.reminderTime);
+  if (!time) return [];
+  const [hour, minute] = time.split(':').map(Number);
+  const alreadyWalked = routineDoneToday(routine, now);
+  const times: Date[] = [];
+  for (let offset = 0; offset <= withinDays; offset += 1) {
+    const day = startOfLocalDay(now);
+    day.setDate(day.getDate() + offset);
+    if (!reminderFiresOnDay(routine, day)) continue;
+    if (offset === 0 && alreadyWalked) continue;
+    const fireAt = new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour, minute, 0, 0);
+    if (fireAt.getTime() <= now.getTime()) continue;
+    times.push(fireAt);
+  }
+  return times;
 }
 
 export type ChecksSummary = { total: number; waiting: number; done: number; noPeriod: number };
