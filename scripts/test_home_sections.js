@@ -26,7 +26,14 @@ function load(relPath) {
   return module.exports;
 }
 
-const { groupHomeSectionKeysByTab, groupHomeSectionsForDisplay, HOME_SECTION_TAB_PATH } = load('lib/homeSections.ts');
+const {
+  groupHomeSectionKeysByTab,
+  groupHomeSectionsForDisplay,
+  homeGroupIdOf,
+  HOME_SECTION_TAB_PATH,
+  reorderHomeGroups,
+  reorderWithinHomeGroup,
+} = load('lib/homeSections.ts');
 
 let failures = 0;
 let checks = 0;
@@ -206,6 +213,57 @@ const regrouped = groupHomeSectionsForDisplay(shuffled)
   .flatMap((g) => (g.kind === 'tab' ? g.keys : [g.key]));
 check('display grouping keeps every section', [...regrouped].sort(), [...shuffled].sort());
 check('display grouping of nothing is nothing', groupHomeSectionsForDisplay([]), []);
+
+// --- Arranging Home from Home itself, 1.0.39.16 ---
+//
+// Dragging a group and dragging a card inside one are both rewrites of the
+// single saved order, so the thing worth checking is that a rewrite never
+// loses, duplicates or re-sorts anything it was not asked to move.
+
+const arrangeGroups = groupHomeSectionsForDisplay(defaultOrder);
+const groupCount = arrangeGroups.length;
+
+// A group dragged to the top arrives at the top, whole, in one piece.
+const toTop = reorderHomeGroups(defaultOrder, groupCount - 1, 0);
+const toTopGroups = groupHomeSectionsForDisplay(toTop);
+check('a group dragged to the top lands there', homeGroupIdOf(toTopGroups[0]), homeGroupIdOf(arrangeGroups[groupCount - 1]));
+check('a group dragged to the top keeps its cards together', toTopGroups.length, groupCount);
+check('a group drag loses nothing', [...toTop].sort(), [...defaultOrder].sort());
+
+// And the groups it passed all moved down exactly one place.
+check(
+  'the groups it passed each moved one place',
+  toTopGroups.slice(1).map(homeGroupIdOf),
+  arrangeGroups.slice(0, groupCount - 1).map(homeGroupIdOf),
+);
+
+// A drag that ended outside the list meant nothing, so nothing changes.
+check('a drag off the top does nothing', reorderHomeGroups(defaultOrder, 0, -1), defaultOrder);
+check('a drag off the bottom does nothing', reorderHomeGroups(defaultOrder, 0, groupCount), defaultOrder);
+check('a drag that did not move does nothing', reorderHomeGroups(defaultOrder, 2, 2), defaultOrder);
+
+// A card dragged inside its group moves there, and no other group is
+// touched: the group keeps its place because its first member does.
+const multi = arrangeGroups.find((g) => g.kind === 'tab' && g.keys.length > 1);
+const multiId = homeGroupIdOf(multi);
+const movedInside = reorderWithinHomeGroup(defaultOrder, multiId, multi.keys.length - 1, 0);
+const insideGroups = groupHomeSectionsForDisplay(movedInside);
+check(
+  'a card dragged to the top of its group lands there',
+  insideGroups.find((g) => homeGroupIdOf(g) === multiId).keys[0],
+  multi.keys[multi.keys.length - 1],
+);
+check('a card drag loses nothing', [...movedInside].sort(), [...defaultOrder].sort());
+check('a card drag leaves every group where it was', insideGroups.map(homeGroupIdOf), arrangeGroups.map(homeGroupIdOf));
+
+// A card can never be dragged out from under the name it sits beneath,
+// and a group id nobody is holding is not a reason to rewrite anything.
+check(
+  'a card drag past the end of its group does nothing',
+  reorderWithinHomeGroup(defaultOrder, multiId, 0, multi.keys.length),
+  defaultOrder,
+);
+check('an unknown group does nothing', reorderWithinHomeGroup(defaultOrder, 'nope', 0, 1), defaultOrder);
 
 if (failures > 0) {
   console.error(`\n${failures} of ${checks} checks failed`);

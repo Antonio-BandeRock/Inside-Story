@@ -76,6 +76,11 @@ export const HOME_BAND_CONTENT_PADDING = 16;
 // again as more lenses take this shape.
 export const HOME_BAND_GAP = 10;
 
+// How long a hold has to last before it counts as one. React Native
+// defaults to 500ms; 400 is enough to be deliberate and short enough that
+// somebody who meant it does not let go first thinking nothing happened.
+const LONG_PRESS_DELAY = 400;
+
 type CommonProps = {
   title: string;
   icon: ComponentProps<typeof Ionicons>['name'];
@@ -87,6 +92,17 @@ type CommonProps = {
   // The title's own colour when a tab's fill and its readable text are two
   // different tokens (the Digest's are). Defaults to `color`.
   textColor?: string;
+  // Holding a band down, 1.0.39.16, direct request: "the ability to long
+  // hold on a Home screen group that causes it to be able to be dragged
+  // and dropped into a new order on the screen". The band itself only
+  // reports the hold; what it means is the caller's business, which on
+  // Home is turning the whole page into the arranging list.
+  //
+  // A hold rather than a visible control on every band, because the page
+  // is read far more often than it is rearranged, and a grip handle on
+  // twelve rows would be twelve pieces of furniture in the way of the
+  // thing somebody actually came for.
+  onLongPress?: () => void;
 };
 
 type FoldProps = CommonProps & {
@@ -133,6 +149,8 @@ export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
         <TouchableOpacity
           style={styles.header}
           onPress={props.onPress}
+          onLongPress={props.onLongPress}
+          delayLongPress={LONG_PRESS_DELAY}
           activeOpacity={0.75}
           accessibilityRole="button"
           accessibilityLabel={props.value != null ? `${title}, ${props.value}` : title}
@@ -177,6 +195,8 @@ export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
       <TouchableOpacity
         style={styles.header}
         onPress={onToggle}
+        onLongPress={props.onLongPress}
+        delayLongPress={LONG_PRESS_DELAY}
         activeOpacity={0.75}
         accessibilityRole="button"
         accessibilityState={{ expanded }}

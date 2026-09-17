@@ -462,6 +462,21 @@ export type VisualPreferences = {
   // rather than reading this object directly, so that contract lives in
   // one place.
   homeSectionVisibility: Partial<Record<HomeSectionKey, boolean>>;
+  // Whether each GROUP on Home is shown at all, 1.0.39.16, direct
+  // request: a group turned off from Home itself rather than from
+  // Profile. Keyed by the group id lib/homeSections.ts hands out (a tab
+  // path, or a solo card's key behind a "solo:" prefix), and following
+  // the same "absence means visible" contract as homeSectionVisibility
+  // just above, for the same reason: a tab that gains a Home card later
+  // appears for everyone rather than starting off.
+  //
+  // A separate field rather than turning every member off, because those
+  // are two different statements. Turning off Signals says "not on my
+  // Home screen"; turning off Log a Flare says "not that one card". If a
+  // group switch wrote through to its members, turning the group back on
+  // would have to guess which cards were off for their own reasons, and
+  // it would guess wrong. Read through isHomeGroupVisible below.
+  homeGroupVisibility: Partial<Record<string, boolean>>;
   // 2026-08-21, Phase 0 of the header growth vine/Timeline plan (see the
   // Notion App Development Log, same date): whether the header's own
   // growth vine renders at all. A plain on/off rather than
@@ -589,6 +604,14 @@ export function isHomeSectionVisible(prefs: VisualPreferences, key: HomeSectionK
   return prefs.homeSectionVisibility[key] !== false;
 }
 
+// The same contract for a whole group. See homeGroupVisibility above for
+// why a group carries its own switch rather than writing through to the
+// cards inside it. The ?? guards a preference blob saved before 1.0.39.16,
+// which has no such field at all.
+export function isHomeGroupVisible(prefs: VisualPreferences, groupId: string): boolean {
+  return (prefs.homeGroupVisibility ?? {})[groupId] !== false;
+}
+
 // See homeSectionOrder's own comment above for the "absence means
 // default" contract this follows. Reconciles a saved order against
 // REORDERABLE_HOME_SECTION_KEYS' own current, real list rather than
@@ -674,6 +697,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   tabHubIcon: 'seedTall',
   groundTheme: 'teal',
   homeSectionVisibility: {},
+  homeGroupVisibility: {},
   growthVineEnabled: true,
   homeSectionOrder: [],
   homeSectionExpanded: {},
@@ -831,6 +855,7 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
           tabBackgroundStyle: { ...(parsed.tabBackgroundStyle ?? {}) },
           customBackgroundImages: { ...(parsed.customBackgroundImages ?? {}) },
           homeSectionVisibility: { ...(parsed.homeSectionVisibility ?? {}) },
+          homeGroupVisibility: { ...(parsed.homeGroupVisibility ?? {}) },
           homeSectionExpanded: { ...(parsed.homeSectionExpanded ?? {}) },
           bandExpanded: { ...(parsed.bandExpanded ?? {}) },
         };
@@ -876,6 +901,11 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
     homeSectionVisibility: update.homeSectionVisibility
       ? { ...current.homeSectionVisibility, ...update.homeSectionVisibility }
       : current.homeSectionVisibility,
+    // Same again, one level up: turning off one group should not clear
+    // what somebody decided about the other ten.
+    homeGroupVisibility: update.homeGroupVisibility
+      ? { ...current.homeGroupVisibility, ...update.homeGroupVisibility }
+      : current.homeGroupVisibility,
     // Same again -- opening one Home section shouldn't fold every other
     // one the person had left open.
     homeSectionExpanded: update.homeSectionExpanded

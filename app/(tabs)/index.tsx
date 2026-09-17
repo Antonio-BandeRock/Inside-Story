@@ -108,9 +108,9 @@ import { formatTime12 } from '../../lib/timeOfDay';
 import { dateStringOffsetFrom } from '../../lib/trendAnalysis';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import {
-  ALL_HOME_SECTION_KEYS,
   getOrderedHomeSectionKeys,
   HOME_TAB_GROUP_BAND_KEY_PREFIX,
+  isHomeGroupVisible,
   isHomeSectionExpanded,
   isHomeSectionVisible,
   modalAnimationType,
@@ -121,8 +121,11 @@ import {
 import {
   groupHomeSectionsForDisplay,
   HOME_SECTION_TAB_PATH,
+  homeGroupIdOf,
   type HomeSectionDisplayGroup,
 } from '../../lib/homeSections';
+import { homeGroupIdentity } from '../../constants/homeGroups';
+import { HomeArrangeList } from '../../components/HomeArrangeList';
 import { useVisualPreferences } from '../../hooks/useVisualPreferences';
 import { useBandFolds } from '../../hooks/useBandFolds';
 
@@ -538,32 +541,10 @@ function tabColorFor(tabPath: Href): string {
   return TAB_ROUTES.find((route) => route.path === tabPath)?.color ?? colors.border;
 }
 
-// The name, icon and colour a Home group and the cards inside it wear.
-// Ten of the eleven come straight from TAB_ROUTES, so they can never
-// drift from the tab's own. Profile is the exception: TabHub's menu puts
-// it second, right after Home, but it is a Stack screen rather than a
-// tab, and adding it to TAB_ROUTES would make it an eleventh swipeable
-// tab. So its identity is stated here, matching TabHub’s own tile
-// (components/TabHub.tsx, renderProfileTile).
-// The one group on this page whose tab is not in TAB_ROUTES. Its colour is
-// the grey TabHub gives Profile at rest, not Profile's pink identity colour,
-// 1.0.39.11: "Profile's color can't be pink, or whatever color it is. In the
-// TabHub menu, it is a grey color. I think it should stay that way on the
-// Home screen." TabHub only reaches for the pink when Profile is the tab you
-// are standing on (renderProfileTile), which is never true from Home.
-const HOME_GROUP_IDENTITY: Record<
-  string,
-  { title: string; icon: ComponentProps<typeof Ionicons>['name']; color: string }
-> = {
-  '/profile': { title: 'Profile', icon: 'person-circle', color: colors.menuIconMuted },
-};
-
-function homeGroupIdentity(tabPath: string | null | undefined) {
-  if (!tabPath) return undefined;
-  const route = TAB_ROUTES.find((r) => r.path === tabPath);
-  if (route) return { title: route.title, icon: route.icon, color: route.color };
-  return HOME_GROUP_IDENTITY[tabPath];
-}
+// The name, icon and colour a Home group and the cards inside it wear now
+// live in constants/homeGroups.ts, imported above. They moved there in
+// 1.0.39.16 because Profile lists the same groups for its own switches,
+// and a second hand-typed copy of them would drift.
 
 // The three windows Reports itself offers (DAY_RANGE_OPTIONS in
 // app/(tabs)/reports.tsx). Spelled out in words here because a Home card
@@ -939,6 +920,28 @@ export default function HomeScreen() {
   // and the rest (see HOME_TAB_GROUP_BAND_KEY_PREFIX). A group is a band
   // like any other, so it remembers its fold the same way.
   const tabGroupFolds = useBandFolds();
+
+  // Holding any band down hands the page to HomeArrangeList, 1.0.39.16:
+  // "the ability to long hold on a Home screen group that causes it to be
+  // able to be dragged and dropped into a new order on the screen and to
+  // be turned off from the Home screen". Component state on purpose, not a
+  // saved preference: what gets arranged is remembered, but being in the
+  // middle of arranging is not something to come back to tomorrow.
+  const [arranging, setArranging] = useState(false);
+
+  // Whether the page has anything left on it at all. Not just every
+  // section turned off any more: a group can be turned off whole now, so
+  // a page can empty out without a single card being switched off itself.
+  const nothingIsShowing = useMemo(
+    () =>
+      groupHomeSectionsForDisplay(getOrderedHomeSectionKeys(visualPrefs)).every((group) =>
+        group.kind === 'tab'
+          ? !isHomeGroupVisible(visualPrefs, homeGroupIdOf(group)) ||
+            group.keys.every((key) => !isHomeSectionVisible(visualPrefs, key))
+          : !isHomeSectionVisible(visualPrefs, group.key),
+      ),
+    [visualPrefs],
+  );
 
   // Built from what is actually on Home, in the order it is on Home, so the
   // menu and the page can never disagree about what exists.
@@ -1845,6 +1848,7 @@ export default function HomeScreen() {
         color={options?.color ?? identity?.color ?? colors.primary}
         expanded={isHomeSectionExpanded(visualPrefs, key)}
         onToggle={() => toggleHomeSection(key)}
+        onLongPress={() => setArranging(true)}
         contentStyle={options?.contentStyle}
       >
         {children}
@@ -2138,6 +2142,7 @@ export default function HomeScreen() {
         icon={identity?.icon ?? 'ellipse-outline'}
         color={identity?.color ?? colors.primary}
         onPress={onPress}
+        onLongPress={() => setArranging(true)}
         value={options?.value}
         valueColor={options?.valueColor}
       />
@@ -2719,6 +2724,12 @@ export default function HomeScreen() {
   // check-in that is not due, a section turned off in Profile), and a
   // band that opens onto nothing is worse than no band at all.
   function renderHomeTabGroup(group: Extract<HomeSectionDisplayGroup, { kind: 'tab' }>) {
+    // The whole group turned off from the arranging list, 1.0.39.16. A
+    // separate switch from the cards inside it on purpose: turning off
+    // "Signals" and turning off "Log a Flare" are two different things to
+    // have decided, and only one of them should survive turning the group
+    // back on. See homeGroupVisibility in lib/visualPreferences.ts.
+    if (!isHomeGroupVisible(visualPrefs, homeGroupIdOf(group))) return null;
     const identity = homeGroupIdentity(group.path);
     const members = group.keys.map((key) => ({ key, node: renderHomeSection(key) }));
     const shown = members.filter((member) => member.node !== null);
@@ -2741,6 +2752,7 @@ export default function HomeScreen() {
           color={identity?.color ?? colors.primary}
           expanded={tabGroupFolds.isOpen(foldKey)}
           onToggle={() => tabGroupFolds.toggle(foldKey)}
+          onLongPress={() => setArranging(true)}
           contentStyle={styles.homeTabGroupBody}
         >
           {shown.map((member) => (
@@ -2920,6 +2932,27 @@ export default function HomeScreen() {
             <View style={styles.loadingCard}>
               <Text style={styles.loadingText}>Loading today…</Text>
             </View>
+          ) : arranging ? (
+            // Arranging replaces the page rather than decorating it. Every
+            // card folds to its name, which is the only part that matters
+            // while deciding an order, and uniform rows are what let a drag
+            // land where the finger says it should.
+            <HomeArrangeList
+              order={getOrderedHomeSectionKeys(visualPrefs)}
+              prefs={visualPrefs}
+              onReorder={(next) => void setVisualPreferences({ homeSectionOrder: next })}
+              onToggleGroup={(groupId) =>
+                void setVisualPreferences({
+                  homeGroupVisibility: { [groupId]: !isHomeGroupVisible(visualPrefs, groupId) },
+                })
+              }
+              onToggleSection={(key) =>
+                void setVisualPreferences({
+                  homeSectionVisibility: { [key]: !isHomeSectionVisible(visualPrefs, key) },
+                })
+              }
+              onDone={() => setArranging(false)}
+            />
           ) : (
             <>
               {groupHomeSectionsForDisplay(getOrderedHomeSectionKeys(visualPrefs)).map((group) =>
@@ -2952,10 +2985,11 @@ export default function HomeScreen() {
               includes the greeting card, which used to sit outside this
               system and always stay: turning Today off is now a thing a
               person can do, so a page with nothing left on it is too. */}
-          {!loading && ALL_HOME_SECTION_KEYS.every((key) => !isHomeSectionVisible(visualPrefs, key)) ? (
+          {!loading && !arranging && nothingIsShowing ? (
             <View style={styles.allSectionsHiddenCard}>
               <Text style={styles.allSectionsHiddenText}>
-                Every section here is turned off. Head to Profile → Home Screen to turn any of them back on.
+                Every section here is turned off. Hold anywhere on this page to arrange it, and turn any of them
+                back on from there, or head to Profile → Home Screen.
               </Text>
             </View>
           ) : null}

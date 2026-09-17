@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.16',
+    date: '2026-09-16',
+    changes: [
+      'Hold down anything on Home and the page becomes a list you can arrange. Every band folds to its name, with a grip on the right to drag it somewhere else and an eye to turn it off.',
+      'Tap a group in that list and the cards inside it open up, so they can be dragged into whatever order you want. A card stays inside the group it belongs to, and a group keeps its cards with it wherever it lands.',
+      'Anything turned off stays on the list, greyed out, so the same tap puts it back. Nothing has to be hunted down in Profile to be turned on again.',
+      'A whole group can be turned off now, separately from the cards inside it. Turn the group back on and it comes back exactly as you left it, including anything you had switched off in there.',
+      'Profile > Home Screen has the same group switches, and still shows everything at once for when you want to look the whole page over.',
+    ],
+  },
+  {
     version: '1.0.39.15',
     date: '2026-09-16',
     changes: [

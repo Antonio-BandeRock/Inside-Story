@@ -130,3 +130,81 @@ export function groupHomeSectionKeysByTab(ordered: HomeSectionKey[]): HomeSectio
   }
   return [...groups.values()].flat();
 }
+
+// --- Arranging Home from Home itself, 1.0.39.16 ---
+//
+// Direct request: long hold on a group, drag it into a new order, turn it
+// off, and the same for the quick access items inside it. Everything below
+// is the arithmetic that needs, kept here with the grouping it has to stay
+// consistent with, and kept pure so scripts/test_home_sections.js can check
+// it in plain node.
+//
+// There is deliberately no second stored order for groups. A group's
+// position already IS the position of its first member in the saved section
+// order (groupHomeSectionKeysByTab), so moving a group is a rewrite of that
+// one list rather than a new field that could disagree with it. The same
+// goes for moving a card inside its group. One saved order, two ways of
+// moving through it.
+
+// The id a group is known by: its tab path, or a solo section key
+// behind a prefix so a future tab path can never collide with one. Used as
+// the key for a group's on/off switch and as the handle a drag names.
+export function homeSectionGroupId(key: HomeSectionKey): string {
+  return HOME_SECTION_TAB_PATH[key] ?? `solo:${key}`;
+}
+
+export function homeGroupIdOf(group: HomeSectionDisplayGroup): string {
+  return group.kind === 'tab' ? group.path : `solo:${group.key}`;
+}
+
+export function homeGroupMembers(group: HomeSectionDisplayGroup): HomeSectionKey[] {
+  return group.kind === 'tab' ? group.keys : [group.key];
+}
+
+// Move one entry of an array to another index, the rest closing up and
+// shifting to make room. Out-of-range indexes come back untouched rather
+// than clamped: a drag that ended outside the list did not mean anything.
+function moveWithin<T>(items: T[], fromIndex: number, toIndex: number): T[] {
+  if (fromIndex === toIndex) return items;
+  if (fromIndex < 0 || fromIndex >= items.length) return items;
+  if (toIndex < 0 || toIndex >= items.length) return items;
+  const next = [...items];
+  const [moved] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, moved);
+  return next;
+}
+
+// Drag a whole group to a new position. Its members travel with it and keep
+// their order inside it, which is the same promise Profile's up/down
+// buttons already make out loud.
+export function reorderHomeGroups(
+  ordered: HomeSectionKey[],
+  fromIndex: number,
+  toIndex: number,
+): HomeSectionKey[] {
+  const groups = groupHomeSectionsForDisplay(ordered);
+  const moved = moveWithin(groups, fromIndex, toIndex);
+  if (moved === groups) return ordered;
+  return moved.flatMap(homeGroupMembers);
+}
+
+// Drag one card to a new position inside its own group. Indexes are
+// positions among that group's members, not among all of Home, so a drag
+// can never quietly move a card out from under the name it sits beneath.
+export function reorderWithinHomeGroup(
+  ordered: HomeSectionKey[],
+  groupId: string,
+  fromIndex: number,
+  toIndex: number,
+): HomeSectionKey[] {
+  const groups = groupHomeSectionsForDisplay(ordered);
+  const index = groups.findIndex((group) => homeGroupIdOf(group) === groupId);
+  if (index === -1) return ordered;
+  const group = groups[index];
+  if (group.kind !== 'tab') return ordered;
+  const moved = moveWithin(group.keys, fromIndex, toIndex);
+  if (moved === group.keys) return ordered;
+  const next = [...groups];
+  next[index] = { kind: 'tab', path: group.path, keys: moved };
+  return next.flatMap(homeGroupMembers);
+}

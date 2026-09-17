@@ -120,6 +120,7 @@ import {
   GENERIC_PALETTE_LABELS,
   getOrderedHomeSectionKeys,
   HOME_SECTION_LABELS,
+  isHomeGroupVisible,
   isHomeSectionVisible,
   setLowStimulation,
   setVisualPreferences,
@@ -129,6 +130,8 @@ import {
   type HomeSectionKey,
   type TabHubIconChoice,
 } from '../lib/visualPreferences';
+import { groupHomeSectionsForDisplay, homeGroupIdOf } from '../lib/homeSections';
+import { homeGroupIdentity } from '../constants/homeGroups';
 
 // Every tab that gets its own revealed background image (see
 // GatedTabContent.tsx). Home is deliberately excluded, since it has no
@@ -726,6 +729,15 @@ export default function ProfileScreen() {
   // in lib/visualPreferences.ts) rather than replacing the whole map.
   function toggleHomeSection(key: (typeof ALL_HOME_SECTION_KEYS)[number]) {
     setVisualPreferences({ homeSectionVisibility: { [key]: !isHomeSectionVisible(visualPrefs, key) } });
+  }
+
+  // A whole group of Home, on or off, 1.0.39.16. Same shape one level up,
+  // through homeGroupVisibility rather than homeSectionVisibility, and
+  // deliberately not writing through to the cards inside: see that field's
+  // own comment in lib/visualPreferences.ts for why a group switch that
+  // wrote through could not put things back the way it found them.
+  function toggleHomeGroup(groupId: string) {
+    setVisualPreferences({ homeGroupVisibility: { [groupId]: !isHomeGroupVisible(visualPrefs, groupId) } });
   }
 
   // Home Screen order, 2026-08-23, direct request: "they should be able
@@ -3471,6 +3483,48 @@ export default function ProfileScreen() {
               changes what Home displays; nothing here is deleted, and any section can be turned back on any
               time.
             </Text>
+            {/* Since 1.0.39.16 all of this is reachable from Home itself:
+                holding any band there turns the page into the same list,
+                with a grip to drag and an eye to switch. Said here so
+                nobody has to find it by accident. This card stays the
+                place to see everything at once. */}
+            <Text style={styles.helpText}>
+              You can also do all of this on Home. Hold down any band there and the page becomes a list you
+              can drag into order and switch things off from.
+            </Text>
+
+            {/* Groups, 1.0.39.16: "maybe we have each group be turned on
+                and off from the Home group?" One switch for a whole tab's
+                worth of Home, separate from the cards inside it, so
+                turning a group back on restores exactly what was showing
+                before rather than guessing. */}
+            <Text style={styles.subLabelDivided}>Groups</Text>
+            <Text style={styles.helpText}>
+              Each of these is one tab’s worth of Home. Turning a group off hides the whole band; whatever
+              you had chosen about the cards inside it is remembered and comes back with it.
+            </Text>
+            <View style={styles.pillRow}>
+              {groupHomeSectionsForDisplay(getOrderedHomeSectionKeys(visualPrefs))
+                .filter((group) => group.kind === 'tab')
+                .map((group) => {
+                  const groupId = homeGroupIdOf(group);
+                  const identity = group.kind === 'tab' ? homeGroupIdentity(group.path) : undefined;
+                  const shown = isHomeGroupVisible(visualPrefs, groupId);
+                  return (
+                    <TouchableOpacity
+                      key={groupId}
+                      style={[styles.pill, shown && styles.pillActive]}
+                      onPress={() => toggleHomeGroup(groupId)}
+                    >
+                      <Text style={[styles.pillText, shown && styles.pillTextActive]}>
+                        {identity?.title ?? 'More'}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+            </View>
+
+            <Text style={styles.subLabelDivided}>Cards</Text>
             <View style={styles.pillRow}>
               {ALL_HOME_SECTION_KEYS.map((key) => {
                 const shown = isHomeSectionVisible(visualPrefs, key);
