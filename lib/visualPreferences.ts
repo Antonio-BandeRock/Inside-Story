@@ -35,6 +35,16 @@ import type { GroundTheme } from '../constants/colors';
 import type { DigestCategoryKey } from './digest';
 import { getDatabase } from './db';
 import { groupHomeSectionKeysByTab } from './homeSections';
+import {
+  DEFAULT_LETTER_SPACING,
+  DEFAULT_LINE_SPACING,
+  isLetterSpacingKey,
+  isLineSpacingKey,
+  normalizeLetterSpacing,
+  normalizeLineSpacing,
+  type LetterSpacingKey,
+  type LineSpacingKey,
+} from './textSpacing';
 
 // 2026-08-09: gained 'custom' -- a real, user-uploaded image, added
 // explicitly alongside the existing three. See customBackgroundImages
@@ -565,6 +575,27 @@ export type VisualPreferences = {
   // and in every band folds shut, since an override there would lock the
   // screen closed and leave no way to read anything.
   lowStimulation: boolean;
+  // 2026-09-17: how much room the lines of text get, which is the one
+  // thing the phone's own accessibility font-size setting does not
+  // change. Turn the font up on a phone and the lines get taller with
+  // it, so the ratio of gap to letter stays exactly where it was. See
+  // lib/textSpacing.ts for the ratios and why 1.5 is the one with a
+  // standard behind it.
+  //
+  // Reaches the app the same way groundTheme does, through a mirror
+  // file read synchronously at module load (getLineSpacingSync below),
+  // because constants/typography.ts bakes the line height into the type
+  // scale that every screen builds its StyleSheet from, and a
+  // StyleSheet.create has already run by the time any preference can be
+  // loaded asynchronously. Changing it restarts the app, exactly as
+  // changing the ground color does, for exactly the same reason.
+  lineSpacing: LineSpacingKey;
+  // 2026-09-17: the space between the letters of a word, which is the
+  // setting of the two with a randomized trial behind it rather than a
+  // standard alone (Zorzi, PNAS 2012, see lib/textSpacing.ts). Same
+  // mirror-file mechanism and same restart as lineSpacing above, for the
+  // same reason: the type scale is built once, at module load.
+  letterSpacing: LetterSpacingKey;
   hasSeenTabHubWelcome: boolean;
   // Set the first time the TabHub button is actually tapped. Tapping is the
   // only thing that clears the pointer: dismissing the welcome does not, since
@@ -713,6 +744,8 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   homeSectionExpanded: {},
   bandExpanded: {},
   lowStimulation: false,
+  lineSpacing: DEFAULT_LINE_SPACING,
+  letterSpacing: DEFAULT_LETTER_SPACING,
   hasSeenTabHubWelcome: false,
   hasUsedTabHub: false,
 };
@@ -804,6 +837,73 @@ function isGroundTheme(value: string): value is GroundTheme {
   return (GROUND_THEME_KEYS as readonly string[]).includes(value);
 }
 
+// The same synchronous read, for the same reason, for line spacing.
+// constants/typography.ts calls this at module load, before anything
+// async has had a chance to run, and every screen then builds its
+// StyleSheet from the type scale that comes back. A missing or
+// unreadable mirror falls back to Normal, which is what a fresh install
+// shows anyway, so the worst case is one launch at the default spacing
+// and it corrects itself as soon as getVisualPreferences() runs.
+export function getLineSpacingSync(): LineSpacingKey {
+  try {
+    const file = lineSpacingMirrorFile();
+    if (file.exists) {
+      const value = file.textSync().trim();
+      if (isLineSpacingKey(value)) return value;
+    }
+  } catch {
+    // Falls back below, same as every other not-yet-loaded case here.
+  }
+  return DEFAULT_LINE_SPACING;
+}
+
+const LINE_SPACING_MIRROR_FILE_NAME = 'line_spacing_mirror.txt';
+function lineSpacingMirrorFile(): File {
+  return new File(Paths.document, LINE_SPACING_MIRROR_FILE_NAME);
+}
+
+// Best effort, like writeGroundThemeMirror below: a failure to write the
+// mirror must never take down a load or a save, since the authoritative
+// value is the one in app_meta.
+function writeLineSpacingMirror(spacing: LineSpacingKey) {
+  try {
+    lineSpacingMirrorFile().write(spacing);
+  } catch {
+    // Next cold launch falls back to Normal, no different from the
+    // mirror file never having existed.
+  }
+}
+
+// And again for letter spacing. Its own file rather than one file
+// holding both, so a half-written or corrupted mirror can only cost one
+// setting for one launch instead of both.
+export function getLetterSpacingSync(): LetterSpacingKey {
+  try {
+    const file = letterSpacingMirrorFile();
+    if (file.exists) {
+      const value = file.textSync().trim();
+      if (isLetterSpacingKey(value)) return value;
+    }
+  } catch {
+    // Falls back below, same as every other not-yet-loaded case here.
+  }
+  return DEFAULT_LETTER_SPACING;
+}
+
+const LETTER_SPACING_MIRROR_FILE_NAME = 'letter_spacing_mirror.txt';
+function letterSpacingMirrorFile(): File {
+  return new File(Paths.document, LETTER_SPACING_MIRROR_FILE_NAME);
+}
+
+function writeLetterSpacingMirror(spacing: LetterSpacingKey) {
+  try {
+    letterSpacingMirrorFile().write(spacing);
+  } catch {
+    // Next cold launch falls back to Normal, no different from the
+    // mirror file never having existed.
+  }
+}
+
 const GROUND_THEME_MIRROR_FILE_NAME = 'ground_theme_mirror.txt';
 function groundThemeMirrorFile(): File {
   return new File(Paths.document, GROUND_THEME_MIRROR_FILE_NAME);
@@ -868,6 +968,12 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
           homeGroupVisibility: { ...(parsed.homeGroupVisibility ?? {}) },
           homeSectionExpanded: { ...(parsed.homeSectionExpanded ?? {}) },
           bandExpanded: { ...(parsed.bandExpanded ?? {}) },
+          // Normalized rather than spread straight through, because a
+          // value written by a later version of the app has to come back
+          // as Normal here rather than as a key the type scale cannot
+          // turn into a line height.
+          lineSpacing: normalizeLineSpacing(parsed.lineSpacing),
+          letterSpacing: normalizeLetterSpacing(parsed.letterSpacing),
         };
       } catch {
         // A corrupted/unparseable blob falls back to defaults rather than
@@ -883,6 +989,8 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
     // already had a groundTheme saved before this mirror existed picks
     // it up the first time this async load runs, not just from then on.
     writeGroundThemeMirror(loaded.groundTheme);
+    writeLineSpacingMirror(loaded.lineSpacing);
+    writeLetterSpacingMirror(loaded.letterSpacing);
     return loaded;
   })();
 
@@ -927,6 +1035,8 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
   cached = merged;
   // 2026-08-27 -- see getGroundThemeSync's own header comment.
   writeGroundThemeMirror(merged.groundTheme);
+  writeLineSpacingMirror(merged.lineSpacing);
+  writeLetterSpacingMirror(merged.letterSpacing);
   const db = await getDatabase();
   const now = new Date().toISOString();
   await db.runAsync(

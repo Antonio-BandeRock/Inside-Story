@@ -6,6 +6,11 @@ import { normalizeSupplementAmount } from './supplementUnits';
 import { isAlcoholicFood } from './alcoholAdvisory';
 import { isCoffeeFood } from './coffeeAdvisory';
 import { isJuiceFood } from './juiceAdvisory';
+import {
+  isNeuroProfileKey,
+  normalizeNeuroProfileKeys,
+  type NeuroProfileKey,
+} from './neuroProfile';
 import { analyzeNutrientIntake, NutrientGapEntry, sumFoodNutrientTotals } from './nutrientAnalysis';
 import { ACTIVITY_LEVELS, ActivityLevel } from './energyNeeds';
 import { isFlaggedTier, tierSeverity } from './sixDimensionsReference';
@@ -5652,6 +5657,26 @@ async function runDatabaseInitialization() {
       -- they need, matching the direct "they might have multiple" request.
       CREATE TABLE IF NOT EXISTS user_food_allergies (
         allergen_name TEXT PRIMARY KEY,
+        added_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- Autism, ADHD and dyslexia, 2026-09-17, by direct instruction:
+      -- "can be listed in the profile the same way that food alergies
+      -- are listed... Not as tracked conditions." So this is shaped
+      -- exactly like user_food_allergies above and deliberately NOT
+      -- like user_conditions: nothing in here ever reaches food
+      -- scoring, the meal generator, or any advisory. What it reaches
+      -- is settings, listed in lib/neuroProfile.ts, every one of which
+      -- is also reachable by hand without listing anything here.
+      --
+      -- profile_key IS the primary key, the same natural-key pattern
+      -- user_food_allergies and user_conditions both use. The values
+      -- are the three in ALL_NEURO_PROFILE_KEYS and nothing else.
+      -- normalizeNeuroProfileKeys() drops anything this version of the
+      -- app does not know, so a row written by a later version comes
+      -- back as absent rather than as a key nothing can render.
+      CREATE TABLE IF NOT EXISTS user_neuro_profile (
+        profile_key TEXT PRIMARY KEY,
         added_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
@@ -16863,6 +16888,35 @@ export async function addFoodAllergy(rawName: string): Promise<void> {
 export async function removeFoodAllergy(name: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM user_food_allergies WHERE allergen_name = ?', name);
+}
+
+// Autism, ADHD and dyslexia. The comment on user_neuro_profile above
+// carries the reasoning for why these are shaped like allergies and
+// not like tracked conditions. Same three-function shape as the
+// allergy accessors directly above, working with the profile key
+// itself because, as there, the key is the row.
+//
+// The read goes through normalizeNeuroProfileKeys rather than handing
+// back whatever is in the table, so an unknown key cannot travel any
+// further into the app than this function, and the order is always the
+// listed one regardless of which was added first.
+export async function listNeuroProfile(): Promise<NeuroProfileKey[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ profile_key: string }>(
+    'SELECT profile_key FROM user_neuro_profile',
+  );
+  return normalizeNeuroProfileKeys(rows.map((row) => row.profile_key));
+}
+
+export async function addNeuroProfile(key: NeuroProfileKey): Promise<void> {
+  if (!isNeuroProfileKey(key)) return;
+  const db = await getDatabase();
+  await db.runAsync('INSERT OR IGNORE INTO user_neuro_profile (profile_key) VALUES (?)', key);
+}
+
+export async function removeNeuroProfile(key: NeuroProfileKey): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM user_neuro_profile WHERE profile_key = ?', key);
 }
 
 // Whether a "HH:mm" time falls inside [windowStart, windowEnd) -- handles a

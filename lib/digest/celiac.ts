@@ -307,7 +307,7 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
       { source: 'Association of ADHD and Celiac Disease: What Is the Evidence?, Journal of Attention Disorders', url: 'https://chadd.org/adhd-weekly/gluten-free-for-adhd-check-the-research/' },
     ],
     overallTier: 'weak',
-    relatedIds: ['celiac-depression-anxiety-mental-health', 'mentalhealth-adhd-dietary-triggers', 'mentalhealth-adhd-ocd-diet-does-not-cause'],
+    relatedIds: ['celiac-depression-anxiety-mental-health', 'mentalhealth-adhd-dietary-triggers', 'mentalhealth-adhd-ocd-diet-does-not-cause', 'celiac-adhd-crossover', 'neuro-crossover-with-tracked-conditions'],
   },
   {
     id: 'celiac-iceberg-underdiagnosis',

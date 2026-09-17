@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Updates from 'expo-updates';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { AppTextInput } from '../components/AppTextInput';
@@ -58,6 +58,35 @@ import {
   setReminderKindEnabled,
   type ReminderKindKey,
 } from '../lib/reminderPreferences';
+import {
+  ALL_NEURO_PROFILE_KEYS,
+  describeTurnedOn,
+  NEURO_PROFILE_CAPTIONS,
+  NEURO_PROFILE_HEADING,
+  NEURO_PROFILE_INTRO,
+  NEURO_PROFILE_LABELS,
+  NEURO_PROFILE_NOT_A_CONDITION,
+  NEURO_PROFILE_STAYS_HERE,
+  NEURO_SUPPORT_DETAILS,
+  NEURO_SUPPORT_LABELS,
+  NEURO_SUPPORT_REMINDER_KINDS,
+  supportsFor,
+  type NeuroProfileKey,
+  type NeuroSupportKey,
+} from '../lib/neuroProfile';
+import {
+  ALL_LETTER_SPACING_KEYS,
+  ALL_LINE_SPACING_KEYS,
+  LETTER_SPACING_CAPTIONS,
+  LETTER_SPACING_LABELS,
+  LINE_SPACING_CAPTIONS,
+  LINE_SPACING_LABELS,
+  TEXT_SIZE_EXPLANATION,
+  TEXT_SIZE_HEADING,
+  textSizeWhereToLook,
+  type LetterSpacingKey,
+  type LineSpacingKey,
+} from '../lib/textSpacing';
 import { USDA_ZONES } from '../lib/gardenZones';
 import {
   CUSTOM_BACKGROUND_MAX_DIMENSION,
@@ -84,11 +113,14 @@ import {
   listAllConditions,
   listBodyMeasurements,
   listFoodAllergies,
+  listNeuroProfile,
   listSymptomAssessments,
   markConcernAlreadyTested,
   markConcernNotTested,
   recordBodyMeasurement,
+  addNeuroProfile,
   removeFoodAllergy,
+  removeNeuroProfile,
   reopenFoodTrial,
   setConditionStage,
   setCuriousAboutConditionSelected,
@@ -358,6 +390,7 @@ const ALL_APPEARANCE_SUBSECTION_KEYS = [
   'individualTabBackgrounds',
   'genericPalette',
   'groundColor',
+  'textSpacing',
 ] as const;
 type AppearanceSubsectionKey = (typeof ALL_APPEARANCE_SUBSECTION_KEYS)[number];
 
@@ -792,6 +825,10 @@ export default function ProfileScreen() {
   // than one. allergyInput is the free-text "add a new one" field;
   // foodAllergies is the loaded/committed list.
   const [foodAllergies, setFoodAllergies] = useState<string[]>([]);
+  // Autism, ADHD and dyslexia. Held exactly like foodAllergies above: a
+  // plain list of what is listed, nothing derived, nothing that reaches
+  // scoring. What it drives is which settings get offered.
+  const [neuroProfile, setNeuroProfile] = useState<NeuroProfileKey[]>([]);
   const [allergyInput, setAllergyInput] = useState('');
 
   // Condition stages, 2026-08-09, the generalized, multi-condition
@@ -1070,6 +1107,7 @@ export default function ProfileScreen() {
       getDietPreferences(),
       listBodyMeasurements('weight', 1),
       listFoodAllergies(),
+      listNeuroProfile(),
       getConditionStages(),
       getUserNutrientTargets(),
       getDietaryReferenceIntakesForCurrentUser(),
@@ -1084,6 +1122,7 @@ export default function ProfileScreen() {
         storedDietPreferences,
         weightReadings,
         storedAllergies,
+        storedNeuroProfile,
         storedConditionStages,
         storedNutrientTargets,
         storedDriRows,
@@ -1097,6 +1136,7 @@ export default function ProfileScreen() {
       setCuriousAboutConditions(storedCuriousAbout);
       setDietPreferences(storedDietPreferences as RecipeDietTag[]);
       setFoodAllergies(storedAllergies);
+      setNeuroProfile(storedNeuroProfile);
       setConditionStageMap(storedConditionStages);
       setNutrientTargets(storedNutrientTargets);
       setNutrientDriRows(storedDriRows);
@@ -1408,6 +1448,149 @@ export default function ProfileScreen() {
   async function removeAllergy(name: string) {
     await removeFoodAllergy(name);
     setFoodAllergies((current) => current.filter((allergy) => allergy !== name));
+  }
+  // Autism, ADHD and dyslexia, 2026-09-17.
+  //
+  // Turning one ON is two separate acts, kept separate on purpose. Listing
+  // it is the first, and is all that gets stored. Switching on the settings
+  // that go with it is the second, and is offered rather than done: the
+  // sheet names every setting and what it does, and "Just list it" is a
+  // full answer that stores the listing and changes nothing on screen. A
+  // setting that turns itself on without saying so is the thing this is
+  // built to avoid.
+  //
+  // Turning one OFF removes the listing and deliberately switches NOTHING
+  // back off. By then the quieter Home and the reminders are settings
+  // somebody is using, and taking them away because a label changed would
+  // undo a choice nobody made. Each one goes off where it lives, and the
+  // help text on screen says so.
+  async function applyNeuroSupports(supports: NeuroSupportKey[]): Promise<boolean> {
+    let needsRestart = false;
+
+    if (supports.includes('captureInbox')) {
+      // Absence already means visible in homeSectionVisibility, so this
+      // matters only for somebody who had switched the row off.
+      await setVisualPreferences({ homeSectionVisibility: { captureInbox: true } });
+    }
+
+    if (supports.includes('roomyText') && visualPrefs.lineSpacing === 'normal') {
+      // Only when it is still at the default. Somebody already on Roomier
+      // should not be quietly moved back down a step.
+      await setVisualPreferences({ lineSpacing: 'roomy' });
+      needsRestart = true;
+    }
+
+    let touchedReminders = false;
+    for (const support of supports) {
+      for (const kind of NEURO_SUPPORT_REMINDER_KINDS[support] ?? []) {
+        await setReminderKindEnabled(kind, true);
+        touchedReminders = true;
+      }
+    }
+    if (touchedReminders) await syncReminderNotifications();
+
+    // Last, because it folds Home shut, and anything written after it
+    // would be writing into a screen that has just rearranged itself.
+    if (supports.includes('lowStimulation')) {
+      await setLowStimulation(true);
+    }
+
+    return needsRestart;
+  }
+
+  async function toggleNeuroProfile(key: NeuroProfileKey) {
+    if (neuroProfile.includes(key)) {
+      await removeNeuroProfile(key);
+      setNeuroProfile((current) => current.filter((listed) => listed !== key));
+      flashSaved();
+      return;
+    }
+
+    // What would newly come on, not everything this one asks for: with
+    // Autism already listed, adding ADHD should offer the two reminder
+    // kinds it adds rather than re-offering the inbox that is already there.
+    const already = supportsFor(neuroProfile);
+    const added = supportsFor([...neuroProfile, key]).filter(
+      (support) => !already.includes(support),
+    );
+
+    await addNeuroProfile(key);
+    setNeuroProfile((current) => [...current, key]);
+    flashSaved();
+
+    if (added.length === 0) return;
+
+    const lines = added.map(
+      (support) => `${NEURO_SUPPORT_LABELS[support]}. ${NEURO_SUPPORT_DETAILS[support]}`,
+    );
+    if (added.includes('roomyText') && visualPrefs.lineSpacing === 'normal') {
+      lines.push('Line spacing restarts the app for a moment so it reaches every screen.');
+    }
+
+    const ok = await confirmBackup({
+      title: `Turn these on for ${NEURO_PROFILE_LABELS[key]}?`,
+      message: `${lines.join('\n\n')}\n\nNone of this changes a food score. You can switch any of it off later, and you can set any of it by hand without listing anything here.`,
+      confirmLabel: 'Turn them on',
+      cancelLabel: 'Just list it',
+    });
+    if (!ok) return;
+
+    const needsRestart = await applyNeuroSupports(added);
+    if (needsRestart) {
+      showBusy('Applying...');
+      try {
+        await Updates.reloadAsync();
+      } catch (error) {
+        console.error('Updates.reloadAsync failed after a line spacing change', error);
+        hideBusy();
+        showBackupAlert(
+          'Saved',
+          'Everything is turned on, but this device could not restart the app automatically. Close and reopen Inside Story to see the roomier line spacing everywhere.',
+        );
+      }
+      return;
+    }
+    showBackupAlert(NEURO_PROFILE_LABELS[key], describeTurnedOn(added));
+  }
+
+  // The same line spacing setting reached directly, from Appearance.
+  // Restarts for the same reason the ground colour does: constants/
+  // typography.ts reads it once, synchronously, at module load, and every
+  // screen has built its StyleSheet from it before any async load could
+  // have finished.
+  async function handleSelectLineSpacing(next: LineSpacingKey) {
+    if (next === visualPrefs.lineSpacing) return;
+    showBusy('Applying...');
+    await setVisualPreferences({ lineSpacing: next });
+    try {
+      await Updates.reloadAsync();
+    } catch (error) {
+      console.error('Updates.reloadAsync failed after a line spacing change', error);
+      hideBusy();
+      showBackupAlert(
+        'Saved',
+        'Your line spacing is saved, but this device could not restart the app automatically. Close and reopen Inside Story to see it everywhere.',
+      );
+    }
+  }
+
+  // The other half of the same setting, and the same restart, for the
+  // same reason: constants/typography.ts reads both of these once,
+  // synchronously, at module load.
+  async function handleSelectLetterSpacing(next: LetterSpacingKey) {
+    if (next === visualPrefs.letterSpacing) return;
+    showBusy('Applying...');
+    await setVisualPreferences({ letterSpacing: next });
+    try {
+      await Updates.reloadAsync();
+    } catch (error) {
+      console.error('Updates.reloadAsync failed after a letter spacing change', error);
+      hideBusy();
+      showBackupAlert(
+        'Saved',
+        'Your letter spacing is saved, but this device could not restart the app automatically. Close and reopen Inside Story to see it everywhere.',
+      );
+    }
   }
 
   // Condition stages: one row per condition; passing null clears that
@@ -2724,6 +2907,58 @@ export default function ProfileScreen() {
               </View>
             ) : null}
 
+            {/* Autism, ADHD and dyslexia, 2026-09-17, direct instruction:
+                "The two, Autism, and ADHD can be listed in the profile the
+                same way that food alergies are listed, and even Dyslexia
+                could be listed there too, and they then trigger the
+                additional settings for them... Not as tracked conditions."
+                So it sits here, under Food allergies, in the same pill
+                shape, and reads from its own user_neuro_profile table
+                (lib/db.ts) that nothing in food scoring ever touches. The
+                rules are in lib/neuroProfile.ts; every word shown here
+                comes from that file so the app says the same thing about
+                these three wherever they come up. */}
+            <Text style={styles.subLabelDivided}>{NEURO_PROFILE_HEADING}</Text>
+            <Text style={styles.helpText}>{NEURO_PROFILE_INTRO}</Text>
+            <View style={styles.pillRow}>
+              {ALL_NEURO_PROFILE_KEYS.map((key) => {
+                const active = neuroProfile.includes(key);
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    style={[styles.pill, active && styles.pillActive]}
+                    onPress={() => toggleNeuroProfile(key)}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>
+                      {NEURO_PROFILE_LABELS[key]}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            {neuroProfile.map((key) => (
+              <Text key={key} style={styles.derivedText}>
+                {NEURO_PROFILE_LABELS[key]}: {NEURO_PROFILE_CAPTIONS[key]}
+              </Text>
+            ))}
+            {neuroProfile.length > 0 ? (
+              <Text style={styles.helpText}>
+                Taking one back off removes it from this list and leaves the settings alone. Anything you
+                turned on stays on until you switch it off where it lives, because by then it is a setting
+                you are using rather than something attached to a label.
+              </Text>
+            ) : null}
+            <Text style={styles.helpText}>{NEURO_PROFILE_NOT_A_CONDITION}</Text>
+            <Text style={styles.helpText}>{NEURO_PROFILE_STAYS_HERE}</Text>
+            <TouchableOpacity
+              style={styles.checkinButton}
+              onPress={() =>
+                router.push({ pathname: '/purple-digest', params: { openEntryId: 'neuro-overview' } })
+              }
+            >
+              <Text style={styles.checkinButtonText}>Read what the research says</Text>
+            </TouchableOpacity>
+
             {selectedConditions.includes('hashimotos') ? (
               <>
                 <Text style={styles.subLabelDivided}>Where you’re at</Text>
@@ -3804,6 +4039,71 @@ export default function ProfileScreen() {
                     );
                   })}
                 </View>
+              </>
+            ) : null}
+
+            {/* Text size and spacing, 2026-09-17. Two halves that get
+                confused for each other, so they are shown together and
+                named apart. Text SIZE is the phone’s setting and has
+                always worked here: this app follows it everywhere and
+                never turns it off, so the job is telling somebody it is
+                there. Line SPACING is the part the phone does not touch,
+                because turning the size up moves the lines apart by the
+                same factor and the ratio of gap to letter never changes.
+                See lib/textSpacing.ts for where 1.5 comes from. */}
+            {renderAppearanceSubsectionHeader('textSpacing', 'Text size and spacing', false)}
+            {!collapsedAppearanceSubsections.has('textSpacing') ? (
+              <>
+                <Text style={styles.helpText}>
+                  How much room the lines of text get, and how much room the letters of a word get. Both are separate
+                  from text size, which your phone sets. Picking a new one restarts the app for a moment to apply it
+                  everywhere.
+                </Text>
+                <PickerField label="Line spacing">
+                  <PopoverSelect
+                    options={ALL_LINE_SPACING_KEYS.map((key) => LINE_SPACING_LABELS[key])}
+                    selected={LINE_SPACING_LABELS[visualPrefs.lineSpacing]}
+                    minWidth={150}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={(label) => {
+                      const picked = ALL_LINE_SPACING_KEYS.find(
+                        (key) => LINE_SPACING_LABELS[key] === label,
+                      );
+                      if (picked) void handleSelectLineSpacing(picked);
+                    }}
+                  />
+                </PickerField>
+                <Text style={styles.derivedText}>
+                  {LINE_SPACING_CAPTIONS[visualPrefs.lineSpacing]}
+                </Text>
+                {/* Letter spacing, the second of the two. Kept under line
+                    spacing rather than above it because more people know
+                    what line spacing is, and this one reads as a stranger
+                    thing to want until you have seen what it does. It is
+                    the one with the randomized trial behind it, which is
+                    what the caption underneath says. */}
+                <PickerField label="Letter spacing">
+                  <PopoverSelect
+                    options={ALL_LETTER_SPACING_KEYS.map((key) => LETTER_SPACING_LABELS[key])}
+                    selected={LETTER_SPACING_LABELS[visualPrefs.letterSpacing]}
+                    minWidth={150}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={(label) => {
+                      const picked = ALL_LETTER_SPACING_KEYS.find(
+                        (key) => LETTER_SPACING_LABELS[key] === label,
+                      );
+                      if (picked) void handleSelectLetterSpacing(picked);
+                    }}
+                  />
+                </PickerField>
+                <Text style={styles.derivedText}>
+                  {LETTER_SPACING_CAPTIONS[visualPrefs.letterSpacing]}
+                </Text>
+                <Text style={styles.subLabelDivided}>{TEXT_SIZE_HEADING}</Text>
+                <Text style={styles.helpText}>{TEXT_SIZE_EXPLANATION}</Text>
+                <Text style={styles.derivedText}>{textSizeWhereToLook(Platform.OS)}</Text>
               </>
             ) : null}
           </View>

@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.23',
+    date: '2026-09-17',
+    changes: [
+      'Autism, ADHD and dyslexia can now be listed in Profile, the same way a food allergy is listed. They are not conditions the app tracks or scores, and nothing about your food changes because one is listed. What listing one does is switch on the settings that tend to help, so you do not have to go and find them one at a time.',
+      'Listing autism turns on the calmer screen, plain wording, and the quieter reminders. Listing ADHD turns on one thing at a time and the reminders that keep asking. Listing dyslexia opens the lines of text out. Every one of those is still a switch of its own, so anything that turns out not to suit you can go straight back off and stays off.',
+      'Letter spacing sits beside line spacing in Profile now, under Appearance. Wide is the spacing the accessibility standard asks for, and it is the one with a trial behind it: doubling the space between letters had dyslexic children reading about a tenth faster and making about half the errors, with no practice and no training. Wider goes past that for when the letters still crowd each other. The app restarts for a moment to apply it everywhere.',
+      'The Digest has a new Basic Health topic covering all three, in six parts: what they are and why they are in a food app at all, autism and eating, ADHD and eating, dyslexia and reading, what tends to come with them, and the words used here. It says plainly, more than once, that food does not treat any of the three, and the trials that found nothing are written up beside the ones that found something.',
+      'Where any of the three touches one of the 19 conditions the app does track, that condition now carries its own entry saying what is actually known. Celiac and ADHD symptoms, thyroid antibodies in pregnancy, the family clustering of ADHD and autoimmune disease, and the shared ground between a restricted diet and a narrow one are all in there, each filed under the condition it belongs to rather than in one pile.',
+      'The ADHD and diet entry under Mental Health was rewritten to report the pooled picture rather than its two strongest trials. The honest number is small: across 10 studies of restriction diets and 24 of food colours, the average effect is modest, and the 64% figure that gets quoted is the share who responded inside one trial, not the share of children who would respond. A specific child can still be one of them.',
+    ],
+  },
+  {
     version: '1.0.39.22',
     date: '2026-09-17',
     changes: [
@@ -1271,7 +1283,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.34.1',
     date: '2026-09-05',
     changes: [
-      'Life has its first area: Finances. Four sections behind one lens — Overview, Bills & Income, Spending, and Coming Up.',
+      'Life has its first area: Finances. Four sections behind one lens: Overview, Bills & Income, Spending, and Coming Up.',
       'Bills & Income is what is supposed to happen each month; Spending is what actually did. Overview puts them side by side, because whether they match is the real question.',
       'Groceries you priced in the shop and therapy sessions you costed are counted automatically. They are read from where they already live rather than copied, so fixing a grocery price fixes it everywhere. Do not enter them twice.',
       'Weekly bills are counted at 4.33 a month, not 4, and every-two-weeks at 26 payments a year rather than 24. Those are the real numbers, and using the round ones is how a budget quietly runs short by a month a year.',

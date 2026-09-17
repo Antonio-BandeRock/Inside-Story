@@ -13,27 +13,78 @@
 // eyebrow tier by letter-spacing), which is what establishes hierarchy now
 // -- weight no longer does, anywhere. Do not reintroduce a bold weight
 // here or override one in a screen's own StyleSheet.
+import { letterSpacingFor, lineHeightFor } from '../lib/textSpacing';
+import { getLetterSpacingSync, getLineSpacingSync } from '../lib/visualPreferences';
+
+// 2026-09-17: line spacing, the one readability lever the phone does not
+// already pull. Text SIZE has always worked here (React Native scales
+// with the phone's accessibility font-size setting and this app never
+// turns that off), but turning the size up moves the lines apart by the
+// same factor, so the ratio of gap to letter never changes. For somebody
+// who loses their place between lines, the ratio was the problem.
+//
+// Applied here, once, rather than at each of the roughly a hundred call
+// sites, because this is the one object every screen builds its text
+// styles from. At the Normal setting lineHeightFor returns null and each
+// tier below is the exact object it was before this existed, with no
+// lineHeight key at all, so the default look is untouched and a font is
+// left to pick its own line height rather than being handed a guess.
+//
+// Read synchronously at module load for the same reason the ground
+// colour is (see getGroundThemeSync's comment in lib/visualPreferences.ts):
+// every screen runs StyleSheet.create at import time, long before any
+// async preference load can finish, so changing this setting restarts the
+// app the way changing the ground colour does.
+const lineSpacing = getLineSpacingSync();
+
+// 2026-09-17: and letter spacing, read the same way for the same reason.
+// This is the one of the two with a randomized trial behind it: doubling
+// the space between letters had dyslexic children reading about 10% faster
+// with roughly half the errors, with no training at all (Zorzi, PNAS 2012,
+// see lib/textSpacing.ts). The mechanism is crowding, which is about how
+// close a letter's neighbours sit rather than about the reader.
+const letterSpacing = getLetterSpacingSync();
+
+// At Normal both helpers answer null and the tier below is the exact object
+// it was before either setting existed, with no lineHeight and no
+// letterSpacing key added, so the default look is untouched.
+//
+// The eyebrow tier is the one style here that already carries a
+// letterSpacing of its own, and it is passed in as the base so the setting
+// ADDS to it. Replacing it would make a 10px structural label come out
+// tighter than it is today at the Wide setting, which is backwards.
+function spaced<T extends { fontSize: number; letterSpacing?: number }>(
+  style: T,
+): T & { lineHeight?: number; letterSpacing?: number } {
+  const lineHeight = lineHeightFor(style.fontSize, lineSpacing);
+  const tracking = letterSpacingFor(style.fontSize, letterSpacing, style.letterSpacing ?? 0);
+  let next: T & { lineHeight?: number; letterSpacing?: number } = style;
+  if (lineHeight !== null) next = { ...next, lineHeight };
+  if (tracking !== null) next = { ...next, letterSpacing: tracking };
+  return next;
+}
+
 export const typography = {
   // The page title in ScreenHeader -- the single biggest, boldest text on
   // any screen, so the eye always finds "what page am I on" first.
-  screenTitle: { fontSize: 20, fontWeight: '400' as const },
+  screenTitle: spaced({ fontSize: 20, fontWeight: '400' as const }),
 
   // A card or major section's own heading (a form card's title, a domain
   // name, "Favorites"/"Templates").
-  sectionTitle: { fontSize: 17, fontWeight: '400' as const },
+  sectionTitle: spaced({ fontSize: 17, fontWeight: '400' as const }),
 
   // A smaller heading nested inside a section, or a list row's primary
   // text (a meal name, a favorite's name, a field label).
-  label: { fontSize: 14, fontWeight: '400' as const },
+  label: spaced({ fontSize: 14, fontWeight: '400' as const }),
 
   // Regular readable paragraph/description text.
-  body: { fontSize: 14, fontWeight: '400' as const },
-  bodyEmphasis: { fontSize: 14, fontWeight: '400' as const },
+  body: spaced({ fontSize: 14, fontWeight: '400' as const }),
+  bodyEmphasis: spaced({ fontSize: 14, fontWeight: '400' as const }),
 
   // Secondary/supporting text -- meta lines, table cell values, helper
   // text. True content, but not the primary thing being scanned.
-  caption: { fontSize: 12, fontWeight: '400' as const },
-  captionEmphasis: { fontSize: 12, fontWeight: '400' as const },
+  caption: spaced({ fontSize: 12, fontWeight: '400' as const }),
+  captionEmphasis: spaced({ fontSize: 12, fontWeight: '400' as const }),
 
   // The smallest tier -- table column headers, eyebrow labels above a
   // section, footer notes. Small + bold + letter-spacing so it still reads
@@ -44,7 +95,7 @@ export const typography = {
   // shared style nearly every header/label in the app builds on, so
   // fixing it here covers all of them at once rather than hunting down
   // each individual usage.
-  eyebrow: { fontSize: 10, fontWeight: '400' as const, letterSpacing: 0.4 },
+  eyebrow: spaced({ fontSize: 10, fontWeight: '400' as const, letterSpacing: 0.4 }),
 } as const;
 
 // A subtle drop shadow, spread into a text style with `...textShadow` --

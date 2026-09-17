@@ -34,6 +34,8 @@ import { MENTAL_HEALTH_ENTRIES } from './mentalHealth';
 import { MIGRAINE_ENTRIES } from './migraine';
 import { MITOCHONDRIA_METABOLISM_ENTRIES } from './mitochondriaMetabolism';
 import { MULTIPLE_SCLEROSIS_ENTRIES } from './multipleSclerosis';
+import { NEURODIVERGENCE_ENTRIES } from './neurodivergence';
+import { NEURODIVERGENCE_CROSSOVER_ENTRIES } from './neurodivergenceCrossover';
 import { NEUROGENESIS_ENTRIES } from './neurogenesis';
 import { NUTRIENT_INTERACTIONS_ENTRIES } from './nutrientInteractions';
 import { NUTRIENTS_ENTRIES } from './nutrients';
@@ -107,6 +109,8 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...CELIAC_ENTRIES,
   ...IBD_ENTRIES,
   ...MULTIPLE_SCLEROSIS_ENTRIES,
+  ...NEURODIVERGENCE_ENTRIES,
+  ...NEURODIVERGENCE_CROSSOVER_ENTRIES,
   ...NEUROGENESIS_ENTRIES,
   ...LUPUS_ENTRIES,
   ...SJOGRENS_ENTRIES,

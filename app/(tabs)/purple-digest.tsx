@@ -719,6 +719,33 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
       { label: 'When to Seek Help', prefixes: ['mentalhealth-when-to-seek-help'] },
     ],
   },
+  // 2026-09-17, direct instruction: "I want as much as possible to be
+  // provided about this in Basic Health." Autism, ADHD and dyslexia are
+  // listed in Profile the way food allergies are, never tracked as
+  // conditions, so everything written about them lives here where anybody
+  // can read it without declaring anything. See
+  // lib/digest/neurodivergence.ts for the writing and for the line it
+  // holds: nutrition supports a person, it does not treat these three.
+  // Subtopics from the start rather than one 24-wide shelf, per the
+  // standing rule. Every id is listed out rather than matched on a
+  // 'neuro-autism-' style prefix, because the autism entries split across
+  // two different subtopics (eating, and what tends to come with it) and a
+  // prefix cannot tell them apart. The crossover entries themselves are
+  // NOT here: each one lives inside the condition it is about
+  // (lib/digest/neurodivergenceCrossover.ts), and
+  // neuro-crossover-with-tracked-conditions is the index into them.
+  {
+    label: 'Autism, ADHD & Dyslexia',
+    description: 'What the research shows about eating, nutrient shortfalls and reading, what it does not show, and where these cross into the conditions this app tracks. Listed in your Profile, never scored as a condition.',
+    subtopics: [
+      { label: 'Overview & Framing', prefixes: ['neuro-overview', 'neuro-not-a-tracked-condition', 'neuro-diet-does-not-treat', 'neuro-autism-adhd-overlap', 'neuro-crossover-with-tracked-conditions'] },
+      { label: 'Autism & Eating', prefixes: ['neuro-autism-feeding-differences', 'neuro-autism-arfid-overlap', 'neuro-autism-nutrient-shortfalls', 'neuro-autism-gi-symptoms', 'neuro-autism-texture-and-narrow-eating'] },
+      { label: 'ADHD & Eating', prefixes: ['neuro-adhd-restriction-diets', 'neuro-adhd-food-colours', 'neuro-adhd-omega3', 'neuro-adhd-iron-ferritin'] },
+      { label: 'Dyslexia & Reading', prefixes: ['neuro-dyslexia-letter-spacing', 'neuro-dyslexia-fonts', 'neuro-dyslexia-what-this-app-changes'] },
+      { label: 'What Tends to Come With Them', prefixes: ['neuro-autism-epilepsy', 'neuro-autism-anxiety-depression', 'neuro-autism-sleep', 'neuro-allergy-asthma-eczema', 'neuro-maternal-autoimmune-and-neurodevelopment', 'neuro-familial-autoimmune-adhd'] },
+      { label: 'Words Used Here', prefixes: ['neuro-words-used-here'] },
+    ],
+  },
   // 2026-08-25: this topic's own description already said "organized by
   // condition," but nothing actually enforced that -- all 38 entries
   // (prevention- and apphelps-, one pair per tracked condition) rendered
@@ -1253,6 +1280,20 @@ function classifyConditionTopic(entry: AnyDigestEntry): ConditionTopic {
   // patching the regex and hoping some future title still happens to
   // trip it.
   if (id.includes('fermented-drinks')) return 'Diet & Food';
+  // 2026-09-17: the same kind of deliberate id check, for the same kind of
+  // reason. lib/digest/neurodivergenceCrossover.ts adds one entry per
+  // tracked condition covering where autism, ADHD or dyslexia crosses into
+  // it. Nine of them are about the person rather than a child, and every
+  // one of those is a whole-body finding: a gut condition, a heart, a
+  // liver, a migraine. The keyword fallback below would scatter them
+  // (anything with "diet" in the summary title would land in Diet & Food,
+  // which is the one place a crossover entry must not imply it belongs).
+  // The suffix was chosen over an "-adhd-" or "-autism-" marker because
+  // those would also have caught celiac-adhd-symptoms-mixed-evidence and
+  // pulled that existing card out of Diet & Food, where it belongs. The
+  // seven pregnancy ones need no rule at all: the "pregnan" check above
+  // already files them.
+  if (id.endsWith('-crossover')) return 'Whole-Body Effects';
 
   if (id.startsWith('gut-')) return 'Gut & Microbiome';
   if (id.startsWith('mito-')) return 'Mitochondria & Metabolism';

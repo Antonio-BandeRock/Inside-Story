@@ -282,21 +282,22 @@ export const MENTAL_HEALTH_ENTRIES: DigestEntry[] = [
       { source: 'A closer look at the role of nutrition in children and adults with ADHD and ASD, Frontiers in Nutrition 2025', url: 'https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2025.1506304/full' },
     ],
     overallTier: 'strong',
-    relatedIds: ['mentalhealth-overview', 'mentalhealth-adhd-dietary-triggers', 'mentalhealth-adhd-micronutrients-glycemic', 'mentalhealth-ocd-gut-brain-inflammation', 'mentalhealth-ocd-ketogenic-diet'],
+    relatedIds: ['mentalhealth-overview', 'mentalhealth-adhd-dietary-triggers', 'mentalhealth-adhd-micronutrients-glycemic', 'mentalhealth-ocd-gut-brain-inflammation', 'mentalhealth-ocd-ketogenic-diet', 'neuro-diet-does-not-treat', 'neuro-overview'],
   },
   {
     id: 'mentalhealth-adhd-dietary-triggers',
     category: 'basicHealth',
     title: 'Two Randomized Trials Found Specific Foods and Additives Worsening ADHD Symptoms',
-    teaser: 'A restricted elimination diet improved symptoms in 64% of children in a Lancet trial, with a measurable relapse on reintroducing trigger foods, and a separate Lancet trial found artificial food colors and a common preservative directly increasing hyperactivity.',
+    teaser: 'A restricted elimination diet improved symptoms in 64% of children in a Lancet trial, with a measurable relapse on reintroducing trigger foods, and a separate Lancet trial found artificial food colors and a common preservative directly increasing hyperactivity. Pooled across every trial of both, the average effect is small.',
     summary:
-      "The INCA study (Pelsser et al., The Lancet, 2011), a randomized controlled trial, placed children with ADHD on a strict, restricted elimination diet. A significant, clinically meaningful reduction in ADHD symptoms occurred in 64% (32 of 50) of the children, and reintroducing the identified trigger foods produced a measurable behavioral relapse in those same responders, direct evidence that specific, non-allergic food sensitivities were driving a meaningful share of their symptoms, not a placebo effect. A separate, larger randomized, double-blind, placebo-controlled trial (McCann et al., The Lancet, 2007, often called the Southampton study, 297 children total) tested common artificial food colors (including tartrazine, sunset yellow, and carmoisine) combined with the preservative sodium benzoate against a placebo drink, and found the additive mixture measurably increased hyperactivity in the general child population, not just in children already diagnosed with ADHD. This finding prompted the FDA to hold a public hearing and review the evidence on food dyes specifically because of this trial's size and rigor. Neither trial identifies a single food or additive as universally responsible, elimination testing under guidance is the honest path to finding what actually matters for one specific person.",
+      "The INCA study (Pelsser et al., The Lancet, 2011), a randomized controlled trial, placed children with ADHD on a strict, restricted elimination diet. A significant, clinically meaningful reduction in ADHD symptoms occurred in 64% (32 of 50) of the children, and reintroducing the identified trigger foods produced a measurable behavioral relapse in those same responders, direct evidence that specific, non-allergic food sensitivities were driving a meaningful share of their symptoms, not a placebo effect. A separate, larger randomized, double-blind, placebo-controlled trial (McCann et al., The Lancet, 2007, often called the Southampton study, 297 children total) tested common artificial food colors (including tartrazine, sunset yellow, and carmoisine) combined with the preservative sodium benzoate against a placebo drink, and found the additive mixture measurably increased hyperactivity in the general child population, not just in children already diagnosed with ADHD. This finding prompted the FDA to hold a public hearing and review the evidence on food dyes specifically because of this trial's size and rigor. Set against the whole literature rather than its two strongest trials, the effect is smaller than either headline reads. A meta-analysis (Nigg et al., Journal of the American Academy of Child and Adolescent Psychiatry, 2012) pooled 10 studies of dietary restriction and 24 of synthetic food colors, and found restriction diets reducing ADHD symptoms at g = 0.29 (95% CI 0.07 to 0.53), a small effect, and food colors at g = 0.18 by parent report, falling to 0.12 once adjusted for likely publication bias. The 64% figure is the share of children who responded inside one trial, not the share of children who would respond, and the pooled authors note that the food color effects came either from small samples or from a literature carrying publication bias. Both can be true at once: a specific child can be a responder, and the average child is helped a little. Neither trial identifies a single food or additive as universally responsible, elimination testing under guidance is the honest path to finding what actually matters for one specific person.",
     citations: [
       { source: 'Effects of a restricted elimination diet on the behaviour of children with attention-deficit hyperactivity disorder (INCA study): a randomised controlled trial, The Lancet, PMID 21296224', url: 'https://pubmed.ncbi.nlm.nih.gov/21296224/' },
       { source: 'Food additives and hyperactive behaviour in 3-year-old and 8/9-year-old children in the community: a randomised, double-blinded, placebo-controlled trial, The Lancet', url: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(07)61306-3/abstract' },
+      { source: 'Meta-Analysis of Attention-Deficit/Hyperactivity Disorder or Attention-Deficit/Hyperactivity Disorder Symptoms, Restriction Diet, and Synthetic Food Color Additives, Journal of the American Academy of Child and Adolescent Psychiatry 2012, PMID 22176942', url: 'https://pubmed.ncbi.nlm.nih.gov/22176942/' },
     ],
-    overallTier: 'strong',
-    relatedIds: ['mentalhealth-adhd-ocd-diet-does-not-cause', 'mentalhealth-adhd-micronutrients-glycemic'],
+    overallTier: 'moderate',
+    relatedIds: ['mentalhealth-adhd-ocd-diet-does-not-cause', 'mentalhealth-adhd-micronutrients-glycemic', 'neuro-adhd-restriction-diets', 'neuro-adhd-food-colours', 'celiac-adhd-symptoms-mixed-evidence'],
   },
   {
     id: 'mentalhealth-adhd-micronutrients-glycemic',
@@ -311,7 +312,7 @@ export const MENTAL_HEALTH_ENTRIES: DigestEntry[] = [
       { source: 'Dietary Carbohydrates and ADHD Symptoms: A Systematic Review, Nutrients', url: 'https://www.mdpi.com/2072-6643/18/10/1625' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['mentalhealth-adhd-dietary-triggers', 'mentalhealth-glycemic-instability-mood', 'zinc-overview'],
+    relatedIds: ['mentalhealth-adhd-dietary-triggers', 'mentalhealth-glycemic-instability-mood', 'zinc-overview', 'neuro-adhd-omega3', 'neuro-adhd-iron-ferritin'],
   },
   {
     id: 'mentalhealth-ocd-gut-brain-inflammation',
