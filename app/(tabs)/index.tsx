@@ -14,7 +14,6 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import Animated, { FadeOut, ZoomIn } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -39,7 +38,7 @@ import {
   mixHex,
 } from '../../constants/colors';
 import { getSharedFolder } from '../../lib/oneDriveFolders';
-import { FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
+import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import {
   formatReleaseNotesMessage,
   getReleaseNotesSince,
@@ -123,7 +122,6 @@ import {
 } from '../../lib/homeSections';
 import { useVisualPreferences } from '../../hooks/useVisualPreferences';
 import { useBandFolds } from '../../hooks/useBandFolds';
-import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 // 'YYYY-MM-DD' in LOCAL time -- same helper (and same reasoning) duplicated
 // in food.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's calendar date is
@@ -181,7 +179,7 @@ function capitalize(text: string): string {
   return text.length === 0 ? text : text[0].toUpperCase() + text.slice(1);
 }
 
-// The greeting card's own sky-info row -- a plain 4-tone system reused for
+// The Today card's own sky-info row -- a plain 4-tone system reused for
 // UV, AQI, and the high/low temperature chips (UV/AQI each collapsed from
 // their own real, standard 5-6 band public scale down to this app's own
 // existing chip colors, rather than inventing new hex values for a wider
@@ -591,7 +589,7 @@ function gardenTaskDayLabel(scheduledFor: string, today: string): string {
 // picked in Profile.
 //
 // One key is deliberately absent rather than overlooked: 'weather' renders
-// inside the greeting card rather than as a section of its own, so there is
+// inside the Today card rather than as a section of its own, so there is
 // nothing to select. (Until 2026-09-12 'quickActions' was absent too; that
 // row is now four separate sections, each listed here like any other.)
 // Ordered the same way TabHub's own grid is, by what you do with the thing
@@ -625,6 +623,26 @@ const HOME_LENS_DESTINATIONS: Partial<
     }
   >
 > = {
+  // Home's own card, and the only entry here that is not a way into another
+  // tab. Selecting it stays on Home and scrolls to it, the same as the Digest
+  // cards below, for the same reason: the thing itself is already on this
+  // page.
+  //
+  // 24, not 30: the sprout is taller than it is wide, so at 30 it would stand
+  // over the 20px glyphs beside it.
+  today: {
+    label: 'Today',
+    icon: 'partly-sunny',
+    color: colors.tabHome,
+    renderIcon: () => (
+      <Image
+        source={require('../../assets/branding/seed-tall-transparent.png')}
+        style={{ width: Math.round((24 * 32) / 38), height: 24 }}
+        resizeMode="contain"
+      />
+    ),
+    scrollTo: true,
+  },
   // What you put in.
   logAgain: {
     label: 'Log a Meal',
@@ -725,6 +743,7 @@ const HOME_LENS_DESTINATIONS: Partial<
 // page. Object key order would work today and would break silently the first
 // time someone reordered the literal above, so it is stated.
 const HOME_LENS_ORDER: HomeSectionKey[] = [
+  'today',
   'captureInbox',
   'logAgain',
   'scanProduct',
@@ -912,9 +931,6 @@ export default function HomeScreen() {
   // want" reasoning. Read the same live way every other visual preference
   // already is, so a toggle flipped on Profile reaches Home immediately.
   const visualPrefs = useVisualPreferences();
-  // 2026-09-16: the greeting still collapses into its badge and grows
-  // back out with low stimulation on, it just does it without the zoom.
-  const reducedMotion = useReducedMotion();
   // Which of Home's per-tab groups are open, kept under "homeTab:/food"
   // and the rest (see HOME_TAB_GROUP_BAND_KEY_PREFIX). A group is a band
   // like any other, so it remembers its fold the same way.
@@ -1035,22 +1051,23 @@ export default function HomeScreen() {
   // renders from it, so storing it in state would re-render the whole screen
   // for a number only a tap ever reads.
   const sectionOffsets = useRef<Partial<Record<HomeSectionKey, number>>>({});
-  // The greeting card's own collapse state, 2026-08-23 direct request:
-  // full size for the first minute after Home first mounts ('initial',
-  // in normal document flow, unchanged from before this), then
-  // ('collapsed') a small floating seed-icon square pinned at the top
-  // left, tap to reopen ('expanded', a semi-transparent floating overlay
-  // on top of the rest of Home rather than back in document flow, since
-  // the rest of Home has already moved up to fill the space by then),
-  // auto-collapsing again after 30 seconds or a tap on its own small
-  // seed badge. Plain useState, not tied to visualPreferences -- this is
-  // moment-to-moment display state for the current session, not a saved
-  // preference, the same way visibleFlipCardCount just above isn't one
-  // either. Home stays mounted across tab switches (see
-  // hasLoadedOnceRef's own comment above), so a timer started once here
-  // genuinely means "once per app session," not "every time Home
-  // refocuses."
-  const [greetingCardState, setGreetingCardState] = useState<'initial' | 'collapsed' | 'expanded'>('initial');
+  // The greeting card used to keep a collapse state here: full size for
+  // thirty seconds, then a shrink into a small floating seed badge in the
+  // corner, tap to reopen as an overlay, thirty seconds again, shrink
+  // again, and a forced shrink on every blur. All of it is gone as of
+  // 1.0.39.10.
+  //
+  // Direct correction: "I think the Welcome card should be just available
+  // at the top without the current 30 second wait... I think it should
+  // remain at the top and become colapsable like the tab groups. It should
+  // be a quick access thing available in the Home group."
+  //
+  // So it is a Home section now, called Today, in the Home group, and it
+  // folds the way every other band on this page folds. Which also moves it
+  // from session state to a saved preference, and that is the part that
+  // matters: somebody who wants the sky in front of them every morning gets
+  // it every morning, somebody who does not gets one row, and neither of
+  // them has to wait thirty seconds or catch the card before it goes.
 
   // Kept separate from `load` below -- getSixDimensionsFlagTrendSeries
   // loops one DB call per day over 14 days, so it's noticeably heavier
@@ -1384,54 +1401,6 @@ export default function HomeScreen() {
     }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope, loadSharedFolderState, announceAppliedUpdate, repairSavedDishes, refreshTestDataBanner]),
   );
 
-  // Plain useEffect (mount-once), not useFocusEffect -- this is meant to
-  // fire once per real app open, not restart every time someone swipes
-  // back to Home from another tab (see the dedicated blur effect further
-  // below for that specific behavior). Only actually collapses if still
-  // 'initial' by the time this fires, so a person who's already tapped
-  // the corner badge to collapse it manually before the 30 seconds are up
-  // isn't yanked back into a re-collapse of a state they already left.
-  // 30000ms, 2026-08-23 direct follow-up (was 60000) -- now the same
-  // duration the 'expanded' auto-close below already uses, though kept as
-  // its own separate effect regardless, since they're conceptually
-  // different triggers (first display vs. a tap-triggered reopen) that
-  // happen to currently share one number, not the same event.
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setGreetingCardState((current) => (current === 'initial' ? 'collapsed' : current));
-    }, 30000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Separate effect keyed on greetingCardState itself -- the 30-second
-  // auto-close here only ever applies to a tap-triggered reopen, re-armed
-  // every time greetingCardState actually becomes 'expanded' again,
-  // cleared (and not fired) if it leaves 'expanded' before the 30 seconds
-  // are up, whether from this same timer or a manual tap on the corner
-  // badge.
-  useEffect(() => {
-    if (greetingCardState !== 'expanded') return;
-    const timer = setTimeout(() => setGreetingCardState('collapsed'), 30000);
-    return () => clearTimeout(timer);
-  }, [greetingCardState]);
-
-  // 2026-08-23, direct request: "if the user swipes to either side or
-  // chooses another tab, the welcome shrinks right then and stays shrunk
-  // until they select it again." useFocusEffect's own cleanup function
-  // (the part a plain useEffect doesn't have) fires exactly on blur --
-  // leaving Home for another tab, by swipe or by TabHub -- which is
-  // precisely the moment this needs to act. Setting 'collapsed'
-  // unconditionally here is deliberately safe even when it's already
-  // collapsed (a no-op re-set, not a bug), so this doesn't need to read
-  // the current state first. Home staying mounted across tab switches
-  // (see hasLoadedOnceRef's own comment) is exactly what makes "stays
-  // shrunk until they select it again" true for free -- there's no
-  // remount here to reset it back.
-  useFocusEffect(
-    useCallback(() => {
-      return () => setGreetingCardState('collapsed');
-    }, []),
-  );
 
   // --- Today's Check-In (2026-08-08) -------------------------------------
   //
@@ -1738,29 +1707,31 @@ export default function HomeScreen() {
     skyGridItems.push({ emoji: '⚠️', label: skyResult.message, tone: 'moderate', fullWidth: true });
   }
 
-  // Shared between the card's two full-size states ('initial', in normal
-  // document flow, and 'expanded', a floating overlay) -- the actual
-  // greeting/date/affirmation/weather content never changes between them,
-  // only where and how the card itself is positioned does. Split into a
-  // header row (badge plus greeting/affirmation/date, side by side, so
-  // the badge genuinely sits in the card's own top left corner rather
-  // than floating over the text) and the weather grid below it, spanning
-  // the card's own full width rather than being squeezed into the
-  // header row's narrower text column.
-  function renderGreetingCardFull() {
-    return (
+  // Today, since 1.0.39.10. The greeting, the affirmation, the date and
+  // the sky, as a band in the Home group rather than a card of its own.
+  //
+  // Not called Welcome any more. Direct note: "I'm not sure Welcome is the
+  // right thing to call it, based on all of the info that it contains." It
+  // carries the moon phase, the next equinox or solstice, sunrise and
+  // sunset, the high and the low, humidity, UV, air quality and pollen.
+  // None of that is a welcome, and all of it is today. Your Day was already
+  // taken by the schedule section further down, so Today it is.
+  //
+  // The badge-plus-text row is gone with the badge: the sprout is the
+  // band's own glyph now, drawn where every other section draws its icon,
+  // so the text starts at the left edge like the rest of the page.
+  function renderToday() {
+    if (!isHomeSectionVisible(visualPrefs, 'today')) return null;
+    return renderBand(
+      'today',
+      'Today',
       <>
-        <View style={styles.greetingCardRow}>
-          {renderGreetingSeedBadge('collapse')}
-          <View style={styles.greetingCardTextCol}>
-            <Text style={styles.greetingText}>
-              {timeGreeting()}
-              {firstName ? `, ${firstName}` : ''}
-            </Text>
-            <Text style={styles.affirmationText}>{pickAffirmation()}</Text>
-            <Text style={styles.dateText}>{todayLabel}</Text>
-          </View>
-        </View>
+        <Text style={styles.greetingText}>
+          {timeGreeting()}
+          {firstName ? `, ${firstName}` : ''}
+        </Text>
+        <Text style={styles.affirmationText}>{pickAffirmation()}</Text>
+        <Text style={styles.dateText}>{todayLabel}</Text>
 
         {isHomeSectionVisible(visualPrefs, 'weather') ? (
           <View style={styles.skyGrid}>
@@ -1769,59 +1740,43 @@ export default function HomeScreen() {
             ))}
           </View>
         ) : null}
-      </>
+      </>,
+      { renderIcon: renderGreetingSeedGlyph },
     );
   }
 
-  // The small seed-icon badge, 2026-08-23 direct request: "make sure the
-  // sprouting seed default TabHub button continues to be used... Make it
-  // have that as a small version of it on the top left corner of the
-  // card, and then it shrinks into that sprouting seed on a little
-  // square." One shared render function rather than three near-identical
-  // copies (the badge sitting in the corner of both full-size states,
-  // plus the collapsed state's own standalone square) -- same asset the
-  // TabHub button's own default icon already uses
-  // (assets/branding/seed-tall-transparent.png), not a new icon
-  // commissioned for this. Always the tap target that collapses the
-  // card, in every state it appears in.
-  // Reused in two different contexts with two different taps: sitting in
-  // the corner of a full-size card, it collapses; standing on its own as
-  // the resting collapsed state, it expands. A plain parameter rather
-  // than a fixed 'collapse' behavior baked in, since a badge that always
-  // collapsed would have silently done nothing (already collapsed, tap
-  // ignored) the one time it actually needs to reopen the card.
+  // The sprouting seed, 2026-08-23 direct request: "make sure the sprouting
+  // seed default TabHub button continues to be used... Make it have that as
+  // a small version of it on the top left corner of the card." Same asset
+  // the TabHub button's own default icon already uses
+  // (assets/branding/seed-tall-transparent.png), not a new icon drawn for
+  // this.
   //
-  // 2026-08-23, direct follow-up: "while it is visible, the sprout is
-  // full color and only goes to 50% transparency after." action already
-  // encodes exactly this distinction, action === 'collapse' only ever
-  // happens while the card itself is currently full-size and visible
-  // (that's the only context this badge collapses anything from), and
-  // action === 'expand' only ever happens once it's already shrunk down
-  // to just this badge on its own -- so dimmed is derived from action
-  // directly rather than threading a second, separately-tracked prop
-  // that would only ever move in lockstep with the one already here.
-  function renderGreetingSeedBadge(action: 'collapse' | 'expand') {
-    const dimmed = action === 'expand';
+  // It was a button with two behaviours until 1.0.39.10 (collapse from a
+  // full card, expand from the collapsed square) and a 50% look for the
+  // second one. Neither survives: there is no collapsed square any more,
+  // and the band's own chevron is what folds the card, so a second control
+  // doing nearly the same thing would be one too many. What is left is a
+  // glyph, drawn wherever the band asks for it and at whatever size it
+  // asks for.
+  //
+  // The art is 32 wide by 38 tall, so the size it is given is its height
+  // and the width follows, rather than squashing the sprout into a square.
+  function renderGreetingSeedGlyph(size: number) {
     return (
-      <TouchableOpacity
-        onPress={() => setGreetingCardState(action === 'collapse' ? 'collapsed' : 'expanded')}
-        activeOpacity={0.8}
-        style={styles.greetingSeedBadge}
-        accessibilityRole="button"
-        accessibilityLabel={action === 'collapse' ? 'Collapse the greeting card' : 'Expand the greeting card'}
-      >
-        <Image
-          source={require('../../assets/branding/seed-tall-transparent.png')}
-          style={[styles.greetingSeedIcon, dimmed && styles.greetingSeedIconDimmed]}
-          resizeMode="contain"
-        />
-      </TouchableOpacity>
+      <Image
+        source={require('../../assets/branding/seed-tall-transparent.png')}
+        style={{ width: Math.round((size * 32) / 38), height: size }}
+        resizeMode="contain"
+      />
     );
   }
 
   // 2026-08-23, direct request: "they should be able to move the things
   // on the home screen they have chosen to be there into any order they
-  // want to from top to bottom, except the welcome box." Every
+  // want to from top to bottom, except the welcome box." The exception is
+  // gone as of 1.0.39.10: the welcome box is the Today section now, and it
+  // moves and folds like everything else here. Every
   // reorderable section's own exact JSX, unchanged from before this
   // change, just pulled into its own function so the render below can
   // pick each one up in whatever order Profile's own Order list saved,
@@ -1861,6 +1816,9 @@ export default function HomeScreen() {
     children: ReactNode,
     options?: {
       icon?: ComponentProps<typeof Ionicons>['name'];
+      // A drawn glyph instead of the Ionicons one, for the one section whose
+      // mark is a picture (Today's sprouting seed).
+      renderIcon?: (size: number, color: string) => ReactNode;
       color?: string;
       contentStyle?: StyleProp<ViewStyle>;
     },
@@ -1870,6 +1828,7 @@ export default function HomeScreen() {
       <HomeSectionBand
         title={title}
         icon={options?.icon ?? identity?.icon ?? 'ellipse-outline'}
+        renderIcon={options?.renderIcon}
         color={options?.color ?? identity?.color ?? colors.primary}
         expanded={isHomeSectionExpanded(visualPrefs, key)}
         onToggle={() => toggleHomeSection(key)}
@@ -2752,16 +2711,18 @@ export default function HomeScreen() {
 
   // Single dispatcher rather than a Record<HomeSectionKey, fn> object --
   // this only ever gets called with a REORDERABLE_HOME_SECTION_KEYS
-  // member (see getOrderedHomeSectionKeys), never 'weather' (which stays
-  // embedded in the fixed greeting card, not part of this reorderable
-  // list at all), so the default branch below covering 'weather' is a
-  // real, deliberate safety net, not a case actually expected to fire.
+  // member (see getOrderedHomeSectionKeys), never 'weather' (the sky grid is
+  // drawn inside the Today card rather than being a card of its own, so there
+  // is nothing to give it a position), so the default branch below covering
+  // 'weather' is a deliberate safety net, not a case expected to fire.
   function renderHomeSection(key: HomeSectionKey) {
     switch (key) {
       case 'sharedFolderSetup':
         return renderSharedFolderSetup();
       case 'captureInbox':
         return renderCaptureInbox();
+      case 'today':
+        return renderToday();
       case 'lowStimulation':
         return renderLowStimulation();
       case 'symptomCheckinReminder':
@@ -2898,9 +2859,6 @@ export default function HomeScreen() {
           style={styles.scroll}
           contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}
         >
-          {greetingCardState === 'initial' ? (
-            <View style={styles.greetingCard}>{renderGreetingCardFull()}</View>
-          ) : null}
 
           {/* Above the loading gate on purpose: whether test data is loaded
               is true regardless of what else has finished fetching, and it is
@@ -2948,10 +2906,10 @@ export default function HomeScreen() {
               content section off (not just the current loading/empty
               states any individual section already handles on its own)
               gets a plain, honest explanation here instead of a mostly-
-              blank screen that reads as broken. Only checks the 10 real
-              toggleable keys -- the greeting/date text above always
-              stays, so this never fires on a technically-empty-but-not-
-              really-empty page. */}
+              blank screen that reads as broken. Since 1.0.39.10 that
+              includes the greeting card, which used to sit outside this
+              system and always stay: turning Today off is now a thing a
+              person can do, so a page with nothing left on it is too. */}
           {!loading && ALL_HOME_SECTION_KEYS.every((key) => !isHomeSectionVisible(visualPrefs, key)) ? (
             <View style={styles.allSectionsHiddenCard}>
               <Text style={styles.allSectionsHiddenText}>
@@ -2979,39 +2937,6 @@ export default function HomeScreen() {
             replaced Home's former flat footer-line copy, and for why its
             own top (not bottom) sits at bottomInset. */}
         <EdgeShadow direction="up" style={{ position: 'absolute', bottom: bottomInset - EDGE_SHADOW_HEIGHT }} />
-
-        {/* The greeting card's own collapsed/expanded states, 2026-08-23
-            direct request -- both real siblings of the ScrollView above,
-            not inside it, same "floats over the scrollable content"
-            technique bottomMask/EdgeShadow already use on this exact
-            screen. 'collapsed': just the small seed badge, pinned at the
-            top left of contentArea (which itself already starts below
-            ScreenHeader, see that style's own comment, so no separate
-            safe-area math is needed here). 'expanded': the full card
-            again, at the same top-left origin so it visibly grows back
-            out of the badge it came from, but now floating over
-            everything else that has already moved up to fill the space
-            the card used to occupy in normal flow, and a little more
-            transparent than the resting card look so it reads as a
-            temporary overlay rather than a permanent fixture. */}
-        {greetingCardState === 'collapsed' ? (
-          <Animated.View
-            entering={reducedMotion ? undefined : ZoomIn.springify()}
-            exiting={reducedMotion ? undefined : FadeOut}
-            style={styles.greetingCollapsedWrap}
-          >
-            {renderGreetingSeedBadge('expand')}
-          </Animated.View>
-        ) : null}
-        {greetingCardState === 'expanded' ? (
-          <Animated.View
-            entering={reducedMotion ? undefined : ZoomIn.springify()}
-            exiting={reducedMotion ? undefined : FadeOut}
-            style={styles.greetingExpandedCard}
-          >
-            {renderGreetingCardFull()}
-          </Animated.View>
-        ) : null}
         </View>
       </SwipeableTabScreen>
 
@@ -3230,7 +3155,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     // `height` set inline (bottomInset) -- varies by device safe-area inset.
   },
-  // paddingTop: a little separation between the header and the greeting
+  // paddingTop: a little separation between the header and the Today
   // card below it, present from the start (not just something scrolling
   // reveals) -- otherwise the greeting card sits flush against the header
   // the instant the page loads.
@@ -3238,7 +3163,7 @@ const styles = StyleSheet.create({
   // rows [should] be the same 10 pixel distance away from each other...
   // both vertically and horizontally." `gap` here is the vertical half of
   // that -- applies uniformly between every direct top-level child of this
-  // ScrollView's content (greetingCard, the assessment-due banner, Today's
+  // ScrollView's content (the Today band, the assessment-due banner, Today's
   // Check-In, the Day Arc, the stat tiles row, the quick-actions row, the
   // mood orb, fuel gauges, this week's trend, the flip-card row), including
   // correctly skipping a gap on either side of any that don't render at all
@@ -3326,96 +3251,11 @@ const styles = StyleSheet.create({
     ...textShadow,
     color: colors.statusYellowStandalone,
   },
-  // The one box that is Home's own rather than a window into another tab,
-  // so its accent is Home's own tab colour: the same "which tab does this
-  // belong to" signal every band below carries, answered honestly.
-  greetingCard: {
-    ...homeBandStyle,
-    padding: HOME_BAND_CONTENT_PADDING,
-    borderColor: colors.tabHome,
-    // marginBottom removed, 2026-08-08 -- content's own new `gap: 10`
-    // handles the space after this now; keeping this too would have
-    // stacked on top of it (26px instead of the real, intended 10).
-  },
   greetingText: { ...typography.screenTitle, ...textShadow, color: colors.textPrimary,
     fontWeight: '400',
   },
   affirmationText: { ...typography.body, ...textShadow, color: colors.primary, marginTop: 2, fontStyle: 'italic' },
   dateText: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 2 },
-
-  // 2026-08-23: the greeting card's own collapse/expand system. See
-  // greetingCardState's own comment near this screen's other state for
-  // the full behavior; these are just the visual pieces.
-  greetingCardRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  greetingCardTextCol: { flex: 1 },
-  // The seed badge itself -- same size as this app's own established
-  // floating-button footprint (FLOATING_BUTTON_SIZE), not a new number,
-  // so it reads as belonging to the same family of floating controls as
-  // TabHub's own corner button rather than a one-off size. 2026-08-23,
-  // direct follow-up: "the sprout has a transparent background
-  // completely and no border around the square... make the sprout about
-  // 50% transparent, too." No fill, no border left on the square itself
-  // -- it's purely a tap target now, the icon alone is what's actually
-  // seen. Still the same width/height/borderRadius, so the tappable area
-  // (and where the card visually shrinks into/grows out of) is unchanged.
-  greetingSeedBadge: {
-    width: FLOATING_BUTTON_SIZE,
-    height: FLOATING_BUTTON_SIZE,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  // opacity lives on the icon, not on greetingSeedBadge itself -- this
-  // app's own established split (see FlipCard's own borderColor prop
-  // comment, and the greeting card's own expanded-overlay opacity
-  // comment) between the interactive element and what's actually drawn,
-  // so the tap target's own hit area never shrinks or fades along with
-  // the icon's look. Full color (no opacity here at all) by default,
-  // 2026-08-23 direct follow-up: "while it is visible, the sprout is
-  // full color and only goes to 50% transparency after" -- see
-  // renderGreetingSeedBadge's own comment for exactly when
-  // greetingSeedIconDimmed below applies instead.
-  greetingSeedIcon: { width: 32, height: 38 },
-  greetingSeedIconDimmed: { opacity: 0.5 },
-  // 2026-08-23, direct follow-up: "it should go farther into the corner,
-  // sort of in the margin. It needs to be visible but not take away from
-  // the other things as much as possible." Moved from matching content's
-  // own left/top padding (where the full card itself still starts, see
-  // greetingCard/greetingExpandedCard below, both unchanged) to sitting
-  // almost flush with the true screen edge instead, once it's shrunk down
-  // to just this badge -- a deliberately different, smaller offset than
-  // the full card's own, not the same constant reused.
-  // 2026-08-24, direct follow-up: "move the shrunken sprout farther left
-  // and a little bit higher... Left by about 5 to 10 pixels and up by
-  // about 3 to 5." Given as a range, not one exact number -- landed near
-  // the middle of each (7px left, 4px up).
-  greetingCollapsedWrap: { position: 'absolute', top: 0, left: -3 },
-  greetingExpandedCard: {
-    ...homeBandStyle,
-    position: 'absolute',
-    top: 12,
-    // Edge to edge, 2026-09-12, matching the resting card it grows out of.
-    left: 0,
-    right: 0,
-    // 2026-08-23, direct report, second round: dropping this card's own
-    // opacity: 0.92 helped ("that's a little better") but colors.surface
-    // itself is only ~85% opaque by design (see that token's own comment)
-    // -- fine for a card sitting in the normal page flow, not solid
-    // enough for one floating directly on top of everything else, which
-    // is exactly what "should be even less transparent" asked for next.
-    // colors.menuSurface instead: a fully opaque color (no alpha
-    // channel at all) already established in this app for exactly this
-    // "needs to read as solid, not translucent" job (see that token's own
-    // comment -- TabHub's own popup menu was deliberately kept opaque
-    // the same way). Not theme-reactive the way colors.surface is (one
-    // fixed color regardless of the person's own chosen ground theme), an
-    // accepted tradeoff for a card whose whole point right now is
-    // reading as solid above everything else, not matching the ground
-    // theme precisely.
-    backgroundColor: colors.menuSurface,
-    padding: HOME_BAND_CONTENT_PADDING,
-    borderColor: colors.tabHome,
-  },
 
   // Moon phase / equinox-solstice / sunrise-sunset / temp / humidity / UV /
   // AQI / pollen -- two-column grid, 2026-08-18 (see the SkyGridItem

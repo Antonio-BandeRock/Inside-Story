@@ -150,9 +150,14 @@ check('low stimulation sits in the profile group', groupHomeSectionsForDisplay([
   { kind: 'tab', path: '/profile', keys: ['lowStimulation'] },
 ]);
 
-// Home itself has no group: nothing maps to it. A Home group inside
-// Home could only ever have meant "the rest".
-check('nothing maps to home itself', Object.values(HOME_SECTION_TAB_PATH).filter((p) => p === '/'), []);
+// Home has a group again, 1.0.39.10, direct correction: "You removed the
+// Home group from the Home screen. It should remain at the top in order of
+// occurance in the TabHub menu." It holds the one card that is not a window
+// into another tab: the greeting, the date and the sky.
+check('the home group holds the today card', Object.keys(HOME_SECTION_TAB_PATH).filter((k) => HOME_SECTION_TAB_PATH[k] === '/'), ['today']);
+
+// And it leads, because Home leads TabHub’s own grid.
+check('the home group comes first', groupHomeSectionsForDisplay(['today', 'logAgain'])[0], { kind: 'tab', path: '/', keys: ['today'] });
 
 // Garden and Reports, 1.0.39.7. Each needed a card of its own before a
 // group would appear at all, since renderHomeTabGroup drops an empty one.
@@ -167,11 +172,10 @@ check('make a report is reports own group', groupHomeSectionsForDisplay(['weekTr
 // The default order comes out in TabHub menu order, 2026-09-16, direct
 // instruction: "Put them into the order they exist in the TabHub menu."
 // That menu is Home, Profile, Info, then TAB_ROUTES minus Home
-// (components/TabHub.tsx, lines 708-711). Home has no group and Info is
-// a help sheet rather than a destination, so what is left is Profile
-// followed by every tab after Home, in TAB_ROUTES' own order. Read from
-// both real files rather than retyped, so reordering either one fails
-// here instead of quietly changing the page.
+// (components/TabHub.tsx, lines 708-711). Info is a help sheet rather than a
+// destination, so what is left is Home, Profile, and every tab after Home in
+// TAB_ROUTES' own order. Read from both real files rather than retyped, so
+// reordering either one fails here instead of quietly changing the page.
 const tabsSource = fs.readFileSync(path.join(__dirname, '..', 'constants/tabs.ts'), 'utf8');
 const tabPaths = [...tabsSource.matchAll(/\{ path: '([^']+)'/g)].map((m) => m[1]);
 const orderMatch = prefsSource.match(/export const ALL_HOME_SECTION_KEYS: HomeSectionKey\[\] = \[([\s\S]*?)\n\];/);
@@ -185,7 +189,7 @@ const defaultOrder = orderMatch[1]
 const defaultGroupPaths = groupHomeSectionsForDisplay(defaultOrder)
   .filter((g) => g.kind === 'tab')
   .map((g) => g.path);
-check('default order runs in TabHub menu order', defaultGroupPaths, ['/profile', ...tabPaths.slice(1)]);
+check('default order runs in TabHub menu order', defaultGroupPaths, [tabPaths[0], '/profile', ...tabPaths.slice(1)]);
 
 // Every declared section is in the default order, and nothing is in it
 // twice: a key added to the union but left out of the list would land at

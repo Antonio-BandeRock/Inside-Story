@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.10',
+    date: '2026-09-16',
+    changes: [
+      'The welcome card is called Today now, because that is what it holds: the greeting, the date, an affirmation, and the whole sky panel, moon phase, sunrise and sunset, the high and the low, humidity, UV, air quality and pollen. None of that is a welcome.',
+      'It no longer waits thirty seconds and then shrinks itself into a sprout in the corner. It sits at the top of the page and folds like every other section here: tap the row to close it, tap it again to open it, and it stays however you left it.',
+      'The sprout is still there, as the mark on the row, in full colour whether the card is open or closed.',
+      'Home has its own group again, at the top, where Home sits in the main menu. Today is what is in it: the one card on the page that is not a way into another tab.',
+      'Because Today is a section like any other now, it can be moved, and it can be turned off, from Profile > Home Screen. It is in the corner menu too.',
+      'Low Stimulation still folds the page down to its rows, Today included.',
+    ],
+  },
+  {
     version: '1.0.39.9',
     date: '2026-09-16',
     changes: [

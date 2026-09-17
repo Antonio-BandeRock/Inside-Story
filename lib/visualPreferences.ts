@@ -232,6 +232,14 @@ export type HomeSectionKey =
   // arriving has not been assigned to an area yet, and a band to open
   // first is a tap the two seconds cannot afford.
   | 'captureInbox'
+  // The greeting card, a section like any other since 2026-09-16.
+  // It was outside this system entirely until then, which is what made
+  // it the one thing on Home nobody could move, fold or turn off. Named
+  // 'today' rather than 'welcome': it carries the greeting, the date, an
+  // affirmation and the whole sky grid (moon phase, sunrise and sunset,
+  // high and low, humidity, UV, air quality, pollen), and none of that is
+  // a welcome.
+  | 'today'
   // 2026-09-16, direct request: "Low Stimulation needs to be available as
   // a quick access setting on the Home page... Low Stimulation needs to be
   // a switch accessible in Quick Access." Everything on Home is already a
@@ -304,6 +312,11 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   // Capture leads, behind only the one-off folder nudge: it is the one
   // card whose whole value is being reachable before a thought is gone.
   'captureInbox',
+  // Home. 2026-09-16, direct correction: "You removed the Home group from
+  // the Home screen. It should remain at the top in order of occurance in
+  // the TabHub menu." Home leads TabHub’s own grid, so it leads the
+  // groups here.
+  'today',
   // Profile. TabHub puts it second, immediately after Home, and so does
   // this (2026-09-16). It is not a TAB_ROUTE, so Home reads its name,
   // icon and colour from HOME_GROUP_IDENTITY in app/(tabs)/index.tsx.
@@ -343,16 +356,18 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'groceryList',
 ];
 
-// 2026-08-23, direct request: "they should be able to move the things on
-// the home screen they have chosen to be there into any order they want
-// to from top to bottom, except the welcome box with all of the basic
-// daily info available." The welcome box itself isn't a HomeSectionKey at
-// all (see this file's own 2026-08-21 comment above: "the plain
-// greeting/date text stays fixed"), and 'weather' specifically renders
-// physically embedded inside that same fixed welcome box, not as an
-// independent section in the reorderable sequence below it -- so this is
-// ALL_HOME_SECTION_KEYS minus 'weather', derived rather than a second
-// hand-maintained list that could drift out of sync with it.
+// Everything on Home that can be moved. 2026-08-23 carved the greeting
+// card out of this ("except the welcome box with all of the basic daily
+// info available"); 2026-09-16 put it back in as 'today', because the
+// same message that asked for the Home group back also asked for that
+// card to "remain at the top and become colapsable like the tab groups".
+// It is a card in a group now, so it moves and folds like the rest.
+//
+// 'weather' stays out, and that is a different fact rather than the same
+// one: it is not a card at all, it is the sky grid drawn INSIDE the Today
+// card, so there is nothing to give a position to. Derived from
+// ALL_HOME_SECTION_KEYS rather than a second hand-maintained list that
+// could drift out of sync with it.
 export const REORDERABLE_HOME_SECTION_KEYS: HomeSectionKey[] = ALL_HOME_SECTION_KEYS.filter((key) => key !== 'weather');
 
 // The label Profile's own toggle grid shows for each section -- kept here,
@@ -363,6 +378,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weather: 'Weather & Sunrise/Sunset',
   sharedFolderSetup: 'Shared Folder Setup',
   captureInbox: 'Capture',
+  today: 'Today',
   lowStimulation: 'Low Stimulation',
   symptomCheckinReminder: 'Symptom Check-In',
   todaysCheckin: "Today's Check-In",
@@ -583,14 +599,55 @@ export function getOrderedHomeSectionKeys(prefs: VisualPreferences): HomeSection
   const saved = prefs.homeSectionOrder ?? [];
   const known = new Set(REORDERABLE_HOME_SECTION_KEYS);
   const ordered = saved.filter((key) => known.has(key));
-  const missing = REORDERABLE_HOME_SECTION_KEYS.filter((key) => !ordered.includes(key));
-  return groupHomeSectionKeysByTab([...ordered, ...missing]);
+  // A key the saved order has never heard of goes where it was designed
+  // to go, immediately after whichever designed neighbour above it the
+  // person still has, rather than on the end. Until 2026-09-16 these were
+  // concatenated last, which this comment block already claimed they were
+  // not. It cost nothing while every new section happened to belong at the
+  // bottom, and it broke the moment one didn't: the Today card is designed
+  // to lead the page and would have landed under the flip cards for anyone
+  // who had ever touched the order.
+  for (const key of REORDERABLE_HOME_SECTION_KEYS) {
+    if (ordered.includes(key)) continue;
+    let insertAt = 0;
+    for (let i = REORDERABLE_HOME_SECTION_KEYS.indexOf(key) - 1; i >= 0; i -= 1) {
+      const above = ordered.indexOf(REORDERABLE_HOME_SECTION_KEYS[i]);
+      if (above >= 0) {
+        insertAt = above + 1;
+        break;
+      }
+    }
+    ordered.splice(insertAt, 0, key);
+  }
+  return groupHomeSectionKeysByTab(ordered);
 }
 
-// Absence of `key` in `prefs.homeSectionExpanded` means collapsed -- see
-// that field's own comment for why this is the reverse of visibility.
+// A band is folded until someone opens it. Two are not, 1.0.39.10:
+// "I think the Welcome card should be just available at the top without
+// the current 30 second wait." Available means in front of you when you
+// arrive, so the Today card and the Home group holding it are open until
+// somebody closes them, and stay closed after that. Everything else on
+// the page keeps the resting-folded rule.
+//
+// Stated as a default rather than seeded into the stored preferences,
+// because a seed only reaches a fresh install: anybody already using the
+// app has a saved object that would come back without it, and would find
+// the greeting folded away behind two taps.
+export const BANDS_OPEN_UNTIL_CLOSED: ReadonlySet<string> = new Set([
+  'today',
+  `${HOME_TAB_GROUP_BAND_KEY_PREFIX}/`,
+]);
+
+// Absence of `key` means folded, except for the two above -- see
+// homeSectionExpanded's own comment for why this is the reverse of
+// visibility. Shared with hooks/useBandFolds.ts so a band and the control
+// that toggles it can never disagree about where it started.
+export function isBandOpen(expanded: Record<string, boolean | undefined> | undefined, key: string): boolean {
+  return expanded?.[key] ?? BANDS_OPEN_UNTIL_CLOSED.has(key);
+}
+
 export function isHomeSectionExpanded(prefs: VisualPreferences, key: HomeSectionKey): boolean {
-  return prefs.homeSectionExpanded?.[key] === true;
+  return isBandOpen(prefs.homeSectionExpanded, key);
 }
 
 // homeBackgroundStyle/genericPalette changed 2026-08-19, direct request:
@@ -858,7 +915,9 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
 // off. Every other section and every other group still folds.
 //
 // That group is Profile's, not Home's, since 1.0.39.7: the switch is a
-// Profile setting surfaced on Home, and Home gained no group of its own.
+// Profile setting surfaced on Home, so it sits under Profile. Home has a
+// group again as of 1.0.39.10, holding the Today card, and that one folds
+// like the rest.
 export async function setLowStimulation(enabled: boolean): Promise<VisualPreferences> {
   const current = await getVisualPreferences();
   if (!enabled) return setVisualPreferences({ lowStimulation: false });
@@ -873,6 +932,16 @@ export async function setLowStimulation(enabled: boolean): Promise<VisualPrefere
   for (const key of Object.keys(current.bandExpanded ?? {})) {
     if (key === switchGroupBandKey) continue;
     if (current.bandExpanded[key]) bandExpanded[key] = false;
+  }
+  // The two that are open without being recorded as open (see
+  // BANDS_OPEN_UNTIL_CLOSED) have to be written shut rather than skipped:
+  // the loops above only see keys somebody has already toggled, so
+  // leaving these absent would leave the Today card open with the switch
+  // on, which is the one thing it is for.
+  for (const key of BANDS_OPEN_UNTIL_CLOSED) {
+    if (key === switchGroupBandKey) continue;
+    if (key.startsWith(HOME_TAB_GROUP_BAND_KEY_PREFIX)) bandExpanded[key] = false;
+    else homeSectionExpanded[key as HomeSectionKey] = false;
   }
 
   return setVisualPreferences({ lowStimulation: true, homeSectionExpanded, bandExpanded });

@@ -32,11 +32,22 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   // here is what keeps it a top-level row instead of a card inside a
   // band, so reaching it is one tap rather than two.
   captureInbox: null,
+  // Home, since 1.0.39.10. 1.0.39.7 left Home with no group at all, by
+  // moving its one member (Low Stimulation) under Profile where the
+  // switch actually lives, and the comment written here at the time
+  // argued that was correct: every card on the page is a way into
+  // somewhere else, so a Home group would only mean "the rest".
+  //
+  // Direct correction the same day: "You removed the Home group from the
+  // Home screen. It should remain at the top in order of occurance in the
+  // TabHub menu." The argument was wrong because it assumed Home owns
+  // nothing. Home owns the greeting, the date and the sky: the one card
+  // that is not a window into another tab. That is the Home group, and it
+  // leads the page the way Home leads the menu.
+  today: '/',
   // Profile's, since 1.0.39.7. It is the same switch Profile carries,
   // surfaced on the page a person is already on, so it belongs under
-  // Profile's name rather than under Home's. Home itself has no group:
-  // every card on the page is already a way into somewhere else, and a
-  // Home group inside Home would only ever mean "the rest".
+  // Profile's name rather than under Home's.
   //
   // /profile is not a TAB_ROUTE (it is a Stack screen TabHub opens with
   // router.push), so its name, icon and colour come from
