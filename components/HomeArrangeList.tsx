@@ -32,10 +32,36 @@
 // rebuild reaches it. That is a steep price for a list of a dozen rows. The
 // responder lives on the grip alone, so the page underneath still scrolls
 // normally everywhere else.
+//
+// Three things had to be right before a drop landed, 1.0.39.17: "I grab the
+// grip on the right side it acts like it wants to move above or below the
+// neighbor groups but it isn't allowed to do it."
+//
+//  1. Rows are ROW_HEIGHT tall but sit ROW_PITCH apart, because every
+//     stacked band in this app leaves HOME_BAND_GAP under it. Counting
+//     places by height alone had the arithmetic and the eye disagreeing
+//     about where the row had got to.
+//  2. A responder built during render is a different responder on the next
+//     render, and setPlaces re-renders mid-gesture. The replacement never
+//     received the grant, so it measured every later move from the top of
+//     the screen instead of from where the finger went down. They are built
+//     once each now and kept.
+//  3. Home draws this list inside a ScrollView, and a finger travelling
+//     straight down is exactly what a ScrollView believes belongs to it. The
+//     grip refuses to hand the gesture over, and Home switches scrolling off
+//     for as long as a row is held (onDragChange).
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Fragment, useRef, useState } from 'react';
-import { Animated, PanResponder, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Animated,
+  PanResponder,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  type PanResponderInstance,
+} from 'react-native';
 import { colors } from '../constants/colors';
 import { homeGroupIdentity } from '../constants/homeGroups';
 import { textShadow, typography } from '../constants/typography';
@@ -55,10 +81,14 @@ import {
 } from '../lib/visualPreferences';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
 
-// One row, group or card, the same height for both. The drag reads a
-// distance and divides by this to get a number of places moved, so it has
-// to be a fixed number rather than whatever a row happened to measure.
+// One row, group or card, the same height for both. Fixed rather than
+// whatever a row happened to measure, so the drag can do arithmetic on it.
 const ROW_HEIGHT = 48;
+// And how far apart two rows actually sit, which is the row plus the one
+// gap every stacked band on Home leaves under it. This is the number a
+// drag divides by to count places moved, and the distance a neighbour
+// slides to make room.
+const ROW_PITCH = ROW_HEIGHT + HOME_BAND_GAP;
 
 type Drag =
   | { kind: 'group'; index: number; count: number }
@@ -72,10 +102,23 @@ type Props = {
   onReorder: (next: HomeSectionKey[]) => void;
   onToggleGroup: (groupId: string) => void;
   onToggleSection: (key: HomeSectionKey) => void;
+  // Called with true the moment a grip is taken and false when it is let
+  // go. Home uses it to stop its ScrollView scrolling while a row is being
+  // moved; without that the scroll wins the gesture and the row never gets
+  // anywhere.
+  onDragChange?: (dragging: boolean) => void;
   onDone: () => void;
 };
 
-export function HomeArrangeList({ order, prefs, onReorder, onToggleGroup, onToggleSection, onDone }: Props) {
+export function HomeArrangeList({
+  order,
+  prefs,
+  onReorder,
+  onToggleGroup,
+  onToggleSection,
+  onDragChange,
+  onDone,
+}: Props) {
   const groups = groupHomeSectionsForDisplay(order);
   const [openGroupId, setOpenGroupId] = useState<string | null>(null);
 
@@ -92,6 +135,12 @@ export function HomeArrangeList({ order, prefs, onReorder, onToggleGroup, onTogg
   const placesRef = useRef(0);
   const dragY = useRef(new Animated.Value(0)).current;
 
+  // The gesture handlers below outlive the render that made them, so they
+  // read the current props through here rather than closing over whichever
+  // ones happened to be in scope when the row was first drawn.
+  const latest = useRef({ order, onReorder, onDragChange });
+  latest.current = { order, onReorder, onDragChange };
+
   function finish() {
     const held = dragRef.current;
     const moved = placesRef.current;
@@ -100,49 +149,84 @@ export function HomeArrangeList({ order, prefs, onReorder, onToggleGroup, onTogg
     setDrag(null);
     setPlaces(0);
     dragY.setValue(0);
+    latest.current.onDragChange?.(false);
     if (!held || moved === 0) return;
     const to = held.index + moved;
-    onReorder(
+    latest.current.onReorder(
       held.kind === 'group'
-        ? reorderHomeGroups(order, held.index, to)
-        : reorderWithinHomeGroup(order, held.groupId, held.index, to),
+        ? reorderHomeGroups(latest.current.order, held.index, to)
+        : reorderWithinHomeGroup(latest.current.order, held.groupId, held.index, to),
     );
   }
 
-  function responderFor(descriptor: Drag) {
-    return PanResponder.create({
+  // Same reason as `latest`: a responder built once has to be able to reach
+  // the newest finish, which is the one holding the newest order.
+  const finishRef = useRef(finish);
+  finishRef.current = finish;
+
+  // One responder per row, made the first time that row is drawn and kept
+  // for as long as the list is up. Rebuilding them every render, which is
+  // what 1.0.39.16 did, swapped a fresh responder onto the grip in the
+  // middle of the gesture: it had never been granted anything, so its idea
+  // of where the finger started was the top of the screen, and the row shot
+  // to the end of its range and stayed there. The row's place in the list
+  // can still change between renders, so that is handed over through a
+  // holder the responder reads at the moment the grip is taken.
+  const responders = useRef(new Map<string, { descriptor: { current: Drag }; instance: PanResponderInstance }>())
+    .current;
+
+  function responderFor(rowKey: string, descriptor: Drag): PanResponderInstance {
+    const made = responders.get(rowKey);
+    if (made) {
+      made.descriptor.current = descriptor;
+      return made.instance;
+    }
+    const holder = { current: descriptor };
+    const instance = PanResponder.create({
       onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponderCapture: () => true,
       onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
+      // Nobody gets to take this gesture back. A finger moving straight
+      // down is what a ScrollView reads as a scroll, and Home draws this
+      // list inside one.
+      onPanResponderTerminationRequest: () => false,
+      onShouldBlockNativeResponder: () => true,
       onPanResponderGrant: () => {
-        dragRef.current = descriptor;
+        const held = holder.current;
+        dragRef.current = held;
         placesRef.current = 0;
         dragY.setValue(0);
         setPlaces(0);
-        setDrag(descriptor);
+        setDrag(held);
+        latest.current.onDragChange?.(true);
         // Picking a group up closes whatever was showing inside one, so
         // every row below is the same height as every row above and the
         // drag lands where it looks like it will.
-        if (descriptor.kind === 'group') setOpenGroupId(null);
+        if (held.kind === 'group') setOpenGroupId(null);
         Haptics.selectionAsync().catch(() => {
           // A phone with no haptics is not a reason to refuse the drag.
         });
       },
       onPanResponderMove: (_event, gesture) => {
+        const held = holder.current;
         dragY.setValue(gesture.dy);
         // Clamped to the ends of whatever this row is allowed to move
         // among: all the groups, or the cards inside one group. A card can
         // never be dragged out from under the name it sits beneath.
-        const lowest = -descriptor.index;
-        const highest = descriptor.count - 1 - descriptor.index;
-        const next = Math.max(lowest, Math.min(highest, Math.round(gesture.dy / ROW_HEIGHT)));
+        const lowest = -held.index;
+        const highest = held.count - 1 - held.index;
+        const next = Math.max(lowest, Math.min(highest, Math.round(gesture.dy / ROW_PITCH)));
         if (next !== placesRef.current) {
           placesRef.current = next;
           setPlaces(next);
         }
       },
-      onPanResponderRelease: finish,
-      onPanResponderTerminate: finish,
+      onPanResponderRelease: () => finishRef.current(),
+      onPanResponderTerminate: () => finishRef.current(),
     });
+    responders.set(rowKey, { descriptor: holder, instance });
+    return instance;
   }
 
   // Where a row that is NOT the one being held should sit right now: one
@@ -153,8 +237,8 @@ export function HomeArrangeList({ order, prefs, onReorder, onToggleGroup, onTogg
     if (drag.kind === 'item' && drag.groupId !== groupId) return 0;
     if (index === drag.index) return 0;
     const to = drag.index + places;
-    if (places > 0 && index > drag.index && index <= to) return -ROW_HEIGHT;
-    if (places < 0 && index < drag.index && index >= to) return ROW_HEIGHT;
+    if (places > 0 && index > drag.index && index <= to) return -ROW_PITCH;
+    if (places < 0 && index < drag.index && index >= to) return ROW_PITCH;
     return 0;
   }
 
@@ -234,7 +318,7 @@ export function HomeArrangeList({ order, prefs, onReorder, onToggleGroup, onTogg
             style={styles.rowButton}
             accessibilityRole="adjustable"
             accessibilityLabel={`Drag ${title} to another place`}
-            {...responderFor(descriptor).panHandlers}
+            {...responderFor(rowKey, descriptor).panHandlers}
           >
             <Ionicons name="reorder-three-outline" size={22} color={held ? color : colors.textSecondary} />
           </View>

@@ -20,6 +20,15 @@
 // stay that way on the Home screen." TabHub only reaches for the pink when
 // Profile is the tab you are standing on (renderProfileTile), which is
 // never true from Home.
+//
+// That grey works as a mark and fails as a font, 1.0.39.17: "The font for
+// Profile group needs to be the same color as that of the Reports group so
+// it is readable against the background." menuIconMuted is a mid slate,
+// which TabHub can afford because its menu sits on a solid panel, while
+// Home lays these bands over a photograph. So the identity carries a
+// second colour for its words alone: Reports' near-white, which is the
+// lightest thing any tab wears and the one the request named. The accent
+// stripe and the icon stay grey, so Profile still reads as Profile.
 import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { colors } from './colors';
@@ -29,10 +38,19 @@ export type HomeGroupIdentity = {
   title: string;
   icon: ComponentProps<typeof Ionicons>['name'];
   color: string;
+  // Only set when the mark and the words want different colours. Left
+  // off, every band falls back to using `color` for both, which is what
+  // all ten tabs do.
+  textColor?: string;
 };
 
 export const HOME_GROUP_IDENTITY: Record<string, HomeGroupIdentity> = {
-  '/profile': { title: 'Profile', icon: 'person-circle', color: colors.menuIconMuted },
+  '/profile': {
+    title: 'Profile',
+    icon: 'person-circle',
+    color: colors.menuIconMuted,
+    textColor: colors.tabReports,
+  },
 };
 
 export function homeGroupIdentity(tabPath: string | null | undefined): HomeGroupIdentity | undefined {

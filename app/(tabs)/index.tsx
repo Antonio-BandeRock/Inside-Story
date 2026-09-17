@@ -928,6 +928,11 @@ export default function HomeScreen() {
   // saved preference: what gets arranged is remembered, but being in the
   // middle of arranging is not something to come back to tomorrow.
   const [arranging, setArranging] = useState(false);
+  // True only while a row in that list is actually being held. The scroll
+  // below is switched off for exactly that long, 1.0.39.17: a vertical drag
+  // and a vertical scroll are the same finger movement, and the ScrollView
+  // was winning it every time.
+  const [arrangeDragging, setArrangeDragging] = useState(false);
 
   // Whether the page has anything left on it at all. Not just every
   // section turned off any more: a group can be turned off whole now, so
@@ -1846,6 +1851,7 @@ export default function HomeScreen() {
         icon={options?.icon ?? identity?.icon ?? 'ellipse-outline'}
         renderIcon={options?.renderIcon}
         color={options?.color ?? identity?.color ?? colors.primary}
+        textColor={options?.color ?? identity?.textColor}
         expanded={isHomeSectionExpanded(visualPrefs, key)}
         onToggle={() => toggleHomeSection(key)}
         onLongPress={() => setArranging(true)}
@@ -2141,6 +2147,7 @@ export default function HomeScreen() {
         title={title}
         icon={identity?.icon ?? 'ellipse-outline'}
         color={identity?.color ?? colors.primary}
+        textColor={identity?.textColor}
         onPress={onPress}
         onLongPress={() => setArranging(true)}
         value={options?.value}
@@ -2750,6 +2757,7 @@ export default function HomeScreen() {
           title={identity?.title ?? 'More'}
           icon={identity?.icon ?? 'ellipse-outline'}
           color={identity?.color ?? colors.primary}
+          textColor={identity?.textColor}
           expanded={tabGroupFolds.isOpen(foldKey)}
           onToggle={() => tabGroupFolds.toggle(foldKey)}
           onLongPress={() => setArranging(true)}
@@ -2911,6 +2919,7 @@ export default function HomeScreen() {
         <ScrollView
           ref={scrollRef}
           style={styles.scroll}
+          scrollEnabled={!arrangeDragging}
           contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}
         >
 
@@ -2951,7 +2960,11 @@ export default function HomeScreen() {
                   homeSectionVisibility: { [key]: !isHomeSectionVisible(visualPrefs, key) },
                 })
               }
-              onDone={() => setArranging(false)}
+              onDragChange={setArrangeDragging}
+              onDone={() => {
+                setArrangeDragging(false);
+                setArranging(false);
+              }}
             />
           ) : (
             <>

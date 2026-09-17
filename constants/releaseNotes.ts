@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.17',
+    date: '2026-09-16',
+    changes: [
+      'Arranging Home now actually moves things. Dragging a group by its grip lifted it and shifted its neighbours but would never let go of it anywhere new; it drops where you put it now, and so does a card inside a group.',
+      'A row also follows your finger properly. It used to count a move after half a row and two moves after one and a bit, so where it looked like it would land and where it would have landed were never the same place.',
+      'The page holds still while you drag. Moving a row down the screen and scrolling the screen are the same motion, and the scroll was taking it.',
+      'The Profile group on Home reads clearly now. Its name and the names of the cards inside it wear the same near-white as Reports, while the mark beside them stays the grey Profile has in the menu.',
+    ],
+  },
+  {
     version: '1.0.39.16',
     date: '2026-09-16',
     changes: [
