@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.11',
+    date: '2026-09-16',
+    changes: [
+      'The Profile group on the Home screen is grey now, the same grey the main menu gives Profile, instead of pink. The pink only ever belonged to the tab you are standing on.',
+    ],
+  },
+  {
     version: '1.0.39.10',
     date: '2026-09-16',
     changes: [

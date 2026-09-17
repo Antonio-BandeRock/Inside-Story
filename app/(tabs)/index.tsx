@@ -538,11 +538,17 @@ function tabColorFor(tabPath: Href): string {
 // tab, and adding it to TAB_ROUTES would make it an eleventh swipeable
 // tab. So its identity is stated here, matching TabHub’s own tile
 // (components/TabHub.tsx, renderProfileTile).
+// The one group on this page whose tab is not in TAB_ROUTES. Its colour is
+// the grey TabHub gives Profile at rest, not Profile's pink identity colour,
+// 1.0.39.11: "Profile's color can't be pink, or whatever color it is. In the
+// TabHub menu, it is a grey color. I think it should stay that way on the
+// Home screen." TabHub only reaches for the pink when Profile is the tab you
+// are standing on (renderProfileTile), which is never true from Home.
 const HOME_GROUP_IDENTITY: Record<
   string,
   { title: string; icon: ComponentProps<typeof Ionicons>['name']; color: string }
 > = {
-  '/profile': { title: 'Profile', icon: 'person-circle', color: colors.tabProfile },
+  '/profile': { title: 'Profile', icon: 'person-circle', color: colors.menuIconMuted },
 };
 
 function homeGroupIdentity(tabPath: string | null | undefined) {
