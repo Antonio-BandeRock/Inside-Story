@@ -26,7 +26,7 @@ import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyl
 import { AppActionSheet } from '../../components/AppActionSheet';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { ProgressRing } from '../../components/ProgressRing';
-import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
+
 import { useBackgroundBottomInset } from '../../components/ScreenBackground';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import {
@@ -725,22 +725,13 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.primary,
     href: '/capture' as Href,
   },
-  // The real awareness ribbon, not Ionicons' own "ribbon" glyph. That glyph is
-  // only ever a fallback for a generic consumer of TAB_ROUTES; it was tried for
-  // real once and rejected because it reads as a race or award rosette (see
-  // PurpleRibbonIcon.tsx's own history), which is why that component exists at
-  // all. This menu had been showing the rejected one.
-  //
-  // 23, not the 30 a custom icon is normally handed here: the ribbon is 1.71x
-  // taller than wide, so at 30 it would tower over the 20px glyphs beside it,
-  // the same thing just corrected in TabHub's own grid.
+  // The Ionicons "ribbon" glyph, which is what the Digest draws everywhere as
+  // of 1.0.39.12 (see components/TabRouteIcon.tsx). No renderIcon override:
+  // it is a font glyph like every other entry in this menu, at the same size.
   digestCards: {
-    label: 'From The Digest',
+    label: 'The Digest',
     icon: 'ribbon',
     color: colors.tabPurpleDigest,
-    // No colour passed: PurpleRibbonIcon decides, and its default is the
-    // tab colour, the same shade as the accent bar and title beside it.
-    renderIcon: () => <PurpleRibbonIcon size={23} />,
     scrollTo: true,
   },
 };
@@ -2288,51 +2279,46 @@ export default function HomeScreen() {
   // horizontally, but the section of the Digest where they exist should be
   // seen as a header for each card. Each card should be capable of
   // scrolling vertically if there is more info on the front or back than
-  // can be displayed." So: a static band (a header row, always open) in
-  // the Digest's colour holding the same horizontal row, and each card
-  // carrying its own Digest category as a header on both faces, with the
-  // band look and a vertical scroll on each face (see FlipCard.tsx).
+  // can be displayed." So: a horizontal row of cards, each carrying its own
+  // Digest category as a header on both faces, with the band look and a
+  // vertical scroll on each face (see FlipCard.tsx).
   //
-  // The band's title and each card's header take the tab colour, the same
-  // as every other band on Home and the same as the ribbon beside them.
-  // Until 2026-09-13 they took the lighter tabPurpleDigestText (the
-  // 2026-08-23 text/fill split); once the ribbon moved to the tab colour
-  // that morning the lighter title beside it read as a mismatch, and the
-  // instruction was to match them: "match the Home band title and card
+  // The row used to sit inside a static band of its own titled "From The
+  // Digest", which put three layers of heading over the cards once the
+  // per-tab groups arrived. 1.0.39.12: "The Digest area on the Home screen
+  // is now 3 layers deep. It needs to only be 2 layers. Keep the outer most
+  // Digest layer, and keep the flip cars layer, but remove the layer labeled
+  // as From The Digest." So the cards sit straight in the Digest group band,
+  // which already carries that title, that colour and that ribbon.
+  //
+  // Each card's header takes the tab colour, the same as the group band
+  // above them. Until 2026-09-13 they took the lighter tabPurpleDigestText
+  // (the 2026-08-23 text/fill split); once the ribbon moved to the tab
+  // colour that morning the lighter title beside it read as a mismatch, and
+  // the instruction was to match them: "match the Home band title and card
   // headers too."
   function renderDigestCards() {
     if (!isHomeSectionVisible(visualPrefs, 'digestCards')) return null;
     return (
-      <HomeSectionBand
-        kind="static"
-        title="From The Digest"
-        icon="ribbon"
-        renderIcon={(size) => <PurpleRibbonIcon size={size} />}
-        color={colors.tabPurpleDigest}
-      >
-        {/* Scrolls out to the band's own edges (the same negative-margin
-            technique logAgainScroll uses), with the row re-adding the inset
-            so the first card starts flush with the header text at rest. */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.flipScroll}
-          contentContainerStyle={styles.flipRow}
-        >
-          {visibleFlipCards.map((card) => (
-            <FlipCard
-              key={card.groupKey}
-              icon={<PurpleRibbonIcon size={18} />}
-              header={DIGEST_CATEGORY_LABEL_BY_KEY[card.groupKey] ?? 'The Digest'}
-              hook={card.hook}
-              backTitle={card.backTitle}
-              backBody={card.backBody}
-              onReadMore={() => router.push({ pathname: '/purple-digest', params: { openEntryId: card.id } })}
-              borderColor={colors.tabPurpleDigest}
-            />
-          ))}
-        </ScrollView>
-      </HomeSectionBand>
+      // No negative margin any more: the group band insets its contents on
+      // the left and leaves the right edge open, so the first card already
+      // starts flush with the group's own text and the row already runs out
+      // to the screen edge. The row adds a right inset so the last card is
+      // not jammed against it.
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.flipRow}>
+        {visibleFlipCards.map((card) => (
+          <FlipCard
+            key={card.groupKey}
+            icon={<Ionicons name="ribbon" size={18} color={colors.tabPurpleDigest} style={textShadow} />}
+            header={DIGEST_CATEGORY_LABEL_BY_KEY[card.groupKey] ?? 'The Digest'}
+            hook={card.hook}
+            backTitle={card.backTitle}
+            backBody={card.backBody}
+            onReadMore={() => router.push({ pathname: '/purple-digest', params: { openEntryId: card.id } })}
+            borderColor={colors.tabPurpleDigest}
+          />
+        ))}
+      </ScrollView>
     );
   }
 
@@ -2947,8 +2933,7 @@ export default function HomeScreen() {
       </SwipeableTabScreen>
 
       {/* Home's own lens menu, replacing the Digest shortcut that used to sit
-          here. PurpleRibbonIcon is untouched and still in use on the Digest tab
-          itself; only this one call site goes away. Nothing is ever "selected":
+          here. Nothing is ever "selected":
           picking an option navigates, so passing undefined keeps the ring off,
           which is what it is for (see LensHub's own note on that prop). */}
       <LensHub
@@ -3459,8 +3444,7 @@ const styles = StyleSheet.create({
   // gap 10 (was 12), 2026-08-08 -- see content's own comment. Inside the
   // Digest band since 2026-09-12: the row scrolls to the band's edges and
   // carries the band's own inset itself, the same as logAgainScroll/Row.
-  flipScroll: { marginHorizontal: -HOME_BAND_CONTENT_PADDING },
-  flipRow: { flexDirection: 'row', gap: 10, paddingHorizontal: HOME_BAND_CONTENT_PADDING },
+  flipRow: { flexDirection: 'row', gap: 10, paddingRight: HOME_BAND_CONTENT_PADDING },
 
   modalBackdrop: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(15, 23, 42, 0.4)', padding: 24 },
   modalBackdropTouchable: { ...StyleSheet.absoluteFillObject },

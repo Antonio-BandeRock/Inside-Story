@@ -341,12 +341,11 @@ export function LensHub<T extends string>({
   // TAB_ROUTES as before.
   icon?: ComponentProps<typeof Ionicons>['name'];
   // Replaces the corner button's icon with fully custom content instead of
-  // an Ionicons glyph, 2026-07-28 -- added for Home's own Digest
-  // button, whose vector "ribbon" glyph read as a race/award rosette
-  // rather than an actual awareness ribbon (see PurpleRibbonIcon.tsx's own
-  // history -- a raw photo was tried and reverted first, for not standing
-  // out against the dark background and not taking a drop shadow the way
-  // every other icon here does). Called with the same pixel size the
+  // an Ionicons glyph, 2026-07-28 -- added for Home's own Digest button,
+  // back when the Digest drew a traced SVG ribbon rather than a font glyph.
+  // The Digest takes the Ionicons "ribbon" glyph again as of 1.0.39.12, so
+  // it no longer needs this; the Today card on Home, which draws the
+  // sprouting seed, does. Called with the same pixel size the
   // Ionicons glyph would have rendered at, so custom icons line up with
   // the rest of this button's layout automatically. Takes over the icon
   // slot entirely when passed (still inside the same open/closed

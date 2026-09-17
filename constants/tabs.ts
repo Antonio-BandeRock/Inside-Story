@@ -59,13 +59,10 @@ export const TAB_ROUTES: TabRoute[] = [
   // tab, 2026-08-05 -- explicitly requested so it has "a real location for
   // the aggregator to exist full time" rather than being reached only via a
   // shortcut. Originally appended last so no other tab's swipe adjacency changed;
-  // placed by meaning since 2026-09-05, see the block comment above. `icon: 'ribbon'` is a plain
-  // Ionicons fallback for any generic consumer of this list that doesn't
-  // know about the real custom mark -- TabHub's own TabRouteIcon helper
-  // special-cases this path (same way it already does for Home) to render
-  // the real PurpleRibbonIcon instead, since a bare Ionicons "ribbon" glyph
-  // was already tried and rejected once (see LensHub.tsx's own history: it
-  // read as a race/award rosette, not an awareness ribbon).
+  // placed by meaning since 2026-09-05, see the block comment above.
+  // `icon: 'ribbon'` is what the Digest actually draws now, everywhere,
+  // as of 1.0.39.12; the traced SVG ribbon that used to override it here
+  // is gone. See components/TabRouteIcon.tsx's own comment for why.
   { path: '/garden', title: 'Garden', icon: 'leaf', color: colors.tabGarden },
   // The 9th real tab, added 2026-08-13 for home-gardening tracking (a real
   // Growing Zone lookup, plots/plantings/harvests, and harvest-as-ingredient

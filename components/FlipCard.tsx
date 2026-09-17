@@ -59,7 +59,10 @@ export function FlipCard({
   borderColor = colors.border,
   headerColor = borderColor,
   width = 220,
-  height = 260,
+  // 299, not 260, 1.0.39.12: "Make the cars a little taller, by about 15%."
+  // The extra 39px goes to the scrolling face, so more of a hook or a back
+  // body lands without a scroll.
+  height = 299,
 }: {
   icon: ReactNode;
   // Where the card came from, shown as a header row on both faces. The
@@ -210,8 +213,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderBottomWidth: HOME_BAND_EDGE_WIDTH,
   },
-  // The ribbon is 1.71x taller than wide; boxing it keeps the row's height
-  // the same whichever icon a caller passes.
+  // Boxed so the row's height is the same whichever icon a caller passes.
   headerIcon: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center' },
   headerText: { ...typography.bodyEmphasis, ...textShadow, flex: 1, fontWeight: '400' },
   faceScroll: { flex: 1 },

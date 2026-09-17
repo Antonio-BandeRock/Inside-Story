@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.12',
+    date: '2026-09-16',
+    changes: [
+      'The Digest area on Home was three headings deep. The middle one, the band labelled From The Digest, is gone. What is left is the Digest group itself and the cards inside it, which is all it ever needed.',
+      'The flip cards are about 15% taller, so more of a hook or a back page lands without a scroll.',
+      'The Digest icon is one mark now, the ribbon the rest of the app already uses, at the same size as every other tab glyph. It is still a ribbon and still nods to autoimmunity, and it carries the other sense the tab is named for: a digest of food and of knowledge.',
+      'That change reaches everywhere the Digest is drawn: the main menu grid, the header at the top of the tab, the corner button, the corner prompt, the Home group and each card header.',
+    ],
+  },
+  {
     version: '1.0.39.11',
     date: '2026-09-16',
     changes: [

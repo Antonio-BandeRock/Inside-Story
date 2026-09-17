@@ -1,3 +1,17 @@
+// NOTHING DRAWS THIS AS OF 1.0.39.12. Direct instruction, about the plain
+// Ionicons glyph that had turned up on the Home screen: "Let's just leave it
+// and change all of the rest to that ribbon instead. It will make working
+// with it elsewhere be far easier since it already matches the icon sizes of
+// the rest of them. This also removes the close identification more of being
+// related to autoimmune diseases more than anything else. It is a ribbon but
+// and still nods to autoimmunity, but is also related to digestions of food
+// and knowledge, so it is also a Digest of Information."
+//
+// The file is kept rather than deleted because a good many comments across
+// the app point at the history recorded below, and because the trace itself
+// took real work and is worth being able to reach for again. An unimported
+// module is not bundled, so it costs nothing to leave here.
+
 import { colors } from '../constants/colors';
 import Svg, { Path } from 'react-native-svg';
 

@@ -17,7 +17,7 @@ import { useInfoAlert } from '../../components/InfoAlert';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
-import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
+
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
@@ -3363,11 +3363,11 @@ export default function PurpleDigestScreen() {
   const searchScopeLabel = drilldownTopicLabel ?? activeLensLabel;
   // The header card's own icon, 2026-08-09, direct request: "instead of
   // the digest icon, use a bigger version of the icon for that condition."
-  // A real per-condition icon here, not the generic PurpleRibbonIcon --
+  // A per-condition icon here, not the tab's own ribbon --
   // `lens !== 'search'` narrows PurpleDigestLens down to a real
   // DigestCategoryKey, the same type DIGEST_CONDITION_ICONS is keyed on,
-  // so this stays type-safe without a separate cast. Falls back to
-  // PurpleRibbonIcon for the 4 lenses with no bespoke icon of their own
+  // so this stays type-safe without a separate cast. Falls back to the
+  // ribbon for the 4 lenses with no bespoke icon of their own
   // (Search, Basic Health, Earth Matters, Home Gardening).
   const ActiveConditionIcon = lens !== 'search' ? DIGEST_CONDITION_ICONS[lens] : undefined;
   // Plain, original category order -- no reordering. See cardOffsets' own
@@ -4157,11 +4157,11 @@ export default function PurpleDigestScreen() {
                         (whichever condition `lens` currently is) would be
                         wrong here regardless of what's showing underneath. */}
                     {glossaryOpen ? (
-                      <PurpleRibbonIcon size={22} />
+                      <Ionicons name="ribbon" size={22} color={TAB_COLOR} style={textShadow} />
                     ) : ActiveConditionIcon ? (
                       <ActiveConditionIcon size={36} color={TAB_COLOR} />
                     ) : (
-                      <PurpleRibbonIcon size={22} />
+                      <Ionicons name="ribbon" size={22} color={TAB_COLOR} style={textShadow} />
                     )}
                     <Text style={styles.categoryHeaderText}>{glossaryOpen ? 'Glossary' : (drilldownTopicLabel ?? activeLensLabel)}</Text>
                   </View>
@@ -4596,15 +4596,9 @@ export default function PurpleDigestScreen() {
         gridPillSize={44}
         gridCustomIconSize={40}
         gridIconSize={26}
-        // Same real custom mark used everywhere else this tab is
-        // represented (Home's own shortcut button, TabHub's own grid) --
-        // without this, LensHub falls back to TAB_ROUTES' plain Ionicons
-        // "ribbon" glyph, which reads as a race/award rosette rather than
-        // an awareness ribbon (see PurpleRibbonIcon.tsx's own history).
-        // TabHub already special-cases this same path; LensHub has no such
-        // per-route special-casing of its own, so it needs this override
-        // explicitly.
-        renderIcon={(size) => <PurpleRibbonIcon size={size} />}
+        // No renderIcon override: LensHub falls back to TAB_ROUTES' own
+        // Ionicons "ribbon" glyph, which is the mark this tab draws
+        // everywhere as of 1.0.39.12.
         autoOpenSignal={openTrigger}
         onSelect={(key) => {
           // Same reasoning as jumpToRelated's own reset -- a fresh lens
