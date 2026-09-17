@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.19',
+    date: '2026-09-16',
+    changes: [
+      'Holding a card inside a group on Home now brings up that group already open, with its cards listed and ready to move. It used to bring up the group names and leave you to work out that the cards were behind one of them.',
+      'The list also scrolls to the group you held, rather than coming up wherever the page happened to be scrolled to. Holding a group name still starts at the top, on the group names, since that is what that hold is asking for.',
+    ],
+  },
+  {
     version: '1.0.39.18',
     date: '2026-09-16',
     changes: [

@@ -933,6 +933,24 @@ export default function HomeScreen() {
   // and a vertical scroll are the same finger movement, and the ScrollView
   // was winning it every time.
   const [arrangeDragging, setArrangeDragging] = useState(false);
+  // Which card was being held when arranging started, so the list can open
+  // on the cards inside that group instead of on the group names,
+  // 1.0.39.19: "If I long press a sub category, they should be what I see
+  // when the ability to move them pops up. I didn't realize I needed to
+  // select the name of the group to get to the sub items."
+  const [arrangeOpenKey, setArrangeOpenKey] = useState<HomeSectionKey | null>(null);
+
+  // Holding a card says "arrange these"; holding a group name says
+  // "arrange the groups", which is why the second one passes nothing.
+  function beginArranging(key?: HomeSectionKey) {
+    setArrangeOpenKey(key ?? null);
+    setArranging(true);
+    // The page being replaced was scrolled to wherever the band being held
+    // sits, and the list that replaces it is shorter, so without this the
+    // list can come up part way down itself. Holding a card scrolls to that
+    // card's group instead, once the list has said where it put it.
+    if (!key) scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }
 
   // Built from what is actually on Home, in the order it is on Home, so the
   // menu and the page can never disagree about what exists.
@@ -1874,7 +1892,7 @@ export default function HomeScreen() {
         textColor={options?.color ?? identity?.textColor}
         expanded={isHomeSectionExpanded(visualPrefs, key)}
         onToggle={() => toggleHomeSection(key)}
-        onLongPress={() => setArranging(true)}
+        onLongPress={() => beginArranging(key)}
         contentStyle={options?.contentStyle}
       >
         {children}
@@ -2171,7 +2189,7 @@ export default function HomeScreen() {
         color={identity?.color ?? colors.primary}
         textColor={identity?.textColor}
         onPress={onPress}
-        onLongPress={() => setArranging(true)}
+        onLongPress={() => beginArranging(key)}
         value={options?.value}
         valueColor={options?.valueColor}
       />
@@ -2786,7 +2804,7 @@ export default function HomeScreen() {
           textColor={identity?.textColor}
           expanded={tabGroupFolds.isOpen(foldKey)}
           onToggle={() => tabGroupFolds.toggle(foldKey)}
-          onLongPress={() => setArranging(true)}
+          onLongPress={() => beginArranging()}
           contentStyle={styles.homeTabGroupBody}
         >
           {shown.map((member) => (
@@ -2987,9 +3005,12 @@ export default function HomeScreen() {
                 })
               }
               hasContent={homeSectionHasContent}
+              openFor={arrangeOpenKey}
+              onReveal={(y) => scrollRef.current?.scrollTo({ y: Math.max(0, y - 12), animated: false })}
               onDragChange={setArrangeDragging}
               onDone={() => {
                 setArrangeDragging(false);
+                setArrangeOpenKey(null);
                 setArranging(false);
               }}
             />

@@ -26,6 +26,14 @@
 // are what make a drag land where the finger says. Picking up a group also
 // closes whatever was open underneath, for the same reason.
 //
+// The list opens where the hold happened, 1.0.39.19: "If I long press a
+// sub category, they should be what I see when the ability to move them
+// pops up. I didn't realize I needed to select the name of the group to
+// get to the sub items." So holding a card hands over that card (openFor)
+// and the group it lives in is already open, with its cards showing and
+// ready to be dragged. Holding a group's own name still starts on the
+// group names, because that is the thing that gesture is about.
+//
 // The drag is React Native's own PanResponder, deliberately. A drag-and-drop
 // library would be a new dependency, and a new dependency changes the EAS
 // fingerprint, which strands every phone's over-the-air updates until a full
@@ -118,6 +126,17 @@ type Props = {
   // question from whether it is switched on. Home is the only thing that
   // knows, so Home answers it.
   hasContent: (key: HomeSectionKey) => boolean;
+  // The card that was being held when this list came up, if it was a card
+  // rather than a group name. Its group opens straight away, so the cards
+  // inside are what the hold actually produces. Read once, when the list
+  // appears, and never again: from there on the list is the thing being
+  // driven, not Home.
+  openFor?: HomeSectionKey | null;
+  // Where that opened group ended up down the page, once it has been laid
+  // out. Home scrolls to it, because the page it replaced was scrolled to
+  // wherever the card being held happened to be, and a list that opens
+  // somewhere in its own middle is no better than one that opens closed.
+  onReveal?: (y: number) => void;
   // Called with true the moment a grip is taken and false when it is let
   // go. Home uses it to stop its ScrollView scrolling while a row is being
   // moved; without that the scroll wins the gesture and the row never gets
@@ -133,6 +152,8 @@ export function HomeArrangeList({
   onToggleGroup,
   onToggleSection,
   hasContent,
+  openFor,
+  onReveal,
   onDragChange,
   onDone,
 }: Props) {
@@ -150,7 +171,29 @@ export function HomeArrangeList({
         .filter(({ key }) => hasContent(key)),
     }))
     .filter((entry) => entry.members.length > 0);
-  const [openGroupId, setOpenGroupId] = useState<string | null>(null);
+  const [openGroupId, setOpenGroupId] = useState<string | null>(() => {
+    if (!openFor) return null;
+    const holding = groups.find((entry) => entry.members.some((member) => member.key === openFor));
+    // A card belonging to no tab is its own row here, so there is nothing
+    // to open for it: it is already the thing being looked at.
+    if (!holding || holding.group.kind !== 'tab') return null;
+    return homeGroupIdOf(holding.group);
+  });
+
+  // Both halves of where the opened group sits in the page: this list's
+  // own top, and the row's top within the list. Which of the two layout
+  // events arrives first is not something to rely on, so each one records
+  // its number and then asks whether the other has arrived yet. Once only:
+  // after that the person is the one deciding where this list is scrolled.
+  const wrapTop = useRef<number | null>(null);
+  const openRowTop = useRef<number | null>(null);
+  const revealed = useRef(false);
+
+  function tryReveal() {
+    if (revealed.current || wrapTop.current === null || openRowTop.current === null) return;
+    revealed.current = true;
+    onReveal?.(wrapTop.current + openRowTop.current);
+  }
 
   // Two copies of the drag on purpose. The state copy re-renders the rows
   // so they can shift out of the way; the ref copy is what the gesture
@@ -302,6 +345,7 @@ export function HomeArrangeList({
     visible: boolean;
     inset: boolean;
     caption?: string;
+    onLayoutTop?: (y: number) => void;
     onToggleVisible: () => void;
     onPress?: () => void;
   }) {
@@ -315,6 +359,7 @@ export function HomeArrangeList({
     return (
       <Animated.View
         key={rowKey}
+        onLayout={options.onLayoutTop ? (event) => options.onLayoutTop?.(event.nativeEvent.layout.y) : undefined}
         style={[
           styles.row,
           inset && styles.rowInset,
@@ -373,7 +418,13 @@ export function HomeArrangeList({
   }
 
   return (
-    <View style={styles.wrap}>
+    <View
+      style={styles.wrap}
+      onLayout={(event) => {
+        wrapTop.current = event.nativeEvent.layout.y;
+        tryReveal();
+      }}
+    >
       <View style={styles.banner}>
         <View style={styles.bannerHeader}>
           <Ionicons name="reorder-four-outline" size={18} color={colors.accent} style={textShadow} />
@@ -421,6 +472,13 @@ export function HomeArrangeList({
                   }`,
               onToggleVisible: () => (solo ? onToggleSection(members[0]) : onToggleGroup(groupId)),
               onPress: solo ? undefined : () => setOpenGroupId(open ? null : groupId),
+              onLayoutTop:
+                openFor && open
+                  ? (y) => {
+                      openRowTop.current = y;
+                      tryReveal();
+                    }
+                  : undefined,
             })}
             {open && !solo
               ? members.map((key, memberIndex) =>
