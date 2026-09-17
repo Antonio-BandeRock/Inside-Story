@@ -129,7 +129,7 @@ const ANDROID_CHANNEL_ID = 'reminders';
 const ANDROID_ROUTINE_CHANNEL_ID = 'routines';
 const ANDROID_DATED_CHANNEL_ID = 'upcoming';
 
-// Same eight keys as ReminderKindKey in lib/reminderPreferences.ts, which is
+// The same keys as ReminderKindKey in lib/reminderPreferences.ts, which is
 // what decides whether each one fires.
 export type ReminderKind = ReminderKindKey;
 
@@ -138,10 +138,13 @@ export type ReminderKind = ReminderKindKey;
 // next reconcile cancel the follow-ups that have not fired yet. An
 // appointment is deliberately absent: there is nothing to mark, and repeating
 // an hour-ahead warning three times just makes it late.
-const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden'];
+// 'reminder' belongs here for the same reason the rest do: it leaves the
+// candidate list the moment somebody answers for it, which is exactly what
+// the Reconciliation screen exists to let them do.
+const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden', 'reminder'];
 
 type ScheduleLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration';
-type ReminderTab = 'schedule' | 'garden' | 'life';
+type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile';
 
 type ReminderPayload = {
   kind: ReminderKind;
@@ -153,7 +156,7 @@ type ReminderPayload = {
   /** Which tab a tap opens. Absent on anything queued before 1.0.39.8, and
    *  read back as 'schedule', which is the only thing it could have been. */
   tab?: ReminderTab;
-  lens: ScheduleLens | 'upcomingTasks' | DatedReminderLens;
+  lens: ScheduleLens | 'upcomingTasks' | DatedReminderLens | 'reconcile';
 };
 
 type PlannedNotification = {
@@ -260,6 +263,7 @@ function describeDose(candidate: ReminderCandidate): string | null {
 function reminderKindFor(candidate: ReminderCandidate): ReminderKind {
   if (candidate.itemType === 'appointment') return 'appointment';
   if (candidate.itemType === 'garden') return 'garden';
+  if (candidate.itemType === 'reminder') return 'reminder';
   if (candidate.itemType !== 'meal') return 'dose';
   return candidate.mealType === 'beverage' ? 'hydration' : 'meal';
 }
@@ -306,6 +310,30 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
   }
 
   if (scheduledFor.getTime() <= now.getTime()) return null;
+
+  if (candidate.itemType === 'reminder') {
+    // A thought somebody wrote down and later gave a day to. Its title is
+    // whatever they typed, in their own words, so nothing is prefixed onto
+    // it or rewritten: the point of the capture inbox is that the words
+    // come back the way they went in.
+    //
+    // The tap lands on Reconciliation rather than a tab, because there is no
+    // tab this belongs to and because answering for it is the whole reason
+    // it has a time.
+    return {
+      identifier: `${IDENTIFIER_PREFIX}reminder:${candidate.id}`,
+      title: candidate.title,
+      body: freshness(scheduledFor),
+      fireAt: scheduledFor,
+      payload: {
+        kind: 'reminder',
+        scheduleItemId: candidate.id,
+        fireAt: scheduledFor.toISOString(),
+        tab: 'reconcile',
+        lens: 'reconcile',
+      },
+    };
+  }
 
   if (candidate.itemType === 'garden') {
     // The title a garden task carries is already a job ("Water the tomato
@@ -479,7 +507,8 @@ async function ensureAndroidChannels(): Promise<void> {
 
 function channelFor(kind: ReminderKind): string {
   if (kind === 'bill' || kind === 'upkeep' || kind === 'benefit') return ANDROID_DATED_CHANNEL_ID;
-  if (kind === 'meal' || kind === 'hydration' || kind === 'garden') return ANDROID_ROUTINE_CHANNEL_ID;
+  if (kind === 'meal' || kind === 'hydration' || kind === 'garden' || kind === 'reminder')
+    return ANDROID_ROUTINE_CHANNEL_ID;
   return ANDROID_CHANNEL_ID;
 }
 
@@ -613,7 +642,8 @@ async function runSync(): Promise<ReminderSyncResult> {
 export type ReminderTapTarget =
   | { pathname: '/schedule'; params: { openScheduleLens: ScheduleLens } }
   | { pathname: '/garden'; params: { openGardenLens: 'upcomingTasks' } }
-  | { pathname: '/life'; params: { openLifeLens: DatedReminderLens } };
+  | { pathname: '/life'; params: { openLifeLens: DatedReminderLens } }
+  | { pathname: '/reconcile' };
 
 const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 'hydration'];
 const DATED_LENSES: DatedReminderLens[] = ['finances', 'upkeep', 'work'];
@@ -631,6 +661,7 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   if (!request || !isOurs(request.identifier)) return null;
   const data = request.content.data as Partial<ReminderPayload> | undefined;
 
+  if (data?.tab === 'reconcile') return { pathname: '/reconcile' };
   if (data?.tab === 'garden') return { pathname: '/garden', params: { openGardenLens: 'upcomingTasks' } };
   if (data?.tab === 'life') {
     const lens = DATED_LENSES.find((option) => option === data.lens) ?? 'finances';

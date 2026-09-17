@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.15',
+    date: '2026-09-16',
+    changes: [
+      'Capture has a Sort it out button now. It opens one screen holding everything waiting on an answer: the thoughts you threw in, and anything scheduled in the last week that nobody said happened or did not.',
+      'A thought can be renamed by tapping it, sent to whichever part of the app it belongs in, or given a day, which turns it into a reminder that will speak up at the time you picked. Nothing is filed for you and nothing is guessed at.',
+      'For a meal, a drink, a dose, a task or an appointment, the answers are one tap each: ate it, some of it, ate something else, skipped it, took it, did it, went. Or move it to later today, tonight, or tomorrow and leave it planned.',
+      'Meals the app filled in for you now come back and ask. Since August, a planned meal whose time passed has been recorded as eaten, because a meal nobody cancelled was probably eaten. That is still what happens, but those meals are now marked as the app answering rather than you, and saying you skipped one takes the food back out of your day.',
+      'Partly and Replaced are two new answers, and they read correctly everywhere the same row shows up: in Meals, Past Meals, Today, Meds and Appointments.',
+      'Things you noted down is a new switch in Profile > Reminders, for the reminders made from your own captured thoughts.',
+    ],
+  },
+  {
     version: '1.0.39.14',
     date: '2026-09-16',
     changes: [

@@ -27,7 +27,8 @@ export type ReminderKindKey =
   | 'garden'
   | 'bill'
   | 'upkeep'
-  | 'benefit';
+  | 'benefit'
+  | 'reminder';
 
 // Four more, 2026-09-16, direct request. Everything in Life that carries
 // a date could be looked at and none of it could speak: a bill due on the
@@ -48,6 +49,12 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   'bill',
   'upkeep',
   'benefit',
+  // 1.0.39.15. A thought from the capture inbox that somebody gave a day
+  // to, which is the only way one ever becomes a scheduled thing. It has no
+  // tab behind it and nothing else in the app defines it, so it needs a kind
+  // of its own rather than borrowing one. Last in the list because it is the
+  // most miscellaneous of them.
+  'reminder',
 ];
 
 export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
@@ -59,6 +66,7 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   bill: 'Bills',
   upkeep: 'Upkeep & renewals',
   benefit: 'Work benefits',
+  reminder: 'Things you noted down',
 };
 
 export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
@@ -74,6 +82,8 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
     'Something from Life > Upkeep coming due or running out: two weeks ahead, three days ahead, then the day itself.',
   benefit:
     'A work benefit resetting with some of it unused, a month ahead and again a week ahead, while there is still time to book something.',
+  reminder:
+    'Something you threw into Capture and later gave a day to, at the time you picked.',
 };
 
 // Defaults per kind rather than one blanket default, because they honestly
@@ -99,6 +109,10 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   bill: true,
   upkeep: true,
   benefit: true,
+  // On, and of all of them this is the one with the strongest claim to it.
+  // Nobody types a thought into Capture and then picks a day for it unless
+  // they want to be told about it on that day.
+  reminder: true,
 };
 
 // Nudging is off, and that is the whole reason it is a switch. A reminder

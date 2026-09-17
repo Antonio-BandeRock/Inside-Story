@@ -7338,6 +7338,28 @@ async function runDatabaseInitialization() {
       await db.execAsync('ALTER TABLE schedule_items ADD COLUMN outside_eating_window INTEGER;');
     }
 
+    // The app answered for this row, not the person. 1.0.39.15, and the
+    // piece that makes Reconciliation able to ask the question it was asked
+    // to ask: "whether or not they actually ate and drank the amounts that
+    // were scheduled, or if they were skipped."
+    //
+    // settlePastScheduledMeals has marked every lapsed scheduled meal
+    // 'logged' since 2026-08-14, on the reasoning that a meal nobody
+    // cancelled was probably eaten and Trends reading nothing at all was
+    // worse than reading an assumption. That is still the better default,
+    // but it meant a meal somebody skipped was recorded as eaten and there
+    // was nowhere to say otherwise. This column is the difference between a
+    // row somebody confirmed and a row the app filled in on their behalf,
+    // so the second kind can be brought back and asked about.
+    //
+    // Null on every row that predates it, which correctly means "not an
+    // assumption this column was watching", rather than retroactively
+    // claiming old rows were confirmed. Cleared the moment a person answers
+    // for the row (see setScheduleItemStatus).
+    if (!scheduleItemColumns.some((existing) => existing.name === 'settled_automatically')) {
+      await db.execAsync('ALTER TABLE schedule_items ADD COLUMN settled_automatically INTEGER;');
+    }
+
     // Appointments (item_type='appointment') -- doctor/lab/nutritionist/
     // trainer visits. appointment_type is a small free-text vocabulary
     // ('lab_draw' matters specifically: it's what lets the biotin/thyroid-
@@ -13920,6 +13942,11 @@ export type ScheduleItemRecord = {
   // cast directly from the query, with no mapping layer), so treat it as
   // truthy/falsy and never compare it with === true.
   outsideEatingWindow: boolean;
+  // True only while the app itself wrote this row's status and nobody has
+  // answered for it since. See the settled_automatically migration.
+  // Arrives from SQLite as 0/1 for the same reason outsideEatingWindow
+  // does, so treat it as truthy and never compare it with === true.
+  settledAutomatically: boolean;
   // Appointment-only fields (item_type='appointment') -- see
   // scheduleAppointment. All null for every other item_type.
   appointmentType: string | null;
@@ -13949,6 +13976,7 @@ const SCHEDULE_ITEM_COLUMNS = `
   appointment_type AS appointmentType, location, provider_name AS providerName,
   linked_device_calendar_event_id AS linkedDeviceCalendarEventId,
   COALESCE(outside_eating_window, 0) = 1 AS outsideEatingWindow,
+  COALESCE(settled_automatically, 0) = 1 AS settledAutomatically,
   rotation_selections_json AS rotationSelectionsJson,
   created_at AS createdAt, updated_at AS updatedAt
 `;
@@ -14029,7 +14057,12 @@ async function insertScheduleSeries(input: {
   // before (My Meds's own help text named that as a gap), and it gets one
   // now through the same machinery, under its own type rather than filed
   // as a prescription.
-  itemType: 'meal' | 'supplement' | 'prescription' | 'otc' | 'appointment' | 'garden' | 'foodTest' | 'fermentation';
+  // 'reminder' added 1.0.39.15, for a thought from the capture inbox that
+  // somebody has put on a day (see scheduleReminder below). It is the one
+  // type with no subject area at all: a captured note is not a meal, a dose
+  // or garden work, and filing it as one of those to avoid a new type would
+  // put it in a lens it does not belong in.
+  itemType: 'meal' | 'supplement' | 'prescription' | 'otc' | 'appointment' | 'garden' | 'foodTest' | 'fermentation' | 'reminder';
   mealType: string | null;
   title: string;
   scheduledFor: string;
@@ -14398,6 +14431,13 @@ export async function settlePastScheduledMeals(): Promise<void> {
       });
       if ('id' in result) {
         await markScheduledMealLogged(item.id, result.id);
+        // Stamped as the app's own answer rather than the person's, so the
+        // Reconciliation screen can bring it back and ask whether the meal
+        // really happened. 1.0.39.15. Kept as a separate write rather than a
+        // parameter on markScheduledMealLogged, because that function is also
+        // what a deliberate "Log now" tap goes through, and that is exactly
+        // the case this must never mark.
+        await db.runAsync('UPDATE schedule_items SET settled_automatically = 1 WHERE id = ?', item.id);
       }
     } catch (error) {
       console.error('[settlePastScheduledMeals] Failed to auto-materialize a lapsed scheduled meal', item.id, error);
@@ -14525,6 +14565,14 @@ export async function getOutsideEatingWindowCountsByDateRange(
 // happen") -- 'planned' rows this old shouldn't exist anymore, matching
 // this app's own established list-size convention (listMeals(100),
 // listFoodTrials()), not unbounded.
+//
+// Two more statuses join the list in 1.0.39.15: 'partial' (some of it was
+// eaten) and 'replaced' (something else was eaten instead), both written by
+// the Reconciliation screen. They are listed here explicitly rather than by
+// dropping the filter, because the filter is what keeps a meal somebody
+// deleted or a row in some state nobody has thought about out of a list
+// people read back as what happened. See describeStatus in
+// lib/reconciliation.ts for the words each one shows as.
 export async function listPastScheduledMeals(limit = 100): Promise<ScheduleItemRecord[]> {
   const db = await getDatabase();
   const now = nowLocalDateTimeString();
@@ -14532,7 +14580,7 @@ export async function listPastScheduledMeals(limit = 100): Promise<ScheduleItemR
     `
       SELECT ${SCHEDULE_ITEM_COLUMNS}
       FROM schedule_items
-      WHERE item_type = 'meal' AND scheduled_for < ? AND status IN ('logged', 'skipped', 'planned')
+      WHERE item_type = 'meal' AND scheduled_for < ? AND status IN ('logged', 'skipped', 'planned', 'partial', 'replaced')
       ORDER BY scheduled_for DESC
       LIMIT ?
     `,
@@ -14784,6 +14832,11 @@ export async function listReminderCandidates(fromLocalDateTime: string, toDate: 
           -- and the same 'planned' status that takes a dose out of this
           -- list once it is marked done.
           OR s.item_type = 'garden'
+          -- A thought somebody put on a day, 1.0.39.15. Same reasoning as
+          -- garden work directly above: it is already a schedule_items row
+          -- with a title, a time and a status, so reminding about one
+          -- needed nothing here but saying so.
+          OR s.item_type = 'reminder'
           OR (s.item_type IN (${MED_DOSE_ITEM_TYPES.map(() => '?').join(', ')}) AND t.id IS NOT NULL AND t.active = 1)
         )
       ORDER BY s.scheduled_for ASC
@@ -14834,6 +14887,7 @@ export async function listTodaysReminders(date: string): Promise<TodaysReminder[
       WHERE substr(s.scheduled_for, 1, 10) = ?
         AND (
           s.item_type = 'appointment'
+          OR s.item_type = 'reminder'
           OR (s.item_type IN (${MED_DOSE_ITEM_TYPES.map(() => '?').join(', ')}) AND t.id IS NOT NULL AND t.active = 1)
         )
       ORDER BY s.scheduled_for ASC
@@ -15063,6 +15117,216 @@ export async function setScheduledMealSkipped(id: string, skipped: boolean) {
     now,
     id,
   );
+}
+
+// --- Reconciliation (1.0.39.15) --------------------------------------------
+//
+// "The same needs to apply for tasks and whether or not they actually ate and
+// drank the amounts that were scheduled, or if they were skipped, or
+// rescheduled, or replaced, etc."
+//
+// Every function above that settles a schedule_items row does it for one
+// item_type: markScheduledMealLogged for a meal, markScheduledDoseTaken for a
+// dose, markAppointmentCompleted and setAppointmentCancelled for an
+// appointment, and nothing at all for garden work, a food-trial check-in or a
+// scheduled thought. Reconciliation asks one question of all of them at once,
+// so it needs one query and one writer that do not care which type a row is.
+// The vocabulary lives in lib/reconciliation.ts, which decides what each kind
+// of thing can be answered with and which status word that answer becomes.
+
+// Everything still 'planned' whose time has passed, back to fromDate,
+// whatever it is. Ordered oldest first, which is the order it gets asked
+// about.
+//
+// The active-treatment check is the same one listReminderCandidates and
+// listTodaysReminders both make, for the same reason: a deactivated med's
+// leftover doses should not come back asking to be answered for after the
+// Meds lens stopped showing them. Written as a subquery rather than the join
+// those two use, because this one selects whole schedule_items rows and
+// treatments carries columns of the same names.
+export async function listOpenScheduleItems(fromDate: string): Promise<ScheduleItemRecord[]> {
+  const db = await getDatabase();
+  const now = nowLocalDateTimeString();
+  return db.getAllAsync<ScheduleItemRecord>(
+    `
+      SELECT ${SCHEDULE_ITEM_COLUMNS}
+      FROM schedule_items
+      WHERE status = 'planned'
+        AND scheduled_for < ?
+        AND substr(scheduled_for, 1, 10) >= ?
+        AND (
+          linked_treatment_id IS NULL
+          OR linked_treatment_id IN (SELECT id FROM treatments WHERE active = 1)
+        )
+      ORDER BY scheduled_for ASC
+    `,
+    now,
+    fromDate,
+  );
+}
+
+// Just the number, for Home's Capture band. Same WHERE as the list above,
+// deliberately duplicated rather than counting the list, so opening Home does
+// not read every row of a week nobody has answered for yet.
+export async function countOpenScheduleItems(fromDate: string): Promise<number> {
+  const db = await getDatabase();
+  const now = nowLocalDateTimeString();
+  const row = await db.getFirstAsync<{ total: number }>(
+    `
+      SELECT COUNT(*) AS total
+      FROM schedule_items
+      WHERE status = 'planned'
+        AND scheduled_for < ?
+        AND substr(scheduled_for, 1, 10) >= ?
+        AND (
+          linked_treatment_id IS NULL
+          OR linked_treatment_id IN (SELECT id FROM treatments WHERE active = 1)
+        )
+    `,
+    now,
+    fromDate,
+  );
+  return row?.total ?? 0;
+}
+
+// One writer for every kind of row, taking the status word rather than a
+// boolean, because there are six status words now and one more
+// mark-this-one-thing function per item_type is how the five above it
+// happened. The caller gets its word from scheduleStatusForOutcome in
+// lib/reconciliation.ts.
+//
+// A note can be attached in the same write, which is what "Ate something
+// else" uses to say so in words. It is appended rather than replacing what is
+// already there, since a scheduled meal often carries its own note already.
+export async function setScheduleItemStatus(id: string, status: string, appendNote?: string): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  // settled_automatically goes to NULL in the same write, every time. A
+  // person answering for the row is the definition of it no longer being
+  // the app's assumption, including when the answer agrees with what the
+  // app had already put there.
+  if (appendNote && appendNote.trim()) {
+    await db.runAsync(
+      `
+        UPDATE schedule_items
+        SET status = ?, notes = TRIM(COALESCE(notes || char(10), '') || ?),
+            settled_automatically = NULL, updated_at = ?
+        WHERE id = ?
+      `,
+      status,
+      appendNote.trim(),
+      now,
+      id,
+    );
+    return;
+  }
+
+  await db.runAsync(
+    `UPDATE schedule_items SET status = ?, settled_automatically = NULL, updated_at = ? WHERE id = ?`,
+    status,
+    now,
+    id,
+  );
+}
+
+// Everything the app answered for on somebody's behalf and nobody has
+// corrected, back to fromDate. Today's meals are deliberately included
+// while the day is still running, because that is when somebody actually
+// remembers whether they ate it.
+export async function listAssumedScheduleItems(fromDate: string): Promise<ScheduleItemRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<ScheduleItemRecord>(
+    `
+      SELECT ${SCHEDULE_ITEM_COLUMNS}
+      FROM schedule_items
+      WHERE settled_automatically = 1
+        AND substr(scheduled_for, 1, 10) >= ?
+      ORDER BY scheduled_for ASC
+    `,
+    fromDate,
+  );
+}
+
+export async function countAssumedScheduleItems(fromDate: string): Promise<number> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ total: number }>(
+    `
+      SELECT COUNT(*) AS total
+      FROM schedule_items
+      WHERE settled_automatically = 1
+        AND substr(scheduled_for, 1, 10) >= ?
+    `,
+    fromDate,
+  );
+  return row?.total ?? 0;
+}
+
+// Saying a meal the app assumed was eaten did not happen, or that something
+// else was eaten instead.
+//
+// The meals row goes with it. settlePastScheduledMeals built that row out of
+// the plan rather than out of anything that happened, and every nutrient
+// figure in Trends and Reports is counting it, so leaving it behind would
+// keep the day claiming food that was never eaten. This is the one place in
+// the app that deletes a meal nobody asked to delete, and it does it only
+// for a row the app invented and the person has just said was wrong.
+export async function correctAssumedScheduleItem(id: string, status: string): Promise<void> {
+  const db = await getDatabase();
+  const item = await getScheduleItemById(id);
+  if (item?.linkedMealId) {
+    await deleteMeal(item.linkedMealId);
+    await db.runAsync(`UPDATE schedule_items SET linked_meal_id = NULL WHERE id = ?`, id);
+  }
+  await setScheduleItemStatus(id, status);
+}
+
+// Rescheduling, which is a time change and not a verdict: the row stays
+// 'planned', so it fires, shows and comes back to be answered for like
+// anything else still ahead. Deliberately no "rescheduled" status to read
+// back later, because there is nothing left to say about it: the thing is
+// simply due at a different time now.
+//
+// One occurrence only. A repeating series keeps its own rules and its other
+// occurrences, which is the honest reading of moving one missed dose to this
+// evening: it does not mean every future dose moves too.
+export async function moveScheduleItem(id: string, scheduledFor: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    `UPDATE schedule_items SET scheduled_for = ?, status = 'planned', updated_at = ? WHERE id = ?`,
+    scheduledFor,
+    new Date().toISOString(),
+    id,
+  );
+}
+
+// A thought from the capture inbox, put on a day.
+//
+// lib/captureNotes.ts states the rule this obeys: "Sorting never creates
+// anything by itself. A garden task needs a day, an upkeep item needs a
+// cadence, a bill needs a rule, and a five-word note carries none of them."
+// The day is the missing piece, and here the person picks it, so nothing is
+// being guessed. The note itself stays in the inbox and gets marked dealt
+// with; this is a second row, not a move, so the words somebody wrote at the
+// time are still readable afterwards.
+//
+// It carries no subject area on purpose. That is what 'reminder' is: a thing
+// with a time and no tab, which is exactly the kind of thing the capture
+// inbox exists to hold.
+export async function scheduleReminder(input: {
+  title: string;
+  scheduledFor: string;
+  notes?: string;
+  repeat?: RepeatConfig;
+}): Promise<string> {
+  return insertScheduleSeries({
+    itemType: 'reminder',
+    mealType: null,
+    title: input.title,
+    scheduledFor: input.scheduledFor,
+    notes: input.notes,
+    repeat: input.repeat ?? { type: 'none' },
+  });
 }
 
 const MEASUREMENT_SYSTEM_KEY = 'measurement_system';

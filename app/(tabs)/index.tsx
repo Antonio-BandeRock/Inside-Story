@@ -62,6 +62,8 @@ import {
   type HomeSkyResult,
 } from '../../lib/homeSky';
 import {
+  countAssumedScheduleItems,
+  countOpenScheduleItems,
   createMealPhotoDraft,
   deleteMealPhotoDraft,
   getCheckinForDate,
@@ -100,6 +102,7 @@ import {
 import { getActiveGroceryListSummary, type GroceryListSummary } from '../../lib/groceryDb';
 import { describeInbox } from '../../lib/captureNotes';
 import { getCaptureInboxCounts } from '../../lib/captureNotesDb';
+import { describeReconcileQueue, lookbackDateString } from '../../lib/reconciliation';
 import { reresolveSavedDishCookingMethods } from '../../lib/db';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { dateStringOffsetFrom } from '../../lib/trendAnalysis';
@@ -473,6 +476,10 @@ type DashboardData = {
   // Reminders shows, just not bound to today.
   gardenTasks: (ScheduleItemRecord & { plotId: string | null; plantingId: string | null })[];
   captureCounts: { waiting: number; sorted: number };
+  // How many scheduled things have gone by without an answer, plus how
+  // many the app answered for on somebody's behalf. Two numbers, not the
+  // rows themselves: Home never reads what any of them were.
+  reconcileCounts: { open: number; assumed: number };
 };
 
 // The periodic symptom check-in's own automatic re-prompt cadence --
@@ -1196,6 +1203,12 @@ export default function HomeScreen() {
       // and it reads no note text: Home only needs to know whether there
       // is anything there.
       getCaptureInboxCounts(),
+      // Reconciliation, 1.0.39.15. Appended last for the same reason as
+      // everything above it. Two COUNT(*) queries over one already-indexed
+      // table rather than the lists themselves, so opening Home never reads
+      // a week of rows nobody has answered for.
+      countOpenScheduleItems(lookbackDateString(new Date())),
+      countAssumedScheduleItems(lookbackDateString(new Date())),
     ]).then(
       ([
         todaysMeals,
@@ -1212,6 +1225,8 @@ export default function HomeScreen() {
         todaysReminders,
         gardenTasks,
         captureCounts,
+        openToAnswer,
+        assumedToConfirm,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1248,6 +1263,7 @@ export default function HomeScreen() {
           checkinReminderDays: profile.checkinReminderDays,
           gardenTasks,
           captureCounts,
+          reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
         });
       },
     );
@@ -2602,18 +2618,41 @@ export default function HomeScreen() {
     );
   }
 
-  // Capture, 2026-09-16. Two rows and a line, and the line says nothing
-  // at all when the inbox is empty, because empty is the normal state and
-  // a card announcing "0 waiting" every morning is noise.
+  // Capture, 2026-09-16. Rows and a line, and the line says nothing at all
+  // when the inbox is empty, because empty is the normal state and a card
+  // announcing "0 waiting" every morning is noise.
   //
-  // Both rows land on the same screen. Say it starts the microphone on
-  // arrival rather than waiting to be tapped again, since somebody who
+  // The first two rows land on the same screen. Say it starts the microphone
+  // on arrival rather than waiting to be tapped again, since somebody who
   // picked the speaking row has already chosen, the same thing
   // app/voice-log.tsx does with its own autoStart.
+  //
+  // Sort it out, 1.0.39.15, is the other direction: everything already
+  // thrown in here plus everything that was scheduled and never answered
+  // for, in one place. Direct instruction: "The Capture band needs to have
+  // a Reconciliation function for them to be able to get to the list of
+  // their thoughts so they can be named, categorized and scheduled or
+  // whatever needs to be done to them. The same needs to apply for tasks
+  // and whether or not they actually ate and drank the amounts that were
+  // scheduled." It shows whenever there is anything at all to answer,
+  // including when the inbox itself is empty, since a week of unanswered
+  // meals is exactly the case somebody needs pointing at.
   function renderCaptureInbox() {
     if (!isHomeSectionVisible(visualPrefs, 'captureInbox')) return null;
     const counts = data?.captureCounts ?? { waiting: 0, sorted: 0 };
     const summary = describeInbox({ ...counts, done: 0 });
+    const reconcile = data?.reconcileCounts ?? { open: 0, assumed: 0 };
+    // Both kinds of unanswered scheduled row counted together, because "we
+    // assumed you ate this" and "nobody said what happened" are the same
+    // question from the person's side.
+    const toAnswer = reconcile.open + reconcile.assumed;
+    // Two sentences, not one. describeInbox already says what the inbox
+    // holds, so the caption below it covers only the scheduled half rather
+    // than counting the same waiting notes a second time in different words.
+    // The button itself watches both, since either one is a reason to open
+    // the screen.
+    const queue = describeReconcileQueue({ thoughts: counts.waiting, scheduled: toAnswer });
+    const answerLine = describeReconcileQueue({ thoughts: 0, scheduled: toAnswer });
     return renderBand(
       'captureInbox',
       'Capture',
@@ -2638,6 +2677,17 @@ export default function HomeScreen() {
           <Ionicons name="mic-outline" size={18} color={colors.primary} style={textShadow} />
           <Text style={[styles.logAgainSpeakText, { color: colors.primary }]}>Say it</Text>
         </TouchableOpacity>
+        {queue ? (
+          <TouchableOpacity
+            style={[styles.logAgainSpeakButton, { borderColor: colors.accent }]}
+            onPress={() => router.push('/reconcile')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="checkmark-done-outline" size={18} color={colors.accent} style={textShadow} />
+            <Text style={[styles.logAgainSpeakText, { color: colors.accent }]}>Sort it out</Text>
+          </TouchableOpacity>
+        ) : null}
+        {answerLine ? <Text style={styles.bandCaption}>{answerLine}</Text> : null}
         {summary ? <Text style={styles.bandCaption}>{summary}</Text> : null}
       </View>,
       { icon: 'file-tray-outline', color: colors.primary },

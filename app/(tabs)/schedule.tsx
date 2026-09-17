@@ -103,6 +103,7 @@ import { useBandFolds } from '../../hooks/useBandFolds';
 import { describeUpkeepStanding, DUE_SOON_DAYS, upkeepCategoryLabel, upkeepStanding, type UpkeepItem, type UpkeepStanding } from '../../lib/upkeep';
 import { listUpkeepItems, markUpkeepDone } from '../../lib/upkeepDb';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
+import { describeStatus } from '../../lib/reconciliation';
 import { modalAnimationType } from '../../lib/visualPreferences';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -1454,7 +1455,7 @@ function MealsLens() {
                         <Text style={styles.rowMeta}>
                           {capitalize(item.mealType ?? '')}
                           {item.sourceFavoriteId ? ' · Favorite' : item.sourceMealId ? ' · Template' : ''}
-                          {item.status === 'logged' ? ' · Logged' : item.status === 'skipped' ? ' · Skipped' : ''}
+                          {statusSuffix(item.status)}
                           {item.repeatGroupId ? ' · Repeats' : ''}
                           {item.linkedDeviceCalendarEventId ? ' · On phone calendar' : ''}
                           {/* Marked, not hidden or warned about again: the
@@ -1644,6 +1645,20 @@ function HydrationRowView({
   );
 }
 
+// One vocabulary for "what happened to this row", read from
+// lib/reconciliation.ts rather than retyped per lens. Added 1.0.39.15,
+// when 'partial' and 'replaced' became answers somebody can actually give
+// on the Reconciliation screen. Every lens below shows the same
+// schedule_items rows that screen writes to, so without one shared
+// translation those two answers would have read here as nothing at all.
+//
+// A null back means 'planned', which is the absence of an answer and gets
+// no label of its own.
+function statusSuffix(status: string): string {
+  const label = describeStatus(status);
+  return label ? ` · ${label}` : '';
+}
+
 function formatPastMealDate(value: string): string {
   const [year, month, day] = value.slice(0, 10).split('-').map(Number);
   return new Date(year, month - 1, day).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
@@ -1711,11 +1726,11 @@ function PastMealsLens() {
                     <Text style={styles.rowTitle}>{item.title}</Text>
                     <Text style={styles.rowMeta}>
                       {formatPastMealDate(item.scheduledFor)} · {capitalize(item.mealType ?? '')}
-                      {item.status === 'skipped'
-                        ? ' · Skipped'
-                        : item.status === 'planned'
-                          ? " · Couldn't be logged automatically -- open it from Meals to log it directly"
-                          : ''}
+                      {item.status === 'planned'
+                        ? " · Couldn't be logged automatically: open it from Meals to log it directly"
+                        : item.status === 'logged'
+                          ? ''
+                          : statusSuffix(item.status)}
                     </Text>
                   </View>
                 </View>
@@ -2415,7 +2430,9 @@ function TodaysMealsLens() {
                   <Text style={styles.rowMeta}>
                     {[
                       meal.mealType ? capitalizeFirst(meal.mealType) : null,
-                      meal.status === 'logged' ? 'Eaten' : meal.status === 'skipped' ? 'Skipped' : 'Planned',
+                      // 'Eaten' rather than 'Logged' here, because this lens is
+                      // about the food itself and not about the record of it.
+                      meal.status === 'logged' ? 'Eaten' : (describeStatus(meal.status) ?? 'Planned'),
                     ]
                       .filter(Boolean)
                       .join(' · ')}
@@ -3227,7 +3244,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
                       <View key={dose.id} style={styles.doseRow}>
                         <Text style={styles.doseRowTime}>{formatTime12(dose.scheduledFor.split('T')[1] ?? '')}</Text>
                         <Text style={styles.doseRowStatus}>
-                          {capitalize(dose.status)}
+                          {describeStatus(dose.status) ?? 'Planned'}
                           {dose.repeatGroupId ? ' · Repeats' : ''}
                         </Text>
                         {renderDoseActions(dose)}
@@ -3291,7 +3308,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
                       <View style={styles.rowTextCol}>
                         <Text style={styles.rowTitle}>{treatmentById.get(dose.linkedTreatmentId ?? '')?.name ?? dose.title}</Text>
                         <Text style={styles.rowMeta}>
-                          {capitalize(dose.status)}
+                          {describeStatus(dose.status) ?? 'Planned'}
                           {dose.repeatGroupId ? ' · Repeats' : ''}
                         </Text>
                       </View>
@@ -3992,7 +4009,7 @@ function AppointmentsLens() {
                         {appointmentTypeLabel(item.appointmentType)}
                         {item.providerName ? ` · ${item.providerName}` : ''}
                         {item.location ? ` · ${item.location}` : ''}
-                        {item.status === 'completed' ? ' · Completed' : item.status === 'cancelled' ? ' · Cancelled' : ''}
+                        {statusSuffix(item.status)}
                         {item.linkedDeviceCalendarEventId ? ' · On phone calendar' : ''}
                       </Text>
                     </View>

@@ -615,6 +615,21 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* Reconciliation, 1.0.39.15. A Stack screen for the same
+                    reason Capture is one: it belongs to no tab because it asks
+                    about all of them at once, and putting it inside one would
+                    hide the other nine tabs' worth of loose ends behind a
+                    choice nobody should have to make first. Reached from
+                    Home's Capture band. */}
+                <Stack.Screen
+                  name="reconcile"
+                  options={{
+                    headerShown: true,
+                    title: 'Reconcile',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 {/* Which of two brands is actually cheaper, 2026-09-01. Reached
                     from a grocery list line, or on its own. */}
                 <Stack.Screen
