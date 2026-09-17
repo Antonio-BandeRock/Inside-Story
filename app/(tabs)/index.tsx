@@ -934,20 +934,6 @@ export default function HomeScreen() {
   // was winning it every time.
   const [arrangeDragging, setArrangeDragging] = useState(false);
 
-  // Whether the page has anything left on it at all. Not just every
-  // section turned off any more: a group can be turned off whole now, so
-  // a page can empty out without a single card being switched off itself.
-  const nothingIsShowing = useMemo(
-    () =>
-      groupHomeSectionsForDisplay(getOrderedHomeSectionKeys(visualPrefs)).every((group) =>
-        group.kind === 'tab'
-          ? !isHomeGroupVisible(visualPrefs, homeGroupIdOf(group)) ||
-            group.keys.every((key) => !isHomeSectionVisible(visualPrefs, key))
-          : !isHomeSectionVisible(visualPrefs, group.key),
-      ),
-    [visualPrefs],
-  );
-
   // Built from what is actually on Home, in the order it is on Home, so the
   // menu and the page can never disagree about what exists.
   const homeLensOptions = useMemo<LensOption<HomeSectionKey>[]>(
@@ -1043,6 +1029,40 @@ export default function HomeScreen() {
     const timer = setInterval(() => setFlipCardRotation((current) => current + 1), FLIP_CARD_ROTATION_MS);
     return () => clearInterval(timer);
   }, []);
+
+  // Whether a card has anything to show right now, which is a different
+  // question from whether it is switched on, and these two are the only
+  // cards where the answer can be no. Stated here rather than inside each
+  // render alone so the arranging list can ask it too, 1.0.39.18: "Shared
+  // Folder Setup shows when I go to move groups but its not there when I
+  // select Done." A card somebody switched off belongs on that list,
+  // greyed, so it can be switched back on. A card that is not here today
+  // is not a row at all.
+  function homeSectionHasContent(key: HomeSectionKey) {
+    if (key === 'sharedFolderSetup') return sharedFolderReady === false;
+    if (key === 'weekTrend') return Boolean(weekTrend);
+    return true;
+  }
+
+  // Whether the page has anything left on it at all. Not just every
+  // section turned off any more: a group can be turned off whole now, so
+  // a page can empty out without a single card being switched off itself,
+  // and a card with nothing to show today leaves no band behind either.
+  const nothingIsShowing = useMemo(
+    () =>
+      groupHomeSectionsForDisplay(getOrderedHomeSectionKeys(visualPrefs)).every((group) =>
+        group.kind === 'tab'
+          ? !isHomeGroupVisible(visualPrefs, homeGroupIdOf(group)) ||
+            group.keys.every(
+              (key) => !isHomeSectionVisible(visualPrefs, key) || !homeSectionHasContent(key),
+            )
+          : !isHomeSectionVisible(visualPrefs, group.key) || !homeSectionHasContent(group.key),
+      ),
+    // homeSectionHasContent is rebuilt every render and reads exactly the
+    // two values listed here, so those are the dependencies that matter.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [visualPrefs, sharedFolderReady, weekTrend],
+  );
 
   const userConditionCodesRef = useRef(userConditionCodes);
   useEffect(() => {
@@ -1866,7 +1886,9 @@ export default function HomeScreen() {
   // keeps colors.primary and its own cloud icon rather than borrowing a
   // tab's. The nudge itself is the row's name, so folded it still nudges.
   function renderSharedFolderSetup() {
-    if (sharedFolderReady !== false || !isHomeSectionVisible(visualPrefs, 'sharedFolderSetup')) return null;
+    if (!homeSectionHasContent('sharedFolderSetup') || !isHomeSectionVisible(visualPrefs, 'sharedFolderSetup')) {
+      return null;
+    }
     return renderBand(
       'sharedFolderSetup',
       'Set up your shared folder',
@@ -2263,7 +2285,11 @@ export default function HomeScreen() {
   }
 
   function renderWeekTrend() {
-    if (!weekTrend || !isHomeSectionVisible(visualPrefs, 'weekTrend')) return null;
+    if (!homeSectionHasContent('weekTrend') || !isHomeSectionVisible(visualPrefs, 'weekTrend')) return null;
+    // The line above already settled this. TypeScript narrows from the
+    // value itself, though, not from a function that went and read it,
+    // so the rest of this card needs to be told again.
+    if (!weekTrend) return null;
     return renderBand(
       'weekTrend',
       "This Week's Trend",
@@ -2960,6 +2986,7 @@ export default function HomeScreen() {
                   homeSectionVisibility: { [key]: !isHomeSectionVisible(visualPrefs, key) },
                 })
               }
+              hasContent={homeSectionHasContent}
               onDragChange={setArrangeDragging}
               onDone={() => {
                 setArrangeDragging(false);

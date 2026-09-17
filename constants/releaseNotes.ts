@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.39.18',
+    date: '2026-09-16',
+    changes: [
+      'Arranging Home now lists only what Home is actually showing. Shared Folder Setup turned up in the list and then was not on the page when you pressed Done, because that card only appears while there is no shared folder set up yet. Same for This Week\'s Trend before there is a week to draw.',
+      'A card you switched off yourself still sits in the list, greyed, the way it did, so it can be switched back on from the same place.',
+    ],
+  },
+  {
     version: '1.0.39.17',
     date: '2026-09-16',
     changes: [

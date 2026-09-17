@@ -50,6 +50,18 @@
 //     straight down is exactly what a ScrollView believes belongs to it. The
 //     grip refuses to hand the gesture over, and Home switches scrolling off
 //     for as long as a row is held (onDragChange).
+//
+// What this list shows and what the page shows have to agree, 1.0.39.18:
+// "Shared Folder Setup shows when I go to move groups but its not there
+// when I select Done." A card can be off the page for either of two
+// reasons, and only one of them belongs here. Switched off is a decision
+// somebody made, so it stays on the list, greyed, waiting to be switched
+// back on. Nothing to show today is not a decision at all: the shared
+// folder card exists only while there is no shared folder yet, and the
+// week trend only while there is a week to draw. Those are not rows.
+// Home answers which is which through hasContent, and the drag counts
+// places among the rows on screen, turning that back into places in the
+// saved order at the moment it lands.
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { Fragment, useRef, useState } from 'react';
@@ -102,6 +114,10 @@ type Props = {
   onReorder: (next: HomeSectionKey[]) => void;
   onToggleGroup: (groupId: string) => void;
   onToggleSection: (key: HomeSectionKey) => void;
+  // Whether a card has anything to show right now, which is a different
+  // question from whether it is switched on. Home is the only thing that
+  // knows, so Home answers it.
+  hasContent: (key: HomeSectionKey) => boolean;
   // Called with true the moment a grip is taken and false when it is let
   // go. Home uses it to stop its ScrollView scrolling while a row is being
   // moved; without that the scroll wins the gesture and the row never gets
@@ -116,10 +132,24 @@ export function HomeArrangeList({
   onReorder,
   onToggleGroup,
   onToggleSection,
+  hasContent,
   onDragChange,
   onDone,
 }: Props) {
-  const groups = groupHomeSectionsForDisplay(order);
+  // Every group, paired with where it sits in the saved order, and with
+  // only the cards that have something to show. A group whose cards are
+  // all absent today is not a row either, the same way Home draws no band
+  // for it. Both index numbers are kept because the drag counts places
+  // among these rows while the reorder writes against the saved order.
+  const groups = groupHomeSectionsForDisplay(order)
+    .map((group, orderIndex) => ({
+      group,
+      orderIndex,
+      members: homeGroupMembers(group)
+        .map((key, memberIndex) => ({ key, memberIndex }))
+        .filter(({ key }) => hasContent(key)),
+    }))
+    .filter((entry) => entry.members.length > 0);
   const [openGroupId, setOpenGroupId] = useState<string | null>(null);
 
   // Two copies of the drag on purpose. The state copy re-renders the rows
@@ -138,8 +168,8 @@ export function HomeArrangeList({
   // The gesture handlers below outlive the render that made them, so they
   // read the current props through here rather than closing over whichever
   // ones happened to be in scope when the row was first drawn.
-  const latest = useRef({ order, onReorder, onDragChange });
-  latest.current = { order, onReorder, onDragChange };
+  const latest = useRef({ order, onReorder, onDragChange, groups });
+  latest.current = { order, onReorder, onDragChange, groups };
 
   function finish() {
     const held = dragRef.current;
@@ -151,11 +181,24 @@ export function HomeArrangeList({
     dragY.setValue(0);
     latest.current.onDragChange?.(false);
     if (!held || moved === 0) return;
+    // Places crossed on screen, turned into places in the saved order: the
+    // row lands where the row it was dropped onto is sitting right now, so
+    // a card the page is not showing today keeps whatever place it had.
+    const { order: saved, groups: shown } = latest.current;
     const to = held.index + moved;
+    if (held.kind === 'group') {
+      const from = shown[held.index];
+      const onto = shown[to];
+      if (!from || !onto) return;
+      latest.current.onReorder(reorderHomeGroups(saved, from.orderIndex, onto.orderIndex));
+      return;
+    }
+    const group = shown.find((entry) => homeGroupIdOf(entry.group) === held.groupId);
+    const fromCard = group?.members[held.index];
+    const ontoCard = group?.members[to];
+    if (!fromCard || !ontoCard) return;
     latest.current.onReorder(
-      held.kind === 'group'
-        ? reorderHomeGroups(latest.current.order, held.index, to)
-        : reorderWithinHomeGroup(latest.current.order, held.groupId, held.index, to),
+      reorderWithinHomeGroup(saved, held.groupId, fromCard.memberIndex, ontoCard.memberIndex),
     );
   }
 
@@ -346,9 +389,9 @@ export function HomeArrangeList({
         </Text>
       </View>
 
-      {groups.map((group, groupIndex) => {
+      {groups.map(({ group, members: shownMembers }, groupIndex) => {
         const groupId = homeGroupIdOf(group);
-        const members = homeGroupMembers(group);
+        const members = shownMembers.map((member) => member.key);
         const identity = group.kind === 'tab' ? homeGroupIdentity(group.path) : undefined;
         const color = identity?.color ?? colors.primary;
         // A card belonging to no tab is a row on Home rather than a band,
