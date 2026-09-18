@@ -112,7 +112,7 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
   {
     id: 'sjogrens-secondary-ra-lupus-overlap',
     category: 'sjogrens',
-    title: "Secondary Sjögren's: A Substantial Overlap With Two Conditions covered",
+    title: "Secondary Sjögren's Overlaps Substantially With Rheumatoid Arthritis and Lupus",
     teaser: "Sjögren's very often doesn't occur alone. Numbers show just how often it rides alongside rheumatoid arthritis and lupus specifically.",
     summary: "Sjögren's frequently occurs as \"secondary\" Sjögren's, meaning alongside another autoimmune disease rather than on its own, and the numbers for two specific conditions covered in the research are substantial. Observational registry data finds Sjögren's overlapping with rheumatoid arthritis in as many as 30% of RA patients (with rheumatologist-diagnosed estimates running lower, around 8.7%, depending on which diagnostic criteria are used), and the prevalence of this overlap increases the longer someone has had RA. With lupus, systematic reviews find a secondary Sjögren's prevalence of roughly 14% to 18%. For anyone managing RA or lupus already, persistent dry eyes or dry mouth symptoms are worth raising specifically as a possible sign of secondary Sjögren's, not just written off as a side effect of the primary diagnosis or its medications, since the management specifics covered elsewhere in this category (dental protection, dryness triggers, lymphoma awareness) apply just as directly to secondary Sjögren's as to the primary form.",
     citations: [

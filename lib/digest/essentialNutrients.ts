@@ -1902,7 +1902,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
   {
     id: 'biotin-overview',
     category: 'basicHealth',
-    title: 'Biotin (B7): A Rare Deficiency, and a Different Story',
+    title: 'Biotin (B7): A Rare Deficiency, and a Common Lab-Test Interference',
     teaser: "Biotin's deficiency is rare enough that most people will never encounter it, but a completely separate biotin issue, lab-test interference, is common and covered in the Labs & Medication Timing category.",
     summary: "Biotin is a required cofactor for several carboxylase enzymes central to fatty-acid, amino-acid, and glucose metabolism. Clinically significant deficiency is uncommon in the general population, occurring mainly with prolonged antibiotic use, certain anticonvulsant medications, or total parenteral nutrition (IV feeding bypassing the gut entirely), with symptoms including hair loss, a scaly rash, and, in severe cases, neurological symptoms. This is a common point of confusion: biotin's well-documented, and much more commonly relevant issue today isn't dietary deficiency at all, it's high-dose biotin supplementation interfering with certain thyroid and other lab-test assays, covered in full in the Labs & Medication Timing category, a separate story from the classic nutrient-deficiency picture covered here.",
     citations: [

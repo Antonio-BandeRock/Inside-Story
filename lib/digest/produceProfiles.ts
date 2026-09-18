@@ -133,7 +133,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
   {
     id: 'produce-cruciferous',
     category: 'basicHealth',
-    title: 'Broccoli and Cabbage: Cancer-Prevention Research, and an Thyroid Caveat',
+    title: 'Broccoli and Cabbage: Cancer-Prevention Research, and a Thyroid Caveat',
     teaser: 'Cruciferous vegetables carry well-studied compounds linked to cancer-prevention research, and, specifically raw and in large amounts, a goitrogenic effect.',
     summary: 'Broccoli, cabbage, and their cruciferous relatives contain glucosinolates, compounds that break down into sulforaphane and related substances with repeatedly documented anti-cancer research behind them, including the already-cited prostate-health research on sulforaphane specifically. The same glucosinolate family is also the well-established source of these vegetables\' goitrogenic effect (interfering with the thyroid\'s iodine uptake), a caution covered in depth under Problem Foods & Swaps, the practical, already-established real-world answer is that cooking substantially reduces the goitrogenic compounds while largely preserving the cancer-prevention-relevant ones, making raw, large-quantity consumption the actual scenario worth being deliberate about, not cruciferous vegetables broadly.',
     citations: [
