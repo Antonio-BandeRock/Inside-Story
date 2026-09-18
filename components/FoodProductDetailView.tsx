@@ -108,7 +108,7 @@ export function FoodProductDetailView({ id, onClose }: { id: string; title?: str
     if (!product) return;
     const price = Number(priceText);
     if (!priceText || Number.isNaN(price) || price <= 0) {
-      showInfoAlert('Enter a real price', 'Type in what you actually paid before logging it.');
+      showInfoAlert('Enter a price', 'Type in what you actually paid before logging it.');
       return;
     }
     setLoggingPrice(true);
@@ -128,7 +128,7 @@ export function FoodProductDetailView({ id, onClose }: { id: string; title?: str
     if (!product) return;
     const ok = await confirmSheet({
       title: `Delete "${product.name}"?`,
-      message: 'This removes it from My Food Products for good, including its own price history. This cannot be undone.',
+      message: 'This removes it from My Food Products for good, including its price history. This cannot be undone.',
       confirmLabel: 'Delete',
       destructive: true,
     });
@@ -265,7 +265,7 @@ export function FoodProductDetailView({ id, onClose }: { id: string; title?: str
             yMin={Math.max(0, minPrice - pricePad)}
             yMax={maxPrice + pricePad}
             valueFormatter={(value) => `$${value.toFixed(2)}`}
-            emptyMessage="Log at least two prices to see a real trend line."
+            emptyMessage="Log at least two prices to see a trend line."
           />
           {priceHistory.length > 0 ? (
             <View style={styles.priceList}>

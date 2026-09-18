@@ -179,7 +179,7 @@ function timeGreeting(): string {
 const GREETING_AFFIRMATIONS = [
   "Glad you're here",
   'One step at a time',
-  'Take it at your own pace',
+  'No rush today',
   "Here's to a steady day",
   'Glad you checked in',
   'No rush today',
@@ -871,7 +871,7 @@ function findUpNext(scheduledToday: ScheduleItemRecord[]): UpNext | null {
 const HOME_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page is for',
-    body: "One glance at where today already stands, without opening five separate tabs to find out. This is the page you open first: your day's own schedule, whether today's nutrients are on track, and how you've been feeling, all refreshed the moment you open the app.",
+    body: "One glance at where today already stands, without opening five separate tabs to find out. This is the page you open first: your day's schedule, whether today's nutrients are on track, and how you've been feeling, all refreshed the moment you open the app.",
   },
   {
     heading: 'What this page shows',
@@ -883,7 +883,7 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: "Today's sky & weather",
-    body: "A row of chips under the date. Moon phase and the next equinox/solstice countdown are computed directly on your phone using standard astronomical formulas; no location or network needed, so they're always shown. Sunrise, sunset, today's high and low temperature, humidity, UV index, and air quality (AQI) come from Open-Meteo, a free weather service, using the same location your Garden → My Zone already has saved, with no separate GPS permission required. The high/low chips turn red or cool blue-teal, with a 🥵/🥶 icon, only when today's forecast actually crosses a plain, disclosed threshold; this isn't an official government weather warning. Pollen is requested for any location, but only ever shows where the weather service actually has real data for it, which today means Europe; nothing is guessed or approximated for anywhere else (the US isn't covered by the free source this app uses right now). If a fetch genuinely fails, a chip says so directly (offline, a service error, or an unexpected response) rather than quietly showing old numbers as if they were current. Nothing shows here until you've set a growing zone in Garden → My Zone; tap the prompt chip to go straight there.",
+    body: "A row of chips under the date. Moon phase and the next equinox/solstice countdown are computed directly on your phone using standard astronomical formulas; no location or network needed, so they're always shown. Sunrise, sunset, today's high and low temperature, humidity, UV index, and air quality (AQI) come from Open-Meteo, a free weather service, using the same location your Garden → My Zone already has saved, with no separate GPS permission required. The high/low chips turn red or cool blue-teal, with a 🥵/🥶 icon, only when today's forecast actually crosses a plain, disclosed threshold; this isn't an official government weather warning. Pollen is requested for any location, but only ever shows where the weather service actually has data for it, which today means Europe; nothing is guessed or approximated for anywhere else (the US isn't covered by the free source this app uses right now). If a fetch fails, a chip says so directly (offline, a service error, or an unexpected response) rather than quietly showing old numbers as if they were current. Nothing shows here until you've set a growing zone in Garden → My Zone; tap the prompt chip to go straight there.",
   },
   {
     heading: 'The Day Arc',
@@ -919,15 +919,15 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Why food and timing matter here',
-    body: 'Certain foods and minerals (calcium and iron are well-documented examples) can interfere with how well a thyroid prescription is absorbed if eaten too close to a dose, which is part of why Schedules tracks meal, supplement, and prescription timing together. Digestion and absorption are also frequently disrupted in Hashimoto’s, which is why gut and microbiome support is treated as its own goal throughout this app.',
+    body: 'Certain foods and minerals (calcium and iron are well-documented examples) can interfere with how well a thyroid prescription is absorbed if eaten too close to a dose, which is part of why Schedules tracks meal, supplement, and prescription timing together. Digestion and absorption are also frequently disrupted in Hashimoto’s, which is why gut and microbiome support is treated as a goal in its own right throughout this app.',
   },
   {
     heading: 'What Inside Story does',
-    body: "Not a generic calorie counter. Inside Story exists to help someone with an autoimmune condition relearn how and what to eat, and understand how food affects their own body specifically. Hashimoto's is the first condition built out in full depth, with more autoimmune conditions in active development. Meals builds and scores meals; Insights shows how today stacks up; Schedules handles timing; Trends looks for patterns over time; Signals is where you record flares, reactions, and new foods; Reports turns it all into something to hand a doctor.",
+    body: "Not a generic calorie counter. Inside Story exists to help someone with an autoimmune condition relearn how and what to eat, and understand how food affects their body specifically. Hashimoto's is the first condition built out in full depth, with more autoimmune conditions in active development. Meals builds and scores meals; Insights shows how today stacks up; Schedules handles timing; Trends looks for patterns over time; Signals is where you record flares, reactions, and new foods; Reports turns it all into something to hand a doctor.",
   },
   {
     heading: 'Personal notes, not medical fact',
-    body: "This page's education sections and your own Signals entries are general information and personal observation, not medical advice, and are not a substitute for care from your own doctor.",
+    body: "This page's education sections and your Signals entries are general information and personal observation, not medical advice, and are not a substitute for care from your doctor.",
   },
   {
     heading: 'Getting around',
@@ -2453,7 +2453,7 @@ export default function HomeScreen() {
         if (result.status === 'permission-denied') {
           showInfoAlert(
             source === 'camera' ? 'Camera access needed' : 'Photo access needed',
-            "You can turn this on in your device's own Settings, under this app's permissions.",
+            "You can turn this on in your device's Settings, under this app's permissions.",
           );
         } else if (result.status === 'too-small') {
           showInfoAlert('That photo is too small', 'Try taking a new one rather than using a thumbnail.');
@@ -3144,7 +3144,7 @@ export default function HomeScreen() {
           {testDataPresent ? (
             <View style={styles.testDataBanner}>
               <Text style={styles.testDataBannerText}>
-                Test data is loaded. Some harvests, ferments and past shopping here are not real. Remove it from Profile
+                Test data is loaded. Some harvests, ferments and past shopping here are made up. Remove it from Profile
                 &gt; Developer Tools.
               </Text>
             </View>

@@ -27,11 +27,11 @@ export const HEALING_STAGES: HealingStage[] = ['triage', 'digging', 'gut_repair'
 export const HEALING_STAGE_INFO: Record<HealingStage, { label: string; shortDescription: string }> = {
   triage: {
     label: 'Stage 1: Triage',
-    shortDescription: 'Symptom relief and hormone stabilization -- just starting out, or still finding your footing.',
+    shortDescription: 'Symptom relief and hormone stabilization, just starting out or still finding your footing.',
   },
   digging: {
     label: 'Stage 2: Digging',
-    shortDescription: 'Removing triggers -- most often gluten and dairy first. Food choices matter the most here.',
+    shortDescription: 'Removing triggers, most often gluten and dairy first. Food choices matter the most here.',
   },
   gut_repair: {
     label: 'Stage 3: Gut Repair',
@@ -39,11 +39,11 @@ export const HEALING_STAGE_INFO: Record<HealingStage, { label: string; shortDesc
   },
   rebalancing: {
     label: 'Stage 4: Rebalancing',
-    shortDescription: 'Immune modulation and HPA/adrenal support -- broader lifestyle work, less about strict food rules.',
+    shortDescription: 'Immune modulation and HPA/adrenal support: broader lifestyle work, less about strict food rules.',
   },
   maintenance: {
     label: 'Stage 5: Maintenance',
-    shortDescription: "Clinical remission, antibodies in range -- maintaining what's already working.",
+    shortDescription: "Clinical remission, antibodies in range, maintaining what's already working.",
   },
 };
 

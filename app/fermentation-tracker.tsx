@@ -54,7 +54,7 @@ import { parseAmountValue } from '../lib/measurement';
 const STAGE_LABELS: Record<FermentationBatchStage, string> = {
   primary: 'Primary Ferment',
   carbonating: 'Carbonating',
-  refrigerated: 'Refrigerated — Ready to Harvest',
+  refrigerated: 'Refrigerated, Ready to Harvest',
   finished: 'Finished',
 };
 
@@ -162,7 +162,7 @@ export default function FermentationTrackerScreen() {
   async function handleDeleteBatch(batch: FermentationBatch) {
     const ok = await confirmSheet({
       title: `Stop tracking "${batch.fermentationName}"?`,
-      message: 'This removes it from your active batches and cancels its own remaining reminders. This cannot be undone.',
+      message: 'This removes it from your active batches and cancels its remaining reminders. This cannot be undone.',
       confirmLabel: 'Stop Tracking',
       destructive: true,
     });
@@ -180,7 +180,7 @@ export default function FermentationTrackerScreen() {
   async function handleRecordHarvest(batch: FermentationBatch) {
     const quantity = parseAmountValue(harvestQuantityText);
     if (!quantity || quantity <= 0) {
-      showInfoAlert('Enter how much this made', 'Type in a real quantity before recording the harvest.');
+      showInfoAlert('Enter how much this made', 'Type in a quantity before recording the harvest.');
       return;
     }
     setRecordingHarvest(true);
@@ -265,7 +265,7 @@ export default function FermentationTrackerScreen() {
               <Text style={styles.caption}>{fermentationName ?? 'This fermentation'} isn&apos;t being tracked yet.</Text>
             ) : (
               <>
-                <Text style={styles.caption}>Which saved fermentation is this real jar built from?</Text>
+                <Text style={styles.caption}>Which saved fermentation is this jar built from?</Text>
                 <PopoverSelect
                   options={savedFermentations.map((entry) => ({ label: entry.name, value: entry.id }))}
                   selected={startPickerFermentationId}
@@ -383,7 +383,7 @@ export default function FermentationTrackerScreen() {
                 <Text style={styles.caption}>
                   {isAvailable
                     ? `${harvest.quantityRemaining} of ${harvest.quantity} ${harvest.unit} left`
-                    : `Gone — made ${harvest.quantity} ${harvest.unit}`}
+                    : `Gone, made ${harvest.quantity} ${harvest.unit}`}
                 </Text>
                 <Text style={styles.caption}>Ready {harvest.readyAt.slice(0, 10)}</Text>
 

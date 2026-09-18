@@ -100,7 +100,7 @@ export function EntryPhotoSection({ entry, tabColor }: { entry: DigestEntry; tab
         showInfoAlert(
           'Something went wrong',
           source === 'camera'
-            ? `${result.message} (Taking a photo needs a real camera permission this build may not have yet -- try Choose from Library instead.)`
+            ? `${result.message} (Taking a photo needs a camera permission this build may not have yet. Try Choose from Library instead.)`
             : result.message,
         );
       }

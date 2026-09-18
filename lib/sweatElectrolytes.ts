@@ -30,7 +30,7 @@ export type SweatElectrolyteEstimate = {
 };
 
 const DISCLOSURE =
-  'Rough estimate based on typical ranges for this exercise intensity -- individual sweat rate and ' +
+  'Rough estimate based on typical ranges for this exercise intensity. Individual sweat rate and ' +
   'sodium/potassium concentration vary enormously between people (documented sweat sodium alone spans ' +
   'roughly 230-2,070 mg/L). Treat this as a ballpark, not a measurement.';
 

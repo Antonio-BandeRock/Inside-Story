@@ -406,7 +406,7 @@ export default function ReconcileScreen() {
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
         <Text style={styles.lead}>
           Everything waiting on a second of your attention, in one place. A week back, no further: anything older stays
-          as it is rather than turning into a wall of questions nobody can answer honestly.
+          as it is rather than turning into a wall of questions nobody can answer.
         </Text>
 
         {loading ? (

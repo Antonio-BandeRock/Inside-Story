@@ -1,98 +1,99 @@
-// Digest's "Recipes" category -- one real DigestEntry per curated
+// Digest's "Recipes" category: one DigestEntry per curated
 // recipe (curated_recipes/curated_recipe_ingredients in the bundled
-// reference database), each linking back to the real builder that can
+// reference database), each linking back to the builder that can
 // actually assemble it (linkedCuratedRecipeId/linkedBuilderType) via a
-// "Build This Recipe" button. Started 2026-08-14; grown to a genuine,
+// "Build This Recipe" button. Started 2026-08-14; grown to a
 // detailed recipe card 2026-08-15, direct request: a full ingredient list
 // scaled for 2 people with individual prep and quantity, clear combine/
-// cook instructions, a real stated yield, a real nutrition "rating of
-// sorts" (how much of a day's RDA the dish provides), a short, honest note
+// cook instructions, a stated yield, a nutrition "rating of
+// sorts" (how much of a day's RDA the dish provides), a short note
 // on which of this app's 19 tracked conditions anything in the dish could
-// be a problem for (and a real way to still enjoy it despite that), and a
-// genuine flavor-palette description -- see RecipeCard's own comment in
+// be a problem for (and a way to still enjoy it despite that), and a
+// flavor-palette description. See RecipeCard's comment in
 // types.ts.
 //
-// title/teaser/summary still trace directly to the database's own real
+// title/teaser/summary still trace directly to the database's
 // name/flavor_profile/health_benefit (so the Digest entry and the
-// builder's own recipe card never drift apart on the basics) -- citations
+// builder's recipe card never drift apart on the basics). Citations
 // stays [] and overallTier 'strong' throughout, matching the same
-// precedent already established for content describing this app's own
-// real, already-built features (appHelps.ts) rather than external
-// research: recipeCard's own real detail is built from this app's own
+// precedent already established for content describing this app's
+// already-built features (appHelps.ts) rather than external
+// research: recipeCard's detail is built from this app's
 // bundled nutrient/DRI/6-DFF-condition data directly, verified through a
-// real, one-off computation script (scripts/compute_recipe_data.js), not
+// one-off computation script (scripts/compute_recipe_data.js), not
 // invented.
 //
 // 2026-08-24, direct request: every recipe rescaled again, from 2 people
 // down to 1. "This app will begin for a person not knowing that they have
 // more than one person living in their home with them. The app can do the
 // math to increase the ingredients to accommodate for additional people."
-// A person's own household size isn't collected anywhere yet, so 1 is the
-// only honest default; scaling a known recipe up for more people is much
-// simpler math than guessing a stranger's own household down from an
-// assumed 2. Same rule as before, just aimed at 1 real serving instead of
-// 2: a meal-type recipe (the dish IS the meal, eaten in one sitting -- most
-// salads, soups, sides, smoothies, some snacks/handhelds/desserts) has its
-// own real ingredient quantities scaled so the whole recipe yields exactly
-// 1 real serving. A batch/pantry recipe (bread, tortillas, biscuits,
+// A person's household size isn't collected anywhere yet, so 1 is the
+// only sensible default; scaling a known recipe up for more people is much
+// simpler math than guessing a stranger's household down from an
+// assumed 2. Same rule as before, just aimed at 1 serving instead of
+// 2: a meal-type recipe (the dish IS the meal, eaten in one sitting: most
+// salads, soups, sides, smoothies, some snacks/handhelds/desserts) has
+// its ingredient quantities scaled so the whole recipe yields exactly
+// 1 serving. A batch/pantry recipe (bread, tortillas, biscuits,
 // cookies, both yogurts, sauerkraut, kombucha, all 4 sauces, trail mix,
-// roasted chickpeas, and the 2 real pitcher-style beverages) keeps its
-// own real, natural batch size instead, just halved from its own prior
-// 2-person size -- its own yield line says so directly ("plenty for 1
+// roasted chickpeas, and the 2 pitcher-style beverages) keeps its
+// natural batch size instead, just halved from its prior 2-person
+// size, and its yield line says so directly ("plenty for 1
 // person across a few days"), since a literal mathematical quarter-loaf of
 // bread is an awkward, sometimes baking-ratio-risky yield, not what
 // "enough for 1 person over several days" actually means for a pantry
 // item. Every ingredient quantity below was individually rescaled by hand,
-// not run through a blind halving script -- whole units (an egg, a
-// tortilla, a garlic clove) were rounded to a real, buyable, cookable
+// not run through a blind halving script: whole units (an egg, a
+// tortilla, a garlic clove) were rounded to a buyable, cookable
 // amount rather than left as an odd fraction, and nutritionHighlights was
-// left untouched everywhere its own stated serving SIZE didn't change,
+// left untouched everywhere its stated serving SIZE didn't change,
 // since halving the recipe's total yield down to 1 serving doesn't change
-// what's already true about that one serving's own nutrition.
+// what's already true about that one serving's nutrition.
 //
-// conditionNotes deliberately doesn't repeat every real flagged sub-
-// criterion this app's own 6-DFF/condition-scoring data returns for a
-// given ingredient -- two of the most common real tags ("Selenium & Zn
+// conditionNotes deliberately doesn't repeat every flagged sub-
+// criterion this app's 6-DFF/condition-scoring data returns for a
+// given ingredient: two of the most common tags ("Selenium & Zn
 // synergy: Inhibiting", "Iron Presence: Inhibiting") turned out, once the
 // grounding script actually ran, to appear on nearly every single
-// ingredient in nearly every recipe (a real, near-universal background
-// signal in this app's own D1-D6 mineral-absorption dimension, not a
+// ingredient in nearly every recipe (a near-universal background
+// signal in this app's D1-D6 mineral-absorption dimension, not a
 // meaningful per-recipe caution), so surfacing them here would have made
-// this section read as noise rather than the short, genuinely useful
-// "things to be aware of" the request asked for. Only genuinely specific,
-// actionable, real flags are kept -- Gluten, raw Goitrogenic Load, high
+// this section read as noise rather than the short, useful
+// "things to be aware of" the request asked for. Only specific,
+// actionable flags are kept: Gluten, raw Goitrogenic Load, high
 // Oxalate Load, Lectins, Fermentability/Irritants tied to a condition that
-// actually has it flagged, a genuinely prominent Omega-3 vs 6 imbalance,
+// actually has it flagged, a prominent Omega-3 vs 6 imbalance,
 // and excess Iodine.
 //
-// A real, separate finding surfaced while building this and is worth
+// A separate finding surfaced while building this and is worth
 // naming directly rather than quietly working around forever: Germany_BLS
-// (one of this app's 9 real bundled national sources) carries a genuinely
-// implausible vitamin_b6 value on essentially every one of its own food
-// rows (e.g. "Chives" at 2000mg/100g, "Lobster" at ~1650mg/100g -- real
-// foods, physically impossible amounts) -- a real, systemic reference-
-// database data-quality bug, not something this pass introduced or fixed.
-// The grounding script defends against it with a real, generous per-
-// nutrient sanity ceiling (so this app's own already-verified, genuinely
-// concentrated foods -- Brazil nut's real ~1917µg/100g selenium, already
-// independently cited elsewhere in this Digest -- stay trusted while this
-// one corrupted column doesn't corrupt anything written here), but the
-// underlying Germany_BLS column itself is unfixed and worth a real,
-// dedicated future investigation.
+// (one of this app's 9 bundled national sources) carries an
+// implausible vitamin_b6 value on essentially every one of its food
+// rows (e.g. "Chives" at 2000mg/100g, "Lobster" at ~1650mg/100g:
+// ordinary foods carrying physically impossible amounts). A systemic
+// reference-database data-quality bug, not something this pass
+// introduced or fixed.
+// The grounding script defends against it with a generous per-
+// nutrient sanity ceiling, so this app's already-verified,
+// concentrated foods, such as Brazil nut's ~1917µg/100g selenium,
+// already independently cited elsewhere in this Digest, stay trusted
+// while this one corrupted column doesn't corrupt anything written
+// here. The underlying Germany_BLS column itself is unfixed and worth
+// a dedicated future investigation.
 import type { DigestEntry } from './types';
 
 export const RECIPES_ENTRIES: DigestEntry[] = [
   // -------------------------------------------------------------------
-  // Baked Goods -- all 4 are real, batch/pantry-style recipes (bread,
+  // Baked Goods: all 4 are batch/pantry-style recipes (bread,
   // tortillas, biscuits, cookies): the kind of thing you bake once and eat
-  // from over several days, so the yield stays at its own natural,
+  // from over several days, so the yield stays at its natural,
   // baking-ratio-safe batch size rather than a forced half-loaf.
   // -------------------------------------------------------------------
   {
     id: 'recipe-baked-whole-wheat-bread',
     category: 'recipes',
     title: 'Simple Whole Wheat Bread',
-    teaser: 'A dense, honest homemade loaf, crust and all.',
+    teaser: 'A dense homemade loaf, crust and all.',
     summary: 'Whole-grain flour keeps fiber intact that white flour strips out during milling, useful to know before reaching for a store loaf.',
     citations: [],
     overallTier: 'strong',
@@ -144,7 +145,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'This bakes up hearty and a little nutty, the way whole wheat always does, with a firm, chewy crumb rather than the airy softness of a white sandwich loaf. The crust turns deep golden and properly crackly right out of the oven. It\'s a plain, honest bread built for actual use: toast, sandwiches, or torn straight off the loaf and dipped in olive oil, not a delicate bakery showpiece.',
+      flavorNotes: 'This bakes up hearty and a little nutty, the way whole wheat always does, with a firm, chewy crumb rather than the airy softness of a white sandwich loaf. The crust turns deep golden and properly crackly right out of the oven. It\'s a plain bread built for actual use: toast, sandwiches, or torn straight off the loaf and dipped in olive oil, not a delicate bakery showpiece.',
     },
   },
   {
@@ -304,11 +305,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Beverages -- a mixed group: two are pitcher-style batches you make
+  // Beverages: a mixed group. Two are pitcher-style batches you make
   // once and drink from over a couple of days (the ginger tonic, the iced
-  // tea), so they keep their own natural batch size; the other two
+  // tea), so they keep their natural batch size; the other two
   // (electrolyte water, golden milk) already write up as one glass for
-  // one person, so they're doubled to make two real glasses.
+  // one person, so they're doubled to make two glasses.
   // -------------------------------------------------------------------
   {
     id: 'recipe-bev-ginger-turmeric-tonic',
@@ -475,8 +476,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Desserts -- both real, whole-food-forward treats, sized to yield
-  // exactly 2 real servings.
+  // Desserts: both whole-food-forward treats, sized to yield
+  // exactly 2 servings.
   // -------------------------------------------------------------------
   {
     id: 'recipe-dessert-baked-cinnamon-apples',
@@ -585,11 +586,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Fermentations -- all 4 are real, batch/pantry-style ferments (2
-  // yogurts, sauerkraut, kombucha): naturally made in a real batch over a
-  // real fermentation window, then portioned out over days or weeks, so
-  // they all keep their own natural batch size. See lib/digest/
-  // fermentedFoods.ts for the real strain-level science behind each
+  // Fermentations: all 4 are batch/pantry-style ferments (2
+  // yogurts, sauerkraut, kombucha): naturally made in a batch over a
+  // fermentation window, then portioned out over days or weeks, so
+  // they all keep their natural batch size. See lib/digest/
+  // fermentedFoods.ts for the strain-level science behind each
   // culture used here.
   // -------------------------------------------------------------------
   {
@@ -707,7 +708,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'About 8-13% of a day\'s worth per serving.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s', note: 'Raw cabbage carries a goitrogenic compound that can interfere with the thyroid\'s own iodine uptake in large, regular raw amounts. Fermentation helps here: the fermentation process itself, and the acidity it produces, measurably reduces this compound compared to eating the cabbage fully raw, which is part of why fermented cabbage is generally treated more leniently than a raw cabbage salad.' },
+        { condition: 'Hashimoto\'s', note: 'Raw cabbage carries a goitrogenic compound that can interfere with the thyroid\'s iodine uptake in large, regular raw amounts. Fermentation helps here: the fermentation process itself, and the acidity it produces, measurably reduces this compound compared to eating the cabbage fully raw, which is part of why fermented cabbage is generally treated more leniently than a raw cabbage salad.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -753,7 +754,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Handhelds -- 4 real sandwiches/wraps/tacos, each scaled to feed 1.
+  // Handhelds: 4 sandwiches/wraps/tacos, each scaled to feed 1.
   // -------------------------------------------------------------------
   {
     id: 'recipe-handheld-turkey-avocado-wrap',
@@ -798,12 +799,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'Roughly half a day\'s target per wrap.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Fresh, clean, and satisfying: lean turkey and creamy avocado against crisp lettuce and juicy tomato, all wrapped up in a soft tortilla. This is straightforward, deli-counter-quality flavor with nothing to hide behind.',
     },
@@ -839,7 +840,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { text: '40g (about ¼ large) avocado, sliced' },
       ],
       instructions: [
-        'Season the chicken breast with salt and pepper (or your own preferred spices) and grill over medium-high heat for about 6-7 minutes per side, until the internal temperature reaches 165°F (74°C) and the juices run clear.',
+        'Season the chicken breast with salt and pepper (or your preferred spices) and grill over medium-high heat for about 6-7 minutes per side, until the internal temperature reaches 165°F (74°C) and the juices run clear.',
         'Let the chicken rest for 5 minutes before slicing. This keeps it juicy rather than letting the juices run out the moment you cut it.',
         'Slice the rested chicken and layer it onto the bread with the lettuce, tomato, and avocado.',
         'Assemble the sandwich and serve.',
@@ -852,12 +853,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This uses whole-grain bread, so it carries gluten as written. Swapping in a gluten-free sandwich bread works directly in this same recipe.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Smoky, charred edges on the chicken from the grill, layered with creamy avocado and fresh, juicy tomato: a hearty sandwich that eats more like a meal than a snack.',
     },
@@ -965,8 +966,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Salads -- all 6 halved from their own prior 2-serving amounts to
-  // yield exactly 1 real serving.
+  // Salads: all 6 halved from their prior 2-serving amounts to
+  // yield exactly 1 serving.
   // -------------------------------------------------------------------
   {
     id: 'recipe-salad-mediterranean-chickpea-feta',
@@ -1015,15 +1016,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome / Celiac', note: 'Chickpeas carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion, or a well-rinsed canned chickpea, tends to sit easier if that\'s a concern for you.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Bright and tangy from the lemon and oregano, with salty richness from the feta against the cool crunch of cucumber and tomato: a simple, no-cook Mediterranean-style salad that tastes like it took more effort than it actually did.',
     },
@@ -1072,7 +1073,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin A', note: 'About 28-36% of a day\'s target per serving.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s', note: 'Raw kale carries a goitrogenic compound that can interfere with the thyroid\'s own iodine uptake when eaten raw and often. It\'s well tolerated in normal portions like this one for most people, but if you\'re eating raw cruciferous vegetables like this daily, lightly steaming the kale first is an easy way to reduce that compound while keeping most of the nutrition.' },
+        { condition: 'Hashimoto\'s', note: 'Raw kale carries a goitrogenic compound that can interfere with the thyroid\'s iodine uptake when eaten raw and often. It\'s well tolerated in normal portions like this one for most people, but if you\'re eating raw cruciferous vegetables like this daily, lightly steaming the kale first is an easy way to reduce that compound while keeping most of the nutrition.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -1256,14 +1257,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome / Celiac', note: 'Black beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller bean portion tends to sit easier if that\'s a concern.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Nutty quinoa, earthy black beans, and sweet corn come together with a bright, citrusy lime dressing and a warm hit of cumin: creamy avocado ties the whole thing together into a filling southwest-style bowl.',
     },
@@ -1325,8 +1326,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Sauces -- all 4 are real, batch/pantry-style condiments made once and
-  // used from over several meals, so they keep their own natural batch
+  // Sauces: all 4 are batch/pantry-style condiments made once and
+  // used from over several meals, so they keep their natural batch
   // size.
   // -------------------------------------------------------------------
   {
@@ -1373,14 +1374,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin K', note: 'About 17-23% of a day\'s target per serving.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Bright tomato flavor with a natural sweetness that develops as it simmers and reduces, rounded out by garlic and fresh basil at the end. This is closer to an Italian nonna\'s weeknight sauce than a jarred version: simple, honest, and versatile.',
+      flavorNotes: 'Bright tomato flavor with a natural sweetness that develops as it simmers and reduces, rounded out by garlic and fresh basil at the end. This is closer to an Italian nonna\'s weeknight sauce than a jarred version: simple and versatile.',
     },
   },
   {
@@ -1530,8 +1531,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Sides -- all 5 halved from their own prior 2-serving amounts to
-  // yield exactly 1 real serving.
+  // Sides: all 5 halved from their prior 2-serving amounts to
+  // yield exactly 1 serving.
   // -------------------------------------------------------------------
   {
     id: 'recipe-side-herb-roasted-root-vegetables',
@@ -1581,11 +1582,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Sweet potato carries a notably elevated oxalate content. Pairing this side with a calcium-containing dish at the same meal helps offset it if that\'s something you\'re watching.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Crispy, caramelized edges on the outside with a soft, tender bite inside, seasoned simply with rosemary and garlic: a comforting side that goes with almost anything.',
     },
@@ -1636,11 +1637,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s', note: 'Raw broccoli carries a goitrogenic compound relevant to thyroid iodine uptake, but roasting measurably reduces this compound compared to eating it raw, which is exactly why this side is roasted rather than served as a raw salad.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'A good roasty char on the broccoli florets pairs with sweet roasted carrot and bell pepper, all brightened at the end by fresh lemon juice and garlic: simple, colorful, and easy to crave for a vegetable side.',
     },
@@ -1797,28 +1798,28 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'Regular soy sauce is brewed from wheat and carries gluten. Tamari (a traditionally gluten-free soy sauce) or coconut aminos both swap in directly for the same salty, savory flavor without the gluten.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Fast, crisp-tender, and vibrant with color, the vegetables stay bright and retain good crunch rather than going soft, tied together with a savory, gingery, garlicky sauce.',
     },
   },
 
   // -------------------------------------------------------------------
-  // Smoothies -- all 6 make exactly 1 real 2-cup serving, one glass for
+  // Smoothies: all 6 make exactly 1 2-cup serving, one glass for
   // one person.
   // -------------------------------------------------------------------
   {
     id: 'recipe-smoothie-green-glow',
     category: 'recipes',
     title: 'Green Glow Protein Smoothie',
-    teaser: 'A vegetable-forward green smoothie, built on Greek yogurt for real morning protein.',
-    summary: 'Spinach\'s mild flavor gets almost entirely masked by the banana and pineapple here, and a Greek yogurt base turns this into a genuine protein breakfast rather than a fruit drink, the same chrononutrition principle behind this Digest\'s own Basic Health research on morning protein and blood sugar.',
+    teaser: 'A vegetable-forward green smoothie, built on Greek yogurt for morning protein.',
+    summary: 'Spinach\'s mild flavor gets almost entirely masked by the banana and pineapple here, and a Greek yogurt base turns this into a protein breakfast rather than a fruit drink, the same chrononutrition principle behind this Digest\'s Basic Health research on morning protein and blood sugar.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_smoothie_green_glow',
@@ -1848,12 +1849,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Pour into glasses and drink right away. The chia seeds start to thicken the smoothie the longer it sits.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base, closer to a genuine breakfast than a fruit drink.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base, closer to a breakfast than a fruit drink.' },
         { nutrient: 'Vitamin K', note: 'A striking amount per serving.' },
         { nutrient: 'Manganese', note: 'A strong contribution per serving.' },
       ],
       conditionNotes: [
-        { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Both spinach and chia seeds carry a notably high oxalate load, and this smoothie has meaningful amounts of both. The Greek yogurt already in this recipe helps offset it with real calcium.' },
+        { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Both spinach and chia seeds carry a notably high oxalate load, and this smoothie has meaningful amounts of both. The Greek yogurt already in this recipe helps offset it with calcium.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -1862,15 +1863,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Fruity and sweet, with the banana and pineapple doing most of the talking and the Greek yogurt adding real body and a light tang. The spinach adds color and nutrition without adding much flavor of its own, which is exactly the point.',
+      flavorNotes: 'Fruity and sweet, with the banana and pineapple doing most of the talking and the Greek yogurt adding body and a light tang. The spinach adds color and nutrition without adding much flavor of its own.',
     },
   },
   {
     id: 'recipe-smoothie-golden-turmeric',
     category: 'recipes',
     title: 'Golden Turmeric Protein Smoothie',
-    teaser: 'A creamy, spiced smoothie built around turmeric, with Greek yogurt for real morning protein.',
-    summary: 'Black pepper noticeably improves how well the body absorbs turmeric\'s curcumin, and a Greek yogurt base turns this into a real protein breakfast rather than a fruit-and-spice drink.',
+    teaser: 'A creamy, spiced smoothie built around turmeric, with Greek yogurt for morning protein.',
+    summary: 'Black pepper noticeably improves how well the body absorbs turmeric\'s curcumin, and a Greek yogurt base turns this into a protein breakfast rather than a fruit-and-spice drink.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_smoothie_golden_turmeric',
@@ -1896,7 +1897,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Pour into glasses and serve right away.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base.' },
         { nutrient: 'Vitamin B6', note: 'A solid amount per serving.' },
         { nutrient: 'Curcumin', note: 'The black pepper alongside it measurably improves how much the body actually absorbs.' },
       ],
@@ -1908,15 +1909,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Warm, spiced flavor from the turmeric and cinnamon against the natural sweetness of the banana and the tang of real Greek yogurt. This drinks more like a dessert smoothie than a health-food shot, with just enough black pepper in the background to notice without any actual heat.',
+      flavorNotes: 'Warm, spiced flavor from the turmeric and cinnamon against the natural sweetness of the banana and the tang of Greek yogurt. This drinks more like a dessert smoothie than a health-food shot, with just enough black pepper in the background to notice without any actual heat.',
     },
   },
   {
     id: 'recipe-smoothie-brazil-nut-selenium',
     category: 'recipes',
     title: 'Brazil Nut Tropical Selenium Protein Smoothie',
-    teaser: 'A notably selenium-rich smoothie built around Brazil nuts, with Greek yogurt for real morning protein.',
-    summary: 'Brazil nuts are one of the most concentrated food sources of selenium that exists, just a couple of nuts can cover a full day\'s worth, and a Greek yogurt base turns this into a real protein breakfast rather than a fruit drink.',
+    teaser: 'A notably selenium-rich smoothie built around Brazil nuts, with Greek yogurt for morning protein.',
+    summary: 'Brazil nuts are one of the most concentrated food sources of selenium that exists, just a couple of nuts can cover a full day\'s worth, and a Greek yogurt base turns this into a protein breakfast rather than a fruit drink.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_smoothie_brazil_nut_selenium',
@@ -1949,11 +1950,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Selenium', note: 'An exceptional amount from just 2 Brazil nuts, enough to cover a full day\'s worth on its own.' },
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base.' },
         { nutrient: 'Manganese', note: 'An exceptional amount per serving.' },
       ],
       conditionNotes: [
-        { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Brazil nuts carry a notably elevated oxalate load. The Greek yogurt already in this recipe helps offset it with real calcium.' },
+        { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Brazil nuts carry a notably elevated oxalate load. The Greek yogurt already in this recipe helps offset it with calcium.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -1969,8 +1970,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-smoothie-berry-antioxidant',
     category: 'recipes',
     title: 'Berry Antioxidant Protein Smoothie',
-    teaser: 'A vibrant double-berry smoothie, built on Greek yogurt for real morning protein.',
-    summary: 'Blueberries and strawberries each carry their distinct set of antioxidant compounds, so combining them broadens what you\'re getting rather than just doubling up on the same one, and a Greek yogurt base turns this into a real protein breakfast rather than a fruit punch.',
+    teaser: 'A vibrant double-berry smoothie, built on Greek yogurt for morning protein.',
+    summary: 'Blueberries and strawberries each carry their distinct set of antioxidant compounds, so combining them broadens what you\'re getting rather than just doubling up on the same one, and a Greek yogurt base turns this into a protein breakfast rather than a fruit punch.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_smoothie_berry_antioxidant',
@@ -1998,7 +1999,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Pour into glasses and serve right away.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base.' },
         { nutrient: 'Manganese', note: 'A striking amount per serving.' },
         { nutrient: 'Vitamin C', note: 'An exceptional amount per serving.' },
       ],
@@ -2011,15 +2012,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Bright and fruity, with plenty of natural sweetness from the berries and real body from the Greek yogurt. This tastes closer to a real breakfast than a fruit punch.',
+      flavorNotes: 'Bright and fruity, with plenty of natural sweetness from the berries and body from the Greek yogurt. This tastes closer to a breakfast than a fruit punch.',
     },
   },
   {
     id: 'recipe-smoothie-iron-vitamin-c',
     category: 'recipes',
     title: 'Iron & Vitamin C Protein Smoothie',
-    teaser: 'An iron-and-vitamin-C-paired fruit and greens smoothie, built on Greek yogurt for real morning protein.',
-    summary: 'Vitamin C measurably improves how well the body absorbs the non-heme iron found in plant foods like spinach, which is exactly why they\'re paired here, and a Greek yogurt base turns this into a real protein breakfast rather than a fruit drink.',
+    teaser: 'An iron-and-vitamin-C-paired fruit and greens smoothie, built on Greek yogurt for morning protein.',
+    summary: 'Vitamin C measurably improves how well the body absorbs the non-heme iron found in plant foods like spinach, which is exactly why they\'re paired here, and a Greek yogurt base turns this into a protein breakfast rather than a fruit drink.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_smoothie_iron_vitamin_c',
@@ -2047,11 +2048,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'An exceptional amount per serving.' },
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base.' },
         { nutrient: 'Vitamin K', note: 'A striking amount per serving.' },
       ],
       conditionNotes: [
-        { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Spinach carries a notably high oxalate load. The Greek yogurt already in this recipe helps offset it with real calcium.' },
+        { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Spinach carries a notably high oxalate load. The Greek yogurt already in this recipe helps offset it with calcium.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -2059,15 +2060,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Sweet and citrusy from the orange, with strawberry, banana, and real body from the Greek yogurt rounding it out. The spinach disappears almost entirely into the flavor, leaving a fruity, refreshing smoothie behind.',
+      flavorNotes: 'Sweet and citrusy from the orange, with strawberry, banana, and body from the Greek yogurt rounding it out. The spinach disappears almost entirely into the flavor, leaving a fruity, refreshing smoothie behind.',
     },
   },
   {
     id: 'recipe-smoothie-tropical-ginger',
     category: 'recipes',
     title: 'Tropical Ginger Digestive Protein Smoothie',
-    teaser: 'A bright, gingery tropical smoothie, built on Greek yogurt for real morning protein.',
-    summary: 'Fresh ginger has a long-documented history of settling an upset stomach, and a Greek yogurt base turns this into a real protein breakfast rather than a fruit drink, the same digestive benefit as the yogurt already used across this Digest\'s own fermented-food entries.',
+    teaser: 'A bright, gingery tropical smoothie, built on Greek yogurt for morning protein.',
+    summary: 'Fresh ginger has a long-documented history of settling an upset stomach, and a Greek yogurt base turns this into a protein breakfast rather than a fruit drink, the same digestive benefit as the yogurt already used across this Digest\'s fermented-food entries.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_smoothie_tropical_ginger',
@@ -2092,7 +2093,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Pour into glasses and serve right away.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base.' },
         { nutrient: 'Manganese', note: 'An exceptional amount per serving.' },
         { nutrient: 'Vitamin C', note: 'A solid amount per serving.' },
       ],
@@ -2104,14 +2105,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Bright, tropical, and properly zingy from the fresh ginger and lime, with pineapple, banana, and real body from the Greek yogurt underneath. Refreshing rather than heavy, closer to a real breakfast than a typical fruit smoothie.',
+      flavorNotes: 'Bright, tropical, and properly zingy from the fresh ginger and lime, with pineapple, banana, and body from the Greek yogurt underneath. Refreshing rather than heavy, closer to a breakfast than a typical fruit smoothie.',
     },
   },
 
   // -------------------------------------------------------------------
-  // Snacks -- 2 (roasted chickpeas, trail mix) are real batch/pantry
-  // items, halved from their own prior 2-person batch size to a 1-person
-  // one; the other 2 are meal-type snacks, halved to 1 real serving.
+  // Snacks: 2 (roasted chickpeas, trail mix) are batch/pantry
+  // items, halved from their prior 2-person batch size to a 1-person
+  // one; the other 2 are meal-type snacks, halved to 1 serving.
   // -------------------------------------------------------------------
   {
     id: 'recipe-snack-roasted-chickpeas',
@@ -2156,12 +2157,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'Roughly 8-10% of a day\'s worth per serving.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Crunchy and savory with a smoky warmth from the paprika, this is a satisfying stand-in for chips or crackers with a lot more staying power in your stomach.',
     },
@@ -2309,8 +2310,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Soups -- all 4 halved from their own prior 2-serving amounts to
-  // yield exactly 1 real serving.
+  // Soups: all 4 halved from their prior 2-serving amounts to
+  // yield exactly 1 serving.
   // -------------------------------------------------------------------
   {
     id: 'recipe-soup-chicken-vegetable',
@@ -2521,38 +2522,38 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin K', note: 'About 25-34% of a day\'s worth per serving.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Bright, tangy tomato flavor rounded out by sweet sautéed onion and fragrant fresh basil: a classic comfort soup that tastes noticeably fresher than anything from a can.',
     },
   },
 
   // -------------------------------------------------------------------
-  // Fermented Drinks -- Wave 1, 2026-08-20, direct request built from two
+  // Fermented Drinks: Wave 1, 2026-08-20, direct request built from two
   // shared Google AI Mode conversations about homemade fermented drinks
   // for gut health, joint pain, and sleep. Every claim below was
-  // independently checked, not carried over from that conversation as-is
-  // -- see the session's own plan file for the full per-claim tiering.
+  // independently checked, not carried over from that conversation as-is.
+  // See the session's plan file for the full per-claim tiering.
   // Nutrition highlights here are written qualitatively rather than as a
   // computed DRI percentage (unlike most of this file's other entries,
   // which trace to scripts/compute_recipe_data.js): a wild-fermented
-  // batch's own final nutrient content shifts with fermentation time and
-  // temperature in a way this app has no real way to measure per-batch,
+  // batch's final nutrient content shifts with fermentation time and
+  // temperature in a way this app has no way to measure per-batch,
   // so a fabricated precise percentage would be dishonest here in a way
   // it isn't for a fixed-recipe baked good or soup. Every one of these 22
-  // recipes links to a real curated_recipes row seeded by
+  // recipes links to a curated_recipes row seeded by
   // scripts/add_fermented_drink_recipes.py, buildable directly from
-  // Fermentation Builder's own "Build This Recipe" flow. 19 more named
+  // Fermentation Builder's "Build This Recipe" flow. 19 more named
   // drinks from the same source conversations (Milk Kefir, Amazake,
   // Rejuvelac, Mauby, Calpis, Burdock & Dandelion Ale, Pozol, Sobia, Pine
   // Needle Cheong, Boza, Chicha, rye Kvass, Sake, Makgeolli, Ayran,
   // Lassi, Tarag, Pu-erh Tea, Palm Wine, Pulque) are a tracked backlog,
-  // not built here -- see CLAUDE.md's Status snapshot.
+  // not built here; see CLAUDE.md's Status snapshot.
   // -------------------------------------------------------------------
   {
     id: 'recipe-ferment-tonic-tart-cherry-ginger-turmeric',
@@ -2619,7 +2620,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Wild-Fermented Blueberry, Ginger & Turmeric Tonic',
     teaser: 'The same wild-ferment method built around blueberry\'s anthocyanins, made more bioavailable by fermentation itself.',
-    summary: 'Blueberries carry anthocyanins, the antioxidant pigments behind their color, and fermentation breaks down the fruit\'s own cell walls, which several studies suggest increases how much of that antioxidant content the body can actually absorb compared to eating the berries raw. Frozen blueberries work as well as fresh here since freezing already ruptures the cell walls, releasing juice faster once the ferment starts. This variant uses the same raw ginger-and-turmeric-skin wild-yeast method as the flagship tart cherry tonic.',
+    summary: 'Blueberries carry anthocyanins, the antioxidant pigments behind their color, and fermentation breaks down the fruit\'s cell walls, which several studies suggest increases how much of that antioxidant content the body can actually absorb compared to eating the berries raw. Frozen blueberries work as well as fresh here since freezing already ruptures the cell walls, releasing juice faster once the ferment starts. This variant uses the same raw ginger-and-turmeric-skin wild-yeast method as the flagship tart cherry tonic.',
     citations: [
       { source: 'Potential health benefits of fermented blueberry: A review of current scientific evidence, ScienceDirect', url: 'https://www.sciencedirect.com/science/article/abs/pii/S092422442300002X' },
       { source: 'Shoba et al. 1998, Planta Medica: piperine\'s effect on curcumin bioavailability', url: 'https://pubmed.ncbi.nlm.nih.gov/9619120/' },
@@ -2652,7 +2653,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Ferment 3-5 days at room temperature, until tangy with visible bubbling, then strain, bottle, and refrigerate.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Anthocyanins', note: 'Fermentation breaks down blueberry\'s own cell walls, a documented mechanism for improving how bioavailable this antioxidant becomes.' },
+        { nutrient: 'Anthocyanins', note: 'Fermentation breaks down blueberry\'s cell walls, a documented mechanism for improving how bioavailable this antioxidant becomes.' },
         { nutrient: 'Vitamin K', note: 'Blueberries are a meaningful whole-food source, relevant if you take a blood thinner and track vitamin K intake.' },
         { nutrient: 'Curcumin (from turmeric)', note: 'Boosted by the added black pepper, the same pairing already documented in this app\'s Nutrient Interactions research.' },
       ],
@@ -2667,7 +2668,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-tonic-pomegranate-ginger-turmeric',
     category: 'recipes',
     title: 'Wild-Fermented Pomegranate, Ginger & Turmeric Tonic',
-    teaser: 'A tart, dry wild ferment built on pomegranate\'s ellagitannins, with an honest caveat about what fermenting one actually delivers.',
+    teaser: 'A tart, dry wild ferment built on pomegranate\'s ellagitannins, with a caveat about what fermenting one actually delivers.',
     summary: 'Pomegranate carries ellagitannins, which certain gut bacteria convert into Urolithin A, a compound with double-blind human trial data for improving mitochondrial and muscle function. Those trials dosed purified Urolithin A directly (1000mg/day), not fermented pomegranate juice, and not everyone\'s gut bacteria are even capable of producing Urolithin A from ellagitannins at all. This tonic is a worthwhile antioxidant-rich drink either way, just not a guaranteed way to reach the dose those trials used.',
     citations: [
       { source: 'Andreux et al. 2019, Nature Metabolism: Urolithin A randomized controlled trial in humans', url: 'https://www.nature.com/articles/s42255-019-0073-4' },
@@ -2761,7 +2762,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-tonic-red-grape-ginger-turmeric',
     category: 'recipes',
     title: 'Wild-Fermented Red Grape, Ginger & Turmeric Tonic',
-    teaser: 'A wine-adjacent wild ferment built on red grape skin\'s own resveratrol, with honest evidence caveats.',
+    teaser: 'A wine-adjacent wild ferment built on red grape skin\'s resveratrol, with evidence caveats.',
     summary: 'Red grape skins carry resveratrol, an antioxidant compound most human interest in centers on cardiovascular and gut-lining health. The specific claim that resveratrol increases Akkermansia muciniphila, a bacterium linked to a healthy gut barrier, currently rests mostly on animal studies, with limited human interventional data so far. This is a worthwhile antioxidant-rich ferment either way, just one where the microbiome-specific benefit is still an early, not yet confirmed, finding.',
     citations: [
       { source: 'Resveratrol as a promising nutraceutical: gut microbiota modulation review, MDPI', url: 'https://www.mdpi.com/1422-0067/25/6/3370' },
@@ -2901,7 +2902,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Wild-Fermented Elderberry, Ginger & Turmeric Tonic',
     teaser: 'The traditional way elderberry is actually prepared: raw elderberries aren\'t safe to eat whole, so fermenting them is the point, not an option.',
-    summary: 'Elderberry has its own body of research on supporting the immune response during upper-respiratory illness, distinct from the general antioxidant framing of the rest of this tonic family. Unlike every other fruit here, raw elderberries aren\'t safe eaten whole (they carry compounds that need heat or fermentation to break down), so this ferment is the traditional way elderberries get used at all, not a stylistic choice.',
+    summary: 'Elderberry has a body of research on supporting the immune response during upper-respiratory illness, distinct from the general antioxidant framing of the rest of this tonic family. Unlike every other fruit here, raw elderberries aren\'t safe eaten whole (they carry compounds that need heat or fermentation to break down), so this ferment is the traditional way elderberries get used at all, not a stylistic choice.',
     citations: [
       { source: 'Black elderberry (Sambucus nigra) supplementation effectively treats upper respiratory symptoms: a meta-analysis of randomized, controlled clinical trials, Complementary Therapies in Medicine', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0965229918310240' },
     ],
@@ -3512,7 +3513,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-garlic-honey-tonic',
     category: 'recipes',
     title: 'Fermented Garlic Honey Tonic',
-    teaser: 'A slow-fermenting garlic-and-honey syrup, with an honest note that raw honey\'s antimicrobial nature makes this a different kind of ferment than the rest of this list.',
+    teaser: 'A slow-fermenting garlic-and-honey syrup, with a note that raw honey\'s antimicrobial nature makes this a different kind of ferment than the rest of this list.',
     summary: 'Raw honey\'s low water content is naturally antimicrobial, which is exactly why this ferments slowly and unpredictably compared to a water-based drink, garlic\'s moisture, released gradually as it macerates, is what actually feeds the process, producing occasional small bubbles over several weeks rather than the rapid fizz of a wild-fermented fruit tonic. Garlic itself carries allicin, released when the cloves are cut or crushed, with a well-documented traditional reputation for immune support.',
     citations: [],
     overallTier: 'weak',
@@ -3549,22 +3550,22 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Fermented Drinks -- Wave 2, 2026-08-20, same session, direct request:
+  // Fermented Drinks: Wave 2, 2026-08-20, same session, direct request:
   // "Finish the 19... this is no longer ONLY for people with these
   // conditions... if it is a healthy thing for an average nonconditional
   // person then it needs to be here, and if there are warnings that need
   // to be in place due to a condition, that also needs to be here." These
-  // 19 entries are written for a general reader first, with genuine,
+  // 19 entries are written for a general reader first, with
   // specific condition cautions layered in as conditionNotes rather than
   // as a reason to leave a drink out. Several needed a named ingredient
   // substitution (this database has no row for soldierwood bark, agave
   // sap, palm sap, pine needles, or mare's/camel's milk, and its only
   // plain dairy yogurt and agave syrup rows are entirely audit-hidden) --
-  // every substitution is named directly in its own summary, never
+  // every substitution is named directly in its summary, never
   // presented as the authentic traditional ingredient. Every claim below
   // was independently checked via WebSearch before being written in, the
   // same discipline as Wave 1. Full reasoning for every substitution
-  // lives in scripts/add_fermented_drink_recipes_wave2.py's own header
+  // lives in scripts/add_fermented_drink_recipes_wave2.py's header
   // comment.
   // -------------------------------------------------------------------
   {
@@ -3617,7 +3618,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Amazake',
     teaser: 'A naturally sweet Japanese rice ferment with no added sugar at all, its sweetness comes entirely from the fermentation itself.',
-    summary: 'Koji mold breaks rice starch down into maltose as it ferments, which is where every bit of amazake\'s sweetness comes from, not an added sweetener. A pleasant everyday drink for most people, though its natural sugar content is concentrated enough to matter for anyone watching blood sugar.',
+    summary: 'Koji mold breaks rice starch down into maltose as it ferments, which is where every bit of amazake\'s sweetness comes from, rather than an added sweetener. A pleasant everyday drink for most people, though its natural sugar content is concentrated enough to matter for anyone watching blood sugar.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -4141,7 +4142,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Live cultures', note: 'Carries the same live yogurt cultures as the yogurt it\'s made from, just diluted.' },
-        { nutrient: 'Sodium', note: 'Genuinely salty by design, traditionally drunk to help replace electrolytes lost to sweat in hot weather.' },
+        { nutrient: 'Sodium', note: 'Salty by design, traditionally drunk to help replace electrolytes lost to sweat in hot weather.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a dairy drink; if dairy is a trigger, this one isn\'t easily made without it the way some other ferments here are.' },
@@ -4364,27 +4365,27 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   },
 
   // -------------------------------------------------------------------
-  // Meal Plan -- 2026-08-24, direct request: "at least 6 weeks worth of
+  // Meal Plan: 2026-08-24, direct request: "at least 6 weeks worth of
   // meals that can be automatically loaded... A different meal set every
   // day without repeating meals." These 21 recipes (7 breakfasts, 3
-  // lunches, 11 dinners) are the new content behind lib/mealPlan.ts's own
+  // lunches, 11 dinners) are the new content behind lib/mealPlan.ts's
   // day-by-day rotation; the rotation itself reuses 20 more of this
   // Digest's already-existing recipes above (Smoothies for breakfast,
   // Salads/Soups/Handhelds for lunch and dinner, Sides paired alongside a
   // dinner main) rather than duplicating them here. Every ingredient below
   // was individually verified against the live reference database before
   // being written in, the same discipline every other recipe in this file
-  // already follows. builder_type follows this app's own real 11 direct-
-  // ingredient builders (see scripts/add_meal_plan_recipes.py's own header
+  // already follows. builder_type follows this app's 11 direct-
+  // ingredient builders (see scripts/add_meal_plan_recipes.py's header
   // comment for why a full protein dinner main uses 'side', the closest
-  // real fit among what actually exists, not a new "entree" type).
+  // fit among what actually exists, not a new "entree" type).
   // -------------------------------------------------------------------
   {
     id: 'recipe-mealplan-veggie-cheddar-scramble-potatoes',
     category: 'recipes',
     title: 'Veggie & Cheddar Scrambled Eggs with Roasted Potatoes',
     teaser: 'Creamy scrambled eggs against crisp, golden roasted potato.',
-    summary: 'A savory, protein-forward start to the day: whole eggs, real cheese, and roasted potato with its skin left on, instead of a processed breakfast sandwich.',
+    summary: 'A savory, protein-forward start to the day: whole eggs, cheese, and roasted potato with its skin left on, instead of a processed breakfast sandwich.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_veggie_cheddar_scramble_potatoes',
@@ -4423,27 +4424,27 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Choline', note: 'A solid contribution from the egg yolks, a nutrient most people don\'t get enough of.' },
-        { nutrient: 'Vitamin C', note: 'A meaningful amount from the bell pepper and the potato\'s own skin.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the bell pepper and the potato\'s skin.' },
         { nutrient: 'Protein', note: 'A hearty start to the day, from both the eggs and the cheese.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and cheesy, with the potato adding real textural contrast, crisp outside and soft inside, against the soft-set eggs.',
+      flavorNotes: 'Savory and cheesy, with the potato adding textural contrast, crisp outside and soft inside, against the soft-set eggs.',
     },
   },
   {
     id: 'recipe-mealplan-overnight-oats-chia-berries',
     category: 'recipes',
     title: 'Overnight Oats with Chia, Yogurt, and Mixed Berries',
-    teaser: 'Creamy, make-ahead oats, built on real Greek yogurt for real morning protein.',
-    summary: 'Chia and rolled oats both bring soluble fiber, and two differently-colored berries mean two distinct sets of antioxidant compounds instead of just one, but it\'s the Greek yogurt base that turns this into a genuine protein-and-fermented-food breakfast rather than a carbohydrate-only bowl.',
+    teaser: 'Creamy, make-ahead oats, built on Greek yogurt for morning protein.',
+    summary: 'Chia and rolled oats both bring soluble fiber, and two differently-colored berries mean two distinct sets of antioxidant compounds instead of just one, but it\'s the Greek yogurt base that turns this into a protein-and-fermented-food breakfast rather than a carbohydrate-only bowl.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_overnight_oats_chia_berries',
@@ -4474,7 +4475,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Give it a stir before eating, thinning with a splash of water or milk if it\'s thicker than you\'d like, then top with the blueberries and raspberries.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base.' },
         { nutrient: 'Fiber', note: 'A strong combined dose from the oats and chia seeds together.' },
         { nutrient: 'Vitamin C', note: 'A solid contribution from the two berries.' },
       ],
@@ -4487,7 +4488,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Thick and creamy once it sets overnight, with a real tang from the Greek yogurt against bursts of tart berry on top.',
+      flavorNotes: 'Thick and creamy once it sets overnight, with a tang from the Greek yogurt against bursts of tart berry on top.',
     },
   },
   {
@@ -4533,13 +4534,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Fiber', note: 'A meaningful amount from the avocado.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Rich and creamy from the yolk and avocado together, brightened by the lemon and the tomato\'s own acidity.',
+      flavorNotes: 'Rich and creamy from the yolk and avocado together, brightened by the lemon and the tomato\'s acidity.',
     },
   },
   {
@@ -4589,11 +4590,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Spinach carries a notably high oxalate load, cooked or raw. Pairing it with a calcium source at the same meal is a practical way to help offset it if oxalate is something you\'re watching.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Nutty quinoa against wilted, mildly earthy spinach, tied together by a runny egg yolk acting almost like a sauce.',
     },
@@ -4634,7 +4635,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A notably concentrated amount for the calorie count, from the cottage cheese.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the fresh pineapple.' },
-        { nutrient: 'Omega-3 fat', note: 'A real plant-based contribution from the walnuts.' },
+        { nutrient: 'Omega-3 fat', note: 'A plant-based contribution from the walnuts.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Walnuts carry a notably elevated oxalate load. This is a small topping amount, so it\'s unlikely to matter for most people, but worth being aware of if oxalate is something you\'re watching closely.' },
@@ -4688,21 +4689,21 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A hearty combined amount from the eggs, beans, and cheese together.' },
-        { nutrient: 'Fiber', note: 'A real contribution from the black beans, unusual for a breakfast handheld.' },
+        { nutrient: 'Fiber', note: 'A meaningful contribution from the black beans, unusual for a breakfast handheld.' },
         { nutrient: 'Folate', note: 'A solid amount from the black beans.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This uses an ordinary wheat-flour tortilla, so the gluten content is unavoidable as written. A gluten-free tortilla-style flour blend can be substituted directly in this same recipe.' },
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Black beans carry a fair amount of fermentable fiber that some people with an already-sensitive gut find harder to digest. A smaller portion of beans, or a well-rinsed canned bean, can make this easier on the gut.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Warm, savory eggs and beans against a bright, fresh pico, with melted cheddar tying the whole thing together.',
     },
@@ -4711,8 +4712,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-baked-oatmeal-cup-banana-cinnamon',
     category: 'recipes',
     title: 'Baked Oatmeal Cup with Banana, Cinnamon, and Yogurt',
-    teaser: 'A single-serving baked oatmeal, more like a soft muffin than a bowl of porridge, with real egg and yogurt protein baked right in.',
-    summary: 'The same whole-grain oat fiber as a stovetop bowl, baked instead, with ripe banana doing most of the sweetening rather than added sugar, and a real egg plus Greek yogurt keeping this a genuine protein breakfast rather than a carbohydrate-only muffin.',
+    teaser: 'A single-serving baked oatmeal, more like a soft muffin than a bowl of porridge, with egg and yogurt protein baked right in.',
+    summary: 'The same whole-grain oat fiber as a stovetop bowl, baked instead, with ripe banana doing most of the sweetening rather than added sugar, and an egg plus Greek yogurt keeping this a protein breakfast rather than a carbohydrate-only muffin.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_baked_oatmeal_cup_banana_cinnamon',
@@ -4746,7 +4747,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Let it cool for a few minutes before eating. It firms up as it cools.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful combined amount from the egg and Greek yogurt.' },
+        { nutrient: 'Protein', note: 'A meaningful combined amount from the egg and Greek yogurt.' },
         { nutrient: 'Manganese', note: 'A strong contribution from the oats.' },
         { nutrient: 'Potassium', note: 'A meaningful amount from the banana.' },
       ],
@@ -4767,7 +4768,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Ginger Soy Glazed Chicken Thighs',
     teaser: 'A sticky-sweet, gingery glaze over juicy roasted chicken thigh.',
-    summary: 'Chicken thigh carries more iron and zinc than breast meat, a real, often-overlooked trade-off worth knowing about beyond just fat content.',
+    summary: 'Chicken thigh carries more iron and zinc than breast meat, an often-overlooked trade-off worth knowing about beyond just fat content.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_ginger_soy_chicken_thighs',
@@ -4802,7 +4803,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Zinc', note: 'A meaningfully higher amount than the same weight of chicken breast would carry.' },
-        { nutrient: 'Iron', note: 'A real contribution, another advantage dark meat has over white meat.' },
+        { nutrient: 'Iron', note: 'A meaningful contribution, another advantage dark meat has over white meat.' },
         { nutrient: 'Vitamin B12', note: 'A solid amount from the chicken.' },
       ],
       conditionNotes: [
@@ -4822,7 +4823,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Mediterranean White Bean and Roasted Vegetable Bowl',
     teaser: 'Creamy white beans against sweet roasted zucchini and eggplant.',
-    summary: 'White beans bring plant protein and fiber together, a combination that slows how fast a meal\'s own carbohydrates raise blood sugar.',
+    summary: 'White beans bring plant protein and fiber together, a combination that slows how fast a meal\'s carbohydrates raise blood sugar.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_white_bean_roasted_vegetable_bowl',
@@ -4862,19 +4863,19 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A strong combined amount from the white beans and vegetables together.' },
         { nutrient: 'Manganese', note: 'A meaningful amount from the eggplant.' },
-        { nutrient: 'Protein', note: 'A real plant-based amount from the white beans.' },
+        { nutrient: 'Protein', note: 'A plant-based amount from the white beans.' },
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome / Celiac', note: 'White beans carry a fair amount of fermentable fiber that some people with an already-sensitive gut find harder to digest. A smaller portion, or a well-rinsed canned bean, tends to sit easier if that\'s a concern.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Sweet, caramelized roasted vegetables against creamy white beans, brightened by lemon and finished with salty feta.',
     },
@@ -4883,8 +4884,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-egg-vegetable-fried-rice',
     category: 'recipes',
     title: 'Egg and Vegetable Fried Rice',
-    teaser: 'Whole-grain fried rice, real vegetables folded through scrambled egg.',
-    summary: 'Brown rice keeps its own bran layer intact, carrying fiber and B vitamins a white-rice fried rice would already have milled away.',
+    teaser: 'Whole-grain fried rice, vegetables folded through scrambled egg.',
+    summary: 'Brown rice keeps its bran layer intact, carrying fiber and B vitamins a white-rice fried rice would already have milled away.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_egg_vegetable_fried_rice',
@@ -4924,7 +4925,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Manganese', note: 'A strong contribution from the brown rice.' },
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the carrot.' },
-        { nutrient: 'Fiber', note: 'A real whole-grain amount, more than a white-rice version would carry.' },
+        { nutrient: 'Fiber', note: 'A whole-grain amount, more than a white-rice version would carry.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -4976,7 +4977,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Bake for 12-15 minutes, until the salmon flakes easily with a fork.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Omega-3 fat', note: 'A genuinely concentrated amount, among the highest of any common whole food.' },
+        { nutrient: 'Omega-3 fat', note: 'A concentrated amount, among the highest of any common whole food.' },
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the salmon.' },
         { nutrient: 'Vitamin D', note: 'A meaningful amount, unusual for a whole food outside of fatty fish.' },
       ],
@@ -5081,12 +5082,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Selenium', note: 'A meaningful amount, common among whole-food fish.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Mild and flaky, with paprika adding a little color and warmth and lemon keeping it bright.',
     },
@@ -5095,7 +5096,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-turkey-meatballs-tomato-sauce',
     category: 'recipes',
     title: 'Turkey Meatballs in Tomato Sauce',
-    teaser: 'Lean turkey meatballs, simmered in a real, from-scratch tomato sauce.',
+    teaser: 'Lean turkey meatballs, simmered in a from-scratch tomato sauce.',
     summary: 'Ground turkey breast carries meaningfully less saturated fat than an equivalent amount of ground beef, without losing out on protein.',
     citations: [],
     overallTier: 'strong',
@@ -5138,13 +5139,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Niacin (B3)', note: 'A solid contribution from the turkey.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory, tomatoey, and lightly herbal, closer to a comforting weeknight classic than anything fussy.',
     },
@@ -5298,7 +5299,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve over the warmed brown rice.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Iron', note: 'A genuinely concentrated, easily-absorbed amount from the beef.' },
+        { nutrient: 'Iron', note: 'A concentrated, easily-absorbed amount from the beef.' },
         { nutrient: 'Zinc', note: 'A strong contribution from the beef.' },
         { nutrient: 'Vitamin B12', note: 'A solid amount, found almost exclusively in animal foods.' },
       ],
@@ -5318,7 +5319,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-baked-chicken-thighs-brussels-sweet-potato',
     category: 'recipes',
     title: 'Baked Chicken Thighs with Brussels Sprouts and Sweet Potato',
-    teaser: 'A real sheet-pan dinner: chicken thigh, brussels sprouts, and sweet potato roasted together.',
+    teaser: 'A sheet-pan dinner: chicken thigh, brussels sprouts, and sweet potato roasted together.',
     summary: 'Brussels sprouts are cruciferous, carrying the same fiber and vitamin K family as broccoli and kale, in a dinner that doesn\'t already lean on either.',
     citations: [],
     overallTier: 'strong',
@@ -5367,7 +5368,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'A comforting, real sheet-pan dinner: crisp, caramelized brussels sprouts and sweet potato against juicy roasted chicken.',
+      flavorNotes: 'A comforting sheet-pan dinner: crisp, caramelized brussels sprouts and sweet potato against juicy roasted chicken.',
     },
   },
   {
@@ -5420,12 +5421,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Lentils carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern for you.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Thick, earthy, and warmly spiced with cumin, hearty enough to work as a full meal on its own.',
     },
@@ -5475,14 +5476,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Protein', note: 'A lean, concentrated amount.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Light and herby, with the zucchini and tomato softening down into the turkey\'s own juices as it bakes.',
+      flavorNotes: 'Light and herby, with the zucchini and tomato softening down into the turkey\'s juices as it bakes.',
     },
   },
   {
@@ -5490,7 +5491,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Hummus and Roasted Vegetable Wrap',
     teaser: 'A creamy, homemade chickpea hummus wrapped up with roasted vegetables.',
-    summary: 'Whole chickpeas blended into hummus keep their own fiber intact, something a smooth, strained commercial hummus has often already lost.',
+    summary: 'Whole chickpeas blended into hummus keep their fiber intact, something a smooth, strained commercial hummus has often already lost.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_handheld_hummus_roasted_vegetable_wrap',
@@ -5533,13 +5534,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This uses an ordinary wheat-flour tortilla, so the gluten content is unavoidable as written. A gluten-free tortilla-style flour blend can be substituted directly in this same recipe.' },
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Chickpeas carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion, or a well-rinsed canned chickpea, tends to sit easier if that\'s a concern.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Creamy and nutty from the hummus, with sweet roasted vegetables and a little fresh crunch from the spinach.',
     },
@@ -5583,7 +5584,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A strong contribution from the kiwi, more per gram than an orange carries.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
-        { nutrient: 'Healthy fat', note: 'A real contribution from the pistachios.' },
+        { nutrient: 'Healthy fat', note: 'A meaningful contribution from the pistachios.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -5642,14 +5643,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Selenium', note: 'A solid contribution from the halibut.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Light and clean, with the halibut\'s own mild flavor letting the fresh vegetables and lemon come through.',
+      flavorNotes: 'Light and clean, with the halibut\'s mild flavor letting the fresh vegetables and lemon come through.',
     },
   },
   {
@@ -5657,7 +5658,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Roast Chicken Breast with Fennel and Leeks',
     teaser: 'Roasted chicken breast over softened, lightly caramelized fennel and leek.',
-    summary: 'Fennel carries a real, distinct fiber and potassium profile from the vegetables already common in this Digest, worth folding in for variety alone.',
+    summary: 'Fennel carries a distinct fiber and potassium profile from the vegetables already common in this Digest, worth folding in for variety alone.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_roast_chicken_fennel_leeks',
@@ -5692,22 +5693,22 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean, concentrated amount from the chicken breast.' },
-        { nutrient: 'Potassium', note: 'A real contribution from the fennel.' },
+        { nutrient: 'Potassium', note: 'A meaningful contribution from the fennel.' },
         { nutrient: 'Fiber', note: 'A meaningful amount from the fennel and leek together.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Mild and savory, with fennel\'s own subtle anise flavor mellowing considerably once roasted.',
+      flavorNotes: 'Mild and savory, with fennel\'s subtle anise flavor mellowing considerably once roasted.',
     },
   },
   {
     id: 'recipe-mealplan-peach-almond-overnight-oats',
     category: 'recipes',
     title: 'Peach and Almond Yogurt Overnight Oats',
-    teaser: 'Creamy make-ahead oats, sliced peach folded through in the morning, with real Greek yogurt protein.',
-    summary: 'Peach brings a different, gentler fiber profile than the berries most overnight-oats recipes default to, and a Greek yogurt base keeps this a genuine protein breakfast rather than a carbohydrate-only bowl.',
+    teaser: 'Creamy make-ahead oats, sliced peach folded through in the morning, with Greek yogurt protein.',
+    summary: 'Peach brings a different, gentler fiber profile than the berries most overnight-oats recipes default to, and a Greek yogurt base keeps this a protein breakfast rather than a carbohydrate-only bowl.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_peach_almond_overnight_oats',
@@ -5738,7 +5739,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Give it a stir before eating, thinning with a splash of water or milk if it\'s thicker than you\'d like, then top with the diced peach and sliced almonds.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base.' },
         { nutrient: 'Fiber', note: 'A strong combined amount from the oats and chia seeds.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the peach.' },
       ],
@@ -5758,7 +5759,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-turkey-hummus-collard-wrap',
     category: 'recipes',
     title: 'Turkey and Hummus Collard Wrap',
-    teaser: 'A real, sturdy collard leaf standing in for a tortilla, wrapped around turkey and homemade hummus.',
+    teaser: 'A sturdy collard leaf standing in for a tortilla, wrapped around turkey and homemade hummus.',
     summary: 'A collard leaf wrap swaps in an actual vegetable for the usual starch, not just a gluten-free substitution.',
     citations: [],
     overallTier: 'strong',
@@ -5796,16 +5797,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Vitamin K', note: 'A strong contribution from the collard leaves themselves.' },
         { nutrient: 'Protein', note: 'A lean amount from the turkey, plus more from the chickpeas.' },
-        { nutrient: 'Fiber', note: 'A real amount from the whole chickpeas and collards together.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the whole chickpeas and collards together.' },
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Chickpeas carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion, or a well-rinsed canned chickpea, tends to sit easier if that\'s a concern.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Fresh and slightly earthy from the collard leaf itself, with creamy hummus and lean turkey filling it out.',
     },
@@ -5815,7 +5816,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Trout with Parsnip Mash',
     teaser: 'Simple baked trout over a creamy, garlicky parsnip mash.',
-    summary: 'Parsnip mashes into a naturally sweet, creamy side without needing much added fat to get there, a real alternative to potato.',
+    summary: 'Parsnip mashes into a naturally sweet, creamy side without needing much added fat to get there, an alternative to potato.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_baked_trout_parsnip_mash',
@@ -5850,7 +5851,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Omega-3 fat', note: 'A meaningful amount from the trout.' },
-        { nutrient: 'Fiber', note: 'A real contribution from the parsnip.' },
+        { nutrient: 'Fiber', note: 'A meaningful contribution from the parsnip.' },
         { nutrient: 'Vitamin B12', note: 'A solid amount from the trout.' },
       ],
       conditionNotes: [
@@ -5911,7 +5912,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Spelt and Roasted Vegetable Salad',
     teaser: 'A hearty grain salad built on spelt instead of the usual quinoa or rice.',
-    summary: 'This uses spelt, a real, whole ancient grain, as the closest available stand-in for farro (this database carries no farro row of its own), not a lesser substitute in nutrition terms.',
+    summary: 'This uses spelt, a whole ancient grain, as the closest available stand-in for farro (this database carries no farro row of its own), not a lesser substitute in nutrition terms.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_spelt_roasted_vegetable_salad',
@@ -5945,7 +5946,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial whole-grain amount from the spelt.' },
         { nutrient: 'Vitamin A', note: 'A strong contribution from the carrot.' },
-        { nutrient: 'Protein', note: 'A real plant-based amount from the spelt.' },
+        { nutrient: 'Protein', note: 'A plant-based amount from the spelt.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'Spelt is an ancient wheat variety and carries gluten, unlike quinoa or rice. A gluten-free grain like quinoa can be substituted directly in this same recipe.' },
@@ -5964,7 +5965,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Lamb and Vegetable Skewers with Couscous',
     teaser: 'Grilled lamb and vegetable skewers over lightly seasoned couscous.',
-    summary: 'Lamb is a genuinely concentrated source of zinc and vitamin B12, both nutrients this Digest\'s own new recipes so far have leaned on beef and poultry for.',
+    summary: 'Lamb is a concentrated source of zinc and vitamin B12, both nutrients this Digest\'s new recipes so far have leaned on beef and poultry for.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_lamb_skewers_couscous',
@@ -5999,19 +6000,19 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve over the cooked couscous, finished with a squeeze of lemon juice.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Zinc', note: 'A genuinely concentrated amount from the lamb.' },
+        { nutrient: 'Zinc', note: 'A concentrated amount from the lamb.' },
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the lamb.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the bell pepper.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'Couscous is made from durum wheat and carries gluten. Quinoa or rice can be substituted directly in this same recipe.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Smoky and savory from the grill, with sweet vegetables and a bright finish from the lemon.',
     },
@@ -6020,8 +6021,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-buckwheat-porridge-blueberries-walnuts',
     category: 'recipes',
     title: 'Buckwheat Porridge with Blueberries, Walnuts, and Yogurt',
-    teaser: 'A warm, nutty porridge, buckwheat groats standing in for oats, finished with a real yogurt swirl for morning protein.',
-    summary: 'Buckwheat is naturally gluten-free despite its name, and carries a distinctly different fiber and mineral profile from oats. A Greek yogurt swirl, stirred in once the porridge is off the heat rather than simmered (heat can make yogurt split), adds real protein and a fermented-food touch without disturbing the porridge itself.',
+    teaser: 'A warm, nutty porridge, buckwheat groats standing in for oats, finished with a yogurt swirl for morning protein.',
+    summary: 'Buckwheat is naturally gluten-free despite its name, and carries a distinctly different fiber and mineral profile from oats. A Greek yogurt swirl, stirred in once the porridge is off the heat rather than simmered (heat can make yogurt split), adds protein and a fermented-food touch without disturbing the porridge itself.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_buckwheat_porridge_blueberries_walnuts',
@@ -6056,7 +6057,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon into a bowl and top with the blueberries and chopped walnuts.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt swirl.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt swirl.' },
         { nutrient: 'Manganese', note: 'A strong contribution from the buckwheat.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the blueberries.' },
       ],
@@ -6069,7 +6070,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Warm and earthy from the buckwheat, with a real tang from the yogurt swirl, sweet-tart blueberries, and a good crunch from the walnuts.',
+      flavorNotes: 'Warm and earthy from the buckwheat, with a tang from the yogurt swirl, sweet-tart blueberries, and a good crunch from the walnuts.',
     },
   },
   {
@@ -6077,7 +6078,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tuna and White Bean Salad',
     teaser: 'Flaked tuna and creamy white beans over peppery arugula.',
-    summary: 'Tuna and white beans together bring both animal and plant protein into one bowl, a real combination Italian coastal cooking has leaned on for generations.',
+    summary: 'Tuna and white beans together bring both animal and plant protein into one bowl, a combination Italian coastal cooking has leaned on for generations.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_tuna_white_bean_salad',
@@ -6112,7 +6113,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A hearty combined amount from the tuna and white beans.' },
-        { nutrient: 'Fiber', note: 'A real contribution from the white beans.' },
+        { nutrient: 'Fiber', note: 'A meaningful contribution from the white beans.' },
         { nutrient: 'Selenium', note: 'A strong amount from the tuna.' },
       ],
       conditionNotes: [
@@ -6126,7 +6127,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and slightly peppery from the arugula, with creamy beans balancing the tuna\'s own meatiness.',
+      flavorNotes: 'Savory and slightly peppery from the arugula, with creamy beans balancing the tuna\'s meatiness.',
     },
   },
   {
@@ -6134,7 +6135,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Pork Chop with Roasted Brussels Sprouts and Apple',
     teaser: 'A savory-sweet dinner: pork chop against caramelized brussels sprouts and apple.',
-    summary: 'Apple roasted alongside a savory main is a real, traditional pairing, its own natural sugar balancing the pork\'s own richness.',
+    summary: 'Apple roasted alongside a savory main is a traditional pairing, its natural sugar balancing the pork\'s richness.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_pork_chop_brussels_apple',
@@ -6186,8 +6187,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-millet-porridge-apricots',
     category: 'recipes',
     title: 'Warm Spiced Millet Porridge with Apricots',
-    teaser: 'A creamy, gently spiced porridge built on millet instead of oats, finished with a real yogurt swirl for morning protein.',
-    summary: 'Millet is a whole grain most Western breakfasts never reach for, carrying its own distinct mineral profile alongside real fiber. A Greek yogurt swirl, stirred in once the porridge is off the heat rather than simmered (heat can make yogurt split), adds real protein and a fermented-food touch without disturbing the porridge itself.',
+    teaser: 'A creamy, gently spiced porridge built on millet instead of oats, finished with a yogurt swirl for morning protein.',
+    summary: 'Millet is a whole grain most Western breakfasts never reach for, carrying a distinct mineral profile alongside fiber. A Greek yogurt swirl, stirred in once the porridge is off the heat rather than simmered (heat can make yogurt split), adds protein and a fermented-food touch without disturbing the porridge itself.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_millet_porridge_apricots',
@@ -6221,8 +6222,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon into a bowl and top with the diced apricot.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt swirl.' },
-        { nutrient: 'Magnesium', note: 'A real contribution from the millet.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt swirl.' },
+        { nutrient: 'Magnesium', note: 'A meaningful contribution from the millet.' },
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the apricot.' },
       ],
       conditionNotes: [
@@ -6233,15 +6234,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Warm and mildly nutty from the millet, with a real tang from the yogurt swirl, sweet apricot, and a gentle hit of cinnamon.',
+      flavorNotes: 'Warm and mildly nutty from the millet, with a tang from the yogurt swirl, sweet apricot, and a gentle hit of cinnamon.',
     },
   },
   {
     id: 'recipe-mealplan-shrimp-watermelon-salad',
     category: 'recipes',
     title: 'Grilled Shrimp and Watermelon Salad',
-    teaser: 'A real summer combination: juicy watermelon, salty feta, and grilled shrimp.',
-    summary: 'Watermelon carries citrulline, a compound the body converts toward nitric oxide, supporting blood flow, alongside real hydration from its own high water content.',
+    teaser: 'A summer combination: juicy watermelon, salty feta, and grilled shrimp.',
+    summary: 'Watermelon carries citrulline, a compound the body converts toward nitric oxide, supporting blood flow, alongside hydration from its high water content.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_shrimp_watermelon_salad',
@@ -6294,7 +6295,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Pan-Seared Scallops with Asparagus and Lemon',
     teaser: 'Quickly seared scallops over crisp-tender asparagus.',
-    summary: 'Scallops are a notably lean shellfish, carrying real vitamin B12 and selenium for very little fat.',
+    summary: 'Scallops are a notably lean shellfish, carrying vitamin B12 and selenium for very little fat.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_scallops_asparagus_lemon',
@@ -6334,7 +6335,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Delicate and slightly sweet from the scallops, brightened by lemon and the asparagus\'s own crisp bite.',
+      flavorNotes: 'Delicate and slightly sweet from the scallops, brightened by lemon and the asparagus\'s crisp bite.',
     },
   },
   {
@@ -6342,7 +6343,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Grapefruit and Greek Yogurt with Honey',
     teaser: 'Tart, juicy grapefruit against cool, thick yogurt.',
-    summary: 'Grapefruit is a real, concentrated vitamin C source with a tarter, more bitter flavor than orange, worth rotating in for variety alone.',
+    summary: 'Grapefruit is a concentrated vitamin C source with a tarter, more bitter flavor than orange, worth rotating in for variety alone.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_grapefruit_yogurt_honey',
@@ -6377,7 +6378,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Tart and juicy, balanced by the yogurt\'s own creaminess and a touch of honey.',
+      flavorNotes: 'Tart and juicy, balanced by the yogurt\'s creaminess and a touch of honey.',
     },
   },
   {
@@ -6385,7 +6386,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Chickpea and Spinach Curry Bowl with Brown Rice',
     teaser: 'A gently spiced chickpea and spinach curry over whole-grain rice.',
-    summary: 'Curry powder is a real spice blend, not one single spice, and often includes turmeric, giving this bowl the same real curcumin this Digest already documents elsewhere.',
+    summary: 'Curry powder is a spice blend, not one single spice, and often includes turmeric, giving this bowl the same curcumin this Digest already documents elsewhere.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_chickpea_spinach_curry_bowl',
@@ -6426,7 +6427,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial amount from the chickpeas.' },
         { nutrient: 'Vitamin K', note: 'A strong contribution from the spinach.' },
-        { nutrient: 'Curcumin', note: 'A real amount if the curry powder used includes turmeric, which most blends do.' },
+        { nutrient: 'Curcumin', note: 'A meaningful amount if the curry powder used includes turmeric, which most blends do.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease (and anyone managing kidney stones)', note: 'Spinach carries a notably high oxalate load, cooked or raw. Pairing it with a calcium source at the same meal helps offset it if oxalate is something you\'re watching.' },
@@ -6434,7 +6435,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Warm and gently spiced, with creamy coconut milk mellowing the curry powder\'s own heat.',
+      flavorNotes: 'Warm and gently spiced, with creamy coconut milk mellowing the curry powder\'s heat.',
     },
   },
   {
@@ -6442,7 +6443,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Chicken Breast with Roasted Beets and Orange',
     teaser: 'Simple baked chicken breast against sweet roasted beets and bright orange segments.',
-    summary: 'A weeknight-easy pairing of lean protein with roasted beets, whose own earthy sweetness holds up well next to citrus.',
+    summary: 'A weeknight-easy pairing of lean protein with roasted beets, whose earthy sweetness holds up well next to citrus.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_duck_beets_orange',
@@ -6479,7 +6480,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean, complete amount from the chicken breast.' },
-        { nutrient: 'Folate', note: 'A real contribution from the beets.' },
+        { nutrient: 'Folate', note: 'A meaningful contribution from the beets.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the orange.' },
       ],
       conditionNotes: [
@@ -6494,7 +6495,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Fig and Walnut Yogurt Bowl',
     teaser: 'Sweet, chewy fig against crunchy walnut and thick yogurt.',
-    summary: 'Fresh fig carries real potassium and fiber that dried fig, the more common form on a store shelf, has already concentrated down from a different starting balance.',
+    summary: 'Fresh fig carries potassium and fiber that dried fig, the more common form on a store shelf, has already concentrated down from a different starting balance.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_fig_walnut_yogurt_bowl',
@@ -6523,7 +6524,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with honey and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Potassium', note: 'A real amount from the fresh fig.' },
+        { nutrient: 'Potassium', note: 'A meaningful amount from the fresh fig.' },
         { nutrient: 'Fiber', note: 'A meaningful amount from the fig and walnut together.' },
         { nutrient: 'Omega-3 fat', note: 'A solid plant-based contribution from the walnuts.' },
       ],
@@ -6544,7 +6545,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Bulgur Tabbouleh-Style Salad',
     teaser: 'A parsley-forward grain salad, bulgur standing in for the usual quinoa base.',
-    summary: 'This leans on fresh parsley as a real vegetable-quantity ingredient, not a garnish, the way traditional tabbouleh actually treats it.',
+    summary: 'This leans on fresh parsley as a vegetable-quantity ingredient, not a garnish, the way traditional tabbouleh actually treats it.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_bulgur_tabbouleh_salad',
@@ -6578,17 +6579,17 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin K', note: 'A striking amount from the fresh parsley itself.' },
-        { nutrient: 'Fiber', note: 'A real whole-grain amount from the bulgur.' },
+        { nutrient: 'Fiber', note: 'A whole-grain amount from the bulgur.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the tomato and parsley.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'Bulgur is made from wheat and carries gluten. Quinoa or rice can be substituted directly in this same recipe.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Fresh and herby, with the parsley doing most of the talking against bright lemon and crisp vegetables.',
     },
@@ -6598,7 +6599,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Herb-Roasted Turkey Thighs with Turnip and Carrot',
     teaser: 'A hearty roasted turkey thigh, turnip and carrot roasted alongside.',
-    summary: 'Turkey thigh carries more iron and zinc than turkey breast, the same real trade-off dark meat already offers in this Digest\'s own chicken recipes.',
+    summary: 'Turkey thigh carries more iron and zinc than turkey breast, the same trade-off dark meat already offers in this Digest\'s chicken recipes.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_turkey_thigh_turnip_carrot',
@@ -6633,7 +6634,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Iron', note: 'A meaningfully higher amount than turkey breast carries.' },
-        { nutrient: 'Zinc', note: 'A real contribution from the dark meat.' },
+        { nutrient: 'Zinc', note: 'A meaningful contribution from the dark meat.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
       conditionNotes: [
@@ -6650,7 +6651,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Date and Cashew Breakfast Bowl',
     teaser: 'Naturally sweet date pieces against thick yogurt and crunchy cashew.',
-    summary: 'Dates concentrate a real amount of potassium and fiber into a small amount of fruit, unusual for something this sweet.',
+    summary: 'Dates concentrate a meaningful amount of potassium and fiber into a small amount of fruit, unusual for something this sweet.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_date_cashew_breakfast_bowl',
@@ -6682,7 +6683,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a dusting of cinnamon.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Potassium', note: 'A real, concentrated amount from the dates.' },
+        { nutrient: 'Potassium', note: 'A concentrated amount from the dates.' },
         { nutrient: 'Fiber', note: 'A meaningful amount from the dates.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
@@ -6737,7 +6738,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Flake the mackerel over the top and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Omega-3 fat', note: 'A genuinely concentrated amount from the mackerel.' },
+        { nutrient: 'Omega-3 fat', note: 'A concentrated amount from the mackerel.' },
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the mackerel.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the radish.' },
       ],
@@ -6749,7 +6750,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Rich and savory from the mackerel, with the radish\'s own sharp crunch cutting right through it.',
+      flavorNotes: 'Rich and savory from the mackerel, with the radish\'s sharp crunch cutting right through it.',
     },
   },
   {
@@ -6757,7 +6758,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Chicken and Okra Skillet with Tomato',
     teaser: 'A one-pan skillet, chicken thigh simmered with okra and tomato.',
-    summary: 'Okra is a real, distinct source of soluble fiber, part of what gives a simmered okra dish its own naturally thickened texture.',
+    summary: 'Okra is a distinct source of soluble fiber, part of what gives a simmered okra dish its naturally thickened texture.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_chicken_okra_tomato_skillet',
@@ -6794,27 +6795,27 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, distinct contribution from the okra.' },
+        { nutrient: 'Fiber', note: 'A distinct contribution from the okra.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the tomato.' },
         { nutrient: 'Zinc', note: 'A solid amount from the chicken thigh.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and lightly thickened, with the okra taking on the tomato\'s own flavor as it simmers.',
+      flavorNotes: 'Savory and lightly thickened, with the okra taking on the tomato\'s flavor as it simmers.',
     },
   },
   {
     id: 'recipe-mealplan-nectarine-chia-pudding-cashews',
     category: 'recipes',
     title: 'Nectarine Chia Yogurt Pudding with Cashews',
-    teaser: 'A creamy chia pudding, diced nectarine and toasted cashew folded in, with real Greek yogurt protein.',
-    summary: 'Nectarine carries the same nutrient profile as peach, in a fruit with a smooth rather than fuzzy skin, genuinely the same species, and a Greek yogurt base keeps this a real protein breakfast rather than a carbohydrate-only pudding.',
+    teaser: 'A creamy chia pudding, diced nectarine and toasted cashew folded in, with Greek yogurt protein.',
+    summary: 'Nectarine carries the same nutrient profile as peach, in a fruit with a smooth rather than fuzzy skin, the same species, and a Greek yogurt base keeps this a protein breakfast rather than a carbohydrate-only pudding.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_nectarine_chia_pudding_cashews',
@@ -6848,9 +6849,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the diced nectarine and chopped cashews before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base.' },
         { nutrient: 'Fiber', note: 'A strong amount from the chia seeds.' },
-        { nutrient: 'Vitamin C', note: 'A real contribution from the nectarine.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful contribution from the nectarine.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -6861,7 +6862,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Thick and creamy once set, with a real tang from the Greek yogurt, juicy nectarine, and a bit of crunch from the cashews.',
+      flavorNotes: 'Thick and creamy once set, with a tang from the Greek yogurt, juicy nectarine, and a bit of crunch from the cashews.',
     },
   },
   {
@@ -6902,20 +6903,20 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with olive oil and lemon juice, and scatter the fresh parsley over the top.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Calcium', note: 'A genuinely concentrated whole-food amount, unusual outside of dairy.' },
-        { nutrient: 'Omega-3 fat', note: 'A real, concentrated amount from the sardines.' },
+        { nutrient: 'Calcium', note: 'A concentrated whole-food amount, unusual outside of dairy.' },
+        { nutrient: 'Omega-3 fat', note: 'A concentrated amount from the sardines.' },
         { nutrient: 'Vitamin D', note: 'A meaningful amount, unusual for a whole food outside of fatty fish.' },
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'White beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory and a little briny from the sardines, balanced by creamy beans and fresh parsley.',
     },
@@ -6925,7 +6926,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Braised Beef with Kohlrabi and Carrot',
     teaser: 'Slow-braised beef, tender kohlrabi and carrot soaking up the same broth.',
-    summary: 'Kohlrabi is a real, underused cruciferous vegetable, the same broader family broccoli and cabbage belong to, with a milder, sweeter flavor of its own.',
+    summary: 'Kohlrabi is an underused cruciferous vegetable, the same broader family broccoli and cabbage belong to, with a milder, sweeter flavor of its own.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_braised_beef_kohlrabi_carrot',
@@ -6962,7 +6963,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Iron', note: 'A concentrated, easily-absorbed amount from the beef.' },
-        { nutrient: 'Vitamin C', note: 'A real, often-overlooked contribution from the kohlrabi.' },
+        { nutrient: 'Vitamin C', note: 'An often-overlooked contribution from the kohlrabi.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
       conditionNotes: [
@@ -6971,7 +6972,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Tender, savory beef in a rich broth, with kohlrabi\'s own mild sweetness coming through after a long simmer.',
+      flavorNotes: 'Tender, savory beef in a rich broth, with kohlrabi\'s mild sweetness coming through after a long simmer.',
     },
   },
   {
@@ -6979,7 +6980,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Clementine and Almond Yogurt Bowl',
     teaser: 'Sweet, easy-to-peel clementine segments against thick yogurt.',
-    summary: 'Clementine is one of the easiest citrus fruits to actually eat whole rather than juice, keeping its own fiber intact in a way juice never does.',
+    summary: 'Clementine is one of the easiest citrus fruits to actually eat whole rather than juice, keeping its fiber intact in a way juice never does.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_clementine_almond_yogurt_bowl',
@@ -7006,7 +7007,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A solid amount from the clementine.' },
-        { nutrient: 'Fiber', note: 'A real contribution from eating the fruit whole rather than juiced.' },
+        { nutrient: 'Fiber', note: 'A meaningful contribution from eating the fruit whole rather than juiced.' },
         { nutrient: 'Protein', note: 'A concentrated amount from the Greek yogurt.' },
       ],
       conditionNotes: [
@@ -7026,7 +7027,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Roasted Artichoke and White Bean Salad',
     teaser: 'Roasted artichoke hearts against creamy white beans and salty feta.',
-    summary: 'Artichoke carries a real, distinct prebiotic fiber (inulin) that feeds beneficial gut bacteria, a different mechanism than the soluble fiber in beans alongside it.',
+    summary: 'Artichoke carries a distinct prebiotic fiber (inulin) that feeds beneficial gut bacteria, a different mechanism than the soluble fiber in beans alongside it.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_roasted_artichoke_white_bean_salad',
@@ -7059,7 +7060,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with olive oil and lemon juice, and season with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Prebiotic fiber (inulin)', note: 'A genuine, distinct contribution from the artichoke, feeding beneficial gut bacteria.' },
+        { nutrient: 'Prebiotic fiber (inulin)', note: 'A distinct contribution from the artichoke, feeding beneficial gut bacteria.' },
         { nutrient: 'Fiber', note: 'A substantial combined amount from the artichoke and white beans.' },
         { nutrient: 'Folate', note: 'A meaningful amount from the artichoke.' },
       ],
@@ -7083,7 +7084,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Pan-Seared Sole with Bok Choy and Ginger',
     teaser: 'A light, delicate white fish over gingery, quickly-cooked bok choy.',
-    summary: 'Sole is one of the mildest, leanest whitefish available, a real, gentle introduction for anyone who finds a stronger fish off-putting.',
+    summary: 'Sole is one of the mildest, leanest whitefish available, a gentle introduction for anyone who finds a stronger fish off-putting.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_sole_bok_choy_ginger',
@@ -7118,7 +7119,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean, mild amount from the sole.' },
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the bok choy.' },
-        { nutrient: 'Vitamin C', note: 'A real contribution from the bok choy.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful contribution from the bok choy.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -7136,8 +7137,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-plum-walnut-overnight-oats',
     category: 'recipes',
     title: 'Plum and Walnut Yogurt Overnight Oats',
-    teaser: 'Creamy make-ahead oats, sliced plum and walnut folded in, with real Greek yogurt protein.',
-    summary: 'Plum\'s own skin carries a real concentration of the same antioxidant pigments found in blueberry, easy to miss if the skin gets peeled away, and a Greek yogurt base keeps this a real protein breakfast rather than a carbohydrate-only bowl.',
+    teaser: 'Creamy make-ahead oats, sliced plum and walnut folded in, with Greek yogurt protein.',
+    summary: 'Plum\'s skin carries a concentration of the same antioxidant pigments found in blueberry, easy to miss if the skin gets peeled away, and a Greek yogurt base keeps this a protein breakfast rather than a carbohydrate-only bowl.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_plum_walnut_overnight_oats',
@@ -7167,8 +7168,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Give it a stir before eating, thinning with a splash of water or milk if it\'s thicker than you\'d like, then top with the sliced plum and walnuts.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base.' },
-        { nutrient: 'Antioxidant pigments', note: 'A real, meaningful amount from the plum\'s own skin, left on rather than peeled.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base.' },
+        { nutrient: 'Antioxidant pigments', note: 'A meaningful amount from the plum\'s skin, left on rather than peeled.' },
         { nutrient: 'Fiber', note: 'A strong combined amount from the oats and plum.' },
       ],
       conditionNotes: [
@@ -7188,7 +7189,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Crab and Avocado Salad',
     teaser: 'Sweet crab meat against cool, creamy avocado.',
-    summary: 'Crab is a genuinely lean source of complete protein and vitamin B12, closer to whitefish than to red meat in its own fat content.',
+    summary: 'Crab is a lean source of complete protein and vitamin B12, closer to whitefish than to red meat in its fat content.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_crab_avocado_salad',
@@ -7222,13 +7223,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean, complete amount from the crab.' },
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the crab.' },
-        { nutrient: 'Healthy fat', note: 'A real amount from the avocado.' },
+        { nutrient: 'Healthy fat', note: 'A meaningful amount from the avocado.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Sweet and delicate from the crab, with the avocado\'s own creaminess rounding out every bite.',
+      flavorNotes: 'Sweet and delicate from the crab, with the avocado\'s creaminess rounding out every bite.',
     },
   },
   {
@@ -7270,7 +7271,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Iron', note: 'A concentrated, easily-absorbed amount from the beef.' },
-        { nutrient: 'Protein', note: 'A lean, real amount from a lean cut of beef.' },
+        { nutrient: 'Protein', note: 'A lean amount from a lean cut of beef.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
       conditionNotes: [
@@ -7286,8 +7287,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-watermelon-feta-bowl',
     category: 'recipes',
     title: 'Watermelon and Feta Breakfast Bowl',
-    teaser: 'A savory-sweet, real Mediterranean pairing, cool watermelon against salty feta.',
-    summary: 'Pairing a sweet fruit with a salty cheese is a genuine, traditional combination, not an unusual one, common across Mediterranean cooking.',
+    teaser: 'A savory-sweet, Mediterranean pairing, cool watermelon against salty feta.',
+    summary: 'Pairing a sweet fruit with a salty cheese is a traditional combination, not an unusual one, common across Mediterranean cooking.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_watermelon_feta_bowl',
@@ -7318,7 +7319,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the watermelon.' },
-        { nutrient: 'Hydration', note: 'A real contribution from watermelon\'s own high water content.' },
+        { nutrient: 'Hydration', note: 'A meaningful contribution from watermelon\'s high water content.' },
         { nutrient: 'Calcium', note: 'A solid amount from the feta.' },
       ],
       conditionNotes: [
@@ -7338,7 +7339,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Edamame and Brown Rice Bowl with Sesame',
     teaser: 'Whole edamame beans folded through warm brown rice and toasted sesame.',
-    summary: 'Edamame is a whole, immature soybean, carrying its own intact fiber that a processed soy product often loses.',
+    summary: 'Edamame is a whole, immature soybean, carrying its intact fiber that a processed soy product often loses.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_edamame_brown_rice_sesame_bowl',
@@ -7373,7 +7374,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Sprinkle with sesame seeds before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant-based amount from the edamame.' },
+        { nutrient: 'Protein', note: 'A complete plant-based amount from the edamame.' },
         { nutrient: 'Fiber', note: 'A meaningful whole-soybean amount.' },
         { nutrient: 'Manganese', note: 'A strong contribution from the brown rice.' },
       ],
@@ -7393,7 +7394,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-mussels-tomato-garlic-broth',
     category: 'recipes',
     title: 'Mussels in Tomato and Garlic Broth',
-    teaser: 'Whole mussels, steamed open in a real, from-scratch tomato and garlic broth.',
+    teaser: 'Whole mussels, steamed open in a from-scratch tomato and garlic broth.',
     summary: 'Mussels are a notably concentrated whole-food source of vitamin B12 and iron, both for very little fat.',
     citations: [],
     overallTier: 'strong',
@@ -7431,17 +7432,17 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and scatter parsley over the top before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin B12', note: 'A genuinely concentrated amount from the mussels.' },
-        { nutrient: 'Iron', note: 'A real, meaningful contribution.' },
+        { nutrient: 'Vitamin B12', note: 'A concentrated amount from the mussels.' },
+        { nutrient: 'Iron', note: 'A meaningful contribution.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Briny and savory, with a rich tomato broth worth spooning up on its own.',
     },
@@ -7451,7 +7452,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Cantaloupe and Cottage Cheese Bowl',
     teaser: 'Sweet, fragrant cantaloupe against cool cottage cheese.',
-    summary: 'Cantaloupe is a genuinely concentrated whole-food source of vitamin A, from the same beta-carotene family behind its own orange color.',
+    summary: 'Cantaloupe is a concentrated whole-food source of vitamin A, from the same beta-carotene family behind its orange color.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_cantaloupe_cottage_cheese_bowl',
@@ -7474,22 +7475,22 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with honey and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin A', note: 'A genuinely concentrated amount from the cantaloupe.' },
+        { nutrient: 'Vitamin A', note: 'A concentrated amount from the cantaloupe.' },
         { nutrient: 'Protein', note: 'A solid amount from the cottage cheese.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the cantaloupe.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Sweet and fragrant from the cantaloupe, against the cottage cheese\'s own mild tang.',
+      flavorNotes: 'Sweet and fragrant from the cantaloupe, against the cottage cheese\'s mild tang.',
     },
   },
   {
     id: 'recipe-mealplan-pinto-bean-roasted-vegetable-salad',
     category: 'recipes',
     title: 'Pinto Bean and Roasted Vegetable Salad',
-    teaser: 'Creamy pinto beans over a real mix of roasted vegetables.',
-    summary: 'Pinto beans carry a real, distinct antioxidant profile from their own mottled skin, a different pigment family than black or white beans.',
+    teaser: 'Creamy pinto beans over a mix of roasted vegetables.',
+    summary: 'Pinto beans carry a distinct antioxidant profile from their mottled skin, a different pigment family than black or white beans.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_pinto_bean_roasted_vegetable_bowl',
@@ -7524,20 +7525,20 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with olive oil and lime juice, scatter cilantro over the top, and season with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, substantial amount from the pinto beans.' },
+        { nutrient: 'Fiber', note: 'A substantial amount from the pinto beans.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the bell pepper.' },
-        { nutrient: 'Antioxidants', note: 'A real, distinct contribution from the pinto bean\'s own mottled skin.' },
+        { nutrient: 'Antioxidants', note: 'A distinct contribution from the pinto bean\'s mottled skin.' },
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Pinto beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Creamy and earthy from the beans, brightened by lime and fresh cilantro.',
     },
@@ -7547,7 +7548,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Chicken Breast with Snow Peas and Carrots',
     teaser: 'Roasted chicken breast alongside quickly cooked snow peas and carrot.',
-    summary: 'Snow peas are eaten pod and all, a real, whole-vegetable way to get more fiber than shelled peas alone would carry.',
+    summary: 'Snow peas are eaten pod and all, a whole-vegetable way to get more fiber than shelled peas alone would carry.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_chicken_breast_snow_peas_carrots',
@@ -7580,14 +7581,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean, concentrated amount from the chicken breast.' },
-        { nutrient: 'Fiber', note: 'A real, whole-pod contribution from the snow peas.' },
+        { nutrient: 'Fiber', note: 'A whole-pod contribution from the snow peas.' },
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the carrot.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Simple and clean, with the snow peas\' own crunch and a little gingery warmth alongside the chicken.',
+      flavorNotes: 'Simple and clean, with the snow peas\' crunch and a little gingery warmth alongside the chicken.',
     },
   },
   {
@@ -7595,7 +7596,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Pear and Walnut Yogurt Bowl',
     teaser: 'Sliced pear and crunchy walnut against thick, tangy yogurt.',
-    summary: 'Pear\'s own skin carries most of its fiber, worth leaving on rather than peeling away.',
+    summary: 'Pear\'s skin carries most of its fiber, worth leaving on rather than peeling away.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_pear_walnut_yogurt_bowl',
@@ -7624,7 +7625,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a dusting of cinnamon.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real contribution from the pear\'s own skin, left on.' },
+        { nutrient: 'Fiber', note: 'A meaningful contribution from the pear\'s skin, left on.' },
         { nutrient: 'Omega-3 fat', note: 'A meaningful plant-based amount from the walnuts.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
@@ -7644,8 +7645,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-lima-bean-roasted-vegetable-salad',
     category: 'recipes',
     title: 'Lima Bean and Roasted Vegetable Salad',
-    teaser: 'Buttery lima beans against a real mix of roasted vegetables.',
-    summary: 'Lima beans are a genuinely underused legume, carrying real plant protein and fiber most weekly meal plans never reach for.',
+    teaser: 'Buttery lima beans against a mix of roasted vegetables.',
+    summary: 'Lima beans are an underused legume, carrying plant protein and fiber most weekly meal plans never reach for.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_lima_bean_roasted_vegetable_salad',
@@ -7680,20 +7681,20 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with olive oil and lemon juice, and finish with oregano and salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, underused plant-based amount from the lima beans.' },
+        { nutrient: 'Protein', note: 'An underused plant-based amount from the lima beans.' },
         { nutrient: 'Fiber', note: 'A substantial combined amount.' },
         { nutrient: 'Manganese', note: 'A meaningful amount from the eggplant.' },
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Lima beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Buttery and mild from the lima beans, with sweet roasted eggplant and a bright herbal finish.',
     },
@@ -7754,8 +7755,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-fig-pistachio-overnight-oats',
     category: 'recipes',
     title: 'Fig and Pistachio Yogurt Overnight Oats',
-    teaser: 'Creamy make-ahead oats, chopped fig and pistachio folded in, with real Greek yogurt protein.',
-    summary: 'Fig and pistachio are a genuinely traditional Mediterranean pairing, not an invented combination, and a Greek yogurt base keeps this a real protein breakfast rather than a carbohydrate-only bowl.',
+    teaser: 'Creamy make-ahead oats, chopped fig and pistachio folded in, with Greek yogurt protein.',
+    summary: 'Fig and pistachio are a traditional Mediterranean pairing, not an invented combination, and a Greek yogurt base keeps this a protein breakfast rather than a carbohydrate-only bowl.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_fig_pistachio_overnight_oats',
@@ -7788,8 +7789,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Give it a stir before eating, thinning with a splash of water or milk if it\'s thicker than you\'d like, then top with the chopped fig and pistachios.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base.' },
-        { nutrient: 'Potassium', note: 'A real amount from the fresh fig.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base.' },
+        { nutrient: 'Potassium', note: 'A meaningful amount from the fresh fig.' },
         { nutrient: 'Fiber', note: 'A strong combined amount from the oats and fig.' },
       ],
       conditionNotes: [
@@ -7809,7 +7810,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Trout and Cucumber Salad',
     teaser: 'Flaked trout against cool, crisp cucumber and fresh dill.',
-    summary: 'Trout carries a similar omega-3 profile to salmon, from a fish that spends its own life in fresh rather than salt water.',
+    summary: 'Trout carries a similar omega-3 profile to salmon, from a fish that spends its life in fresh rather than salt water.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_trout_cucumber_salad',
@@ -7845,20 +7846,20 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Omega-3 fat', note: 'A meaningful amount from the trout.' },
         { nutrient: 'Vitamin B12', note: 'A solid contribution from the trout.' },
-        { nutrient: 'Vitamin C', note: 'A real amount from the cucumber.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the cucumber.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Light and fresh, with cool cucumber and fresh dill against the trout\'s own mild flavor.',
+      flavorNotes: 'Light and fresh, with cool cucumber and fresh dill against the trout\'s mild flavor.',
     },
   },
   {
     id: 'recipe-mealplan-turkey-meatloaf-parsnip-carrot',
     category: 'recipes',
     title: 'Turkey Meatloaf with Roasted Parsnip and Carrot',
-    teaser: 'A real, single-serving turkey meatloaf, roasted parsnip and carrot alongside.',
+    teaser: 'A single-serving turkey meatloaf, roasted parsnip and carrot alongside.',
     summary: 'A meatloaf-style preparation cooks ground turkey as one loaf rather than individual meatballs, distributing seasoning all the way through.',
     citations: [],
     overallTier: 'strong',
@@ -7894,15 +7895,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and let rest for a few minutes before slicing.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A lean, real amount from the ground turkey.' },
+        { nutrient: 'Protein', note: 'A lean amount from the ground turkey.' },
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the carrot.' },
-        { nutrient: 'Fiber', note: 'A real contribution from the parsnip.' },
+        { nutrient: 'Fiber', note: 'A meaningful contribution from the parsnip.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and hearty, with sweet roasted parsnip and carrot balancing the turkey\'s own richness.',
+      flavorNotes: 'Savory and hearty, with sweet roasted parsnip and carrot balancing the turkey\'s richness.',
     },
   },
   {
@@ -7910,7 +7911,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Apricot and Cashew Yogurt Bowl',
     teaser: 'Sliced apricot and toasted cashew against thick, tangy yogurt.',
-    summary: 'Apricot is a genuinely concentrated whole-food source of vitamin A, the same beta-carotene family behind its own orange color.',
+    summary: 'Apricot is a concentrated whole-food source of vitamin A, the same beta-carotene family behind its orange color.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_apricot_cashew_yogurt_bowl',
@@ -7942,9 +7943,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with honey and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin A', note: 'A genuinely concentrated amount from the apricot.' },
+        { nutrient: 'Vitamin A', note: 'A concentrated amount from the apricot.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
-        { nutrient: 'Healthy fat', note: 'A real contribution from the cashews.' },
+        { nutrient: 'Healthy fat', note: 'A meaningful contribution from the cashews.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -8021,7 +8022,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Salmon with Leeks and Lemon',
     teaser: 'Leeks instead of a roasted root vegetable.',
-    summary: 'Leek carries a real, milder allium flavor than onion, softening down into something almost creamy once cooked through.',
+    summary: 'Leek carries a milder allium flavor than onion, softening down into something almost creamy once cooked through.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_salmon_leeks_lemon',
@@ -8053,9 +8054,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Transfer to the oven and bake for 12-15 minutes, until the salmon flakes easily.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Omega-3 fat', note: 'A genuinely concentrated amount from the salmon.' },
+        { nutrient: 'Omega-3 fat', note: 'A concentrated amount from the salmon.' },
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the salmon.' },
-        { nutrient: 'Fiber', note: 'A real amount from the leek.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the leek.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -8098,7 +8099,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a dusting of cinnamon.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Potassium', note: 'A real, concentrated amount from the dates.' },
+        { nutrient: 'Potassium', note: 'A concentrated amount from the dates.' },
         { nutrient: 'Omega-3 fat', note: 'A meaningful plant-based amount from the walnuts.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
@@ -8210,17 +8211,17 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Let rest for a few minutes, then serve alongside the roasted eggplant.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Zinc', note: 'A genuinely concentrated amount from the lamb.' },
+        { nutrient: 'Zinc', note: 'A concentrated amount from the lamb.' },
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the lamb.' },
         { nutrient: 'Manganese', note: 'A meaningful amount from the eggplant.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Rich, savory lamb against sweet, tender eggplant, finished with fragrant rosemary.',
     },
@@ -8229,8 +8230,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-mango-coconut-chia-pudding',
     category: 'recipes',
     title: 'Mango and Coconut Yogurt Chia Pudding',
-    teaser: 'A creamy, tropical chia pudding, coconut milk and diced mango folded in, with real Greek yogurt protein.',
-    summary: 'Coconut milk brings its own fat profile, distinct from the almond milk most of this plan\'s other puddings use, and half the liquid is now Greek yogurt, keeping the coconut flavor real while adding real protein.',
+    teaser: 'A creamy, tropical chia pudding, coconut milk and diced mango folded in, with Greek yogurt protein.',
+    summary: 'Coconut milk brings a fat profile distinct from the almond milk most of this plan\'s other puddings use, and half the liquid is now Greek yogurt, keeping the coconut flavor intact while adding protein.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mango_coconut_chia_pudding',
@@ -8261,7 +8262,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the diced mango before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the mango.' },
         { nutrient: 'Fiber', note: 'A strong amount from the chia seeds.' },
       ],
@@ -8274,7 +8275,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Rich and tropical, with coconut milk\'s own creaminess and a real tang from the yogurt against sweet, juicy mango.',
+      flavorNotes: 'Rich and tropical, with coconut milk\'s creaminess and a tang from the yogurt against sweet, juicy mango.',
     },
   },
   {
@@ -8282,7 +8283,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Crab and Corn Chowder-Style Soup',
     teaser: 'A lighter, dairy-forward chowder built on sweet corn and crab.',
-    summary: 'Crab and corn together bring a real, traditional coastal pairing, sweet corn balancing crab\'s own natural brininess.',
+    summary: 'Crab and corn together bring a traditional coastal pairing, sweet corn balancing crab\'s natural brininess.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_soup_crab_corn_chowder',
@@ -8322,13 +8323,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean, complete amount from the crab.' },
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the crab.' },
-        { nutrient: 'Fiber', note: 'A real amount from the corn.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the corn.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Rich and lightly sweet, with sweet corn and coconut milk balancing crab\'s own natural brininess.',
+      flavorNotes: 'Rich and lightly sweet, with sweet corn and coconut milk balancing crab\'s natural brininess.',
     },
   },
   {
@@ -8336,7 +8337,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Roast Chicken Thighs with Kohlrabi and Apple',
     teaser: 'Roasted chicken thigh against a milder, sweeter cousin of cabbage.',
-    summary: 'Kohlrabi and apple roasted together bring out kohlrabi\'s own natural sweetness, a real complement rather than a contrast.',
+    summary: 'Kohlrabi and apple roasted together bring out kohlrabi\'s natural sweetness, a complement rather than a contrast.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_chicken_thighs_kohlrabi_apple',
@@ -8368,7 +8369,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Roast for 25-30 minutes, until the chicken reaches 165°F (74°C) and the kohlrabi is tender.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, often-overlooked amount from the kohlrabi.' },
+        { nutrient: 'Vitamin C', note: 'An often-overlooked amount from the kohlrabi.' },
         { nutrient: 'Zinc', note: 'A meaningful amount from the chicken thigh.' },
         { nutrient: 'Fiber', note: 'A solid contribution from the kohlrabi and apple together.' },
       ],
@@ -8378,7 +8379,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory chicken against kohlrabi\'s own mild sweetness, echoed by the roasted apple alongside it.',
+      flavorNotes: 'Savory chicken against kohlrabi\'s mild sweetness, echoed by the roasted apple alongside it.',
     },
   },
   {
@@ -8386,7 +8387,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Cottage Cheese with Fig and Honey',
     teaser: 'Sliced fig and a drizzle of honey over cool, protein-rich cottage cheese.',
-    summary: 'Cottage cheese and fig together bring a real balance of protein and natural sweetness without needing a sweetened yogurt to get there.',
+    summary: 'Cottage cheese and fig together bring a balance of protein and natural sweetness without needing a sweetened yogurt to get there.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_cottage_cheese_fig_honey',
@@ -8412,7 +8413,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A concentrated amount from the cottage cheese.' },
-        { nutrient: 'Potassium', note: 'A real amount from the fresh fig.' },
+        { nutrient: 'Potassium', note: 'A meaningful amount from the fresh fig.' },
         { nutrient: 'Fiber', note: 'A meaningful amount from the fig.' },
       ],
       conditionNotes: [
@@ -8426,7 +8427,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Shrimp and Snow Pea Stir-Fry Bowl with Brown Rice',
     teaser: 'Quick-cooked shrimp and snow peas over whole-grain rice.',
-    summary: 'Snow peas cook in barely a minute or two, keeping far more of their own crunch and vitamin C intact than a longer-simmered vegetable would.',
+    summary: 'Snow peas cook in barely a minute or two, keeping far more of their crunch and vitamin C intact than a longer-simmered vegetable would.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_shrimp_snow_pea_stir_fry_rice',
@@ -8462,7 +8463,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean, fast-cooking amount from the shrimp.' },
-        { nutrient: 'Vitamin C', note: 'A real, well-preserved amount from the quickly-cooked snow peas.' },
+        { nutrient: 'Vitamin C', note: 'A well-preserved amount from the quickly-cooked snow peas.' },
         { nutrient: 'Selenium', note: 'A solid amount from the shrimp.' },
       ],
       conditionNotes: [
@@ -8473,7 +8474,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Quick, gingery, and savory, with the snow peas keeping their own crisp bite throughout.',
+      flavorNotes: 'Quick, gingery, and savory, with the snow peas keeping their crisp bite throughout.',
     },
   },
   {
@@ -8515,7 +8516,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean, complete amount from the cod.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the orange.' },
-        { nutrient: 'Fiber', note: 'A real amount from the fennel.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the fennel.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -8529,7 +8530,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Pear and Almond Yogurt Bowl',
     teaser: 'Sliced pear and toasted almond against thick, tangy yogurt.',
-    summary: 'Pear and almond together bring a mild, real sweetness balanced against almond\'s own gentle crunch and fat.',
+    summary: 'Pear and almond together bring a mild sweetness balanced against almond\'s gentle crunch and fat.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_pear_almond_yogurt_bowl',
@@ -8555,7 +8556,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with honey and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real contribution from the pear\'s own skin.' },
+        { nutrient: 'Fiber', note: 'A meaningful contribution from the pear\'s skin.' },
         { nutrient: 'Healthy fat', note: 'A meaningful amount from the almonds.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
@@ -8611,18 +8612,18 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Iron', note: 'A concentrated, easily-absorbed amount from the beef.' },
-        { nutrient: 'Protein', note: 'A lean, real amount.' },
+        { nutrient: 'Protein', note: 'A lean amount.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the bell pepper.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / Psoriasis / Rheumatoid Arthritis', note: 'This uses an ordinary wheat-flour tortilla, so the gluten content is unavoidable as written. A gluten-free tortilla-style flour blend can be substituted directly in this same recipe.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory beef against sweet roasted vegetables, wrapped up for an easy handheld dinner.',
     },
@@ -8681,8 +8682,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-kiwi-coconut-chia-pudding',
     category: 'recipes',
     title: 'Kiwi and Coconut Yogurt Chia Pudding',
-    teaser: 'A creamy, tropical chia pudding, sliced kiwi folded through coconut milk and real Greek yogurt.',
-    summary: 'Kiwi\'s own black seeds are entirely edible, a real, easy-to-miss source of extra fiber and omega-3 fat most people never think to check for. Half the liquid is now Greek yogurt, keeping the coconut flavor real while adding real protein.',
+    teaser: 'A creamy, tropical chia pudding, sliced kiwi folded through coconut milk and Greek yogurt.',
+    summary: 'Kiwi\'s black seeds are entirely edible, an easy-to-miss source of extra fiber and omega-3 fat most people never think to check for. Half the liquid is now Greek yogurt, keeping the coconut flavor intact while adding protein.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_kiwi_coconut_chia_pudding',
@@ -8713,9 +8714,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the sliced kiwi before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt.' },
         { nutrient: 'Vitamin C', note: 'A strong amount from the kiwi.' },
-        { nutrient: 'Fiber', note: 'A substantial amount from the chia seeds and kiwi\'s own edible seeds together.' },
+        { nutrient: 'Fiber', note: 'A substantial amount from the chia seeds and kiwi\'s edible seeds together.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -8726,7 +8727,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Rich and tropical from the coconut milk, with a real tang from the yogurt and a bright lift from the kiwi.',
+      flavorNotes: 'Rich and tropical from the coconut milk, with a tang from the yogurt and a bright lift from the kiwi.',
     },
   },
   {
@@ -8734,7 +8735,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'White Bean and Swiss Chard Soup',
     teaser: 'A simple, hearty soup, white beans and swiss chard simmered together.',
-    summary: 'Swiss chard\'s own stems carry real fiber and minerals most recipes discard, worth chopping and cooking in rather than throwing away.',
+    summary: 'Swiss chard\'s stems carry fiber and minerals most recipes discard, worth chopping and cooking in rather than throwing away.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_soup_white_bean_swiss_chard_soup',
@@ -8792,8 +8793,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-pork-loin-radish-carrot',
     category: 'recipes',
     title: 'Grilled Pork Loin with Roasted Radish and Carrot',
-    teaser: 'Grilled pork loin against roasted radish, its own peppery bite mellowing considerably once cooked.',
-    summary: 'Roasting radish changes its own texture and flavor completely, mellowing from sharp and peppery raw into something closer to a mild turnip.',
+    teaser: 'Grilled pork loin against roasted radish, its peppery bite mellowing considerably once cooked.',
+    summary: 'Roasting radish changes its texture and flavor completely, mellowing from sharp and peppery raw into something closer to a mild turnip.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_pork_loin_radish_carrot',
@@ -8826,7 +8827,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Thiamin (B1)', note: 'A notably strong contribution from the pork.' },
-        { nutrient: 'Vitamin C', note: 'A real amount from the radish.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the radish.' },
         { nutrient: 'Protein', note: 'A lean, concentrated amount.' },
       ],
       conditionNotes: [
@@ -8835,7 +8836,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory grilled pork against roasted radish\'s own surprisingly mild, sweet flavor.',
+      flavorNotes: 'Savory grilled pork against roasted radish\'s surprisingly mild, sweet flavor.',
     },
   },
   {
@@ -8843,7 +8844,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Papaya and Lime Yogurt Bowl',
     teaser: 'Soft, sweet papaya brightened with fresh lime against thick yogurt.',
-    summary: 'Lime juice over papaya is a real, traditional pairing found across Latin American and Southeast Asian cooking alike.',
+    summary: 'Lime juice over papaya is a traditional pairing found across Latin American and Southeast Asian cooking alike.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_papaya_lime_yogurt_bowl',
@@ -8878,7 +8879,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Sweet and tropical, brightened by a real squeeze of fresh lime.',
+      flavorNotes: 'Sweet and tropical, brightened by a squeeze of fresh lime.',
     },
   },
   {
@@ -8886,7 +8887,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tuna and Artichoke Salad',
     teaser: 'Flaked tuna against roasted artichoke and peppery arugula.',
-    summary: 'Tuna and artichoke together bring a real, classic Mediterranean pantry pairing into one fresh bowl.',
+    summary: 'Tuna and artichoke together bring a classic Mediterranean pantry pairing into one fresh bowl.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_tuna_artichoke_salad',
@@ -8920,7 +8921,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean, complete amount from the tuna.' },
-        { nutrient: 'Prebiotic fiber (inulin)', note: 'A genuine, distinct contribution from the artichoke.' },
+        { nutrient: 'Prebiotic fiber (inulin)', note: 'A distinct contribution from the artichoke.' },
         { nutrient: 'Selenium', note: 'A strong amount from the tuna.' },
       ],
       conditionNotes: [
@@ -8931,7 +8932,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and slightly earthy from the artichoke, with the tuna\'s own meatiness and a peppery bite from the arugula.',
+      flavorNotes: 'Savory and slightly earthy from the artichoke, with the tuna\'s meatiness and a peppery bite from the arugula.',
     },
   },
   {
@@ -8939,7 +8940,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Roast Turkey Breast with Wild Rice and Cranberries',
     teaser: 'Roasted turkey breast over wild rice, whole cranberries folded through.',
-    summary: 'Turkey and cranberry together bring a real, familiar pairing outside of just one holiday meal, cranberry\'s own tartness cutting through the turkey\'s richness.',
+    summary: 'Turkey and cranberry together bring a familiar pairing outside of just one holiday meal, cranberry\'s tartness cutting through the turkey\'s richness.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_turkey_wild_rice_cranberries',
@@ -8973,7 +8974,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean, concentrated amount from the turkey.' },
         { nutrient: 'Manganese', note: 'A strong contribution from the wild rice.' },
-        { nutrient: 'Vitamin C', note: 'A real amount from the cranberries.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the cranberries.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -8987,7 +8988,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Blackberry and Almond Yogurt Bowl',
     teaser: 'Tart blackberries and toasted almond against thick, tangy yogurt.',
-    summary: 'Blackberries carry a genuinely high fiber content for a fruit this size, most of it concentrated in their own small seeds.',
+    summary: 'Blackberries carry a high fiber content for a fruit this size, most of it concentrated in their small seeds.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_blackberry_almond_yogurt_bowl',
@@ -9013,7 +9014,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with honey and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A genuinely high amount for a fruit this size, mostly from the blackberries\' own seeds.' },
+        { nutrient: 'Fiber', note: 'A high amount for a fruit this size, mostly from the blackberries\' seeds.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the blackberries.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
@@ -9070,18 +9071,18 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin B12', note: 'A genuinely concentrated amount from the mussels.' },
-        { nutrient: 'Iron', note: 'A real, meaningful contribution.' },
+        { nutrient: 'Vitamin B12', note: 'A concentrated amount from the mussels.' },
+        { nutrient: 'Iron', note: 'A meaningful contribution.' },
         { nutrient: 'Fiber', note: 'A meaningful amount from the fennel.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Briny and aromatic, fennel\'s own anise-like flavor running through the broth.',
+      flavorNotes: 'Briny and aromatic, fennel\'s anise-like flavor running through the broth.',
     },
   },
   {
@@ -9089,7 +9090,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Halibut with Leeks and Peas',
     teaser: 'Leeks and green peas instead of a mixed-greens salad.',
-    summary: 'Green peas bring real plant protein alongside fiber, unusual for a vegetable most people treat as an afterthought side.',
+    summary: 'Green peas bring plant protein alongside fiber, unusual for a vegetable most people treat as an afterthought side.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_halibut_leeks_peas',
@@ -9122,7 +9123,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean amount from the halibut, plus more from the peas.' },
-        { nutrient: 'Fiber', note: 'A real contribution from the leek and peas together.' },
+        { nutrient: 'Fiber', note: 'A meaningful contribution from the leek and peas together.' },
         { nutrient: 'Selenium', note: 'A solid amount from the halibut.' },
       ],
       conditionNotes: [
@@ -9170,7 +9171,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A solid amount from the clementine.' },
-        { nutrient: 'Healthy fat', note: 'A real contribution from the pistachios.' },
+        { nutrient: 'Healthy fat', note: 'A meaningful contribution from the pistachios.' },
         { nutrient: 'Protein', note: 'A concentrated amount from the Greek yogurt.' },
       ],
       conditionNotes: [
@@ -9189,8 +9190,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-lentil-roasted-vegetable-tahini-bowl',
     category: 'recipes',
     title: 'Lentil and Roasted Vegetable Bowl with Tahini',
-    teaser: 'Green lentils and roasted vegetables tied together with a real tahini drizzle.',
-    summary: 'Tahini\'s own fat helps the body absorb more of the fat-soluble nutrients in the roasted vegetables alongside it.',
+    teaser: 'Green lentils and roasted vegetables tied together with a tahini drizzle.',
+    summary: 'Tahini\'s fat helps the body absorb more of the fat-soluble nutrients in the roasted vegetables alongside it.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_lentil_roasted_vegetable_tahini_bowl',
@@ -9226,16 +9227,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial amount from the lentils.' },
         { nutrient: 'Manganese', note: 'A meaningful amount from the tahini.' },
-        { nutrient: 'Vitamin C', note: 'A real amount from the bell pepper.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the bell pepper.' },
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Lentils carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Earthy lentils and sweet roasted vegetables, tied together by a nutty, tangy tahini drizzle.',
     },
@@ -9244,7 +9245,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-bison-meatballs-herb-tomato-sauce',
     category: 'recipes',
     title: 'Beef Meatballs in Herb Tomato Sauce',
-    teaser: 'Lean beef meatballs, simmered in a real, herb-forward tomato sauce.',
+    teaser: 'Lean beef meatballs, simmered in a herb-forward tomato sauce.',
     summary: 'Beef meatballs bring a lean red meat to the table instead of the poultry in this plan\'s earlier turkey meatballs.',
     citations: [],
     overallTier: 'strong',
@@ -9282,16 +9283,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Iron', note: 'A concentrated, easily-absorbed amount from the beef.' },
-        { nutrient: 'Protein', note: 'A lean, real amount.' },
+        { nutrient: 'Protein', note: 'A lean amount.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the cooked tomato.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory, tomatoey, and lightly herbal, with the beef\'s flavor coming through clearly.',
     },
@@ -9300,8 +9301,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-apricot-coconut-overnight-oats',
     category: 'recipes',
     title: 'Apricot and Coconut Yogurt Overnight Oats',
-    teaser: 'Creamy make-ahead oats, coconut milk and diced apricot folded in, with real Greek yogurt protein.',
-    summary: 'Coconut milk brings a richer fat profile to overnight oats than the almond milk most of this plan\'s other versions use, and half the liquid is now Greek yogurt, keeping the coconut flavor real while adding real protein.',
+    teaser: 'Creamy make-ahead oats, coconut milk and diced apricot folded in, with Greek yogurt protein.',
+    summary: 'Coconut milk brings a richer fat profile to overnight oats than the almond milk most of this plan\'s other versions use, and half the liquid is now Greek yogurt, keeping the coconut flavor intact while adding protein.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_apricot_coconut_overnight_oats',
@@ -9326,8 +9327,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Give it a stir before eating, then top with the diced apricot.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt.' },
-        { nutrient: 'Vitamin A', note: 'A real amount from the apricot.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt.' },
+        { nutrient: 'Vitamin A', note: 'A meaningful amount from the apricot.' },
         { nutrient: 'Fiber', note: 'A strong combined amount from the oats and apricot.' },
       ],
       conditionNotes: [
@@ -9347,7 +9348,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Sardine and Roasted Pepper Salad',
     teaser: 'Whole sardines against sweet roasted bell pepper and peppery arugula.',
-    summary: 'Sardine and roasted pepper together bring real, complementary flavors, the pepper\'s own sweetness balancing sardine\'s natural brininess.',
+    summary: 'Sardine and roasted pepper together bring complementary flavors, the pepper\'s sweetness balancing sardine\'s natural brininess.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_sardine_roasted_pepper_salad',
@@ -9380,17 +9381,17 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with olive oil and lemon juice, and season with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Calcium', note: 'A genuinely concentrated whole-food amount, unusual outside of dairy.' },
-        { nutrient: 'Omega-3 fat', note: 'A real, concentrated amount from the sardines.' },
+        { nutrient: 'Calcium', note: 'A concentrated whole-food amount, unusual outside of dairy.' },
+        { nutrient: 'Omega-3 fat', note: 'A concentrated amount from the sardines.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the roasted pepper.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory and briny from the sardines, balanced by sweet roasted pepper and peppery arugula.',
     },
@@ -9400,7 +9401,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Roast Chicken Breast with Artichoke and Lemon',
     teaser: 'Roasted artichoke and lemon instead of fennel and leek.',
-    summary: 'Artichoke carries a real prebiotic fiber (inulin), paired here with a simply roasted chicken breast and a bright squeeze of lemon.',
+    summary: 'Artichoke carries a prebiotic fiber (inulin), paired here with a simply roasted chicken breast and a bright squeeze of lemon.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_chicken_breast_artichoke_lemon',
@@ -9434,22 +9435,22 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean, concentrated amount from the chicken breast.' },
-        { nutrient: 'Prebiotic fiber (inulin)', note: 'A genuine, distinct contribution from the artichoke.' },
-        { nutrient: 'Vitamin C', note: 'A real amount from the lemon and artichoke together.' },
+        { nutrient: 'Prebiotic fiber (inulin)', note: 'A distinct contribution from the artichoke.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the lemon and artichoke together.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Simple and bright, with roasted artichoke\'s own earthiness against fresh lemon.',
+      flavorNotes: 'Simple and bright, with roasted artichoke\'s earthiness against fresh lemon.',
     },
   },
   {
     id: 'recipe-mealplan-fig-cashew-overnight-oats',
     category: 'recipes',
     title: 'Fig and Cashew Yogurt Overnight Oats',
-    teaser: 'Creamy make-ahead oats, chopped fig and cashew folded in, with real Greek yogurt protein.',
-    summary: 'This plan\'s own closing week reaches for fig and cashew together, a real, deliberately different combination from its earlier fig-and-walnut and fig-and-pistachio bowls, and a Greek yogurt base keeps every one of them a real protein breakfast rather than a carbohydrate-only bowl.',
+    teaser: 'Creamy make-ahead oats, chopped fig and cashew folded in, with Greek yogurt protein.',
+    summary: 'This plan\'s closing week reaches for fig and cashew together, a deliberately different combination from its earlier fig-and-walnut and fig-and-pistachio bowls, and a Greek yogurt base keeps every one of them a protein breakfast rather than a carbohydrate-only bowl.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_fig_cashew_overnight_oats',
@@ -9482,8 +9483,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Give it a stir before eating, thinning with a splash of water or milk if it\'s thicker than you\'d like, then top with the chopped fig and cashews.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base.' },
-        { nutrient: 'Potassium', note: 'A real amount from the fresh fig.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base.' },
+        { nutrient: 'Potassium', note: 'A meaningful amount from the fresh fig.' },
         { nutrient: 'Fiber', note: 'A strong combined amount from the oats and fig.' },
       ],
       conditionNotes: [
@@ -9502,8 +9503,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-kidney-bean-roasted-vegetable-salad',
     category: 'recipes',
     title: 'Kidney Bean and Roasted Vegetable Salad',
-    teaser: 'Hearty kidney beans against a real mix of roasted root vegetables.',
-    summary: 'Kidney beans carry a real, distinct antioxidant profile from their own deep red skin, a different pigment family than pinto or white beans elsewhere in this plan.',
+    teaser: 'Hearty kidney beans against a mix of roasted root vegetables.',
+    summary: 'Kidney beans carry a distinct antioxidant profile from their deep red skin, a different pigment family than pinto or white beans elsewhere in this plan.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_kidney_bean_roasted_vegetable_salad',
@@ -9536,20 +9537,20 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with olive oil and lime juice, scatter cilantro over the top, and season with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, substantial amount from the kidney beans.' },
-        { nutrient: 'Antioxidants', note: 'A real, distinct contribution from the kidney bean\'s own deep red skin.' },
+        { nutrient: 'Fiber', note: 'A substantial amount from the kidney beans.' },
+        { nutrient: 'Antioxidants', note: 'A distinct contribution from the kidney bean\'s deep red skin.' },
         { nutrient: 'Vitamin A', note: 'A meaningful amount from the carrot.' },
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Kidney beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Hearty and earthy from the kidney beans, brightened by lime and fresh cilantro.',
     },
@@ -9593,7 +9594,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Omega-3 fat', note: 'A meaningful amount from the trout.' },
-        { nutrient: 'Vitamin C', note: 'A real amount from the radish.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the radish.' },
         { nutrient: 'Vitamin B12', note: 'A solid contribution from the trout.' },
       ],
       conditionNotes: [
@@ -9602,15 +9603,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Mild, flaky trout over roasted radish\'s own surprisingly gentle flavor, finished with fresh dill.',
+      flavorNotes: 'Mild, flaky trout over roasted radish\'s surprisingly gentle flavor, finished with fresh dill.',
     },
   },
   {
     id: 'recipe-mealplan-mango-pistachio-chia-pudding',
     category: 'recipes',
     title: 'Mango and Pistachio Yogurt Chia Pudding',
-    teaser: 'A creamy chia pudding, diced mango and chopped pistachio folded in, with real Greek yogurt protein.',
-    summary: 'Mango and pistachio together bring a real, different texture contrast from this plan\'s earlier mango-and-coconut version, and a Greek yogurt base keeps this a real protein breakfast rather than a carbohydrate-only pudding.',
+    teaser: 'A creamy chia pudding, diced mango and chopped pistachio folded in, with Greek yogurt protein.',
+    summary: 'Mango and pistachio together bring a different texture contrast from this plan\'s earlier mango-and-coconut version, and a Greek yogurt base keeps this a protein breakfast rather than a carbohydrate-only pudding.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mango_pistachio_chia_pudding',
@@ -9644,7 +9645,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the diced mango and chopped pistachios before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt base.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the mango.' },
         { nutrient: 'Fiber', note: 'A strong amount from the chia seeds.' },
       ],
@@ -9705,7 +9706,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A hearty combined amount from the turkey and white beans.' },
-        { nutrient: 'Fiber', note: 'A real contribution from the white beans.' },
+        { nutrient: 'Fiber', note: 'A meaningful contribution from the white beans.' },
         { nutrient: 'Niacin (B3)', note: 'A solid amount from the turkey.' },
       ],
       conditionNotes: [
@@ -9755,7 +9756,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve over the roasted fennel, topped with orange segments.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Zinc', note: 'A genuinely concentrated amount from the lamb.' },
+        { nutrient: 'Zinc', note: 'A concentrated amount from the lamb.' },
         { nutrient: 'Vitamin B12', note: 'A strong contribution from the lamb.' },
         { nutrient: 'Vitamin C', note: 'A meaningful amount from the orange.' },
       ],
@@ -9771,7 +9772,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Grapefruit and Pistachio Yogurt Bowl',
     teaser: 'A bright, tart closing breakfast: grapefruit segments and pistachio against thick yogurt.',
-    summary: 'Grapefruit and pistachio together close this plan\'s own 6 weeks with the same real citrus-and-nut pairing pattern it opened with, using two ingredients this specific combination hadn\'t paired together yet.',
+    summary: 'Grapefruit and pistachio together close this plan\'s 6 weeks with the same citrus-and-nut pairing pattern it opened with, using two ingredients this specific combination hadn\'t paired together yet.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_grapefruit_pistachio_yogurt_bowl',
@@ -9804,7 +9805,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A strong, concentrated amount from the grapefruit.' },
-        { nutrient: 'Healthy fat', note: 'A real contribution from the pistachios.' },
+        { nutrient: 'Healthy fat', note: 'A meaningful contribution from the pistachios.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
       conditionNotes: [
@@ -9825,7 +9826,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Crab and Mango Salad',
     teaser: 'Sweet crab meat against juicy mango and peppery arugula.',
-    summary: 'Crab and mango together bring a genuinely bright, different pairing to close this plan\'s own final week, sweet fruit balancing the crab\'s natural brininess.',
+    summary: 'Crab and mango together bring a bright, different pairing to close this plan\'s final week, sweet fruit balancing the crab\'s natural brininess.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_crab_mango_salad',
@@ -9859,7 +9860,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Protein', note: 'A lean, complete amount from the crab.' },
         { nutrient: 'Vitamin C', note: 'A strong combined amount from the mango and lime.' },
-        { nutrient: 'Vitamin B12', note: 'A real contribution from the crab.' },
+        { nutrient: 'Vitamin B12', note: 'A meaningful contribution from the crab.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -9876,7 +9877,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-mealplan-salmon-wild-rice-asparagus',
     category: 'recipes',
     title: 'Herb-Roasted Salmon with Wild Rice and Asparagus',
-    teaser: 'A real, closing dinner: herb-roasted salmon over wild rice, asparagus alongside.',
+    teaser: 'A closing dinner: herb-roasted salmon over wild rice, asparagus alongside.',
     summary: 'This is salmon\'s third appearance across the 6-week plan, paired here with wild rice and asparagus rather than the lemon-dill or leek preparations used earlier, the same way an actual person\'s diet returns to a favorite fish more than once without ever repeating the exact same meal.',
     citations: [],
     overallTier: 'strong',
@@ -9911,7 +9912,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve over the warmed wild rice.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Omega-3 fat', note: 'A genuinely concentrated amount from the salmon.' },
+        { nutrient: 'Omega-3 fat', note: 'A concentrated amount from the salmon.' },
         { nutrient: 'Folate', note: 'A meaningful amount from the asparagus.' },
         { nutrient: 'Manganese', note: 'A solid contribution from the wild rice.' },
       ],
@@ -9927,7 +9928,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Turkey and Black Bean Chili',
     teaser: 'A warming, one-pot chili built on lean ground turkey and black beans.',
-    summary: 'Black beans bring fiber and plant protein alongside the turkey\'s own animal protein, a combination that stretches a smaller amount of meat further.',
+    summary: 'Black beans bring fiber and plant protein alongside the turkey\'s animal protein, a combination that stretches a smaller amount of meat further.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_soup_turkey_black_bean_chili',
@@ -9976,37 +9977,37 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Black beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion, or a well-rinsed canned bean, tends to sit easier if that\'s a concern.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Warm and smoky from the cumin and paprika, hearty and thick, the kind of dinner that\'s just as good reheated the next day.',
     },
   },
 
   // -------------------------------------------------------------------
-  // Vegan Meal Plan breakfasts -- 42 recipes, a full parallel track to
+  // Vegan Meal Plan breakfasts: 42 recipes, a full parallel track to
   // the dairy/egg-based breakfasts above. Direct follow-up, 2026-08-24:
-  // "we need vegan alternatives." Silken tofu (blended into a real
+  // "we need vegan alternatives." Silken tofu (blended into a
   // "tofu yogurt") stands in for Greek yogurt, soy milk plus a nut
   // butter stands in for the dairy in overnight oats and porridge, and
   // turmeric-and-nutritional-yeast tofu scramble stands in for egg. This
   // database has no plain, unsweetened, non-branded soy or coconut
   // yogurt, only flavored commercial brands, which is why silken tofu
-  // does that job instead. Nutritional yeast is a genuine, common whole-
+  // does that job instead. Nutritional yeast is a common whole-
   // food B12-fortification source in a vegan diet, not a flavor gimmick.
   // -------------------------------------------------------------------
   {
     id: 'recipe-vegan-smoothie-green-glow',
     category: 'recipes',
     title: 'Green Glow Vegan Protein Smoothie',
-    teaser: 'A vegetable-forward green smoothie, built on silken tofu for real morning protein.',
-    summary: 'Silken tofu blends completely smooth into a fruit smoothie, adding real plant protein without changing the texture the way a scoop of protein powder would, the vegan counterpart to this Digest\'s own Greek-yogurt-based Green Glow Smoothie.',
+    teaser: 'A vegetable-forward green smoothie, built on silken tofu for morning protein.',
+    summary: 'Silken tofu blends completely smooth into a fruit smoothie, adding plant protein without changing the texture the way a scoop of protein powder would, the vegan counterpart to this Digest\'s Greek-yogurt-based Green Glow Smoothie.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_smoothie_green_glow',
@@ -10036,7 +10037,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Pour into glasses and drink right away. The chia seeds start to thicken the smoothie the longer it sits.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the silken tofu base, closer to a genuine breakfast than a fruit drink.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu base, closer to a breakfast than a fruit drink.' },
         { nutrient: 'Vitamin K', note: 'A striking amount per serving.' },
         { nutrient: 'Manganese', note: 'A strong contribution per serving.' },
       ],
@@ -10045,15 +10046,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Fruity and sweet, with the banana and pineapple doing most of the talking and the silken tofu adding real body without a distinct flavor of its own. The spinach adds color and nutrition without adding much flavor either, which is exactly the point.',
+      flavorNotes: 'Fruity and sweet, with the banana and pineapple doing most of the talking and the silken tofu adding body without a distinct flavor of its own. The spinach adds color and nutrition without adding much flavor either.',
     },
   },
   {
     id: 'recipe-vegan-smoothie-golden-turmeric',
     category: 'recipes',
     title: 'Golden Turmeric Vegan Protein Smoothie',
-    teaser: 'A creamy, spiced smoothie built around turmeric, with silken tofu for real morning protein.',
-    summary: 'Black pepper noticeably improves how well the body absorbs turmeric\'s curcumin, and silken tofu turns this into a real protein breakfast rather than a fruit-and-spice drink.',
+    teaser: 'A creamy, spiced smoothie built around turmeric, with silken tofu for morning protein.',
+    summary: 'Black pepper noticeably improves how well the body absorbs turmeric\'s curcumin, and silken tofu turns this into a protein breakfast rather than a fruit-and-spice drink.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_smoothie_golden_turmeric',
@@ -10079,7 +10080,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Pour into glasses and serve right away.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the silken tofu base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu base.' },
         { nutrient: 'Vitamin B6', note: 'A solid amount per serving.' },
         { nutrient: 'Curcumin', note: 'The black pepper alongside it measurably improves how much the body actually absorbs.' },
       ],
@@ -10093,8 +10094,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-smoothie-brazil-nut-selenium',
     category: 'recipes',
     title: 'Brazil Nut Selenium Vegan Protein Smoothie',
-    teaser: 'A notably selenium-rich smoothie built around Brazil nuts, with silken tofu for real morning protein.',
-    summary: 'Brazil nuts are one of the most concentrated food sources of selenium that exists, just a couple of nuts can cover a full day\'s worth, and silken tofu turns this into a real protein breakfast rather than a fruit drink.',
+    teaser: 'A notably selenium-rich smoothie built around Brazil nuts, with silken tofu for morning protein.',
+    summary: 'Brazil nuts are one of the most concentrated food sources of selenium that exists, just a couple of nuts can cover a full day\'s worth, and silken tofu turns this into a protein breakfast rather than a fruit drink.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_smoothie_brazil_nut_selenium',
@@ -10128,7 +10129,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Selenium', note: 'An exceptional amount from just two Brazil nuts.' },
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the silken tofu base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu base.' },
         { nutrient: 'Manganese', note: 'A solid contribution from the pineapple.' },
       ],
       conditionNotes: [
@@ -10142,8 +10143,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-smoothie-berry-antioxidant',
     category: 'recipes',
     title: 'Berry Antioxidant Vegan Protein Smoothie',
-    teaser: 'A vibrant double-berry smoothie, built on silken tofu for real morning protein.',
-    summary: 'Blueberries and strawberries each carry their own distinct set of antioxidant compounds, and silken tofu turns this into a real protein breakfast rather than a fruit punch.',
+    teaser: 'A vibrant double-berry smoothie, built on silken tofu for morning protein.',
+    summary: 'Blueberries and strawberries each carry a distinct set of antioxidant compounds, and silken tofu turns this into a protein breakfast rather than a fruit punch.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_smoothie_berry_antioxidant',
@@ -10172,21 +10173,21 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Anthocyanins', note: 'A rich combined amount from both berries.' },
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the silken tofu base.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the flaxseed.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu base.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the flaxseed.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Bright, tart, and sweet all at once, the two berries balancing each other while the silken tofu smooths everything into a real, drinkable body.',
+      flavorNotes: 'Bright, tart, and sweet all at once, the two berries balancing each other while the silken tofu smooths everything into a drinkable body.',
     },
   },
   {
     id: 'recipe-vegan-smoothie-iron-vitamin-c',
     category: 'recipes',
     title: 'Iron & Vitamin C Vegan Protein Smoothie',
-    teaser: 'An iron-and-vitamin-C-paired fruit and greens smoothie, built on silken tofu for real morning protein.',
+    teaser: 'An iron-and-vitamin-C-paired fruit and greens smoothie, built on silken tofu for morning protein.',
     summary: 'Vitamin C measurably improves how well the body absorbs the non-heme iron found in plant foods like spinach and tofu alike, which is exactly why they\'re paired here.',
     citations: [],
     overallTier: 'strong',
@@ -10215,8 +10216,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A very high amount, from the orange and strawberries together.' },
-        { nutrient: 'Iron', note: 'A real plant-based amount from the spinach and tofu, absorbed measurably better alongside this much vitamin C.' },
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the silken tofu base.' },
+        { nutrient: 'Iron', note: 'A plant-based amount from the spinach and tofu, absorbed measurably better alongside this much vitamin C.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu base.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -10228,8 +10229,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-smoothie-tropical-ginger',
     category: 'recipes',
     title: 'Tropical Ginger Vegan Protein Smoothie',
-    teaser: 'A bright, gingery tropical smoothie, built on silken tofu for real morning protein.',
-    summary: 'Fresh ginger has a long-documented history of settling an upset stomach, and silken tofu turns this into a real protein breakfast rather than a fruit drink.',
+    teaser: 'A bright, gingery tropical smoothie, built on silken tofu for morning protein.',
+    summary: 'Fresh ginger has a long-documented history of settling an upset stomach, and silken tofu turns this into a protein breakfast rather than a fruit drink.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_smoothie_tropical_ginger',
@@ -10256,7 +10257,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A strong amount from the pineapple and lime together.' },
         { nutrient: 'Manganese', note: 'A very high amount from the pineapple.' },
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the silken tofu base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu base.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -10268,8 +10269,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-berries-silken-tofu-cream',
     category: 'recipes',
     title: 'Berries with Silken Tofu Cream',
-    teaser: 'Sweet berries over a whipped silken tofu cream, a real vegan stand-in for a yogurt bowl.',
-    summary: 'Blended silken tofu, a little vanilla, and a touch of maple syrup whip up into a genuinely creamy, spoonable base, the same real protein-forward format this plan\'s dairy version uses.',
+    teaser: 'Sweet berries over a whipped silken tofu cream, a vegan stand-in for a yogurt bowl.',
+    summary: 'Blended silken tofu, a little vanilla, and a touch of maple syrup whip up into a creamy, spoonable base, the same protein-forward format this plan\'s dairy version uses.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_berries_silken_tofu_cream',
@@ -10298,9 +10299,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the blueberries, sliced strawberries, and almonds.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the silken tofu base.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu base.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the berries.' },
-        { nutrient: 'Vitamin E', note: 'A real contribution from the almonds.' },
+        { nutrient: 'Vitamin E', note: 'A meaningful contribution from the almonds.' },
       ],
       conditionNotes: [
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -10308,15 +10309,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Mildly sweet and creamy, closer to a whipped pudding than a smoothie, with the berries and toasted almonds adding real texture on top.',
+      flavorNotes: 'Mildly sweet and creamy, closer to a whipped pudding than a smoothie, with the berries and toasted almonds adding texture on top.',
     },
   },
   {
     id: 'recipe-vegan-tofu-scramble-potatoes',
     category: 'recipes',
     title: 'Tofu Scramble with Veggies and Roasted Potatoes',
-    teaser: 'Turmeric and nutritional yeast turn crumbled tofu into a real, egg-like savory scramble.',
-    summary: 'Nutritional yeast is a genuine, common whole-food fortification source of vitamin B12 for a vegan diet, not just a flavor trick, and turmeric gives the tofu its own real egg-yellow color.',
+    teaser: 'Turmeric and nutritional yeast turn crumbled tofu into an egg-like savory scramble.',
+    summary: 'Nutritional yeast is a common whole-food fortification source of vitamin B12 for a vegan diet, not just a flavor trick, and turmeric gives the tofu its egg-yellow color.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_tofu_scramble_potatoes',
@@ -10355,27 +10356,27 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and serve alongside the roasted potatoes.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
-        { nutrient: 'Vitamin B12', note: 'A meaningful fortified amount from the nutritional yeast, worth checking the specific product\'s own label since fortification levels vary by brand.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
+        { nutrient: 'Vitamin B12', note: 'A meaningful fortified amount from the nutritional yeast, worth checking the specific product\'s label since fortification levels vary by brand.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper and potato.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and satisfying, with the turmeric giving the tofu a real egg-like color and the nutritional yeast adding a mild, cheesy depth against the crisp roasted potatoes.',
+      flavorNotes: 'Savory and satisfying, with the turmeric giving the tofu an egg-like color and the nutritional yeast adding a mild, cheesy depth against the crisp roasted potatoes.',
     },
   },
   {
     id: 'recipe-vegan-overnight-oats-chia-berries',
     category: 'recipes',
     title: 'Overnight Oats with Chia, Soy Milk, and Mixed Berries',
-    teaser: 'Creamy make-ahead oats, built on real soy milk and almond butter for real morning protein.',
-    summary: 'Chia and rolled oats both bring soluble fiber, and almond butter stirred into soy milk brings real plant protein and healthy fat, the same real breakfast principle this plan\'s dairy version follows.',
+    teaser: 'Creamy make-ahead oats, built on soy milk and almond butter for morning protein.',
+    summary: 'Chia and rolled oats both bring soluble fiber, and almond butter stirred into soy milk brings plant protein and healthy fat, the same breakfast principle this plan\'s dairy version follows.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_overnight_oats_chia_berries',
@@ -10411,14 +10412,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial combined amount from the oats, chia, and berries.' },
-        { nutrient: 'Protein', note: 'A real amount from the soy milk and almond butter together.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the chia seeds.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the soy milk and almond butter together.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the chia seeds.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Creamy and lightly sweet, with the almond butter adding real body and the fresh berries adding a bright, tart contrast on top.',
+      flavorNotes: 'Creamy and lightly sweet, with the almond butter adding body and the fresh berries adding a bright, tart contrast on top.',
     },
   },
   {
@@ -10426,7 +10427,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Marinated Tofu with Avocado and Tomato',
     teaser: 'Pan-seared marinated tofu against cool avocado and juicy tomato.',
-    summary: 'Tofu takes on whatever it\'s seasoned with, and a quick lemon marinade gives it a real savory depth close to the soft-boiled-egg dish it\'s standing in for.',
+    summary: 'Tofu takes on whatever it\'s seasoned with, and a quick lemon marinade gives it a savory depth close to the soft-boiled-egg dish it\'s standing in for.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_tofu_avocado_tomato',
@@ -10458,17 +10459,17 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Arrange the sliced avocado and tomato on a plate, and top with the warm tofu.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
-        { nutrient: 'Healthy fats', note: 'A genuine monounsaturated contribution from the avocado.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
+        { nutrient: 'Healthy fats', note: 'A monounsaturated contribution from the avocado.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato and lemon.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory and satisfying, the lightly seared tofu carrying a mild tang against the cool creaminess of the avocado and the fresh acidity of the tomato.',
     },
@@ -10478,7 +10479,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Savory Breakfast Quinoa Bowl with Tofu Scramble and Spinach',
     teaser: 'A savory grain bowl, turmeric-tofu scramble and wilted spinach over quinoa.',
-    summary: 'A whole grain, a leafy green, and a real plant protein together for breakfast, not just at dinner.',
+    summary: 'A whole grain, a leafy green, and a plant protein together for breakfast, not just at dinner.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_quinoa_bowl_tofu_scramble',
@@ -10514,19 +10515,19 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon the cooked quinoa into a bowl and top with the tofu scramble. Season with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the quinoa and tofu together.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the quinoa and tofu together.' },
         { nutrient: 'Vitamin K', note: 'A striking amount from the spinach.' },
-        { nutrient: 'Iron', note: 'A real plant-based amount from the tofu and spinach together.' },
+        { nutrient: 'Iron', note: 'A plant-based amount from the tofu and spinach together.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Hearty and savory, the nutty quinoa giving the scramble real substance underneath.',
+      flavorNotes: 'Hearty and savory, the nutty quinoa giving the scramble substance underneath.',
     },
   },
   {
@@ -10565,8 +10566,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with maple syrup, if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the silken tofu base.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu base.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the walnuts.' },
         { nutrient: 'Manganese', note: 'A very high amount from the pineapple.' },
       ],
       conditionNotes: [
@@ -10583,7 +10584,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Vegan Breakfast Burrito with Tofu Scramble and Black Beans',
     teaser: 'Turmeric tofu scramble and black beans wrapped up with a fresh, homemade pico.',
-    summary: 'Beans alongside a tofu scramble turns this into a genuinely complete plant protein, carrying real fiber a processed vegan sausage substitute wouldn\'t.',
+    summary: 'Beans alongside a tofu scramble turns this into a complete plant protein, carrying fiber a processed vegan sausage substitute wouldn\'t.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_breakfast_burrito_tofu_black_beans',
@@ -10619,21 +10620,21 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Fold in the sides and roll up tightly.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu and black beans together.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu and black beans together.' },
         { nutrient: 'Fiber', note: 'A substantial amount from the black beans.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the fresh pico.' },
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Black beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion, or a well-rinsed canned bean, tends to sit easier if that\'s a concern.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Warm and savory, the bright, fresh pico cutting through the richer scramble and beans underneath.',
     },
@@ -10642,8 +10643,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-baked-oatmeal-cup-banana-cinnamon',
     category: 'recipes',
     title: 'Baked Oatmeal Cup with Banana, Cinnamon, and Flax Egg',
-    teaser: 'A single-serving baked oatmeal, a real flax egg standing in for the usual chicken egg.',
-    summary: 'A flaxseed-and-water "flax egg," left to sit until it gels, is a genuine, common whole-food binder in vegan baking, not an artificial substitute.',
+    teaser: 'A single-serving baked oatmeal, a flax egg standing in for the usual chicken egg.',
+    summary: 'A flaxseed-and-water "flax egg," left to sit until it gels, is a common whole-food binder in vegan baking, not an artificial substitute.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_baked_oatmeal_cup_banana_cinnamon',
@@ -10675,7 +10676,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial combined amount from the oats, flaxseed, and banana.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the flaxseed.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the flaxseed.' },
         { nutrient: 'Potassium', note: 'A solid amount from the banana.' },
       ],
       conditionNotes: [
@@ -10690,7 +10691,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Kiwi and Almond Butter Tofu Bowl',
     teaser: 'Bright green kiwi against a creamy almond-butter silken tofu base.',
-    summary: 'Kiwi carries more vitamin C gram for gram than an orange, and almond butter stirred into silken tofu brings real plant protein and healthy fat together.',
+    summary: 'Kiwi carries more vitamin C gram for gram than an orange, and almond butter stirred into silken tofu brings plant protein and healthy fat together.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_kiwi_almond_tofu_bowl',
@@ -10723,8 +10724,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'An exceptional amount from the kiwi.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu and almond butter together.' },
-        { nutrient: 'Vitamin E', note: 'A real contribution from the almond butter.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu and almond butter together.' },
+        { nutrient: 'Vitamin E', note: 'A meaningful contribution from the almond butter.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -10738,7 +10739,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Peach and Almond Soy Milk Overnight Oats',
     teaser: 'Creamy make-ahead oats, sliced peach folded through, built on soy milk and almond butter.',
-    summary: 'Peach brings a different, gentler fiber profile than the berries most overnight-oats recipes default to, and almond butter keeps this a real protein breakfast.',
+    summary: 'Peach brings a different, gentler fiber profile than the berries most overnight-oats recipes default to, and almond butter keeps this a protein breakfast.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_peach_almond_overnight_oats',
@@ -10773,7 +10774,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial combined amount from the oats, chia, and peach.' },
-        { nutrient: 'Protein', note: 'A real amount from the soy milk and almond butter together.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the soy milk and almond butter together.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the peach.' },
       ],
       conditionNotes: [
@@ -10788,7 +10789,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Papaya and Cashew Tofu Bowl',
     teaser: 'Sweet, soft papaya against a creamy cashew silken tofu base.',
-    summary: 'Papaya carries papain, a digestive enzyme unique among common breakfast fruit, and blended silken tofu keeps this a real protein breakfast.',
+    summary: 'Papaya carries papain, a digestive enzyme unique among common breakfast fruit, and blended silken tofu keeps this a protein breakfast.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_papaya_cashew_tofu_bowl',
@@ -10822,7 +10823,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Vitamin A', note: 'A strong amount from the papaya.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the papaya and lime together.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -10835,8 +10836,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-buckwheat-porridge-blueberries-walnuts',
     category: 'recipes',
     title: 'Buckwheat Porridge with Blueberries, Walnuts, and Almond Butter',
-    teaser: 'A warm, nutty porridge, buckwheat groats standing in for oats, finished with real almond butter for protein.',
-    summary: 'Buckwheat is naturally gluten-free despite its name, and almond butter stirred in once the porridge is off the heat adds real plant protein without needing dairy at all.',
+    teaser: 'A warm, nutty porridge, buckwheat groats standing in for oats, finished with almond butter for protein.',
+    summary: 'Buckwheat is naturally gluten-free despite its name, and almond butter stirred in once the porridge is off the heat adds plant protein without needing dairy at all.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_buckwheat_porridge_blueberries_walnuts',
@@ -10872,8 +10873,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial amount from the buckwheat.' },
-        { nutrient: 'Protein', note: 'A real amount from the soy milk and almond butter together.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the soy milk and almond butter together.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the walnuts.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -10886,8 +10887,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-millet-porridge-apricots',
     category: 'recipes',
     title: 'Warm Spiced Millet Porridge with Apricots and Almond Butter',
-    teaser: 'A creamy, gently spiced porridge built on millet instead of oats, finished with real almond butter for protein.',
-    summary: 'Millet is a whole grain most Western breakfasts never reach for, and almond butter stirred in once the porridge is off the heat adds real plant protein.',
+    teaser: 'A creamy, gently spiced porridge built on millet instead of oats, finished with almond butter for protein.',
+    summary: 'Millet is a whole grain most Western breakfasts never reach for, and almond butter stirred in once the porridge is off the heat adds plant protein.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_millet_porridge_apricots',
@@ -10921,9 +10922,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon into a bowl and top with the diced apricot and a drizzle of maple syrup, if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real amount from the soy milk and almond butter together.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the soy milk and almond butter together.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the apricot.' },
-        { nutrient: 'Magnesium', note: 'A real contribution from the millet.' },
+        { nutrient: 'Magnesium', note: 'A meaningful contribution from the millet.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -10937,7 +10938,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Grapefruit and Silken Tofu Bowl with Maple',
     teaser: 'Tart, juicy grapefruit against cool, thick silken tofu cream.',
-    summary: 'Grapefruit is a real, concentrated vitamin C source with a tarter, more bitter flavor than orange, worth rotating in for variety alone.',
+    summary: 'Grapefruit is a concentrated vitamin C source with a tarter, more bitter flavor than orange, worth rotating in for variety alone.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_grapefruit_tofu_maple',
@@ -10963,14 +10964,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A strong amount from the grapefruit.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu.' },
       ],
       conditionNotes: [
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged as a digestive irritant, worth noticing during a restriction period for the same reason. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Tart and bright, the grapefruit\'s own bitterness balanced by the maple syrup and the mild, creamy tofu base underneath.',
+      flavorNotes: 'Tart and bright, the grapefruit\'s bitterness balanced by the maple syrup and the mild, creamy tofu base underneath.',
     },
   },
   {
@@ -10978,7 +10979,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Fig and Walnut Tofu Bowl',
     teaser: 'Sweet, chewy fig against crunchy walnut and creamy silken tofu.',
-    summary: 'Fresh fig carries real potassium and fiber, and blended silken tofu keeps this a real protein breakfast rather than fruit alone.',
+    summary: 'Fresh fig carries potassium and fiber, and blended silken tofu keeps this a protein breakfast rather than fruit alone.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_fig_walnut_tofu_bowl',
@@ -11008,14 +11009,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Potassium', note: 'A solid amount from the fig.' },
-        { nutrient: 'Fiber', note: 'A real amount from the fig and walnuts together.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the fig and walnuts together.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the walnuts.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Sweet and mellow, the fig\'s own honeyed flavor against the crunchy, slightly bitter walnut and the mild tofu base.',
+      flavorNotes: 'Sweet and mellow, the fig\'s honeyed flavor against the crunchy, slightly bitter walnut and the mild tofu base.',
     },
   },
   {
@@ -11023,7 +11024,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Date and Cashew Tofu Bowl',
     teaser: 'Naturally sweet date pieces against crunchy cashew and creamy silken tofu.',
-    summary: 'Dates concentrate a real amount of potassium and fiber into a small amount of fruit, unusual for something this sweet.',
+    summary: 'Dates concentrate a meaningful amount of potassium and fiber into a small amount of fruit, unusual for something this sweet.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_date_cashew_tofu_bowl',
@@ -11055,8 +11056,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Potassium', note: 'A solid amount from the dates.' },
-        { nutrient: 'Fiber', note: 'A real amount from the dates.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the dates.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -11069,8 +11070,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-nectarine-chia-pudding-cashews',
     category: 'recipes',
     title: 'Nectarine Chia Pudding with Cashews',
-    teaser: 'A creamy chia pudding, diced nectarine and toasted cashew folded in, built on real soy milk.',
-    summary: 'Nectarine carries the same nutrient profile as peach, and soy milk is one of the few plant milks carrying a real, complete protein of its own.',
+    teaser: 'A creamy chia pudding, diced nectarine and toasted cashew folded in, built on soy milk.',
+    summary: 'Nectarine carries the same nutrient profile as peach, and soy milk is one of the few plant milks carrying a complete protein of its own.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_nectarine_chia_pudding_cashews',
@@ -11103,8 +11104,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the diced nectarine, cashews, and a drizzle of maple syrup, if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the chia seeds.' },
-        { nutrient: 'Protein', note: 'A real, complete protein from the soy milk.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the chia seeds.' },
+        { nutrient: 'Protein', note: 'A complete protein from the soy milk.' },
         { nutrient: 'Fiber', note: 'A substantial amount from the chia seeds.' },
       ],
       conditionNotes: [
@@ -11119,7 +11120,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Clementine and Almond Tofu Bowl',
     teaser: 'Sweet clementine segments against creamy silken tofu and sliced almond.',
-    summary: 'Clementine is one of the easiest citrus fruits to actually eat whole rather than juice, keeping its own fiber intact.',
+    summary: 'Clementine is one of the easiest citrus fruits to actually eat whole rather than juice, keeping its fiber intact.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_clementine_almond_tofu_bowl',
@@ -11146,14 +11147,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A solid amount from the clementine.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
-        { nutrient: 'Vitamin E', note: 'A real contribution from the almonds.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu.' },
+        { nutrient: 'Vitamin E', note: 'A meaningful contribution from the almonds.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Bright and lightly sweet, the clementine\'s own gentle citrus flavor against the mild tofu base and crunchy almond.',
+      flavorNotes: 'Bright and lightly sweet, the clementine\'s gentle citrus flavor against the mild tofu base and crunchy almond.',
     },
   },
   {
@@ -11161,7 +11162,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Plum and Walnut Soy Milk Overnight Oats',
     teaser: 'Creamy make-ahead oats, sliced plum and walnut folded in, built on soy milk.',
-    summary: 'Plum\'s own skin carries a real concentration of the same antioxidant pigments found in blueberry, and soy milk keeps this a real protein breakfast.',
+    summary: 'Plum\'s skin carries a concentration of the same antioxidant pigments found in blueberry, and soy milk keeps this a protein breakfast.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_plum_walnut_overnight_oats',
@@ -11193,13 +11194,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Antioxidant polyphenols', note: 'A meaningful amount from the plum skin.' },
         { nutrient: 'Fiber', note: 'A substantial combined amount from the oats and plum.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the walnuts.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Creamy and mildly tart, the plum\'s own skin adding a slightly tangy edge against the crunchy walnut.',
+      flavorNotes: 'Creamy and mildly tart, the plum\'s skin adding a slightly tangy edge against the crunchy walnut.',
     },
   },
   {
@@ -11207,7 +11208,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Watermelon and Marinated Tofu Bowl',
     teaser: 'A savory-sweet breakfast: cool watermelon against salty, lime-marinated tofu cubes.',
-    summary: 'Marinated tofu standing in for feta brings the same real salty contrast against sweet watermelon, without the dairy.',
+    summary: 'Marinated tofu standing in for feta brings the same salty contrast against sweet watermelon, without the dairy.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_watermelon_tofu_bowl',
@@ -11239,9 +11240,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Scatter the chopped mint over the top.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Lycopene', note: 'A real amount from the watermelon.' },
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
-        { nutrient: 'Hydration', note: 'Watermelon is over 90% water by weight, a genuinely hydrating way to start the day.' },
+        { nutrient: 'Lycopene', note: 'A meaningful amount from the watermelon.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
+        { nutrient: 'Hydration', note: 'Watermelon is over 90% water by weight, a hydrating way to start the day.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -11255,7 +11256,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Cantaloupe and Silken Tofu Bowl with Maple',
     teaser: 'Sweet, fragrant cantaloupe against cool, thick silken tofu cream.',
-    summary: 'Cantaloupe is a genuinely concentrated whole-food source of vitamin A, and blended silken tofu keeps this a real protein breakfast.',
+    summary: 'Cantaloupe is a concentrated whole-food source of vitamin A, and blended silken tofu keeps this a protein breakfast.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_cantaloupe_tofu_maple',
@@ -11280,7 +11281,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Vitamin A', note: 'A very high amount from the cantaloupe.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the cantaloupe.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -11293,7 +11294,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Pear and Walnut Tofu Bowl',
     teaser: 'Sliced pear and crunchy walnut against creamy silken tofu.',
-    summary: 'Pear\'s own skin carries most of its fiber, worth leaving on rather than peeling away.',
+    summary: 'Pear\'s skin carries most of its fiber, worth leaving on rather than peeling away.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_pear_walnut_tofu_bowl',
@@ -11321,15 +11322,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the sliced pear and chopped walnuts, and dust with the cinnamon.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real amount from the pear, most of it in the skin.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the pear, most of it in the skin.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the walnuts.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Mild and comforting, the pear\'s own gentle sweetness against the crunchy walnut and warm cinnamon.',
+      flavorNotes: 'Mild and comforting, the pear\'s gentle sweetness against the crunchy walnut and warm cinnamon.',
     },
   },
   {
@@ -11337,7 +11338,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Fig and Pistachio Soy Milk Overnight Oats',
     teaser: 'Creamy make-ahead oats, chopped fig and pistachio folded in, built on soy milk.',
-    summary: 'Fig and pistachio are a genuinely traditional Mediterranean pairing, and soy milk keeps this a real protein breakfast.',
+    summary: 'Fig and pistachio are a traditional Mediterranean pairing, and soy milk keeps this a protein breakfast.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_fig_pistachio_overnight_oats',
@@ -11371,14 +11372,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Potassium', note: 'A solid amount from the fig.' },
-        { nutrient: 'Protein', note: 'A real amount from the soy milk and pistachios together.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the soy milk and pistachios together.' },
         { nutrient: 'Fiber', note: 'A substantial combined amount from the oats and fig.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Sweet and nutty, a genuinely Mediterranean-leaning combination distinct from this plan\'s other, more tropical bowls.',
+      flavorNotes: 'Sweet and nutty, a Mediterranean-leaning combination distinct from this plan\'s other, more tropical bowls.',
     },
   },
   {
@@ -11386,7 +11387,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Apricot and Cashew Tofu Bowl',
     teaser: 'Sliced apricot and toasted cashew against creamy silken tofu.',
-    summary: 'Apricot is a genuinely concentrated whole-food source of vitamin A, from the same beta-carotene family behind its own orange color.',
+    summary: 'Apricot is a concentrated whole-food source of vitamin A, from the same beta-carotene family behind its orange color.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_apricot_cashew_tofu_bowl',
@@ -11419,13 +11420,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin A', note: 'A solid amount from the apricot.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu and cashews together.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu and cashews together.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Soft and lightly sweet, the apricot\'s own gentle tang against the buttery cashew and mild tofu base.',
+      flavorNotes: 'Soft and lightly sweet, the apricot\'s gentle tang against the buttery cashew and mild tofu base.',
     },
   },
   {
@@ -11462,8 +11463,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Potassium', note: 'A solid amount from the dates.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the walnuts.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -11476,8 +11477,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-mango-coconut-chia-pudding',
     category: 'recipes',
     title: 'Mango and Coconut Chia Pudding with Hemp Seeds',
-    teaser: 'A creamy, tropical chia pudding, coconut milk and diced mango folded in, hemp seeds for real protein.',
-    summary: 'Hemp seeds are a real, complete plant protein on their own, an easy way to boost a coconut-milk pudding without needing dairy or soy.',
+    teaser: 'A creamy, tropical chia pudding, coconut milk and diced mango folded in, hemp seeds for protein.',
+    summary: 'Hemp seeds are a complete plant protein on their own, an easy way to boost a coconut-milk pudding without needing dairy or soy.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_mango_coconut_chia_pudding',
@@ -11507,15 +11508,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the diced mango and a drizzle of maple syrup, if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the hemp seeds.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the chia and hemp seeds together.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the hemp seeds.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the chia and hemp seeds together.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the mango.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Rich and tropical, the coconut milk giving it real body while the mango adds bright, juicy sweetness on top.',
+      flavorNotes: 'Rich and tropical, the coconut milk giving it body while the mango adds bright, juicy sweetness on top.',
     },
   },
   {
@@ -11549,13 +11550,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with maple syrup.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu.' },
         { nutrient: 'Potassium', note: 'A solid amount from the fig.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Tangy and thick, genuinely closer to a sweetened ricotta than the plainer tofu bowls elsewhere in this plan, with the fig and maple keeping it dessert-like.',
+      flavorNotes: 'Tangy and thick, closer to a sweetened ricotta than the plainer tofu bowls elsewhere in this plan, with the fig and maple keeping it dessert-like.',
     },
   },
   {
@@ -11563,7 +11564,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Pear and Almond Tofu Bowl',
     teaser: 'Sliced pear and toasted almond against creamy silken tofu.',
-    summary: 'Pear and almond together bring a mild, real sweetness balanced against almond\'s own gentle crunch and fat.',
+    summary: 'Pear and almond together bring a mild sweetness balanced against almond\'s gentle crunch and fat.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_pear_almond_tofu_bowl',
@@ -11589,9 +11590,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with maple syrup, if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real amount from the pear.' },
-        { nutrient: 'Vitamin E', note: 'A real contribution from the almonds.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the pear.' },
+        { nutrient: 'Vitamin E', note: 'A meaningful contribution from the almonds.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -11604,8 +11605,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-kiwi-coconut-chia-pudding',
     category: 'recipes',
     title: 'Kiwi and Coconut Chia Pudding with Hemp Seeds',
-    teaser: 'A creamy, tropical chia pudding, sliced kiwi folded through coconut milk, hemp seeds for real protein.',
-    summary: 'Kiwi\'s own black seeds are entirely edible, and hemp seeds add a real, complete plant protein without needing dairy or soy.',
+    teaser: 'A creamy, tropical chia pudding, sliced kiwi folded through coconut milk, hemp seeds for protein.',
+    summary: 'Kiwi\'s black seeds are entirely edible, and hemp seeds add a complete plant protein without needing dairy or soy.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_kiwi_coconut_chia_pudding',
@@ -11636,8 +11637,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'An exceptional amount from the kiwi.' },
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the hemp seeds.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the chia and hemp seeds together.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the hemp seeds.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the chia and hemp seeds together.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -11651,7 +11652,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Papaya and Lime Tofu Bowl',
     teaser: 'Soft, sweet papaya brightened with fresh lime against creamy silken tofu.',
-    summary: 'Lime juice over papaya is a real, traditional pairing found across Latin American and Southeast Asian cooking alike.',
+    summary: 'Lime juice over papaya is a traditional pairing found across Latin American and Southeast Asian cooking alike.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_papaya_lime_tofu_bowl',
@@ -11676,12 +11677,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       nutritionHighlights: [
         { nutrient: 'Vitamin A', note: 'A strong amount from the papaya.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the papaya and lime together.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Soft and tropical, the lime cutting through the papaya\'s own natural sweetness.',
+      flavorNotes: 'Soft and tropical, the lime cutting through the papaya\'s natural sweetness.',
     },
   },
   {
@@ -11689,7 +11690,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Blackberry and Almond Tofu Bowl',
     teaser: 'Tart blackberries and toasted almond against creamy silken tofu.',
-    summary: 'Blackberries carry a genuinely high fiber content for a fruit this size, most of it concentrated in their own small seeds.',
+    summary: 'Blackberries carry a high fiber content for a fruit this size, most of it concentrated in their small seeds.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_blackberry_almond_tofu_bowl',
@@ -11715,15 +11716,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with maple syrup, if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A genuinely high amount for the serving size, from the blackberries.' },
+        { nutrient: 'Fiber', note: 'A high amount for the serving size, from the blackberries.' },
         { nutrient: 'Vitamin K', note: 'A solid amount from the blackberries.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Tart and juicy, the blackberries\' own small seeds adding a bit of real texture against the smooth tofu base.',
+      flavorNotes: 'Tart and juicy, the blackberries\' small seeds adding a bit of texture against the smooth tofu base.',
     },
   },
   {
@@ -11764,7 +11765,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A solid amount from the clementine.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu and pistachios together.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu and pistachios together.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -11777,8 +11778,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-apricot-coconut-overnight-oats',
     category: 'recipes',
     title: 'Apricot and Coconut Soy Milk Overnight Oats',
-    teaser: 'Creamy make-ahead oats, coconut milk and diced apricot folded in, soy milk for real protein.',
-    summary: 'Coconut milk brings a richer fat profile to overnight oats than a plain dairy or nut milk would, and soy milk keeps real, complete protein in the mix.',
+    teaser: 'Creamy make-ahead oats, coconut milk and diced apricot folded in, soy milk for protein.',
+    summary: 'Coconut milk brings a richer fat profile to overnight oats than a plain dairy or nut milk would, and soy milk keeps complete protein in the mix.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_apricot_coconut_overnight_oats',
@@ -11804,7 +11805,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin A', note: 'A solid amount from the apricot.' },
-        { nutrient: 'Protein', note: 'A real amount from the soy milk.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the soy milk.' },
         { nutrient: 'Fiber', note: 'A substantial combined amount from the oats and apricot.' },
       ],
       conditionNotes: [
@@ -11819,7 +11820,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Fig and Cashew Soy Milk Overnight Oats',
     teaser: 'Creamy make-ahead oats, chopped fig and cashew folded in, built on soy milk.',
-    summary: 'This plan\'s own closing week reaches for fig and cashew together, and soy milk keeps every one of them a real protein breakfast.',
+    summary: 'This plan\'s closing week reaches for fig and cashew together, and soy milk keeps every one of them a protein breakfast.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_fig_cashew_overnight_oats',
@@ -11853,7 +11854,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Potassium', note: 'A solid amount from the fig.' },
-        { nutrient: 'Protein', note: 'A real amount from the soy milk and cashews together.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the soy milk and cashews together.' },
         { nutrient: 'Fiber', note: 'A substantial combined amount from the oats and fig.' },
       ],
       conditionNotes: [
@@ -11868,7 +11869,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Mango and Pistachio Tofu Chia Pudding',
     teaser: 'A creamy chia pudding, diced mango and chopped pistachio folded in, built on silken tofu.',
-    summary: 'Mango and pistachio together bring a real, different texture contrast from this plan\'s earlier mango-and-coconut version.',
+    summary: 'Mango and pistachio together bring a different texture contrast from this plan\'s earlier mango-and-coconut version.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_mango_pistachio_chia_pudding',
@@ -11902,9 +11903,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir again once thickened, and top with the diced mango, chopped pistachios, and a drizzle of maple syrup, if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu and soy milk together.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu and soy milk together.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the mango.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the chia seeds.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the chia seeds.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -11918,7 +11919,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Grapefruit and Pistachio Tofu Bowl',
     teaser: 'A bright, tart closing breakfast: grapefruit segments and pistachio against creamy silken tofu.',
-    summary: 'Grapefruit and pistachio together close this plan\'s own 6 weeks with the same real citrus-and-nut pairing pattern it opened with.',
+    summary: 'Grapefruit and pistachio together close this plan\'s 6 weeks with the same citrus-and-nut pairing pattern it opened with.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_grapefruit_pistachio_tofu_bowl',
@@ -11951,25 +11952,25 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A strong amount from the grapefruit.' },
-        { nutrient: 'Protein', note: 'A real amount from the silken tofu and pistachios together.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the silken tofu and pistachios together.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Tart and bright, the grapefruit\'s own bitterness balanced by the maple syrup and the nutty pistachio on top.',
+      flavorNotes: 'Tart and bright, the grapefruit\'s bitterness balanced by the maple syrup and the nutty pistachio on top.',
     },
   },
 
   // -------------------------------------------------------------------
-  // Vegan Meal Plan lunches and dinners -- 64 recipes, a direct,
-  // vegetable-preserving substitute for one of the omnivore plan's own
-  // meat/fish/feta/egg lunch or dinner dishes. Every real vegetable,
+  // Vegan Meal Plan lunches and dinners: 64 recipes, a direct,
+  // vegetable-preserving substitute for one of the omnivore plan's
+  // meat/fish/feta/egg lunch or dinner dishes. Every vegetable,
   // aromatic, and seasoning from the original dish carries over
   // unchanged, only the animal protein itself is replaced with tofu,
   // tempeh, seitan (vital wheat gluten), a legume, hearts of palm, or a
-  // "meaty" mushroom appropriate to that dish's own cooking method and
-  // cuisine. See scripts/add_vegan_meal_plan_mains.py's own header
+  // "meaty" mushroom appropriate to that dish's cooking method and
+  // cuisine. See scripts/add_vegan_meal_plan_mains.py's header
   // comment for the full reasoning.
   // -------------------------------------------------------------------
   {
@@ -11977,7 +11978,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Seitan & Roasted Vegetable Wrap',
     teaser: 'A hearty wrap built on seitan instead of beef.',
-    summary: 'Vital wheat gluten (seitan) has a genuinely chewy, meat-like bite once cooked, standing in well for a sliced, sauteed protein.',
+    summary: 'Vital wheat gluten (seitan) has a chewy, meat-like bite once cooked, standing in well for a sliced, sauteed protein.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_handheld_seitan_roasted_vegetable_wrap',
@@ -12010,20 +12011,20 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Warm the tortilla briefly, then fill with the seitan, roasted vegetables, and lettuce. Season with salt and roll up tightly.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, hearty amount from the seitan.' },
+        { nutrient: 'Protein', note: 'A hearty amount from the seitan.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the roasted bell pepper.' },
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Seitan is pure wheat gluten and is not appropriate here. A firm tofu, cubed and seared the same way, works as a gluten-free swap.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and hearty, the seared seitan carrying a real chew close to a sliced roast against the sweet roasted vegetables.',
+      flavorNotes: 'Savory and hearty, the seared seitan carrying a chew close to a sliced roast against the sweet roasted vegetables.',
     },
   },
   {
@@ -12031,7 +12032,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Grilled Tempeh Sandwich',
     teaser: 'A grilled sandwich built on tempeh instead of chicken breast.',
-    summary: 'Tempeh\'s own firm, nutty texture holds up well to a hot grill, the same real reason it works across so many savory sandwiches.',
+    summary: 'Tempeh\'s firm, nutty texture holds up well to a hot grill, the same reason it works across so many savory sandwiches.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_handheld_grilled_tempeh_sandwich',
@@ -12058,18 +12059,18 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Layer the tempeh, lettuce, tomato, and avocado between the slices.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
-        { nutrient: 'Healthy fats', note: 'A genuine monounsaturated contribution from the avocado.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
+        { nutrient: 'Healthy fats', note: 'A monounsaturated contribution from the avocado.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Hearty and nutty from the grilled tempeh, the avocado adding real creaminess against the fresh lettuce and tomato.',
+      flavorNotes: 'Hearty and nutty from the grilled tempeh, the avocado adding creaminess against the fresh lettuce and tomato.',
     },
   },
   {
@@ -12077,7 +12078,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Chickpea Smash & Avocado Wrap',
     teaser: 'A creamy mashed-chickpea wrap standing in for sliced turkey.',
-    summary: 'Mashed chickpeas bring a genuine, satisfying protein and fiber base without needing a meat slice at all.',
+    summary: 'Mashed chickpeas bring a satisfying protein and fiber base without needing a meat slice at all.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_handheld_chickpea_avocado_wrap',
@@ -12103,24 +12104,24 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial amount from the chickpeas.' },
-        { nutrient: 'Protein', note: 'A real, plant-based amount from the chickpeas.' },
+        { nutrient: 'Protein', note: 'A plant-based amount from the chickpeas.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Hearty and fresh, the mashed chickpea giving real substance against the cool avocado and crisp vegetables.',
+      flavorNotes: 'Hearty and fresh, the mashed chickpea giving substance against the cool avocado and crisp vegetables.',
     },
   },
   {
     id: 'recipe-vegan-handheld-tempeh-hummus-collard-wrap',
     category: 'recipes',
     title: 'Tempeh Hummus Collard Wrap',
-    teaser: 'A collard-leaf wrap pairing sauteed tempeh with real homemade hummus.',
+    teaser: 'A collard-leaf wrap pairing sauteed tempeh with homemade hummus.',
     summary: 'Tempeh and hummus together bring two distinct whole-soy and whole-legume proteins into the same wrap.',
     citations: [],
     overallTier: 'strong',
@@ -12151,18 +12152,18 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spread the hummus over the collard leaves, layer with the tempeh and tomato, season with salt, and roll up tightly.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, combined amount from the tempeh and chickpea hummus.' },
+        { nutrient: 'Protein', note: 'A combined amount from the tempeh and chickpea hummus.' },
         { nutrient: 'Vitamin K', note: 'A striking amount from the collard leaves.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and nutty, the tempeh and hummus both carrying real body against the sturdy, slightly bitter collard leaf.',
+      flavorNotes: 'Savory and nutty, the tempeh and hummus both carrying body against the sturdy, slightly bitter collard leaf.',
     },
   },
   {
@@ -12170,7 +12171,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Chickpea "Egg" Salad Lettuce Wraps',
     teaser: 'Mashed chickpeas, turmeric, and tahini stand in for the usual boiled egg and mayonnaise.',
-    summary: 'Turmeric gives mashed chickpeas the same real yellow color a boiled egg has, and tahini brings the same creamy body mayonnaise would.',
+    summary: 'Turmeric gives mashed chickpeas the same yellow color a boiled egg has, and tahini brings the same creamy body mayonnaise would.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_handheld_chickpea_egg_salad_lettuce_wraps',
@@ -12199,21 +12200,21 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial amount from the chickpeas.' },
-        { nutrient: 'Protein', note: 'A real, plant-based amount from the chickpeas and tahini together.' },
+        { nutrient: 'Protein', note: 'A plant-based amount from the chickpeas and tahini together.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Creamy and tangy, close enough to a classic egg salad in texture and color that the turmeric does real work here, not just decoration.',
+      flavorNotes: 'Creamy and tangy, close enough to a classic egg salad in texture and color that the turmeric does the work here, not just decoration.',
     },
   },
   {
     id: 'recipe-vegan-salad-hearts-of-palm-avocado-salad',
     category: 'recipes',
     title: 'Hearts of Palm & Avocado Salad',
-    teaser: 'Hearts of palm\'s own mild, flaky texture stands in for crab.',
-    summary: 'Hearts of palm are a real vegetable with a texture close enough to crab that it\'s a common vegan substitute for exactly this reason.',
+    teaser: 'Hearts of palm\'s mild, flaky texture stands in for crab.',
+    summary: 'Hearts of palm are a vegetable with a texture close enough to crab that it\'s a common vegan substitute for exactly this reason.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_hearts_of_palm_avocado_salad',
@@ -12245,13 +12246,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real amount from the hearts of palm and avocado together.' },
-        { nutrient: 'Healthy fats', note: 'A genuine monounsaturated contribution from the avocado.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the hearts of palm and avocado together.' },
+        { nutrient: 'Healthy fats', note: 'A monounsaturated contribution from the avocado.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Mild and slightly briny from the hearts of palm, with the avocado adding real creaminess and the lime keeping it bright.',
+      flavorNotes: 'Mild and slightly briny from the hearts of palm, with the avocado adding creaminess and the lime keeping it bright.',
     },
   },
   {
@@ -12292,7 +12293,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Vitamin C', note: 'A solid amount from the mango.' },
-        { nutrient: 'Fiber', note: 'A real amount from the hearts of palm and mango together.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the hearts of palm and mango together.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -12308,8 +12309,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-salad-grilled-tofu-greens-salad',
     category: 'recipes',
     title: 'Grilled Marinated Tofu & Greens Salad',
-    teaser: 'Grilled tofu over a real mixed-greens salad, standing in for grilled halibut.',
-    summary: 'Firm tofu takes on real grill marks and a genuine char flavor the same way a flaky white fish would.',
+    teaser: 'Grilled tofu over a mixed-greens salad, standing in for grilled halibut.',
+    summary: 'Firm tofu takes on grill marks and a char flavor the same way a flaky white fish would.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_grilled_tofu_greens_salad',
@@ -12343,18 +12344,18 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the grilled tofu, and dress with the olive oil, lemon juice, and salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Fresh and light, the grilled tofu carrying a real smoky char against the crisp, cool greens.',
+      flavorNotes: 'Fresh and light, the grilled tofu carrying a smoky char against the crisp, cool greens.',
     },
   },
   {
@@ -12362,7 +12363,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Smoky Tempeh & Radish Salad',
     teaser: 'Paprika-seared tempeh against crisp radish, standing in for grilled mackerel.',
-    summary: 'A little paprika gives grilled tempeh a real smoky depth close to a rich, oily fish.',
+    summary: 'A little paprika gives grilled tempeh a smoky depth close to a rich, oily fish.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_smoky_tempeh_radish_salad',
@@ -12397,16 +12398,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the grilled tempeh and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
-        { nutrient: 'Fiber', note: 'A genuine contribution from the tempeh itself.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
+        { nutrient: 'Fiber', note: 'A meaningful contribution from the tempeh itself.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Smoky and savory from the paprika-seared tempeh, the crisp, peppery radish keeping it fresh.',
     },
@@ -12416,7 +12417,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'White Bean & Roasted Pepper Salad',
     teaser: 'Creamy white beans against sweet roasted pepper, standing in for sardine.',
-    summary: 'White beans bring a genuine plant protein without the small bones or briny intensity a whole sardine carries.',
+    summary: 'White beans bring a plant protein without the small bones or briny intensity a whole sardine carries.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_white_bean_roasted_pepper_salad',
@@ -12452,16 +12453,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A solid amount from the roasted pepper.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Mild and creamy from the white beans, the sweet roasted pepper adding real color and depth.',
+      flavorNotes: 'Mild and creamy from the white beans, the sweet roasted pepper adding color and depth.',
     },
   },
   {
@@ -12469,7 +12470,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'King Oyster Mushroom & Watermelon Salad',
     teaser: 'Grilled king oyster mushroom and cool watermelon, with marinated tofu standing in for feta.',
-    summary: 'King oyster mushroom\'s own dense, meaty stem takes on a real char from the grill the way shrimp would.',
+    summary: 'King oyster mushroom\'s dense, meaty stem takes on a char from the grill the way shrimp would.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_king_oyster_watermelon_salad',
@@ -12501,14 +12502,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the grilled mushroom, and finish with the lime juice, olive oil, and salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Hydration', note: 'Watermelon is over 90% water by weight, a genuinely hydrating base for this bowl.' },
-        { nutrient: 'Protein', note: 'A real amount from the marinated tofu.' },
+        { nutrient: 'Hydration', note: 'Watermelon is over 90% water by weight, a hydrating base for this bowl.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the marinated tofu.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Cool and refreshing, the grilled mushroom bringing real savory depth against the sweet watermelon and tangy tofu.',
+      flavorNotes: 'Cool and refreshing, the grilled mushroom bringing savory depth against the sweet watermelon and tangy tofu.',
     },
   },
   {
@@ -12516,7 +12517,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Marinated Tofu & Cucumber Dill Salad',
     teaser: 'Baked tofu with fresh dill, standing in for trout.',
-    summary: 'Fresh dill is the same real herb that pairs with fish across this whole plan, and it works just as well against baked tofu.',
+    summary: 'Fresh dill is the same herb that pairs with fish across this whole plan, and it works just as well against baked tofu.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_tofu_cucumber_dill_salad',
@@ -12549,8 +12550,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Scatter with the fresh dill, and dress with the olive oil, lemon juice, and salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
-        { nutrient: 'Hydration', note: 'A genuinely hydrating amount from the cucumber.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
+        { nutrient: 'Hydration', note: 'A hydrating amount from the cucumber.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -12564,7 +12565,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'White Bean & Artichoke Salad',
     teaser: 'Roasted artichoke and creamy white beans, standing in for tuna.',
-    summary: 'White beans bring a genuine plant protein alongside the same roasted artichoke this plan\'s own tuna version already uses.',
+    summary: 'White beans bring a plant protein alongside the same roasted artichoke this plan\'s tuna version already uses.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_white_bean_artichoke_salad',
@@ -12597,7 +12598,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial combined amount from the white beans and artichoke.' },
-        { nutrient: 'Protein', note: 'A real, plant-based amount from the white beans.' },
+        { nutrient: 'Protein', note: 'A plant-based amount from the white beans.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -12609,7 +12610,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Mild and creamy from the white beans, the roasted artichoke adding a real nutty, slightly tangy depth.',
+      flavorNotes: 'Mild and creamy from the white beans, the roasted artichoke adding a nutty, slightly tangy depth.',
     },
   },
   {
@@ -12617,7 +12618,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Chickpea & White Bean Salad',
     teaser: 'Two legumes together, standing in for tuna.',
-    summary: 'Combining chickpea and white bean brings a genuinely complete plant protein into one bowl.',
+    summary: 'Combining chickpea and white bean brings a complete plant protein into one bowl.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_chickpea_white_bean_salad',
@@ -12649,7 +12650,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Dress with the olive oil, lemon juice, and salt, and toss well.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the two legumes together.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the two legumes together.' },
         { nutrient: 'Fiber', note: 'A substantial amount from the chickpeas and white beans.' },
       ],
       conditionNotes: [
@@ -12662,7 +12663,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Hearty and mild, the two legumes carrying real substance against the sharp raw onion and peppery arugula.',
+      flavorNotes: 'Hearty and mild, the two legumes carrying substance against the sharp raw onion and peppery arugula.',
     },
   },
   {
@@ -12670,7 +12671,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Beet, Walnut & Arugula Salad with Herbed Tofu',
     teaser: 'Roasted beet and toasted walnut, with lemon-marinated tofu standing in for feta.',
-    summary: 'A little lemon and salt gives firm tofu a real tangy, briny edge close to feta.',
+    summary: 'A little lemon and salt gives firm tofu a tangy, briny edge close to feta.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_beet_walnut_arugula_tofu',
@@ -12705,7 +12706,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Folate', note: 'A solid amount from the beets.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the walnuts.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -12717,7 +12718,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Earthy and sweet from the roasted beet, the marinated tofu adding a real tangy note where feta would sit.',
+      flavorNotes: 'Earthy and sweet from the roasted beet, the marinated tofu adding a tangy note where feta would sit.',
     },
   },
   {
@@ -12725,7 +12726,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Mediterranean Chickpea Salad with Herbed Tofu',
     teaser: 'Cucumber, tomato, and chickpea, with lemon-marinated tofu standing in for feta.',
-    summary: 'The same real Mediterranean vegetables this plan\'s own chickpea-feta salad already uses, just without the dairy.',
+    summary: 'The same Mediterranean vegetables this plan\'s chickpea-feta salad already uses, just without the dairy.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_mediterranean_chickpea_tofu',
@@ -12758,18 +12759,18 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Dress with the olive oil, lemon juice, and oregano, and toss well.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, combined amount from the chickpeas and tofu.' },
+        { nutrient: 'Protein', note: 'A combined amount from the chickpeas and tofu.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato and cucumber together.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Bright and herbaceous, the oregano and lemon carrying a genuine Mediterranean character against the tangy marinated tofu.',
+      flavorNotes: 'Bright and herbaceous, the oregano and lemon carrying a Mediterranean character against the tangy marinated tofu.',
     },
   },
   {
@@ -12777,7 +12778,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Roasted Artichoke & White Bean Salad with Herbed Tofu',
     teaser: 'Roasted artichoke and white bean, with lemon-marinated tofu standing in for feta.',
-    summary: 'White bean already carries real protein on its own; the marinated tofu here adds the same tangy note feta would.',
+    summary: 'White bean already carries protein on its own; the marinated tofu here adds the same tangy note feta would.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_roasted_artichoke_white_bean_tofu',
@@ -12810,7 +12811,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial combined amount from the artichoke and white beans.' },
-        { nutrient: 'Protein', note: 'A real, combined amount from the white beans and tofu.' },
+        { nutrient: 'Protein', note: 'A combined amount from the white beans and tofu.' },
       ],
       conditionNotes: [
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -12818,7 +12819,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Nutty and tangy, the roasted artichoke and marinated tofu both carrying real depth.',
+      flavorNotes: 'Nutty and tangy, the roasted artichoke and marinated tofu both carrying depth.',
     },
   },
   {
@@ -12826,7 +12827,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Spelt & Roasted Vegetable Salad with Herbed Tofu',
     teaser: 'Whole-grain spelt with roasted parsnip and carrot, with lemon-marinated tofu standing in for feta.',
-    summary: 'Spelt is an ancient whole grain that carries real fiber and B vitamins the more common wheat berry sometimes doesn\'t match.',
+    summary: 'Spelt is an ancient whole grain that carries fiber and B vitamins the more common wheat berry sometimes doesn\'t match.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_spelt_roasted_vegetable_tofu',
@@ -12871,7 +12872,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Nutty and earthy from the spelt and roasted root vegetables, the marinated tofu adding a real tangy finish.',
+      flavorNotes: 'Nutty and earthy from the spelt and roasted root vegetables, the marinated tofu adding a tangy finish.',
     },
   },
   {
@@ -12879,7 +12880,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Tempeh with Brussels Sprouts & Sweet Potato',
     teaser: 'Rosemary-roasted tempeh alongside brussels sprouts and sweet potato.',
-    summary: 'Tempeh\'s own firm bite holds together well through a full roast, the same real reason it works here in place of chicken thigh.',
+    summary: 'Tempeh\'s firm bite holds together well through a full roast, the same reason it works here in place of chicken thigh.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tempeh_brussels_sweet_potato',
@@ -12914,7 +12915,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and pepper and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
         { nutrient: 'Vitamin A', note: 'A very high amount from the sweet potato.' },
       ],
       conditionNotes: [
@@ -12923,7 +12924,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Hearty and savory, the rosemary and garlic tying the tempeh and vegetables together into one real roasted plate.',
+      flavorNotes: 'Hearty and savory, the rosemary and garlic tying the tempeh and vegetables together into one roasted plate.',
     },
   },
   {
@@ -12931,7 +12932,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Tofu with Fennel & Orange',
     teaser: 'Baked tofu with roasted fennel and fresh orange, standing in for cod.',
-    summary: 'Fennel and orange are a genuinely classic pairing with a mild white fish, and they work just as well against plain baked tofu.',
+    summary: 'Fennel and orange are a classic pairing with a mild white fish, and they work just as well against plain baked tofu.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tofu_fennel_orange',
@@ -12962,14 +12963,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Plate the tofu with the roasted fennel and fresh orange segments, and season with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the orange.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Light and aromatic, the roasted fennel\'s own mild anise flavor against the bright citrus and mild tofu.',
+      flavorNotes: 'Light and aromatic, the roasted fennel\'s mild anise flavor against the bright citrus and mild tofu.',
     },
   },
   {
@@ -12977,7 +12978,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Paprika-Lemon Tofu',
     teaser: 'Simple baked tofu with paprika and lemon, standing in for cod.',
-    summary: 'A short paprika-and-lemon marinade gives plain tofu real color and flavor before it ever reaches the oven.',
+    summary: 'A short paprika-and-lemon marinade gives plain tofu color and flavor before it ever reaches the oven.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tofu_paprika_lemon',
@@ -13007,16 +13008,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Bake at 400°F (200°C) for 20-25 minutes, until lightly golden.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the lemon.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Simple and lightly smoky from the paprika, with the lemon keeping it bright.',
     },
@@ -13026,7 +13027,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Tofu with Lemon & Dill',
     teaser: 'Baked tofu with fresh dill and lemon, standing in for salmon.',
-    summary: 'Dill and lemon are the same real pairing behind this plan\'s own baked salmon, working just as well here.',
+    summary: 'Dill and lemon are the same pairing behind this plan\'s baked salmon, working just as well here.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tofu_lemon_dill',
@@ -13056,7 +13057,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Bake at 400°F (200°C) for 20-25 minutes, until lightly golden.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -13070,7 +13071,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Tempeh with Parsnip Mash',
     teaser: 'Baked tempeh over a garlicky parsnip mash, standing in for trout.',
-    summary: 'A creamy parsnip mash brings real body to the plate, matching the mash this plan\'s own trout version already builds.',
+    summary: 'A creamy parsnip mash brings body to the plate, matching the mash this plan\'s trout version already builds.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tempeh_parsnip_mash',
@@ -13104,14 +13105,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the tempeh over the parsnip mash, seasoned with salt and pepper.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
         { nutrient: 'Fiber', note: 'A substantial amount from the parsnip.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Creamy and garlicky, the parsnip mash bringing real comfort-food body against the firmer tempeh.',
+      flavorNotes: 'Creamy and garlicky, the parsnip mash bringing comfort-food body against the firmer tempeh.',
     },
   },
   {
@@ -13119,7 +13120,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Seitan with Zucchini & Tomatoes',
     teaser: 'Herb-baked seitan with zucchini and tomato, standing in for turkey breast.',
-    summary: 'Seitan\'s own chewy bite carries a full bake the same way a lean turkey breast would.',
+    summary: 'Seitan\'s chewy bite carries a full bake the same way a lean turkey breast would.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_baked_seitan_zucchini_tomatoes',
@@ -13152,18 +13153,18 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and pepper before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, hearty amount from the seitan.' },
+        { nutrient: 'Protein', note: 'A hearty amount from the seitan.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Seitan is pure wheat gluten and is not appropriate here. Baked tempeh, cut into slabs, works as a gluten-free swap in the same amount.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Savory and herby, the oregano and garlic tying the seitan and vegetables together.',
     },
@@ -13172,8 +13173,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-side-mushroom-walnut-stir-fry-rice',
     category: 'recipes',
     title: 'Mushroom & Walnut Stir-Fry Rice',
-    teaser: 'Two mushrooms and toasted walnut standing in for beef in a real stir-fry.',
-    summary: 'Doubling up on mushroom and adding walnut brings real umami depth and texture close to what sliced beef would.',
+    teaser: 'Two mushrooms and toasted walnut standing in for beef in a stir-fry.',
+    summary: 'Doubling up on mushroom and adding walnut brings umami depth and texture close to what sliced beef would.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_mushroom_walnut_stir_fry_rice',
@@ -13210,7 +13211,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the soy sauce, and serve over the cooked brown rice.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the walnuts.' },
         { nutrient: 'Selenium', note: 'A solid amount from the mushrooms.' },
       ],
       conditionNotes: [
@@ -13222,15 +13223,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Deeply savory and umami-rich, the two mushrooms doing real work here, with the walnut adding a distinct crunch.',
+      flavorNotes: 'Deeply savory and umami-rich, the two mushrooms doing the work here, with the walnut adding a distinct crunch.',
     },
   },
   {
     id: 'recipe-vegan-side-lentil-walnut-meatballs-tomato-sauce',
     category: 'recipes',
     title: 'Lentil-Walnut Meatballs in Herb Tomato Sauce',
-    teaser: 'Lentil-and-walnut meatballs simmered in a real herb tomato sauce, standing in for beef.',
-    summary: 'Mashed green lentil and chopped walnut bind into a genuinely hearty meatball base, with ground flaxseed doing the same binding job an egg would.',
+    teaser: 'Lentil-and-walnut meatballs simmered in a herb tomato sauce, standing in for beef.',
+    summary: 'Mashed green lentil and chopped walnut bind into a hearty meatball base, with ground flaxseed doing the same binding job an egg would.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_lentil_walnut_meatballs_tomato_sauce',
@@ -13269,17 +13270,17 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial amount from the lentils.' },
-        { nutrient: 'Omega-3 (ALA)', note: 'A genuine plant-based contribution from the walnuts and flaxseed together.' },
+        { nutrient: 'Omega-3 (ALA)', note: 'A plant-based contribution from the walnuts and flaxseed together.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Hearty and savory, the walnut giving the meatballs real texture against the bright, herby tomato sauce.',
+      flavorNotes: 'Hearty and savory, the walnut giving the meatballs texture against the bright, herby tomato sauce.',
     },
   },
   {
@@ -13287,7 +13288,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tempeh & Root Vegetable Bowl',
     teaser: 'Sauteed tempeh over roasted parsnip, carrot, and turnip, standing in for beef.',
-    summary: 'Three roasted root vegetables together bring a genuinely wide nutrient spread alongside tempeh\'s own real protein.',
+    summary: 'Three roasted root vegetables together bring a wide nutrient spread alongside tempeh\'s protein.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_root_vegetable_bowl',
@@ -13322,7 +13323,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Combine the tempeh and roasted vegetables in a bowl, scatter with thyme, and season with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
         { nutrient: 'Fiber', note: 'A substantial amount from the three root vegetables together.' },
       ],
       conditionNotes: [
@@ -13331,7 +13332,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Earthy and hearty, the roasted root vegetables carrying real sweetness against the firmer, savory tempeh.',
+      flavorNotes: 'Earthy and hearty, the roasted root vegetables carrying sweetness against the firmer, savory tempeh.',
     },
   },
   {
@@ -13339,7 +13340,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Braised Seitan with Kohlrabi & Carrot',
     teaser: 'Slow-braised seitan with kohlrabi and carrot, standing in for beef.',
-    summary: 'A long braise gives seitan real time to soak up the same aromatics a braised beef cube would.',
+    summary: 'A long braise gives seitan time to soak up the same aromatics a braised beef cube would.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_braised_seitan_kohlrabi_carrot',
@@ -13373,7 +13374,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Add the kohlrabi, carrot, and vegetable stock dissolved in a little water, cover, and braise over low heat for 25-30 minutes, until the vegetables are tender. Season with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, hearty amount from the seitan.' },
+        { nutrient: 'Protein', note: 'A hearty amount from the seitan.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the kohlrabi.' },
       ],
       conditionNotes: [
@@ -13386,7 +13387,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Rich and savory, the long braise giving the seitan real depth against the tender root vegetables.',
+      flavorNotes: 'Rich and savory, the long braise giving the seitan depth against the tender root vegetables.',
     },
   },
   {
@@ -13394,7 +13395,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Lemon Tofu with Artichoke',
     teaser: 'Roasted lemon tofu with artichoke, standing in for chicken breast.',
-    summary: 'A quick lemon marinade before roasting gives firm tofu real depth close to a roasted chicken breast.',
+    summary: 'A quick lemon marinade before roasting gives firm tofu depth close to a roasted chicken breast.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_lemon_tofu_artichoke',
@@ -13425,14 +13426,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
         { nutrient: 'Fiber', note: 'A substantial amount from the artichoke.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Bright and simple, the lemon marinade giving the tofu real character against the nutty roasted artichoke.',
+      flavorNotes: 'Bright and simple, the lemon marinade giving the tofu character against the nutty roasted artichoke.',
     },
   },
   {
@@ -13440,7 +13441,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tempeh with Snow Peas & Carrots',
     teaser: 'Baked tempeh with sauteed snow peas and carrot, standing in for chicken breast.',
-    summary: 'Snow peas and carrot bring a genuine crunch and bright color against tempeh\'s own firmer texture.',
+    summary: 'Snow peas and carrot bring crunch and bright color against tempeh\'s firmer texture.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_snow_peas_carrots',
@@ -13474,14 +13475,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the tempeh alongside the vegetables, seasoned with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Fresh and crisp, the snow peas and carrot keeping real crunch against the firmer tempeh.',
+      flavorNotes: 'Fresh and crisp, the snow peas and carrot keeping crunch against the firmer tempeh.',
     },
   },
   {
@@ -13489,7 +13490,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Chickpea, Okra & Tomato Skillet',
     teaser: 'A one-skillet chickpea, okra, and tomato dish, standing in for chicken thigh.',
-    summary: 'Okra and tomato together are a real, traditional Southern pairing, chickpea bringing the plant protein here instead of chicken.',
+    summary: 'Okra and tomato together are a traditional Southern pairing, chickpea bringing the plant protein here instead of chicken.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_chickpea_okra_tomato_skillet',
@@ -13529,14 +13530,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Warm and hearty, the paprika giving it a real smoky depth against the tangy tomato.',
+      flavorNotes: 'Warm and hearty, the paprika giving it a smoky depth against the tangy tomato.',
     },
   },
   {
@@ -13544,7 +13545,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tempeh with Kohlrabi & Apple',
     teaser: 'Roasted tempeh with kohlrabi and apple, standing in for chicken thigh.',
-    summary: 'Apple\'s own sweetness against roasted kohlrabi is a real, unusual pairing worth trying regardless of the protein underneath it.',
+    summary: 'Apple\'s sweetness against roasted kohlrabi is an unusual pairing worth trying regardless of the protein underneath it.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_kohlrabi_apple',
@@ -13577,7 +13578,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the kohlrabi.' },
       ],
       conditionNotes: [
@@ -13586,7 +13587,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Sweet and earthy, the roasted apple bringing real natural sweetness against the mild kohlrabi and firm tempeh.',
+      flavorNotes: 'Sweet and earthy, the roasted apple bringing natural sweetness against the mild kohlrabi and firm tempeh.',
     },
   },
   {
@@ -13640,7 +13641,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tempeh with Cherries & Wild Rice',
     teaser: 'Sauteed tempeh with sour cherry and wild rice, standing in for chicken.',
-    summary: 'Tart cherry against a savory protein is a real, traditional pairing that works just as well with tempeh.',
+    summary: 'Tart cherry against a savory protein is a traditional pairing that works just as well with tempeh.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_cherry_wild_rice',
@@ -13675,21 +13676,21 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve over the cooked wild rice, seasoned with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
         { nutrient: 'Antioxidant polyphenols', note: 'A meaningful amount from the sour cherry.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and tart, the sour cherry adding real brightness against the firm, nutty tempeh and wild rice.',
+      flavorNotes: 'Savory and tart, the sour cherry adding brightness against the firm, nutty tempeh and wild rice.',
     },
   },
   {
     id: 'recipe-vegan-side-ginger-soy-tempeh',
     category: 'recipes',
     title: 'Ginger Soy Tempeh',
-    teaser: 'Roasted tempeh in a real ginger-soy glaze, standing in for chicken thigh.',
+    teaser: 'Roasted tempeh in a ginger-soy glaze, standing in for chicken thigh.',
     summary: 'Tempeh soaks up a ginger-soy glaze well, the fermented soy in tempeh itself pairing naturally with the soy sauce in the glaze.',
     citations: [],
     overallTier: 'strong',
@@ -13724,7 +13725,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Roast at 400°F (200°C) for 20-25 minutes, brushing with any remaining glaze halfway through, until deeply glazed.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -13735,7 +13736,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Sweet, salty, and gingery, the glaze caramelizing into a real sticky coating over the roasted tempeh.',
+      flavorNotes: 'Sweet, salty, and gingery, the glaze caramelizing into a sticky coating over the roasted tempeh.',
     },
   },
   {
@@ -13743,7 +13744,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tofu with Leeks & Peas',
     teaser: 'Baked tofu with sauteed leek and fresh pea, standing in for halibut.',
-    summary: 'Leek and pea together bring a genuinely mild, sweet vegetable pairing that lets the tofu carry a mild flavor of its own.',
+    summary: 'Leek and pea together bring a mild, sweet vegetable pairing that lets the tofu carry a mild flavor of its own.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_leeks_peas',
@@ -13774,8 +13775,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the tofu over the leeks and peas, seasoned with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
-        { nutrient: 'Fiber', note: 'A real amount from the peas.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the peas.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -13789,7 +13790,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Herb-Crusted Seitan Roast',
     teaser: 'A rosemary-and-thyme-crusted seitan roast, standing in for pork tenderloin.',
-    summary: 'Seitan\'s own dense, chewy texture holds a real herb crust the same way a roasted pork tenderloin would.',
+    summary: 'Seitan\'s dense, chewy texture holds a herb crust the same way a roasted pork tenderloin would.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_herb_crusted_seitan_roast',
@@ -13821,7 +13822,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and pepper, slice, and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, hearty amount from the seitan.' },
+        { nutrient: 'Protein', note: 'A hearty amount from the seitan.' },
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Seitan is pure wheat gluten and is not appropriate here. A roasted tempeh slab works as a gluten-free swap in the same amount.' },
@@ -13833,15 +13834,15 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and herby, the rosemary and thyme crust giving the seitan a real roast-dinner character.',
+      flavorNotes: 'Savory and herby, the rosemary and thyme crust giving the seitan a roast-dinner character.',
     },
   },
   {
     id: 'recipe-vegan-side-seitan-chops-roasted-eggplant',
     category: 'recipes',
     title: 'Seitan "Chops" with Roasted Eggplant',
-    teaser: 'Grilled seitan alongside real roasted eggplant, standing in for lamb chops.',
-    summary: 'Seitan\'s own chewy, fibrous texture is close enough to a grilled chop that it\'s a common substitute for exactly this reason.',
+    teaser: 'Grilled seitan alongside roasted eggplant, standing in for lamb chops.',
+    summary: 'Seitan\'s chewy, fibrous texture is close enough to a grilled chop that it\'s a common substitute for exactly this reason.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_seitan_chops_roasted_eggplant',
@@ -13875,20 +13876,20 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve together, seasoned with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, hearty amount from the seitan.' },
-        { nutrient: 'Fiber', note: 'A real amount from the eggplant.' },
+        { nutrient: 'Protein', note: 'A hearty amount from the seitan.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the eggplant.' },
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Seitan is pure wheat gluten and is not appropriate here. Grilled tofu slabs work as a gluten-free swap in the same amount.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Contains gluten, one of the first things this stage typically removes. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Hearty and herby, the grilled seitan bringing a real chew against the soft, roasted eggplant.',
+      flavorNotes: 'Hearty and herby, the grilled seitan bringing a chew against the soft, roasted eggplant.',
     },
   },
   {
@@ -13896,7 +13897,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Braised Chickpeas with Fennel & Orange',
     teaser: 'Chickpeas braised with roasted fennel and fresh orange, standing in for lamb.',
-    summary: 'The same real fennel-and-orange pairing this plan\'s own lamb version uses, carried by chickpea instead.',
+    summary: 'The same fennel-and-orange pairing this plan\'s lamb version uses, carried by chickpea instead.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_braised_chickpea_fennel_orange',
@@ -13934,14 +13935,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Warm and aromatic, the roasted fennel\'s own mild anise flavor against the bright citrus and hearty chickpea.',
+      flavorNotes: 'Warm and aromatic, the roasted fennel\'s mild anise flavor against the bright citrus and hearty chickpea.',
     },
   },
   {
     id: 'recipe-vegan-side-tofu-skewers-couscous',
     category: 'recipes',
     title: 'Marinated Tofu Skewers with Couscous',
-    teaser: 'Cumin-marinated tofu skewers over real couscous, standing in for lamb.',
+    teaser: 'Cumin-marinated tofu skewers over couscous, standing in for lamb.',
     summary: 'Cubed tofu takes on a grill and a cumin marinade the same way skewered lamb would.',
     citations: [],
     overallTier: 'strong',
@@ -13976,20 +13977,20 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve over the cooked couscous.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper.' },
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Couscous is made from wheat and is not appropriate here. Cooked quinoa works as a gluten-free swap in the same amount.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Contains gluten, one of the first things this stage typically removes. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Contains gluten. If you haven\'t reintroduced it yet, this is one to watch closely when you do. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Smoky and warmly spiced from the cumin, the grilled vegetables adding real char alongside the tofu.',
+      flavorNotes: 'Smoky and warmly spiced from the cumin, the grilled vegetables adding char alongside the tofu.',
     },
   },
   {
@@ -13997,7 +13998,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'One-Pan King Oyster Mushroom & Asparagus Rice',
     teaser: 'King oyster mushroom and asparagus over rice, all in one pan, standing in for shrimp.',
-    summary: 'King oyster mushroom\'s own dense, chewy texture is a common, genuine shrimp stand-in once sliced and sauteed.',
+    summary: 'King oyster mushroom\'s dense, chewy texture is a common shrimp stand-in once sliced and sauteed.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_one_pan_king_oyster_asparagus_rice',
@@ -14031,12 +14032,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Folate', note: 'A solid amount from the asparagus.' },
-        { nutrient: 'Selenium', note: 'A real amount from the king oyster mushroom.' },
+        { nutrient: 'Selenium', note: 'A meaningful amount from the king oyster mushroom.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and bright, the mushroom carrying a real chewy bite close to shrimp against the crisp asparagus.',
+      flavorNotes: 'Savory and bright, the mushroom carrying a chewy bite close to shrimp against the crisp asparagus.',
     },
   },
   {
@@ -14044,7 +14045,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Seitan "Chop" with Brussels Sprouts & Apple',
     teaser: 'Baked seitan with roasted brussels sprouts and apple, standing in for pork chop.',
-    summary: 'Apple and brussels sprouts together are a real, classic pork pairing that carries over cleanly onto seitan.',
+    summary: 'Apple and brussels sprouts together are a classic pork pairing that carries over cleanly onto seitan.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_seitan_chop_brussels_apple',
@@ -14075,8 +14076,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and pepper before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, hearty amount from the seitan.' },
-        { nutrient: 'Fiber', note: 'A real amount from the brussels sprouts.' },
+        { nutrient: 'Protein', note: 'A hearty amount from the seitan.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the brussels sprouts.' },
       ],
       conditionNotes: [
         { condition: 'Celiac Disease', note: 'Seitan is pure wheat gluten and is not appropriate here. Baked tempeh works as a gluten-free swap in the same amount.' },
@@ -14088,7 +14089,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Sweet and savory, the roasted apple\'s own natural sweetness against the firm seitan and slightly bitter brussels sprouts.',
+      flavorNotes: 'Sweet and savory, the roasted apple\'s natural sweetness against the firm seitan and slightly bitter brussels sprouts.',
     },
   },
   {
@@ -14096,7 +14097,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tempeh with Radish & Carrot',
     teaser: 'Grilled tempeh with roasted radish and carrot, standing in for pork loin.',
-    summary: 'Roasted radish loses most of its raw bite and turns genuinely mild and sweet, an easy pairing against grilled tempeh.',
+    summary: 'Roasted radish loses most of its raw bite and turns mild and sweet, an easy pairing against grilled tempeh.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_radish_carrot',
@@ -14129,7 +14130,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve together, seasoned with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
       conditionNotes: [
@@ -14146,7 +14147,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Seitan with Turnip & Kale',
     teaser: 'Roasted seitan with turnip and sauteed kale, standing in for pork loin.',
-    summary: 'Turnip and kale together bring a genuinely earthy, hearty vegetable pairing against seitan\'s own dense bite.',
+    summary: 'Turnip and kale together bring an earthy, hearty vegetable pairing against seitan\'s dense bite.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_seitan_turnip_kale',
@@ -14178,7 +14179,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve together, seasoned with salt and pepper.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, hearty amount from the seitan.' },
+        { nutrient: 'Protein', note: 'A hearty amount from the seitan.' },
         { nutrient: 'Vitamin K', note: 'A striking amount from the kale.' },
       ],
       conditionNotes: [
@@ -14199,7 +14200,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Roast Tempeh with Fennel & Leeks',
     teaser: 'Roasted tempeh with fennel and leek, standing in for chicken breast.',
-    summary: 'Fennel and leek together bring a genuinely mild, aniseed-and-onion depth against roasted tempeh.',
+    summary: 'Fennel and leek together bring a mild, aniseed-and-onion depth against roasted tempeh.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_roast_tempeh_fennel_leeks',
@@ -14233,8 +14234,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and pepper before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
-        { nutrient: 'Fiber', note: 'A real amount from the fennel and leek together.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the fennel and leek together.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -14248,7 +14249,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tofu with Leeks & Lemon',
     teaser: 'Baked tofu with sauteed leek and lemon, standing in for salmon.',
-    summary: 'Leek\'s own mild sweetness against a bright squeeze of lemon works just as well over baked tofu as it does over salmon.',
+    summary: 'Leek\'s mild sweetness against a bright squeeze of lemon works just as well over baked tofu as it does over salmon.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_leeks_lemon',
@@ -14279,13 +14280,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the tofu over the leeks, finished with the lemon juice and salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Mild and bright, the sauteed leek adding real sweetness against the tofu and fresh lemon.',
+      flavorNotes: 'Mild and bright, the sauteed leek adding sweetness against the tofu and fresh lemon.',
     },
   },
   {
@@ -14293,7 +14294,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tofu with Wild Rice & Asparagus',
     teaser: 'Roasted tofu with wild rice and asparagus, standing in for salmon.',
-    summary: 'Wild rice\'s own nutty bite pairs well against roasted tofu, the same real combination this plan\'s own salmon version uses.',
+    summary: 'Wild rice\'s nutty bite pairs well against roasted tofu, the same combination this plan\'s salmon version uses.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_wild_rice_asparagus',
@@ -14324,14 +14325,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve over the cooked wild rice, scattered with dill and seasoned with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
         { nutrient: 'Folate', note: 'A solid amount from the asparagus.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Nutty and mild, the wild rice giving real texture underneath the tofu and roasted asparagus.',
+      flavorNotes: 'Nutty and mild, the wild rice giving texture underneath the tofu and roasted asparagus.',
     },
   },
   {
@@ -14339,7 +14340,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'White Bean & Tomato Bowl',
     teaser: 'White beans simmered with tomato and parsley, standing in for sardine.',
-    summary: 'White beans already share the bowl with sardine in this plan\'s own original version; leaving sardine out and doubling the beans keeps the same real protein base.',
+    summary: 'White beans already share the bowl with sardine in this plan\'s original version; leaving sardine out and doubling the beans keeps the same protein base.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_white_bean_tomato_bowl',
@@ -14371,17 +14372,17 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial amount from the white beans.' },
-        { nutrient: 'Protein', note: 'A real, plant-based amount from the white beans.' },
+        { nutrient: 'Protein', note: 'A plant-based amount from the white beans.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Simple and comforting, the fresh parsley and lemon keeping the creamy beans bright.',
     },
@@ -14391,7 +14392,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'King Oyster "Scallops" with Asparagus & Lemon',
     teaser: 'Pan-seared king oyster mushroom rounds with asparagus and lemon, standing in for scallops.',
-    summary: 'King oyster mushroom, sliced into rounds and seared, is a genuine, common scallop stand-in for exactly this reason.',
+    summary: 'King oyster mushroom, sliced into rounds and seared, is a common scallop stand-in for exactly this reason.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_king_oyster_scallops_asparagus_lemon',
@@ -14424,12 +14425,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Folate', note: 'A solid amount from the asparagus.' },
-        { nutrient: 'Selenium', note: 'A real amount from the king oyster mushroom.' },
+        { nutrient: 'Selenium', note: 'A meaningful amount from the king oyster mushroom.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and richly seared, the mushroom rounds carrying a real caramelized crust close to a pan-seared scallop.',
+      flavorNotes: 'Savory and richly seared, the mushroom rounds carrying a caramelized crust close to a pan-seared scallop.',
     },
   },
   {
@@ -14437,7 +14438,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'King Oyster Mushroom & Snow Pea Stir-Fry Rice',
     teaser: 'A gingery king oyster mushroom and snow pea stir-fry over rice, standing in for shrimp.',
-    summary: 'The same real king oyster mushroom stand-in used elsewhere in this plan, here in a gingery stir-fry instead of a simple pan-sear.',
+    summary: 'The same king oyster mushroom stand-in used elsewhere in this plan, here in a gingery stir-fry instead of a simple pan-sear.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_king_oyster_snow_pea_stir_fry_rice',
@@ -14470,7 +14471,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the soy sauce, and serve over the cooked rice.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Selenium', note: 'A real amount from the king oyster mushroom.' },
+        { nutrient: 'Selenium', note: 'A meaningful amount from the king oyster mushroom.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the snow peas.' },
       ],
       conditionNotes: [
@@ -14481,7 +14482,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Contains gluten. By this stage, food choices matter less than the broader lifestyle and hormone work ahead of you. If gluten was already reintroduced without a reaction, there is no reason to keep avoiding it here. If it was never tested, or did cause a reaction, it still belongs on the avoid list. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and gingery, the mushroom carrying a real chewy bite through the crisp snow peas.',
+      flavorNotes: 'Savory and gingery, the mushroom carrying a chewy bite through the crisp snow peas.',
     },
   },
   {
@@ -14489,7 +14490,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tofu with Bok Choy & Ginger',
     teaser: 'Sauteed tofu with bok choy and ginger, standing in for sole.',
-    summary: 'Bok choy and ginger together are a real, common pairing with a delicate white fish, and they work just as well against tofu.',
+    summary: 'Bok choy and ginger together are a common pairing with a delicate white fish, and they work just as well against tofu.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_bok_choy_ginger',
@@ -14521,7 +14522,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the soy sauce and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the bok choy.' },
       ],
       conditionNotes: [
@@ -14541,7 +14542,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tempeh with Radish & Dill',
     teaser: 'Baked tempeh with roasted radish and fresh dill, standing in for trout.',
-    summary: 'The same real dill this plan\'s own trout version uses, carried by baked tempeh instead.',
+    summary: 'The same dill this plan\'s trout version uses, carried by baked tempeh instead.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_radish_dill',
@@ -14574,7 +14575,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Scatter with fresh dill, and finish with the lemon juice and salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A raw goitrogenic (cruciferous) food. The staged food guide flags these specifically raw; cooking largely resolves the concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -14582,14 +14583,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and herbaceous, the fresh dill adding real brightness against the firm tempeh and roasted radish.',
+      flavorNotes: 'Savory and herbaceous, the fresh dill adding brightness against the firm tempeh and roasted radish.',
     },
   },
   {
     id: 'recipe-vegan-side-chickpea-walnut-meatballs-tomato-sauce',
     category: 'recipes',
     title: 'Chickpea-Walnut Meatballs in Tomato Sauce',
-    teaser: 'Chickpea-and-walnut meatballs simmered in real tomato sauce, standing in for turkey.',
+    teaser: 'Chickpea-and-walnut meatballs simmered in tomato sauce, standing in for turkey.',
     summary: 'Mashed chickpea and chopped walnut bind into a hearty meatball, nutritional yeast standing in for the parmesan the turkey version uses.',
     citations: [],
     overallTier: 'strong',
@@ -14631,25 +14632,25 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial amount from the chickpeas.' },
-        { nutrient: 'Vitamin B12', note: 'A meaningful fortified amount from the nutritional yeast, worth checking the specific product\'s own label since fortification levels vary by brand.' },
+        { nutrient: 'Vitamin B12', note: 'A meaningful fortified amount from the nutritional yeast, worth checking the specific product\'s label since fortification levels vary by brand.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Hearty and savory, the walnut and nutritional yeast together giving the meatballs a real umami depth against the bright tomato sauce.',
+      flavorNotes: 'Hearty and savory, the walnut and nutritional yeast together giving the meatballs an umami depth against the bright tomato sauce.',
     },
   },
   {
     id: 'recipe-vegan-side-lentil-meatloaf-parsnip-carrot',
     category: 'recipes',
     title: 'Lentil Meatloaf with Parsnip & Carrot',
-    teaser: 'A real lentil meatloaf alongside roasted parsnip and carrot, standing in for turkey.',
-    summary: 'Mashed lentil holds together into a genuine sliceable loaf, with ground flaxseed doing the same binding job an egg would.',
+    teaser: 'A lentil meatloaf alongside roasted parsnip and carrot, standing in for turkey.',
+    summary: 'Mashed lentil holds together into a sliceable loaf, with ground flaxseed doing the same binding job an egg would.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_lentil_meatloaf_parsnip_carrot',
@@ -14684,13 +14685,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial amount from the lentils.' },
-        { nutrient: 'Protein', note: 'A real, plant-based amount from the lentils.' },
+        { nutrient: 'Protein', note: 'A plant-based amount from the lentils.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Hearty and comforting, the real sliceable lentil loaf carrying much the same weeknight-dinner feel as a meatloaf.',
+      flavorNotes: 'Hearty and comforting, the sliceable lentil loaf carrying much the same weeknight-dinner feel as a meatloaf.',
     },
   },
   {
@@ -14698,7 +14699,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tempeh with Turnip & Carrot',
     teaser: 'Roasted tempeh with turnip and carrot, standing in for turkey thigh.',
-    summary: 'The same real turnip-and-carrot roast this plan\'s own turkey version uses, carried by tempeh instead.',
+    summary: 'The same turnip-and-carrot roast this plan\'s turkey version uses, carried by tempeh instead.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_turnip_carrot',
@@ -14732,7 +14733,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and pepper before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
       conditionNotes: [
@@ -14749,7 +14750,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tempeh with Wild Rice & Cranberries',
     teaser: 'Roasted tempeh with wild rice and whole cranberry, standing in for turkey breast.',
-    summary: 'Tart cranberry against a savory roasted protein is a real, traditional pairing that carries over cleanly onto tempeh.',
+    summary: 'Tart cranberry against a savory roasted protein is a traditional pairing that carries over cleanly onto tempeh.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_wild_rice_cranberries',
@@ -14781,22 +14782,22 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve over the cooked wild rice, scattered with whole cranberries and seasoned with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, fermented plant protein from the tempeh.' },
+        { nutrient: 'Protein', note: 'A fermented plant protein from the tempeh.' },
         { nutrient: 'Antioxidant polyphenols', note: 'A meaningful amount from the cranberries.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Savory and slightly tart, the whole cranberries adding real bursts of brightness through the nutty wild rice.',
+      flavorNotes: 'Savory and slightly tart, the whole cranberries adding bursts of brightness through the nutty wild rice.',
     },
   },
   {
     id: 'recipe-vegan-side-tofu-vegetable-fried-rice',
     category: 'recipes',
     title: 'Tofu Vegetable Fried Rice',
-    teaser: 'A real vegetable fried rice, turmeric-tofu scramble bits standing in for scrambled egg.',
-    summary: 'Crumbled tofu, browned with a little turmeric, breaks up into real egg-like bits through the rest of the fried rice.',
+    teaser: 'A vegetable fried rice, turmeric-tofu scramble bits standing in for scrambled egg.',
+    summary: 'Crumbled tofu, browned with a little turmeric, breaks up into egg-like bits through the rest of the fried rice.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_vegetable_fried_rice',
@@ -14833,7 +14834,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the cooked rice and soy sauce, tossing to combine, and finish with the sesame seeds.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the tofu.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the tofu.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
       conditionNotes: [
@@ -14853,7 +14854,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'White Bean & Roasted Vegetable Bowl with Herbed Tofu',
     teaser: 'Roasted zucchini, eggplant, and tomato over white bean, with lemon-marinated tofu standing in for feta.',
-    summary: 'White bean already carries the real protein here; the marinated tofu adds the same tangy finish feta would.',
+    summary: 'White bean already carries the protein here; the marinated tofu adds the same tangy finish feta would.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_white_bean_roasted_vegetable_tofu_bowl',
@@ -14890,27 +14891,27 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial combined amount from the white beans and roasted vegetables.' },
-        { nutrient: 'Protein', note: 'A real, combined amount from the white beans and tofu.' },
+        { nutrient: 'Protein', note: 'A combined amount from the white beans and tofu.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Hearty and Mediterranean-leaning, the roasted vegetables and marinated tofu together carrying real depth.',
+      flavorNotes: 'Hearty and Mediterranean-leaning, the roasted vegetables and marinated tofu together carrying depth.',
     },
   },
   {
     id: 'recipe-vegan-soup-white-bean-vegetable-soup',
     category: 'recipes',
     title: 'White Bean Vegetable Soup',
-    teaser: 'A real vegetable soup built on white bean instead of chicken.',
-    summary: 'White bean brings a genuine plant protein into the same carrot-celery-onion base this plan\'s own chicken soup uses.',
+    teaser: 'A vegetable soup built on white bean instead of chicken.',
+    summary: 'White bean brings a plant protein into the same carrot-celery-onion base this plan\'s chicken soup uses.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_soup_white_bean_vegetable_soup',
@@ -14940,8 +14941,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real amount from the white beans.' },
-        { nutrient: 'Protein', note: 'A real, plant-based amount from the white beans.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the white beans.' },
+        { nutrient: 'Protein', note: 'A plant-based amount from the white beans.' },
       ],
       conditionNotes: [
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
@@ -14949,7 +14950,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Light and homey, the classic carrot-celery-onion base carrying real comfort-food familiarity.',
+      flavorNotes: 'Light and homey, the classic carrot-celery-onion base carrying comfort-food familiarity.',
     },
   },
   {
@@ -14957,7 +14958,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Hearts of Palm & Corn Chowder',
     teaser: 'A creamy coconut-milk corn chowder with hearts of palm, standing in for crab.',
-    summary: 'Hearts of palm bring a genuine flaky texture into the same rich chowder base this plan\'s own crab version uses.',
+    summary: 'Hearts of palm bring a flaky texture into the same rich chowder base this plan\'s crab version uses.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_soup_hearts_of_palm_corn_chowder',
@@ -14994,12 +14995,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real amount from the hearts of palm and corn together.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the hearts of palm and corn together.' },
       ],
       conditionNotes: [
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Rich and creamy from the coconut milk, the hearts of palm adding a real flaky texture through the chowder.',
+      flavorNotes: 'Rich and creamy from the coconut milk, the hearts of palm adding a flaky texture through the chowder.',
     },
   },
   {
@@ -15007,7 +15008,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'White Bean Tomato Fennel Broth',
     teaser: 'A light tomato-fennel broth with white bean, standing in for mussels.',
-    summary: 'White bean brings genuine substance to a broth this light, the same role mussels play in this plan\'s own original version.',
+    summary: 'White bean brings substance to a broth this light, the same role mussels play in this plan\'s original version.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_soup_white_bean_tomato_fennel_broth',
@@ -15045,16 +15046,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Light and aromatic, the fennel\'s own mild anise flavor carrying through the tomato broth.',
+      flavorNotes: 'Light and aromatic, the fennel\'s mild anise flavor carrying through the tomato broth.',
     },
   },
   {
@@ -15062,7 +15063,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'White Bean Tomato Garlic Broth',
     teaser: 'A garlicky tomato broth with white bean, standing in for mussels.',
-    summary: 'The same real garlic-forward broth this plan\'s own mussels version uses, carried by white bean instead.',
+    summary: 'The same garlic-forward broth this plan\'s mussels version uses, carried by white bean instead.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_soup_white_bean_tomato_garlic_broth',
@@ -15101,14 +15102,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       flavorNotes: 'Garlicky and bright, the fresh parsley keeping the broth from feeling heavy.',
     },
@@ -15118,7 +15119,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Lentil Black Bean Chili',
     teaser: 'A hearty two-legume chili, standing in for turkey black bean chili.',
-    summary: 'Green lentil adds a real, second plant protein and a genuine meaty texture alongside the black bean.',
+    summary: 'Green lentil adds a second plant protein and a meaty texture alongside the black bean.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_soup_lentil_black_bean_chili',
@@ -15159,20 +15160,20 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Fiber', note: 'A substantial combined amount from the lentils and black beans.' },
-        { nutrient: 'Protein', note: 'A real, plant-based amount from the two legumes together.' },
+        { nutrient: 'Protein', note: 'A plant-based amount from the two legumes together.' },
       ],
       conditionNotes: [
         { condition: 'Inflammatory Bowel Disease / Irritable Bowel Syndrome', note: 'Both lentils and black beans carry a fair amount of fermentable fiber that can be harder on an already-sensitive gut. A smaller portion tends to sit easier if that\'s a concern.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Irritable Bowel Syndrome: Phase 1: Elimination', note: 'Flagged for excess fiber/anti-nutrient load, a digestive-tolerance concern worth noticing during a restriction period. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Inflammatory Bowel Disease: Remission', note: 'Flagged for a digestive-tolerance concern, worth noticing as a possible separate, overlapping IBS-type issue if remission is confirmed but symptoms persist. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Warm and smoky from the cumin and paprika, the lentil giving the chili a real hearty, meaty texture.',
+      flavorNotes: 'Warm and smoky from the cumin and paprika, the lentil giving the chili a hearty, meaty texture.',
     },
   },
   {
@@ -15180,7 +15181,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Mushroom White Bean Soup',
     teaser: 'A savory mushroom-and-white-bean soup, standing in for turkey white bean soup.',
-    summary: 'Sauteed mushroom brings a genuine, deep umami base into the same carrot-celery-onion soup this plan\'s own turkey version uses.',
+    summary: 'Sauteed mushroom brings a deep umami base into the same carrot-celery-onion soup this plan\'s turkey version uses.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_soup_mushroom_white_bean_soup',
@@ -15211,7 +15212,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real amount from the white beans.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the white beans.' },
         { nutrient: 'Selenium', note: 'A solid amount from the mushroom.' },
       ],
       conditionNotes: [
@@ -15220,22 +15221,22 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
-      flavorNotes: 'Deeply savory from the sauteed mushroom, the white beans giving the soup real body.',
+      flavorNotes: 'Deeply savory from the sauteed mushroom, the white beans giving the soup body.',
     },
   },
-  // 2026-08-26, direct request after a real on-device report: "Why can't
+  // 2026-08-26, direct request after an on-device report: "Why can't
   // a user have savory amaranth seed porridge... if they are vegan?...
   // make sure there are at least 30 total different vegan breakfast
   // choices." Confirmed directly (scripts/audit_meal_plan_recipe_
-  // coverage.js) before writing any of this: this corpus's own vegan
+  // coverage.js) before writing any of this: this corpus's vegan
   // breakfast pool was 17, and every one of the 16 dedicated "_vegan_"
-  // breakfast recipes in it is soy-based (tofu or soy milk) -- the exact
-  // reason a real, whole-food, soy-free savory breakfast didn't already
+  // breakfast recipes in it is soy-based (tofu or soy milk), the exact
+  // reason a whole-food, soy-free savory breakfast didn't already
   // exist. 16 new recipes below: 11 savory whole-grain/legume/vegetable
   // bowls (including the amaranth porridge described directly) and 5
   // sweet ones built on almond milk instead of soy milk, none of them
   // soy-based. safeForConditions/conditionCautions/dietTags below are
-  // placeholders, replaced by the same real compute_recipe_diet_tags.js/
+  // placeholders, replaced by the same compute_recipe_diet_tags.js/
   // compute_recipe_condition_data.js/apply_recipe_condition_cautions.js
   // pipeline every other recipe batch already goes through, not
   // hand-guessed.
@@ -15243,8 +15244,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-savory-amaranth-porridge-garlic-avocado',
     category: 'recipes',
     title: 'Savory Amaranth Porridge with Garlic, Avocado & Mixed Vegetables',
-    teaser: 'A whole-grain savory porridge, simmered plain and finished with garlic, olive oil, and a real vegetable mix.',
-    summary: 'Amaranth cooks up into a naturally creamy, protein-rich porridge without any dairy or soy at all, and a real vegetable mix keeps this genuinely a full breakfast rather than a plain bowl of grain.',
+    teaser: 'A whole-grain savory porridge, simmered plain and finished with garlic, olive oil, and a vegetable mix.',
+    summary: 'Amaranth cooks up into a naturally creamy, protein-rich porridge without any dairy or soy at all, and a vegetable mix keeps this a full breakfast rather than a plain bowl of grain.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_amaranth_porridge_garlic_avocado',
@@ -15264,10 +15265,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 bowl.',
@@ -15290,9 +15291,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon the vegetables over the cooked amaranth, top with sliced avocado, and season with salt and pepper.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the amaranth itself, a genuine whole-grain protein source.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the amaranth itself, a whole-grain protein source.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper.' },
-        { nutrient: 'Healthy Fats', note: 'A real contribution from the avocado and olive oil.' },
+        { nutrient: 'Healthy Fats', note: 'A meaningful contribution from the avocado and olive oil.' },
       ],
       flavorNotes: 'Earthy and savory from the amaranth and garlic, with a bright, fresh finish from the avocado.',
     },
@@ -15302,7 +15303,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Savory Steel-Cut Oat Porridge with Mushrooms & Spinach',
     teaser: 'A savory take on oatmeal, simmered plain and finished with sauteed mushroom and spinach in olive oil and garlic.',
-    summary: 'Oats work just as well as a savory base as a sweet one, and mushroom brings a genuinely meaty depth without any meat at all.',
+    summary: 'Oats work just as well as a savory base as a sweet one, and mushroom brings a meaty depth without any meat at all.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_oat_porridge_mushroom_spinach',
@@ -15343,7 +15344,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon the mushroom and spinach over the cooked oats, and season with salt and pepper.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real amount from the oats.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the oats.' },
         { nutrient: 'Selenium', note: 'A solid amount from the mushroom.' },
       ],
       flavorNotes: 'Deeply savory and umami-rich from the sauteed mushroom and garlic.',
@@ -15353,8 +15354,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-chickpea-flour-vegetable-scramble',
     category: 'recipes',
     title: 'Chickpea Flour Vegetable Scramble',
-    teaser: 'Turmeric turns a simple chickpea-flour batter into a real, egg-like savory scramble, folded with real vegetables.',
-    summary: 'Chickpea flour is a genuine, complete plant protein on its own, and nutritional yeast adds a real vitamin B12 source the same way it already does in this app\'s other savory scrambles.',
+    teaser: 'Turmeric turns a simple chickpea-flour batter into an egg-like savory scramble, folded with vegetables.',
+    summary: 'Chickpea flour is a complete plant protein on its own, and nutritional yeast adds a vitamin B12 source the same way it already does in this app\'s other savory scrambles.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_chickpea_flour_vegetable_scramble',
@@ -15375,10 +15376,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Chickpea flour: rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
@@ -15402,8 +15403,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and pepper and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the chickpea flour.' },
-        { nutrient: 'Vitamin B12', note: 'A meaningful fortified amount from the nutritional yeast, worth checking the specific product\'s own label since fortification levels vary by brand.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the chickpea flour.' },
+        { nutrient: 'Vitamin B12', note: 'A meaningful fortified amount from the nutritional yeast, worth checking the specific product\'s label since fortification levels vary by brand.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper.' },
       ],
       flavorNotes: 'Savory and egg-like from the turmeric and nutritional yeast, with tender vegetables folded through.',
@@ -15413,8 +15414,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-savory-millet-bowl-roasted-vegetables-tahini',
     category: 'recipes',
     title: 'Savory Millet Bowl with Roasted Vegetables & Tahini',
-    teaser: 'Fluffy simmered millet topped with roasted zucchini and bell pepper, finished with a real lemon-tahini drizzle.',
-    summary: 'Millet is a genuinely different whole grain from oats or quinoa, and tahini brings real calcium and healthy fat to what would otherwise be a plain grain bowl.',
+    teaser: 'Fluffy simmered millet topped with roasted zucchini and bell pepper, finished with a lemon-tahini drizzle.',
+    summary: 'Millet is a different whole grain from oats or quinoa, and tahini brings calcium and healthy fat to what would otherwise be a plain grain bowl.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_millet_bowl_roasted_vegetables_tahini',
@@ -15434,10 +15435,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 bowl.',
@@ -15458,7 +15459,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon the roasted vegetables over the millet, drizzle with the tahini dressing, and season with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Calcium', note: 'A real, meaningful amount from the tahini.' },
+        { nutrient: 'Calcium', note: 'A meaningful amount from the tahini.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper.' },
       ],
       flavorNotes: 'Nutty and fluffy from the millet, brightened by the lemon-tahini dressing.',
@@ -15468,8 +15469,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-black-bean-sweet-potato-breakfast-hash',
     category: 'recipes',
     title: 'Black Bean & Sweet Potato Breakfast Hash',
-    teaser: 'A real, hearty savory hash: pan-cooked sweet potato and black beans with peppers, onion, and avocado on top.',
-    summary: 'Black beans and sweet potato together bring real fiber and complex carbohydrate to a savory breakfast, no eggs, dairy, or soy needed at all.',
+    teaser: 'A hearty savory hash: pan-cooked sweet potato and black beans with peppers, onion, and avocado on top.',
+    summary: 'Black beans and sweet potato together bring fiber and complex carbohydrate to a savory breakfast, no eggs, dairy, or soy needed at all.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_black_bean_sweet_potato_breakfast_hash',
@@ -15489,10 +15490,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: Pre-Dialysis', note: 'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
@@ -15514,9 +15515,9 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt, top with sliced avocado, and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the black beans and sweet potato together.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the black beans and sweet potato together.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the sweet potato.' },
-        { nutrient: 'Healthy Fats', note: 'A real contribution from the avocado.' },
+        { nutrient: 'Healthy Fats', note: 'A meaningful contribution from the avocado.' },
       ],
       flavorNotes: 'Warm and earthy from the cumin and sweet potato, with a creamy finish from the avocado.',
     },
@@ -15525,8 +15526,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-lentil-spinach-bowl-lemon-tahini',
     category: 'recipes',
     title: 'Lentil & Spinach Breakfast Bowl with Lemon-Tahini Dressing',
-    teaser: 'Simmered lentils and wilted spinach, finished with a bright, real lemon-tahini dressing.',
-    summary: 'Lentils are a real, whole-food iron and protein source for a savory breakfast, and lemon alongside them helps the body absorb that non-heme iron more effectively.',
+    teaser: 'Simmered lentils and wilted spinach, finished with a bright lemon-tahini dressing.',
+    summary: 'Lentils are a whole-food iron and protein source for a savory breakfast, and lemon alongside them helps the body absorb that non-heme iron more effectively.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_lentil_spinach_bowl_lemon_tahini',
@@ -15565,7 +15566,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Combine the lentils and spinach, drizzle with the tahini dressing, and season with salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Iron', note: 'A real, meaningful amount from the lentils, paired here with vitamin C from the lemon to help the body absorb it.' },
+        { nutrient: 'Iron', note: 'A meaningful amount from the lentils, paired here with vitamin C from the lemon to help the body absorb it.' },
         { nutrient: 'Protein', note: 'A solid amount from the lentils.' },
       ],
       flavorNotes: 'Earthy from the lentils, brightened by the lemon-tahini dressing.',
@@ -15576,7 +15577,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Savory Buckwheat Porridge with Mushrooms & Herbs',
     teaser: 'Simmered buckwheat groats finished savory, with sauteed mushroom, garlic, and olive oil rather than fruit and sugar.',
-    summary: 'Buckwheat is a genuine gluten-free whole grain (no relation to wheat despite the name), and this savory version gives it a real second breakfast identity beyond the usual sweet porridge.',
+    summary: 'Buckwheat is a gluten-free whole grain (no relation to wheat despite the name), and this savory version gives it a second breakfast identity beyond the usual sweet porridge.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_buckwheat_porridge_mushroom_herbs',
@@ -15616,7 +15617,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon the mushroom and spinach over the cooked buckwheat, and season with salt and pepper.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Manganese', note: 'A real, meaningful amount from the buckwheat.' },
+        { nutrient: 'Manganese', note: 'A meaningful amount from the buckwheat.' },
         { nutrient: 'Selenium', note: 'A solid amount from the mushroom.' },
       ],
       flavorNotes: 'Nutty and earthy from the buckwheat, deepened by the sauteed mushroom.',
@@ -15627,7 +15628,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Quinoa Breakfast Bowl with Roasted Vegetables & Hemp Seeds',
     teaser: 'Simmered quinoa topped with roasted zucchini and bell pepper, finished with hemp seeds and a squeeze of lemon.',
-    summary: 'Hemp seeds add a real, complete plant protein and omega-3 boost on top of quinoa\'s already-complete amino acid profile, no soy anywhere in this one.',
+    summary: 'Hemp seeds add a complete plant protein and omega-3 boost on top of quinoa\'s already-complete amino acid profile, no soy anywhere in this one.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_quinoa_bowl_roasted_vegetables_hemp_seeds',
@@ -15647,10 +15648,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 bowl.',
@@ -15670,7 +15671,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon the roasted vegetables over the quinoa, sprinkle with hemp seeds, and finish with a squeeze of lemon and a pinch of salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, complete plant protein from the quinoa and hemp seeds together.' },
+        { nutrient: 'Protein', note: 'A complete plant protein from the quinoa and hemp seeds together.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper.' },
       ],
       flavorNotes: 'Light and fresh, with a nutty crunch from the hemp seeds.',
@@ -15680,8 +15681,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-white-bean-kale-breakfast-hash',
     category: 'recipes',
     title: 'White Bean & Kale Breakfast Hash',
-    teaser: 'A real, garlicky savory hash: pan-cooked white beans and kale with bell pepper in olive oil.',
-    summary: 'White beans bring genuine plant protein and fiber to a savory breakfast, and kale holds up well to a quick saute without turning bitter the way it can raw.',
+    teaser: 'A garlicky savory hash: pan-cooked white beans and kale with bell pepper in olive oil.',
+    summary: 'White beans bring plant protein and fiber to a savory breakfast, and kale holds up well to a quick saute without turning bitter the way it can raw.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_white_bean_kale_breakfast_hash',
@@ -15699,10 +15700,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 plate.',
@@ -15722,7 +15723,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and pepper and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the white beans.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the white beans.' },
         { nutrient: 'Vitamin K', note: 'A solid amount from the kale.' },
       ],
       flavorNotes: 'Savory and garlicky, with a satisfying bite from the kale.',
@@ -15732,8 +15733,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-chickpea-spinach-breakfast-curry',
     category: 'recipes',
     title: 'Chickpea & Spinach Breakfast Curry',
-    teaser: 'A real, mildly spiced curry built on chickpeas, spinach, and coconut milk, a different way to start the day.',
-    summary: 'Turmeric and cumin together give this a real, warming curry flavor, and coconut milk keeps it creamy without any dairy at all.',
+    teaser: 'A mildly spiced curry built on chickpeas, spinach, and coconut milk, a different way to start the day.',
+    summary: 'Turmeric and cumin together give this a warming curry flavor, and coconut milk keeps it creamy without any dairy at all.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_chickpea_spinach_breakfast_curry',
@@ -15774,7 +15775,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and serve warm.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the chickpeas.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the chickpeas.' },
         { nutrient: 'Iron', note: 'A solid amount from the spinach and chickpeas together.' },
       ],
       flavorNotes: 'Warm and gently spiced, with a creamy coconut finish.',
@@ -15785,7 +15786,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Savory Polenta Bowl with Sauteed Mushrooms & Greens',
     teaser: 'Simmered cornmeal polenta topped with sauteed mushroom and wilted spinach in garlic and olive oil.',
-    summary: 'Cornmeal polenta is a real, genuinely different whole-grain base from oats or rice, naturally gluten-free, and mushroom brings a savory depth on top of it.',
+    summary: 'Cornmeal polenta is a different whole-grain base from oats or rice, naturally gluten-free, and mushroom brings a savory depth on top of it.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_polenta_bowl_mushroom_greens',
@@ -15834,8 +15835,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-black-bean-breakfast-bowl-avocado',
     category: 'recipes',
     title: 'Savory Black Bean Breakfast Bowl with Avocado & Lime',
-    teaser: 'Warmed black beans with avocado, onion, cilantro, and a real squeeze of lime.',
-    summary: 'Black beans bring genuine plant protein and fiber to a real, quick savory breakfast, no soy or grain needed at all.',
+    teaser: 'Warmed black beans with avocado, onion, cilantro, and a squeeze of lime.',
+    summary: 'Black beans bring plant protein and fiber to a quick savory breakfast, no soy or grain needed at all.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_black_bean_breakfast_bowl_avocado',
@@ -15866,8 +15867,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with cilantro and a squeeze of lime juice.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the black beans.' },
-        { nutrient: 'Healthy Fats', note: 'A real contribution from the avocado.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the black beans.' },
+        { nutrient: 'Healthy Fats', note: 'A meaningful contribution from the avocado.' },
       ],
       flavorNotes: 'Bright and fresh from the lime and cilantro, with a creamy finish from the avocado.',
     },
@@ -15876,8 +15877,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-roasted-vegetable-white-bean-bowl-garlic-herb-oil',
     category: 'recipes',
     title: 'Roasted Vegetable & White Bean Breakfast Bowl with Garlic-Herb Olive Oil',
-    teaser: 'Roasted zucchini, bell pepper, and white beans over wilted spinach, finished with a real garlic-infused olive oil.',
-    summary: 'This is a genuinely vegetable-forward savory breakfast, closer to a small dinner plate than a bowl of grain, built entirely on real whole foods.',
+    teaser: 'Roasted zucchini, bell pepper, and white beans over wilted spinach, finished with a garlic-infused olive oil.',
+    summary: 'This is a vegetable-forward savory breakfast, closer to a small dinner plate than a bowl of grain, built entirely on whole foods.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_roasted_vegetable_white_bean_bowl_garlic_herb_oil',
@@ -15897,10 +15898,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Olive Oil (Extra Virgin): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 bowl.',
@@ -15921,7 +15922,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with salt and pepper and serve.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the white beans.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the white beans.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper.' },
       ],
       flavorNotes: 'Vegetable-forward and garlicky, with a satisfying, savory heartiness from the white beans.',
@@ -15932,7 +15933,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Coconut Milk Overnight Oats with Blueberries & Flax',
     teaser: 'Creamy make-ahead oats built on coconut milk instead of soy milk, blueberries and flaxseed folded in.',
-    summary: 'This is the same real overnight-oats format this app\'s other vegan breakfasts already use, with coconut milk standing in for soy milk for anyone wanting a soy-free option.',
+    summary: 'This is the same overnight-oats format this app\'s other vegan breakfasts already use, with coconut milk standing in for soy milk for anyone wanting a soy-free option.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_coconut_milk_overnight_oats_blueberry_flax',
@@ -15964,7 +15965,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Cover and refrigerate overnight, or for at least 4 hours, before eating.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real amount from the oats and flaxseed together.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the oats and flaxseed together.' },
         { nutrient: 'Omega-3 Fatty Acids', note: 'A solid amount from the flaxseed.' },
       ],
       flavorNotes: 'Mildly sweet and creamy, with a fresh burst from the blueberries.',
@@ -15975,7 +15976,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Coconut Milk Chia Pudding with Almond Butter & Berries',
     teaser: 'A creamy chia pudding built on coconut milk, almond butter and strawberries stirred in.',
-    summary: 'Coconut milk and almond butter together give this a real, different flavor and a genuinely soy-free alternative to this app\'s other chia puddings.',
+    summary: 'Coconut milk and almond butter together give this a different flavor and a soy-free alternative to this app\'s other chia puddings.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_coconut_milk_chia_pudding_almond_butter_berries',
@@ -16013,7 +16014,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with sliced strawberries before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Omega-3 Fatty Acids', note: 'A real, meaningful amount from the chia seeds.' },
+        { nutrient: 'Omega-3 Fatty Acids', note: 'A meaningful amount from the chia seeds.' },
         { nutrient: 'Fiber', note: 'A solid amount from the chia seeds.' },
       ],
       flavorNotes: 'Creamy and nutty from the almond butter, brightened by the fresh strawberries.',
@@ -16024,7 +16025,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Buckwheat Porridge with Coconut Milk, Walnuts & Pear',
     teaser: 'Warm simmered buckwheat porridge finished sweet, built on coconut milk with walnut and diced pear folded in.',
-    summary: 'Buckwheat and coconut milk together give this a real, different texture and flavor from this app\'s other sweet oat- and soy-milk-based porridges.',
+    summary: 'Buckwheat and coconut milk together give this a different texture and flavor from this app\'s other sweet oat- and soy-milk-based porridges.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_buckwheat_porridge_coconut_milk_walnut_pear',
@@ -16062,7 +16063,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with chopped walnut and a drizzle of maple syrup, if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Manganese', note: 'A real, meaningful amount from the buckwheat.' },
+        { nutrient: 'Manganese', note: 'A meaningful amount from the buckwheat.' },
         { nutrient: 'Omega-3 Fatty Acids', note: 'A solid amount from the walnut.' },
       ],
       flavorNotes: 'Warm and nutty, with a soft sweetness from the pear and cinnamon.',
@@ -16075,14 +16076,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   // 30): "Let's tackle the Hashimoto's-vegan-breakfast batch next." 26
   // new recipes (18 plus an 8-recipe same-day follow-up closing the
   // remaining gap), every ingredient checked directly against this
-  // app's reference database before being used -- zero yellow or red
-  // hits on any of Hashimoto's 24 real relevant sub-criteria, not just
+  // app's reference database before being used: zero yellow or red
+  // hits on any of Hashimoto's 24 relevant sub-criteria, not just
   // soy-free. See scripts/add_hashimotos_safe_vegan_breakfasts.py's
-  // header comment for the full reasoning, including the real, honest tradeoff
+  // header comment for the full reasoning, including the tradeoff
   // this narrow a palette requires (no legume/nut/seed/soy protein
-  // source survives the screen, so these run genuinely lower in protein
+  // source survives the screen, so these run lower in protein
   // than a typical vegan breakfast). safeForConditions/conditionCautions/
-  // dietTags below are placeholders, replaced by the same real
+  // dietTags below are placeholders, replaced by the same
   // compute_recipe_diet_tags.js/compute_recipe_condition_data.js/
   // apply_recipe_condition_cautions.js pipeline every other recipe batch
   // already goes through, not hand-guessed.
@@ -16090,8 +16091,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-blueberry-cinnamon-oatmeal',
     category: 'recipes',
     title: 'Blueberry Cinnamon Oatmeal',
-    teaser: 'Creamy coconut-milk oatmeal simmered plain, topped with warm blueberries and a real hit of cinnamon.',
-    summary: 'Oats and coconut milk alone, with warm blueberries and cinnamon stirred through, a genuinely whole-food breakfast built entirely from ingredients that check clean for Hashimoto\'s, not just soy-free.',
+    teaser: 'Creamy coconut-milk oatmeal simmered plain, topped with warm blueberries and a hit of cinnamon.',
+    summary: 'Oats and coconut milk alone, with warm blueberries and cinnamon stirred through, a whole-food breakfast built entirely from ingredients that check clean for Hashimoto\'s, not just soy-free.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_blueberry_cinnamon_oatmeal',
@@ -16119,7 +16120,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with maple syrup if you\'d like a touch of sweetness, and serve warm.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the oats.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the oats.' },
         { nutrient: 'Manganese', note: 'A solid contribution from the oats and blueberries together.' },
       ],
     },
@@ -16129,7 +16130,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Strawberry Banana Oatmeal',
     teaser: 'Coconut-milk oatmeal with sliced banana stirred in and fresh strawberries piled on top.',
-    summary: 'A simple, classic pairing built on the same clean oats-and-coconut-milk base, with real whole fruit doing all the sweetening work.',
+    summary: 'A simple, classic pairing built on the same clean oats-and-coconut-milk base, with whole fruit doing all the sweetening work.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_strawberry_banana_oatmeal',
@@ -16157,7 +16158,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the remaining banana and the fresh strawberries, and a drizzle of maple syrup if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Potassium', note: 'A real, meaningful amount from the banana.' },
+        { nutrient: 'Potassium', note: 'A meaningful amount from the banana.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the fresh strawberries.' },
       ],
     },
@@ -16166,8 +16167,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-vegan-baked-apple-cinnamon-oatmeal-cup',
     category: 'recipes',
     title: 'Baked Apple Cinnamon Oatmeal Cup',
-    teaser: 'A single-serving baked oatmeal cup, sweetened only by diced apple and a real dose of cinnamon.',
-    summary: 'Baking the oats concentrates the apple\'s natural sweetness instead of relying on any added sugar, and this whole dish is built from a genuinely clean, whole-food ingredient list.',
+    teaser: 'A single-serving baked oatmeal cup, sweetened only by diced apple and a dose of cinnamon.',
+    summary: 'Baking the oats concentrates the apple\'s natural sweetness instead of relying on any added sugar, and this whole dish is built from a clean, whole-food ingredient list.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_baked_apple_cinnamon_oatmeal_cup',
@@ -16195,7 +16196,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Let cool for a couple of minutes before eating, and drizzle with maple syrup if you\'d like.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the oats and apple together.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the oats and apple together.' },
       ],
     },
   },
@@ -16204,7 +16205,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Date & Cinnamon Overnight Oats',
     teaser: 'No-cook overnight oats soaked in coconut milk, sweetened only by chopped dates and cinnamon.',
-    summary: 'A real make-ahead option built on the same clean base as this batch\'s other oat dishes, ready to eat straight from the fridge.',
+    summary: 'A make-ahead option built on the same clean base as this batch\'s other oat dishes, ready to eat straight from the fridge.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_date_cinnamon_overnight_oats',
@@ -16230,7 +16231,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir again before eating; add a splash more coconut milk if you prefer it looser.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the oats and dates.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the oats and dates.' },
         { nutrient: 'Potassium', note: 'A solid amount from the dates.' },
       ],
     },
@@ -16240,7 +16241,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Orange Cranberry Rice Pudding',
     teaser: 'Brown rice simmered slowly in coconut milk until creamy, finished with fresh orange segments and cranberries.',
-    summary: 'A real rice pudding, built entirely on clean, whole-food ingredients, with orange and cranberry\'s natural tartness balancing the coconut milk\'s richness.',
+    summary: 'A rice pudding, built entirely on clean, whole-food ingredients, with orange and cranberry\'s natural tartness balancing the coconut milk\'s richness.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_orange_cranberry_rice_pudding',
@@ -16267,7 +16268,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the fresh orange segments just before serving, warm or chilled.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the fresh orange.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the fresh orange.' },
         { nutrient: 'Manganese', note: 'A solid contribution from the rice.' },
       ],
     },
@@ -16277,7 +16278,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Ginger Pear Rice Pudding',
     teaser: 'Creamy coconut-milk rice pudding with fresh ginger and warm cinnamon, topped with sliced pear.',
-    summary: 'Fresh ginger gives this rice pudding real warmth without needing any of the spices flagged for Hashimoto\'s in this app\'s reference database.',
+    summary: 'Fresh ginger gives this rice pudding warmth without needing any of the spices flagged for Hashimoto\'s in this app\'s reference database.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_ginger_pear_rice_pudding',
@@ -16304,7 +16305,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the fresh sliced pear just before serving, warm or chilled.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the pear.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the pear.' },
         { nutrient: 'Manganese', note: 'A solid contribution from the rice.' },
       ],
     },
@@ -16314,7 +16315,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Peach Sorghum Porridge',
     teaser: 'Whole-grain sorghum simmered in coconut milk until tender and creamy, topped with warm sliced peach and cinnamon.',
-    summary: 'Sorghum is a real, genuinely different whole grain from oats or rice, and one of the few this database scores completely clean for Hashimoto\'s.',
+    summary: 'Sorghum is a different whole grain from oats or rice, and one of the few this database scores completely clean for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_peach_sorghum_porridge',
@@ -16340,7 +16341,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the cinnamon, top with the warm sliced peach, and drizzle with maple syrup if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the whole-grain sorghum.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the whole-grain sorghum.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the peach.' },
       ],
     },
@@ -16350,7 +16351,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Raspberry Lime Sorghum Porridge',
     teaser: 'Creamy sorghum porridge finished with fresh raspberries and a bright squeeze of lime.',
-    summary: 'A genuinely different flavor direction from this batch\'s other porridges, real citrus brightening a rich, whole-grain base.',
+    summary: 'A different flavor direction from this batch\'s other porridges, citrus brightening a rich, whole-grain base.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_raspberry_lime_sorghum_porridge',
@@ -16376,7 +16377,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the lime juice, top with the fresh raspberries, and drizzle with maple syrup if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the sorghum and raspberries together.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the sorghum and raspberries together.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the lime and raspberries.' },
       ],
     },
@@ -16386,7 +16387,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Sweet Polenta with Warm Apricot Compote',
     teaser: 'Creamy coconut-milk polenta topped with apricots stewed soft with cinnamon.',
-    summary: 'Cornmeal polenta makes a genuinely different sweet breakfast base from any grain elsewhere in this batch, entirely clean for Hashimoto\'s.',
+    summary: 'Cornmeal polenta makes a different sweet breakfast base from any grain elsewhere in this batch, entirely clean for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_sweet_polenta_apricot_compote',
@@ -16413,7 +16414,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon the warm apricot compote over the polenta and drizzle with maple syrup if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin A', note: 'A real, meaningful amount from the apricot.' },
+        { nutrient: 'Vitamin A', note: 'A meaningful amount from the apricot.' },
         { nutrient: 'Fiber', note: 'A solid contribution from the whole-grain cornmeal.' },
       ],
     },
@@ -16423,7 +16424,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Banana Polenta Porridge',
     teaser: 'Smooth coconut-milk polenta with mashed banana stirred through and cinnamon on top.',
-    summary: 'A genuinely different texture from oatmeal or rice pudding, sweetened almost entirely by real banana.',
+    summary: 'A different texture from oatmeal or rice pudding, sweetened almost entirely by banana.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_banana_polenta_porridge',
@@ -16450,7 +16451,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with a dusting of cinnamon and a drizzle of maple syrup if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Potassium', note: 'A real, meaningful amount from the banana.' },
+        { nutrient: 'Potassium', note: 'A meaningful amount from the banana.' },
         { nutrient: 'Fiber', note: 'A solid contribution from the whole-grain cornmeal.' },
       ],
     },
@@ -16460,7 +16461,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Pineapple Coconut Tapioca Pudding',
     teaser: 'Small tapioca pearls simmered slowly in coconut milk until glossy and thick, topped with fresh pineapple.',
-    summary: 'A genuinely different texture from a porridge or rice pudding, real tapioca pearls cooked low and slow in coconut milk alone.',
+    summary: 'A different texture from a porridge or rice pudding, tapioca pearls cooked low and slow in coconut milk alone.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_pineapple_coconut_tapioca_pudding',
@@ -16486,7 +16487,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with maple syrup if using, and serve warm or chilled.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the fresh pineapple.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the fresh pineapple.' },
         { nutrient: 'Manganese', note: 'A solid amount from the pineapple.' },
       ],
     },
@@ -16496,7 +16497,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Mixed Berry Coconut Tapioca Pudding',
     teaser: 'Coconut-milk tapioca pudding topped with fresh blackberries and raspberries.',
-    summary: 'The same clean tapioca-and-coconut-milk base as this batch\'s pineapple version, with a genuinely different, tart-berry finish.',
+    summary: 'The same clean tapioca-and-coconut-milk base as this batch\'s pineapple version, with a different, tart-berry finish.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_mixed_berry_coconut_tapioca_pudding',
@@ -16523,7 +16524,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with maple syrup if using, and serve warm or chilled.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the blackberries and raspberries.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the blackberries and raspberries.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the mixed berries.' },
       ],
     },
@@ -16533,7 +16534,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tropical Fruit Bowl with Coconut',
     teaser: 'A no-cook bowl of banana, pineapple, papaya, and orange, drizzled with a little coconut milk.',
-    summary: 'A genuinely raw, no-cook option built entirely from real whole fruit, ready in minutes with nothing to simmer.',
+    summary: 'A raw, no-cook option built entirely from whole fruit, ready in minutes with nothing to simmer.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_tropical_fruit_bowl_coconut',
@@ -16558,7 +16559,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle the coconut milk over the top just before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the orange and pineapple together.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the orange and pineapple together.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the papaya.' },
       ],
     },
@@ -16568,7 +16569,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Citrus Avocado Breakfast Bowl',
     teaser: 'Sliced avocado with orange and grapefruit segments, a squeeze of lime, and a pinch of salt.',
-    summary: 'A genuinely savory-leaning, no-cook breakfast built on whole avocado, the one fat source in this batch that scores completely clean for Hashimoto\'s, unlike any pressed oil.',
+    summary: 'A savory-leaning, no-cook breakfast built on whole avocado, the one fat source in this batch that scores completely clean for Hashimoto\'s, unlike any pressed oil.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_citrus_avocado_breakfast_bowl',
@@ -16593,7 +16594,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Squeeze the lime juice over the top and finish with a pinch of salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Healthy Fats', note: 'A real, meaningful amount of monounsaturated fat from the avocado.' },
+        { nutrient: 'Healthy Fats', note: 'A meaningful amount of monounsaturated fat from the avocado.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the orange and grapefruit.' },
       ],
     },
@@ -16603,7 +16604,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Berry Banana Coconut Smoothie',
     teaser: 'A thick, no-cook smoothie of banana, blueberry, and strawberry blended with coconut milk and a splash of lime.',
-    summary: 'A genuinely quick option for a busy morning, built entirely from this batch\'s clean fruit-and-coconut-milk palette.',
+    summary: 'A quick option for a busy morning, built entirely from this batch\'s clean fruit-and-coconut-milk palette.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_berry_banana_coconut_smoothie',
@@ -16629,7 +16630,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Pour into a glass and drink right away.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Potassium', note: 'A real, meaningful amount from the banana.' },
+        { nutrient: 'Potassium', note: 'A meaningful amount from the banana.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the blueberry and strawberry.' },
       ],
     },
@@ -16639,7 +16640,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Savory Rice Bowl with Zucchini, Pepper & Tomato',
     teaser: 'Simmered rice topped with zucchini, bell pepper, and tomato cooked soft in a splash of water, finished with fresh cilantro and lime.',
-    summary: 'A genuinely savory option built without any oil at all, since every real cooking oil in this app\'s reference database is flagged for Hashimoto\'s -- the vegetables are cooked in a splash of water instead, a real, workable technique, not a compromise.',
+    summary: 'A savory option built without any oil at all, since every cooking oil in this app\'s reference database is flagged for Hashimoto\'s: the vegetables are cooked in a splash of water instead, a workable technique, not a compromise.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_rice_bowl_zucchini_pepper_tomato',
@@ -16649,10 +16650,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 bowl.',
@@ -16673,7 +16674,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon the vegetables over the rice, finish with the cilantro, lime juice, and salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the bell pepper and tomato together.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the bell pepper and tomato together.' },
         { nutrient: 'Fiber', note: 'A solid contribution from the rice and vegetables.' },
       ],
     },
@@ -16683,7 +16684,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Savory Polenta with Leeks & Tomato',
     teaser: 'Smooth water-based polenta topped with leeks and tomato cooked soft, finished with fresh cilantro and lime.',
-    summary: 'A genuinely different savory grain base from the rice bowl in this same batch, still built entirely without any pressed oil.',
+    summary: 'A different savory grain base from the rice bowl in this same batch, still built entirely without any pressed oil.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_polenta_leeks_tomato',
@@ -16693,10 +16694,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 bowl.',
@@ -16717,7 +16718,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon the leek and tomato over the polenta, finish with the cilantro, lime juice, and remaining salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin K', note: 'A real, meaningful amount from the leek.' },
+        { nutrient: 'Vitamin K', note: 'A meaningful amount from the leek.' },
         { nutrient: 'Fiber', note: 'A solid contribution from the whole-grain cornmeal.' },
       ],
     },
@@ -16727,7 +16728,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Zucchini & Fennel Breakfast Hash with Avocado',
     teaser: 'Zucchini and fennel cooked soft with tomato, topped with sliced avocado, cilantro, and lime.',
-    summary: 'A genuinely different vegetable combination from this batch\'s other savory dishes, with real sliced avocado standing in for the richness a pressed oil would normally add.',
+    summary: 'A different vegetable combination from this batch\'s other savory dishes, with sliced avocado standing in for the richness a pressed oil would normally add.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_zucchini_fennel_hash_avocado',
@@ -16737,10 +16738,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 plate.',
@@ -16759,7 +16760,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Transfer to a plate and top with the sliced avocado, cilantro, and a squeeze of lime.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Healthy Fats', note: 'A real, meaningful amount of monounsaturated fat from the avocado.' },
+        { nutrient: 'Healthy Fats', note: 'A meaningful amount of monounsaturated fat from the avocado.' },
         { nutrient: 'Fiber', note: 'A solid contribution from the zucchini and fennel.' },
       ],
     },
@@ -16769,7 +16770,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Cranberry Orange Oatmeal',
     teaser: 'Coconut-milk oatmeal finished with fresh cranberries and orange segments.',
-    summary: 'Cranberry\'s tartness against orange\'s sweetness gives this oatmeal a genuinely different flavor from this batch\'s other fruit pairings.',
+    summary: 'Cranberry\'s tartness against orange\'s sweetness gives this oatmeal a different flavor from this batch\'s other fruit pairings.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_cranberry_orange_oatmeal',
@@ -16796,7 +16797,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the fresh orange segments and a drizzle of maple syrup if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the fresh orange.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the fresh orange.' },
         { nutrient: 'Fiber', note: 'A solid contribution from the oats.' },
       ],
     },
@@ -16806,7 +16807,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Papaya Lime Smoothie Bowl',
     teaser: 'A thick, no-cook smoothie bowl of papaya and banana blended with coconut milk and fresh lime.',
-    summary: 'A genuinely different fruit base from this batch\'s berry-forward smoothie, ready in minutes with nothing to cook.',
+    summary: 'A different fruit base from this batch\'s berry-forward smoothie, ready in minutes with nothing to cook.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_papaya_lime_smoothie_bowl',
@@ -16831,7 +16832,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Pour into a bowl and eat with a spoon.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin A', note: 'A real, meaningful amount from the papaya.' },
+        { nutrient: 'Vitamin A', note: 'A meaningful amount from the papaya.' },
         { nutrient: 'Potassium', note: 'A solid amount from the banana.' },
       ],
     },
@@ -16841,7 +16842,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Cantaloupe & Grapefruit Breakfast Bowl',
     teaser: 'A no-cook bowl of fresh cantaloupe and grapefruit with a squeeze of lime.',
-    summary: 'A genuinely light, refreshing option built entirely from real whole fruit, with no grain or coconut milk at all.',
+    summary: 'A light, refreshing option built entirely from whole fruit, with no grain or coconut milk at all.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_cantaloupe_grapefruit_breakfast_bowl',
@@ -16864,7 +16865,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Squeeze the lime juice over the top just before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin A', note: 'A real, meaningful amount from the cantaloupe.' },
+        { nutrient: 'Vitamin A', note: 'A meaningful amount from the cantaloupe.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the grapefruit.' },
       ],
     },
@@ -16874,7 +16875,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Apple Rice Pudding with Cinnamon',
     teaser: 'Creamy coconut-milk rice pudding with diced apple and cinnamon stirred through.',
-    summary: 'A genuinely different fruit pairing from this batch\'s other rice puddings, apple and cinnamon a classic, simple combination.',
+    summary: 'A different fruit pairing from this batch\'s other rice puddings, apple and cinnamon a classic, simple combination.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_apple_rice_pudding_cinnamon',
@@ -16900,7 +16901,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with maple syrup if using, and serve warm or chilled.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the apple.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the apple.' },
         { nutrient: 'Manganese', note: 'A solid contribution from the rice.' },
       ],
     },
@@ -16910,7 +16911,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Date Sorghum Porridge',
     teaser: 'Whole-grain sorghum simmered in coconut milk with chopped dates and cinnamon.',
-    summary: 'A genuinely different sweetener direction from this batch\'s other sorghum porridge, real dates doing most of the sweetening.',
+    summary: 'A different sweetener direction from this batch\'s other sorghum porridge, dates doing most of the sweetening.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_date_sorghum_porridge',
@@ -16935,7 +16936,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the chopped dates and cinnamon during the last 5 minutes, so the dates soften slightly.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the whole-grain sorghum and dates together.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the whole-grain sorghum and dates together.' },
         { nutrient: 'Potassium', note: 'A solid amount from the dates.' },
       ],
     },
@@ -16945,7 +16946,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Savory Fennel & Tomato Rice Bowl',
     teaser: 'Simmered rice topped with fennel and tomato cooked soft in a splash of water, finished with fresh cilantro and lime.',
-    summary: 'A genuinely different savory vegetable pairing from this batch\'s other rice bowl, still built entirely without any pressed oil.',
+    summary: 'A different savory vegetable pairing from this batch\'s other rice bowl, still built entirely without any pressed oil.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_fennel_tomato_rice_bowl',
@@ -16955,10 +16956,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 bowl.',
@@ -16978,7 +16979,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon the vegetables over the rice, finish with the cilantro, lime juice, and salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the tomato.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the tomato.' },
         { nutrient: 'Fiber', note: 'A solid contribution from the rice and fennel.' },
       ],
     },
@@ -16988,7 +16989,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Pear Ginger Overnight Oats',
     teaser: 'No-cook overnight oats soaked in coconut milk with fresh ginger and diced pear.',
-    summary: 'A genuinely different overnight-oats flavor from this batch\'s date-and-cinnamon version, fresh ginger giving it real warmth without needing any of the spices flagged for Hashimoto\'s in this app\'s reference database.',
+    summary: 'A different overnight-oats flavor from this batch\'s date-and-cinnamon version, fresh ginger giving it warmth without needing any of the spices flagged for Hashimoto\'s in this app\'s reference database.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_pear_ginger_overnight_oats',
@@ -17014,7 +17015,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir again before eating; add a splash more coconut milk if you prefer it looser.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the oats and pear together.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the oats and pear together.' },
       ],
     },
   },
@@ -17023,7 +17024,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Blackberry Lime Rice Pudding',
     teaser: 'Creamy coconut-milk rice pudding topped with fresh blackberries and a squeeze of lime.',
-    summary: 'A genuinely different berry pairing from this batch\'s other rice puddings, lime brightening the blackberries\' natural tartness.',
+    summary: 'A different berry pairing from this batch\'s other rice puddings, lime brightening the blackberries\' natural tartness.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_blackberry_lime_rice_pudding',
@@ -17049,30 +17050,30 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the lime juice, top with the fresh blackberries, and drizzle with maple syrup if using.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the blackberries.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the blackberries.' },
         { nutrient: 'Manganese', note: 'A solid contribution from the rice.' },
       ],
     },
   },
 
 
-  // 2026-08-27, direct follow-up to close Hashimoto's own remaining
+  // 2026-08-27, direct follow-up to close Hashimoto's remaining
   // Vegan/Vegetarian/Paleo/AIP lunch and dinner gaps (confirmed via
   // scripts/audit_meal_plan_recipe_coverage.js after the same-day legume-
   // reference bug fix, still short of the 30-minimum bar): "Let's tackle
-  // the new lunch/dinner recipe batch next." 15 new recipes: 9 real
+  // the new lunch/dinner recipe batch next." 15 new recipes: 9
   // animal-protein AIP dishes (salmon, halibut, cod, shrimp, beef top
-  // sirloin, pork tenderloin, every one confirmed genuinely clean for
+  // sirloin, pork tenderloin, every one confirmed clean for
   // Hashimoto's, zero flags at all) plus 6 savory vegan mains/soups
   // reusing the same-day's earlier verified-clean vegan palette. AIP
-  // recipes here also always carry the Paleo tag by this app's own real
+  // recipes here also always carry the Paleo tag by this app's
   // compute_recipe_diet_tags.js logic, closing that gap at the same
   // time. See scripts/add_hashimotos_lunch_dinner_batch.py's header
-  // comment for the full reasoning, including the real, named quirk
+  // comment for the full reasoning, including the named quirk
   // that disqualifies coconut milk from ever earning the AIP tag in
-  // this app's own category taxonomy (it's classified NutSeed here).
+  // this app's category taxonomy (it's classified NutSeed here).
   // safeForConditions/conditionCautions/dietTags below are placeholders,
-  // replaced by the same real compute_recipe_diet_tags.js/compute_
+  // replaced by the same compute_recipe_diet_tags.js/compute_
   // recipe_condition_data.js/apply_recipe_condition_cautions.js pipeline
   // every other recipe batch already goes through, not hand-guessed.
   {
@@ -17080,7 +17081,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Baked Salmon with Broccoli & Carrots',
     teaser: 'A simple baked salmon fillet with roasted broccoli and carrots, finished with lemon and avocado.',
-    summary: 'Salmon, broccoli, and carrot all check completely clean for Hashimoto\'s in this app\'s own reference database, and avocado stands in for any pressed oil, which never does.',
+    summary: 'Salmon, broccoli, and carrot all check completely clean for Hashimoto\'s in this app\'s reference database, and avocado stands in for any pressed oil, which never does.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_baked_salmon_broccoli_carrots',
@@ -17110,7 +17111,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve with the sliced avocado and any remaining lemon juice.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Omega-3 Fatty Acids', note: 'A real, meaningful amount from the salmon.' },
+        { nutrient: 'Omega-3 Fatty Acids', note: 'A meaningful amount from the salmon.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the broccoli.' },
       ],
     },
@@ -17120,7 +17121,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Halibut with Braised Cabbage & Carrots',
     teaser: 'Baked halibut over cabbage and carrots braised soft, finished with lime and avocado.',
-    summary: 'Halibut, cabbage, and carrot all check completely clean for Hashimoto\'s, and braising the cabbage (rather than serving it raw) is what keeps its own real goitrogenic flag from applying here.',
+    summary: 'Halibut, cabbage, and carrot all check completely clean for Hashimoto\'s, and braising the cabbage (rather than serving it raw) is what keeps its goitrogenic flag from applying here.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_halibut_braised_cabbage_carrots',
@@ -17149,7 +17150,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the halibut over the braised cabbage and carrots, topped with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the halibut.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the halibut.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
     },
@@ -17159,7 +17160,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Cod with Roasted Fennel & Zucchini',
     teaser: 'Baked cod fillet with roasted fennel and zucchini, finished with lemon and avocado.',
-    summary: 'Cod, fennel, and zucchini all check completely clean for Hashimoto\'s, a genuinely light, real whole-food plate.',
+    summary: 'Cod, fennel, and zucchini all check completely clean for Hashimoto\'s, a light whole-food plate.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_cod_roasted_fennel_zucchini',
@@ -17189,7 +17190,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve with the sliced avocado and a squeeze of lemon.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the cod, for very little saturated fat.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the cod, for very little saturated fat.' },
         { nutrient: 'Potassium', note: 'A solid amount from the fennel and zucchini together.' },
       ],
     },
@@ -17228,7 +17229,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the lime juice and salt just before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the shrimp.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the shrimp.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
     },
@@ -17238,7 +17239,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Beef Sirloin with Braised Kale & Carrots',
     teaser: 'Seared beef sirloin with kale and carrots braised soft, finished with avocado.',
-    summary: 'Beef top sirloin, kale, and carrot all check completely clean for Hashimoto\'s, braising the kale rather than serving it raw is what keeps its own real goitrogenic flag from applying here.',
+    summary: 'Beef top sirloin, kale, and carrot all check completely clean for Hashimoto\'s, braising the kale rather than serving it raw is what keeps its goitrogenic flag from applying here.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_beef_sirloin_kale_carrots',
@@ -17265,7 +17266,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the sliced beef over the braised kale and carrots, topped with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Iron', note: 'A real, meaningful amount from the beef sirloin.' },
+        { nutrient: 'Iron', note: 'A meaningful amount from the beef sirloin.' },
         { nutrient: 'Vitamin K', note: 'A solid amount from the kale.' },
       ],
     },
@@ -17275,7 +17276,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Pork Tenderloin with Braised Cabbage & Apple',
     teaser: 'Baked pork tenderloin with cabbage and apple braised soft together, finished with cinnamon.',
-    summary: 'Pork tenderloin, cabbage, and apple all check completely clean for Hashimoto\'s, a real, classic pairing built entirely from whole foods.',
+    summary: 'Pork tenderloin, cabbage, and apple all check completely clean for Hashimoto\'s, a classic pairing built entirely from whole foods.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_side_pork_tenderloin_braised_cabbage_apple',
@@ -17302,7 +17303,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the sliced pork over the braised cabbage and apple.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the pork tenderloin, a genuinely lean cut.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the pork tenderloin, a lean cut.' },
         { nutrient: 'Fiber', note: 'A solid contribution from the cabbage and apple together.' },
       ],
     },
@@ -17311,8 +17312,8 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-soup-salmon-fennel-leek-soup',
     category: 'recipes',
     title: 'Salmon, Fennel & Leek Soup',
-    teaser: 'A light soup of salmon simmered with fennel, leek, and carrot in a real vegetable broth.',
-    summary: 'Salmon, fennel, leek, and carrot all check completely clean for Hashimoto\'s, a genuinely light whole-food soup.',
+    teaser: 'A light soup of salmon simmered with fennel, leek, and carrot in a vegetable broth.',
+    summary: 'Salmon, fennel, leek, and carrot all check completely clean for Hashimoto\'s, a light whole-food soup.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_soup_salmon_fennel_leek_soup',
@@ -17343,7 +17344,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the salt, and finish with the fresh cilantro.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Omega-3 Fatty Acids', note: 'A real, meaningful amount from the salmon.' },
+        { nutrient: 'Omega-3 Fatty Acids', note: 'A meaningful amount from the salmon.' },
         { nutrient: 'Vitamin K', note: 'A solid amount from the leek and fennel.' },
       ],
     },
@@ -17380,7 +17381,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a squeeze of lime juice and serve right away.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the shrimp.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the shrimp.' },
         { nutrient: 'Healthy Fats', note: 'A solid amount of monounsaturated fat from the avocado.' },
       ],
     },
@@ -17390,7 +17391,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Beef, Carrot & Fennel Salad',
     teaser: 'Seared beef sliced over a raw carrot and fennel salad, finished with lemon and avocado.',
-    summary: 'Beef top sirloin, carrot, and fennel all check completely clean for Hashimoto\'s, and neither carrot nor fennel carries any real raw-goitrogenic concern, so this salad genuinely works served raw.',
+    summary: 'Beef top sirloin, carrot, and fennel all check completely clean for Hashimoto\'s, and neither carrot nor fennel carries a raw-goitrogenic flag, so this salad works served raw.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_salad_beef_carrot_fennel_salad',
@@ -17419,7 +17420,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the sliced beef, avocado, and cilantro.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Iron', note: 'A real, meaningful amount from the beef sirloin.' },
+        { nutrient: 'Iron', note: 'A meaningful amount from the beef sirloin.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
     },
@@ -17429,7 +17430,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Coconut Rice Bowl with Roasted Zucchini, Pepper & Tomato',
     teaser: 'Rice simmered in coconut milk, topped with roasted zucchini, bell pepper, and tomato.',
-    summary: 'Rice, coconut milk, zucchini, bell pepper, and tomato all check completely clean for Hashimoto\'s, a genuinely hearty vegan main.',
+    summary: 'Rice, coconut milk, zucchini, bell pepper, and tomato all check completely clean for Hashimoto\'s, a hearty vegan main.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_coconut_rice_roasted_vegetable_bowl',
@@ -17439,10 +17440,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 bowl.',
@@ -17463,7 +17464,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon the roasted vegetables and diced tomato over the rice, finish with the cilantro, lime juice, and salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the bell pepper and tomato together.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the bell pepper and tomato together.' },
         { nutrient: 'Manganese', note: 'A solid contribution from the rice.' },
       ],
     },
@@ -17473,7 +17474,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Coconut Vegetable Soup with Fennel & Leek',
     teaser: 'A light coconut-milk soup of fennel, leek, zucchini, and carrot, finished with fresh ginger.',
-    summary: 'Coconut milk, fennel, leek, zucchini, and carrot all check completely clean for Hashimoto\'s, a genuinely warming vegan soup.',
+    summary: 'Coconut milk, fennel, leek, zucchini, and carrot all check completely clean for Hashimoto\'s, a warming vegan soup.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_soup_coconut_fennel_leek_vegetable_soup',
@@ -17502,7 +17503,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the salt just before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin K', note: 'A real, meaningful amount from the leek and fennel together.' },
+        { nutrient: 'Vitamin K', note: 'A meaningful amount from the leek and fennel together.' },
         { nutrient: 'Vitamin A', note: 'A solid amount from the carrot.' },
       ],
     },
@@ -17512,7 +17513,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Avocado, Fennel & Citrus Salad',
     teaser: 'Sliced avocado and shaved fennel with orange and grapefruit segments, finished with lime.',
-    summary: 'Avocado, fennel, orange, and grapefruit all check completely clean for Hashimoto\'s, a genuinely bright, no-cook salad.',
+    summary: 'Avocado, fennel, orange, and grapefruit all check completely clean for Hashimoto\'s, a bright, no-cook salad.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_salad_avocado_fennel_citrus_salad',
@@ -17539,7 +17540,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with the lime juice, cilantro, and a pinch of salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the orange and grapefruit together.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the orange and grapefruit together.' },
         { nutrient: 'Healthy Fats', note: 'A solid amount of monounsaturated fat from the avocado.' },
       ],
     },
@@ -17549,7 +17550,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Sorghum Bowl with Roasted Zucchini & Bell Pepper',
     teaser: 'Sorghum simmered in coconut milk, topped with roasted zucchini and bell pepper.',
-    summary: 'Sorghum, coconut milk, zucchini, and bell pepper all check completely clean for Hashimoto\'s, a genuinely different whole-grain base from rice.',
+    summary: 'Sorghum, coconut milk, zucchini, and bell pepper all check completely clean for Hashimoto\'s, a different whole-grain base from rice.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_side_sorghum_roasted_vegetable_bowl',
@@ -17559,10 +17560,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 bowl.',
@@ -17582,7 +17583,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Spoon the roasted vegetables over the sorghum, finish with the cilantro, lime juice, and salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the whole-grain sorghum.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the whole-grain sorghum.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the bell pepper.' },
       ],
     },
@@ -17592,7 +17593,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tomato Fennel Coconut Soup',
     teaser: 'A creamy coconut-milk soup of tomato and fennel, finished with leek and fresh cilantro.',
-    summary: 'Tomato, fennel, coconut milk, and leek all check completely clean for Hashimoto\'s, a genuinely rich vegan soup.',
+    summary: 'Tomato, fennel, coconut milk, and leek all check completely clean for Hashimoto\'s, a rich vegan soup.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_soup_tomato_fennel_coconut_soup',
@@ -17602,10 +17603,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 bowl.',
@@ -17623,7 +17624,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the salt and finish with the fresh cilantro.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the tomato.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the tomato.' },
         { nutrient: 'Potassium', note: 'A solid amount from the fennel and tomato together.' },
       ],
     },
@@ -17643,10 +17644,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
       conditionCautions: {},
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 wrap.',
@@ -17665,35 +17666,35 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a squeeze of lime juice and serve right away.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Healthy Fats', note: 'A real, meaningful amount of monounsaturated fat from the avocado.' },
+        { nutrient: 'Healthy Fats', note: 'A meaningful amount of monounsaturated fat from the avocado.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
     },
   },
 
 
-  // 2026-08-27, Open Next Steps item 20, phase 1: a real, structural,
+  // 2026-08-27, Open Next Steps item 20, phase 1: a structural,
   // condition-agnostic AIP breakfast shortage (2 recipes total across
   // every one of the 19 tracked conditions before this batch). 15 new
   // AIP-compliant breakfast recipes, reusing the exact same verified-
   // clean protein/vegetable palette confirmed earlier the same day for
   // the lunch/dinner batch, plus 3 fruit-only no-cook bowls. Sweet
   // potato was deliberately excluded after direct verification: it
-  // carries a real "Mineral Binding Risk: High" flag for Hashimoto's
-  // across every real prep method, the same still-open, named data
-  // question from this app's own 2026-08-26 history. Named honestly as
-  // a real, phased first batch, not a full closure: Hashimoto's own AIP
+  // carries a "Mineral Binding Risk: High" flag for Hashimoto's
+  // across every prep method, the same still-open, named data
+  // question from this app's 2026-08-26 history. Named as
+  // a phased first batch, not a full closure: Hashimoto's AIP
   // breakfast needed +28 to reach 30, this batch adds 15. See scripts/
   // add_hashimotos_aip_breakfast_batch.py's header comment for the full
   // reasoning. safeForConditions/conditionCautions/dietTags below are
-  // placeholders, replaced by the same real compute pipeline every
+  // placeholders, replaced by the same compute pipeline every
   // other batch already goes through.
   {
     id: 'recipe-snack-beef-kale-breakfast-hash',
     category: 'recipes',
     title: 'Beef & Kale Breakfast Hash',
     teaser: 'A quick morning hash of seared beef, braised kale, and carrot, finished with avocado.',
-    summary: 'Beef top sirloin, kale, and carrot all check completely clean for Hashimoto\'s, a real whole-food way to start the day without grains or eggs.',
+    summary: 'Beef top sirloin, kale, and carrot all check completely clean for Hashimoto\'s, a whole-food way to start the day without grains or eggs.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_beef_kale_breakfast_hash',
@@ -17720,7 +17721,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the beef over the braised kale and carrot, topped with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Iron', note: 'A real, meaningful amount from the beef sirloin.' },
+        { nutrient: 'Iron', note: 'A meaningful amount from the beef sirloin.' },
         { nutrient: 'Vitamin K', note: 'A solid amount from the kale.' },
       ],
     },
@@ -17756,7 +17757,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the pork over the braised cabbage and carrot.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the pork tenderloin, a genuinely lean cut.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the pork tenderloin, a lean cut.' },
       ],
     },
   },
@@ -17764,7 +17765,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-salmon-broccoli-breakfast-bowl',
     category: 'recipes',
     title: 'Salmon & Broccoli Breakfast Bowl',
-    teaser: 'Baked salmon with roasted broccoli and carrot, finished with avocado, a real omega-3-rich start to the day.',
+    teaser: 'Baked salmon with roasted broccoli and carrot, finished with avocado, an omega-3-rich start to the day.',
     summary: 'Salmon, broccoli, and carrot all check completely clean for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -17793,7 +17794,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Omega-3 Fatty Acids', note: 'A real, meaningful amount from the salmon.' },
+        { nutrient: 'Omega-3 Fatty Acids', note: 'A meaningful amount from the salmon.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the broccoli.' },
       ],
     },
@@ -17803,7 +17804,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Halibut & Fennel Breakfast Bowl',
     teaser: 'Baked halibut with roasted fennel and zucchini, finished with avocado.',
-    summary: 'Halibut, fennel, and zucchini all check completely clean for Hashimoto\'s, a real light, savory breakfast.',
+    summary: 'Halibut, fennel, and zucchini all check completely clean for Hashimoto\'s, a light, savory breakfast.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_halibut_fennel_breakfast_bowl',
@@ -17831,7 +17832,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the halibut.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the halibut.' },
         { nutrient: 'Potassium', note: 'A solid amount from the fennel.' },
       ],
     },
@@ -17840,7 +17841,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-cod-cabbage-breakfast-skillet',
     category: 'recipes',
     title: 'Cod & Cabbage Breakfast Skillet',
-    teaser: 'Pan-seared cod with cabbage and carrot braised soft, a real light way to start the day.',
+    teaser: 'Pan-seared cod with cabbage and carrot braised soft, a light way to start the day.',
     summary: 'Cod, cabbage, and carrot all check completely clean for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -17867,7 +17868,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the cod over the braised cabbage and carrot.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the cod, for very little saturated fat.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the cod, for very little saturated fat.' },
       ],
     },
   },
@@ -17903,7 +17904,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the lime juice and salt, and serve with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the shrimp.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the shrimp.' },
         { nutrient: 'Healthy Fats', note: 'A solid amount of monounsaturated fat from the avocado.' },
       ],
     },
@@ -17912,7 +17913,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-beef-broccoli-breakfast-bowl',
     category: 'recipes',
     title: 'Beef & Broccoli Breakfast Bowl',
-    teaser: 'Seared beef with roasted broccoli and carrot, a real protein-forward start to the day.',
+    teaser: 'Seared beef with roasted broccoli and carrot, a protein-forward start to the day.',
     summary: 'Beef top sirloin, broccoli, and carrot all check completely clean for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -17940,7 +17941,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the beef over the roasted broccoli and carrot.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Iron', note: 'A real, meaningful amount from the beef sirloin.' },
+        { nutrient: 'Iron', note: 'A meaningful amount from the beef sirloin.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the broccoli.' },
       ],
     },
@@ -17977,7 +17978,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the pork over the braised kale and carrot, topped with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the pork tenderloin.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the pork tenderloin.' },
         { nutrient: 'Vitamin K', note: 'A solid amount from the kale.' },
       ],
     },
@@ -17986,7 +17987,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-salmon-fennel-breakfast-bowl',
     category: 'recipes',
     title: 'Salmon & Fennel Breakfast Bowl',
-    teaser: 'Baked salmon with roasted fennel and zucchini, a real light and savory breakfast.',
+    teaser: 'Baked salmon with roasted fennel and zucchini, a light and savory breakfast.',
     summary: 'Salmon, fennel, and zucchini all check completely clean for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -18013,7 +18014,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Roast for 10 minutes, then add the salmon fillet to the sheet and roast for another 12-15 minutes, until it flakes easily.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Omega-3 Fatty Acids', note: 'A real, meaningful amount from the salmon.' },
+        { nutrient: 'Omega-3 Fatty Acids', note: 'A meaningful amount from the salmon.' },
       ],
     },
   },
@@ -18049,7 +18050,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the halibut over the braised cabbage and carrot, topped with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the halibut.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the halibut.' },
         { nutrient: 'Healthy Fats', note: 'A solid amount of monounsaturated fat from the avocado.' },
       ],
     },
@@ -18058,7 +18059,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-cod-broccoli-breakfast-bowl',
     category: 'recipes',
     title: 'Cod & Broccoli Breakfast Bowl',
-    teaser: 'Baked cod with roasted broccoli and carrot, a real light way to start the day.',
+    teaser: 'Baked cod with roasted broccoli and carrot, a light way to start the day.',
     summary: 'Cod, broccoli, and carrot all check completely clean for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -18085,7 +18086,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Add the cod fillet, seasoned with the remaining salt, and roast for another 12-15 minutes, until it flakes easily.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the cod, for very little saturated fat.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the cod, for very little saturated fat.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the broccoli.' },
       ],
     },
@@ -18122,7 +18123,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the lime juice and salt, and serve with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the shrimp.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the shrimp.' },
         { nutrient: 'Healthy Fats', note: 'A solid amount of monounsaturated fat from the avocado.' },
       ],
     },
@@ -18131,7 +18132,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-citrus-avocado-breakfast-bowl',
     category: 'recipes',
     title: 'Citrus & Avocado Breakfast Bowl',
-    teaser: 'Sliced avocado with orange and grapefruit segments, finished with lime and cilantro, a real no-cook morning bowl.',
+    teaser: 'Sliced avocado with orange and grapefruit segments, finished with lime and cilantro, a no-cook morning bowl.',
     summary: 'Orange, grapefruit, and avocado all check completely clean for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -18157,7 +18158,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with the lime juice and cilantro.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the orange and grapefruit together.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the orange and grapefruit together.' },
         { nutrient: 'Healthy Fats', note: 'A solid amount of monounsaturated fat from the avocado.' },
       ],
     },
@@ -18166,7 +18167,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-tropical-breakfast-fruit-bowl',
     category: 'recipes',
     title: 'Tropical Breakfast Fruit Bowl',
-    teaser: 'Banana, pineapple, and papaya, a real quick no-cook breakfast.',
+    teaser: 'Banana, pineapple, and papaya, a quick no-cook breakfast.',
     summary: 'Banana, pineapple, and papaya all check completely clean for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -18189,7 +18190,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Combine the sliced banana, diced pineapple, and diced papaya in a bowl and serve right away.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the pineapple and papaya together.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the pineapple and papaya together.' },
         { nutrient: 'Potassium', note: 'A solid amount from the banana.' },
       ],
     },
@@ -18198,7 +18199,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-berry-melon-breakfast-bowl',
     category: 'recipes',
     title: 'Berry & Melon Breakfast Bowl',
-    teaser: 'Blueberry, strawberry, and cantaloupe, a real quick no-cook breakfast.',
+    teaser: 'Blueberry, strawberry, and cantaloupe, a quick no-cook breakfast.',
     summary: 'Blueberry, strawberry, and cantaloupe all check completely clean for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -18221,36 +18222,36 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Combine the blueberries, halved strawberries, and diced cantaloupe in a bowl and serve right away.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the strawberry and cantaloupe together.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the strawberry and cantaloupe together.' },
         { nutrient: 'Manganese', note: 'A solid amount from the blueberries.' },
       ],
     },
   },
 
 
-  // 2026-08-27, Open Next Steps item 20, phase 2: the real, structural,
+  // 2026-08-27, Open Next Steps item 20, phase 2: the structural,
   // condition-agnostic Mediterranean breakfast shortage (4 recipes for
   // Hashimoto's, 16 for every other condition, against the 30-minimum
   // bar), left untouched by phase 1's AIP-focused batch since
-  // Mediterranean needs a genuinely different palette (olive oil
+  // Mediterranean needs a different palette (olive oil
   // present, no red meat) from AIP's dairy-free/egg-free one. 15 new
   // recipes: 8 savory olive-oil-and-egg skillets plus 7 Greek-yogurt-
   // and-olive-oil bowls, every ingredient individually checked against
   // this app's reference database for Hashimoto's before being used.
   // Walnut and dried basil/oregano were considered and excluded after
-  // direct verification (a real "Mineral Binding Risk: High" or
+  // direct verification (a "Mineral Binding Risk: High" or
   // "Iron, contextual: Excess Risk" flag respectively), the same
-  // still-open data question already named in this app's own history.
+  // still-open data question already named in this app's history.
   // See scripts/add_mediterranean_breakfast_batch.py's header comment
   // for the full reasoning. safeForConditions/conditionCautions/
-  // dietTags below are placeholders, replaced by the same real compute
+  // dietTags below are placeholders, replaced by the same compute
   // pipeline every other batch already goes through.
   {
     id: 'recipe-snack-greek-yogurt-olive-oil-pistachio-bowl',
     category: 'recipes',
     title: 'Greek Yogurt with Olive Oil, Maple Syrup & Pistachio',
-    teaser: 'Plain Greek yogurt drizzled with real olive oil and maple syrup, topped with pistachio, an authentic Mediterranean pairing.',
-    summary: 'Greek yogurt, olive oil, and pistachio all check safe for Hashimoto\'s, olive oil itself carries the same real Omega-3-vs-6 flag every Mediterranean recipe in this app shares.',
+    teaser: 'Plain Greek yogurt drizzled with olive oil and maple syrup, topped with pistachio, an authentic Mediterranean pairing.',
+    summary: 'Greek yogurt, olive oil, and pistachio all check safe for Hashimoto\'s, olive oil itself carries the same Omega-3-vs-6 flag every Mediterranean recipe in this app shares.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_olive_oil_pistachio_bowl',
@@ -18290,7 +18291,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Drizzle with the olive oil and maple syrup, and top with the chopped pistachio.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt.' },
         { nutrient: 'Healthy Fats', note: 'A solid amount of monounsaturated fat from the olive oil and pistachio.' },
       ],
     },
@@ -18299,7 +18300,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-egg-tomato-zucchini-skillet',
     category: 'recipes',
     title: 'Mediterranean Egg, Tomato & Zucchini Skillet',
-    teaser: 'Eggs cooked in real olive oil with tomato and zucchini, a real savory Mediterranean breakfast.',
+    teaser: 'Eggs cooked in olive oil with tomato and zucchini, a savory Mediterranean breakfast.',
     summary: 'Egg, tomato, and zucchini all check safe for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -18318,10 +18319,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 plate.',
@@ -18338,7 +18339,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Crack the eggs into the pan and cook to your liking, seasoning with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the eggs.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the eggs.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the tomato.' },
       ],
     },
@@ -18347,7 +18348,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-feta-tomato-egg-scramble',
     category: 'recipes',
     title: 'Mediterranean Feta, Tomato & Egg Scramble',
-    teaser: 'Scrambled eggs with feta and tomato, cooked in real olive oil.',
+    teaser: 'Scrambled eggs with feta and tomato, cooked in olive oil.',
     summary: 'Egg, feta, and tomato all check safe for Hashimoto\'s, feta itself checks completely clean.',
     citations: [],
     overallTier: 'strong',
@@ -18366,10 +18367,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'Dairy, the other food typically removed alongside gluten at this stage. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
@@ -18387,7 +18388,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Fold in the crumbled feta just before the eggs finish setting, and season with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the eggs and feta together.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the eggs and feta together.' },
       ],
     },
   },
@@ -18434,7 +18435,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a drizzle of olive oil and the maple syrup.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the Greek yogurt.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the Greek yogurt.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the strawberries.' },
       ],
     },
@@ -18443,7 +18444,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-tomato-pepper-egg-skillet',
     category: 'recipes',
     title: 'Mediterranean Tomato, Pepper & Egg Skillet',
-    teaser: 'Eggs cooked into a real tomato and red bell pepper skillet with olive oil, a Mediterranean-style shakshuka.',
+    teaser: 'Eggs cooked into a tomato and red bell pepper skillet with olive oil, a Mediterranean-style shakshuka.',
     summary: 'Egg, tomato, and red bell pepper all check safe for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -18462,10 +18463,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 plate.',
@@ -18478,12 +18479,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       instructions: [
         'Heat the olive oil in a pan over medium heat and add the tomato and red bell pepper.',
-        'Simmer for 8-10 minutes, until the tomato breaks down into a real sauce.',
+        'Simmer for 8-10 minutes, until the tomato breaks down into a sauce.',
         'Make two wells in the sauce, crack in the eggs, cover, and cook for 4-5 minutes, until the whites set.',
         'Season with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the tomato and red bell pepper together.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the tomato and red bell pepper together.' },
         { nutrient: 'Protein', note: 'A solid amount from the eggs.' },
       ],
     },
@@ -18535,7 +18536,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a drizzle of olive oil, the chopped pistachio, and the maple syrup.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the orange and grapefruit together.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the orange and grapefruit together.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
     },
@@ -18544,7 +18545,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-zucchini-feta-egg-skillet',
     category: 'recipes',
     title: 'Mediterranean Zucchini, Feta & Egg Skillet',
-    teaser: 'Eggs cooked with zucchini and feta in real olive oil.',
+    teaser: 'Eggs cooked with zucchini and feta in olive oil.',
     summary: 'Egg, zucchini, and feta all check safe for Hashimoto\'s, feta itself checks completely clean.',
     citations: [],
     overallTier: 'strong',
@@ -18584,7 +18585,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the crumbled feta and season with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the eggs and feta together.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the eggs and feta together.' },
       ],
     },
   },
@@ -18634,7 +18635,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a drizzle of olive oil, the chopped pistachio, and the maple syrup.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Potassium', note: 'A real, meaningful amount from the banana.' },
+        { nutrient: 'Potassium', note: 'A meaningful amount from the banana.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
     },
@@ -18643,7 +18644,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-fennel-tomato-egg-skillet',
     category: 'recipes',
     title: 'Mediterranean Fennel, Tomato & Egg Skillet',
-    teaser: 'Eggs cooked with fennel and tomato in real olive oil.',
+    teaser: 'Eggs cooked with fennel and tomato in olive oil.',
     summary: 'Egg, fennel, and tomato all check safe for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -18662,10 +18663,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 plate.',
@@ -18681,7 +18682,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Crack in the eggs and cook to your liking, seasoning with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Potassium', note: 'A real, meaningful amount from the fennel and tomato together.' },
+        { nutrient: 'Potassium', note: 'A meaningful amount from the fennel and tomato together.' },
         { nutrient: 'Protein', note: 'A solid amount from the eggs.' },
       ],
     },
@@ -18729,7 +18730,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a drizzle of olive oil and the maple syrup.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the apple.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the apple.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
     },
@@ -18738,7 +18739,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-leek-tomato-egg-skillet',
     category: 'recipes',
     title: 'Mediterranean Leek, Tomato & Egg Skillet',
-    teaser: 'Eggs cooked with leek and tomato in real olive oil.',
+    teaser: 'Eggs cooked with leek and tomato in olive oil.',
     summary: 'Egg, leek, and tomato all check safe for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -18757,10 +18758,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 plate.',
@@ -18776,7 +18777,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Crack in the eggs and cook to your liking, seasoning with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin K', note: 'A real, meaningful amount from the leek.' },
+        { nutrient: 'Vitamin K', note: 'A meaningful amount from the leek.' },
         { nutrient: 'Protein', note: 'A solid amount from the eggs.' },
       ],
     },
@@ -18826,7 +18827,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a drizzle of olive oil and the chopped pistachio.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin A', note: 'A real, meaningful amount from the cantaloupe.' },
+        { nutrient: 'Vitamin A', note: 'A meaningful amount from the cantaloupe.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
     },
@@ -18835,7 +18836,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-pepper-feta-egg-skillet',
     category: 'recipes',
     title: 'Mediterranean Pepper, Feta & Egg Skillet',
-    teaser: 'Eggs cooked with red bell pepper and feta in real olive oil.',
+    teaser: 'Eggs cooked with red bell pepper and feta in olive oil.',
     summary: 'Egg, red bell pepper, and feta all check safe for Hashimoto\'s, feta itself checks completely clean.',
     citations: [],
     overallTier: 'strong',
@@ -18854,10 +18855,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
@@ -18875,7 +18876,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the crumbled feta and season with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the red bell pepper.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the red bell pepper.' },
         { nutrient: 'Protein', note: 'A solid amount from the eggs and feta together.' },
       ],
     },
@@ -18923,7 +18924,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a drizzle of olive oil and the maple syrup.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the orange.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the orange.' },
         { nutrient: 'Potassium', note: 'A solid amount from the banana.' },
       ],
     },
@@ -18932,7 +18933,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-carrot-zucchini-egg-skillet',
     category: 'recipes',
     title: 'Mediterranean Carrot, Zucchini & Egg Skillet',
-    teaser: 'Eggs cooked with carrot and zucchini in real olive oil, finished with cilantro.',
+    teaser: 'Eggs cooked with carrot and zucchini in olive oil, finished with cilantro.',
     summary: 'Egg, carrot, and zucchini all check safe for Hashimoto\'s.',
     citations: [],
     overallTier: 'strong',
@@ -18968,7 +18969,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Season with the salt and finish with the fresh cilantro.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin A', note: 'A real, meaningful amount from the carrot.' },
+        { nutrient: 'Vitamin A', note: 'A meaningful amount from the carrot.' },
         { nutrient: 'Protein', note: 'A solid amount from the eggs.' },
       ],
     },
@@ -18983,13 +18984,13 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   // closes Paleo-breakfast for Hashimoto's/IBD/CKD too. 13 more AIP
   // recipes, closing the general gap to exactly 30. Two new proteins
   // verified completely clean for Hashimoto's/IBD/CKD: Chicken Breast
-  // (without skin) and Turkey Breast (Raw) -- the "without skin" turkey
+  // (without skin) and Turkey Breast (Raw). The "without skin" turkey
   // variant was tried first and found entirely hidden in this database,
-  // caught before the pipeline ran by checking real ingredient
+  // caught before the pipeline ran by checking ingredient
   // resolution directly, not assumed from the earlier flag check alone.
   // See scripts/add_aip_breakfast_batch2.py's header comment for the
   // full reasoning. safeForConditions/conditionCautions/dietTags below
-  // are placeholders, replaced by the same real compute pipeline every
+  // are placeholders, replaced by the same compute pipeline every
   // other batch already goes through.
   {
     id: 'recipe-snack-chicken-broccoli-breakfast-bowl',
@@ -19024,7 +19025,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Slice the chicken and serve over the roasted vegetables with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the chicken breast.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the chicken breast.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the broccoli.' },
       ],
     },
@@ -19060,7 +19061,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the chicken over the braised cabbage and carrot.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the chicken breast.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the chicken breast.' },
       ],
     },
   },
@@ -19096,7 +19097,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the chicken over the braised kale and carrot, topped with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the chicken breast.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the chicken breast.' },
         { nutrient: 'Vitamin K', note: 'A solid amount from the kale.' },
       ],
     },
@@ -19133,7 +19134,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Stir in the lime juice and salt just before serving.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the chicken breast.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the chicken breast.' },
       ],
     },
   },
@@ -19178,7 +19179,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Slice the turkey and serve over the roasted vegetables with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the turkey breast.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the turkey breast.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the broccoli.' },
       ],
     },
@@ -19222,7 +19223,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the turkey over the braised cabbage and carrot.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the turkey breast.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the turkey breast.' },
       ],
     },
   },
@@ -19266,7 +19267,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the turkey over the braised kale and carrot, topped with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the turkey breast.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the turkey breast.' },
         { nutrient: 'Vitamin K', note: 'A solid amount from the kale.' },
       ],
     },
@@ -19310,7 +19311,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Add the turkey breast to the sheet and bake for another 15-18 minutes, until cooked through.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the turkey breast.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the turkey breast.' },
       ],
     },
   },
@@ -19346,7 +19347,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the beef over the roasted vegetables, topped with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Iron', note: 'A real, meaningful amount from the beef sirloin.' },
+        { nutrient: 'Iron', note: 'A meaningful amount from the beef sirloin.' },
       ],
     },
   },
@@ -19381,7 +19382,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the pork over the roasted broccoli and carrot.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the pork tenderloin, a genuinely lean cut.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the pork tenderloin, a lean cut.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the broccoli.' },
       ],
     },
@@ -19418,7 +19419,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the salmon over the braised kale and carrot, topped with the sliced avocado.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Omega-3 Fatty Acids', note: 'A real, meaningful amount from the salmon.' },
+        { nutrient: 'Omega-3 Fatty Acids', note: 'A meaningful amount from the salmon.' },
         { nutrient: 'Vitamin K', note: 'A solid amount from the kale.' },
       ],
     },
@@ -19453,7 +19454,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Roast for 12 minutes, then add the halibut fillet and roast for another 12-15 minutes, until it flakes easily.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the halibut.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the halibut.' },
         { nutrient: 'Vitamin C', note: 'A solid amount from the broccoli.' },
       ],
     },
@@ -19489,7 +19490,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Serve the cod over the braised kale and carrot.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the cod, for very little saturated fat.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the cod, for very little saturated fat.' },
         { nutrient: 'Vitamin K', note: 'A solid amount from the kale.' },
       ],
     },
@@ -19499,17 +19500,17 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   // 2026-08-27, direct follow-up: "close the remaining Hashimoto's/IBD/
   // CKD Mediterranean and Paleo breakfast gaps." 11 more Mediterranean
   // breakfast recipes, reusing the same already-verified-clean palette
-  // as the first Mediterranean batch, closing Hashimoto's own
+  // as the first Mediterranean batch, closing Hashimoto's
   // Mediterranean-breakfast gap outright and over-closing IBD/CKD's.
   // See scripts/add_mediterranean_breakfast_batch2.py's header comment
   // for the full reasoning. safeForConditions/conditionCautions/
-  // dietTags below are placeholders, replaced by the same real compute
+  // dietTags below are placeholders, replaced by the same compute
   // pipeline every other batch already goes through.
   {
     id: 'recipe-snack-mediterranean-fennel-feta-egg-skillet',
     category: 'recipes',
     title: 'Mediterranean Fennel, Feta & Egg Skillet',
-    teaser: 'Eggs cooked with fennel and feta in real olive oil.',
+    teaser: 'Eggs cooked with fennel and feta in olive oil.',
     summary: 'Egg, fennel, and feta all check safe for Hashimoto\'s, IBD, and CKD alike, feta itself checks completely clean.',
     citations: [],
     overallTier: 'strong',
@@ -19549,7 +19550,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the crumbled feta and season with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Protein', note: 'A real, meaningful amount from the eggs and feta together.' },
+        { nutrient: 'Protein', note: 'A meaningful amount from the eggs and feta together.' },
       ],
     },
   },
@@ -19557,7 +19558,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-leek-feta-egg-skillet',
     category: 'recipes',
     title: 'Mediterranean Leek, Feta & Egg Skillet',
-    teaser: 'Eggs cooked with leek and feta in real olive oil.',
+    teaser: 'Eggs cooked with leek and feta in olive oil.',
     summary: 'Egg, leek, and feta all check safe for Hashimoto\'s, IBD, and CKD alike, feta itself checks completely clean.',
     citations: [],
     overallTier: 'strong',
@@ -19597,7 +19598,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the crumbled feta and season with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin K', note: 'A real, meaningful amount from the leek.' },
+        { nutrient: 'Vitamin K', note: 'A meaningful amount from the leek.' },
         { nutrient: 'Protein', note: 'A solid amount from the eggs and feta together.' },
       ],
     },
@@ -19606,7 +19607,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-carrot-tomato-egg-skillet',
     category: 'recipes',
     title: 'Mediterranean Carrot, Tomato & Egg Skillet',
-    teaser: 'Eggs cooked with carrot and tomato in real olive oil.',
+    teaser: 'Eggs cooked with carrot and tomato in olive oil.',
     summary: 'Egg, carrot, and tomato all check safe for Hashimoto\'s, IBD, and CKD alike.',
     citations: [],
     overallTier: 'strong',
@@ -19625,10 +19626,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 plate.',
@@ -19644,7 +19645,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Crack in the eggs and cook to your liking, seasoning with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin A', note: 'A real, meaningful amount from the carrot.' },
+        { nutrient: 'Vitamin A', note: 'A meaningful amount from the carrot.' },
         { nutrient: 'Protein', note: 'A solid amount from the eggs.' },
       ],
     },
@@ -19653,7 +19654,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-zucchini-tomato-feta-skillet',
     category: 'recipes',
     title: 'Mediterranean Zucchini, Tomato & Feta Skillet',
-    teaser: 'Eggs cooked with zucchini, tomato, and feta in real olive oil.',
+    teaser: 'Eggs cooked with zucchini, tomato, and feta in olive oil.',
     summary: 'Egg, zucchini, tomato, and feta all check safe for Hashimoto\'s, IBD, and CKD alike.',
     citations: [],
     overallTier: 'strong',
@@ -19672,10 +19673,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Dairy, the other food typically removed alongside gluten at this stage. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. Dairy. If you haven\'t reintroduced it yet, this is one to test carefully, one food at a time. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair does not need to keep being avoided at this stage. Still worth avoiding if it was never tested, or caused a reaction. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Celiac Disease: Newly Diagnosed / Actively Healing', note: 'Dairy. Secondary lactose intolerance is a well-documented finding at celiac diagnosis. Worth noticing if dairy still bothers you, not a lifelong rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
@@ -19694,7 +19695,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Top with the crumbled feta and season with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the tomato.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the tomato.' },
         { nutrient: 'Protein', note: 'A solid amount from the eggs and feta together.' },
       ],
     },
@@ -19703,7 +19704,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-pepper-zucchini-egg-skillet',
     category: 'recipes',
     title: 'Mediterranean Pepper & Zucchini Egg Skillet',
-    teaser: 'Eggs cooked with red bell pepper and zucchini in real olive oil.',
+    teaser: 'Eggs cooked with red bell pepper and zucchini in olive oil.',
     summary: 'Egg, red bell pepper, and zucchini all check safe for Hashimoto\'s, IBD, and CKD alike.',
     citations: [],
     overallTier: 'strong',
@@ -19722,10 +19723,10 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         sjogrens: { severity: 'yellow', note: 'Chicken Egg (Raw): rated Imbalanced for omega-3 vs 6. The ratio being measured skews unfavorably here.' },
       },
       conditionNotes: [
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
-        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s own broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 2: Digging', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 3: Gut Repair', note: 'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 4: Rebalancing', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
+        { condition: 'Hashimoto\'s Thyroiditis: Stage 5: Maintenance', note: 'A nightshade. The staged food guide leaves this one unresolved either way. If it hasn\'t bothered you through reintroduction, this stage\'s broader focus means it\'s reasonable to stop treating it as a concern. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
         { condition: 'Chronic Kidney Disease: On Dialysis', note: 'A protein-light food. Dialysis itself removes protein your body now needs replaced, not restricted. This is advisory only, based on this recipe\'s flagged ingredients: nothing here is hidden or blocked.' },
       ],
       yield: 'Makes 1 plate.',
@@ -19741,7 +19742,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Crack in the eggs and cook to your liking, seasoning with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the red bell pepper.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the red bell pepper.' },
         { nutrient: 'Protein', note: 'A solid amount from the eggs.' },
       ],
     },
@@ -19750,7 +19751,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-snack-mediterranean-fennel-zucchini-egg-skillet',
     category: 'recipes',
     title: 'Mediterranean Fennel & Zucchini Egg Skillet',
-    teaser: 'Eggs cooked with fennel and zucchini in real olive oil.',
+    teaser: 'Eggs cooked with fennel and zucchini in olive oil.',
     summary: 'Egg, fennel, and zucchini all check safe for Hashimoto\'s, IBD, and CKD alike.',
     citations: [],
     overallTier: 'strong',
@@ -19784,7 +19785,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Crack in the eggs and cook to your liking, seasoning with the salt.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Potassium', note: 'A real, meaningful amount from the fennel and zucchini together.' },
+        { nutrient: 'Potassium', note: 'A meaningful amount from the fennel and zucchini together.' },
         { nutrient: 'Protein', note: 'A solid amount from the eggs.' },
       ],
     },
@@ -19835,7 +19836,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a drizzle of olive oil, the chopped pistachio, and the maple syrup.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the strawberries.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the strawberries.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
     },
@@ -19882,7 +19883,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a drizzle of olive oil and the maple syrup.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Manganese', note: 'A real, meaningful amount from the blueberries.' },
+        { nutrient: 'Manganese', note: 'A meaningful amount from the blueberries.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
     },
@@ -19929,7 +19930,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a drizzle of olive oil and the maple syrup.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin C', note: 'A real, meaningful amount from the grapefruit.' },
+        { nutrient: 'Vitamin C', note: 'A meaningful amount from the grapefruit.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
     },
@@ -19980,7 +19981,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a drizzle of olive oil, the chopped pistachio, and the maple syrup.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Fiber', note: 'A real, meaningful amount from the apple.' },
+        { nutrient: 'Fiber', note: 'A meaningful amount from the apple.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
     },
@@ -20027,7 +20028,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         'Finish with a drizzle of olive oil and the maple syrup.',
       ],
       nutritionHighlights: [
-        { nutrient: 'Vitamin A', note: 'A real, meaningful amount from the cantaloupe.' },
+        { nutrient: 'Vitamin A', note: 'A meaningful amount from the cantaloupe.' },
         { nutrient: 'Protein', note: 'A solid amount from the Greek yogurt.' },
       ],
     },

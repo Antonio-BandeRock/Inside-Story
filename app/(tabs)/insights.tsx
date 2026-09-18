@@ -233,7 +233,7 @@ const LENSES: LensOption<Lens>[] = [
       // other condition's own section uses its own real factors instead.
       {
         heading: 'Condition Scores',
-        body: 'One section per condition set in Profile, each scored against that condition\'s own real set of factors for whatever scope is selected. "Clear" means nothing in that scope was flagged for that factor; a number means that many sub-criteria were. Tap a factor to see its sub-criteria, then tap a sub-criterion to see which specific food(s) it was rated against, the tier each was rated, why it matters for that condition, and the citation behind the rating. Set which conditions to track in Profile; this screen shows whatever is set there.',
+        body: 'One section per condition set in Profile, each scored against that condition\'s set of factors for whatever scope is selected. "Clear" means nothing in that scope was flagged for that factor; a number means that many sub-criteria were. Tap a factor to see its sub-criteria, then tap a sub-criterion to see which specific food(s) it was rated against, the tier each was rated, why it matters for that condition, and the citation behind the rating. Set which conditions to track in Profile; this screen shows whatever is set there.',
       },
       DRILLING_DOWN_HELP,
     ],
@@ -259,7 +259,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Hydration',
-        body: "Today's total water intake against your own target: a true sum across everything logged today, food and drink alike (water-rich foods like soup or watermelon count too, not just what you drank). Same underlying nutrient data as the Nutrients table; this is just its own dedicated view.",
+        body: "Today's total water intake against your target: a true sum across everything logged today, food and drink alike (water-rich foods like soup or watermelon count too, not just what you drank). Same underlying nutrient data as the Nutrients table; this is just a dedicated view of it.",
       },
     ],
   },
@@ -287,7 +287,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Food Lookup',
-        body: "Look up any food in this app's own reference database: pick a category, then (if that category has one) a more specific type, then the food itself, to see its full nutrient, vitamin, and mineral breakdown per 100g. This is the same reference data every logged meal is scored against; it isn't tied to today's log or any drill-down scope, unlike the other three lenses here.",
+        body: "Look up any food in this app's reference database: pick a category, then (if that category has one) a more specific type, then the food itself, to see its full nutrient, vitamin, and mineral breakdown per 100g. This is the same reference data every logged meal is scored against; it isn't tied to today's log or any drill-down scope, unlike the other three lenses here.",
       },
     ],
   },
@@ -303,7 +303,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Protein: Animal vs. Plant',
-        body: 'Protein specifically splits into two ranked lists: Animal (meat, poultry, fish, dairy, eggs) and Plant (legumes, nuts/seeds, grains, vegetables, fruit, mushrooms, algae), so a vegetarian can find their own high-protein foods just as easily as anyone else. Grouped by what you can actually eat, not strict biology (mushrooms and algae count as Plant here).',
+        body: 'Protein specifically splits into two ranked lists: Animal (meat, poultry, fish, dairy, eggs) and Plant (legumes, nuts/seeds, grains, vegetables, fruit, mushrooms, algae), so a vegetarian can find high-protein foods just as easily as anyone else. Grouped by what you can actually eat, not strict biology (mushrooms and algae count as Plant here).',
       },
     ],
   },
@@ -319,7 +319,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Measured vs. reasoned',
-        body: 'Each row is labeled "Directly measured" when a cited study tested that exact compound-and-method combination, or "Reasoned estimate" when no study covers that exact case but the same compound\'s own established mechanism (leaches into water, heat-stable, enzyme-dependent) still supports an answer. Neither changes what\'s tracked for a food you\'ve actually logged; that still comes from the food\'s own database entry.',
+        body: 'Each row is labeled "Directly measured" when a cited study tested that exact compound-and-method combination, or "Reasoned estimate" when no study covers that exact case but the same compound\'s established mechanism (leaches into water, heat-stable, enzyme-dependent) still supports an answer. Neither changes what\'s tracked for a food you\'ve actually logged; that still comes from the food\'s database entry.',
       },
     ],
   },
@@ -347,7 +347,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Stage 1: Getting Started',
-        body: "Foods matching this app's own published Healing Stages guide: a short, deliberately narrow list meant to build a stable, low-noise baseline, not variety. Grouped by Proteins, Vegetables, Starches, Fruits, and Fats.",
+        body: "Foods matching this app's published Healing Stages guide: a short, deliberately narrow list meant to build a stable, low-noise baseline, not variety. Grouped by Proteins, Vegetables, Starches, Fruits, and Fats.",
       },
       {
         heading: 'Stage 2: Rebuilding',
@@ -355,7 +355,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'What this is not',
-        body: "This is a food finder, not a personal advisory reordering system: it doesn't know which stage YOU are in (that would need a self-declared field in Profile, which doesn't exist yet) or hide anything from you. It just shows verified foods that fit each stage's own published reasoning.",
+        body: "This is a food finder, not a personal advisory reordering system: it doesn't know which stage YOU are in (that would need a self-declared field in Profile, which doesn't exist yet) or hide anything from you. It just shows verified foods that fit each stage's published reasoning.",
       },
     ],
   },
@@ -367,7 +367,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Labs',
-        body: 'Your most recent result for every test you\'ve logged, plus how long ago it was drawn. Log a new result any time: pick the test, enter the value and date, and (optionally) your own lab\'s reference range, since that varies by lab/assay and matters more than the educational typical range shown here.',
+        body: 'Your most recent result for every test you\'ve logged, plus how long ago it was drawn. Log a new result any time: pick the test, enter the value and date, and (optionally) your lab\'s reference range, since that varies by lab/assay and matters more than the educational typical range shown here.',
       },
       {
         heading: "What isn't built yet",
@@ -387,11 +387,11 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Your Own Rules',
-        body: "Every warning above comes from cited research. This is different: a place for something you've noticed yourself, or a specific instruction your own doctor gave you, especially one that differs from the general guidance. Add one under \"Manage Your Rules\" below, and it shows up here, clearly labeled as yours, whenever it's currently relevant, either always, only while a specific medication or supplement is active, or only on a day something you've logged contains a food keyword you chose.",
+        body: "Every warning above comes from cited research. This is different: a place for something you've noticed yourself, or a specific instruction your doctor gave you, especially one that differs from the general guidance. Add one under \"Manage Your Rules\" below, and it shows up here, clearly labeled as yours, whenever it's currently relevant, either always, only while a specific medication or supplement is active, or only on a day something you've logged contains a food keyword you chose.",
       },
       {
         heading: 'Adding or editing',
-        body: "Treatments themselves (prescriptions, OTC, supplements) aren't added or edited here; use My Meds on the Life tab for that, and Schedules > Meds for their times. Your own rules are the one thing this lens does let you add, pause, resume, and delete directly, further down under \"Manage Your Rules.\"",
+        body: "Treatments themselves (prescriptions, OTC, supplements) aren't added or edited here; use My Meds on the Life tab for that, and Schedules > Meds for their times. Your rules are the one thing this lens does let you add, pause, resume, and delete directly, further down under \"Manage Your Rules.\"",
       },
     ],
   },
@@ -403,11 +403,11 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Where the numbers come from',
-        body: 'Your maintenance calories come from the Mifflin-St Jeor equation (weight, height, age, sex) times an activity-level multiplier -- the same method most clinical dietetics practice uses. Protein scales with your real body weight and activity level (or a condition-specific override, e.g. CKD); the remaining calories split between fat and carbohydrate using the midpoint of NASEM\'s own Acceptable Macronutrient Distribution Range. See the Portions & Recommended Amounts topic in Digest for the full method and citations.',
+        body: 'Your maintenance calories come from the Mifflin-St Jeor equation (weight, height, age, sex) times an activity-level multiplier, the same method most clinical dietetics practice uses. Protein scales with your body weight and activity level (or a condition-specific override, e.g. CKD); the remaining calories split between fat and carbohydrate using the midpoint of NASEM\'s Acceptable Macronutrient Distribution Range. See the Portions & Recommended Amounts topic in Digest for the full method and citations.',
       },
       {
         heading: 'What this is not',
-        body: 'This is a maintenance estimate, not a prescribed target, a diagnosis, or a weight-loss plan. Set your sex, birth date, height, weight, and activity level in Profile to see it -- nothing here is guessed on your behalf.',
+        body: 'This is a maintenance estimate, not a prescribed target, a diagnosis, or a weight-loss plan. Set your sex, birth date, height, weight, and activity level in Profile to see it. Nothing here is guessed on your behalf.',
       },
     ],
   },
@@ -502,7 +502,7 @@ function scopeBreadcrumbs<M extends NavigableMeal>(
 const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page is for',
-    body: "So you don't have to work out on your own whether today's meals actually met your nutrient needs or matched what's safe for your own tracked conditions. Insights does that math for you, from the exact meals you already logged, and tells you plainly what needs attention and what doesn't.",
+    body: "So you don't have to work out on your own whether today's meals actually met your nutrient needs or matched what's safe for your tracked conditions. Insights does that math for you, from the exact meals you already logged, and tells you plainly what needs attention and what doesn't.",
   },
   {
     heading: 'Three lenses, one day of data',
@@ -518,7 +518,7 @@ const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Condition Scores',
-    body: 'One section per condition set in Profile, each scored against that condition\'s own real set of factors for whatever scope is selected. "Clear" means nothing in that scope was flagged for that factor; a number means that many sub-criteria were. Tap a factor to see its sub-criteria, then tap a sub-criterion to see which specific food(s) it was rated against, the tier each was rated, why it matters for that condition, and the citation behind the rating.',
+    body: 'One section per condition set in Profile, each scored against that condition\'s set of factors for whatever scope is selected. "Clear" means nothing in that scope was flagged for that factor; a number means that many sub-criteria were. Tap a factor to see its sub-criteria, then tap a sub-criterion to see which specific food(s) it was rated against, the tier each was rated, why it matters for that condition, and the citation behind the rating.',
   },
   {
     heading: 'Cooking & Prep',
@@ -1758,9 +1758,9 @@ function buildPersonalDriRow(nutrientCode: string, displayName: string, amount: 
     unit,
     upperLimit: null,
     upperLimitType: null,
-    sourceAgency: 'Personalized estimate (Mifflin-St Jeor equation + your own activity level), not an official DRI',
+    sourceAgency: 'Personalized estimate (Mifflin-St Jeor equation + your activity level), not an official DRI',
     citation: null,
-    notes: 'Computed from your own weight, height, age, and activity level in Profile -- see Digest\'s Portions & Recommended Amounts topic for the full method.',
+    notes: 'Computed from your weight, height, age, and activity level in Profile. See Digest\'s Portions & Recommended Amounts topic for the full method.',
   };
 }
 
@@ -1839,7 +1839,7 @@ function PortionsView({
     <>
       <View style={styles.noticeCard}>
         <Text style={styles.noticeText}>
-          Estimated from your own weight, height, age, and activity level -- a maintenance estimate, not a
+          Estimated from your weight, height, age, and activity level, a maintenance estimate, not a
           prescribed target or a diagnosis. See Digest&apos;s Portions & Recommended Amounts topic for the
           full method and citations.
         </Text>
@@ -1899,8 +1899,8 @@ function PortionsView({
         ))}
       </View>
       <Text style={styles.footerNote}>
-        Fat and carbohydrate split using the midpoint of NASEM&apos;s own Acceptable Macronutrient Distribution
-        Range, applied to whatever&apos;s left once your real, weight-based protein target above is subtracted.
+        Fat and carbohydrate split using the midpoint of NASEM&apos;s Acceptable Macronutrient Distribution
+        Range, applied to whatever&apos;s left once your weight-based protein target above is subtracted.
       </Text>
 
       <Text style={styles.portionsSectionHeading}>Produce guide</Text>
@@ -1954,7 +1954,7 @@ function PortionsView({
         </View>
       )}
       <Text style={styles.footerNote}>
-        As logged so far today -- this fills in as the day goes on, not a verdict on the whole day this early.
+        As logged so far today. This fills in as the day goes on, not a verdict on the whole day this early.
       </Text>
     </>
   );
@@ -2743,7 +2743,7 @@ function NutrientRankingView({
         </View>
         <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>
           Search or browse below to pick a food and see how it ranks against every nutrient it has a measured
-          amount of, within its own category.
+          amount of, within its category.
         </Text>
         <FoodLookup tabColor={tabColor} showNutrients={false} onFoodResolved={onFoodSelected} />
       </View>
@@ -3651,7 +3651,7 @@ function MyMedsView({
         <Text style={[styles.rankGroupHeading, styles.groupHeadingChip, { color: tabColor }]}>Manage Your Rules</Text>
         {allPersonalRules.length === 0 && !formOpen ? (
           <Text style={[styles.emptyText, styles.panelStandalone]}>
-            Nothing saved yet. Add something you&apos;ve noticed yourself, or a specific instruction your own doctor gave you.
+            Nothing saved yet. Add something you&apos;ve noticed yourself, or a specific instruction your doctor gave you.
           </Text>
         ) : (
           <View style={styles.table}>

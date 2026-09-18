@@ -67,17 +67,17 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
   {
     conditionCode: 'hashimotos',
     // 2026-08-25, direct request: rename to "Hashimoto's Thyroiditis," the
-    // most common clinical name, throughout the app. Every real stage-note
+    // most common clinical name, throughout the app. Every stage-note
     // string already stored in lib/digest/recipes.ts (built from this
     // exact label via stageNoteKeyFor) was renamed to match in the same
     // pass, verified by count (312 occurrences, all condition: field
     // values, zero left over) rather than assumed safe from this one line
-    // alone -- changing this label without also updating those stored
-    // strings would have silently broken every stage-specific advisory
-    // note's own lookup.
+    // alone. Changing this label without also updating those stored
+    // strings would have silently broken the lookup behind every
+    // stage-specific advisory note.
     conditionLabel: "Hashimoto's Thyroiditis",
     frameworkName: 'The Healing/Regression Stages (Dr. Izabella Wentz)',
-    frameworkNote: 'A real, named practitioner framework -- not mainstream endocrinology consensus. See Digest\'s own Healing Stages category for the full, cited guide.',
+    frameworkNote: 'A named practitioner framework, not mainstream endocrinology consensus. See the Healing Stages category in Digest for the full, cited guide.',
     stages: HEALING_STAGES.map((code) => ({
       code,
       label: HEALING_STAGE_INFO[code].label,
@@ -89,7 +89,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     conditionCode: 'ibs',
     conditionLabel: 'Irritable Bowel Syndrome',
     frameworkName: 'The Low-FODMAP Elimination / Reintroduction / Personalization Protocol',
-    frameworkNote: 'A real, standard clinical protocol (Halmos & Gibson 2019, PMID 30945376) -- not specific to this app. See Digest\'s own IBS category for the full, cited evidence.',
+    frameworkNote: 'A standard clinical protocol (Halmos & Gibson 2019, PMID 30945376), not specific to this app. See the IBS category in Digest for the full, cited evidence.',
     stages: IBS_PHASES.map((code) => ({
       code,
       label: IBS_PHASE_INFO[code].label,
@@ -100,8 +100,8 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
   {
     conditionCode: 'celiac',
     conditionLabel: 'Celiac Disease',
-    frameworkName: "The Real, Age-Dependent Villi-Healing Timeline",
-    frameworkNote: 'A real, cited healing window (not the diagnostic Marsh biopsy scale) -- see Digest\'s own Celiac Disease category for the full evidence, including why healing can take up to 2 years.',
+    frameworkName: "The Age-Dependent Villi-Healing Timeline",
+    frameworkNote: 'A cited healing window, not the diagnostic Marsh biopsy scale. See the Celiac Disease category in Digest for the full evidence, including why healing can take up to 2 years.',
     stages: CELIAC_STAGES.map((code) => ({
       code,
       label: CELIAC_STAGE_INFO[code].label,
@@ -112,8 +112,8 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
   {
     conditionCode: 'ibd',
     conditionLabel: 'Inflammatory Bowel Disease',
-    frameworkName: 'The Real, Clinical Flare / Remission Distinction',
-    frameworkNote: 'A real, standard clinical distinction (not the diagnostic Montreal classification, which is static) -- see Digest\'s own Inflammatory Bowel Disease category for the full evidence.',
+    frameworkName: 'The Clinical Flare / Remission Distinction',
+    frameworkNote: 'A standard clinical distinction, not the diagnostic Montreal classification, which is static. See the Inflammatory Bowel Disease category in Digest for the full evidence.',
     stages: IBD_STAGES.map((code) => ({
       code,
       label: IBD_STAGE_INFO[code].label,
@@ -122,16 +122,16 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     foodRelevantStageCodes: FOOD_RELEVANT_IBD_STAGES,
   },
   {
-    // NOTE: 'chronic_kidney_disease', not 'chronicKidneyDisease' -- the
-    // real conditions.code value (snake_case), confirmed via direct query,
-    // NOT the Digest's own camelCase category key. Every other entry in
+    // NOTE: 'chronic_kidney_disease', not 'chronicKidneyDisease'. That is
+    // the conditions.code value (snake_case), confirmed via direct query,
+    // NOT the Digest's camelCase category key. Every other entry in
     // this registry happens to share one identical string between the two
-    // naming conventions; CKD does not (see lib/conditionCodeMap.ts's own
-    // header comment: "never lined up automatically").
+    // naming conventions; CKD does not (see the header comment in
+    // lib/conditionCodeMap.ts: "never lined up automatically").
     conditionCode: 'chronic_kidney_disease',
     conditionLabel: 'Chronic Kidney Disease',
-    frameworkName: 'The Real Pre-Dialysis / On-Dialysis Dietary Reversal',
-    frameworkNote: 'A real, cited clinical reversal (not the diagnostic KDIGO G/A staging grid, which is static) -- see Digest\'s own Chronic Kidney Disease category for the full evidence.',
+    frameworkName: 'The Pre-Dialysis / On-Dialysis Dietary Reversal',
+    frameworkNote: 'A cited clinical reversal, not the diagnostic KDIGO G/A staging grid, which is static. See the Chronic Kidney Disease category in Digest for the full evidence.',
     stages: CKD_STAGES.map((code) => ({
       code,
       label: CKD_STAGE_INFO[code].label,
@@ -142,8 +142,8 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
   {
     conditionCode: 'gout',
     conditionLabel: 'Gout',
-    frameworkName: "Gout's Own Real, Four-Stage Natural History",
-    frameworkNote: 'A real, well-characterized clinical progression (StatPearls) -- see Digest\'s own Gout category for the full, cited evidence.',
+    frameworkName: "Gout's Four-Stage Natural History",
+    frameworkNote: 'A well-characterized clinical progression (StatPearls). See the Gout category in Digest for the full, cited evidence.',
     stages: GOUT_STAGES.map((code) => ({
       code,
       label: GOUT_STAGE_INFO[code].label,

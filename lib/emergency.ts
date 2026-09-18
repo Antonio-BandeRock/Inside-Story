@@ -43,7 +43,7 @@ export const NOT_A_MEDICAL_ALERT =
   'Read this first: nobody is going to find this in an emergency. It is on your phone, behind a lock, in an app. A paramedic will not open it. This is a record to show someone, read out, or hand over, and it is useful for that. It is not a substitute for a bracelet, a card in your wallet, or the medical ID screen your phone already has, and if it replaces one of those you are worse off than before.';
 
 export const DIRECTIVE_NOTE =
-  'Only where the document is, never what it says. A wish recorded in an app is not a legal document and nothing here carries any weight on its own. What helps is someone being able to find the real one quickly.';
+  'Only where the document is, never what it says. A wish recorded in an app is not a legal document and nothing here carries any weight on its own. What helps is someone being able to find the document itself quickly.';
 
 // --- The parts ---------------------------------------------------------------
 

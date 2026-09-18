@@ -345,7 +345,7 @@ export async function writeRawIsFile(content: unknown): Promise<string | null> {
     file.write(JSON.stringify(content));
     return file.uri;
   } catch (error) {
-    console.error('[sharing] Failed to write a real .is file', error);
+    console.error('[sharing] Failed to write the .is file', error);
     return null;
   }
 }

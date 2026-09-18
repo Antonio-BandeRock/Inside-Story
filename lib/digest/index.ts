@@ -182,7 +182,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'basicHealth',
     label: 'Basic Health',
     icon: 'reader-outline',
-    description: 'Food, vitamins, minerals, and interactions everyone should understand about their own body, independent of any specific condition, what the Free tier shows in full.',
+    description: 'Food, vitamins, minerals, and interactions everyone should understand about their body, independent of any specific condition, what the Free tier shows in full.',
   },
   {
     key: 'hashimotos',
@@ -209,7 +209,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'psoriasis',
     label: 'Psoriasis',
     icon: 'bandage-outline',
-    description: 'Food, medication, and self-advocacy guidance for psoriasis and psoriatic arthritis on their own terms, including two findings honestly reported as unproven rather than smoothed into false confidence.',
+    description: 'Food, medication, and self-advocacy guidance for psoriasis and psoriatic arthritis on their own terms, including two findings reported as unproven rather than smoothed into false confidence.',
   },
   // 2026-08-08, same day, fourth condition: Graves' Disease. See graves.ts's
   // own header comment -- the first condition built with its own real
@@ -247,7 +247,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'ibd',
     label: 'Inflammatory Bowel Disease',
     icon: 'body-outline',
-    description: "Food, medication, and self-advocacy guidance for Crohn's disease and ulcerative colitis, including the smoking paradox, the low-fiber-during-a-flare myth, and an honestly reported null result on Hashimoto's comorbidity.",
+    description: "Food, medication, and self-advocacy guidance for Crohn's disease and ulcerative colitis, including the smoking paradox, the low-fiber-during-a-flare myth, and a null result on Hashimoto's comorbidity.",
   },
   // 2026-08-08, same day, eighth condition: Multiple Sclerosis. See
   // multipleSclerosis.ts's own header comment -- a disease of the central
@@ -257,7 +257,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'multipleSclerosis',
     label: 'Multiple Sclerosis',
     icon: 'flash-outline',
-    description: "Evidence for MS: the EBV trigger and its exact mechanism, the Swank/Wahls diet trial, honest corrections on high-dose biotin and vitamin D, and self-advocacy for JC virus monitoring and diagnosis.",
+    description: "Evidence for MS: the EBV trigger and its exact mechanism, the Swank/Wahls diet trial, corrections on high-dose biotin and vitamin D, and self-advocacy for JC virus monitoring and diagnosis.",
   },
   // 2026-08-08, same day, ninth condition: Lupus (SLE). See lupus.ts's own
   // header comment -- a genuinely wide-ranging condition reaching nearly
@@ -298,7 +298,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'chronicKidneyDisease',
     label: 'Chronic Kidney Disease',
     icon: 'filter-outline',
-    description: 'Evidence for CKD: an honest correction on potassium restriction, hidden phosphate additives, plant-forward protein guidance, SGLT2 inhibitors\' kidney-protective effect, and self-advocacy for eGFR/ACR monitoring.',
+    description: 'Evidence for CKD: a correction on potassium restriction, hidden phosphate additives, plant-forward protein guidance, SGLT2 inhibitors\' kidney-protective effect, and self-advocacy for eGFR/ACR monitoring.',
   },
   // 2026-08-08, same day, thirteenth condition, and this app's third
   // genuinely non-autoimmune one: Fatty Liver Disease (MASLD). See
@@ -319,7 +319,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'type2Diabetes',
     label: 'Type 2 Diabetes',
     icon: 'trending-down-outline',
-    description: 'Evidence for T2D: the DiRECT remission trial, low-carb diet evidence, a distinction from Type 1, a recent GLP-1/SGLT2 treatment paradigm shift, and self-advocacy on individualized HbA1c targets.',
+    description: 'Evidence for T2D: the DiRECT remission trial, low-carb diet evidence, a distinction from Type 1, a recent shift in how it is treated with GLP-1 and SGLT2 drugs, and self-advocacy on individualized HbA1c targets.',
   },
   // 2026-08-08, same day, fifteenth condition: Irritable Bowel Syndrome.
   // See ibs.ts's own header comment -- a real disorder of gut-brain
@@ -338,7 +338,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'migraine',
     label: 'Migraine',
     icon: 'thunderstorm-outline',
-    description: 'Evidence for migraine: an honest correction to food-trigger lists, the magnesium/riboflavin/CoQ10 combination trial, CGRP inhibitors, medication-overuse headache, and self-advocacy for recognizing emergency red flags.',
+    description: 'Evidence for migraine: a correction to food-trigger lists, the magnesium/riboflavin/CoQ10 combination trial, CGRP inhibitors, medication-overuse headache, and self-advocacy for recognizing emergency red flags.',
   },
   // 2026-08-08, same day, seventeenth condition: Cardiovascular Disease.
   // See cardiovascularDisease.ts's own header comment -- already touched
@@ -349,7 +349,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'cardiovascularDisease',
     label: 'Cardiovascular Disease',
     icon: 'heart-outline',
-    description: 'Evidence for cardiovascular disease: the Mediterranean diet and DASH, an honest statin evidence review, a reversal on daily aspirin and omega-3s for prevention, and self-advocacy for lipid testing and heart attack red flags.',
+    description: 'Evidence for cardiovascular disease: the Mediterranean diet and DASH, a statin evidence review, a reversal on daily aspirin and omega-3s for prevention, and self-advocacy for lipid testing and heart attack red flags.',
   },
   // 2026-08-08, same day, eighteenth condition, and -- per the `conditions`
   // table's own sort_order -- the last one currently planned: Gout. See
@@ -376,7 +376,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'earthMatters',
     label: 'Earth Matters',
     icon: 'earth-outline',
-    description: 'The planet the food system actually runs on: soil, water, pollinators, seed diversity, regenerative-farming case studies, the economics and politics of who controls food production, and concrete ways to push for change with your own money and voice.',
+    description: 'The planet the food system actually runs on: soil, water, pollinators, seed diversity, regenerative-farming case studies, the economics and politics of who controls food production, and concrete ways to push for change with your money and voice.',
   },
   // 2026-08-09, same day, a genuinely new topic, direct request: real
   // guidance on growing your own fresh fruits and vegetables at home as a
@@ -392,7 +392,7 @@ export const DIGEST_CATEGORY_META: {
     // this whole build has already used for several builders.
     label: 'Gardening',
     icon: 'leaf-outline',
-    description: "Growing even a modest amount of your own food is a documented way to cut a grocery bill and eat fresher produce, what to grow, organized by climate zone so you can find guidance for where you actually live, plus container growing, beginner crops, and season extension.",
+    description: "Growing even a modest amount of food yourself is a documented way to cut a grocery bill and eat fresher produce, what to grow, organized by climate zone so you can find guidance for where you actually live, plus container growing, beginner crops, and season extension.",
   },
   // 2026-08-14, direct request: "a new category of Recipes for different
   // kinds of meals will be available." See recipes.ts's own header comment
@@ -411,7 +411,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'myKitchen',
     label: 'My Kitchen',
     icon: 'bookmark-outline',
-    description: 'Every side, salad, soup, and everything else you’ve saved from the Food builders, with the same real, computed nutrition and condition detail Recipes gets.',
+    description: 'Every side, salad, soup, and everything else you’ve saved from the Food builders, with the same computed nutrition and condition detail Recipes gets.',
   },
   {
     key: 'myFavorites',

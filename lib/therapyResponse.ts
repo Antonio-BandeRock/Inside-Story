@@ -329,5 +329,5 @@ export function describeTherapyResponse(summary: TherapyResponseSummary, therapy
     return `Across ${summary.sessionCount} sessions, check-ins after ${therapyLabel} reported something off MORE often than your other days on ${dayList}, against ${baselinePercent}% on days away from any session. Worth raising with whoever is treating you.`;
   }
 
-  return `Across ${summary.sessionCount} sessions, the days after ${therapyLabel} look about the same as your other days (${baselinePercent}% of check-ins reporting something off away from any session). That is a real reading, not a missing one.`;
+  return `Across ${summary.sessionCount} sessions, the days after ${therapyLabel} look about the same as your other days (${baselinePercent}% of check-ins reporting something off away from any session). That is a finding, not a gap in the data.`;
 }

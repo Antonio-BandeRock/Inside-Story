@@ -67,25 +67,25 @@ export const GOUT_STAGES: GoutStage[] = [
 export const GOUT_STAGE_INFO: Record<GoutStage, { label: string; shortDescription: string }> = {
   asymptomatic_hyperuricemia: {
     label: 'Stage 1: Asymptomatic Hyperuricemia',
-    shortDescription: 'Elevated uric acid, no symptoms yet -- silent crystal formation may already be starting. Usually not something someone knows they have.',
+    shortDescription: 'Elevated uric acid, no symptoms yet, though silent crystal formation may already be starting. Usually not something someone knows they have.',
   },
   acute_flare: {
     label: 'Stage 2: Acute Flare',
-    shortDescription: 'The real, sudden, intensely painful attack -- typically 3-10 days untreated, pain peaking in the first 24 hours.',
+    shortDescription: 'The sudden, intensely painful attack: typically 3-10 days untreated, pain peaking in the first 24 hours.',
   },
   intercritical: {
     label: 'Stage 3: Intercritical (Between Flares)',
-    shortDescription: "Feeling fine -- but real research confirms this isn't remission. Crystal deposition continues silently underneath.",
+    shortDescription: "Feeling fine, but the research confirms this isn't remission. Crystal deposition continues silently underneath.",
   },
   chronic_tophaceous: {
     label: 'Stage 4: Chronic Tophaceous',
-    shortDescription: 'The real, most severe stage -- ongoing joint pain and visible deformity from accumulated urate crystals, usually after years of inadequate control.',
+    shortDescription: 'The most severe stage: ongoing joint pain and visible deformity from accumulated urate crystals, usually after years of inadequate control.',
   },
 };
 
-// Only Stages 2 and 3 produce a real food advisory -- see this file's own
-// top comment for why Stage 1 (typically undiagnosed) and Stage 4 (same
-// ongoing management as Stage 3, no genuinely distinct food guidance)
+// Only Stages 2 and 3 produce a food advisory. See the top comment in this
+// file for why Stage 1 (typically undiagnosed) and Stage 4 (same
+// ongoing management as Stage 3, no distinct food guidance)
 // deliberately don't.
 export const FOOD_RELEVANT_GOUT_STAGES: GoutStage[] = ['acute_flare', 'intercritical'];
 
@@ -106,13 +106,13 @@ export function getGoutStageAdvisory(scores: FoodScore[], stage: GoutStage | nul
 
   const message =
     stage === 'acute_flare'
-      ? "Heavily processed or sugar-sweetened -- a real, large study found 2+ sugary drinks a day carrying an 85% higher gout risk, worth extra attention during an active flare specifically."
-      : "Heavily processed or sugar-sweetened -- worth staying just as mindful of here as during a flare. Real research confirms the intercritical stage isn't a true remission; crystal deposition and risk continue even though nothing hurts right now.";
+      ? "Heavily processed or sugar-sweetened. A large study found 2+ sugary drinks a day carrying an 85% higher gout risk, worth extra attention during an active flare specifically."
+      : "Heavily processed or sugar-sweetened, worth staying just as mindful of here as during a flare. The research confirms the intercritical stage isn't a true remission; crystal deposition and risk continue even though nothing hurts right now.";
 
   return {
     title: `Gout Stage: ${stage === 'acute_flare' ? 'Acute Flare' : 'Intercritical (Between Flares)'}`,
     message:
       message +
-      "\n\nThis app can't flag purine-heavy meat/seafood or beer directly at the individual-food level (no reference source measures purine content) -- see the Gout category in Digest for that full, cited detail. This is advisory only -- nothing in Inside Story hides or blocks a food based on your stage.",
+      "\n\nThis app can't flag purine-heavy meat/seafood or beer directly at the individual-food level (no reference source measures purine content). See the Gout category in Digest for that full, cited detail. This is advisory only. Nothing in Inside Story hides or blocks a food based on your stage.",
   };
 }

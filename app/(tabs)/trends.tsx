@@ -91,7 +91,7 @@ type TrendsLens = 'nutrients' | 'sixDs' | 'symptoms' | 'eatingWindow' | 'weight'
 // matching flares to specific foods "doesn't do yet," no longer true.
 const TRENDS_PATTERN_CAVEAT_HELP: HelpSection = {
   heading: 'Finding patterns, not just charts',
-  body: "This lens charts what you've already logged over time -- for the app to actually match flares to specific foods and surface what recurs, see the Pattern Finder lens.",
+  body: "This lens charts what you've already logged over time. For the app to actually match flares to specific foods and surface what recurs, see the Pattern Finder lens.",
 };
 
 const TRENDS_LENSES: LensOption<TrendsLens>[] = [
@@ -102,7 +102,7 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     help: [
       {
         heading: 'Nutrients',
-        body: "Pick a nutrient to see its percent-of-target trend across the date range, with a dashed line at 100%. Only days with at least one logged (or, for a future range, genuinely scheduled) meal are plotted, so days with nothing to go on don't show up as false zeros. Tap any point on the line to see that exact day's own value.",
+        body: "Pick a nutrient to see its percent-of-target trend across the date range, with a dashed line at 100%. Only days with at least one logged (or, for a future range, already scheduled) meal are plotted, so days with nothing to go on don't show up as false zeros. Tap any point on the line to see that exact day's value.",
       },
       TRENDS_PATTERN_CAVEAT_HELP,
     ],
@@ -143,11 +143,11 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     help: [
       {
         heading: 'What this counts',
-        body: 'Meals you deliberately kept after the app told you they fell outside your declared eating window. Each one is a choice you made at the time, not a meal that merely happened to land outside a window, so a run of them says something real about how the window is fitting your life.',
+        body: 'Meals you deliberately kept after the app told you they fell outside your declared eating window. Each one is a choice you made at the time, not a meal that merely happened to land outside a window, so a run of them says something about how the window is fitting your life.',
       },
       {
         heading: 'Why a zero day still shows',
-        body: 'A day with meals scheduled and none of them outside the window is a real zero and is plotted as one. A day with no meals scheduled at all is left off entirely, since there is nothing to say about it either way.',
+        body: 'A day with meals scheduled and none of them outside the window is a true zero and is plotted as one. A day with no meals scheduled at all is left off entirely, since there is nothing to say about it either way.',
       },
       {
         heading: 'What it does not see',
@@ -166,7 +166,7 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     help: [
       {
         heading: 'Weight',
-        body: "Every reading you've logged on Profile, over time. The chart's own vertical range is scaled tight around your actual values, not pinned to zero, so real day-to-day movement is actually visible.",
+        body: "Every reading you've logged on Profile, over time. The chart's vertical range is scaled tight around your actual values, not pinned to zero, so day-to-day movement is actually visible.",
       },
     ],
   },
@@ -237,7 +237,7 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     help: [
       {
         heading: 'Therapy Response',
-        body: 'For each hands-on therapy you have logged, this looks at your own check-ins on the days after each session and compares them against your days away from any session. It answers the question that actually matters about a session: not whether it felt good at the time, but how many days it held.',
+        body: 'For each hands-on therapy you have logged, this looks at your check-ins on the days after each session and compares them against your days away from any session. It answers the question that actually matters about a session: not whether it felt good at the time, but how many days it held.',
       },
       {
         heading: 'What it needs before it will say anything',
@@ -249,7 +249,7 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       },
       {
         heading: 'This is a count, not a verdict',
-        body: 'Nothing here says a session caused anything. It reports what you logged, next to what you usually log. A therapy that reads no different from your ordinary days is a real answer, and so is one where the days after read worse. Both are worth raising with whoever is treating you.',
+        body: 'Nothing here says a session caused anything. It reports what you logged, next to what you usually log. A therapy that reads no different from your ordinary days is an answer, and so is one where the days after read worse. Both are worth raising with whoever is treating you.',
       },
     ],
   },
@@ -260,19 +260,19 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     help: [
       {
         heading: 'Pattern Finder',
-        body: "Looks at what you actually ate before each flare or reaction you've logged, and shows what shows up more than once. This is a count of what's already in your own data, not a diagnosis -- something showing up before 2 flares is worth a look; it's not proof of anything on its own.",
+        body: "Looks at what you actually ate before each flare or reaction you've logged, and shows what shows up more than once. This is a count of what's already in your data, not a diagnosis. Something showing up before 2 flares is worth a look; it's not proof of anything on its own.",
       },
       {
         heading: 'Condition scoring factors',
-        body: 'This section only ever checks factors relevant to the conditions set in Profile, so a candidate here is always something one of your own tracked conditions actually cares about, not any factor this app happens to score.',
+        body: 'This section only ever checks factors relevant to the conditions set in Profile, so a candidate here is always something one of your tracked conditions actually cares about, not any factor this app happens to score.',
       },
       {
         heading: 'The lookback window',
-        body: "How far back before a symptom counts as 'before it' varies by person and condition -- pick whichever window feels closest to how your own body actually reacts.",
+        body: "How far back before a symptom counts as 'before it' varies by person and condition, so pick whichever window feels closest to how your body actually reacts.",
       },
       {
         heading: 'Start a trial',
-        body: "A food that shows up here can be sent straight into Signals as a real food trial -- the same deliberate, tracked way to actually test whether it's the real cause, rather than just guessing from this list.",
+        body: "A food that shows up here can be sent straight into Signals as a food trial, the same deliberate, tracked way to actually test whether it is the cause, rather than just guessing from this list.",
       },
     ],
   },
@@ -386,7 +386,7 @@ const TRENDS_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Nutrients & Condition Scores: past AND future',
-    body: "These two can look ahead as well as back, reading what's genuinely scheduled rather than only what's already been logged -- a range that reaches past today shows a real projection for the scheduled days, never a guess for a day nothing's actually planned on.",
+    body: "These two can look ahead as well as back, reading what is already scheduled rather than only what has already been logged. A range that reaches past today shows a projection for the scheduled days, never a guess for a day nothing's actually planned on.",
   },
   {
     heading: 'Symptoms & Flares',
@@ -406,7 +406,7 @@ const TRENDS_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Pattern Finder',
-    body: "Looks at what you actually ate before each flare or reaction you've logged, and surfaces whatever shows up more than once -- a real count from your own data, not a diagnosis. Each food candidate carries a direct way to start a real trial and actually test it.",
+    body: "Looks at what you actually ate before each flare or reaction you've logged, and surfaces whatever shows up more than once, as a count from your data rather than a diagnosis. Each food candidate carries a direct way to start a trial and actually test it.",
   },
 ];
 
@@ -656,7 +656,7 @@ export default function TrendsScreen() {
     try {
       const identity = await getFoodIdentity(candidate.foodId, candidate.source);
       if (!identity) {
-        showInfoAlert('Could not start a trial', "This food's own reference entry could not be found.");
+        showInfoAlert('Could not start a trial', "This food's reference entry could not be found.");
         return;
       }
       markPendingFoodTrialReturn();
@@ -1185,7 +1185,7 @@ export default function TrendsScreen() {
                 <View style={styles.disclaimerCard}>
                   <Text style={styles.disclaimerText}>
                     {
-                      'This compares your check-ins on the days after each hands-on session against your check-ins on days away from any session. It is a count from your own data, not a verdict on the therapy, and nothing here says a session caused anything.'
+                      'This compares your check-ins on the days after each hands-on session against your check-ins on days away from any session. It is a count from your data, not a verdict on the therapy, and nothing here says a session caused anything.'
                     }
                   </Text>
                 </View>
@@ -1251,7 +1251,7 @@ export default function TrendsScreen() {
                   minWidth={220}
                 />
                 {!selectedTestCode ? (
-                  <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>Pick a test above to see its own trend.</Text>
+                  <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>Pick a test above to see its trend.</Text>
                 ) : loading ? (
                   <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>Loading…</Text>
                 ) : (
@@ -1279,7 +1279,7 @@ export default function TrendsScreen() {
                           <Text style={styles.caption}>
                             Most recent: {latest.value} {latest.unit}
                             {test?.typicalRangeLow != null && test?.typicalRangeHigh != null
-                              ? ` · typical range ${test.typicalRangeLow}–${test.typicalRangeHigh} ${test.rangeUnit ?? ''}`
+                              ? ` · typical range ${test.typicalRangeLow} to ${test.typicalRangeHigh} ${test.rangeUnit ?? ''}`
                               : ''}
                           </Text>
                         ) : null}
@@ -1293,7 +1293,7 @@ export default function TrendsScreen() {
                 <View style={styles.disclaimerCard}>
                   <Text style={styles.disclaimerText}>
                     {
-                      "This shows what you actually ate before each flare or reaction you've logged, and what shows up more than once. It's a count from your own data, not a diagnosis, and not proof anything here actually causes anything. Something worth a second look deserves a real trial, not just a spot on this list."
+                      "This shows what you actually ate before each flare or reaction you've logged, and what shows up more than once. It's a count from your data, not a diagnosis, and not proof anything here actually causes anything. Something worth a second look deserves a trial, not just a spot on this list."
                     }
                   </Text>
                 </View>
@@ -1322,7 +1322,7 @@ export default function TrendsScreen() {
                   <Text style={[styles.loadingText, styles.panelStandalone]}>
                     {"Nothing showed up before 2 or more of your "}
                     {patternResult.totalSymptomInstances}
-                    {" logged flares/reactions in this window. That's a real result too; try a longer window, or keep logging."}
+                    {" logged flares/reactions in this window. That's a result too; try a longer window, or keep logging."}
                   </Text>
                 ) : (
                   <>

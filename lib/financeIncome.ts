@@ -249,7 +249,7 @@ export function describePayback(payback: Payback | null, streamName: string): st
   }
   const base = `${streamName} has returned ${formatIncomeMoney(payback.returnedSoFar)} of the ${formatIncomeMoney(payback.cost)} it cost, at ${formatIncomeMoney(payback.averagePerMonth)} a month so far. At that rate the rest takes about ${yearsAndMonths(payback.monthsAtThisRate)}.`;
   return payback.tooShortForSeasons
-    ? `${base} That is measured over ${payback.monthsSoFar} ${payback.monthsSoFar === 1 ? 'month' : 'months'}, which is not yet a full year, so it has not been through its own quiet season. Treat the figure as early rather than settled.`
+    ? `${base} That is measured over ${payback.monthsSoFar} ${payback.monthsSoFar === 1 ? 'month' : 'months'}, which is not yet a full year, so it has not been through its quiet season. Treat the figure as early rather than settled.`
     : base;
 }
 

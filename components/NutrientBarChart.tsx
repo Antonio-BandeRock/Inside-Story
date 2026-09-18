@@ -33,7 +33,7 @@ export function NutrientBarChart({ data, color }: { data: NutrientChartDatum[]; 
           </Text>
         </View>
       ))}
-      <Text style={styles.footnote}>% of your own daily target, per serving.</Text>
+      <Text style={styles.footnote}>% of your daily target, per serving.</Text>
     </View>
   );
 }

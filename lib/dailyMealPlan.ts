@@ -452,7 +452,7 @@ export const NUTRIENT_SYNERGY_RULES: NutrientPairRule[] = [
     citation:
       'Effect of ascorbic acid intake on nonheme-iron absorption from a complete diet, Cook & Reddy, Am J Clin Nutr 2001, PMID 11124756 -- iron absorption from a mixed meal rose 1.65x to 9.57x depending on how much vitamin C was added.',
     mechanism:
-      'Vitamin C reduces iron to the form the body absorbs more easily and keeps it soluble through the small intestine, directly countering the same plant compounds (phytates, polyphenols) that make iron from plant foods harder to absorb on its own -- the reason this matters most for whichever specific meal is actually carrying the iron, not just the day\'s total intake of either.',
+      'Vitamin C reduces iron to the form the body absorbs more easily and keeps it soluble through the small intestine, directly countering the same plant compounds (phytates, polyphenols) that make iron from plant foods harder to absorb on its own. This matters most for whichever specific meal is actually carrying the iron, not just the day\'s total intake of either.',
   },
   {
     id: 'fat-fat-soluble-vitamins',
@@ -463,7 +463,7 @@ export const NUTRIENT_SYNERGY_RULES: NutrientPairRule[] = [
     citation:
       'The same real fact already cited in this app\'s own interaction_rules table (vitamin_a_dietary_fat/vitamin_d_dietary_fat/vitamin_e_dietary_fat/vitamin_k_dietary_fat), reused here rather than cited a second time.',
     mechanism:
-      'Vitamins A, D, E, and K are fat-soluble -- the body needs some dietary fat present in the same meal to absorb them well, regardless of the dose.',
+      'Vitamins A, D, E, and K are fat-soluble: the body needs some dietary fat present in the same meal to absorb them well, regardless of the dose.',
   },
 ];
 
@@ -1291,7 +1291,7 @@ function checkPairingRequirements(
     const percent = (amount / target.amount) * 100;
     if (percent < rule.minPercentOfTargetToCountAsPaired) {
       warnings.push(
-        `${triggeringPick.entry.title} carries a real caution advising ${rule.requirementLabel}, but today's plan is only at ${Math.round(percent)}% of your ${target.displayName.toLowerCase()} target. Consider adding ${rule.suggestion}.`,
+        `${triggeringPick.entry.title} carries a caution advising ${rule.requirementLabel}, but today's plan is only at ${Math.round(percent)}% of your ${target.displayName.toLowerCase()} target. Consider adding ${rule.suggestion}.`,
       );
     }
   }
@@ -1314,7 +1314,7 @@ async function generateOneDay(
   const warnings: string[] = [];
   if (pools.profileIncomplete) {
     warnings.push(
-      'Your Profile is missing a sex and/or birth date, so the nutrient targets below use the most conservative real DRI value available rather than one built specifically for you. Add both in Profile for a more accurately personalized plan.',
+      'Your Profile is missing a sex and/or birth date, so the nutrient targets below use the most conservative DRI value available rather than one built specifically for you. Add both in Profile for a more accurately personalized plan.',
     );
   }
   const { breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates, saladCandidates, beverageCandidates, driByCode } = pools;
@@ -1403,7 +1403,7 @@ async function generateOneDay(
       // breakfast recipes is red-flagged for Hashimoto's specifically
       // (soy, mainly tofu and soy milk) -- a real gap in the recipe
       // library, not a filtering bug, for that one exact combination.
-      warnings.push('No breakfast recipe in this app\'s current recipe library complies with both your declared condition(s) and diet preference(s) at once. This is a real gap in the recipe library itself, not a setting to adjust: a compliant recipe needs to be added.');
+      warnings.push('No breakfast recipe in this app\'s current recipe library complies with both your declared condition(s) and diet preference(s) at once. This is a gap in the recipe library itself, not a setting to adjust: a compliant recipe needs to be added.');
     }
   }
 
@@ -1678,7 +1678,7 @@ export function dailyMealPlanToMealPlanDay(result: DailyMealPlanResult, dayNumbe
   // longer holds once more than two roles are possible.
   function toSlot(picks: DailyMealPlanPick[]): MealPlanSlot {
     const main = toRef(picks.find((p) => p.role === 'main'));
-    if (!main) throw new Error('[dailyMealPlanToMealPlanDay] A meal slot with real picks always includes a main.');
+    if (!main) throw new Error('[dailyMealPlanToMealPlanDay] A meal slot with picks always includes a main.');
     return {
       main,
       side: toRef(picks.find((p) => p.role === 'side')),

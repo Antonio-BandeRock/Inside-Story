@@ -1047,7 +1047,7 @@ export function ScanProductView({
         <View style={styles.panel}>
         <Text style={styles.title}>Set the Crop Area</Text>
         <Text style={styles.text}>
-          Drag the corners in to keep just the ingredients text -- cutting out anything else the photo picked up helps it read more clearly.
+          Drag the corners in to keep just the ingredients text. Cutting out anything else the photo picked up helps it read more clearly.
         </Text>
         <View style={[styles.adjustCanvasBox, { width: ADJUST_BOX_WIDTH, height: boxHeight }]}>
           <Canvas style={{ width: ADJUST_BOX_WIDTH, height: boxHeight }}>
@@ -1113,7 +1113,7 @@ export function ScanProductView({
         <View style={styles.panel}>
         <Text style={styles.title}>Adjust Brightness &amp; Contrast</Text>
         <Text style={styles.text}>
-          A shiny or dim label often reads much better once the glare is cut down -- drag either slider to see it update live.
+          A shiny or dim label often reads much better once the glare is cut down. Drag either slider to see it update live.
         </Text>
         <View style={[styles.adjustCanvasBox, { width: toneCanvasW, height: toneCanvasH, alignSelf: 'center' }]}>
           <Canvas ref={adjustCanvasRef} style={{ width: toneCanvasW, height: toneCanvasH }}>
@@ -1175,7 +1175,7 @@ export function ScanProductView({
         <Text style={styles.text}>
           {ingredientsAttempts.length > 1
             ? "Tap a photo below if a different one reads more clearly. The one with the border is what we'll use."
-            : "Hard to read? A curved can or a shiny label often reads better from a second angle -- tap 'Take Another Angle' below."}
+            : "Hard to read? A curved can or a shiny label often reads better from a second angle. Tap 'Take Another Angle' below."}
         </Text>
 
         <View style={styles.attemptRow}>
@@ -1310,7 +1310,7 @@ export function ScanProductView({
           <View style={styles.card}>
             <Text style={styles.sectionLabel}>Ingredients We Found ({parsedIngredientRows.length})</Text>
             <Text style={styles.gridHint}>
-              Tinted cells have something worth knowing -- the full explanation shows up on the next screen.
+              Tinted cells have something worth knowing, and the full explanation shows up on the next screen.
             </Text>
             <View style={styles.dataTable}>
               {chunkIntoRows(parsedIngredientRows, INGREDIENT_TABLE_COLUMNS).map((rowItems, rowIndex, allRows) => {
@@ -1394,7 +1394,7 @@ export function ScanProductView({
 
         {nutrientSummary.length > 0 ? (
           <View style={styles.card}>
-            <Text style={styles.sectionLabel}>Per 100g -- from the barcode scan</Text>
+            <Text style={styles.sectionLabel}>Per 100g, from the barcode scan</Text>
             <View style={styles.dataTable}>
               <View style={[styles.dataTableRow, styles.dataTableHeaderRow]}>
                 <Text style={[styles.dataTableHeaderText, styles.dataTableColNutrient]}>Nutrient</Text>

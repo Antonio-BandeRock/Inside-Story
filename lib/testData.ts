@@ -272,7 +272,7 @@ export async function seedKitchenSources(): Promise<SeedResult> {
 
   if (!activeList) {
     result.skipped.push(
-      'No grocery list exists yet, so foods were seeded from a fixed list. Build a grocery list and seed again to have them match its own lines.',
+      'No grocery list exists yet, so foods were seeded from a fixed list. Build a grocery list and seed again to have them match its lines.',
     );
   }
 

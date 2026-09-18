@@ -294,7 +294,7 @@ export default function OneDriveFolderScreen() {
             <Text style={styles.hint}>
               {root === 'shared'
                 ? 'Folders other people have shared with you. Look here if they made the folder.'
-                : 'Folders in your own OneDrive. Look here if you made the folder, or make one below.'}
+                : 'Folders in your OneDrive. Look here if you made the folder, or make one below.'}
             </Text>
 
             {trail.length > 0 ? (

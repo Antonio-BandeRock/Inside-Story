@@ -387,7 +387,7 @@ export function describeGiving(summary: GivingSummary): string {
     // require pricing the produce, which is the invented number this file
     // exists to refuse.
     parts.push(
-      `Separately, ${formatTradeMoney(summary.moneyGiven)} given as money. That is not added to the produce above, because there is no honest way to turn vegetables into dollars here.`,
+      `Separately, ${formatTradeMoney(summary.moneyGiven)} given as money. That is not added to the produce above, because there is no way to turn vegetables into dollars here.`,
     );
   }
 

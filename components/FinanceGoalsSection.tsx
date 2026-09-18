@@ -171,7 +171,7 @@ export function FinanceGoalsSection({ tabColor }: Props) {
         {goals.length === 0 ? (
           <Text style={styles.bodyText}>
             A goal here is something you want, plus what it will actually take to get it. That cost can be money, but it
-            can just as easily be hours of work or things you provide yourself, and most real goals are a mix. Restoring a
+            can just as easily be hours of work or things you provide yourself, and most goals are a mix. Restoring a
             bed costs lumber and a weekend. A year of preserves costs jars, produce and time.
           </Text>
         ) : (
@@ -505,7 +505,7 @@ export function FinanceGoalsSection({ tabColor }: Props) {
             hours behind it is not halfway either: the money is finished and the work has not started.
           </Text>
           <Text style={styles.footnote}>
-            So each cost is tracked in its own unit and nothing is ever turned into anything else. What the app tells you
+            So each cost is tracked in the unit it came in, and nothing is ever turned into anything else. What the app tells you
             instead is how many costs are met and which one is furthest behind, which is what actually says whether the
             thing in your way is money or a weekend.
           </Text>

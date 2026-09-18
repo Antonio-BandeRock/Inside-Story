@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.40.1',
+    date: '2026-09-18',
+    changes: [
+      'The writing across the app has been gone through and cleaned of the tics that make text read as machine-written. Titles that announced themselves, sentences that told you what the next sentence was about, the word "real" used as filler, doubled-up possessives like "the trial\'s own authors", and the double dash standing in for a comma or a full stop are gone. Roughly 3,900 of them, across 145 files.',
+      'Nothing about what the app says changed, only how it says it. No number, dose, date, citation or evidence tier was touched.',
+      'Some sentences in the Digest had been broken by earlier cleanups that deleted words without repairing the grammar around them. Those read as "Montclassification", "A investigational enzyme" and "in a 79% of children". 116 of those are repaired.',
+    ],
+  },
+  {
     version: '1.0.39.23',
     date: '2026-09-17',
     changes: [
@@ -48,8 +57,8 @@ export const RELEASE_NOTES: ReleaseNote[] = [
       'Listing autism turns on the calmer screen, plain wording, and the quieter reminders. Listing ADHD turns on one thing at a time and the reminders that keep asking. Listing dyslexia opens the lines of text out. Every one of those is still a switch of its own, so anything that turns out not to suit you can go straight back off and stays off.',
       'Letter spacing sits beside line spacing in Profile now, under Appearance. Wide is the spacing the accessibility standard asks for, and it is the one with a trial behind it: doubling the space between letters had dyslexic children reading about a tenth faster and making about half the errors, with no practice and no training. Wider goes past that for when the letters still crowd each other. The app restarts for a moment to apply it everywhere.',
       'The Digest has a new Basic Health topic covering all three, in six parts: what they are and why they are in a food app at all, autism and eating, ADHD and eating, dyslexia and reading, what tends to come with them, and the words used here. It says plainly, more than once, that food does not treat any of the three, and the trials that found nothing are written up beside the ones that found something.',
-      'Where any of the three touches one of the 19 conditions the app does track, that condition now carries its own entry saying what is actually known. Celiac and ADHD symptoms, thyroid antibodies in pregnancy, the family clustering of ADHD and autoimmune disease, and the shared ground between a restricted diet and a narrow one are all in there, each filed under the condition it belongs to rather than in one pile.',
-      'The ADHD and diet entry under Mental Health was rewritten to report the pooled picture rather than its two strongest trials. The honest number is small: across 10 studies of restriction diets and 24 of food colours, the average effect is modest, and the 64% figure that gets quoted is the share who responded inside one trial, not the share of children who would respond. A specific child can still be one of them.',
+      'Where any of the three touches one of the 19 conditions the app does track, that condition now carries an entry saying what is actually known. Celiac and ADHD symptoms, thyroid antibodies in pregnancy, the family clustering of ADHD and autoimmune disease, and the shared ground between a restricted diet and a narrow one are all in there, each filed under the condition it belongs to rather than in one pile.',
+      'The ADHD and diet entry under Mental Health was rewritten to report the pooled picture rather than its two strongest trials. The number is small: across 10 studies of restriction diets and 24 of food colours, the average effect is modest, and the 64% figure that gets quoted is the share who responded inside one trial, not the share of children who would respond. A specific child can still be one of them.',
     ],
   },
   {
@@ -58,7 +67,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     changes: [
       'A routine can now have a nudge. Give it a time and the days of the week it should speak on, and the phone says the name of it then. Tapping that opens the walk at the first step, so the thing that reminds you and the thing that walks you through it are one tap apart.',
       'The nudge waits, it never walks anything for you. A day you have already finished the routine stays quiet, and if you switch the nudge off for a week away the time is kept for when you switch it back on.',
-      'Routines has its own switch under Reminders in Profile, alongside doses, meals, bills and the rest.',
+      'Routines has a switch under Reminders in Profile, alongside doses, meals, bills and the rest.',
       'Routines and Did I Do It on Home now lead somewhere. Each band ends with a row that opens Life at the place the thing gets built, whether the band is empty or already has six in it. They used to say build one in Life as flat text, which is a sentence pointing at a door rather than a door.',
     ],
   },
@@ -131,7 +140,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
       'For a meal, a drink, a dose, a task or an appointment, the answers are one tap each: ate it, some of it, ate something else, skipped it, took it, did it, went. Or move it to later today, tonight, or tomorrow and leave it planned.',
       'Meals the app filled in for you now come back and ask. Since August, a planned meal whose time passed has been recorded as eaten, because a meal nobody cancelled was probably eaten. That is still what happens, but those meals are now marked as the app answering rather than you, and saying you skipped one takes the food back out of your day.',
       'Partly and Replaced are two new answers, and they read correctly everywhere the same row shows up: in Meals, Past Meals, Today, Meds and Appointments.',
-      'Things you noted down is a new switch in Profile > Reminders, for the reminders made from your own captured thoughts.',
+      'Things you noted down is a new switch in Profile > Reminders, for the reminders made from your captured thoughts.',
     ],
   },
   {
@@ -175,7 +184,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
       'The welcome card is called Today now, because that is what it holds: the greeting, the date, an affirmation, and the whole sky panel, moon phase, sunrise and sunset, the high and the low, humidity, UV, air quality and pollen. None of that is a welcome.',
       'It no longer waits thirty seconds and then shrinks itself into a sprout in the corner. It sits at the top of the page and folds like every other section here: tap the row to close it, tap it again to open it, and it stays however you left it.',
       'The sprout is still there, as the mark on the row, in full colour whether the card is open or closed.',
-      'Home has its own group again, at the top, where Home sits in the main menu. Today is what is in it: the one card on the page that is not a way into another tab.',
+      'Home has a group again, at the top, where Home sits in the main menu. Today is what is in it: the one card on the page that is not a way into another tab.',
       'Because Today is a section like any other now, it can be moved, and it can be turned off, from Profile > Home Screen. It is in the corner menu too.',
       'Low Stimulation still folds the page down to its rows, Today included.',
     ],
@@ -200,7 +209,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-16',
     changes: [
       'Four more things can remind you. Garden tasks arrive at the time you planned them for. Bills from Life > Finances speak three days ahead and again on the day. Upkeep and renewals speak a fortnight ahead, three days ahead, then the day itself. A work benefit about to reset with some of it unused speaks a month ahead and again a week ahead, while there is still time to book something.',
-      'Each has its own switch in Profile > Reminders, alongside the four that were already there, and all four start on. They are quiet by nature: a handful of bills a month, a service or two a year.',
+      'Each has a switch in Profile > Reminders, alongside the four that were already there, and all four start on. They are quiet by nature: a handful of bills a month, a service or two a year.',
       'A bill set to pay itself never reminds you, and neither does money coming in. A benefit you have already spent to the last dollar does not tell you it is resetting.',
       'New: keep reminding until it is done. A reminder comes back instead of firing once and being gone, for anyone whose hands were full the first time. A dose, a meal, a drink or a garden task asks again after 15 minutes, 45 minutes and an hour and a half. Something in Upkeep asks each morning while it is overdue, then gives up after a fortnight.',
       'It is off until you turn it on, in Profile > Reminders, because for anyone who does not want it that is nagging. Marking the thing done is what stops it.',
@@ -252,11 +261,11 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     changes: [
       'Reminders now cover meals and drinks, not just doses and appointments. A scheduled meal fires at the time you planned it for, which is the one that helps on a day you would otherwise look up at three in the afternoon and realise you have not eaten.',
       'A new Reminders card in Profile has a switch for each of the four kinds. Meals start on; water and drinks start off, because a day the Meal Plan has filled a water gap for can hold six of them and that should be something you ask for.',
-      'On Android, meals and drinks come through their own quieter notification channel, so you can mute those in your phone settings without touching the one your medication reminders use.',
+      'On Android, meals and drinks come through a separate, quieter notification channel, so you can mute those in your phone settings without touching the one your medication reminders use.',
       'The check-in tag list grew from 33 to 46. Two new groups: Appetite & Eating (no appetite, forgot to eat, hungry all the time, could not face eating, ate normally) and Sensory & Regulation (overstimulated, noise or light felt painful, meltdown, shutdown, felt settled and regulated).',
       'Three more tags joined groups that already existed: hyperfocused and could not get started under Cognitive, and restless under Energy.',
       'Anything you tag carries through the way the older tags already did, with no setup: it stays on the check-in, and it shows by name rather than by code in the symptom table of the PDF report you hand a doctor.',
-      'One honest limit: the Pattern Finder still lines up what you ate against how severe a flare or a reaction was, not against tags, so a run of overstimulated days will not surface there yet.',
+      'One limit: the Pattern Finder still lines up what you ate against how severe a flare or a reaction was, not against tags, so a run of overstimulated days will not surface there yet.',
     ],
   },
   {
@@ -443,7 +452,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-13',
     changes: [
       'The From The Digest band on Home and the headers on its cards now use the same purple as the ribbon and every other band.',
-      'The Digest header box at the top of the Digest tab shows the real awareness ribbon rather than a plain ribbon glyph.',
+      'The Digest header box at the top of the Digest tab shows the awareness ribbon rather than a plain ribbon glyph.',
       'The box in the lower corner of every tab now shows the icon of that tab beside the line that says to tap the button in the corner, so the button to look for is pictured.',
     ],
   },
@@ -487,7 +496,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.37.17',
     date: '2026-09-13',
     changes: [
-      'On the Food screen, System Meals is now the last row, below Saved & Favorites, in both the Desktop list and the My Foods corner popup: your own things first, the app\'s library after them.',
+      'On the Food screen, System Meals is now the last row, below Saved & Favorites, in both the Desktop list and the My Foods corner popup: your things first, the app\'s library after them.',
     ],
   },
   {
@@ -502,15 +511,15 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-13',
     changes: [
       'The groups on Log or Schedule a Meal (Coming up on your schedule, Sides, Soups, and the rest) fold. Each is closed until you tap it and shows how many meals it holds; typing a search opens every group with a match.',
-      'The top of that screen now says what to do: open a group, tap a meal to see its dishes, then Use this meal, or tick dishes from any meals to build a new one. The Food tab\'s own description of the screen says the same.',
-      'Meal Builder\'s Start from a meal you have has the same folding groups and its own line of instructions.',
+      'The top of that screen now says what to do: open a group, tap a meal to see its dishes, then Use this meal, or tick dishes from any meals to build a new one. The Food tab\'s description of the screen says the same.',
+      'Meal Builder\'s Start from a meal you have has the same folding groups and instructions of its own.',
     ],
   },
   {
     version: '1.0.37.14',
     date: '2026-09-13',
     changes: [
-      'Ticks now add up across meals. On Log or Schedule a Meal, tick dishes from as many meals as you like (a system recipe can be ticked as a dish too) and a Meal you are building box at the top shows every one of them, where it came from, and a button that builds a meal from all of them. Each opened meal\'s own button builds from all the ticks as well, not only its own.',
+      'Ticks now add up across meals. On Log or Schedule a Meal, tick dishes from as many meals as you like (a system recipe can be ticked as a dish too) and a Meal you are building box at the top shows every one of them, where it came from, and a button that builds a meal from all of them. Each opened meal\'s button builds from all the ticks as well, not only its own.',
       'Meal Builder\'s Start from a meal you have works the same way: ticks add up across meals, the combination shows above the list, and Use these N dishes loads all of them.',
       'Before a meal type is picked, the name-and-type step now names every dish loaded so far, so the whole combination is in view before anything is created.',
     ],
@@ -541,7 +550,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.37.10',
     date: '2026-09-13',
     changes: [
-      'Meal Builder now offers the system recipes. Every "Add from..." category lists your own saved dishes first and the system recipes for that builder beneath them, and the search box finds either by name or by an ingredient. You no longer have to build a side or anything else before a meal can be put together.',
+      'Meal Builder now offers the system recipes. Every "Add from..." category lists your saved dishes first and the system recipes for that builder beneath them, and the search box finds either by name or by an ingredient. You no longer have to build a side or anything else before a meal can be put together.',
       'Start from a meal you have: a meal favorite, a meal on your schedule, or a meal you have logged before can be loaded into Meal Builder whole, with its amounts, and adjusted from there.',
       'A system recipe picked into a meal, or logged or scheduled from Log or Schedule a Meal, no longer shows up in your saved dishes as if you had built it.',
     ],
@@ -550,7 +559,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.37.9',
     date: '2026-09-13',
     changes: [
-      'Your saved and favorite lists, a saved dish, a scanned product and Scan a Product all open inside the Food tab now, with the Food background, the footer, the corner buttons and the where-you-are box, the way every builder does. None of them is a plain screen of its own any more.',
+      'Your saved and favorite lists, a saved dish, a scanned product and Scan a Product all open inside the Food tab now, with the Food background, the footer, the corner buttons and the where-you-are box, the way every builder does. None of them is a plain separate screen any more.',
       'Scan a Product is in the Food corner menu. Home\'s Scan a Product row and a grocery list\'s Scan buttons both land there, and a scan that came from a grocery list still goes back to that list when it is done.',
       'Each of those views is laid out as bands in the Food colour with the standard gap between them, and a Back pill at the top goes back to where you came from.',
     ],
@@ -589,7 +598,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.37.4',
     date: '2026-09-13',
     changes: [
-      'The header box on Food no longer mentions the corner button; it only says what is below. Any tab that gets its own resting content will read the same way.',
+      'The header box on Food no longer mentions the corner button; it only says what is below. Any tab that gets resting content will read the same way.',
     ],
   },
   {
@@ -636,7 +645,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-12',
     changes: [
       'Insights > Nutrients: the RDA column now sits last, so Now and End of Day read side by side and the target they are judged against closes the row.',
-      'The status words in that table (Below target, Well short, On target, Over the limit) are in colours that can actually be read on the table\'s own background. The amber in particular was close to invisible before.',
+      'The status words in that table (Below target, Well short, On target, Over the limit) are in colours that can actually be read on the table\'s background. The amber in particular was close to invisible before.',
       'The lens name and explanation at the top of every Insights lens is now the same edge-to-edge band as the rest of the Nutrients screen, with a thick left edge and thin top and bottom.',
       'The Nutrients lens (and Condition Scores and Cooking & Prep, which share the same corner filter button) now scrolls far enough that the last line can be read above that button.',
     ],
@@ -700,7 +709,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.36.3',
     date: '2026-09-12',
     changes: [
-      'Meals Logged Today and Worth a Look are each their own row now, with the count on the row itself: the first sits with Schedules and opens the list of today\'s meals, the second with Insights.',
+      'Meals Logged Today and Worth a Look are each a separate row now, with the count on the row itself: the first sits with Schedules and opens the list of today\'s meals, the second with Insights.',
       'The Digest cards sit inside a band of their own, headed From The Digest, and each card now names the part of The Digest it came from at the top of both its faces. A card whose text is longer than the card scrolls up and down; the row still scrolls sideways.',
     ],
   },
@@ -708,7 +717,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.36.2',
     date: '2026-09-12',
     changes: [
-      'The Quick Actions strip is gone. Scan a Product, Log a Flare, Log Blood Pressure and Log Exercise are each their own row on Home now, sitting with the tab they belong to; a row with a forward arrow does the thing when you tap it.',
+      'The Quick Actions strip is gone. Scan a Product, Log a Flare, Log Blood Pressure and Log Exercise are each a separate row on Home now, sitting with the tab they belong to; a row with a forward arrow does the thing when you tap it.',
       'Log a meal is no longer repeated there, since the Log a Meal section already does that.',
       'Symptom Check-In is always on Home now, and its row says when one is due, rather than only appearing every 30 days.',
       'The Grocery List belongs to Life rather than Schedules, and takes that colour.',
@@ -776,7 +785,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.34.60',
     date: '2026-09-07',
     changes: [
-      'You can now pick your OneDrive folder inside the app: sign in to Microsoft, browse either your own folders or ones somebody shared with you, and choose one. No typing a name and hoping.',
+      'You can now pick your OneDrive folder inside the app: sign in to Microsoft, browse either your folders or ones somebody shared with you, and choose one. No typing a name and hoping.',
       'One shared folder holds everything the app keeps in OneDrive. The app makes a Mailbox folder inside it for anything you and a partner send each other, and a Backups folder for your backups.',
       'Backup & Restore now shows exactly where your backups go, the whole path, and can write one straight to OneDrive or restore the newest one back.',
       'Home asks you to set the folder up the first time you open the app, and stops asking once it exists.',
@@ -800,7 +809,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.34.50',
     date: '2026-09-07',
     changes: [
-      'Your shared folder is now set up before you pair with anyone, not after. It is its own card at the top of Connections, with Open OneDrive and a place to say what you called the folder.',
+      'Your shared folder is now set up before you pair with anyone, not after. It is a separate card at the top of Connections, with Open OneDrive and a place to say what you called the folder.',
       'Pairing stays switched off until you have named it. A partner link with nowhere to put anything is not much of a link.',
       'The folder name now travels in the code you show someone, so both phones know where to look without either of you explaining it.',
       'If the two of you named different folders, the app says so on their row. Nothing would reach either of you and nothing else would have told you.',
@@ -819,7 +828,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.34.48',
     date: '2026-09-07',
     changes: [
-      'A real mailbox. Link a file once on each side and Send Now and Check Theirs Now go straight to it, with nothing to navigate.',
+      'A mailbox. Link a file once on each side and Send Now and Check Theirs Now go straight to it, with nothing to navigate.',
       'Setting it up: in OneDrive or Drive, make a folder and share it with your partner. Send once through your share sheet into that folder, then tap Link What I Send and pick it. Do the same with Link What They Send once theirs arrives.',
       'The app cannot make that shared folder for you. No app can put a folder into storage that belongs to somebody else, so that first step is yours and the app now says so instead of leaving you to find out.',
       'Unlink at any time and it goes back to picking a file by hand.',
@@ -893,7 +902,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.34.40',
     date: '2026-09-06',
     changes: [
-      'Groundwork for sharing a meal plan through your own cloud storage: the message one phone sends the other is built and tested.',
+      'Groundwork for sharing a meal plan through your cloud storage: the message one phone sends the other is built and tested.',
       'It only ever carries which conditions you track and which recipes are planned, and only the parts you chose to share. Turning a share off means that part is not put in the message at all.',
       'If the two phones are on different versions of the food database, the plan is left out rather than shown, because the same recipe number can mean a different dish. The conditions still come through, and the app says what happened.',
       'Nothing is sent anywhere yet. Connecting it to OneDrive or Google Drive is the next step.',
@@ -913,7 +922,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.34.38',
     date: '2026-09-06',
     changes: [
-      'Pairing now also exchanges the key that lets one phone send something only the other can read. This is what will keep a shared meal plan private once it travels through your own cloud storage rather than being handed over in person.',
+      'Pairing now also exchanges the key that lets one phone send something only the other can read. This is what will keep a shared meal plan private once it travels through your cloud storage rather than being handed over in person.',
       'Anyone you paired with before today has no such key. Their entry in Connections says so, with a button to show your code once more, which fills it in. Nothing else about the connection changes and you do not need to disconnect.',
       'Nothing is sent anywhere yet. This is groundwork.',
     ],
@@ -970,7 +979,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-06',
     changes: [
       'If the app ever fails to set itself up again, it now says so and gives you a Check for Updates button, instead of opening to an empty Home with nothing working and no way to reach Profile. That is what happened yesterday, and the only reason it was recoverable is that the app happens to fetch updates on its own at launch.',
-      'The screen shows the real error and the version number, so a report can say something specific rather than that it is broken, and it offers to open the app anyway in case something you need still works.',
+      'The screen shows the actual error and the version number, so a report can say something specific rather than that it is broken, and it offers to open the app anyway in case something you need still works.',
       'Nothing you have recorded is affected by any of this. The failure was in building the database structure, never in the data itself.',
     ],
   },
@@ -999,7 +1008,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-05',
     changes: [
       'New: Emergency, on the Life tab. What someone else needs to know when you cannot tell them. It opens by saying plainly that nobody is going to find it in an emergency: it is on your phone, behind a lock, in an app, and a paramedic will not open it. It is a record to show someone, read out, or hand over, and it is not a replacement for a bracelet, a card in your wallet, or the medical ID screen your phone already has.',
-      'Drug allergies now have somewhere to live. Until now this app only ever recorded FOOD allergies, and a penicillin allergy is not a food allergy. It is the first thing on the card and the first thing on the screen, because it is the one most likely to change what someone does in the next ten minutes.',
+      'Drug allergies now have somewhere to live. Until now this app only ever recorded FOOD allergies, and a penicillin allergy is not a food allergy. Drug allergies are the first thing on the card and the first thing on the screen, because it is the one most likely to change what someone does in the next ten minutes.',
       'Most of the card is already filled in. Your conditions, everything you are currently taking with its dose, your food allergies and your name are read from where they already live rather than asked for twice, so changing a medication in My Meds changes the card with it.',
       'Somewhere to put who to call, which the app has never had anywhere for. One person can be marked to try first, and choosing that moves it off whoever had it, since a card naming two people to try first has not answered the question.',
       'It tells you how old it is. A card listing a medication you stopped six months ago is worse than no card, so the date you last confirmed it goes onto the card itself. Confirming is a separate act from editing a field, so changing your hospital does not quietly declare an old medication list current.',
@@ -1013,7 +1022,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     changes: [
       'New: Upkeep, on the Life tab. Anything with a date that bites you when you forget it. A boiler service, a water filter, a registration, a passport, a warranty.',
       'A service is counted from when you last did it, not from a fixed month. A boiler serviced in March is next due the following March, and recording that you did something today moves the next date. That is the one thing here that works differently from your bills, where rent arrives on the 1st whether or not you did anything.',
-      'Things that run out are handled as their own kind of thing, since a passport has one date and then it is over. You say whether it renews, so the app never suggests renewing a warranty that has finished; that stays on the list as a record rather than as a task.',
+      'Things that run out are handled as a separate kind of thing, since a passport has one date and then it is over. You say whether it renews, so the app never suggests renewing a warranty that has finished; that stays on the list as a record rather than as a task.',
       'What is overdue leads, then what is due in the next 45 days, then everything by area. Anything missing the piece it needs to be put on a calendar is listed as needing setup rather than quietly dropped.',
       'Costs are never guessed. Anything with no cost recorded is counted separately, and the figure for what is coming says so and calls itself a floor.',
       'And it never says something is required. Whether a vehicle has to be inspected, or how long a licence lasts, depends on where you live, so the app holds what you told it.',
@@ -1023,9 +1032,9 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.34.26',
     date: '2026-09-05',
     changes: [
-      'Pattern Finder now looks at work alongside food. A new "Work, week by week" section in Trends compares the weeks you rated work worse than your own average against the weeks you rated it better, and shows how many flares or reactions fell in each.',
+      'Pattern Finder now looks at work alongside food. A new "Work, week by week" section in Trends compares the weeks you rated work worse than your average against the weeks you rated it better, and shows how many flares or reactions fell in each.',
       'It is a comparison between weeks rather than a 48-hour window, because a weekly answer covers the flare and six other days. Calling that an antecedent of a Tuesday evening would be wrong however good it looked.',
-      'The split uses your own average rather than a fixed number, so it works whether you rate everything a 2 or everything a 5. A week landing exactly on your average goes in neither group, and the app says how many did.',
+      'The split uses your average rather than a fixed number, so it works whether you rate everything a 2 or everything a 5. A week landing exactly on your average goes in neither group, and the app says how many did.',
       'It refuses rather than guessing: under six answered weeks, when your answers never vary, when one side has fewer than two weeks, or when there were no flares to compare against. Each says which piece is missing.',
       'More flares in the EASIER weeks is reported just as plainly as the reverse, since that is worth noticing too.',
       'And it says out loud what it is not: four things compared across a handful of weeks makes one of them looking meaningful by luck likely rather than surprising, so this is a prompt to notice, never evidence that work caused anything.',
@@ -1058,9 +1067,9 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-05',
     changes: [
       'Giving produce away now records who got it: someone you know, or a food bank or charity. For an organisation you can note whether they gave you a receipt.',
-      'It is not a separate kind of thing from giving it away, because what happened is the same either way. Only who received it differs, and that is the part worth keeping.',
+      'It is not a separate kind of thing from giving it away, because what happened is the same either way. Only who received it differs.',
       'The record is what the app keeps: what went where, when, and whether you have a receipt. Whether any of it counts for anything on a tax return depends on where you live and on your own situation, so that question is left to someone who does tax.',
-      'Money you give is already tracked under Gifts and giving. It is reported alongside the produce but never added to it, because there is no honest way to turn vegetables into dollars.',
+      'Money you give is already tracked under Gifts and giving. It is reported alongside the produce but never added to it, because there is no defensible way to turn vegetables into dollars.',
     ],
   },
   {
@@ -1069,11 +1078,11 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     changes: [
       'A harvest that is more than you can eat can now be sold, traded, or given away, from the item itself in Kitchen.',
       'A trade needs no money anywhere. Say what came back and it goes straight into your kitchen inventory, marked as traded for rather than bought, so you can see how a jar of honey got there.',
-      'Whatever went out comes off your harvest the same way cooking with it would, so the inventory stays honest either way.',
+      'Whatever went out comes off your harvest the same way cooking with it would, so the inventory stays accurate either way.',
       'A trade is not priced, with one narrow exception: if you have recorded paying for that food before, in the same unit, the app says what you did not have to spend, at the price you actually paid and on the day you paid it. It is money you kept, never money you earned, and it stays out of your income.',
       'Where no price was ever recorded, or the unit is different, it says so and counts the goods rather than converting. A per-package price says nothing about a kilo.',
-      'What you gave away is never valued. Nobody knows what their own potatoes were worth.',
-      'Selling writes a real income entry, so surplus reaches your income figures instead of sitting in its own corner.',
+      'What you gave away is never valued. Nobody knows what their potatoes were worth.',
+      'Selling writes an income entry, so surplus reaches your income figures instead of sitting in a corner of its own.',
     ],
   },
   {
@@ -1082,7 +1091,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     changes: [
       'Income that varies is now tracked properly. Several income sources were always possible, but each held one fixed amount, so solar credits, harvest sales and side work could only ever be a number that is wrong every month.',
       'Mark an income as varying and the amount you enter becomes a starting guess. Tag what actually arrives and the app works out what it really brings in, then tells you how far off the guess was.',
-      'The average counts months that brought in nothing, on purpose. Harvest sales that stop for the winter really do earn nothing then, and leaving those months out would turn an honest year-round figure into a flattering summer one.',
+      'The average counts months that brought in nothing, on purpose. Harvest sales that stop for the winter really do earn nothing then, and leaving those months out would turn a year-round figure into a flattering summer one.',
       'A new "Where your money comes from" view shows each stream and its share. If one is most of it, the app says so, because several streams are only worth having if none of them is nearly all of it.',
       'Two new income kinds this app is in an unusual position to track: energy sold back to the grid, and produce or goods you sold.',
       'An income stream can point at the goal that created it, which makes "has it paid for itself yet" answerable from two measured numbers rather than a projection. It refuses to quote a rate from one or two payouts, and flags anything under a year, because solar in July is not solar in January.',
@@ -1105,9 +1114,9 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     changes: [
       'New: Goals, in Finances. A goal is something you want plus what it will actually take, and that cost does not have to be money.',
       'A goal can carry several costs at once, of different kinds: money, hours of work, or things you provide yourself. Rebuilding a bed costs lumber and a weekend. A year of preserves costs jars, produce and time.',
-      'Each cost is tracked in its own unit, and they are never added together into one percentage. Half the money and half the hours is not half done, it is half funded and half worked. Money finished with the work not started is not halfway either.',
+      'Each cost is tracked in the unit that fits it, and they are never added together into one percentage. Half the money and half the hours is not half done, it is half funded and half worked. Money finished with the work not started is not halfway either.',
       'So what you are told is how many costs are met and which one is furthest behind, by share rather than by amount. That is the figure that says whether the thing in your way is money or a weekend.',
-      'With a date on the goal, each cost says what it means per month in its own unit. Without one it says a date is missing rather than inventing a figure.',
+      'With a date on the goal, each cost says what it means per month in the unit that fits it. Without one it says a date is missing rather than inventing a figure.',
       'Every goal asks why it matters. It is what you read on the day the effort stops feeling worth it.',
       'A goal you stop chasing can be set aside rather than deleted, and it stops asking for anything each month while keeping everything you put in.',
     ],
@@ -1134,7 +1143,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-05',
     changes: [
       "New: I Made This, on any saved dish. What it used comes out of your kitchen and the batch goes in, so the inventory keeps itself up rather than only ever climbing.",
-      "It shows you exactly what it is about to take before it takes anything, and does nothing until you say yes. Saving a recipe is not the same as cooking it, and the app cannot tell whether you used your own stock or something you picked up on the way home.",
+      "It shows you exactly what it is about to take before it takes anything, and does nothing until you say yes. Saving a recipe is not the same as cooking it, and the app cannot tell whether you used your stock or something you picked up on the way home.",
       "If you only had part of what a recipe wanted, it takes what was there and says what was short rather than pretending the rest existed.",
       "Two ingredients that resolve to the same jar can no longer each be given all of it.",
     ],
@@ -1162,7 +1171,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-05',
     changes: [
       "New: Kitchen, on the Life tab. Everything you have on hand in one place, from the garden, from what you have fermented, from what you have bought, and from anything you add yourself.",
-      "Ticking something off a grocery list now puts it in your kitchen. Entering the real size in the price panel corrects it, so a 750ml bottle is recorded as 750ml rather than as whatever the recipe asked for.",
+      "Ticking something off a grocery list now puts it in your kitchen. Entering the actual size in the price panel corrects it, so a 750ml bottle is recorded as 750ml rather than as whatever the recipe asked for.",
       "Each item can have some marked used, be marked all gone, or be added straight back onto your grocery list when it runs low.",
       "Every item says how long it has been there, on purpose: nothing takes an amount down as you cook, so an inventory is only as right as you keep it, and an amount the app cannot check should tell you how old it is.",
     ],
@@ -1171,14 +1180,14 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.34.12',
     date: '2026-09-05',
     changes: [
-      "Insights goes back to the softer pink. The brighter one separated better on paper but read as too bright on a real screen.",
+      "Insights goes back to the softer pink. The brighter one separated better on paper but read as too bright on an actual screen.",
     ],
   },
   {
     version: '1.0.34.11',
     date: '2026-09-05',
     changes: [
-      "From The Digest wears the real awareness ribbon in Home's lens menu now, instead of the plain ribbon glyph that reads as a race rosette.",
+      "From The Digest wears the awareness ribbon in Home's lens menu now, instead of the plain ribbon glyph that reads as a race rosette.",
     ],
   },
   {
@@ -1203,7 +1212,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.34.8',
     date: '2026-09-05',
     changes: [
-      "Home has its own corner menu now, instead of a shortcut to The Digest. It lists whichever Home sections you have turned on, in the order you put them, and picking one goes straight to the thing it is a view of. You can use the card on Home or the menu, whichever you reach first.",
+      "Home has a corner menu now, instead of a shortcut to The Digest. It lists whichever Home sections you have turned on, in the order you put them, and picking one goes straight to the thing it is a view of. You can use the card on Home or the menu, whichever you reach first.",
       "Insights is a rose now rather than the orchid it briefly had. Trends keeps its blue.",
       "Garden and Digest swapped places in the menu, so Garden's green and Life's green are no longer side by side.",
       "The line around the TabHub menu follows the ground colour picked in Profile, the same as the circle inside it.",
@@ -1214,7 +1223,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-05',
     changes: [
       "The TabHub menu is reordered. Home, Profile and Info sit across the top row now, and the ten tabs below read in groups of three: what you do daily, what it tells you, and the wider world.",
-      "Signals and Trends swapped. Signals is where you log how you feel and Trends is the patterns drawn from it, so the output had been sitting ahead of its own input.",
+      "Signals and Trends swapped. Signals is where you log how you feel and Trends is the patterns drawn from it, so the output had been sitting ahead of its input.",
       "Swiping between tabs and the dots under the header both follow the new order, and Home now has a dot of its own.",
       "The circle marking the tab you are on follows the ground colour picked in Profile, instead of always being the same teal whichever theme was chosen.",
       "Insights and Life traded colours. Insights was a mint green sitting right beside Food's green and hard to tell apart from it.",
@@ -1228,8 +1237,8 @@ export const RELEASE_NOTES: ReleaseNote[] = [
       'Bills and spending can now say which account they come out of, which nothing in Finances did before. Money went out and no account was any different for it.',
       'Optional, always. A bill you know about is worth recording before you have set up a single account.',
       'What it buys: an account can tell you when more is due out of it than is in it. Rent due on the 1st against $340 in checking is the warning worth having.',
-      'Nothing is deducted automatically, and that is deliberate. The app only sees what you record, never the coffee or the bank fee, so a balance it worked out for you would be confidently wrong within a month and impossible to tell apart from a real one. What you typed stays what you typed, and what your records say has happened since is shown next to it.',
-      'A difference between the two is not an error. It is a measure of how much of your spending never got written down.',
+      'Nothing is deducted automatically, and that is deliberate. The app only sees what you record, never the coffee or the bank fee, so a balance it worked out for you would be confidently wrong within a month and impossible to tell apart from an accurate one. What you typed stays what you typed, and what your records say has happened since is shown next to it.',
+      'A difference between the two measures how much of your spending never got written down. It is not an error.',
       'A card or loan payment can say which debt it pays down, and the app now spots the same payment being counted twice: once as a bill, once as that debt’s minimum payment. It says so and changes nothing, because which one to keep is your call.',
     ],
   },
@@ -1240,7 +1249,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
       'Accounts now handle interest, and which accounts get asked for a rate has changed.',
       'A savings account can hold its APY, because that rate is printed on the statement. Investments, retirement and property are no longer offered a rate field at all: those move with the market, and a long-run average return is a description of the past rather than a rate anything is growing at.',
       'Every debt now shows what it costs each month just to sit there. A $4,200 card at 24.99% is about $87 a month before you pay anything off it. Net worth totals that up, because it is a bill in every sense except that nobody sends it to you.',
-      'Investments and retirement report what actually happened instead: update a balance now and then and the app measures the change across your own history, rather than applying an assumed rate.',
+      'Investments and retirement report what actually happened instead: update a balance now and then and the app measures the change across your history, rather than applying an assumed rate.',
       'When you update a balance you can record what you paid in or took out. It is optional, and it decides whether the figure can be called a return at all, since a balance that went up looks exactly like money you added.',
       'Nothing grows a stored balance on its own. What you typed on a date stays what you typed; anything computed is shown beside it and marked as computed.',
     ],
@@ -1250,7 +1259,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-05',
     changes: [
       'New in Finances: an Accounts section, covering the ordinary budgeting ground the first version skipped.',
-      'What you own and what you owe become one net worth figure. Balances are typed in rather than pulled from a bank, and a point is recorded whenever you change one, so the line only moves when something real did.',
+      'What you own and what you owe become one net worth figure. Balances are typed in rather than pulled from a bank, and a point is recorded whenever you change one, so the line only moves when something actually did.',
       'Two orders for paying off debt, side by side. Highest rate first is cheaper and usually finishes sooner, and you are told by how much of each. Smallest balance first is reported by the month its first debt is gone, so it can be weighed rather than just felt. Neither is picked for you.',
       'A debt with no interest rate or minimum payment recorded is named and left out rather than treated as interest-free.',
       'Monthly limits per category, in Spending. What repeating bills already commit is shown beside what you have spent rather than added into it, and a limit your bills alone already exceed says so, because that one cannot be met by spending less.',
@@ -1265,7 +1274,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
       'Where you stand against your deductible and out-of-pocket maximum, with the plan year starting whenever yours actually starts. Starting partway through the year is handled: enter what you had already met and the bars start where you really are.',
       'HSA and FSA, with the difference that costs money. FSA funds are forfeited after your deadline and you get told before that happens. HSA funds roll over forever, so nothing warns you about them.',
       'Medical bills checked against the Explanation of Benefits: what your plan allowed, minus what insurance paid, is what you owe. What the provider billed is deliberately not part of that, because the gap above allowed is written off, and treating it as owed is the most common way people overpay.',
-      'What each condition has cost you this year, pulled together from bills, repeating costs, one-offs and hands-on therapy sessions you have tagged. Anything untagged is shown on its own rather than divided between conditions, because splitting it would turn one honest figure into several invented ones.',
+      'What each condition has cost you this year, pulled together from bills, repeating costs, one-offs and hands-on therapy sessions you have tagged. Anything untagged is shown on its own rather than divided between conditions, because splitting it would turn one measured figure into several invented ones.',
     ],
   },
   {
@@ -1284,9 +1293,9 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-05',
     changes: [
       'Life has its first area: Finances. Four sections behind one lens: Overview, Bills & Income, Spending, and Coming Up.',
-      'Bills & Income is what is supposed to happen each month; Spending is what actually did. Overview puts them side by side, because whether they match is the real question.',
+      'Bills & Income is what is supposed to happen each month; Spending is what actually did. Overview puts them side by side, because whether they match is the question.',
       'Groceries you priced in the shop and therapy sessions you costed are counted automatically. They are read from where they already live rather than copied, so fixing a grocery price fixes it everywhere. Do not enter them twice.',
-      'Weekly bills are counted at 4.33 a month, not 4, and every-two-weeks at 26 payments a year rather than 24. Those are the real numbers, and using the round ones is how a budget quietly runs short by a month a year.',
+      'Weekly bills are counted at 4.33 a month, not 4, and every-two-weeks at 26 payments a year rather than 24. Those are the actual numbers, and using the round ones is how a budget quietly runs short by a month a year.',
       'A bill due on the 31st lands on the last day of shorter months instead of being skipped.',
       'Where the garden or a ferment covered a grocery line, that is reported as lines you did not have to buy, not as a dollar saving. What that produce would have cost is not something this app knows, and it will not invent it.',
       'No bank connection, by choice. Everything stays on your phone.',
@@ -1297,7 +1306,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-04',
     changes: [
       'New tab: Life, the tenth. Open it from the navigation button like any other tab, or swipe to it from Garden. Its mark is the infinity symbol and its color is a light orchid.',
-      'Life is where the parts of your life that are not food, not a symptom, and not a lab result will live. It is deliberately empty right now: the tab is finished and working, and what goes inside it has not been decided yet.',
+      'Life is where the parts of your life that are not food, not a symptom, and not a lab result will live. Right now the tab is deliberately empty: it is finished and working, and what goes inside it has not been decided yet.',
       'There are no placeholder features on it and no buttons that do nothing. When something appears there it will be because it was built.',
       'A side effect worth having: the navigation menu now comes out even at four full rows, instead of leaving two icons alone on the last one.',
     ],
@@ -1368,7 +1377,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.32.15',
     date: '2026-09-03',
     changes: [
-      "Fixed, properly this time: olive oil now offers a price per fluid ounce rather than per pound. The last two updates each fixed a real part of this and neither reached the line you were actually looking at.",
+      "Fixed, properly this time: olive oil now offers a price per fluid ounce rather than per pound. The last two updates each fixed part of this and neither reached the line you were actually looking at.",
       "The cause: your list was built before the app started recording how a thing is sold, so that line had nothing stored at all, and a line with nothing stored falls back to offering a weight. The repair in the last update only covered lists where the value was recorded wrongly, not lists where it was never recorded.",
       "Opening your grocery list now fills that in from the food reference for every line missing it, once, without touching a tick, price or note. Anything you added by hand in a shop is left alone.",
     ],
@@ -1416,7 +1425,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-01',
     changes: [
       "You can mark a price as a sale price. Tick it while you are pricing the item, and it shows on the line as on sale.",
-      "Grocery Prices in Trends now plots a sale in its own colour and says how many of the points were offers. Without that, one half-price week reads as the thing getting cheaper rather than as a sale.",
+      "Grocery Prices in Trends now plots a sale in a separate colour and says how many of the points were offers. Without that, one half-price week reads as the thing getting cheaper rather than as a sale.",
       "Anything sold by volume or weight now asks how much was in it, so a bottle priced for all of it can still be compared. A 750 ml bottle at $15.90 works out to $21.20 per litre, and it says so under the price while you type.",
       "Quoted per litre and per kilo rather than per millilitre and per gram, because two cents a millilitre is not a number anyone can compare two bottles with. Imperial is quoted per fluid ounce and per ounce.",
     ],
@@ -1474,7 +1483,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-09-01',
     changes: [
       "The grocery list now says how each thing is actually sold. Broccoli by the head, garlic by the bulb, salmon by weight, olive oil in a bottle, beans in a can. Covers every ingredient the recipe library uses.",
-      "Where the amount can honestly be turned into a number of things to pick up, it says so: about 2 avocados, about 3 eggs. Only for foods with a properly sourced weight per item, so it is never a guess.",
+      "Where the amount can be turned into a number of things to pick up, it says so: about 2 avocados, about 3 eggs. Only for foods with a properly sourced weight per item, so it is never a guess.",
       "This update reloads the food database, so the first launch after it will take longer than usual. Only once.",
     ],
   },
@@ -1482,7 +1491,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.32.3',
     date: '2026-09-01',
     changes: [
-      "Fixed a real problem with nutrition numbers: how you said you were going to cook an ingredient had no effect on the nutrients counted for it. Every builder asked about preparation twice, once in the ingredient search and once as Cook Prep, and only the first answer reached the data. Pick broccoli raw, set it to Boiled, and you got raw broccoli's numbers on a boiled dish.",
+      "Fixed a problem with nutrition numbers: how you said you were going to cook an ingredient had no effect on the nutrients counted for it. Every builder asked about preparation twice, once in the ingredient search and once as Cook Prep, and only the first answer reached the data. Pick broccoli raw, set it to Boiled, and you got raw broccoli's numbers on a boiled dish.",
       "The Cook Prep you choose now decides which version of the food gets counted. Boiled means the boiled version, raw means the raw one. This changes nutrients, condition scores and everything built on them, in all eleven Food builders.",
       "Where the food database has no cooked version of something, the report now says so plainly instead of leaving two answers quietly disagreeing.",
     ],
@@ -1508,14 +1517,14 @@ export const RELEASE_NOTES: ReleaseNote[] = [
       "Scan a barcode from inside the list to add a product and its price, or to attach one to something already on the list.",
       "Anything you remember in the aisle can be added by hand, and it groups together at the end rather than getting lost among the scheduled ingredients.",
       "New Trends lens, Grocery Prices: pick a food and see what it has cost over time, and how often you have actually bought it. Built entirely from prices you entered yourself.",
-      "Schedule's own Shopping List now has a button to turn what it is showing into a real grocery list.",
+      "Schedule's Shopping List now has a button to turn what it is showing into an actual grocery list.",
     ],
   },
   {
     version: '1.0.31.15',
     date: '2026-08-30',
     changes: [
-      "Fixed: setting up a 6-week meal plan also filled Saved Sides, Saved Salads, Saved Soups and the rest with dishes you never built. Scheduling a meal has to keep a real saved copy of each part so it can be rebuilt on the day, and those copies were showing up as your own work. They no longer do, and the ones already there have been cleared out. Anything you built yourself is untouched.",
+      "Fixed: setting up a 6-week meal plan also filled Saved Sides, Saved Salads, Saved Soups and the rest with dishes you never built. Scheduling a meal has to keep a saved copy of each part so it can be rebuilt on the day, and those copies were showing up as your work. They no longer do, and the ones already there have been cleared out. Anything you built yourself is untouched.",
       "The Digest label on the Home screen now sits at the same height as the corner label on every other tab.",
       "The tab menus no longer open by themselves when you switch tabs. Instead each tab now shows a box at the top telling you which button to tap to pick a tool.",
       "The version number moved to the lower right, centred under the box that tells you where you are.",
@@ -1560,8 +1569,8 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-08-30',
     changes: [
       "The button on Home still said Find a meal you have had, which was the whole thing that was meant to change. It now just says Find a meal.",
-      "Meals already on your schedule but not yet eaten now have their own section at the top. Hiding the meal-plan favorites in the last update was right, but it also took away the only way those meals could be found here.",
-      "Your meals and System recipes are now two tabs, so a few of your own meals no longer get buried under hundreds of system ones. It opens on your meals.",
+      "Meals already on your schedule but not yet eaten now have a separate section at the top. Hiding the meal-plan favorites in the last update was right, but it also took away the only way those meals could be found here.",
+      "Your meals and System recipes are now two tabs, so a few of your meals no longer get buried under hundreds of system ones. It opens on your meals.",
     ],
   },
   {
@@ -1578,7 +1587,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
       "Fixed: setting up a 6-week meal plan filled your favorites with 126 meals you never asked to save. Scheduling a meal has always had to keep a hidden copy of its parts so it can be rebuilt on the day, and that copy was showing up as a favorite. It no longer does, and the ones already sitting in your favorites have been cleared out. Anything you saved on purpose is untouched.",
       "Find a Meal is renamed and now covers meals you have not had yet as well. Alongside what you have logged and favorited, every system recipe is there, grouped the same way the Digest groups them: Sides, Salads & Bowls, Soups, Handhelds, and the rest.",
       "Find a Meal is now also on the Food screen, and Ate out or off-plan is now also at the top of the Meals schedule.",
-      "The Digest cards on Home are now one card per area you actually have: Basic Health, Earth Matters, Gardening, Recipes, and one for each of your conditions. My Kitchen and My Favorites are not among them, since those are your own saved things and belong on the Food screen. The shelf is shuffled every time you open the app, and each card moves to something else from its own area every 15 minutes.",
+      "The Digest cards on Home are now one card per area you actually have: Basic Health, Earth Matters, Gardening, Recipes, and one for each of your conditions. My Kitchen and My Favorites are not among them, since those are your saved things and belong on the Food screen. The shelf is shuffled every time you open the app, and each card moves to something else from its area every 15 minutes.",
     ],
   },
   {
@@ -1587,7 +1596,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     changes: [
       "The row of past meals on Home is gone. It guessed at what you might be eating and only ever showed eight, so the meal you actually wanted was often not there at all.",
       "In its place: Find a meal you have had. A plain scrollable list of everything you have logged or favorited, with a search box, so you can find something by any word in its name instead of remembering what you called it.",
-      "Pick one and you can log it now, log it earlier today if you are catching up, schedule it for another day, or use it instead of a meal you had planned. Replacing a planned meal logs it at that meal's own time and clears it off your schedule.",
+      "Pick one and you can log it now, log it earlier today if you are catching up, schedule it for another day, or use it instead of a meal you had planned. Replacing a planned meal logs it at that meal's time and clears it off your schedule.",
       "Finishing a photo now opens the same searchable list, rather than offering a few guessed names.",
     ],
   },
@@ -1596,8 +1605,8 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-08-30',
     changes: [
       "Say what you ate is now built around the two times you actually need it: a meal out, and a meal you ate instead of the one you had planned. It offers today's planned meals so the one you skipped stops sitting on your schedule waiting, and it can mark a meal as eaten out.",
-      "New: photograph a meal now, sort it out later. If you have no time to log something properly, take a picture of it. It waits on your Home screen until you have a minute, then becomes a real logged meal with the photo kept on it, dated to when the photo was taken rather than when you got around to it.",
-      "Nothing is read from the picture and nothing is sent anywhere. It is a reminder of what you ate, so you can log it accurately later instead of guessing at the end of the day.",
+      "New: photograph a meal now, sort it out later. If you have no time to log something properly, take a picture of it. It waits on your Home screen until you have a minute, then becomes a logged meal with the photo kept on it, dated to when the photo was taken rather than when you got around to it.",
+      "Nothing is read from the picture and nothing is sent anywhere. It is a reminder of what you ate, so you can log it accurately later instead of guessing.",
       "Finish a photo by picking one of your usual meals, or by saying what it was. Either way the photo goes onto the meal.",
     ],
   },
@@ -1608,9 +1617,9 @@ export const RELEASE_NOTES: ReleaseNote[] = [
       "Say what you ate. There is a new microphone button on Home, in the Log Again box: speak a meal and the app works out what you meant, shows you every part of it, and logs it once you say go.",
       "It understands amounts the way people say them. Two eggs and a slice of toast becomes two separate things. One and a half cups of oatmeal is one and a half, not two and a half. Macaroni and cheese stays one food.",
       "Nothing is logged from your voice alone. Every food it matched and every amount it worked out is shown first and can be corrected, and a loose match says so.",
-      "If it recognizes the name of a meal you have logged before, it offers to log that one instead, with its real ingredients rather than a rebuilt guess.",
-      "When an amount cannot honestly be turned into a weight, it says so rather than guessing. A cup of rice has no weight the app can work out, only drinks, alcohol and fats have a density it can rely on, so it asks for grams instead of inventing a number.",
-      "Voice now runs on your phone itself wherever your phone can do that, so the audio never leaves the device. Where it cannot, the screen tells you plainly that your phone's own speech service handled it.",
+      "If it recognizes the name of a meal you have logged before, it offers to log that one instead, with its actual ingredients rather than a rebuilt guess.",
+      "When an amount cannot be turned into a weight, it says so rather than guessing. A cup of rice has no weight the app can work out, only drinks, alcohol and fats have a density it can rely on, so it asks for grams instead of inventing a number.",
+      "Voice now runs on your phone itself wherever your phone can do that, so the audio never leaves the device. Where it cannot, the screen tells you plainly that your phone's speech service handled it.",
     ],
   },
   {
@@ -1618,7 +1627,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-08-30',
     changes: [
       "Scan a barcode and you can now log it as eaten right there. Until now a finished scan could only be saved for later or priced, which answers whether to buy something but never that you are eating it.",
-      "It asks two things and fills both in for you: how much, in grams, and which meal. The meal is guessed from the clock against your own meal times in Profile, and both are yours to change before anything is written.",
+      "It asks two things and fills both in for you: how much, in grams, and which meal. The meal is guessed from the clock against your meal times in Profile, and both are yours to change before anything is written.",
       "The amount is in grams and starts at 100 because that is what a barcode nutrition panel reports. Nothing in the lookup gives a serving size, so the app does not invent one.",
       "Undo sits right next to the confirmation. Logging it also files the product under My Processed Foods, the same one entry buying it would have created, not a second copy.",
     ],
@@ -1628,7 +1637,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-08-30',
     changes: [
       "Scan a barcode and you can now log it as eaten right there. Until now a finished scan could only be saved for later or priced, which answers whether to buy something but never that you are eating it.",
-      "It asks two things and fills both in for you: how much, in grams, and which meal. The meal is guessed from the clock against your own meal times in Profile, and both are yours to change before anything is written.",
+      "It asks two things and fills both in for you: how much, in grams, and which meal. The meal is guessed from the clock against your meal times in Profile, and both are yours to change before anything is written.",
       "The amount is in grams and starts at 100 because that is what a barcode nutrition panel reports. Nothing in the lookup gives a serving size, so the app does not invent one.",
       "Undo sits right next to the confirmation. Logging it also files the product under My Processed Foods, the same one entry buying it would have created, not a second copy.",
     ],
@@ -1683,7 +1692,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
       'A slow Insights lens now says what it is about to show you and what it tells you while it works, instead of just "Loading".',
       'Home\'s "Meals logged today" tile opens Past Meals, where those meals actually are, instead of dropping you on the My Foods menu.',
       "Today's Fuel Gauges say what the percentages are: your whole day's target, from what you have logged so far, so they climb as the day goes on. Nothing is projected.",
-      'The gauge colours mean something now. Each ring blends from a cool slate toward green as that nutrient approaches its target, and only turns to a warning colour, naming the nutrient underneath, when intake has genuinely passed a published safe upper limit. Simply going over 100% is not treated as a problem.',
+      'The gauge colours mean something now. Each ring blends from a cool slate toward green as that nutrient approaches its target, and only turns to a warning colour, naming the nutrient underneath, when intake has passed a published safe upper limit. Simply going over 100% is not treated as a problem.',
       "The How You're Feeling card now says what it is: the worst flare or food reaction logged in the last two days, kept on the first screen so an ongoing one is visible without going looking for it.",
     ],
   },
@@ -1714,15 +1723,15 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.30.20',
     date: '2026-08-29',
     changes: [
-      "Every condition now has its own Already tested foods list in Profile, not just Hashimoto's and Prostate Health. 84 entries across all 19, each linked to the cited research behind it.",
-      "Prostate Health gained spicy food and tea, backed by a validated survey where 47% of men with chronic pelvic pain reported real food sensitivities, plus tomatoes and cruciferous vegetables as foods worth eating more of.",
+      "Every condition now has an Already tested foods list in Profile, not just Hashimoto's and Prostate Health. 84 entries across all 19, each linked to the cited research behind it.",
+      "Prostate Health gained spicy food and tea, backed by a validated survey where 47% of men with chronic pelvic pain reported food sensitivities, plus tomatoes and cruciferous vegetables as foods worth eating more of.",
     ],
   },
   {
     version: '1.0.30.19',
     date: '2026-08-29',
     changes: [
-      "Prostate Health now has its own Already tested foods list in Profile, where only Hashimoto's had one before: caffeine, alcohol, evening fluids, choline-rich foods, and selenium or vitamin E supplements. Each links to the cited research behind it.",
+      "Prostate Health now has an Already tested foods list in Profile, where only Hashimoto's had one before: caffeine, alcohol, evening fluids, choline-rich foods, and selenium or vitamin E supplements. Each links to the cited research behind it.",
     ],
   },
   {
@@ -1740,8 +1749,8 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     changes: [
       'Black text no longer has a drop shadow anywhere in the app. A dark shadow behind dark text has nothing to separate it from, so it only thickened the letters.',
       'Profile pickers now follow your chosen ground color instead of a fixed grey.',
-      'The symptom check-in now only asks about conditions you actually track. Someone tracking Prostate Health was being asked five IBS questions and thirteen thyroid ones, and nothing about their own condition.',
-      'Added a real check-in for Prostate Health, using the seven-question International Prostate Symptom Score, the standard validated measure for urinary symptoms.',
+      'The symptom check-in now only asks about conditions you actually track. Someone tracking Prostate Health was being asked five IBS questions and thirteen thyroid ones, and nothing about their condition.',
+      'Added a check-in for Prostate Health, using the seven-question International Prostate Symptom Score, the standard validated measure for urinary symptoms.',
     ],
   },
   {
@@ -1749,7 +1758,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     date: '2026-08-29',
     changes: [
       'Digest search pills no longer have any drop shadow, so the small text stops looking smudged.',
-      'Growing Zone moved into its own Garden Details section in Profile, with room for more garden settings later.',
+      'Growing Zone moved into a Garden Details section in Profile, with room for more garden settings later.',
       'Profile > Conditions & Check-In now lets you choose how often to be reminded to check in, from weekly to once a year. Home uses whatever you pick.',
       'The check-in reminder on Home now only appears if you have told the app you have a condition, and stops asking for a first check-in once you have taken one.',
       "Already tested foods gained a third choice, Haven't tested, for a food you have looked at and left open rather than decided on. You can start testing it later from the same row.",
@@ -1813,7 +1822,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.30.8',
     date: '2026-08-29',
     changes: [
-      'Scheduling a meal outside your fasting window is no longer blocked. You now get a choice: pick another time, or "Add Meal Anyway" for a missed meal, feeling unwell, or any other real reason.',
+      'Scheduling a meal outside your fasting window is no longer blocked. You now get a choice: pick another time, or "Add Meal Anyway" for a missed meal, feeling unwell, or any other good reason.',
       'A meal added that way is saved and marked "Outside eating window" on your schedule, so your records and trends reflect a meal you actually ate instead of leaving it out.',
       'Rescheduling such a meal back inside your window clears that mark, so it never sticks to a meal it no longer describes.',
     ],

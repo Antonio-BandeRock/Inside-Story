@@ -144,7 +144,7 @@ export function DimensionChart({ conditionName, data, color }: { conditionName?:
             <View key={datum.dimension} style={styles.legendRow}>
               <View style={[styles.legendDot, { backgroundColor: severityColor(datum.severity) }]} />
               <Text style={styles.legendText}>
-                {`${shortAxisLabel(datum.dimension, i)} — `}
+                {`${shortAxisLabel(datum.dimension, i)}: `}
                 {datum.dimension}
               </Text>
             </View>

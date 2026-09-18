@@ -128,7 +128,7 @@ export const CONDITION_PROTEIN_OVERRIDES: ConditionProteinOverride[] = [
     conditionCode: 'chronic_kidney_disease',
     stageCode: 'pre_dialysis',
     gramsPerKg: 0.7,
-    note: 'Using 0.7 g/kg, the midpoint of the 0.6-0.8 g/kg/day protein ceiling most pre-dialysis CKD guidance recommends, in place of your activity-based default. A renal dietitian can set your own exact target.',
+    note: 'Using 0.7 g/kg, the midpoint of the 0.6-0.8 g/kg/day protein ceiling most pre-dialysis CKD guidance recommends, in place of your activity-based default. A renal dietitian can set your exact target.',
   },
   {
     conditionCode: 'chronic_kidney_disease',

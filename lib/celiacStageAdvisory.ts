@@ -66,11 +66,11 @@ export const CELIAC_STAGE_INFO: Record<CeliacStage, { label: string; shortDescri
   actively_healing: {
     label: 'Newly Diagnosed / Actively Healing',
     shortDescription:
-      'The real, often-long healing window -- 3-6 months for children/younger adults, up to 2 years for older adults. Strict avoidance matters most here.',
+      'The healing window is often long: 3-6 months for children/younger adults, up to 2 years for older adults. Strict avoidance matters most here.',
   },
   maintenance: {
     label: 'Healed / Long-Term Maintenance',
-    shortDescription: "Mucosal healing has settled in -- ordinary, strict gluten avoidance remains the standing rule either way.",
+    shortDescription: "Mucosal healing has settled in. Ordinary, strict gluten avoidance remains the standing rule either way.",
   },
 };
 
@@ -94,13 +94,13 @@ export function getCeliacStageAdvisory(scores: FoodScore[], stage: CeliacStage |
 
   if (findTier(scores, 'Gluten') === 'High Risk') {
     reasons.push(
-      'Contains gluten -- strict avoidance matters most during this real, often-long healing window; even small, repeated exposure can keep the gut from healing.',
+      'Contains gluten. Strict avoidance matters most during this often-long healing window; even small, repeated exposure can keep the gut from healing.',
     );
   }
 
   if (findTier(scores, 'Common Elimination-Diet Trigger Food') === 'Dairy') {
     reasons.push(
-      "Dairy -- secondary lactose intolerance is a real, well-documented finding at celiac diagnosis (villous atrophy damages the same gut-lining cells that produce lactase). It's reasonable to expect this to improve as the gut heals, though the exact resolution timeline hasn't been separately tracked the way villous healing itself has. Worth noticing if dairy still bothers you, not a lifelong rule.",
+      "Dairy: secondary lactose intolerance is a well-documented finding at celiac diagnosis (villous atrophy damages the same gut-lining cells that produce lactase). It's reasonable to expect this to improve as the gut heals, though the exact resolution timeline hasn't been separately tracked the way villous healing itself has. Worth noticing if dairy still bothers you, not a lifelong rule.",
     );
   }
 
@@ -110,6 +110,6 @@ export function getCeliacStageAdvisory(scores: FoodScore[], stage: CeliacStage |
     title: 'Celiac Stage: Newly Diagnosed / Actively Healing',
     message:
       reasons.join('\n\n') +
-      "\n\nThis is advisory only -- nothing in Inside Story hides or blocks a food based on your stage. See the Celiac Disease category in Digest for the full, cited healing timeline.",
+      "\n\nThis is advisory only. Nothing in Inside Story hides or blocks a food based on your stage. See the Celiac Disease category in Digest for the full, cited healing timeline.",
   };
 }

@@ -93,7 +93,7 @@ export const ALCOHOL_RETENTION_OPTIONS: AlcoholRetentionOption[] = [
 ];
 
 export const ALCOHOL_RETENTION_CITATION =
-  'Retention figures: Augustin et al. 1992, J Am Diet Assoc (PMID 1556354). Real retention varies by recipe, pan size, and stirring -- treat this as a reasonable estimate, not an exact figure for your specific dish.';
+  'Retention figures: Augustin et al. 1992, J Am Diet Assoc (PMID 1556354). Retention varies by recipe, pan size, and stirring. Treat this as a reasonable estimate, not an exact figure for your specific dish.';
 
 // Common real-world ABV percentages, spanning dealcoholized/low-alcohol
 // through standard wine/fortified-wine/spirit/overproof ranges -- a

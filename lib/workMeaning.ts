@@ -82,10 +82,10 @@ export const WORK_DIMENSIONS: {
 ];
 
 export const SDT_ATTRIBUTION =
-  'Say over how you work, being good at it, and the people are the three basic psychological needs of Self-Determination Theory (Deci and Ryan). They are a long-established framework rather than anything this app came up with. What work took out of you is a fourth question this app adds for its own reasons, since it is the one that might line up with how you have been feeling.';
+  'Say over how you work, being good at it, and the people are the three basic psychological needs of Self-Determination Theory (Deci and Ryan). They are a long-established framework rather than anything this app came up with. What work took out of you is a fourth question this app adds, since it is the one that might line up with how you have been feeling.';
 
 export const NO_SCORE_NOTE =
-  'There is no score here and nothing to be graded against. Four answers a week, in your own words about your own weeks, is enough to see a direction. What it means is yours to read: work strain does have a measured relationship with inflammation, and a large study also found no link between job strain and the onset of at least one of the conditions this app tracks, so an app that told you what your answers meant about your health would be going well past what anyone knows.';
+  'There is no score here and nothing to be graded against. Four answers a week, in your words about your weeks, is enough to see a direction. The meaning is yours to read: work strain does have a measured relationship with inflammation, and a large study also found no link between job strain and the onset of at least one of the conditions this app tracks, so an app that told you what your answers meant about your health would be going well past what anyone knows.';
 
 /** The scale. Deliberately short: five points is enough to see a direction and
  *  few enough to answer in a second, which is what decides whether anyone
@@ -387,7 +387,7 @@ export function describeStrainComparison(comparison: StrainComparison): string {
   const worse = comparison.symptomsPerWeekWhenWorse.toFixed(1);
   const better = comparison.symptomsPerWeekWhenBetter.toFixed(1);
   const label = dimensionLabel(comparison.dimension).toLowerCase();
-  const base = `In the ${comparison.worseWeeks} weeks ${label} was worse than your own average, ${worse} flares or reactions a week. In the ${comparison.betterWeeks} weeks it was better, ${better}.`;
+  const base = `In the ${comparison.worseWeeks} weeks ${label} was worse than your average, ${worse} flares or reactions a week. In the ${comparison.betterWeeks} weeks it was better, ${better}.`;
 
   if (!comparison.notable) {
     return `${base} Close enough that this does not say anything either way.`;
@@ -400,7 +400,7 @@ export function describeStrainComparison(comparison: StrainComparison): string {
 }
 
 export const STRAIN_CAVEAT =
-  'This is your own weeks side by side and nothing more. It is not evidence that work caused anything: four things are being compared at once across a handful of weeks, which makes one of them looking meaningful by luck likely rather than surprising. Work strain does have a measured link to inflammation, and a large study also found no link between it and the onset of one of the conditions tracked here, so a pattern worth mentioning to someone is as far as this goes.';
+  'This is your weeks side by side and nothing more. It is not evidence that work caused anything: four things are being compared at once across a handful of weeks, which makes one of them looking meaningful by luck likely rather than surprising. Work strain does have a measured link to inflammation, and a large study also found no link between it and the onset of one of the conditions tracked here, so a pattern worth mentioning to someone is as far as this goes.';
 
 /** The Monday of the week a date falls in, so a check-in belongs to a week
  *  rather than a day and answering twice corrects instead of duplicating. */

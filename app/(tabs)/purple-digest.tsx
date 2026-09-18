@@ -182,19 +182,19 @@ const RECIPE_BUILDER_PARAM: Record<BuilderFavoriteItemType, string> = {
 const DIGEST_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this tab is for',
-    body: "So you're not left researching your own condition on your own. Real, cited findings on every one of the 19 tracked conditions plus general food, body, and gut science, organized so you can actually find what applies to you, alongside your own saved kitchen, favorites, and curated recipes.",
+    body: "So you're not left researching your own condition on your own. Cited findings on every one of the 19 tracked conditions plus general food, body, and gut science, organized so you can actually find what applies to you, alongside your saved kitchen, favorites, and curated recipes.",
   },
   {
     heading: 'A growing set of categories, one evidence standard',
-    body: 'Every entry here is tiered Strong/Moderate/Weak by its own actual evidence. A gold dot means trial-level support, not just "this app trusts it." This tab is meant to keep growing; if the picker below runs past what fits on screen at once, it scrolls.',
+    body: 'Every entry here is tiered Strong/Moderate/Weak by its actual evidence. A gold dot means trial-level support, not just "this app trusts it." This tab is meant to keep growing; if the picker below runs past what fits on screen at once, it scrolls.',
   },
   {
     heading: 'Search the whole Digest, or just one category',
-    body: '"Search All" is its own selection in the menu below, right alongside Basic Health and every condition, pick it to search every entry in this Digest at once. Every other category also has its own, separate search box, scoped to just that one category\'s own entries, once it\'s open.',
+    body: '"Search All" is a separate selection in the menu below, right alongside Basic Health and every condition, pick it to search every entry in this Digest at once. Every other category also has its own, separate search box, scoped to just that one category\'s entries, once it\'s open.',
   },
   {
     heading: 'A quick way back',
-    body: 'A "‹ Back to Digest" link sits at the top of every category\'s own resting content, tap it to return straight to this tab\'s own resting screen, from any depth, so you can open the menu and pick something else. The moment you start searching within a category, that link becomes "‹ Clear search" instead, it clears the search and returns you to that same category\'s own main page, not out to the picker.',
+    body: 'A "‹ Back to Digest" link sits at the top of every category\'s resting content, tap it to return straight to this tab\'s resting screen, from any depth, so you can open the menu and pick something else. The moment you start searching within a category, that link becomes "‹ Clear search" instead, it clears the search and returns you to that same category\'s main page, not out to the picker.',
   },
   {
     heading: 'Problem Foods & Swaps is different on purpose',
@@ -212,7 +212,7 @@ const DIGEST_HELP_SECTIONS: HelpSection[] = [
 // screen" explanation inside all 13 lenses' own bespoke text.
 const DIGEST_READING_HELP: HelpSection = {
   heading: 'Reading an entry',
-  body: 'Tap any card in this category to expand it to its full write-up and citations. Tap it again, or tap a different card, to collapse it and jump to the new one. The colored dot on each card is its own evidence tier, same discipline as the rest of this app. Where a finding connects to another entry, a Related chip jumps straight there.',
+  body: 'Tap any card in this category to expand it to its full write-up and citations. Tap it again, or tap a different card, to collapse it and jump to the new one. The colored dot on each card is its evidence tier, same discipline as the rest of this app. Where a finding connects to another entry, a Related chip jumps straight there.',
 };
 
 // The 'search' lens's own dedicated Info-sheet content -- restored
@@ -225,15 +225,15 @@ const DIGEST_READING_HELP: HelpSection = {
 const DIGEST_SEARCH_HELP: HelpSection[] = [
   {
     heading: 'Search All',
-    body: 'Type a word or phrase to search every entry in this whole Digest at once, across every category, regardless of which one you searched last. Tap any result to jump straight to it, already expanded, in its own category.',
+    body: 'Type a word or phrase to search every entry in this whole Digest at once, across every category, regardless of which one you searched last. Tap any result to jump straight to it, already expanded, in its category.',
   },
   {
     heading: 'A different way to look, not the only way',
-    body: 'Every other category also has its own, separate search box, scoped to just that one category\'s own entries, once you\'ve opened it, useful when you already know roughly where something lives and just want to narrow it down.',
+    body: 'Every other category also has its own, separate search box, scoped to just that one category\'s entries, once you\'ve opened it, useful when you already know roughly where something lives and just want to narrow it down.',
   },
   {
-    heading: 'Reading a result\'s own match info',
-    body: 'Typing more than one word searches for each of them independently, not the exact phrase, a result can match one, some, or all of them. The "X of Y search terms matched" line and the small pills below it show exactly which ones did: a filled pill means that word appeared in the entry\'s own title (the strongest kind of match), an outlined pill means it only showed up in the body or a citation, and a dim pill means that particular word never appeared in this entry at all.',
+    heading: 'Reading a result\'s match info',
+    body: 'Typing more than one word searches for each of them independently, not the exact phrase, a result can match one, some, or all of them. The "X of Y search terms matched" line and the small pills below it show exactly which ones did: a filled pill means that word appeared in the entry\'s title (the strongest kind of match), an outlined pill means it only showed up in the body or a citation, and a dim pill means that particular word never appeared in this entry at all.',
   },
 ];
 
@@ -255,11 +255,11 @@ const SEARCH_MATCH_HELP_SECTIONS: HelpSection[] = [
     // into several short, one-idea-at-a-time sentences instead of the
     // original single, over-stacked one.
     heading: 'How the ranking works',
-    body: 'When you type more than one word, this search does not look for that exact phrase. It checks each word on its own, one at a time. An entry can show up in your results even if it only matches some of your words, not all of them, and the words do not need to appear in the same order you typed them. Every entry then earns a score: matching a word in the entry\'s own title is worth three times as much as matching that same word only in its body text or a citation. Entries with the highest score are always shown first, so something about what you searched for rises above something that only mentions it once in passing.',
+    body: 'When you type more than one word, this search does not look for that exact phrase. It checks each word on its own, one at a time. An entry can show up in your results even if it only matches some of your words, not all of them, and the words do not need to appear in the same order you typed them. Every entry then earns a score: matching a word in the entry\'s title is worth three times as much as matching that same word only in its body text or a citation. Entries with the highest score are always shown first, so something about what you searched for rises above something that only mentions it once in passing.',
   },
   {
     heading: 'What the dots mean',
-    body: 'Each small dot stands for one of the words you typed, in the order you typed them, showing how that specific word did against that specific entry. A solid purple dot means that word matched the entry\'s own title, the strongest kind of match. An outlined purple dot means it matched somewhere in the entry\'s body or a citation, but not its title. A solid grey dot means that word did not match this entry at all.',
+    body: 'Each small dot stands for one of the words you typed, in the order you typed them, showing how that specific word did against that specific entry. A solid purple dot means that word matched the entry\'s title, the strongest kind of match. An outlined purple dot means it matched somewhere in the entry\'s body or a citation, but not its title. A solid grey dot means that word did not match this entry at all.',
   },
   {
     // 2026-08-09, shortened to a pointer -- the real, worked comparison
@@ -267,7 +267,7 @@ const SEARCH_MATCH_HELP_SECTIONS: HelpSection[] = [
     // SearchMatchDemo), not repeated here as a second description of the
     // same thing.
     heading: 'See it in action',
-    body: 'A worked example is below, using the search "sleep anxiety inflammation" against three illustrative entries, both as the compact dots you see here, and as Search All\'s own fuller version.',
+    body: 'A worked example is below, using the search "sleep anxiety inflammation" against three illustrative entries, both as the compact dots you see here, and as Search All\'s fuller version.',
   },
 ];
 
@@ -342,15 +342,15 @@ const DEMO_EXAMPLES: { title: string; note: string; match: SearchMatchInfo }[] =
 const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
   basicHealth: {
     heading: 'Basic Health',
-    body: "How the body itself works, independent of any diagnosis: a growing \"Essential Nutrients\" deep-dive series covering most major vitamins, minerals, and macronutrients, food additive dose-and-mechanism detail, food-and-swap entries for common everyday reactions (garlic, dairy, refined oils, commercial products), verified fermented-food bacterial strains, nutrient interactions (what helps or competes with what absorption), a food-industry and scapegoat history, general lifestyle and environmental exposures with no disease-specific claim, general exercise/autophagy biology, a full glossary, and general patient-advocacy skills like how to ask a doctor for a fuller lab panel. Deliberately excludes autoimmune-disease mechanisms and anything condition-specific, even when studied in a disease other than Hashimoto's, and excludes planet/agriculture-system content like soil, pollinators, and pesticides, that content lives in each condition's own area, or in Earth Matters, instead. This is what the Free tier shows in full. Organized as related groups, each its own horizontally-scrolling row, scroll a row sideways to browse its own tabs, or scroll the screen down to move to the next group. Tap a tab to open its full entry directly below that same row; tap a different tab in the same row to switch, without leaving the group. A search bar above the groups searches only within Basic Health.",
+    body: "How the body itself works, independent of any diagnosis: a growing \"Essential Nutrients\" deep-dive series covering most major vitamins, minerals, and macronutrients, food additive dose-and-mechanism detail, food-and-swap entries for common everyday reactions (garlic, dairy, refined oils, commercial products), verified fermented-food bacterial strains, nutrient interactions (what helps or competes with what absorption), a food-industry and scapegoat history, general lifestyle and environmental exposures with no disease-specific claim, general exercise/autophagy biology, a full glossary, and general patient-advocacy skills like how to ask a doctor for a fuller lab panel. Deliberately excludes autoimmune-disease mechanisms and anything condition-specific, even when studied in a disease other than Hashimoto's, and excludes planet/agriculture-system content like soil, pollinators, and pesticides, that content lives in each condition's area, or in Earth Matters, instead. This is what the Free tier shows in full. Organized as related groups, each a horizontally-scrolling row, scroll a row sideways to browse its tabs, or scroll the screen down to move to the next group. Tap a tab to open its full entry directly below that same row; tap a different tab in the same row to switch, without leaving the group. A search bar above the groups searches only within Basic Health.",
   },
   hashimotos: {
     heading: "Hashimoto's Thyroiditis",
-    body: "Every Hashimoto's-specific and autoimmune-mechanism finding in this Digest, gathered into one area, the same way each other condition already has its own: thyroid-specific nutrients (selenium, iodine, and newer candidates), labs and medication timing (levothyroxine, biotin interference, TSH's own diurnal rhythm), what to eat at each healing stage, how the disease reaches past the thyroid into other organs, the dated history behind Hashimoto's own diagnosis and treatment, pregnancy-specific guidance, gut-barrier and microbiome science (SCFAs, zonulin, what actually repairs a leaky gut), complementary therapies evaluated against thyroid/autoimmune outcomes specifically, corroborating cross-disease evidence, a Hashimoto's-specific problem-foods list, and Hashimoto's own self-advocacy section: which lab tests to ask for, why, and how often.",
+    body: "Every Hashimoto's-specific and autoimmune-mechanism finding in this Digest, gathered into one area, the same way each other condition already has its own: thyroid-specific nutrients (selenium, iodine, and newer candidates), labs and medication timing (levothyroxine, biotin interference, TSH's diurnal rhythm), what to eat at each healing stage, how the disease reaches past the thyroid into other organs, the dated history behind Hashimoto's diagnosis and treatment, pregnancy-specific guidance, gut-barrier and microbiome science (SCFAs, zonulin, what actually repairs a leaky gut), complementary therapies evaluated against thyroid/autoimmune outcomes specifically, corroborating cross-disease evidence, a Hashimoto's-specific problem-foods list, and Hashimoto's self-advocacy section: which lab tests to ask for, why, and how often.",
   },
   rheumatoidArthritis: {
     heading: 'Rheumatoid Arthritis',
-    body: "This app's second condition, written as RA's own primary content rather than as evidence borrowed for someone else's disease. Covers the two food levers with the strongest trial evidence (omega-3s at a specific dose threshold, a Mediterranean eating pattern with disease-activity-score results), a landmark fasting-then-vegetarian trial that only holds up for a subset of people, and two medication interactions, methotrexate with folate, and methotrexate with alcohol, both more precise and more forgiving than the blanket warnings patients often hear. Closes on the common overlap between RA and Hashimoto's, the reason this condition was built first.",
+    body: "This app's second condition, written as RA's primary content rather than as evidence borrowed for someone else's disease. Covers the two food levers with the strongest trial evidence (omega-3s at a specific dose threshold, a Mediterranean eating pattern with disease-activity-score results), a landmark fasting-then-vegetarian trial that only holds up for a subset of people, and two medication interactions, methotrexate with folate, and methotrexate with alcohol, both more precise and more forgiving than the blanket warnings patients often hear. Closes on the common overlap between RA and Hashimoto's, the reason this condition was built first.",
   },
   psoriasis: {
     heading: 'Psoriasis',
@@ -358,67 +358,67 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
   },
   graves: {
     heading: "Graves' Disease",
-    body: "This app's fourth condition, covering hyperthyroidism's most common cause on its own terms. In several ways it's the mirror image of this app's own Hashimoto's research: smoking raises Graves' eye-disease risk sharply while it lowers Hashimoto's risk, and iodine is both a trigger and a complication for antithyroid drug efficacy rather than simply something to avoid. Selenium carries strong trial evidence for mild eye disease specifically. Built with self-advocacy content from day one: TRAb/TSI antibody testing's own quantified remission and relapse odds, specific warning signs for antithyroid drug side effects, and the measurable bone-density loss untreated hyperthyroidism causes.",
+    body: "This app's fourth condition, covering hyperthyroidism's most common cause on its own terms. In several ways it's the mirror image of this app's Hashimoto's research: smoking raises Graves' eye-disease risk sharply while it lowers Hashimoto's risk, and iodine is both a trigger and a complication for antithyroid drug efficacy rather than simply something to avoid. Selenium carries strong trial evidence for mild eye disease specifically. Built with self-advocacy content from day one: TRAb/TSI antibody testing's quantified remission and relapse odds, specific warning signs for antithyroid drug side effects, and the measurable bone-density loss untreated hyperthyroidism causes.",
   },
   type1Diabetes: {
     heading: 'Type 1 Diabetes',
-    body: "This app's fifth condition, and a different shape from every one built before it: food's own daily relevance here isn't about triggering or avoiding a flare, it's about matching carbohydrate intake to insulin dosing accurately enough to stay safe. Covers carb-counting's own measured 21% average error and its direct link to worse blood glucose control, exercise and alcohol's own (and sometimes delayed) hypoglycemia risks, DKA's warning signs and a checkable ketone threshold, and the well-documented overlap with celiac disease. Built with self-advocacy content from day one: the full autoantibody panel behind diagnosis, Time in Range as a complement to HbA1c, and the screening intervals for eye and kidney complications that start years before any symptom would.",
+    body: "This app's fifth condition, and a different shape from every one built before it: food's daily relevance here isn't about triggering or avoiding a flare, it's about matching carbohydrate intake to insulin dosing accurately enough to stay safe. Covers carb-counting's measured 21% average error and its direct link to worse blood glucose control, exercise and alcohol's own (and sometimes delayed) hypoglycemia risks, DKA's warning signs and a checkable ketone threshold, and the well-documented overlap with celiac disease. Built with self-advocacy content from day one: the full autoantibody panel behind diagnosis, Time in Range as a complement to HbA1c, and the screening intervals for eye and kidney complications that start years before any symptom would.",
   },
   celiac: {
     heading: 'Celiac Disease',
-    body: "This app's sixth condition, and the one place here where a strict diet is the entire treatment, not one lever among several. Covers the 20ppm cross-contamination standard and what actually breaks it in a kitchen, the oats controversy (safe for most, a minority reacts to the oat protein itself), market data on what commercial gluten-free products get nutritionally wrong, and an age-dependent healing timeline most people underestimate. Built with self-advocacy content from day one: why going gluten-free before testing is the single most common diagnostic mistake, and a specific recommended age (45) for a bone-density scan. Closes on a quantified overlap with Hashimoto's roughly double the general population's own autoimmune thyroid risk.",
+    body: "This app's sixth condition, and the one place here where a strict diet is the entire treatment, not one lever among several. Covers the 20ppm cross-contamination standard and what actually breaks it in a kitchen, the oats controversy (safe for most, a minority reacts to the oat protein itself), market data on what commercial gluten-free products get nutritionally wrong, and an age-dependent healing timeline most people underestimate. Built with self-advocacy content from day one: why going gluten-free before testing is the single most common diagnostic mistake, and a specific recommended age (45) for a bone-density scan. Closes on a quantified overlap with Hashimoto's roughly double the general population's autoimmune thyroid risk.",
   },
   ibd: {
     heading: 'Inflammatory Bowel Disease',
-    body: "This app's seventh condition, covering two distinct diseases, Crohn's disease and ulcerative colitis, under one umbrella. Several findings here run in opposite directions depending on which one someone actually has, most sharply smoking, which worsens Crohn's while protecting against ulcerative colitis. Covers exclusive enteral nutrition's strong remission rates in pediatric Crohn's, the low-fiber-during-a-flare advice's own surprisingly thin evidence, and a null result on Hashimoto's comorbidity overall (with one exception in older patients). Built with self-advocacy content from day one: fecal calprotectin as a non-invasive way to check gut inflammation, the colorectal cancer surveillance schedule (and why it moves up sharply with a specific complication), and azathioprine's own FDA-recommended genetic test before the first dose.",
+    body: "This app's seventh condition, covering two distinct diseases, Crohn's disease and ulcerative colitis, under one umbrella. Several findings here run in opposite directions depending on which one someone actually has, most sharply smoking, which worsens Crohn's while protecting against ulcerative colitis. Covers exclusive enteral nutrition's strong remission rates in pediatric Crohn's, the low-fiber-during-a-flare advice's surprisingly thin evidence, and a null result on Hashimoto's comorbidity overall (with one exception in older patients). Built with self-advocacy content from day one: fecal calprotectin as a non-invasive way to check gut inflammation, the colorectal cancer surveillance schedule (and why it moves up sharply with a specific complication), and azathioprine's FDA-recommended genetic test before the first dose.",
   },
   multipleSclerosis: {
     heading: 'Multiple Sclerosis',
-    body: "This app's eighth condition, and a different shape from every one built before it: MS attacks the brain and spinal cord directly, not the gut, joints, skin, or thyroid, so its own single strongest finding isn't a food at all, a 20-year study found MS risk rose 32-fold after Epstein-Barr virus infection, with a specific mechanism (a viral protein that closely resembles a piece of the nerve's own myelin coating) now understood behind it. Covers the head-to-head trial between the historic Swank diet and the newer Wahls Protocol (both helped), and two corrections on supplements that looked promising in an early trial but didn't hold up in a larger one, high-dose biotin and vitamin D. Also covers a striking overlap with Hashimoto's (present in 20-25% of untreated MS patients). Built with self-advocacy content from day one: JC virus antibody monitoring for a common MS medication's own rare but serious safety risk, how MS is actually diagnosed, and a fix for a common medication side effect.",
+    body: "This app's eighth condition, and a different shape from every one built before it: MS attacks the brain and spinal cord directly, not the gut, joints, skin, or thyroid, so its single strongest finding isn't a food at all, a 20-year study found MS risk rose 32-fold after Epstein-Barr virus infection, with a specific mechanism (a viral protein that closely resembles a piece of the nerve's myelin coating) now understood behind it. Covers the head-to-head trial between the historic Swank diet and the newer Wahls Protocol (both helped), and two corrections on supplements that looked promising in an early trial but didn't hold up in a larger one, high-dose biotin and vitamin D. Also covers a striking overlap with Hashimoto's (present in 20-25% of untreated MS patients). Built with self-advocacy content from day one: JC virus antibody monitoring for a common MS medication's rare but serious safety risk, how MS is actually diagnosed, and a fix for a common medication side effect.",
   },
   lupus: {
     heading: 'Lupus (SLE)',
-    body: "This app's ninth condition, and a wide-ranging one: lupus can affect the skin, joints, kidneys, blood, and nervous system all at once, giving this category its own shape rather than one dominant theme. Covers one of the most specific, well-documented individual food triggers in this app's whole research base, alfalfa sprouts, via an amino acid (L-canavanine) the body mistakenly builds into its own proteins, plus a catch-22 unique to lupus: sun protection helps prevent a flare, but also raises vitamin D deficiency risk, with mixed trial evidence on whether treating that deficiency calms the disease itself. Also covers omega-3's own mixed evidence (positive trial results, but a genetic study pointing the other way on lupus risk) and a striking cardiovascular risk (a 50-fold heart-attack risk increase in young women) that ordinary risk factors don't fully explain. Built with self-advocacy content from day one: hydroxychloroquine's own eye-exam schedule, the lab panel that catches kidney involvement early, and the first lupus-specific biologic in over 50 years.",
+    body: "This app's ninth condition, and a wide-ranging one: lupus can affect the skin, joints, kidneys, blood, and nervous system all at once, giving this category a distinctive shape rather than one dominant theme. Covers one of the most specific, well-documented individual food triggers in this app's whole research base, alfalfa sprouts, via an amino acid (L-canavanine) the body mistakenly builds into its proteins, plus a catch-22 unique to lupus: sun protection helps prevent a flare, but also raises vitamin D deficiency risk, with mixed trial evidence on whether treating that deficiency calms the disease itself. Also covers omega-3's mixed evidence (positive trial results, but a genetic study pointing the other way on lupus risk) and a striking cardiovascular risk (a 50-fold heart-attack risk increase in young women) that ordinary risk factors don't fully explain. Built with self-advocacy content from day one: hydroxychloroquine's eye-exam schedule, the lab panel that catches kidney involvement early, and the first lupus-specific biologic in over 50 years.",
   },
   sjogrens: {
     heading: "Sjögren's Syndrome",
-    body: "This app's tenth condition, defined by an attack on the body's own moisture-making glands. Unlike most conditions here, it carries a direct, same-day relationship with food and drink, alcohol and caffeine worsen dryness within hours, not through a slower inflammatory pathway, and omega-3 has fairly consistent positive trial evidence for both dry eyes and dry mouth at once. Covers the mechanism behind Sjögren's own elevated dental-caries risk (saliva's protective role, lost, not just its comfort), a meaningfully elevated lymphoma risk stated plainly, a kidney complication (renal tubular acidosis) that can strike before the disease's own hallmark dryness is even recognized, and the substantial overlap with rheumatoid arthritis and lupus, both already covered elsewhere in this app. Built with self-advocacy content from day one: the antibody and gland tests behind an actual diagnosis, and how pilocarpine and cevimeline restore the body's own moisture production rather than just replacing it.",
+    body: "This app's tenth condition, defined by an attack on the body's moisture-making glands. Unlike most conditions here, it carries a direct, same-day relationship with food and drink, alcohol and caffeine worsen dryness within hours, not through a slower inflammatory pathway, and omega-3 has fairly consistent positive trial evidence for both dry eyes and dry mouth at once. Covers the mechanism behind Sjögren's elevated dental-caries risk (saliva's protective role, lost, not just its comfort), a meaningfully elevated lymphoma risk, a kidney complication (renal tubular acidosis) that can strike before the disease's hallmark dryness is even recognized, and the substantial overlap with rheumatoid arthritis and lupus, both already covered elsewhere in this app. Built with self-advocacy content from day one: the antibody and gland tests behind an actual diagnosis, and how pilocarpine and cevimeline restore the body's moisture production rather than just replacing it.",
   },
   pcos: {
     heading: 'PCOS',
-    body: "This app's eleventh condition, and its first non-autoimmune one, PCOS is an endocrine and metabolic disorder, not an immune attack on the body's own tissue, with insulin resistance as the single mechanism driving most of what else happens. Covers the well-studied myo-inositol/D-chiro-inositol 40:1 ratio (one of the better-evidenced supplements anywhere in this app's research, already tracked in this app's own My Meds data), spearmint tea's anti-androgen trial evidence, and a quantified weight-loss finding (each 1% of body weight lost measurably raising the odds of ovulation returning). Also covers an elevated endometrial cancer risk tracing directly to PCOS's own anovulation mechanism, and a bidirectional overlap with Hashimoto's (each condition raising risk of the other). Built with self-advocacy content from day one: why a full glucose tolerance test catches what a simple fasting glucose misses, the cardiometabolic lab panel PCOS deserves beyond a fertility checklist, and spironolactone's own potassium caution.",
+    body: "This app's eleventh condition, and its first non-autoimmune one, PCOS is an endocrine and metabolic disorder, not an immune attack on the body's own tissue, with insulin resistance as the single mechanism driving most of what else happens. Covers the well-studied myo-inositol/D-chiro-inositol 40:1 ratio (one of the better-evidenced supplements anywhere in this app's research, already tracked in this app's My Meds data), spearmint tea's anti-androgen trial evidence, and a quantified weight-loss finding (each 1% of body weight lost measurably raising the odds of ovulation returning). Also covers an elevated endometrial cancer risk tracing directly to PCOS's anovulation mechanism, and a bidirectional overlap with Hashimoto's (each condition raising risk of the other). Built with self-advocacy content from day one: why a full glucose tolerance test catches what a simple fasting glucose misses, the cardiometabolic lab panel PCOS deserves beyond a fertility checklist, and spironolactone's potassium caution.",
   },
   chronicKidneyDisease: {
     heading: 'Chronic Kidney Disease',
-    body: "This app's twelfth condition, and its second non-autoimmune one, CKD's own dietary management (potassium, phosphorus, sodium, protein) is more directly food-restrictive than almost any other condition here. Leads with a correction to some of the most commonly repeated CKD dietary advice anywhere: blanket potassium restriction has surprisingly thin trial evidence behind it, and 2020 KDIGO guidelines themselves found the evidence insufficient for a graded recommendation. Covers \"hidden phosphorus\", food-additive phosphate absorbed at over 90% versus 20-60% from whole food, rarely labeled, specific low-protein diet guidance now favoring plant-forward sources, and a simple, evidence-backed fix (sodium bicarbonate) for a lesser-known complication (metabolic acidosis). Also covers SGLT2 inhibitors' major, kidney-protective effect, independent of their original diabetes purpose. Built with self-advocacy content from day one: why eGFR and urine albumin need tracking together, and ACE inhibitors/ARBs' own manageable potassium-monitoring schedule.",
+    body: "This app's twelfth condition, and its second non-autoimmune one, CKD's dietary management (potassium, phosphorus, sodium, protein) is more directly food-restrictive than almost any other condition here. Leads with a correction to some of the most commonly repeated CKD dietary advice anywhere: blanket potassium restriction has surprisingly thin trial evidence behind it, and 2020 KDIGO guidelines themselves found the evidence insufficient for a graded recommendation. Covers \"hidden phosphorus\", food-additive phosphate absorbed at over 90% versus 20-60% from whole food, rarely labeled, specific low-protein diet guidance now favoring plant-forward sources, and a simple, evidence-backed fix (sodium bicarbonate) for a lesser-known complication (metabolic acidosis). Also covers SGLT2 inhibitors' major, kidney-protective effect, independent of their original diabetes purpose. Built with self-advocacy content from day one: why eGFR and urine albumin need tracking together, and ACE inhibitors/ARBs' own manageable potassium-monitoring schedule.",
   },
   fattyLiverDisease: {
     heading: 'Fatty Liver Disease',
-    body: "This app's thirteenth condition, and its third non-autoimmune one, MASLD (metabolic dysfunction-associated steatotic liver disease, the current, more precise name for what used to be called NAFLD) is built on top of a substantial amount of pre-existing liver research already in this app, written for a Hashimoto's reader, cross-linked here rather than repeated. Covers a graded weight-loss staircase (3% for histological benefit to begin, 10% for the strongest fibrosis regression), a nuance in the Mediterranean diet's own evidence (a plainer low-fat diet works about as well), coffee as one of the more consistently protective findings anywhere in this app's research, and a contested alcohol-threshold question (MetALD) that current guidance is still working out. Also covers two recent medication stories: resmetirom, the first-ever approved MASH drug, which works through a thyroid hormone receptor directly, an elegant echo of this app's own core focus, and semaglutide's large 2025 trial results. Built with self-advocacy content from day one: FIB-4, a low-cost fibrosis-screening tool often calculable from labs already drawn.",
+    body: "This app's thirteenth condition, and its third non-autoimmune one, MASLD (metabolic dysfunction-associated steatotic liver disease, the current, more precise name for what used to be called NAFLD) is built on top of a substantial amount of pre-existing liver research already in this app, written for a Hashimoto's reader, cross-linked here rather than repeated. Covers a graded weight-loss staircase (3% for histological benefit to begin, 10% for the strongest fibrosis regression), a wrinkle in the Mediterranean diet's evidence (a plainer low-fat diet works about as well), coffee as one of the more consistently protective findings anywhere in this app's research, and a contested alcohol-threshold question (MetALD) that current guidance is still working out. Also covers two recent medication stories: resmetirom, the first-ever approved MASH drug, which works through a thyroid hormone receptor directly, an elegant echo of this app's core focus, and semaglutide's large 2025 trial results. Built with self-advocacy content from day one: FIB-4, a low-cost fibrosis-screening tool often calculable from labs already drawn.",
   },
   type2Diabetes: {
     heading: 'Type 2 Diabetes',
-    body: "This app's fourteenth condition, and its fourth non-autoimmune one, T2D sits at the center of the metabolic-syndrome cluster already built out across PCOS, MASLD, and CKD, cross-linked heavily to that existing content rather than re-derived. Covers an important distinction from Type 1 Diabetes (already covered in its own category, often confused with T2D by name alone, with different screening timelines that follow directly from that distinction), the DiRECT trial's own striking remission rates (46% at one year), and low-carbohydrate diets' own short-term evidence, with its limits stated plainly. Also covers a recent treatment-guideline paradigm shift toward GLP-1/SGLT2 medications chosen for their own organ-protective benefits, not glucose control alone, and a quantified sulfonylurea hypoglycemia risk sharply elevated by reduced kidney function. Built with self-advocacy content from day one: a correction to \"lower HbA1c is always better,\" backed by trials finding intensive control didn't reduce cardiovascular risk while increasing harm.",
+    body: "This app's fourteenth condition, and its fourth non-autoimmune one, T2D sits at the center of the metabolic-syndrome cluster already built out across PCOS, MASLD, and CKD, cross-linked heavily to that existing content rather than re-derived. Covers an important distinction from Type 1 Diabetes (already covered in a separate category, often confused with T2D by name alone, with different screening timelines that follow directly from that distinction), the DiRECT trial's striking remission rates (46% at one year), and low-carbohydrate diets' short-term evidence, limits included. Also covers a recent treatment-guideline shift toward GLP-1/SGLT2 medications chosen for their organ-protective benefits, not glucose control alone, and a quantified sulfonylurea hypoglycemia risk sharply elevated by reduced kidney function. Built with self-advocacy content from day one: a correction to \"lower HbA1c is always better,\" backed by trials finding intensive control didn't reduce cardiovascular risk while increasing harm.",
   },
   ibs: {
     heading: 'Irritable Bowel Syndrome',
-    body: "This app's fifteenth condition, and its fifth non-autoimmune one, IBS is a disorder of gut-brain interaction, not structural intestinal damage, leaning heavily on cross-links to this app's own already-built FODMAP and gut-microbiome content rather than re-deriving it. Covers an important distinction from IBD (already covered in its own category, often confused with IBS by name alone, IBS carries no inflammation and no elevated cancer risk, the opposite of IBD), non-dietary interventions with meaningful trial support (peppermint oil, gut-directed hypnotherapy), and a striking, underappreciated mechanism: post-infectious IBS may account for over half of all US cases, tracing back to a specific, identifiable past illness. Also covers non-FODMAP triggers (coffee, alcohol, artificial sweeteners) with their own documented timing, and two subtype-targeted medications with different mechanisms. Built with self-advocacy content from day one: the specific red-flag symptoms and diagnostic workup, including a thyroid panel, that should come before assuming IBS by default.",
+    body: "This app's fifteenth condition, and its fifth non-autoimmune one, IBS is a disorder of gut-brain interaction, not structural intestinal damage, leaning heavily on cross-links to this app's already-built FODMAP and gut-microbiome content rather than re-deriving it. Covers an important distinction from IBD (already covered in a separate category, often confused with IBS by name alone, IBS carries no inflammation and no elevated cancer risk, the opposite of IBD), non-dietary interventions with meaningful trial support (peppermint oil, gut-directed hypnotherapy), and a striking, underappreciated mechanism: post-infectious IBS may account for over half of all US cases, tracing back to a specific, identifiable past illness. Also covers non-FODMAP triggers (coffee, alcohol, artificial sweeteners) with their documented timing, and two subtype-targeted medications with different mechanisms. Built with self-advocacy content from day one: the specific red-flag symptoms and diagnostic workup, including a thyroid panel, that should come before assuming IBS by default.",
   },
   migraine: {
     heading: 'Migraine',
-    body: "This app's sixteenth condition, and its sixth non-autoimmune one, migraine is a neurological disease, not \"just a bad headache,\" with a specific signaling molecule (CGRP) central to how an attack actually happens. Covers a correction to popular food-trigger lists (tyramine's reputation as the culprit behind aged cheese and red wine doesn't fully hold up under refined modern measurement, and chocolate's own evidence is mixed), the magnesium/riboflavin/CoQ10 combination's own specific trial results, and CGRP inhibitors, the first medication class ever built specifically for migraine prevention. Also covers medication-overuse headache (a named condition with a specific day-per-month threshold), menstrual migraine's own leading explanation alongside its evidence gaps, and caffeine's double role as both trigger and withdrawal cause. Built with self-advocacy content from day one: the specific red-flag symptoms that mean a headache needs more than migraine management.",
+    body: "This app's sixteenth condition, and its sixth non-autoimmune one, migraine is a neurological disease, not \"just a bad headache,\" with a specific signaling molecule (CGRP) central to how an attack actually happens. Covers a correction to popular food-trigger lists (tyramine's reputation as the culprit behind aged cheese and red wine doesn't fully hold up under refined modern measurement, and chocolate's evidence is mixed), the magnesium/riboflavin/CoQ10 combination's specific trial results, and CGRP inhibitors, the first medication class ever built specifically for migraine prevention. Also covers medication-overuse headache (a named condition with a specific day-per-month threshold), menstrual migraine's leading explanation alongside its evidence gaps, and caffeine's double role as both trigger and withdrawal cause. Built with self-advocacy content from day one: the specific red-flag symptoms that mean a headache needs more than migraine management.",
   },
   cardiovascularDisease: {
     heading: 'Cardiovascular Disease',
-    body: "This app's seventeenth condition, and its seventh non-autoimmune one, cardiovascular disease was already touched from five separate angles across this app's existing content (lupus's own 50-fold heart attack risk in young women, Hashimoto's own organ-systems research on hypothyroid heart effects, PCOS's own lipid-panel entry, and both psoriasis's and rheumatoid arthritis's own self-advocacy entries on elevated cardiovascular risk) before this category itself existed to link back to. Covers whole-food dietary patterns with trial support (the Mediterranean diet, including PREDIMED's own 2018 retraction-and-correction story, and DASH's specific sodium targets), a large, consistent statin evidence review, and two examples of medical guidance shifting because a large trial's own numbers said so: daily aspirin for primary prevention (a quantified trade-off between preventing vascular events and causing major bleeding) and omega-3 supplementation (a null result from the same trial). Built with self-advocacy content from day one: lipid-panel testing intervals (with a brief, narrowly-scoped note on apolipoprotein B) and the specific heart attack warning symptoms, including a documented pattern that differs by sex.",
+    body: "This app's seventeenth condition, and its seventh non-autoimmune one, cardiovascular disease was already touched from five separate angles across this app's existing content (lupus's 50-fold heart attack risk in young women, Hashimoto's organ-systems research on hypothyroid heart effects, PCOS's lipid-panel entry, and both psoriasis's and rheumatoid arthritis's self-advocacy entries on elevated cardiovascular risk) before this category itself existed to link back to. Covers whole-food dietary patterns with trial support (the Mediterranean diet, including PREDIMED's 2018 retraction-and-correction story, and DASH's specific sodium targets), a large, consistent statin evidence review, and two examples of medical guidance shifting because a large trial's numbers said so: daily aspirin for primary prevention (a quantified trade-off between preventing vascular events and causing major bleeding) and omega-3 supplementation (a null result from the same trial). Built with self-advocacy content from day one: lipid-panel testing intervals (with a brief, narrowly-scoped note on apolipoprotein B) and the specific heart attack warning symptoms, including a documented pattern that differs by sex.",
   },
   gout: {
     heading: 'Gout',
-    body: "This app's eighteenth condition. Gout is a different shape of condition from most already covered: its own best evidence is a specific, individually well-studied list of foods and drinks rather than one broad dietary pattern. Covers quantified findings on meat and seafood (raising risk) alongside dairy (lowering it, from the same study), sugar-sweetened drinks and fructose (a dose-dependent risk diet soda doesn't share), beer specifically (carrying outsized risk compared to spirits, with wine showing none), and three individually-tested protective foods: cherries (including a striking combined effect with allopurinol), vitamin C, and coffee. Covers a serious cardiovascular safety difference between the two most common urate-lowering medications, and gout's own direct overlap with heart, kidney, and metabolic conditions already built out elsewhere in this app. Built with self-advocacy content from day one: HLA-B*58:01 genetic testing before starting allopurinol in specific, named higher-risk populations, and recognizing when a flare might actually be a more urgent joint infection.",
+    body: "This app's eighteenth condition. Gout is a different shape of condition from most already covered: its best evidence is a specific, individually well-studied list of foods and drinks rather than one broad dietary pattern. Covers quantified findings on meat and seafood (raising risk) alongside dairy (lowering it, from the same study), sugar-sweetened drinks and fructose (a dose-dependent risk diet soda doesn't share), beer specifically (carrying outsized risk compared to spirits, with wine showing none), and three individually-tested protective foods: cherries (including a striking combined effect with allopurinol), vitamin C, and coffee. Covers a serious cardiovascular safety difference between the two most common urate-lowering medications, and gout's direct overlap with heart, kidney, and metabolic conditions already built out elsewhere in this app. Built with self-advocacy content from day one: HLA-B*58:01 genetic testing before starting allopurinol in specific, named higher-risk populations, and recognizing when a flare might actually be a more urgent joint infection.",
   },
   prostateHealth: {
     heading: 'Prostate Health',
-    body: "This app's nineteenth condition, covering benign prostatic hyperplasia (BPH) and prostate cancer risk, two extremely common conditions (BPH affects roughly half of men by their 50s, most by their 70s; prostate cancer is the most commonly diagnosed cancer in American men) with a direct gut-microbiome connection. Covers gut dysbiosis's link to BPH through the same short-chain-fatty-acid mechanism this app's Gut & Microbiome content already documents, and a striking finding: specific gut bacteria can directly manufacture androgens from hormone precursors, and convert dietary choline into a compound (TMAO) linked to a quantified increase in lethal prostate cancer. Covers two individually strong protective foods (lycopene/tomatoes, cruciferous vegetables), the prostate's own distinctive zinc concentration, and two supplement corrections: a landmark trial found selenium doesn't prevent prostate cancer (and its usual supplement partner may raise risk), and saw palmetto's popularity outruns its mixed evidence. Self-advocacy covers a lab-interpretation trap (BPH medications cut PSA roughly in half) and PSA screening's own quantified benefit-versus-harm tradeoff.",
+    body: "This app's nineteenth condition, covering benign prostatic hyperplasia (BPH) and prostate cancer risk, two extremely common conditions (BPH affects roughly half of men by their 50s, most by their 70s; prostate cancer is the most commonly diagnosed cancer in American men) with a direct gut-microbiome connection. Covers gut dysbiosis's link to BPH through the same short-chain-fatty-acid mechanism this app's Gut & Microbiome content already documents, and a striking finding: specific gut bacteria can directly manufacture androgens from hormone precursors, and convert dietary choline into a compound (TMAO) linked to a quantified increase in lethal prostate cancer. Covers two individually strong protective foods (lycopene/tomatoes, cruciferous vegetables), the prostate's distinctive zinc concentration, and two supplement corrections: a landmark trial found selenium doesn't prevent prostate cancer (and its usual supplement partner may raise risk), and saw palmetto's popularity outruns its mixed evidence. Self-advocacy covers a lab-interpretation trap (BPH medications cut PSA roughly in half) and PSA screening's quantified benefit-versus-harm tradeoff.",
   },
   // 2026-08-09, added alongside 'homeGardening' below: everything about the
   // planet, pollinators, chemical producers, and the economics/politics of
@@ -434,7 +434,7 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
   // homeGardening.ts's own header comment.
   homeGardening: {
     heading: 'Gardening',
-    body: "Cited guidance on growing fresh food at home, organized so it's actually usable in whichever climate someone lives in. Covers the economics of what a home garden saves, how to find and read a growing zone (the USDA Plant Hardiness Zone Map plus a short note on other countries' own systems), what to plant in four climate bands from short-season cold to true tropical, growing food in containers with no yard at all, which crops return the most grocery value, the easiest crops for a first garden, ways to extend a growing season, a measured freshness benefit over shipped produce, a soil-safety caution for urban soil, and a direct link to this app's own Earth Matters pollinator research, growing even a small amount of food at home is an individual-level way to act on several of that category's own larger findings.",
+    body: "Cited guidance on growing fresh food at home, organized so it's actually usable in whichever climate someone lives in. Covers the economics of what a home garden saves, how to find and read a growing zone (the USDA Plant Hardiness Zone Map plus a short note on other countries' own systems), what to plant in four climate bands from short-season cold to true tropical, growing food in containers with no yard at all, which crops return the most grocery value, the easiest crops for a first garden, ways to extend a growing season, a measured freshness benefit over shipped produce, a soil-safety caution for urban soil, and a direct link to this app's Earth Matters pollinator research, growing even a small amount of food at home is an individual-level way to act on several of that category's larger findings.",
   },
   // 2026-08-14, direct request: "a new category of Recipes... will be
   // available." One card per bundled starter recipe, tap it to see the
@@ -442,15 +442,15 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
   // matching Food builder with everything already filled in.
   recipes: {
     heading: 'Recipes',
-    body: 'A pre-built starting point for every direct-ingredient Food builder: sides, salads, smoothies, fermentations, beverages, snacks, baked goods, soups, sauces, and handhelds. Each card shows the real flavor profile and health benefit up front, and a "Build This Recipe" button opens the matching builder already loaded with every ingredient, quantity, and prep step, ready to adjust, save, or log as-is.',
+    body: 'A pre-built starting point for every direct-ingredient Food builder: sides, salads, smoothies, fermentations, beverages, snacks, baked goods, soups, sauces, and handhelds. Each card shows the flavor profile and health benefit up front, and a "Build This Recipe" button opens the matching builder already loaded with every ingredient, quantity, and prep step, ready to adjust, save, or log as-is.',
   },
   myKitchen: {
     heading: 'My Kitchen',
-    body: 'Everything you\'ve saved from any Food builder, all in one place, with the same real ingredient list, yield, and nutrition detail Recipes gets, computed live from your own tracked conditions. Schedule anything here for a future date, or share it with someone else.',
+    body: 'Everything you\'ve saved from any Food builder, all in one place, with the same ingredient list, yield, and nutrition detail Recipes gets, computed live from your tracked conditions. Schedule anything here for a future date, or share it with someone else.',
   },
   myFavorites: {
     heading: 'My Favorites',
-    body: 'Your favorited builds from every category, plus favorite meals, browsable the same way as My Kitchen. Favoriting something already tells this app you\'d make it again -- this is the place to actually do that: rebuild it, schedule it, or share it.',
+    body: 'Your favorited builds from every category, plus favorite meals, browsable the same way as My Kitchen. Favoriting something already tells this app you\'d make it again. This is the place to actually do that: rebuild it, schedule it, or share it.',
   },
 };
 
@@ -642,14 +642,14 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // reused directly from this app's own bundled DRI reference table.
   {
     label: 'Portions & Recommended Amounts',
-    description: "How much of each nutrient you need, and what a serving size actually looks like, drawn from this app's own bundled dietary reference intake data.",
+    description: "How much of each nutrient you need, and what a serving size actually looks like, drawn from this app's bundled dietary reference intake data.",
     prefixes: ['portion-'],
   },
   // 2026-08-09, direct request: "how to choose the right kinds of
   // products... so they aren't fooled and purchase the wrong things." See
   // lib/digest/choosingQualityProducts.ts's own header comment.
   {
-    label: 'Choosing the Real Thing',
+    label: 'Is It What It Claims to Be?',
     description: "How to tell whether a product actually is what it claims to be, so a misleading label doesn't fool you into buying the wrong thing.",
     prefixes: ['quality-'],
   },
@@ -1390,7 +1390,7 @@ const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partial<Recor
   },
   earthMatters: {
     'Soil Science & Why It Matters': [
-      { label: 'Is Soil Depletion Actually Real?', ids: ['foodhistory-soil-landmark-studies', 'foodhistory-soil-dilution-vs-depletion', 'foodhistory-soil-real-depletion', 'foodhistory-regen-nutrient-density-honest-evidence', 'foodhistory-regen-co2-nutrient-decline', 'foodhistory-regen-fao-baseline-stakes'] },
+      { label: 'Is Soil Depletion Actually Happening?', ids: ['foodhistory-soil-landmark-studies', 'foodhistory-soil-dilution-vs-depletion', 'foodhistory-soil-real-depletion', 'foodhistory-regen-nutrient-density-honest-evidence', 'foodhistory-regen-co2-nutrient-decline', 'foodhistory-regen-fao-baseline-stakes'] },
       { label: 'How Soil Fertility Actually Works', ids: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-mycorrhizal-networks', 'foodhistory-regen-liquid-carbon-pathway', 'foodhistory-regen-soil-food-web-mineralization', 'foodhistory-regen-rhizobia-nitrogen-fixation', 'foodhistory-regen-darwin-earthworms-vermicompost', 'foodhistory-regen-terra-preta-ancient-biochar', 'foodhistory-regen-engineered-nitrogen-fixing-microbes'] },
       { label: 'Practices, Measured', ids: ['foodhistory-regen-agroforestry-quantified', 'foodhistory-regen-water-infiltration-quantified', 'foodhistory-regen-nrcs-soil-health-demonstrations', 'foodhistory-regen-uc-davis-century-experiment', 'foodhistory-regen-holistic-grazing-disputed', 'foodhistory-regen-organic-yield-gap-meta-analysis', 'foodhistory-regen-yield-gap-context-dependent', 'foodhistory-regen-korean-natural-farming-jadam', 'foodhistory-regen-biodynamic-farming-correction'] },
       { label: 'Case Studies Around the World', ids: ['foodhistory-regen-india-water-harvesting-case-study', 'foodhistory-regen-kenya-rangeland-enclosures', 'foodhistory-regen-colombia-shade-coffee-birds', 'foodhistory-regen-india-zbnf-case-study', 'foodhistory-regen-sikkim-organic-state', 'foodhistory-regen-elephant-dung-fertilizer'] },
@@ -1404,7 +1404,7 @@ const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partial<Recor
     ],
   },
   homeGardening: {
-    'The Real Case for a Home Garden': [
+    'The Case for a Home Garden': [
       { label: 'Why Grow Your Own At All', ids: ['garden-economics-subsidizing-food', 'garden-mental-health-benefits', 'garden-community-gardens', 'garden-grow-what-you-can-however-small', 'garden-carbon-in-the-ground', 'garden-pollinator-friendly-earth-matters-link'] },
       { label: 'Growing Indoors', ids: ['garden-indoor-growing-methods-overview', 'garden-led-grow-lights-photoperiod', 'garden-water-quality-filtration'] },
       { label: 'Fertility, Compost & Pests', ids: ['garden-organic-fertility-amendments', 'garden-organic-approved-pesticides', 'garden-hot-composting', 'garden-three-sisters-companion-planting'] },
@@ -1489,7 +1489,7 @@ const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partial<Recor
       { label: 'Stage 1: Settling Things Down', ids: ['healing-stage1-eat', 'healing-stage1-avoid', 'healing-stage1-bone-broth', 'healing-stage1-fermented-exclusion'] },
       { label: 'Stage 2: Reintroducing', ids: ['healing-stage2-reintroduction', 'healing-stage2-fermented-entry', 'healing-stage2-fiber-expansion'] },
       { label: 'Stage 3: Well-Healed', ids: ['healing-stage3-what-it-looks-like', 'healing-stage3-practical-shifts'] },
-      { label: 'Honest Corrections', ids: ['healing-tension-detox-myth'] },
+      { label: 'Corrections', ids: ['healing-tension-detox-myth'] },
     ],
     'Mitochondria & Metabolism': [
       { label: 'Autophagy & Cellular Cleanup', ids: ['mito-il23-autophagy-suppression', 'mito-mtor-cd4-reprogramming', 'mito-mots-c'] },
@@ -1658,7 +1658,7 @@ const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partial<Recor
     'Core Science': [
       { label: 'Terms & Definitions', ids: ['glossary-graves-disease', 'glossary-ptu'] },
       { label: 'What Causes It, and Who Gets It', ids: ['graves-overview', 'graves-genetic-family-risk', 'graves-stress-trigger', 'graves-subclinical-hyperthyroidism', 'graves-iodine', 'graves-leptin-lower-than-controls', 'graves-circadian-clock-disruption'] },
-      { label: 'Treatment & Real Outcomes', ids: ['graves-beta-blockers', 'graves-remission-real-rates', 'graves-rai-hypothyroidism-real-rate', 'graves-thyroidectomy-real-complication-rates', 'graves-orbital-decompression-real-outcomes', 'graves-selenium-orbitopathy-5year-honest-followup'] },
+      { label: 'Treatment & Measured Outcomes', ids: ['graves-beta-blockers', 'graves-remission-real-rates', 'graves-rai-hypothyroidism-real-rate', 'graves-thyroidectomy-real-complication-rates', 'graves-orbital-decompression-real-outcomes', 'graves-selenium-orbitopathy-5year-honest-followup'] },
       { label: 'Beyond the Thyroid', ids: ['graves-dermopathy-pretibial-myxedema', 'graves-atrial-fibrillation-real-risk', 'graves-hair-loss-honest-evidence-gap'] },
     ],
     'Medications & Treatment': [
@@ -1705,7 +1705,7 @@ const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partial<Recor
       { label: 'Terms & Definitions', ids: ['glossary-ldl-hdl', 'glossary-pad', 'glossary-tmao'] },
       { label: 'Diet & Sodium', ids: ['cvd-dash-sodium', 'cvd-potassium-salt-substitute-real-trial', 'cvd-legumes-cruciferous-sex-specific-young-adults'] },
       { label: 'Testing & Risk Markers', ids: ['cvd-coronary-calcium-score', 'cvd-hypoadiponectinemia-independent-risk'] },
-      { label: 'Treatment, With Honest Reversals', ids: ['cvd-aspirin-primary-prevention-reversal', 'cvd-pad-supervised-exercise-real-data', 'cvd-afib-catheter-ablation-real-trial'] },
+      { label: 'Treatment, With Reversals', ids: ['cvd-aspirin-primary-prevention-reversal', 'cvd-pad-supervised-exercise-real-data', 'cvd-afib-catheter-ablation-real-trial'] },
     ],
     'Whole-Body Effects': [
       { label: 'Heart Attack & Symptoms', ids: ['cvd-heart-attack-red-flags', 'cvd-elderly-atypical-mi-presentation'] },
@@ -2183,7 +2183,7 @@ type EarthMattersTopic =
   | 'Case Studies From Around the World'
   | 'History & Origins of the Movement'
   | 'Water, Seeds & Resources'
-  | 'Industry, Greenwashing & Honest Limits'
+  | 'Industry, Greenwashing & Limits'
   | 'Policy, Economics & Power'
   | 'How You Can Take Action';
 
@@ -2209,7 +2209,7 @@ const EARTH_MATTERS_TOPIC_ORDER: EarthMattersTopic[] = [
   'Case Studies From Around the World',
   'History & Origins of the Movement',
   'Water, Seeds & Resources',
-  'Industry, Greenwashing & Honest Limits',
+  'Industry, Greenwashing & Limits',
   'Policy, Economics & Power',
   'How You Can Take Action',
 ];
@@ -2294,7 +2294,7 @@ function classifyEarthMattersTopic(entry: AnyDigestEntry): EarthMattersTopic {
     id.includes('no-till-greenwashing') ||
     id.includes('cover-crop-reality-check')
   ) {
-    return 'Industry, Greenwashing & Honest Limits';
+    return 'Industry, Greenwashing & Limits';
   }
   // Everything else remaining (verified via the throwaway script above to
   // be exactly the real soil-science/mechanism/urgency entries) falls here.
@@ -2322,11 +2322,11 @@ function groupEarthMattersEntries(entries: AnyDigestEntry[]): {
 type HomeGardeningTopic =
   | 'Getting Started: Zones, Climate & Site'
   | 'What to Grow First'
-  | 'Building Real Soil'
+  | 'Building Soil'
   | 'Your Garden & Your Microbiome'
   | 'Growing Techniques'
   | 'After the Harvest'
-  | 'The Real Case for a Home Garden';
+  | 'The Case for a Home Garden';
 
 // Real reading order: the natural first step (finding your zone, picking a
 // site) leads, then what to actually plant, then the two real ongoing-care
@@ -2336,7 +2336,7 @@ type HomeGardeningTopic =
 // Take Action" uses. "Your Garden & Your Microbiome" was added 2026-08-13,
 // direct request to build a real section on how the app's own features
 // connect to the microbiome/microbial-network research, deliberately
-// placed right after "Building Real Soil" -- soil is literally what the
+// placed right after "Building Soil" -- soil is literally what the
 // entries here are about, so learning to build it and then learning what
 // direct contact with it does to a person's own immune system is a real,
 // natural read order, ahead of the more mechanical growing-technique
@@ -2344,11 +2344,11 @@ type HomeGardeningTopic =
 const HOME_GARDENING_TOPIC_ORDER: HomeGardeningTopic[] = [
   'Getting Started: Zones, Climate & Site',
   'What to Grow First',
-  'Building Real Soil',
+  'Building Soil',
   'Your Garden & Your Microbiome',
   'Growing Techniques',
   'After the Harvest',
-  'The Real Case for a Home Garden',
+  'The Case for a Home Garden',
 ];
 
 function classifyHomeGardeningTopic(entry: AnyDigestEntry): HomeGardeningTopic {
@@ -2381,7 +2381,7 @@ function classifyHomeGardeningTopic(entry: AnyDigestEntry): HomeGardeningTopic {
     id.includes('crop-rotation') ||
     id.includes('cover-crops-home')
   ) {
-    return 'Building Real Soil';
+    return 'Building Soil';
   }
   if (
     id.includes('hands-in-soil-immune-training') ||
@@ -2405,7 +2405,7 @@ function classifyHomeGardeningTopic(entry: AnyDigestEntry): HomeGardeningTopic {
   // Everything else remaining (verified via the throwaway script above to
   // be exactly the real economics/mental-health/community/pollinator-link
   // entries) falls here.
-  return 'The Real Case for a Home Garden';
+  return 'The Case for a Home Garden';
 }
 
 function groupHomeGardeningEntries(entries: AnyDigestEntry[]): {
@@ -6148,7 +6148,7 @@ function SharedRecipeActions({
     try {
       const result = await promoteSharedRecipeToSaved(sharedRecipeId);
       if (result && result.length > 0) {
-        setMessage('Saved to My Kitchen, under your own saved recipes.');
+        setMessage('Saved to My Kitchen, under your saved recipes.');
         onDynamicEntriesChanged?.();
       }
     } catch (error) {
@@ -6267,7 +6267,7 @@ function SavedOrFavoriteActions({
       setScheduledMessage(
         `Scheduled for ${scheduleMonth}/${scheduleDay}/${scheduleYear}${
           scheduleHour ? ` at ${formatTime12(time24)}` : ''
-        }. Find it on the Schedule tab's own Meals lens.`,
+        }. Find it on the Schedule tab's Meals lens.`,
       );
       setSchedulingOpen(false);
     } catch (error) {
@@ -6434,7 +6434,7 @@ function SavedOrFavoriteActions({
             <PopoverSelect options={SCHEDULE_DAY_OPTIONS} selected={scheduleDay} onSelect={setScheduleDay} tabColor={TAB_COLOR} minWidth={44} />
           </View>
 
-          <Text style={styles.detailLabel}>Time (optional -- defaults to noon)</Text>
+          <Text style={styles.detailLabel}>Time (optional, defaults to noon)</Text>
           <View style={styles.dynamicScheduleRow}>
             <PopoverSelect
               options={SCHEDULE_HOUR_OPTIONS}

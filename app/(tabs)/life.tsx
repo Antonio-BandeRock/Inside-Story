@@ -164,7 +164,7 @@ const UPCOMING_WINDOW_DAYS = 30;
 const LIFE_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this tab is for',
-    body: 'Everything about your life that is not food, not a symptom, and not a lab result. Finances is its first area; more will be added, and each one becomes its own entry on the corner button.',
+    body: 'Everything about your life that is not food, not a symptom, and not a lab result. Finances is its first area; more will be added, and each one becomes a separate entry on the corner button.',
   },
   {
     heading: 'A plan and a record are different things',
@@ -176,7 +176,7 @@ const LIFE_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Weekly is not four times a month',
-    body: 'There are 52 weeks in a year, so anything weekly costs 4.33 times its amount each month, not 4. Every two weeks is 26 payments a year and twice a month is 24, which is a genuine two-payment difference. The monthly figures here use the real numbers, which is why they may read slightly higher than you expect.',
+    body: 'There are 52 weeks in a year, so anything weekly costs 4.33 times its amount each month, not 4. Every two weeks is 26 payments a year and twice a month is 24, which is a two-payment difference. The monthly figures here use the actual counts, which is why they may read slightly higher than you expect.',
   },
   {
     heading: 'Two orders for paying off debt',
@@ -184,7 +184,7 @@ const LIFE_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'A goal costs more than money',
-    body: 'A goal here is something you want plus what it will actually take, and that can be money, hours of work, or things you provide yourself. Most real goals are a mix. Each cost is tracked in its own unit, and they are never added together into one percentage: money with no hours behind it is not halfway to a goal that needs both. What you get told instead is how many costs are met and which one is furthest behind, which is what says whether the thing in your way is money or a weekend.',
+    body: 'A goal here is something you want plus what it will actually take, and that can be money, hours of work, or things you provide yourself. Most goals are a mix. Each cost is tracked in the unit it belongs to, and they are never added together into one percentage: money with no hours behind it is not halfway to a goal that needs both. What you get told instead is how many costs are met and which one is furthest behind, which is what says whether the thing in your way is money or a weekend.',
   },
   {
     heading: 'What is not here',
@@ -206,7 +206,7 @@ const KITCHEN_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Harvests are different',
     body:
-      'A garden or fermentation harvest is shown here but still belongs to its own planting or batch, so it is removed from Garden or the Fermentation Tracker rather than from here, where the rest of its history lives.',
+      'A garden or fermentation harvest is shown here but still belongs to its planting or batch, so it is removed from Garden or the Fermentation Tracker rather than from here, where the rest of its history lives.',
   },
 ];
 
@@ -261,7 +261,7 @@ const ROUTINES_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'A nudge at the time you set',
-    body: 'Give a routine a time, and the days of the week it should speak on, and the phone says the name of it then. Tapping that opens the walk at the first step. Every routine starts with no nudge until you set one, the time is kept if you switch it off for a week away, and a day you have already finished it stays quiet. Routines has its own switch under Reminders in Profile, alongside everything else that speaks.',
+    body: 'Give a routine a time, and the days of the week it should speak on, and the phone says the name of it then. Tapping that opens the walk at the first step. Every routine starts with no nudge until you set one, the time is kept if you switch it off for a week away, and a day you have already finished it stays quiet. Routines has a switch under Reminders in Profile, alongside everything else that speaks.',
   },
   {
     heading: 'What it will not do',
@@ -299,7 +299,7 @@ const UPKEEP_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'A service is counted from when you did it',
-    body: 'This is the one thing that works differently from your bills. Rent arrives on the 1st whether or not you did anything, so a bill is a rule about the calendar. A boiler serviced in March is next due the following March, so a service is counted from the last time you did it. Recording that you did something today moves the next date, which is the whole point.',
+    body: 'This is the one thing that works differently from your bills. Rent arrives on the 1st whether or not you did anything, so a bill is a rule about the calendar. A boiler serviced in March is next due the following March, so a service is counted from the last time you did it. Recording that you did something today moves the next date.',
   },
   {
     heading: 'Things that run out are not services',
@@ -323,11 +323,11 @@ const UPKEEP_HELP_SECTIONS: HelpSection[] = [
 const EMERGENCY_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Read this before anything else',
-    body: 'Nobody is going to find this in an emergency. It is on your phone, behind a lock, inside an app, and a paramedic will not open it. This is a record to show someone, read out, or hand over, and it is genuinely worth having for that. It is not a bracelet, a card in your wallet, or the medical ID screen your phone already has, and if it replaces one of those you are worse off than before.',
+    body: 'Nobody is going to find this in an emergency. It is on your phone, behind a lock, inside an app, and a paramedic will not open it. This is a record to show someone, read out, or hand over, and that is what it is for. It is not a bracelet, a card in your wallet, or the medical ID screen your phone already has, and if it replaces one of those you are worse off than before.',
   },
   {
     heading: 'The one thing here the app had nowhere else to keep',
-    body: 'Drug allergies. Your food allergies are already recorded elsewhere and are a different thing entirely: a penicillin allergy is not a food allergy. It is free text on purpose, exactly as you would say it out loud, and nothing is ever filled in for you or guessed from anything else you have recorded.',
+    body: 'Drug allergies. Your food allergies are already recorded elsewhere and are a different thing entirely: a penicillin allergy is not a food allergy. This field is free text on purpose, exactly as you would say it out loud, and nothing is ever filled in for you or guessed from anything else you have recorded.',
   },
   {
     heading: 'Most of it is already here',
@@ -1179,7 +1179,7 @@ export default function LifeScreen() {
             </TouchableOpacity>
             <Text style={styles.helperText}>
               For solar credits, harvest sales, side work, anything that is never the same twice. The amount above
-              becomes a starting guess, and once you record what actually arrives the app works out the real figure and
+              becomes a starting guess, and once you record what actually arrives the app works out the actual figure and
               tells you how far off the guess was.
             </Text>
           </>

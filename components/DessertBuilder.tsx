@@ -1606,7 +1606,7 @@ export function DessertBuilder({
           visible={!!stagePickerFor}
           onClose={() => setStagePickerFor(null)}
           title={stagePickerFor ? `Your ${stagePickerFor.name} Stage` : undefined}
-          message="Purely advisory -- this changes nothing about what you can build or save, it only makes the report above reflect where you actually are."
+          message="Purely advisory. This changes nothing about what you can build or save; it only makes the report above reflect where you actually are."
           actions={[
             ...(stagePickerFor ? getConditionStagingModel(stagePickerFor.code)?.stages ?? [] : []).map((stage) => ({
               label: stage.label,
@@ -1861,7 +1861,7 @@ export function DessertBuilder({
             <View style={styles.findRecipeSection}>
               <Text style={[styles.findRecipeHeading, { color: tabColor }]}>Find a Recipe</Text>
               <TouchableOpacity style={styles.findRecipeLink} onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}>
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>My Kitchen (your own saved desserts)</Text>
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>My Kitchen (your saved desserts)</Text>
                 <Ionicons name="chevron-forward" size={16} color={tabColor} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.findRecipeLink} onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}>

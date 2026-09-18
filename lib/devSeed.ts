@@ -457,7 +457,7 @@ export async function seedTest90Days(): Promise<void> {
     // these was already verified against the live database before being
     // written in, so this shouldn't happen in practice, but a silent
     // partial seed would be worse than a clear stop here).
-    throw new Error('seedTest90Days: one or more real curated recipes failed to resolve -- aborting rather than seeding partial data.');
+    throw new Error('seedTest90Days: one or more curated recipes failed to resolve: aborting rather than seeding partial data.');
   }
 
   async function scheduleAt(favorite: ResolvedFavorite, title: string, mealType: string, dayOffset: number, hour: number, minute: number) {
@@ -573,7 +573,7 @@ export async function seedTest90Days(): Promise<void> {
     notes: 'Seeded test data.',
   });
   await recordSeeded('food_trials', resolved.id);
-  await resolveFoodTrial(resolved.id, 'cleared', 'No reaction observed across the real 3-day window. Seeded test data.');
+  await resolveFoodTrial(resolved.id, 'cleared', 'No reaction observed across the 3-day window. Seeded test data.');
 }
 
 // Real, precise cleanup for everything the manifest table tracked directly

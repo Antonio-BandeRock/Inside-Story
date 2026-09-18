@@ -177,7 +177,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'BPA & Phthalates',
     teaser: 'Two common plastic-related chemicals with documented, direct effects on hormone systems.',
     summary:
-      'BPA (bisphenol A) and phthalates are chemicals found in some plastics, can linings, and fragranced products. Both are documented endocrine disruptors, meaning they can directly interfere with how the body\'s own hormone receptors and transport proteins work, including for thyroid hormone specifically. See Lifestyle & Environment for the research and the everyday exposure routes, including heating food in plastic.',
+      'BPA (bisphenol A) and phthalates are chemicals found in some plastics, can linings, and fragranced products. Both are documented endocrine disruptors, meaning they can directly interfere with how the body\'s hormone receptors and transport proteins work, including for thyroid hormone specifically. See Lifestyle & Environment for the research and the everyday exposure routes, including heating food in plastic.',
     citations: [
       { source: 'Bisphenols and Thyroid Hormone (Endocrinology and Metabolism, 2019)', url: 'https://pubmed.ncbi.nlm.nih.gov/31884733/' },
     ],
@@ -188,7 +188,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-cfu',
     category: 'basicHealth',
     title: 'CFU (Colony-Forming Units)',
-    teaser: 'The number on a probiotic label, and an honest explanation of what it does and doesn\'t actually tell you.',
+    teaser: 'The number on a probiotic label, and what it does and doesn\'t actually tell you.',
     summary:
       'CFU measures how many live organisms were present in a probiotic product at the time it was manufactured, not how many actually survive stomach acid or reach the gut. Most clinical trials showing benefit used doses in the 1-10 billion CFU range for one specific, named strain, not the 50-100+ billion CFU "mega-blends" often marketed as automatically superior. See Fermented Foods for the full dosing picture.',
     citations: [
@@ -214,8 +214,8 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-cortisol',
     category: 'basicHealth',
     title: 'Cortisol',
-    teaser: 'The body\'s own primary stress hormone, and a direct, repeated route to lower active thyroid hormone.',
-    summary: 'A hormone released by the adrenal glands during stress, regulated by the HPA axis. Cortisol is documented to directly suppress the deiodinase enzymes that convert inactive T4 into active T3, favoring inactive reverse T3 instead. This is the single most recurring mechanism the keeps finding underneath seemingly unrelated topics: alcohol, sugar-sweetened drinks, sleep disruption, and high-intensity exercise, all covered under Lifestyle & Environment.',
+    teaser: 'The body\'s primary stress hormone, and a direct, repeated route to lower active thyroid hormone.',
+    summary: 'A hormone released by the adrenal glands during stress, regulated by the HPA axis. Cortisol is documented to directly suppress the deiodinase enzymes that convert inactive T4 into active T3, favoring inactive reverse T3 instead. This is the single most recurring mechanism this Digest keeps finding underneath seemingly unrelated topics: alcohol, sugar-sweetened drinks, sleep disruption, and high-intensity exercise, all covered under Lifestyle & Environment.',
     citations: [
       { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews: stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
     ],
@@ -303,7 +303,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-egfr',
     category: 'basicHealth',
     title: 'EGFR (Estimated Glomerular Filtration Rate)',
-    teaser: 'The standard measure of how well the kidneys are filtering, and the number a person\'s own kidney health gets tracked by.',
+    teaser: 'The standard measure of how well the kidneys are filtering, and the number a person\'s kidney health gets tracked by.',
     summary:
       'A standard blood-test-derived estimate of how much blood the kidneys are filtering per minute, the most common way kidney function gets checked, whether as part of a routine physical or to monitor a specific concern. A staged framework (G1 through G5) exists specifically to track this number over time, since kidney function loss is usually gradual and symptom-free in its early stages. See this Digest\'s dedicated Chronic Kidney Disease research for the full staging system and what actually protects it.',
     citations: [],
@@ -314,7 +314,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-edc',
     category: 'basicHealth',
     title: 'EDC (Endocrine Disruptor)',
-    teaser: 'Chemicals specifically named for what they\'re documented to do: interfere directly with the body\'s own hormone systems.',
+    teaser: 'Chemicals specifically named for what they\'re documented to do: interfere directly with the body\'s hormone systems.',
     summary:
       'A broad category of chemicals, BPA, phthalates, certain pesticides, some fragrance compounds, documented to interfere directly with hormone receptors, transport proteins, or production. Most of the strongest human evidence for harm comes from occupational or high-exposure settings rather than typical everyday exposure. See Lifestyle & Environment for the current state of that evidence.',
     citations: [
@@ -406,9 +406,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-hpa-axis',
     category: 'basicHealth',
     title: 'HPA Axis',
-    teaser: "The body's own central stress-response control system, and a direct route from chronic stress to lower active thyroid hormone.",
+    teaser: "The body's central stress-response control system, and a direct route from chronic stress to lower active thyroid hormone.",
     summary:
-      'The hypothalamic-pituitary-adrenal axis, the body\'s own central system for regulating cortisol and the stress response. Chronic activation of this system is documented to suppress the deiodinase enzymes that make active thyroid hormone, a single mechanism this Digest keeps finding underneath alcohol, sugar-sweetened drinks, sleep disruption, and high-intensity exercise.',
+      'The hypothalamic-pituitary-adrenal axis, the body\'s central system for regulating cortisol and the stress response. Chronic activation of this system is documented to suppress the deiodinase enzymes that make active thyroid hormone, a single mechanism this Digest keeps finding underneath alcohol, sugar-sweetened drinks, sleep disruption, and high-intensity exercise.',
     citations: [
       { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews: stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
     ],
@@ -765,7 +765,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-wolff-chaikoff',
     category: 'hashimotos',
     title: 'Wolff-Chaikoff Effect',
-    teaser: 'The thyroid\'s own built-in safety brake against too much iodine at once, one that can misfire in Hashimoto\'s specifically.',
+    teaser: 'The thyroid\'s built-in safety brake against too much iodine at once, one that can misfire in Hashimoto\'s specifically.',
     summary:
       'A well-documented physiological response where the thyroid temporarily shuts down hormone production when it detects a sudden flood of iodine, protecting itself from overload. In Hashimoto\'s specifically, this safety brake can misfire or get stuck, and the antibody attack itself can flare right alongside it, a direct reason a sudden iodine surge (kelp, sea vegetables, certain supplements) can trigger a flare. See Problem Foods & Swaps.',
     citations: [
@@ -903,7 +903,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'CCP / Anti-CCP Antibody',
     teaser: 'A blood test more specific to rheumatoid arthritis than the older rheumatoid factor test, often positive years before symptoms start.',
     summary:
-      'Anti-CCP (anti-cyclic citrullinated peptide) antibody testing looks for a specific immune marker that is more specific to rheumatoid arthritis than the older rheumatoid factor (RF) test, meaning a positive result is less likely to come from an unrelated cause. It can turn positive years before joint symptoms ever appear, making it a real, useful piece of self-advocacy information for anyone with a family history of RA or unexplained joint symptoms.',
+      'Anti-CCP (anti-cyclic citrullinated peptide) antibody testing looks for a specific immune marker that is more specific to rheumatoid arthritis than the older rheumatoid factor (RF) test, meaning a positive result is less likely to come from an unrelated cause. It can turn positive years before joint symptoms ever appear, making it a useful piece of self-advocacy information for anyone with a family history of RA or unexplained joint symptoms.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ra-advocacy-rf-anti-ccp'],
@@ -980,7 +980,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'FIB-4 (Fibrosis-4 Index)',
     teaser: 'A free, calculator-based screening score estimating liver scarring risk from routine lab values and age, no biopsy required.',
     summary:
-      'FIB-4 is a calculated score (using age plus three routine liver-related lab values already on a standard panel) that estimates the likelihood of significant liver scarring, or fibrosis, without needing a biopsy. Clinical guidance recommends it as a first-line screening step for fatty liver disease specifically because it is low-cost and uses labs many people already have, though its accuracy has shown inconsistency in some studies, an honest limitation covered directly in this Digest\'s Fatty Liver Disease research.',
+      'FIB-4 is a calculated score (using age plus three routine liver-related lab values already on a standard panel) that estimates the likelihood of significant liver scarring, or fibrosis, without needing a biopsy. Clinical guidance recommends it as a first-line screening step for fatty liver disease specifically because it is low-cost and uses labs many people already have, though its accuracy has shown inconsistency in some studies, a limitation covered directly in this Digest\'s Fatty Liver Disease research.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['masld-fib4-fibrosis-screening'],
@@ -1100,7 +1100,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'NDT (Natural Desiccated Thyroid)',
     teaser: 'A thyroid hormone medication made from dried animal thyroid gland, an alternative to synthetic levothyroxine with a mixed evidence picture.',
     summary:
-      'NDT is a thyroid hormone replacement medication made from dried, processed animal (typically pig) thyroid gland, containing both T4 and T3 in a fixed ratio, unlike synthetic levothyroxine, which is T4 alone. This Digest\'s labs and medication research covers the real, ongoing debate over NDT and combination T3/T4 therapy directly, including the batch-to-batch consistency concerns that come with a biological rather than synthetic source.',
+      'NDT is a thyroid hormone replacement medication made from dried, processed animal (typically pig) thyroid gland, containing both T4 and T3 in a fixed ratio, unlike synthetic levothyroxine, which is T4 alone. This Digest\'s labs and medication research covers the ongoing debate over NDT and combination T3/T4 therapy directly, including the batch-to-batch consistency concerns that come with a biological rather than synthetic source.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['labs-combination-t3-ndt'],
@@ -1109,9 +1109,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-nsaid',
     category: 'basicHealth',
     title: 'NSAID',
-    teaser: 'The drug class behind common over-the-counter pain relievers like ibuprofen and naproxen, with real, condition-specific risks.',
+    teaser: 'The drug class behind common over-the-counter pain relievers like ibuprofen and naproxen, with condition-specific risks.',
     summary:
-      'NSAIDs (nonsteroidal anti-inflammatory drugs) are a common class of pain and inflammation reliever including ibuprofen and naproxen, available both over the counter and by prescription. This Digest\'s research covers real, condition-specific risks, including documented kidney injury risk in chronic kidney disease, covered in that category\'s research.',
+      'NSAIDs (nonsteroidal anti-inflammatory drugs) are a common class of pain and inflammation reliever including ibuprofen and naproxen, available both over the counter and by prescription. This Digest\'s research covers condition-specific risks, including documented kidney injury risk in chronic kidney disease, covered in that category\'s research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ckd-nsaid-kidney-injury-real-data'],
@@ -1166,7 +1166,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'PSA (Prostate-Specific Antigen)',
     teaser: 'The standard prostate-cancer screening blood test, with a more complicated benefit-versus-harm picture than "more screening is always better."',
     summary:
-      'PSA is a protein made by the prostate, measured by a standard blood test as a screening tool for prostate cancer. It can also rise from BPH, prostatitis, or normal variation, not just cancer, which is why current guidance treats the screening decision as an individual, doctor-guided one rather than a routine recommendation for everyone, covered directly and honestly in this Digest\'s Prostate Health research.',
+      'PSA is a protein made by the prostate, measured by a standard blood test as a screening tool for prostate cancer. It can also rise from BPH, prostatitis, or normal variation, not just cancer, which is why current guidance treats the screening decision as an individual, doctor-guided one rather than a routine recommendation for everyone, covered directly in this Digest\'s Prostate Health research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['prostate-psa-screening'],
@@ -1373,9 +1373,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-ddt',
     category: 'basicHealth',
     title: 'DDT',
-    teaser: 'A once-widespread pesticide, banned in the US in 1972 after well-documented ecological harm, whose own historical arc (adopted, trusted, later reversed) recurs as a pattern throughout food-industry history.',
+    teaser: 'A once-widespread pesticide, banned in the US in 1972 after well-documented ecological harm, whose historical arc (adopted, trusted, later reversed) recurs as a pattern throughout food-industry history.',
     summary:
-      'DDT is a pesticide developed for wartime disease control that moved into mainstream agriculture after 1945, then was banned in the US in 1972 following well-documented ecological harm (Rachel Carson\'s Silent Spring, 1962). Its own historical arc, widely adopted and trusted, then later reversed once harm became clear, recurs as a pattern this Digest\'s Food Industry & History research draws on directly when discussing other food-industry ingredients and practices with a similar shape.',
+      'DDT is a pesticide developed for wartime disease control that moved into mainstream agriculture after 1945, then was banned in the US in 1972 following well-documented ecological harm (Rachel Carson\'s Silent Spring, 1962). Its historical arc, widely adopted and trusted, then later reversed once harm became clear, recurs as a pattern this Digest\'s Food Industry & History research draws on directly when discussing other food-industry ingredients and practices with a similar shape.',
     citations: [
       { source: 'EPA: DDT: A Brief History and Status', url: 'https://www.epa.gov/ingredients-used-pesticide-products/ddt-brief-history-and-status' },
     ],

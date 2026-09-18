@@ -13431,7 +13431,7 @@ export async function createMealFromComponents(input: {
   const resolved = await Promise.all(input.components.map(resolveMealComponent));
   const missingIndex = resolved.findIndex((component) => component === null);
   if (missingIndex !== -1) {
-    return { error: 'One of the items in this meal could not be found -- it may have been deleted. Remove it and try again.' };
+    return { error: 'One of the items in this meal could not be found. It may have been deleted. Remove it and try again.' };
   }
 
   const ingredients = (resolved as ResolvedMealComponent[]).flatMap((component) => component.ingredients);
@@ -13475,7 +13475,7 @@ export async function updateMealFromComponents(
   const resolved = await Promise.all(input.components.map(resolveMealComponent));
   const missingIndex = resolved.findIndex((component) => component === null);
   if (missingIndex !== -1) {
-    return { error: 'One of the items in this meal could not be found -- it may have been deleted. Remove it and try again.' };
+    return { error: 'One of the items in this meal could not be found. It may have been deleted. Remove it and try again.' };
   }
 
   const ingredients = (resolved as ResolvedMealComponent[]).flatMap((component) => component.ingredients);

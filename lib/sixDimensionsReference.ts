@@ -56,15 +56,15 @@ export function selectPrepTips(scores: FoodScore[]): PrepTip[] {
       subCriterion: 'Goitrogenic Load',
       tier: goitrogenicLoad.tier,
       instruction:
-        'Raw, this food contains goitrogens that can interfere with thyroid iodine uptake. Cooking it -- ' +
-        'boiling, steaming, or roasting -- deactivates roughly 90% of that effect, so cook it rather than ' +
+        'Raw, this food contains goitrogens that can interfere with thyroid iodine uptake. Cooking it ' +
+        '(boiling, steaming, or roasting) deactivates roughly 90% of that effect, so cook it rather than ' +
         'eating it raw where you can.',
     });
   }
 
   // Legume lectins (e.g. phytohemagglutinin in raw/undercooked kidney
-  // beans) are heat-labile but not uniformly so -- a quick rinse isn't
-  // enough, they need a real soak-and-boil (PMID 21374488, same citation
+  // beans) are heat-labile but not uniformly so: a quick rinse isn't
+  // enough, they need a long soak-and-boil (PMID 21374488, same citation
   // already in SUB_CRITERION_SOURCES['Lectins (Legumes)']).
   const lectins = scores.find((score) => score.subCriterion === 'Lectins (Legumes)');
   if (lectins?.tier === 'High Risk' || lectins?.tier === 'Mild Risk') {
@@ -73,7 +73,7 @@ export function selectPrepTips(scores: FoodScore[]): PrepTip[] {
       tier: lectins.tier,
       instruction:
         "Raw or undercooked, this legume's lectins can irritate the gut. A quick rinse doesn't deactivate " +
-        'them -- soak thoroughly, then boil (not just simmer) for the full cooking time before eating.',
+        'them: soak thoroughly, then boil (not just simmer) for the full cooking time before eating.',
     });
   }
 
@@ -126,7 +126,7 @@ const TIER_DEFINITIONS: Record<string, string> = {
     'Goitrogens are compounds that can interfere with thyroid iodine uptake. Cooking substantially reduces this effect for most foods in this category.',
   Minimal: 'Only a small, generally low-concern amount of this factor remains.',
   'Not Assessed':
-    'No credible, citable research data could be matched to this specific food for this factor. This means the data is unavailable -- not that the food is safe or neutral for it.',
+    'No credible, citable research data could be matched to this specific food for this factor. This means the data is unavailable, not that the food is safe or neutral for it.',
   'Use Carefully': 'This food may need portion awareness or a doctor’s guidance for this factor.',
   'Excess Risk': 'Consuming a lot of this food could push this factor above a healthy range.',
   'Mild Risk': 'This food carries a modest, generally minor concern for this factor.',
@@ -135,7 +135,7 @@ const TIER_DEFINITIONS: Record<string, string> = {
   Low: 'This food is low in relation to this factor.',
   Moderate: 'This food is moderate in relation to this factor.',
   High: 'This food is high in relation to this factor.',
-  'Very High': 'This food is very high in relation to this factor -- the highest tier used.',
+  'Very High': 'This food is very high in relation to this factor, the highest tier used.',
   Safe: 'This food falls within a range generally considered safe for this factor.',
   Inhibiting: 'This food may reduce or block this factor.',
   Enhancing: 'This food may improve or boost this factor.',
@@ -148,7 +148,7 @@ const TIER_DEFINITIONS: Record<string, string> = {
 const TIER_QUALIFIER_NOTES: { pattern: RegExp; note: string }[] = [
   {
     pattern: /Cross-Source Estimate/i,
-    note: 'This specific food wasn’t directly tested for this factor -- the value shown is estimated from closely related foods that were, rather than measured directly.',
+    note: 'This specific food wasn’t directly tested for this factor: the value shown is estimated from closely related foods that were, rather than measured directly.',
   },
   {
     pattern: /Preliminary/i,
@@ -229,8 +229,8 @@ const RED_TIERS = new Set(['Excess Risk', 'High Risk', 'High', 'Very High', 'Goi
 
 export function tierSeverity(tier: string): TierSeverity {
   // Oxalate Tolerance Note stores a full instruction sentence as its own
-  // "tier" value (see selectPrepTips above) rather than a short tier word
-  // -- matched by its own distinctive opening phrase instead of the
+  // "tier" value (see selectPrepTips above) rather than a short tier word,
+  // matched by its distinctive opening phrase instead of the
   // word-based lookup below.
   if (tier.startsWith('No real, cited oxalate')) return 'unknown';
   if (tier.startsWith('Low oxalate')) return 'green';
@@ -265,63 +265,63 @@ export function isFlaggedTier(tier: string): boolean {
 // Processing -- built as definitional/compositional rules rather than
 // from one external study) is deliberately left out rather than backfilled
 // with a plausible-sounding guess; getSubCriterionSources' fallback covers
-// those honestly. Extend this dict as more of the ChangeLog gets mined or
-// as new sub-criteria get their own cited build entry.
+// those. Extend this dict as more of the ChangeLog gets mined or
+// as new sub-criteria get a cited build entry.
 const SUB_CRITERION_SOURCES: Record<string, string> = {
   Selenium:
     'RDA reference: 55mcg/day (NIH Office of Dietary Supplements). "Ideal" = ≥20% RDA per 100g, matching the FDA’s definition of an "excellent source" nutrient claim (21 CFR 101.54).',
   Iodine:
-    'RDA reference: 150mcg/day, UL 1,100mcg/day (NIH ODS). Same ≥20% RDA "Ideal" threshold (FDA 21 CFR 101.54). USDA measures no real iodine data at all -- where shown, "(Cross-Source Estimate)" values are real measurements borrowed from an identical food in one of this database’s other 6 national sources, never invented.',
+    'RDA reference: 150mcg/day, UL 1,100mcg/day (NIH ODS). Same ≥20% RDA "Ideal" threshold (FDA 21 CFR 101.54). USDA measures no iodine data at all. Where shown, "(Cross-Source Estimate)" values are measurements borrowed from an identical food in one of this database’s other 6 national sources, never invented.',
   Zinc:
-    'RDA reference: 8mg/day -- the women’s RDA specifically (NIH ODS), chosen because Hashimoto’s has a well-documented 7:1-10:1 female-to-male prevalence (StatPearls/NCBI Bookshelf NBK459262). "Ideal" = ≥20% RDA per 100g (FDA 21 CFR 101.54).',
+    'RDA reference: 8mg/day, the women’s RDA specifically (NIH ODS), chosen because Hashimoto’s has a well-documented 7:1-10:1 female-to-male prevalence (StatPearls/NCBI Bookshelf NBK459262). "Ideal" = ≥20% RDA per 100g (FDA 21 CFR 101.54).',
   'Iron (contextual)':
-    'RDA reference: 18mg/day, the women’s RDA (NIH ODS), same female-prevalence rationale (NBK459262). Refined-grain products crossing the "Ideal" line are labeled "Fortified (Added Iron)" instead, since that iron mostly comes from FDA-mandated flour enrichment (21 CFR 137) and is non-heme, materially less bioavailable than the heme iron in meat/poultry/fish (2-20% vs 15-35% absorbed -- Hurrell & Egli, Am J Clin Nutr 2010, PMID 20200263).',
+    'RDA reference: 18mg/day, the women’s RDA (NIH ODS), same female-prevalence rationale (NBK459262). Refined-grain products crossing the "Ideal" line are labeled "Fortified (Added Iron)" instead, since that iron mostly comes from FDA-mandated flour enrichment (21 CFR 137) and is non-heme, materially less bioavailable than the heme iron in meat/poultry/fish (2-20% vs 15-35% absorbed; Hurrell & Egli, Am J Clin Nutr 2010, PMID 20200263).',
   'Vitamin D':
-    'RDA reference: 15mcg (600 IU)/day, UL 100mcg (4,000 IU), ages 19-70 (NIH ODS Vitamin D Health Professional Fact Sheet). Hashimoto’s-relevant: a 2022 systematic review (PMC9275446, "Association Between Vitamin D Deficiency and Autoimmune Thyroid Disorder") found vitamin D deficiency/insufficiency associated with higher rates of autoimmune thyroid disease generally -- the review itself discloses every included study was observational and calls for RCTs to confirm causation; it does not specifically measure TPO/Tg antibody titers, a correction from an earlier overstatement.',
+    'RDA reference: 15mcg (600 IU)/day, UL 100mcg (4,000 IU), ages 19-70 (NIH ODS Vitamin D Health Professional Fact Sheet). Hashimoto’s-relevant: a 2022 systematic review (PMC9275446, "Association Between Vitamin D Deficiency and Autoimmune Thyroid Disorder") found vitamin D deficiency/insufficiency associated with higher rates of autoimmune thyroid disease generally. The review discloses every included study was observational and calls for RCTs to confirm causation; it does not specifically measure TPO/Tg antibody titers, a correction from an earlier overstatement.',
   'Goitrogenic Load':
-    'Raw cruciferous (Brassicaceae) vegetables contain glucosinolates that break down into thiocyanates/goitrin, competing with thyroid iodine uptake; cooking deactivates the enzyme responsible (roughly a 90% effect reduction). Source: Felker, Bunch & Leung, "Concentrations of thiocyanate and goitrin in human plasma...", Nutr Rev. 2016;74(4):248-58, PMID 26946249 (corrected from a misrecorded 26946251, which is an unrelated paper) -- also notes meaningful interference generally requires large intakes plus pre-existing iodine insufficiency.',
+    'Raw cruciferous (Brassicaceae) vegetables contain glucosinolates that break down into thiocyanates/goitrin, competing with thyroid iodine uptake; cooking deactivates the enzyme responsible (roughly a 90% effect reduction). Source: Felker, Bunch & Leung, "Concentrations of thiocyanate and goitrin in human plasma...", Nutr Rev. 2016;74(4):248-58, PMID 26946249 (corrected from a misrecorded 26946251, which is an unrelated paper). It also notes that meaningful interference generally requires large intakes plus pre-existing iodine insufficiency.',
   Nightshades:
-    'Solanaceae-family foods (tomato, potato, eggplant, peppers, etc.) contain solanine/capsaicin/tomatine alkaloids. The Autoimmune Protocol excludes this family based on a hypothesized gut-permeability mechanism (Ballantyne, "The Paleo Approach," Victory Belt Publishing -- cover-dated 2013, widely catalogued as 2014) -- scored "Mild Risk" rather than "High Risk" since the human evidence is mechanistic/elimination-diet-based, not established double-blind RCT causation.',
+    'Solanaceae-family foods (tomato, potato, eggplant, peppers, etc.) contain solanine/capsaicin/tomatine alkaloids. The Autoimmune Protocol excludes this family based on a hypothesized gut-permeability mechanism (Ballantyne, "The Paleo Approach," Victory Belt Publishing, cover-dated 2013, widely catalogued as 2014). Scored "Mild Risk" rather than "High Risk" since the human evidence is mechanistic/elimination-diet-based, not established double-blind RCT causation.',
   'Antibody Triggers':
-    'Iodine intake (from water/salt, not seaweed specifically) linked to progression to autoimmune thyroiditis in those with baseline TPO/Tg elevation: Teng et al., "Effect of Iodine Intake on Thyroid Diseases in China," N Engl J Med. 2006;354(26):2783-93 -- a correction from an earlier version of this note that mischaracterized it as a seaweed-specific study; high-iodine seaweed/kelp-supplement case reports are real but a weaker evidence tier than this cohort study. Gluten cross-referenced via Krysiak et al. 2019, Exp Clin Endocrinol Diabetes -- a small pilot study (34 women), gluten-free diet reduced TPOAb/TgAb titers. For vegetables specifically: tubers found protective (Ji et al. 2026, Front Endocrinol 17:1890093, OR 0.75); soy genistein reduced antibody titers in a double-blind RCT (Zhang et al. 2017, Immunobiology 222(2):183-187, PMID 27729167) -- explicitly noted as a concentrated pharmacological dose, not an ordinary serving.',
+    'Iodine intake (from water/salt, not seaweed specifically) linked to progression to autoimmune thyroiditis in those with baseline TPO/Tg elevation: Teng et al., "Effect of Iodine Intake on Thyroid Diseases in China," N Engl J Med. 2006;354(26):2783-93, a correction from an earlier version of this note that mischaracterized it as a seaweed-specific study. High-iodine seaweed/kelp-supplement case reports exist but sit at a weaker evidence tier than this cohort study. Gluten cross-referenced via Krysiak et al. 2019, Exp Clin Endocrinol Diabetes, a small pilot study (34 women), gluten-free diet reduced TPOAb/TgAb titers. For vegetables specifically: tubers found protective (Ji et al. 2026, Front Endocrinol 17:1890093, OR 0.75); soy genistein reduced antibody titers in a double-blind RCT (Zhang et al. 2017, Immunobiology 222(2):183-187, PMID 27729167), explicitly noted as a concentrated pharmacological dose, not an ordinary serving.',
   Sodium:
-    'UK Food Standards Agency’s published front-of-pack "traffic light" per-100g thresholds (food.gov.uk). Autoimmune-relevant citation: Wu et al., Nature 2013 -- dietary salt driving pathogenic Th17 autoimmune activity.',
+    'UK Food Standards Agency’s published front-of-pack "traffic light" per-100g thresholds (food.gov.uk). Autoimmune-relevant citation: Wu et al., Nature 2013, dietary salt driving pathogenic Th17 autoimmune activity.',
   Sugar:
-    'UK Food Standards Agency’s published front-of-pack per-100g sugar thresholds (food.gov.uk). Citation: Della Corte et al., Nutrients 2018 -- dietary sugar linked to inflammatory biomarkers.',
+    'UK Food Standards Agency’s published front-of-pack per-100g sugar thresholds (food.gov.uk). Citation: Della Corte et al., Nutrients 2018, dietary sugar linked to inflammatory biomarkers.',
   Additives:
-    'Named compounds only, each with its own citation: nitrite/nitrate curing (IARC/WHO Monograph Vol. 114, 2018 -- processed meat classified a Group 1 carcinogen via the nitrosamine mechanism); emulsifiers CMC/polysorbate-80/carrageenan (Chassaing et al. 2015, Nature, PMID 25731162); sulfites (FDA-mandated allergen declaration, 21 CFR 101.100); artificial dyes (McCann et al. 2007, Lancet). MSG is deliberately not flagged -- FDA and EFSA both maintain its GRAS/safe status.',
+    'Named compounds only, each with a citation: nitrite/nitrate curing (IARC/WHO Monograph Vol. 114, 2018, processed meat classified a Group 1 carcinogen via the nitrosamine mechanism); emulsifiers CMC/polysorbate-80/carrageenan (Chassaing et al. 2015, Nature, PMID 25731162); sulfites (FDA-mandated allergen declaration, 21 CFR 101.100); artificial dyes (McCann et al. 2007, Lancet). MSG is deliberately not flagged: FDA and EFSA both maintain its GRAS/safe status.',
   Processing: 'NOVA ultra-processed food classification (Monteiro et al. 2019, Public Health Nutrition).',
   'Saturated Fat':
-    'UK Food Standards Agency per-100g thresholds (food.gov.uk). Hashimoto’s-relevant citation: Rizos, Elisaf & Liberopoulos, Open Cardiovasc Med J. 2011;5:76-84 (PMID 21660244) -- hypothyroid states linked to unfavorable lipid profiles.',
+    'UK Food Standards Agency per-100g thresholds (food.gov.uk). Hashimoto’s-relevant citation: Rizos, Elisaf & Liberopoulos, Open Cardiovasc Med J. 2011;5:76-84 (PMID 21660244), hypothyroid states linked to unfavorable lipid profiles.',
   'Trans Fat':
-    'FDA’s determination that partially hydrogenated oils are not "Generally Recognized as Safe" at any level: 80 FR 34650 (June 2015, the original determination -- corrected from a misrecorded 83 FR 23358, which is actually a later 2018 compliance-date notice, not the determination itself), reaffirmed in 83 FR 23382 (2018). Naturally-occurring ruminant trans fat (beef/lamb/dairy) is labeled separately from industrial trans fat, since only industrial isomers are linked to CHD risk (Gebauer et al., "Effects of Ruminant trans Fatty Acids on Cardiovascular Disease and Cancer," Adv Nutr. 2011;2(4):332-354).',
+    'FDA’s determination that partially hydrogenated oils are not "Generally Recognized as Safe" at any level: 80 FR 34650 (June 2015, the original determination, corrected from a misrecorded 83 FR 23358, which is actually a later 2018 compliance-date notice, not the determination itself), reaffirmed in 83 FR 23382 (2018). Naturally-occurring ruminant trans fat (beef/lamb/dairy) is labeled separately from industrial trans fat, since only industrial isomers are linked to CHD risk (Gebauer et al., "Effects of Ruminant trans Fatty Acids on Cardiovascular Disease and Cancer," Adv Nutr. 2011;2(4):332-354).',
   'Omega-3 vs 6':
-    'Computed from real measured EPA/DHA/ALA/linoleic-acid values (6 of 7 sources -- Japan_MEXT has no per-fatty-acid breakdown and is honestly Not Assessed) against Simopoulos 2002’s cited 1:1-4:1 optimal omega-6:omega-3 ratio.',
+    'Computed from measured EPA/DHA/ALA/linoleic-acid values (6 of 7 sources; Japan_MEXT has no per-fatty-acid breakdown and is marked Not Assessed) against Simopoulos 2002’s cited 1:1-4:1 optimal omega-6:omega-3 ratio.',
   'Selenium & Zn synergy':
-    'Selenium powers the deiodinase enzymes that convert inactive T4 into active T3; zinc is structurally required for the nuclear thyroid hormone receptor to function. Clinical RCT: Mahmoodianfard et al., "Effects of Zinc and Selenium Supplementation on Thyroid Function in Overweight and Obese Hypothyroid Female Patients: A Randomized Double-Blind Controlled Trial," J Am Coll Nutr. 2015;34(5):391-399 (n=68) -- combined supplementation significantly improved FT4/FT3/TSH versus placebo.',
+    'Selenium powers the deiodinase enzymes that convert inactive T4 into active T3; zinc is structurally required for the nuclear thyroid hormone receptor to function. Clinical RCT: Mahmoodianfard et al., "Effects of Zinc and Selenium Supplementation on Thyroid Function in Overweight and Obese Hypothyroid Female Patients: A Randomized Double-Blind Controlled Trial," J Am Coll Nutr. 2015;34(5):391-399 (n=68), combined supplementation significantly improved FT4/FT3/TSH versus placebo.',
   'Iron Presence':
-    'Thyroid peroxidase (TPO), the enzyme that catalyzes thyroid hormone synthesis, is itself a heme (iron-containing) enzyme. Source: Hess, Zimmermann, Arnold, Langhans & Hurrell, "Iron deficiency anemia reduces thyroid peroxidase activity in rats," J Nutr. 2002;132(7):1951-5, PMID 12097675 -- TPO activity fell 33-56% in iron-deficient animals versus controls.',
+    'Thyroid peroxidase (TPO), the enzyme that catalyzes thyroid hormone synthesis, is itself a heme (iron-containing) enzyme. Source: Hess, Zimmermann, Arnold, Langhans & Hurrell, "Iron deficiency anemia reduces thyroid peroxidase activity in rats," J Nutr. 2002;132(7):1951-5, PMID 12097675. TPO activity fell 33-56% in iron-deficient animals versus controls.',
   Fermentability:
-    'Monash University’s own published High/Low FODMAP food list and methodology (a portion-size-dependent traffic light, not a strict yes/no).',
+    'Monash University’s published High/Low FODMAP food list and methodology (a portion-size-dependent traffic light, not a strict yes/no).',
   'Microbiome Effects':
-    'Real cited prebiotic-fiber content: Van Loo et al., "On the presence of inulin and oligofructose as natural ingredients in the Western diet," Crit Rev Food Sci Nutr. 1995;35:525-52, and Franck, "Technological functionality of inulin and oligofructose," Br J Nutr. 2002;87(Suppl 2):S287-91 (chicory root, Jerusalem artichoke, leek, asparagus, garlic, onion, banana, wheat bran); Milani et al., "Extraction of inulin from Burdock root (Arctium lappa) using high intensity ultrasound," Int J Food Sci Technol. 2011;46:1699-1704 (burdock root); plus real fermented-food identity (kefir, kimchi, sauerkraut, miso, tempeh, kombucha, natto, live-culture yogurt).',
+    'Cited prebiotic-fiber content: Van Loo et al., "On the presence of inulin and oligofructose as natural ingredients in the Western diet," Crit Rev Food Sci Nutr. 1995;35:525-52, and Franck, "Technological functionality of inulin and oligofructose," Br J Nutr. 2002;87(Suppl 2):S287-91 (chicory root, Jerusalem artichoke, leek, asparagus, garlic, onion, banana, wheat bran); Milani et al., "Extraction of inulin from Burdock root (Arctium lappa) using high intensity ultrasound," Int J Food Sci Technol. 2011;46:1699-1704 (burdock root); plus fermented-food identity (kefir, kimchi, sauerkraut, miso, tempeh, kombucha, natto, live-culture yogurt).',
   'Oxalate Level':
-    'Oxalosis and Hyperoxaluria Foundation (OHF), 2024 oxalate list -- direct PDF, the actual data table, not the site’s own gateway page (that page is just navigation tiles with no data of its own, confirmed directly, an earlier mistake in this citation): https://ohf.org/wp-content/uploads/2024/02/Oxalate-List-022724.pdf (OHF is a real 501(c)(3) since 1989, the largest private funder of hyperoxaluria research; their own list is a compiled secondary source, not original lab testing -- OHF says as much themselves). Wake Forest University Baptist Medical Center Urology’s own oxalate list: https://www.wakehealth.edu/-/media/wakeforest/clinical/files/urology/oxalate-food-list.pdf (a smaller, older list, used here to cross-check the subset of foods it shares with OHF, not as a second citation behind every food -- most individual foods here, including sweet potato and broccoli, are sourced from OHF alone, since neither is in Wake Forest’s own shorter list). Reported oxalate content genuinely varies a lot study to study, for any food, from any source -- a peer-reviewed comparison (Chai & Liebman, "Food Oxalate: Factors Affecting Measurement, Biological Variation, and Bioavailability," J Am Diet Assoc. 2005;105(2):297-307, PMID 15668690) found broccoli reported anywhere from 0.3 to 13mg/100g and wheat bran from 58 to 524mg/100g across different published sources, and found Harvard’s own oxalate database and NDSR nutrition software disagreed substantially across 536 foods compared head to head. That variance is a known limitation of this whole field, not a flaw specific to either source cited here.',
-  'Oxalate Load Rank': 'Same sourcing as Oxalate Level -- see that entry for the real, linked citations and the honest note on cross-study measurement variance.',
-  'Mineral Binding Risk': 'Same sourcing as Oxalate Level -- see that entry for the real, linked citations and the honest note on cross-study measurement variance.',
-  'Oxalate Tolerance Note': 'Same sourcing as Oxalate Level -- see that entry for the real, linked citations and the honest note on cross-study measurement variance.',
+    'Oxalosis and Hyperoxaluria Foundation (OHF), 2024 oxalate list, the direct PDF and the data table itself, not the site’s gateway page (that page is navigation tiles with no data on it, confirmed directly, an earlier mistake in this citation): https://ohf.org/wp-content/uploads/2024/02/Oxalate-List-022724.pdf (OHF is a 501(c)(3) since 1989, the largest private funder of hyperoxaluria research; the list is a compiled secondary source, not original lab testing, and OHF says as much themselves). Wake Forest University Baptist Medical Center Urology’s oxalate list: https://www.wakehealth.edu/-/media/wakeforest/clinical/files/urology/oxalate-food-list.pdf (a smaller, older list, used here to cross-check the subset of foods it shares with OHF, not as a second citation behind every food; most individual foods here, including sweet potato and broccoli, are sourced from OHF alone, since neither is in Wake Forest’s shorter list). Reported oxalate content varies a lot study to study, for any food, from any source. A peer-reviewed comparison (Chai & Liebman, "Food Oxalate: Factors Affecting Measurement, Biological Variation, and Bioavailability," J Am Diet Assoc. 2005;105(2):297-307, PMID 15668690) found broccoli reported anywhere from 0.3 to 13mg/100g and wheat bran from 58 to 524mg/100g across different published sources, and found Harvard’s oxalate database and NDSR nutrition software disagreed substantially across 536 foods compared head to head. That variance is a known limitation of this whole field, not a flaw specific to either source cited here.',
+  'Oxalate Load Rank': 'Same sourcing as Oxalate Level: see that entry for the linked citations and the note on cross-study measurement variance.',
+  'Mineral Binding Risk': 'Same sourcing as Oxalate Level: see that entry for the linked citations and the note on cross-study measurement variance.',
+  'Oxalate Tolerance Note': 'Same sourcing as Oxalate Level: see that entry for the linked citations and the note on cross-study measurement variance.',
   Gluten:
-    'Gluten is linked to autoimmune thyroid disease via three real mechanisms: gut dysbiosis, intestinal permeability ("leaky gut") from zonulin release, and molecular cross-reactivity between anti-tissue-transglutaminase antibodies and thyroid tissue transglutaminase. Source: "The Role of Gluten in the Development of Autoimmune Thyroid Diseases: A Narrative Review," Int J Endocrinol Metab. 2024;22(3). Oats are excluded from the "safe" grain list since they are commonly wheat-cross-contaminated per celiac clinical guidance.',
+    'Gluten is linked to autoimmune thyroid disease via three proposed mechanisms: gut dysbiosis, intestinal permeability ("leaky gut") from zonulin release, and molecular cross-reactivity between anti-tissue-transglutaminase antibodies and thyroid tissue transglutaminase. Source: "The Role of Gluten in the Development of Autoimmune Thyroid Diseases: A Narrative Review," Int J Endocrinol Metab. 2024;22(3). Oats are excluded from the "safe" grain list since they are commonly wheat-cross-contaminated per celiac clinical guidance.',
   'Lectins (Legumes)':
-    'Legume lectins (e.g. phytohemagglutinin in raw/undercooked kidney beans) are heat-labile but not uniformly so -- some require extended soak-and-boil times, not just a quick rinse, to fully deactivate (Assessment of Lectin Inactivation by Heat and Digestion, PMID 21374488). A 2025 study found phytohemagglutinin can still measurably disrupt intestinal barrier function via heat-shock-protein interference (PMC12278180) -- disclosed here as real but still-emerging mechanistic evidence, not a large clinical trial.',
+    'Legume lectins (e.g. phytohemagglutinin in raw/undercooked kidney beans) are heat-labile but not uniformly so: some require extended soak-and-boil times, not just a quick rinse, to fully deactivate (Assessment of Lectin Inactivation by Heat and Digestion, PMID 21374488). A 2025 study found phytohemagglutinin can still measurably disrupt intestinal barrier function via heat-shock-protein interference (PMC12278180), disclosed here as still-emerging mechanistic evidence, not a large clinical trial.',
   Soy:
-    'Soy isoflavones (genistein, daidzein) can inhibit thyroid peroxidase and compete with iodine uptake in lab settings, but a 2006 narrative review of 14 clinical trials found neither soy nor isoflavones affect thyroid function in euthyroid people ("Goitrogenic and estrogenic activity of soy isoflavones," PMID 12060828; "Update on genistein and thyroid: an overall message of safety," PMC3459182). The real risk is concentrated in people with marginal iodine intake or pre-existing thyroid disease -- i.e., exactly the population this app is built for -- which is why Soy stays flagged even though the broader-population evidence is reassuring. Fermentation (miso, tempeh, natto) breaks down isoflavone-bound compounds, making fermented soy generally milder than soy protein isolate.',
+    'Soy isoflavones (genistein, daidzein) can inhibit thyroid peroxidase and compete with iodine uptake in lab settings, but a 2006 narrative review of 14 clinical trials found neither soy nor isoflavones affect thyroid function in euthyroid people ("Goitrogenic and estrogenic activity of soy isoflavones," PMID 12060828; "Update on genistein and thyroid: an overall message of safety," PMC3459182). The risk is concentrated in people with marginal iodine intake or pre-existing thyroid disease, which is exactly the population this app is built for, and that is why Soy stays flagged even though the broader-population evidence is reassuring. Fermentation (miso, tempeh, natto) breaks down isoflavone-bound compounds, making fermented soy generally milder than soy protein isolate.',
   'Fat Processing':
     'Repeated/high-heat frying degrades oil via hydrolysis, oxidation, and polymerization, generating trans fats even from oils that started with none, plus oxidized cholesterol linked to endothelial dysfunction and inflammation ("Chemical Changes in Deep-Fat Frying: Reaction Mechanisms, Oil Degradation, and Health Implications," Food Sci Nutr. 2025).',
   'Oxidation Risk':
-    'Lipid peroxidation (fat oxidation/rancidity) generates reactive aldehydes and other byproducts that are more stable than the free radicals that produced them and can travel to and damage other tissues -- implicated across a range of inflammatory and chronic disease processes ("Lipid Peroxidation Products in Human Health and Disease," PMC3835913).',
+    'Lipid peroxidation (fat oxidation/rancidity) generates reactive aldehydes and other byproducts that are more stable than the free radicals that produced them and can travel to and damage other tissues, implicated across a range of inflammatory and chronic disease processes ("Lipid Peroxidation Products in Human Health and Disease," PMC3835913).',
   'Excess Fiber or Anti-Nutrients':
-    'Soluble fiber has consistent evidence for improving IBS-type digestive symptoms; insoluble fiber does not show the same benefit and can worsen bloating/gas at high intake, so tolerance genuinely depends on fiber type and amount, not just total grams (Rome Foundation, "Fiber and Functional Gastrointestinal Disorders").',
+    'Soluble fiber has consistent evidence for improving IBS-type digestive symptoms; insoluble fiber does not show the same benefit and can worsen bloating/gas at high intake, so tolerance depends on fiber type and amount, not just total grams (Rome Foundation, "Fiber and Functional Gastrointestinal Disorders").',
   'Fiber Type': 'Same soluble-vs-insoluble digestive-tolerance evidence as Excess Fiber or Anti-Nutrients (Rome Foundation, "Fiber and Functional Gastrointestinal Disorders").',
   Irritants:
     'Alcohol measurably impairs intestinal barrier function even at moderate doses in controlled human trials (20g ethanol, randomized cross-over design), increasing intestinal permeability via a MAP-kinase signaling pathway (PMC4165763). Caffeine\'s effect on gut permeability specifically is less directly evidenced in the literature checked so far and is flagged here as the weaker half of this sub-criterion, not backed to the same standard as the alcohol finding.',

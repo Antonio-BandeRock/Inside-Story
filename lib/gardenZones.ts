@@ -84,12 +84,12 @@ export function zoneFromAverageMinF(avgAnnualMinF: number): string {
 // returned for that one real overlap zone rather than picking one
 // arbitrarily. Zones 1-2 sit below every existing band (the lowest, "cold/
 // short-season" entry starts at zone 3) -- the cold entry is still the
-// closest real match, with belowCoverage flagging that honestly rather
+// closest match, with belowCoverage flagging that honestly rather
 // than silently treating it as a perfect fit.
 export function zoneBandInfo(zone: string): { bandLabel: string; digestTopics: string[]; belowCoverage: boolean } {
   const zoneNumber = parseInt(zone, 10);
   if (zoneNumber <= 2) {
-    return { bandLabel: 'Cold / Short-Season (closest real match)', digestTopics: ['Cold & short-season crops'], belowCoverage: true };
+    return { bandLabel: 'Cold / Short-Season (closest match)', digestTopics: ['Cold & short-season crops'], belowCoverage: true };
   }
   if (zoneNumber <= 5) {
     return { bandLabel: 'Cold / Short-Season', digestTopics: ['Cold & short-season crops'], belowCoverage: false };

@@ -17,7 +17,7 @@ export default function TimelineScreen() {
       <Ionicons name="leaf-outline" size={40} color={colors.textMuted} />
       <Text style={styles.title}>Your Inside Story</Text>
       <Text style={styles.body}>
-        This is where your own timeline will live, everything you achieve and work through, in one place
+        This is where your timeline will live, everything you achieve and work through, in one place
         you can look back on. It isn&apos;t built yet, this screen is just holding its spot.
       </Text>
     </View>

@@ -50,16 +50,16 @@ export const CKD_STAGES: CkdStage[] = ['pre_dialysis', 'on_dialysis'];
 export const CKD_STAGE_INFO: Record<CkdStage, { label: string; shortDescription: string }> = {
   pre_dialysis: {
     label: 'Pre-Dialysis',
-    shortDescription: 'The real 0.6-0.8 g/kg/day protein ceiling applies here, protecting remaining kidney function.',
+    shortDescription: 'The 0.6-0.8 g/kg/day protein ceiling applies here, protecting remaining kidney function.',
   },
   on_dialysis: {
     label: 'On Dialysis',
-    shortDescription: 'The protein rule genuinely reverses -- dialysis itself removes real protein that now needs replacing, not restricting.',
+    shortDescription: 'The protein rule reverses here: dialysis itself removes protein that now needs replacing rather than restricting.',
   },
 };
 
-// Both stages produce a real, distinct flag -- the same sub-criterion, read
-// in opposite directions, matching IBD's own two-stage shape.
+// Both stages produce a distinct flag from the same sub-criterion, read
+// in opposite directions, matching IBD's two-stage shape.
 export const FOOD_RELEVANT_CKD_STAGES: CkdStage[] = ['pre_dialysis', 'on_dialysis'];
 
 export type CkdStageAdvisory = {
@@ -80,13 +80,13 @@ export function getCkdStageAdvisory(scores: FoodScore[], stage: CkdStage | null)
   if (stage === 'pre_dialysis') {
     if (proteinTier === 'High Protein Density' || proteinTier === 'Very High Protein Density') {
       reasons.push(
-        'A real, protein-dense food -- worth watching against the real 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends, ideally with a renal dietitian setting your own exact real target.',
+        'A protein-dense food, worth watching against the 0.6-0.8g/kg/day ceiling most pre-dialysis CKD guidance recommends, ideally with a renal dietitian setting your exact target.',
       );
     }
   } else {
     if (proteinTier === 'Low Protein Density') {
       reasons.push(
-        'A real, protein-light food -- dialysis itself removes real protein your body now needs replaced, not restricted. Worth knowing this specific pre-dialysis instinct genuinely reverses once dialysis starts.',
+        'A protein-light food. Dialysis itself removes protein your body now needs replaced rather than restricted, so this specific pre-dialysis instinct reverses once dialysis starts.',
       );
     }
   }
@@ -97,6 +97,6 @@ export function getCkdStageAdvisory(scores: FoodScore[], stage: CkdStage | null)
     title: `CKD Stage: ${stage === 'pre_dialysis' ? 'Pre-Dialysis' : 'On Dialysis'}`,
     message:
       reasons.join('\n\n') +
-      "\n\nThis is advisory only -- nothing in Inside Story hides or blocks a food based on your stage. See the Chronic Kidney Disease category in Digest for the full, cited evidence.",
+      "\n\nThis is advisory only. Nothing in Inside Story hides or blocks a food based on your stage. See the Chronic Kidney Disease category in Digest for the full, cited evidence.",
   };
 }

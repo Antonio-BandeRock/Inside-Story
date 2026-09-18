@@ -53,16 +53,16 @@ export const IBD_STAGES: IbdStage[] = ['flare', 'remission'];
 export const IBD_STAGE_INFO: Record<IbdStage, { label: string; shortDescription: string }> = {
   flare: {
     label: 'Flare / Active Disease',
-    shortDescription: 'Active inflammation -- additive/processing-related concerns matter most here. Fiber is deliberately NOT restricted by default; real evidence for that is thin.',
+    shortDescription: 'Active inflammation, so additive and processing concerns matter most here. Fiber is deliberately NOT restricted by default; the evidence for doing that is thin.',
   },
   remission: {
     label: 'Remission',
-    shortDescription: 'Calprotectin normal, no visible inflammation -- real, ongoing symptoms here are often a separate, overlapping issue, not the IBD itself.',
+    shortDescription: 'Calprotectin normal, no visible inflammation. Ongoing symptoms here are often a separate, overlapping issue rather than the IBD itself.',
   },
 };
 
-// Both stages produce a real, distinct flag -- see this file's own top
-// comment for why, unlike every other condition built so far.
+// Both stages produce a distinct flag. See the top comment in this file
+// for why, unlike every other condition built so far.
 export const FOOD_RELEVANT_IBD_STAGES: IbdStage[] = ['flare', 'remission'];
 
 export type IbdStageAdvisory = {
@@ -82,12 +82,12 @@ export function getIbdStageAdvisory(scores: FoodScore[], stage: IbdStage | null)
   if (stage === 'flare') {
     if (findTier(scores, 'Additives') === 'High Risk') {
       reasons.push(
-        "Carries a flagged additive -- real research (Chassaing et al. 2015) found specific emulsifiers worsened colitis directly in susceptible mice, a mechanism worth extra attention during active disease specifically.",
+        "Carries a flagged additive. Chassaing et al. 2015 found specific emulsifiers worsened colitis directly in susceptible mice, a mechanism worth extra attention during active disease specifically.",
       );
     }
     if (findTier(scores, 'Processing') === 'High Risk') {
       reasons.push(
-        'Heavily processed -- real cohort data links ultra-processed food intake with higher IBD flare risk. This is NOT a fiber warning -- this app\'s own research found real evidence thin for the common "restrict fiber during a flare" advice, so fiber content isn\'t flagged here on purpose.',
+        'Heavily processed. Cohort data links ultra-processed food intake with higher IBD flare risk. This is NOT a fiber warning: this app\'s research found the evidence thin for the common "restrict fiber during a flare" advice, so fiber content isn\'t flagged here on purpose.',
       );
     }
   }
@@ -97,7 +97,7 @@ export function getIbdStageAdvisory(scores: FoodScore[], stage: IbdStage | null)
     const irritantsTier = findTier(scores, 'Irritants');
     if (excessFiberTier === 'Disruptive' || irritantsTier === 'Disruptive') {
       reasons.push(
-        "Flagged for a real, general digestive-tolerance concern -- if remission is confirmed (normal calprotectin, no visible inflammation) but symptoms persist, this is worth noticing as a possible separate, overlapping IBS-type issue, not necessarily active IBD itself.",
+        "Flagged for a general digestive-tolerance concern. If remission is confirmed (normal calprotectin, no visible inflammation) but symptoms persist, this is worth noticing as a possible separate, overlapping IBS-type issue, not necessarily active IBD itself.",
       );
     }
   }
@@ -108,6 +108,6 @@ export function getIbdStageAdvisory(scores: FoodScore[], stage: IbdStage | null)
     title: `IBD Stage: ${stage === 'flare' ? 'Flare / Active Disease' : 'Remission'}`,
     message:
       reasons.join('\n\n') +
-      "\n\nThis is advisory only -- nothing in Inside Story hides or blocks a food based on your stage. See the Inflammatory Bowel Disease category in Digest for the full, cited evidence.",
+      "\n\nThis is advisory only. Nothing in Inside Story hides or blocks a food based on your stage. See the Inflammatory Bowel Disease category in Digest for the full, cited evidence.",
   };
 }

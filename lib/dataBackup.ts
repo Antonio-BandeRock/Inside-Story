@@ -188,7 +188,7 @@ export async function exportBackupToFile(password: string): Promise<string | nul
     file.write(JSON.stringify(wire));
     return file.uri;
   } catch (error) {
-    console.error('[dataBackup] Failed to write a real backup file', error);
+    console.error('[dataBackup] Failed to write the backup file', error);
     return null;
   }
 }
@@ -394,7 +394,7 @@ export async function restoreFromBackupEnvelope(envelope: BackupEnvelope): Promi
       const violations = await db.getAllAsync<{ table: string }>('PRAGMA foreign_key_check');
       if (violations.length > 0) {
         throw new Error(
-          `Restored data failed a real foreign-key consistency check (${violations.length} violation(s), e.g. table "${violations[0].table}"). Nothing was kept.`,
+          `Restored data failed a foreign-key consistency check (${violations.length} violation(s), e.g. table "${violations[0].table}"). Nothing was kept.`,
         );
       }
 

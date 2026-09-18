@@ -188,7 +188,7 @@ async function buildMyKitchenEntryForOption(
     teaser: option.ingredientNames
       ? `A saved ${groupLabel.toLowerCase()}: ${option.ingredientNames}`
       : `A saved ${groupLabel.toLowerCase()} creation.`,
-    summary: `Your own saved ${groupLabel.toLowerCase().replace(/s$/, '')}, makes ${servingsLabel(option.servings)}.${sharedNote}`,
+    summary: `Your saved ${groupLabel.toLowerCase().replace(/s$/, '')}, makes ${servingsLabel(option.servings)}.${sharedNote}`,
     citations: [],
     overallTier: 'strong',
     dynamicGroupLabel: groupLabel,
@@ -400,8 +400,8 @@ async function buildSharedRecipeEntry(
   // this share.
   const connection = senderPublicKeyBase64 ? await getConnectionByPublicKey(senderPublicKeyBase64) : null;
   const verifiedNote = connection
-    ? `Verified: this is genuinely from your connection ${connection.name}.`
-    : `Not yet verified -- ${fromName} isn't one of your connections yet.`;
+    ? `Verified: this is from your connection ${connection.name}.`
+    : `Not yet verified: ${fromName} isn't one of your connections yet.`;
 
   const [highlights, conditionNotes] = await Promise.all([
     getNutritionHighlightsForIngredients(ingredients, servings),
@@ -414,8 +414,8 @@ async function buildSharedRecipeEntry(
     title: name,
     teaser: `Shared with you by ${fromName}: ${ingredientNames}.`,
     summary: isMeal
-      ? `A whole meal shared by ${fromName} -- try it, then decide whether to save it to your own recipes or as a favorite. ${verifiedNote}`
-      : `A ${payload.componentType.replace(/([A-Z])/g, ' $1').toLowerCase()}, shared by ${fromName}, makes ${servingsLabel(servings)} -- try it, then decide whether to save it to your own recipes or as a favorite. ${verifiedNote}`,
+      ? `A whole meal shared by ${fromName}. Try it, then decide whether to save it to your recipes or as a favorite. ${verifiedNote}`
+      : `A ${payload.componentType.replace(/([A-Z])/g, ' $1').toLowerCase()}, shared by ${fromName}, makes ${servingsLabel(servings)}. Try it, then decide whether to save it to your recipes or as a favorite. ${verifiedNote}`,
     citations: [],
     overallTier: 'strong',
     dynamicGroupLabel: 'Recipes Shared With Me',

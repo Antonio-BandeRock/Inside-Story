@@ -118,7 +118,7 @@ export function usePasswordPrompt(): [
           ) : null}
           {request?.mode === 'set' ? (
             <Text style={styles.hint}>
-              There&apos;s no way to recover this if it&apos;s lost -- the app never stores it. Write it down
+              There&apos;s no way to recover this if it&apos;s lost, because the app never stores it. Write it down
               somewhere safe.
             </Text>
           ) : null}

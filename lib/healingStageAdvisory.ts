@@ -105,7 +105,7 @@ export function getHealingStageAdvisory(
     if (stage === 'digging') {
       reasons.push('Dairy. The other food typically removed alongside gluten at this stage.');
     } else if (stage === 'gut_repair') {
-      reasons.push("Dairy. If you haven't reintroduced it yet, this is a real one to test carefully, one food at a time.");
+      reasons.push("Dairy. If you haven't reintroduced it yet, this is one to test carefully, one food at a time.");
     } else {
       reasons.push(
         'Dairy. The same logic as gluten applies here: a food already tested and tolerated during Gut Repair ' +
@@ -116,22 +116,22 @@ export function getHealingStageAdvisory(
   if (eliminationTier === 'Nightshade') {
     if (laterStage) {
       reasons.push(
-        "A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn't " +
-          "bothered you through reintroduction, this stage's own broader focus means it's reasonable to stop treating it as a concern.",
+        "A nightshade. The staged food guide leaves this one unresolved either way. If it hasn't " +
+          "bothered you through reintroduction, this stage's broader focus means it's reasonable to stop treating it as a concern.",
       );
     } else {
       reasons.push(
-        'A nightshade. The staged food guide is honest that this one is genuinely unresolved (real anti-inflammatory evidence exists alongside real patient-reported worsening, with no controlled trial either way). Worth testing for yourself, not a firm rule.',
+        'A nightshade. The staged food guide leaves this one unresolved: anti-inflammatory evidence exists alongside patient-reported worsening, with no controlled trial either way. Worth testing for yourself rather than following as a firm rule.',
       );
     }
   }
 
   if (findTier(scores, 'Additives') === 'High Risk') {
-    reasons.push("Carries a flagged additive -- see this app's own Food Additives research (Digest) for the specific concern.");
+    reasons.push("Carries a flagged additive. See the Food Additives research in Digest for the specific concern.");
   }
 
   if (findTier(scores, 'Processing') === 'High Risk') {
-    reasons.push('Heavily processed -- the staged food guide leans toward whole, home-cooked foods, especially in this stage.');
+    reasons.push('Heavily processed, and the staged food guide leans toward whole, home-cooked foods, especially in this stage.');
   }
 
   if (reasons.length === 0) return null;
@@ -140,6 +140,6 @@ export function getHealingStageAdvisory(
     title: `Healing Stage: ${stageLabel}`,
     message:
       reasons.join('\n\n') +
-      "\n\nThis is advisory only -- nothing in Inside Story hides or blocks a food based on your stage. See the Healing Stages category in Digest for the full, cited guide.",
+      "\n\nThis is advisory only. Nothing in Inside Story hides or blocks a food based on your stage. See the Healing Stages category in Digest for the full, cited guide.",
   };
 }

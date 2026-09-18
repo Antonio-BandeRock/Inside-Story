@@ -48,15 +48,15 @@ export const IBS_PHASES: IbsPhase[] = ['elimination', 'reintroduction', 'persona
 export const IBS_PHASE_INFO: Record<IbsPhase, { label: string; shortDescription: string }> = {
   elimination: {
     label: 'Phase 1: Elimination',
-    shortDescription: 'A real, structured, temporary restriction period -- typically 2-6 weeks, not a permanent diet.',
+    shortDescription: 'A structured, temporary restriction period: typically 2-6 weeks, not a permanent diet.',
   },
   reintroduction: {
     label: 'Phase 2: Reintroduction',
-    shortDescription: 'Testing one FODMAP subtype at a time to find your own real triggers, guided by a dietitian where possible.',
+    shortDescription: 'Testing one FODMAP subtype at a time to find your triggers, guided by a dietitian where possible.',
   },
   personalization: {
     label: 'Phase 3: Personalization',
-    shortDescription: 'Only your own confirmed triggers stay restricted long-term -- everything else goes back in.',
+    shortDescription: 'Only your confirmed triggers stay restricted long-term. Everything else goes back in.',
   },
 };
 
@@ -80,13 +80,13 @@ export function getIbsPhaseAdvisory(scores: FoodScore[], phase: IbsPhase | null)
 
   if (findTier(scores, 'Excess Fiber or Anti-Nutrients') === 'Disruptive') {
     reasons.push(
-      "Flagged for excess fiber/anti-nutrient load -- a real, general digestive-tolerance concern worth noticing during a restriction period, though this app can't tell you which specific FODMAP subtype (if any) is actually behind it.",
+      "Flagged for excess fiber/anti-nutrient load: a general digestive-tolerance concern worth noticing during a restriction period, though this app can't tell you which specific FODMAP subtype (if any) is actually behind it.",
     );
   }
 
   if (findTier(scores, 'Irritants') === 'Disruptive') {
     reasons.push(
-      'Flagged as a real digestive irritant -- worth noticing during a restriction period for the same reason.',
+      'Flagged as a digestive irritant: worth noticing during a restriction period for the same reason.',
     );
   }
 
@@ -96,6 +96,6 @@ export function getIbsPhaseAdvisory(scores: FoodScore[], phase: IbsPhase | null)
     title: 'IBS Phase: Elimination',
     message:
       reasons.join('\n\n') +
-      "\n\nThis app doesn't tag FODMAP content directly, so this is a general digestive-tolerance flag, not a confirmed FODMAP hit. This is advisory only -- nothing in Inside Story hides or blocks a food based on your phase. See the IBS category in Digest for the full, cited low-FODMAP protocol.",
+      "\n\nThis app doesn't tag FODMAP content directly, so this is a general digestive-tolerance flag, not a confirmed FODMAP hit. This is advisory only. Nothing in Inside Story hides or blocks a food based on your phase. See the IBS category in Digest for the full, cited low-FODMAP protocol.",
   };
 }

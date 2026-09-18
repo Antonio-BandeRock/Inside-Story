@@ -473,7 +473,7 @@ export function FinanceHealthSection({ tabColor }: Props) {
           <Text style={styles.label}>Which condition</Text>
           <PopoverSelect options={conditionOptions} selected={billForm.conditionCode}
             onSelect={(v) => setBillForm({ ...billForm, conditionCode: v })} tabColor={tabColor} />
-          <Text style={styles.helperText}>Only tag it if it really was for that condition. Untagged is fine and is counted honestly.</Text>
+          <Text style={styles.helperText}>Only tag it if it really was for that condition. Untagged is fine, and still counted.</Text>
 
           <Text style={styles.label}>From the Explanation of Benefits</Text>
           <View style={styles.inlineRow}>

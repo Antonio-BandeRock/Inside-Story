@@ -1975,7 +1975,7 @@ export function FermentationBuilder({
           visible={!!stagePickerFor}
           onClose={() => setStagePickerFor(null)}
           title={stagePickerFor ? `Your ${stagePickerFor.name} Stage` : undefined}
-          message="Purely advisory -- this changes nothing about what you can build or save, it only makes the report above reflect where you actually are."
+          message="Purely advisory. This changes nothing about what you can build or save; it only makes the report above reflect where you actually are."
           actions={[
             ...(stagePickerFor ? getConditionStagingModel(stagePickerFor.code)?.stages ?? [] : []).map((stage) => ({
               label: stage.label,
@@ -2227,7 +2227,7 @@ export function FermentationBuilder({
                 onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
               >
                 <Text style={styles.findRecipeLinkText} numberOfLines={1}>
-                  My Kitchen (your own saved fermentations)
+                  My Kitchen (your saved fermentations)
                 </Text>
                 <Ionicons name="chevron-forward" size={16} color={tabColor} />
               </TouchableOpacity>

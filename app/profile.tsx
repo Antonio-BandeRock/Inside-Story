@@ -233,7 +233,7 @@ const PROFILE_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Appearance, sharing, and backup live here too',
-    body: "The TabHub icon, backgrounds, and generic palette are purely visual, change them for no reason other than liking it better. Connections is for signed sharing between your own paired devices or other people with this app. Backup & Restore is your own safety net: everything you've entered lives only on this device, so an export (password-protected) is the only way to move it to a new phone or recover it if this one is lost.",
+    body: "The TabHub icon, backgrounds, and generic palette are purely visual, change them for no reason other than liking it better. Connections is for signed sharing between your paired devices or other people with this app. Backup & Restore is your safety net: everything you've entered lives only on this device, so an export (password-protected) is the only way to move it to a new phone or recover it if this one is lost.",
   },
 ];
 
@@ -2693,7 +2693,7 @@ export default function ProfileScreen() {
             <Text style={styles.subLabelDivided}>Activity Level</Text>
             <Text style={styles.helpText}>
               Feeds Insights&apos; Energy &amp; Portions lens: how much you move day to day, alongside your
-              weight above, is what turns a plain calorie estimate into a target that actually fits your own body.
+              weight above, is what turns a plain calorie estimate into a target that actually fits your body.
             </Text>
             <View style={styles.pillRow}>
               {([{ value: null, label: 'Not set' }] as { value: TriState<ActivityLevel>; label: string }[])
@@ -3484,9 +3484,9 @@ export default function ProfileScreen() {
         {!collapsedSections.has('meal-plan') ? (
           <View style={styles.cardBody}>
             <Text style={styles.helpText}>
-              Generate up to 6 weeks of full meals at once, built from your own tracked conditions, diet
-              preference(s), and food allergies above -- real, whole meals combining a main dish with a side,
-              salad, or beverage when doing so genuinely helps round out your nutrient intake, not just one
+              Generate up to 6 weeks of full meals at once, built from your tracked conditions, diet
+              preference(s), and food allergies above: whole meals combining a main dish with a side,
+              salad, or beverage when doing so helps round out your nutrient intake, not just one
               recipe standing in for the whole plate.
             </Text>
             <TouchableOpacity
@@ -3547,10 +3547,10 @@ export default function ProfileScreen() {
         {!collapsedSections.has('nutrient-targets') ? (
           <View style={styles.cardBody}>
             <Text style={styles.helpText}>
-              Every nutrient the Daily Meal Plan generator tracks already defaults to a real, published DRI figure
-              for your own age and sex. Set a custom number below only if you genuinely need more of one (protein,
+              Every nutrient the Daily Meal Plan generator tracks already defaults to a published DRI figure
+              for your age and sex. Set a custom number below only if you need more of one (protein,
               fiber) or a stricter ceiling on one (sodium) than the general population. Leave a field blank to go
-              back to your real default at any time.
+              back to your default at any time.
             </Text>
             {NUTRIENT_TARGET_FIELDS.map((field) => {
               const matchingRows = nutrientDriRows.filter((row) => row.nutrientCode === field.nutrientCode);
@@ -3569,7 +3569,7 @@ export default function ProfileScreen() {
                   <View style={{ flex: 1 }}>
                     <Text style={styles.helpText}>
                       {field.label} ({field.isCeiling ? 'ceiling' : 'floor'}), your default: {defaultLabel}
-                      {overrideValue != null ? `, your own target: ${overrideValue}${field.unit}` : ''}
+                      {overrideValue != null ? `, your target: ${overrideValue}${field.unit}` : ''}
                     </Text>
                     <AppTextInput
                       style={[styles.input, styles.nameInput]}
@@ -3677,7 +3677,7 @@ export default function ProfileScreen() {
             </View>
             <Text style={styles.helpText}>
               Backgrounds: every tab shows the same flat color as the header and footer, with no photo and
-              no gradient behind anything you are reading. Your own picks are untouched and come back the
+              no gradient behind anything you are reading. Your picks are untouched and come back the
               moment you turn this off.
             </Text>
             <Text style={styles.helpText}>

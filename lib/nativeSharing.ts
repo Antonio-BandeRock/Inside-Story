@@ -53,7 +53,7 @@ export async function shareFileIfAvailable(uri: string, options?: ShareFileOptio
     await Sharing.shareAsync(uri, options);
     return true;
   } catch (error) {
-    console.error('[nativeSharing] Failed to share a real local file', error);
+    console.error('[nativeSharing] Failed to share a local file', error);
     return false;
   }
 }

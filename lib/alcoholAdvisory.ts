@@ -27,20 +27,20 @@
 // (a percent figure for reduced levothyroxine absorption, a percent drop
 // in free T3) could not be traced to a verifiable primary study during
 // this research pass, and are deliberately left out rather than presented
-// as cited facts -- the same standard this app already held the thiamine
-// case-report claim to (see CLAUDE.md's own account of that correction).
+// as cited facts, the same standard this app already held the thiamine
+// case-report claim to (see the account of that correction in CLAUDE.md).
 export const ALCOHOL_ADVISORY_TITLE = "Alcohol & Hashimoto's";
 
-export const ALCOHOL_ADVISORY_MESSAGE = `Two real studies -- Carle et al. 2013 (European Journal of Endocrinology, a Danish population-based case-control study) and Effraimidis et al. (European Thyroid Journal, a prospective Amsterdam cohort) -- found moderate alcohol consumption was NOT linked to new thyroid-antibody development, and tracked with a LOWER risk of progressing to overt autoimmune hypothyroidism. This mirrors alcohol's documented protective association with other autoimmune diseases like rheumatoid arthritis and lupus. That's real evidence, not a reason to assume alcohol is simply bad here.
+export const ALCOHOL_ADVISORY_MESSAGE = `Two studies, Carle et al. 2013 (European Journal of Endocrinology, a Danish population-based case-control study) and Effraimidis et al. (European Thyroid Journal, a prospective Amsterdam cohort), found moderate alcohol consumption was NOT linked to new thyroid-antibody development, and tracked with a LOWER risk of progressing to overt autoimmune hypothyroidism. This mirrors alcohol's documented protective association with other autoimmune diseases like rheumatoid arthritis and lupus. That is evidence, and it argues against assuming alcohol is simply bad here.
 
-The real, dose-dependent concerns in the research concentrate at heavier or more frequent drinking, not confirmed at moderate levels:
+The dose-dependent concerns in the research concentrate at heavier or more frequent drinking, not confirmed at moderate levels:
 - The liver performs about 80% of the body's T4-to-T3 conversion. Alcohol is also processed by the liver, so heavy use may compete for that same capacity.
-- Chronic heavy drinking is linked to increased gut permeability and inflammatory signaling that can affect thyroid regulation (Sagaram et al. 2022, Cells -- a small, preliminary study, not proof this happens at moderate intake).
-- Chronic alcohol use measurably dysregulates the HPA axis/cortisol rhythm (Stephens & Wand, 2012, NIAAA Alcohol Research: Current Reviews) -- relevant to the same adrenal/HPA concerns behind this app's later healing stages.
-- If you take levothyroxine, alcohol can affect its absorption and how consistently doses get taken -- worth asking your doctor about timing specifically for you. Several precise numbers repeated online for this couldn't be traced to a verifiable source, so they're left out here rather than stated as fact.`;
+- Chronic heavy drinking is linked to increased gut permeability and inflammatory signaling that can affect thyroid regulation (Sagaram et al. 2022, Cells, a small, preliminary study, not proof this happens at moderate intake).
+- Chronic alcohol use measurably dysregulates the HPA axis/cortisol rhythm (Stephens & Wand, 2012, NIAAA Alcohol Research: Current Reviews), relevant to the same adrenal/HPA concerns behind this app's later healing stages.
+- If you take levothyroxine, alcohol can affect its absorption and how consistently doses get taken, so ask your doctor about timing specifically for you. Several precise numbers repeated online for this couldn't be traced to a verifiable source, so they're left out here rather than stated as fact.`;
 
 // Matches how ResolvedFoodSelection identifies an alcoholic food -- the
-// reference database carries Alcohol as both its own standalone category
+// reference database carries Alcohol as both a standalone category
 // AND a "Bev > Alcoholic" subcategory (overlapping data from different
 // national sources, confirmed directly against the database rather than
 // assumed) -- checking both catches either route to the same real thing.

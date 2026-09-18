@@ -114,7 +114,7 @@ export const THERAPY_TYPES: TherapyTypeDefinition[] = [
     code: 'other',
     label: 'Something else',
     category: 'movement',
-    description: 'Any other hands-on session. Name it in the notes so your own record stays readable.',
+    description: 'Any other hands-on session. Name it in the notes so your record stays readable.',
   },
 ];
 

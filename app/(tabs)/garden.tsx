@@ -86,7 +86,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'My Zone',
-        body: 'Look up your USDA Plant Hardiness Zone by country + ZIP/postal code. It works anywhere on Earth, not just the US: a US ZIP gets the official USDA zone directly, everywhere else gets an estimate from that location’s own historical temperature data. Or set it directly if you already know it, here or in Profile; both write to the same one saved value. Once set, this shows cited crop guidance for your own climate band from Digest’s own Home Gardening research, and points you at the fuller entry to read there.',
+        body: 'Look up your USDA Plant Hardiness Zone by country + ZIP/postal code. It works anywhere on Earth, not just the US: a US ZIP gets the official USDA zone directly, everywhere else gets an estimate from that location’s historical temperature data. Or set it directly if you already know it, here or in Profile; both write to the same one saved value. Once set, this shows cited crop guidance for your climate band from Digest’s Home Gardening research, and points you at the fuller entry to read there.',
       },
     ],
   },
@@ -97,7 +97,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Plots & Plantings',
-        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is, how much sun it gets, its real size, and its own hardiness zone -- all real details a future planting algorithm can use, none of them required to just get started. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest.',
+        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is, how much sun it gets, its size, and its hardiness zone: details a future planting algorithm can use, none of them required to just get started. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest.',
       },
     ],
   },
@@ -119,7 +119,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Upcoming Garden Tasks',
-        body: 'Real garden chores (watering, feeding, checking on something) scheduled for a specific date -- created here and stored the same way any other Schedule item is. A dedicated lens for these inside the Schedules tab itself isn’t built yet, so this is the real place to see and add them for now.',
+        body: 'Garden chores (watering, feeding, checking on something) scheduled for a specific date, created here and stored the same way any other Schedule item is. A dedicated lens for these inside the Schedules tab itself isn’t built yet, so this is the place to see and add them for now.',
       },
     ],
   },
@@ -128,7 +128,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
 const GARDEN_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this tab is for',
-    body: "So growing your own food is worth the effort, not just a separate hobby log nobody else in this app ever sees. Track what you're growing, what actually gets harvested, and it becomes a real, pickable ingredient in the Food builders, the same as anything from the reference database.",
+    body: "So growing food yourself is worth the effort, not just a separate hobby log nobody else in this app ever sees. Track what you're growing, what actually gets harvested, and it becomes a pickable ingredient in the Food builders, the same as anything from the reference database.",
   },
   {
     heading: 'What it tracks',
@@ -160,7 +160,7 @@ const SPACE_TYPE_OPTIONS: { value: GardenSpaceType; label: string }[] = [
 // free-text "light source" field.
 const SUNLIGHT_OPTIONS: { value: GardenSunlightExposure; label: string }[] = [
   { value: 'full_sun', label: 'Full Sun (6+ hours)' },
-  { value: 'partial_shade', label: 'Partial Shade (3–6 hours)' },
+  { value: 'partial_shade', label: 'Partial Shade (3-6 hours)' },
   { value: 'full_shade', label: 'Full Shade (<3 hours)' },
   { value: 'indoor_led_timer', label: 'Indoor LED Lights, Timer required' },
   { value: 'airflow', label: 'Airflow' },
@@ -854,7 +854,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
               ))}
             </View>
           </View>
-          <Text style={styles.captionText}>Lets the app calculate real planting density and grid spacing later.</Text>
+          <Text style={styles.captionText}>Lets the app calculate planting density and grid spacing later.</Text>
 
           <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Hardiness zone for this area</Text>
           <View style={styles.fieldRow}>
@@ -901,7 +901,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
           ) : null}
           <Text style={styles.captionText}>
             Instantly calculates frost dates and local climate constraints from a country + ZIP/postal code, the same
-            lookup as My Zone -- pre-filled from your profile if already set there, editable here if this specific
+            lookup as My Zone, pre-filled from your profile if already set there, editable here if this specific
             area is somewhere else.
           </Text>
 

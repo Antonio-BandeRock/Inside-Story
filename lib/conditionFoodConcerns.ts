@@ -52,43 +52,43 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
       {
         id: 'hashimotos-gluten',
         label: 'Gluten',
-        shortNote: 'A real gut-permeability mechanism (gliadin/zonulin) this app already covers in depth.',
+        shortNote: 'A gut-permeability mechanism (gliadin/zonulin) this app already covers in depth.',
         digestEntryId: 'problem-gluten-grains',
       },
       {
         id: 'hashimotos-soy',
         label: 'Soy',
-        shortNote: 'A real, condition-specific risk in people with existing subclinical hypothyroidism.',
+        shortNote: 'A condition-specific risk in people with existing subclinical hypothyroidism.',
         digestEntryId: 'problem-soy',
       },
       {
         id: 'hashimotos-raw-cruciferous',
         label: 'Raw Cruciferous Vegetables',
-        shortNote: 'Raw goitrogenic vegetables (broccoli, cauliflower, cabbage, kale) can interfere with iodine uptake -- cooking mostly resolves it.',
+        shortNote: 'Raw goitrogenic vegetables (broccoli, cauliflower, cabbage, kale) can interfere with iodine uptake. Cooking mostly resolves it.',
         digestEntryId: 'problem-raw-cruciferous',
       },
       {
         id: 'hashimotos-kelp-iodine',
         label: 'Kelp / High-Iodine Sea Vegetables',
-        shortNote: 'Iodine overload from kelp or sea-vegetable supplements can trigger or worsen a real Hashimoto’s flare.',
+        shortNote: 'Iodine overload from kelp or sea-vegetable supplements can trigger or worsen a Hashimoto’s flare.',
         digestEntryId: 'problem-excess-iodine-kelp',
       },
       {
         id: 'hashimotos-dairy',
         label: 'Dairy',
-        shortNote: 'A real, commonly-flagged elimination-diet trigger food for autoimmune thyroid conditions.',
+        shortNote: 'A commonly-flagged elimination-diet trigger food for autoimmune thyroid conditions.',
         digestEntryId: 'problem-conventional-dairy',
       },
       {
         id: 'hashimotos-alcohol',
         label: 'Alcohol',
-        shortNote: 'A genuinely two-sided real evidence picture -- moderate intake isn’t clearly harmful, heavier/frequent intake carries real, cited concerns.',
+        shortNote: 'A two-sided evidence picture: moderate intake isn’t clearly harmful, while heavier or more frequent intake carries cited concerns.',
         digestEntryId: 'lifestyle-alcohol-advisory',
       },
       {
         id: 'hashimotos-coffee-timing',
         label: 'Coffee (with levothyroxine)',
-        shortNote: 'A real, documented absorption-timing interaction with levothyroxine -- a timing concern, not a strict avoid.',
+        shortNote: 'A documented absorption-timing interaction with levothyroxine, so a timing concern rather than a strict avoid.',
         digestEntryId: 'problem-coffee-timing',
       },
     ],
@@ -130,7 +130,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: 'prostate-caffeine',
         label: 'Caffeine',
         shortNote:
-          'Acts on the same alpha-1-adrenergic receptors in bladder-neck and prostate muscle that BPH medications target, plus its own diuretic effect. A documented association, and one people often find varies a lot person to person.',
+          'Acts on the same alpha-1-adrenergic receptors in bladder-neck and prostate muscle that BPH medications target, plus a diuretic effect. A documented association, and one people often find varies a lot person to person.',
         digestEntryId: 'prostate-alpha-adrenergic-stress-cold-caffeine',
       },
       {
@@ -172,7 +172,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: 'prostate-tea',
         label: 'Tea',
         shortNote:
-          'Appears alongside coffee among the most-reported aggravators in that same survey, and carries its own caffeine. Worth separating from coffee, since people often tolerate one and not the other.',
+          'Appears alongside coffee among the most-reported aggravators in that same survey, and carries caffeine too. Worth separating from coffee, since people often tolerate one and not the other.',
         digestEntryId: 'prostate-food-sensitivity-cpps',
       },
       {
@@ -200,7 +200,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: 'prostate-cruciferous',
         label: 'Cruciferous vegetables (broccoli, cauliflower, cabbage)',
         shortNote:
-          'Also a food to eat more of: the sulforaphane research here is real and well cited. Worth marking if you avoid them, whether for taste, digestion, or a different condition that flags them raw.',
+          'Also a food to eat more of: the sulforaphane research here is well cited. Worth marking if you avoid them, whether for taste, digestion, or a different condition that flags them raw.',
         digestEntryId: 'prostate-cruciferous-sulforaphane',
       },
     ],
@@ -228,7 +228,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "cvd-salt",
         label: "Salt and high-sodium foods",
         shortNote:
-          "The DASH-sodium trial built a whole eating pattern around blood pressure specifically. How much your own pressure moves with salt varies a lot person to person.",
+          "The DASH-sodium trial built a whole eating pattern around blood pressure specifically. How much your pressure moves with salt varies a lot person to person.",
         digestEntryId: "cvd-dash-sodium",
       },
       {
@@ -249,7 +249,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "cvd-omega3-oily-fish",
         label: "Oily fish and omega-3",
         shortNote:
-          "Lowers triglycerides measurably, with an honest caveat about how far that carries into hard outcomes. A food to eat more of rather than avoid.",
+          "Lowers triglycerides measurably, with a caveat about how far that carries into hard outcomes. A food to eat more of rather than avoid.",
         digestEntryId: "cvd-triglycerides-omega3-real-data",
       },
     ],
@@ -268,14 +268,14 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "celiac-cross-contamination-foods",
         label: "Shared kitchens and cross-contamination",
         shortNote:
-          "The 20ppm standard, and what actually breaks it in a real kitchen. This is where most accidental exposure comes from, not obvious gluten.",
+          "The 20ppm standard, and what actually breaks it in an ordinary kitchen. This is where most accidental exposure comes from, not obvious gluten.",
         digestEntryId: "celiac-cross-contamination",
       },
       {
         id: "celiac-oats",
         label: "Oats",
         shortNote:
-          "A genuine open question rather than a settled yes or no: a real subgroup reacts to oats even when certified gluten-free.",
+          "An open question rather than a settled yes or no: a subgroup reacts to oats even when they are certified gluten-free.",
         digestEntryId: "celiac-oats-controversy",
       },
       {
@@ -322,7 +322,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "ckd-high-potassium-foods",
         label: "High-potassium foods",
         shortNote:
-          "Blanket potassium restriction is an honest correction target: much common advice here goes further than the evidence supports.",
+          "Blanket potassium restriction needs correcting: much common advice here goes further than the evidence supports.",
         digestEntryId: "ckd-potassium-restriction-reconsidered",
       },
       {
@@ -421,21 +421,21 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "graves-iodine-rich-foods",
         label: "Iodine-rich foods and supplements (kelp, seaweed)",
         shortNote:
-          "A real trigger here, and a complication for treatment. Directionally the opposite of what people often assume from general thyroid advice.",
+          "A trigger here, and a complication for treatment. Directionally the opposite of what people often assume from general thyroid advice.",
         digestEntryId: "graves-iodine",
       },
       {
         id: "graves-iodine-before-rai",
         label: "Iodine before radioactive iodine treatment",
         shortNote:
-          "A genuine timing question where diet actually matters before the procedure, not a permanent avoid.",
+          "A timing question where diet matters before the procedure, not a permanent avoid.",
         digestEntryId: "graves-radioactive-iodine-timing",
       },
       {
         id: "graves-vitamin-d",
         label: "Vitamin D",
         shortNote:
-          "A real association with mixed evidence on what to do about it, worth knowing before supplementing.",
+          "An association with mixed evidence on what to do about it, worth knowing before supplementing.",
         digestEntryId: "graves-vitamin-d-deficiency-risk",
       },
     ],
@@ -447,14 +447,14 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "ibd-fiber-during-flare",
         label: "Fiber during a flare",
         shortNote:
-          "The standard low-fiber-during-a-flare advice has surprisingly thin evidence behind it, which makes this genuinely worth testing yourself.",
+          "The standard low-fiber-during-a-flare advice has surprisingly thin evidence behind it, which makes this worth testing yourself.",
         digestEntryId: "ibd-fiber-flare-myth",
       },
       {
         id: "ibd-exclusion-diet-foods",
         label: "Foods excluded by the Crohn disease exclusion diet",
         shortNote:
-          "A structured whole-food approach with real trial evidence alongside exclusive enteral nutrition.",
+          "A structured whole-food approach with trial evidence alongside exclusive enteral nutrition.",
         digestEntryId: "ibd-crohns-disease-exclusion-diet",
       },
       {
@@ -508,7 +508,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "ibs-peppermint-oil",
         label: "Peppermint oil",
         shortNote:
-          "Meta-analysis-backed, with an honest caveat. Something to try rather than avoid.",
+          "Meta-analysis-backed, with one caveat. Something to try rather than avoid.",
         digestEntryId: "ibs-peppermint-oil",
       },
     ],
@@ -527,7 +527,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "lupus-immune-herbs",
         label: "Echinacea and immune-boosting herbal supplements",
         shortNote:
-          "A real caution: stimulating an already overactive immune system is the opposite of what is wanted here.",
+          "A caution: stimulating an already overactive immune system is the opposite of what is wanted here.",
         digestEntryId: "lupus-immune-stimulating-herbs",
       },
       {
@@ -553,7 +553,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "migraine-food-triggers",
         label: "Commonly named trigger foods",
         shortNote:
-          "An honestly complicated picture rather than a clean list, which is exactly why testing your own beats following a general one.",
+          "A complicated picture rather than a clean list, which is why testing on yourself beats following a general list.",
         digestEntryId: "migraine-food-triggers-honest-nuance",
       },
       {
@@ -579,7 +579,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "ms-sodium",
         label: "Salt and high-sodium foods",
         shortNote:
-          "A real mechanism and a contested human finding. Named honestly as unsettled rather than presented as established.",
+          "A mechanism, and a contested human finding. Listed as unsettled rather than established.",
         digestEntryId: "ms-sodium-th17-contested",
       },
       {
@@ -612,7 +612,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "pcos-spearmint-tea",
         label: "Spearmint tea",
         shortNote:
-          "A randomized trial found a real anti-androgen effect. Something to try rather than avoid.",
+          "A randomized trial found an anti-androgen effect. Something to try rather than avoid.",
         digestEntryId: "pcos-spearmint-tea",
       },
       {
@@ -638,21 +638,21 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "psoriasis-gluten",
         label: "Gluten",
         shortNote:
-          "There is a real gluten-responder subgroup here, traceable down to skin biology. Whether you are in it is an individual question.",
+          "There is a gluten-responder subgroup here, traceable down to skin biology. Whether you are in it is an individual question.",
         digestEntryId: "psoriasis-gluten-mechanism",
       },
       {
         id: "psoriasis-nightshades",
         label: "Nightshades (tomato, potato, pepper, aubergine)",
         shortNote:
-          "A pattern for some people, not a proven trigger for everyone, which makes it a genuine candidate for personal testing.",
+          "A pattern for some people, not a proven trigger for everyone, which makes it a candidate for personal testing.",
         digestEntryId: "psoriasis-nightshades",
       },
       {
         id: "psoriasis-omega3",
         label: "Omega-3 and fish oil",
         shortNote:
-          "Helps rheumatoid arthritis more reliably than it helps psoriasis. Reported at that honest strength.",
+          "Helps rheumatoid arthritis more reliably than it helps psoriasis. Reported at that strength.",
         digestEntryId: "psoriasis-omega3-mixed",
       },
     ],
@@ -671,7 +671,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "ra-alcohol-methotrexate",
         label: "Alcohol, while on methotrexate",
         shortNote:
-          "A real threshold rather than the blanket folk warning, and more forgiving than most people are told.",
+          "A measured threshold rather than the blanket folk warning, and more forgiving than most people are told.",
         digestEntryId: "ra-alcohol-methotrexate",
       },
       {
@@ -685,7 +685,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "ra-raw-high-risk-foods",
         label: "Raw and unpasteurised foods",
         shortNote:
-          "On methotrexate plus a biologic, ordinary food-safety stakes are genuinely higher.",
+          "On methotrexate plus a biologic, ordinary food-safety stakes are higher.",
         digestEntryId: "ra-biologics-infection-risk",
       },
     ],
@@ -737,14 +737,14 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "type1-alcohol",
         label: "Alcohol",
         shortNote:
-          "Can cause a blood-sugar crash up to 12 hours later, which is what makes it worth its own attention rather than general moderation advice.",
+          "Can cause a blood-sugar crash up to 12 hours later, which is what makes it worth separate attention rather than general moderation advice.",
         digestEntryId: "type1-alcohol-nocturnal-hypoglycemia",
       },
       {
         id: "type1-gluten",
         label: "Gluten",
         shortNote:
-          "An honestly mixed track record for T1D itself, separate from celiac disease, which genuinely does co-occur here.",
+          "A mixed track record for T1D itself, separate from celiac disease, which does co-occur here.",
         digestEntryId: "type1-gluten-free-mixed-evidence",
       },
       {
@@ -763,7 +763,7 @@ export const CONDITION_FOOD_CONCERNS: ConditionFoodConcernModel[] = [
         id: "type2-high-carb-foods",
         label: "Higher-carbohydrate foods",
         shortNote:
-          "Strong short-term evidence for cutting them, with an honest caveat about what remission actually means.",
+          "Strong short-term evidence for cutting them, with a caveat about what remission actually means.",
         digestEntryId: "type2-low-carb-diet-evidence",
       },
       {

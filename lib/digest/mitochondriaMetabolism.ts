@@ -231,7 +231,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     title: 'Exercise Intensity Barely Moves Inflammation Markers, Doing It at All Does',
     teaser: 'A systematic review answers "how hard do I need to exercise," and the answer is surprising.',
     summary:
-      "It's a reasonable, common assumption that harder exercise means a bigger anti-inflammatory benefit. A systematic review found that assumption doesn't hold up. It found exercise intensity itself barely moves most inflammation markers (IL-6, TNF-alpha, IL-10) across the studies pooled. Doing the exercise at all matters far more than how hard it's done. This directly informs a separate, reason some people are better off favoring lower-intensity exercise, covered next, a different mechanism entirely, not because low intensity reduces inflammation more effectively than higher intensity would.",
+      "It's a reasonable, common assumption that harder exercise means a bigger anti-inflammatory benefit. A systematic review found that assumption doesn't hold up. It found exercise intensity itself barely moves most inflammation markers (IL-6, TNF-alpha, IL-10) across the studies pooled. Doing the exercise at all matters far more than how hard it's done. This directly informs a separate reason some people are better off favoring lower-intensity exercise, covered next, a different mechanism entirely, not because low intensity reduces inflammation more effectively than higher intensity would.",
     citations: [
       {
         source: 'Short-Lived Exercise-Induced Exerkines Modulate Inflammation for Chronic Disease Prevention: A Systematic Review and Meta-Analysis (Biomolecules, 2025)',
@@ -273,7 +273,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     id: 'mito-tying-together',
     category: 'hashimotos',
     title: 'Tying It All Together: Two Tensions, Not a Clean Story',
-    teaser: 'Thirteen entries in cellular biology, and the honest takeaway is two tradeoffs, not a simple "do more of this" answer.',
+    teaser: 'Thirteen entries in cellular biology, and what comes out of them is two tradeoffs, not a simple "do more of this" answer.',
     summary:
       "This category doesn't resolve into one clean recommendation, and that's deliberate. Fasting is the most potent known trigger of the exact autophagy process IL-23 was shown suppressing in Hashimoto's thyroid tissue, but fasting also measurably suppresses active thyroid hormone, so the two effects have to be weighed against each other, not treated as a free win. Visceral fat is linked to Treg depletion and insulin resistance in Hashimoto's-specific research, but a 2024 reappraisal suggests some of that same fat may be defending against a leaky gut rather than simply causing harm, meaning gut repair and fat reduction likely need pursuing together, not as substitutes. The one uncomplicated finding in the whole category: moderate, consistent, low-intensity exercise triggers autophagy of its own, through a completely different pathway than fasting, without fasting's thyroid-hormone tradeoff, the closest thing to a clean answer this category actually has.",
     citations: [

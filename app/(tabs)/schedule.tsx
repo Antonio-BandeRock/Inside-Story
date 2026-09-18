@@ -165,7 +165,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Phone calendar sync',
-        body: 'Any one scheduled meal can sync to your phone\'s own Calendar app, the same way appointments do: "Add to calendar" pushes it out as a 30-minute block; "Unlink calendar," or removing it here, can also remove the calendar event. This is per-occurrence, not per-series. A daily repeating meal is not synced in bulk, only whichever single day you sync from here.',
+        body: 'Any one scheduled meal can sync to your phone\'s Calendar app, the same way appointments do: "Add to calendar" pushes it out as a 30-minute block; "Unlink calendar," or removing it here, can also remove the calendar event. This is per-occurrence, not per-series. A daily repeating meal is not synced in bulk, only whichever single day you sync from here.',
       },
       {
         heading: 'From templates & favorites, or unplanned',
@@ -205,7 +205,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'If a dish has no steps',
-        body: 'The ingredients still show. Steps are only ever there if somebody wrote them, either in the dish’s own builder or by starting from a system recipe, so a dish with none is an honest gap rather than something missing here.',
+        body: 'The ingredients still show. Steps are only ever there if somebody wrote them, either in the dish’s builder or by starting from a system recipe, so a dish with none is a gap rather than something missing here.',
       },
     ],
   },
@@ -216,7 +216,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Why this exists',
-        body: 'A scheduled meal is real, running data the moment its date passes -- it counts toward Trends and Reports on its own, in whatever amounts you originally planned, so you never have to separately "log" it just to make it count.',
+        body: 'A scheduled meal becomes running data the moment its date passes. It counts toward Trends and Reports by itself, in whatever amounts you originally planned, so you never have to separately "log" it just to make it count.',
       },
       {
         heading: 'Correcting what actually happened',
@@ -224,11 +224,11 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'A food trial riding on it',
-        body: 'If you drop something to none that a food trial was riding on, this asks directly: was it never actually eaten (the trial goes back to waiting), or did you just eat it a different day (the trial\'s own start date gets corrected instead)?',
+        body: 'If you drop something to none that a food trial was riding on, this asks directly: was it never actually eaten (the trial goes back to waiting), or did you just eat it a different day (the trial\'s start date gets corrected instead)?',
       },
       {
         heading: 'Skipped meals',
-        body: 'A meal you marked Skipped ahead of time shows here too, as a plain record -- it was never assumed to have happened, so there is nothing to correct.',
+        body: 'A meal you marked Skipped ahead of time shows here too, as a plain record. It was never assumed to have happened, so there is nothing to correct.',
       },
     ],
   },
@@ -243,11 +243,11 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Breakfast rules',
-        body: 'Breakfast never includes a smoothie, and never includes a recipe with an actual added sweetener (honey, maple syrup, sugar) as an ingredient. Fruit\'s own natural sugar is never treated as the same thing. Smoothies are offered at lunch instead, alongside a side when the meal alone reads light.',
+        body: 'Breakfast never includes a smoothie, and never includes a recipe with an actual added sweetener (honey, maple syrup, sugar) as an ingredient. Fruit\'s natural sugar is never treated as the same thing. Smoothies are offered at lunch instead, alongside a side when the meal alone reads light.',
       },
       {
         heading: 'Rotation across multiple days',
-        body: "Picking more than 1 day pulls from a real rotation: every recipe already used this run is deprioritized in favor of whatever hasn't been picked yet, only repeating once every real option has already been used at least once. This is the actual reason more days is worth choosing over generating one day repeatedly -- one day at a time has no memory of what came before it.",
+        body: "Picking more than 1 day pulls from a rotation: every recipe already used this run is deprioritized in favor of whatever hasn't been picked yet, only repeating once every other option has already been used at least once. This is the actual reason more days is worth choosing over generating one day repeatedly. One day at a time has no memory of what came before it.",
       },
       {
         heading: 'Weekly frequency targets',
@@ -261,11 +261,11 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'The health rating',
-        body: 'The same green/yellow/red system "Meals You Can Eat" already uses, not a new, separate scale: green means every pick is genuinely clean for every condition selected; yellow means at least one carries a real, milder caution. A recipe with a serious, well-documented concern for any selected condition is never picked here at all.',
+        body: 'The same green/yellow/red system "Meals You Can Eat" already uses, not a new, separate scale: green means every pick is clean for every condition selected; yellow means at least one carries a milder caution. A recipe with a serious, well-documented concern for any selected condition is never picked here at all.',
       },
       {
         heading: 'Nutrient coverage',
-        body: "A real comparison against your own age/sex-based RDA targets for a single generated day, shown for what it is: informational, not the day's rating. Regenerate as many times as you'd like before adding a plan to your actual schedule.",
+        body: "A comparison against your age/sex-based RDA targets for a single generated day, shown for what it is: informational, not the day's rating. Regenerate as many times as you'd like before adding a plan to your actual schedule.",
       },
     ],
   },
@@ -320,7 +320,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Phone calendar sync',
-        body: 'Appointments can connect to your phone\'s own Calendar app: if you\'ve already added your Outlook or Google account in your phone\'s Settings, its events already live there. "Import from Phone Calendar" pulls in an existing event as an appointment here; "Add to Phone Calendar" pushes an appointment you made here out to your phone\'s calendar so its own reminders fire too. No separate sign-in beyond a one-time permission prompt: this app never talks to Google or Microsoft directly.',
+        body: 'Appointments can connect to your phone\'s Calendar app: if you\'ve already added your Outlook or Google account in your phone\'s Settings, its events already live there. "Import from Phone Calendar" pulls in an existing event as an appointment here; "Add to Phone Calendar" pushes an appointment you made here out to your phone\'s calendar so those reminders fire too. No separate sign-in beyond a one-time permission prompt: this app never talks to Google or Microsoft directly.',
       },
     ],
   },
@@ -335,7 +335,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Done today',
-        body: 'Marks a recurring item as done on this date and works out its next due date from its own interval, the same as doing it from Life. Adding an item, changing its interval, or renewing something that expires happens in Life > Upkeep, one tap away from any row.',
+        body: 'Marks a recurring item as done on this date and works out its next due date from that interval, the same as doing it from Life. Adding an item, changing its interval, or renewing something that expires happens in Life > Upkeep, one tap away from any row.',
       },
     ],
   },
@@ -357,7 +357,7 @@ const COMING_SOON_COPY: Record<
 const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page is for',
-    body: "So meals, hydration, supplements, prescriptions, and appointments actually happen when they're supposed to, instead of being remembered and then forgotten. Plan them here ahead of time, and this app reminds you and keeps a real record of whether each one actually happened.",
+    body: "So meals, hydration, supplements, prescriptions, and appointments actually happen when they're supposed to, instead of being remembered and then forgotten. Plan them here ahead of time, and this app reminds you and keeps a record of whether each one actually happened.",
   },
   {
     heading: 'Planning vs. logging',
@@ -413,7 +413,7 @@ const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Phone calendar sync',
-    body: 'Appointments can connect to your phone\'s own Calendar app: if you\'ve already added your Outlook or Google account in your phone\'s Settings, its events already live there. "Import from Phone Calendar" pulls in an existing event as an appointment here; "Add to Phone Calendar" pushes an appointment you made here out to your phone\'s calendar so its own reminders fire too. No separate sign-in, and nothing beyond a one-time permission prompt: this app never talks to Google or Microsoft directly.',
+    body: 'Appointments can connect to your phone\'s Calendar app: if you\'ve already added your Outlook or Google account in your phone\'s Settings, its events already live there. "Import from Phone Calendar" pulls in an existing event as an appointment here; "Add to Phone Calendar" pushes an appointment you made here out to your phone\'s calendar so those reminders fire too. No separate sign-in, and nothing beyond a one-time permission prompt: this app never talks to Google or Microsoft directly.',
   },
   {
     heading: 'Interaction checking, once there is data to check',
@@ -628,7 +628,7 @@ function formatDayNumber(dateStr: string): string {
 // plain function declarations, hoisted the same as every other helper in
 // this file, so calling them from up here is safe.
 function formatWeekRangeLabel(weekStartDate: string): string {
-  return `${formatShortDate(weekStartDate)} – ${formatShortDate(addDaysToDateStringLocal(weekStartDate, 6))}`;
+  return `${formatShortDate(weekStartDate)} to ${formatShortDate(addDaysToDateStringLocal(weekStartDate, 6))}`;
 }
 
 // "today"/"tomorrow"/"yesterday" read far more naturally than a bare date
@@ -1753,8 +1753,8 @@ const CARB_LEVEL_OPTIONS: { value: CarbLevel; label: string }[] = [
 ];
 
 function healthRatingLabel(rating: DailyMealPlanResult['healthRating']): string {
-  if (rating === 'green') return 'Genuinely clean for everything you selected';
-  if (rating === 'yellow') return 'Worth knowing: at least one pick carries a real, milder caution';
+  if (rating === 'green') return 'Clean for everything you selected';
+  if (rating === 'yellow') return 'Worth knowing: at least one pick carries a milder caution';
   return 'Not enough compliant recipes were found to generate a full day';
 }
 
@@ -1874,7 +1874,7 @@ function DailyPlanFullReport({
       </Text>
       <Text style={styles.helperText}>
         {remainingMl > 0
-          ? `Drink about ${remainingMl}ml more of plain water today to reach your target, the same combined food-and-drink target the Hydration lens tracks. "Add to Schedule" turns this into real, timed reminders through the day, not just a note.`
+          ? `Drink about ${remainingMl}ml more of plain water today to reach your target, the same combined food-and-drink target the Hydration lens tracks. "Add to Schedule" turns this into timed reminders through the day, not just a note.`
           : "This plan's food and drink alone already reaches your daily target."}
       </Text>
     </>
@@ -1883,10 +1883,10 @@ function DailyPlanFullReport({
   const coverage = (
     <>
       <Text style={styles.helperText}>
-        Against your own age/sex-based RDA targets -- informational, not the rating above. Many whole foods, nuts, seeds, and legumes
-        especially, naturally run well past 100% for a nutrient with a small RDA and a much larger real safety ceiling, so a high
-        percentage here is not automatically a problem. A row is only flagged below when the amount is genuinely close to or over that
-        real ceiling.
+        Against your age/sex-based RDA targets, informational, not the rating above. Many whole foods, nuts, seeds, and legumes
+        especially, naturally run well past 100% for a nutrient with a small RDA and a much larger safety ceiling, so a high
+        percentage here is not automatically a problem. A row is only flagged below when the amount is close to or over that
+        ceiling.
       </Text>
       {day.nutrientCoverage
         .filter((row) => row.nutrientCode !== 'water')
@@ -2195,7 +2195,7 @@ function DailyMealPlanLens() {
         'Added',
         `${result.scheduled} meal${result.scheduled === 1 ? '' : 's'} added to your schedule starting ${scheduleDate}` +
           (hydrationReminders > 0 ? `, plus ${hydrationReminders} water reminder${hydrationReminders === 1 ? '' : 's'} to close the gap to your daily target` : '') +
-          (hasOwnRoutine ? ". Your own standing hydration routine already covers water, so nothing extra was added for that." : '') +
+          (hasOwnRoutine ? ". Your standing hydration routine already covers water, so nothing extra was added for that." : '') +
           (result.skipped > 0 ? `, ${result.skipped} already had something planned and were left as-is` : '') +
           (skippedIncomplete > 0 ? `. ${skippedIncomplete} generated day${skippedIncomplete === 1 ? '' : 's'} were incomplete and skipped.` : '.'),
       );
@@ -2214,7 +2214,7 @@ function DailyMealPlanLens() {
       <View style={styles.formCard}>
         <Text style={styles.label}>How many days</Text>
         <Text style={styles.helperText}>
-          More than 1 day gets real day-to-day variety and weekly frequency targets (fish, red meat) woven in, not independent random picks each day.
+          More than 1 day gets day-to-day variety and weekly frequency targets (fish, red meat) woven in, not independent random picks each day.
         </Text>
         <PopoverSelect
           selected={DAYS_TO_GENERATE_OPTIONS.find((option) => option.value === daysToGenerate)?.label ?? '1 Day'}
@@ -2450,7 +2450,7 @@ function TodaysMealsLens() {
                       {!meal.anyInstructions ? (
                         <Text style={styles.emptyText}>
                           The ingredients are below, but no steps were written for these dishes. You can add them by
-                          editing the dish in its own builder.
+                          editing the dish in its builder.
                         </Text>
                       ) : null}
                       {meal.components.map((component, index) => (

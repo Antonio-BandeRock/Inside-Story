@@ -247,7 +247,7 @@ export function describeUpkeepStanding(standing: UpkeepStanding): string {
 
 export function describeUpkeepSummary(summary: UpkeepSummary): string {
   if (summary.tracked === 0) {
-    return 'Nothing here yet. This is for anything that needs doing again or runs out: a service, a filter, a registration, a passport. The point is being told before the date rather than after it.';
+    return 'Nothing here yet. This is for anything that needs doing again or runs out: a service, a filter, a registration, a passport. It tells you before the date rather than after it.';
   }
 
   const parts: string[] = [];

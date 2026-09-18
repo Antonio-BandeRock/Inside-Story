@@ -59,7 +59,7 @@ export const CONNECTION_ROLES: { code: ConnectionRole; label: string; what: stri
   {
     code: 'partner',
     label: 'Partner',
-    what: 'You plan meals together. You both see the same days, each with what those meals mean for your own conditions.',
+    what: 'You plan meals together. You both see the same days, each with what those meals mean for your conditions.',
   },
 ];
 

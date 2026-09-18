@@ -126,7 +126,7 @@ const CATEGORY_META: { type: MealComponentType; label: string; icon: keyof typeo
 const MEAL_BUILDER_HELP: HelpSection[] = [
   {
     heading: '"Add from...": what it actually does',
-    body: "Each button opens that one builder's dishes: anything you have built and saved there yourself, followed by the system recipes for that builder. Tap a category, pick a dish from either list, then say how much of it you actually had. A search box at the top of the list finds a dish by its name or by an ingredient in it, across both lists at once. Picking a system recipe never adds it to your own saved dishes; it only becomes part of this meal.",
+    body: "Each button opens that one builder's dishes: anything you have built and saved there yourself, followed by the system recipes for that builder. Tap a category, pick a dish from either list, then say how much of it you actually had. A search box at the top of the list finds a dish by its name or by an ingredient in it, across both lists at once. Picking a system recipe never adds it to your saved dishes; it only becomes part of this meal.",
   },
   {
     heading: 'Start from a meal you have',
@@ -134,11 +134,11 @@ const MEAL_BUILDER_HELP: HelpSection[] = [
   },
   {
     heading: 'What the percent under each item means',
-    body: "That percent is how much of THAT ONE SAVED ITEM's own stated servings you're counting toward this meal, not a share of the whole meal split between people. 100% means you're counting the entire saved amount; 50% means about half of it; 0% means none of it happened, and it should probably be removed instead.",
+    body: "That percent is how much of THAT ONE SAVED ITEM's stated servings you're counting toward this meal, not a share of the whole meal split between people. 100% means you're counting the entire saved amount; 50% means about half of it; 0% means none of it happened, and it should probably be removed instead.",
   },
   {
     heading: 'Adjusting a past meal',
-    body: "If this meal was filled in automatically from something you'd scheduled, every item starts at 100%: the honest assumption you had the full planned amount. Change any item's own percent here if you actually had more, less, or none of it, then Save Changes. If a food you're testing in a trial is affected, you'll be asked separately whether the trial happened on a different day or never really happened at all.",
+    body: "If this meal was filled in automatically from something you'd scheduled, every item starts at 100%, on the assumption you had the full planned amount. Change any item's percent here if you actually had more, less, or none of it, then Save Changes. If a food you're testing in a trial is affected, you'll be asked separately whether the trial happened on a different day or never really happened at all.",
   },
 ];
 
@@ -1193,7 +1193,7 @@ export function MealBuilder({
     setStagePickerFor(null);
     showInfoAlert(
       'Meal scheduled',
-      `${finishedName} is scheduled for ${formatTime12(time24)} today. Find it on the Schedule tab's own Meals lens.`,
+      `${finishedName} is scheduled for ${formatTime12(time24)} today. Find it on the Schedule tab's Meals lens.`,
     );
   }
 
@@ -1256,7 +1256,7 @@ export function MealBuilder({
     setStagePickerFor(null);
     showInfoAlert(
       'Added to your Hydration Routine',
-      `${finishedName} is now scheduled every day at ${formatTime12(time24)}, starting today. Manage it anytime from the Schedule tab's own Hydration lens.`,
+      `${finishedName} is now scheduled every day at ${formatTime12(time24)}, starting today. Manage it anytime from the Schedule tab's Hydration lens.`,
     );
   }
 
@@ -1339,7 +1339,7 @@ export function MealBuilder({
     <AppActionSheet
       visible={reconciliationPrompt !== null}
       onClose={() => setReconciliationPrompt(null)}
-      title={reconciliationPrompt ? `${reconciliationPrompt.next.foodName} -- no longer in this meal` : undefined}
+      title={reconciliationPrompt ? `${reconciliationPrompt.next.foodName} (no longer in this meal)` : undefined}
       message="You removed it, or changed how much of it you had down to none, and a food trial is actively riding on this meal as proof it was eaten. What actually happened?"
       actions={reconciliationActions}
     />
@@ -1386,7 +1386,7 @@ export function MealBuilder({
   async function saveEditedMeal() {
     if (!editMealId) return;
     if (components.length === 0) {
-      showInfoAlert('Nothing to save', 'A meal needs at least one item -- if none of this actually happened, remove the whole entry from Past Meals instead.');
+      showInfoAlert('Nothing to save', 'A meal needs at least one item. If none of this actually happened, remove the whole entry from Past Meals instead.');
       return;
     }
     if (!mealType) {
@@ -1832,7 +1832,7 @@ export function MealBuilder({
             </Text>
             <Text style={styles.pendingSubtitle}>What time each day?</Text>
             <Text style={styles.hydrationRoutineHelperText}>
-              This repeats every day, indefinitely, starting today -- the same real recurring schedule Supplements and Prescriptions
+              This repeats every day, indefinitely, starting today, on the same recurring schedule Supplements and Prescriptions
               already use. Manage or remove it anytime from the Hydration lens.
             </Text>
             <View style={styles.timeRow}>
@@ -2137,7 +2137,7 @@ export function MealBuilder({
           visible={!!stagePickerFor}
           onClose={() => setStagePickerFor(null)}
           title={stagePickerFor ? `Your ${stagePickerFor.name} Stage` : undefined}
-          message="Purely advisory -- this changes nothing about what you can build or save, it only makes the report above reflect where you actually are."
+          message="Purely advisory. This changes nothing about what you can build or save; it only makes the report above reflect where you actually are."
           actions={[
             ...(stagePickerFor ? getConditionStagingModel(stagePickerFor.code)?.stages ?? [] : []).map((stage) => ({
               label: stage.label,
@@ -2238,7 +2238,7 @@ export function MealBuilder({
         <View style={styles.bandOut}>
           <HomeSectionBand kind="static" title="Add from..." icon="add-circle-outline" color={tabColor} contentStyle={styles.bandRows}>
             <Text style={styles.gridCaption}>
-              Each builder below lists your own saved dishes and the system recipes for it. Tap the (i) above to see exactly what this does.
+              Each builder below lists your saved dishes and the system recipes for it. Tap the (i) above to see exactly what this does.
             </Text>
             <View style={styles.grid}>
               {CATEGORY_META.map((entry) => (

@@ -1203,7 +1203,7 @@ export function SideBuilder({
     ) {
       showInfoAlert(
         'Give this a new name',
-        `This is no longer the same as "${loadedFromCuratedRecipe.name}" -- give your version its own name before saving, so it doesn't get confused with the original recipe.`,
+        `This is no longer the same as "${loadedFromCuratedRecipe.name}". Give your version a different name before saving, so it doesn't get confused with the original recipe.`,
       );
       return;
     }
@@ -1703,7 +1703,7 @@ export function SideBuilder({
           visible={!!stagePickerFor}
           onClose={() => setStagePickerFor(null)}
           title={stagePickerFor ? `Your ${stagePickerFor.name} Stage` : undefined}
-          message="Purely advisory -- this changes nothing about what you can build or save, it only makes the report above reflect where you actually are."
+          message="Purely advisory. This changes nothing about what you can build or save; it only makes the report above reflect where you actually are."
           actions={[
             ...(stagePickerFor ? getConditionStagingModel(stagePickerFor.code)?.stages ?? [] : []).map((stage) => ({
               label: stage.label,
@@ -1979,7 +1979,7 @@ export function SideBuilder({
                 onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
               >
                 <Text style={styles.findRecipeLinkText} numberOfLines={1}>
-                  My Kitchen (your own saved sides)
+                  My Kitchen (your saved sides)
                 </Text>
                 <Ionicons name="chevron-forward" size={16} color={tabColor} />
               </TouchableOpacity>

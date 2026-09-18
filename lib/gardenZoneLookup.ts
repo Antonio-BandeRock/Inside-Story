@@ -205,8 +205,8 @@ export async function lookupGrowingZone(countryCode: string, postalCode: string)
         zone: usResult.zone,
         method: 'usda-official-zip',
         detail: usResult.temperatureRangeF
-          ? `Official USDA zone (${usResult.temperatureRangeF}°F average annual minimum), from the PRISM Climate Group's own published data for this ZIP code.`
-          : "Official USDA zone, from the PRISM Climate Group's own published data for this ZIP code.",
+          ? `Official USDA zone (${usResult.temperatureRangeF}°F average annual minimum), from the PRISM Climate Group's published data for this ZIP code.`
+          : "Official USDA zone, from the PRISM Climate Group's published data for this ZIP code.",
         placeLabel: null,
       };
     }
@@ -233,7 +233,7 @@ export async function lookupGrowingZone(countryCode: string, postalCode: string)
     status: 'success',
     zone: climateEstimate.zone,
     method: 'climate-estimate',
-    detail: `Estimated from ${climateEstimate.yearsUsed} years (${climateEstimate.yearRange}) of historical temperature data -- an average annual minimum of about ${climateEstimate.avgAnnualMinF}°F, placed on the same USDA temperature bands. Not an official government-published zone outside the US.`,
+    detail: `Estimated from ${climateEstimate.yearsUsed} years (${climateEstimate.yearRange}) of historical temperature data: an average annual minimum of about ${climateEstimate.avgAnnualMinF}°F, placed on the same USDA temperature bands. Not an official government-published zone outside the US.`,
     placeLabel: geocoded.displayName || null,
   };
 }

@@ -53,7 +53,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     problem:
       "Garlic and onion are both loaded with fructans, a type of carbohydrate a lot of people digest poorly: bloating, gas, cramping, whether or not they've ever been formally diagnosed with IBS.",
     mechanism:
-      "Fructans are chains of fructose your small intestine simply has no enzyme to break down. They travel on to the colon undigested, where your own gut bacteria ferment them, and gas is the direct, entirely normal byproduct of that fermentation. Nothing is wrong with you. It's just plumbing.",
+      "Fructans are chains of fructose your small intestine simply has no enzyme to break down. They travel on to the colon undigested, where your gut bacteria ferment them, and gas is the direct, entirely normal byproduct of that fermentation. Nothing is wrong with you. It's just plumbing.",
     swaps: [
       "Garlic-infused oil. Fructans dissolve in water, not oil, so a strained infused oil carries garlic flavor without the gassy part (just don't blend the actual garlic solids back in).",
       'Chives or the green tops of scallions: same allium flavor family, a much smaller fructan hit than the bulb itself.',
@@ -78,7 +78,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     swaps: [
       'Rice, buckwheat (gluten-free despite the name), and quinoa: solid, whole-grain staples with none of the gluten.',
       'Certified gluten-free oats specifically. Ordinary oats are often cross-contaminated during processing, and the certified label is what actually addresses that.',
-      "A elimination-and-reintroduction trial (see this app's Healing Stages guide) instead of an indefinite \"just avoid it forever\" with no way to ever find out if it was actually the culprit.",
+      "An elimination-and-reintroduction trial (see this app's Healing Stages guide) instead of an indefinite \"just avoid it forever\" with no way to ever find out if it was actually the culprit.",
     ],
     citations: [
       {
@@ -94,13 +94,13 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     foodName: 'Conventional Dairy',
     teaser: "Not every dairy reaction is lactose intolerance, and the fix isn't always \"just avoid dairy.\"",
     problem:
-      'Dairy trips people up through two different mechanisms that tend to get lumped together: plain lactose intolerance (a common enzyme shortfall, nothing to do with autoimmunity) and, separately, a casein-protein sensitivity some people notice alongside other chronic symptoms, real, but with much thinner formal evidence behind it than lactose intolerance has.',
+      'Dairy trips people up through two different mechanisms that tend to get lumped together: plain lactose intolerance (a common enzyme shortfall, nothing to do with autoimmunity) and, separately, a casein-protein sensitivity some people notice alongside other chronic symptoms, but with much thinner formal evidence behind it than lactose intolerance has.',
     mechanism:
-      'Without enough lactase enzyme, undigested lactose reaches your colon and ferments, the same gas-producing process as the garlic/onion fructans above. Casein sensitivity, where it\'s works through a completely different and less well-understood pathway, so "cutting dairy" for one reason doesn\'t necessarily fix the other.',
+      'Without enough lactase enzyme, undigested lactose reaches your colon and ferments, the same gas-producing process as the garlic/onion fructans above. Casein sensitivity works through a completely different and less well-understood pathway, so "cutting dairy" for one reason doesn\'t necessarily fix the other.',
     swaps: [
       'Lactase-treated ("lactose-free") milk, and hard aged cheeses: naturally very low in lactose to begin with.',
       "A long-fermented homemade yogurt. A long culture time eats up most of the milk's lactose, which is often enough to make a well-fermented batch sit fine even for someone lactose-sensitive.",
-      "A elimination-and-reintroduction, not indefinite avoidance. It's the only honest way to find out which mechanism (if either) is actually behind a given reaction.",
+      "An elimination-and-reintroduction, not indefinite avoidance. It's the only way to find out which mechanism (if either) is actually behind a given reaction.",
     ],
     citations: [
       {
@@ -134,13 +134,13 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     id: 'problem-nightshades',
     category: 'hashimotos',
     foodName: 'Nightshades',
-    teaser: 'The most contested item on this whole list, and the honest answer really is "test it yourself."',
+    teaser: 'The most contested item on this whole list, and the answer really is "test it yourself."',
     problem:
       'Tomatoes, peppers, eggplant, and white potatoes get excluded on the Autoimmune Protocol (AIP) diet over concerns about certain plant compounds and a possible link to gut permeability, but that exclusion comes from elimination-diet reasoning, not a controlled human trial proving nightshades themselves are the problem, and plenty of people with autoimmune conditions eat them with zero issue.',
     mechanism:
-      'The compounds in question (solanine and its relatives) are real and present at low levels in normal ripe produce, much higher in green, unripe potatoes specifically. The gut-permeability concern is a plausible idea, not something demonstrated in people the way the gluten/zonulin story above is.',
+      'The compounds in question (solanine and its relatives) are present at low levels in normal ripe produce, much higher in green, unripe potatoes specifically. The gut-permeability concern is a plausible idea, not something demonstrated in people the way the gluten/zonulin story above is.',
     swaps: [
-      'There\'s no universal swap here the way there is for gluten or garlic. The honest move is testing it on yourself (an elimination, then a careful single-food reintroduction) rather than avoiding it forever on principle.',
+      'There\'s no universal swap here the way there is for gluten or garlic. The better move is testing it on yourself (an elimination, then a careful single-food reintroduction) rather than avoiding it forever on principle.',
       'If a test does turn up a reaction, winter squash, sweet potato, and beets make good stand-ins for the starchy, savory role potatoes and tomatoes usually play in a dish.',
     ],
     citations: [
@@ -155,7 +155,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     id: 'problem-high-histamine',
     category: 'hashimotos',
     foodName: 'High-Histamine Foods (aged cheese, cured meat, most ferments, leftovers)',
-    teaser: "An honest tension with the fermented-food research.",
+    teaser: "A tension with the fermented-food research.",
     problem:
       "Aged cheese, cured or smoked meat, most fermented foods, and even fresh food that's sat in the fridge a bit too long all build up histamine as bacteria and protein naturally break down over time. For the subset of people with histamine intolerance, which shows up disproportionately alongside autoimmune conditions, that's a recognizable trigger.",
     mechanism:
@@ -282,7 +282,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     problem:
       'A pharmacokinetic study found coffee taken alongside a levothyroxine dose measurably cuts how much of it actually gets absorbed: peak blood levels down 19-36%, total absorption down 27-36% in that trial.',
     mechanism:
-      "The exact chemistry isn't fully worked out, but the effect is entirely about timing, not a reason to give up coffee. The same study found the interference disappeared once espresso was taken a full hour after the dose instead of alongside it.",
+      "The exact chemistry isn't fully worked out, but the effect is entirely about timing and is no reason to give up coffee. The same study found the interference disappeared once espresso was taken a full hour after the dose instead of alongside it.",
     swaps: [
       'Take levothyroxine with plain water, then hold off on that first cup for at least 30-60 minutes.',
       "If mornings are just too tight for that, ask a doctor about taking levothyroxine at bedtime instead, a studied alternative, rather than skipping the spacing altogether.",
@@ -335,7 +335,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     id: 'problem-charred-grilled-meat',
     category: 'basicHealth',
     foodName: 'Charred, Grilled & Deep-Fried Meat',
-    teaser: "It's not the meat. It's how hot and how dry it got cooked.",
+    teaser: "It's how hot and how dry the meat got cooked.",
     problem:
       'Grilling, broiling, and deep-frying meat at high, dry heat forms compounds, advanced glycation end products (AGEs) among them, that build up in the body over time and are linked to more inflammation. The same cut of meat can carry wildly different amounts depending purely on how it was cooked.',
     mechanism:
@@ -356,17 +356,17 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     id: 'problem-raw-undercooked-meat-eggs',
     category: 'basicHealth',
     foodName: 'Raw or Undercooked Meat, Poultry, Fish & Eggs',
-    teaser: 'A rare steak or sushi-grade fish can be a genuinely safe choice. Raw ground meat, undercooked poultry, and raw eggs are a different, real, and well-documented risk.',
+    teaser: 'A rare steak or sushi-grade fish can be a safe choice. Raw ground meat, undercooked poultry, and raw eggs are a different, well-documented risk.',
     problem:
-      "CDC estimates roughly 48 million people in the US get sick from a foodborne illness every year, about 128,000 are hospitalized, and 3,000 die. Raw or undercooked meat, poultry, fish, and eggs are the foods most consistently linked to it. This isn't a reason to avoid every rare steak or piece of sushi, both can be genuinely safe when handled correctly, it's a reason to know which real, specific choices actually carry the risk and which don't.",
+      "CDC estimates roughly 48 million people in the US get sick from a foodborne illness every year, about 128,000 are hospitalized, and 3,000 die. Raw or undercooked meat, poultry, fish, and eggs are the foods most consistently linked to it. This isn't a reason to avoid every rare steak or piece of sushi, both can be safe when handled correctly, it's a reason to know which specific choices actually carry the risk and which don't.",
     mechanism:
-      'Four named pathogens do most of the real damage: Salmonella (a leading overall cause, especially tied to poultry and eggs), Campylobacter (tied to undercooked poultry), E. coli, and Listeria (fewer cases overall, but disproportionately severe, especially for pregnant people, older adults, and anyone with a weakened immune system, including several conditions this app tracks that involve biologics, methotrexate, or other immunosuppressive treatment). Ground meat carries a higher risk than a whole cut of the same animal: grinding mixes any surface bacteria throughout the whole batch, so a rare burger can carry bacteria all the way through in a way a rare steak, where bacteria mostly sit on the surface a hot pan already sears, does not. Raw fish has its separate, real safety standard: the FDA requires fish served raw to first be frozen (-4°F for 7 days, or -31°F until solid then held at -31°F for 15 hours) to kill parasites like Anisakis. "Sushi-grade" is not an official grading term, it is shorthand for fish that has genuinely gone through this process.',
+      'Four named pathogens do most of the damage: Salmonella (a leading overall cause, especially tied to poultry and eggs), Campylobacter (tied to undercooked poultry), E. coli, and Listeria (fewer cases overall, but disproportionately severe, especially for pregnant people, older adults, and anyone with a weakened immune system, including several conditions this app tracks that involve biologics, methotrexate, or other immunosuppressive treatment). Ground meat carries a higher risk than a whole cut of the same animal: grinding mixes any surface bacteria throughout the whole batch, so a rare burger can carry bacteria all the way through in a way a rare steak, where bacteria mostly sit on the surface a hot pan already sears, does not. Raw fish has its separate safety standard: the FDA requires fish served raw to first be frozen (-4°F for 7 days, or -31°F until solid then held at -31°F for 15 hours) to kill parasites like Anisakis. "Sushi-grade" is not an official grading term, it is shorthand for fish that has gone through this process.',
     swaps: [
       'Ground beef, pork, lamb, or veal: cook to 160°F internal temperature, checked with a food thermometer, not by color or time alone.',
-      'Whole cuts (steaks, chops, roasts) of beef, pork, lamb, or veal: 145°F is the real, official safe minimum, genuinely lower than ground meat needs.',
+      'Whole cuts (steaks, chops, roasts) of beef, pork, lamb, or veal: 145°F is the official safe minimum, lower than ground meat needs.',
       'All poultry (chicken, turkey): 165°F, checked at the innermost part of the thigh and wing and the thickest part of the breast.',
       'Egg dishes (casseroles, egg mixtures): 160°F, or simply cook until both the white and yolk are fully firm.',
-      'Raw fish at home specifically: use fish that has actually been through the real FDA freezing process above, not just any fresh fillet from a regular counter.',
+      'Raw fish at home specifically: use fish that has actually been through the FDA freezing process above, not just any fresh fillet from a regular counter.',
     ],
     citations: [
       { source: 'Facts About Food Poisoning, CDC', url: 'https://www.cdc.gov/food-safety/data-research/facts-stats/index.html' },
@@ -379,14 +379,14 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-gluten-free-without-celiac',
     category: 'hashimotos',
-    foodName: 'Going Gluten-Free Without Celiac Disease, an Honestly Mixed Answer',
+    foodName: 'Going Gluten-Free Without Celiac Disease, a Mixed Answer',
     teaser: "Probably the single most common Hashimoto's diet question, with an answer more surprising and less settled than most advice admits.",
     problem:
       "The gluten entry elsewhere in this category already covers a general gut-permeability mechanism (gliadin, zonulin) that applies to anyone, celiac or not. This is a different, more specific question: does actually removing gluten measurably change Hashimoto's antibody levels or thyroid numbers in someone without celiac disease? A very recent (2025) systematic review and meta-analysis pooling 3 randomized trials (110 participants) found a surprising, mixed answer, not the clean \"yes, it helps\" most gluten-free advice for Hashimoto's assumes.",
-    mechanism: "The numbers themselves are the honest story here: going gluten-free significantly decreased anti-thyroglobulin antibodies, but significantly increased anti-TPO antibodies, moving in opposite directions on the two core antibody markers the tracking is built around. TSH, free T3, and free T4 showed no significant change either way. The review's authors rated the underlying evidence as having \"serious methodological concerns\" and being \"very uncertain,\" an admission from the researchers themselves, not the hedge. None of this changes the separate case for a true celiac disease diagnosis, where gluten-free eating is medically necessary regardless of any thyroid-specific effect. This is specifically about the much more common situation of choosing to go gluten-free for the Hashimoto's itself, without a celiac diagnosis driving it.",
+    mechanism: "The numbers went in two directions: going gluten-free significantly decreased anti-thyroglobulin antibodies, but significantly increased anti-TPO antibodies, moving in opposite directions on the two core antibody markers the tracking is built around. TSH, free T3, and free T4 showed no significant change either way. The review's authors rated the underlying evidence as having \"serious methodological concerns\" and being \"very uncertain,\" an admission from the researchers themselves, not a hedge added here. None of this changes the separate case for a true celiac disease diagnosis, where gluten-free eating is medically necessary regardless of any thyroid-specific effect. This is specifically about the much more common situation of choosing to go gluten-free for the Hashimoto's itself, without a celiac diagnosis driving it.",
     swaps: [
       'A celiac disease test (not a guess) before committing to a strict, difficult gluten-free diet specifically for thyroid reasons, worth ruling in or out first, covered under Self Advocacy.',
-      'If choosing to try it anyway, an honest personal experiment (tracked symptoms over weeks, not assumed results) is a more defensible approach than expecting a guaranteed antibody or TSH change the current evidence doesn\'t actually support.',
+      'If choosing to try it anyway, a personal experiment (tracked symptoms over weeks, not assumed results) is a more defensible approach than expecting a guaranteed antibody or TSH change the current evidence doesn\'t actually support.',
       "The separate gut-permeability case for reducing gluten (covered in this category's Gluten-Containing Grains entry) still stands on its mechanism, independent of this specific antibody-level question.",
     ],
     citations: [

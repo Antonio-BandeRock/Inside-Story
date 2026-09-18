@@ -76,7 +76,7 @@ type Lens = 'flares' | 'foodReactions' | 'newFoods' | 'exercise' | 'bloodPressur
 // and TRENDS_PATTERN_CAVEAT_HELP (trends.tsx).
 const LOG_PERSONAL_NOTES_HELP: HelpSection = {
   heading: 'Personal notes, not medical fact',
-  body: "Everything here is your own record of your own body, distinct from this app's cited food scoring and DRI targets elsewhere. Nothing you log here is treated as verified medical fact, the same way this app never confuses a personal hunch with a cited rule.",
+  body: "Everything here is your record of your body, distinct from this app's cited food scoring and DRI targets elsewhere. Nothing you log here is treated as verified medical fact, the same way this app never confuses a personal hunch with a cited rule.",
 };
 
 const LENSES: LensOption<Lens>[] = [
@@ -153,7 +153,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Why the date matters more than anything else here',
-        body: 'The useful question about a hands-on session is almost never "did it feel good at the time." It is "how long did it last." Answering that needs two things: the date a session happened, and your own check-ins on the days after it. Log the session here, keep doing your ordinary check-ins, and Trends > Therapy Response works out the rest.',
+        body: 'The useful question about a hands-on session is almost never "did it feel good at the time." It is "how long did it last." Answering that needs two things: the date a session happened, and your check-ins on the days after it. Log the session here, keep doing your ordinary check-ins, and Trends > Therapy Response works out the rest.',
       },
       {
         heading: 'This is separate from appointments on purpose',
@@ -181,7 +181,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Nocturia',
-        body: 'Not built yet. Waking at night to urinate is a trackable symptom worth its own log, added as a placeholder here, 2026-07-28, until its own logging (how many times, what time) gets designed and built.',
+        body: 'Not built yet. Waking at night to urinate is a trackable symptom worth logging, added as a placeholder here, 2026-07-28, until logging (how many times, what time) gets designed and built.',
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -195,7 +195,7 @@ const LOG_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'What this tab is for',
-    body: "A place to write down what's actually happening to you, separate from what you planned (Schedules) or what the cited condition/nutrient scoring says (Insights). This is your own observations: flares, reactions, and anything else worth remembering.",
+    body: "A place to write down what's actually happening to you, separate from what you planned (Schedules) or what the cited condition/nutrient scoring says (Insights). These are your observations: flares, reactions, and anything else worth remembering.",
   },
   {
     heading: 'Flares',
@@ -223,11 +223,11 @@ const LOG_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Nocturia',
-    body: 'Not built yet. Waking at night to urinate is a trackable symptom worth its own log, added as a placeholder here, 2026-07-28, until its own logging (how many times, what time) gets designed and built.',
+    body: 'Not built yet. Waking at night to urinate is a trackable symptom worth logging, added as a placeholder here, 2026-07-28, until logging (how many times, what time) gets designed and built.',
   },
   {
     heading: 'Personal notes, not medical fact',
-    body: "Everything here is your own record of your own body, distinct from this app's cited food scoring and DRI targets elsewhere. Nothing you log here is treated as verified medical fact, the same way this app never confuses a personal hunch with a cited rule.",
+    body: "Everything here is your record of your body, distinct from this app's cited food scoring and DRI targets elsewhere. Nothing you log here is treated as verified medical fact, the same way this app never confuses a personal hunch with a cited rule.",
   },
 ];
 
@@ -1079,7 +1079,7 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
           </TouchableOpacity>
           {pickedFood ? (
             <Text style={styles.helperText}>
-              Linked to the real, cited version of this food -- prep state and any real per-food history below come
+              Linked to the cited version of this food: prep state and any per-food history below come
               from that link, not just the name.
             </Text>
           ) : null}
@@ -1141,8 +1141,8 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
             </Text>
           ) : (
             <Text style={styles.helperText}>
-              3 days is a common starting point for &ldquo;probably fine.&rdquo; A real daily reminder runs the whole
-              window either way, even if something feels off partway through -- a delayed second reaction is exactly
+              3 days is a common starting point for &ldquo;probably fine.&rdquo; A daily reminder runs the whole
+              window either way, even if something feels off partway through. A delayed second reaction is exactly
               what the full window is meant to catch. You can still mark it cleared or flagged earlier yourself if
               you&apos;d rather not wait.
             </Text>
@@ -1180,7 +1180,7 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
                     // own comment), so showing it here would misrepresent
                     // exactly the thing this whole feature exists to fix.
                     <Text style={[styles.rowMeta, styles.waitingText]}>
-                      Waiting to start -- will begin automatically once you log or schedule a meal with this food
+                      Waiting to start: will begin automatically once you log or schedule a meal with this food
                     </Text>
                   ) : (
                     <>
@@ -1743,7 +1743,7 @@ function NocturiaLens() {
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       <Text style={[styles.emptyText, styles.panelStandalone]}>
-        Not built yet. Waking at night to urinate is a trackable symptom worth its own log; this will get its own
+        Not built yet. Waking at night to urinate is a trackable symptom worth logging; this will get full
         logging (how many times, what time) built out.
       </Text>
     </ScrollView>
