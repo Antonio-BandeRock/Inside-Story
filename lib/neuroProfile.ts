@@ -152,6 +152,51 @@ export function profilesAsking(
   );
 }
 
+// What stops being asked for when one profile is taken off the list.
+//
+// Not everything that profile asks for: with Autism still listed, taking
+// ADHD off leaves the capture inbox and the routine reminders alone, since
+// Autism is still asking for both, and names only the two reminder kinds
+// ADHD was the only one asking for.
+export function supportsDroppedBy(
+  key: NeuroProfileKey,
+  keys: NeuroProfileKey[],
+): NeuroSupportKey[] {
+  if (!keys.includes(key)) return [];
+  const kept = supportsFor(keys.filter((listed) => listed !== key));
+  return supportsFor(keys).filter((support) => !kept.includes(support));
+}
+
+// One setting is dropped from the list above without being switched off.
+//
+// The capture inbox is on Home for everybody, listed or not: absence means
+// visible, so listing ADHD usually changes nothing about it and only turns
+// it back on for somebody who had hidden the row by hand. Switching it off
+// on the way out would not be putting a setting back where it was, it would
+// be taking away something the app gives anyone. It goes off in Profile,
+// under the Home rows, the same as any other row.
+export const NEURO_SUPPORTS_UNLISTING_LEAVES_ON: NeuroSupportKey[] = ['captureInbox'];
+
+// 2026-09-18, reported directly: "Right now, the dyslexia function doesn't
+// seem to actually get turned off when the pill is deselected."
+//
+// It did not, by an earlier decision recorded in app/profile.tsx that taking
+// a listing off should switch nothing back off. The reasoning was that a
+// setting somebody has been living with should not vanish because a label
+// changed. What that missed is that the pill is where the setting was turned
+// on, so it reads as the switch, and a switch that only works one way is
+// broken whatever the reasoning behind it. The answer is symmetry: the way
+// out asks the same question the way in did, names exactly what it will
+// change, and takes "leave them on" for an answer.
+export function supportsTurnedOffBy(
+  key: NeuroProfileKey,
+  keys: NeuroProfileKey[],
+): NeuroSupportKey[] {
+  return supportsDroppedBy(key, keys).filter(
+    (support) => !NEURO_SUPPORTS_UNLISTING_LEAVES_ON.includes(support),
+  );
+}
+
 function joinNames(names: string[]): string {
   if (names.length === 0) return '';
   if (names.length === 1) return names[0];
@@ -199,3 +244,32 @@ export function describeTurnedOn(supports: NeuroSupportKey[]): string {
   const list = joinNames(supports.map((support) => NEURO_SUPPORT_LABELS[support]));
   return `Turned on: ${list}. Each one can be switched back off wherever it lives.`;
 }
+
+// The same sentence on the way out.
+export function describeTurnedOff(supports: NeuroSupportKey[]): string {
+  if (supports.length === 0) return '';
+  const list = joinNames(supports.map((support) => NEURO_SUPPORT_LABELS[support]));
+  return `Turned off: ${list}. Each one can be switched back on wherever it lives, or by listing this again.`;
+}
+
+// What switching each one off actually does, for the sheet shown before it
+// happens. The capture inbox has no line because unlisting never switches it
+// off (see NEURO_SUPPORTS_UNLISTING_LEAVES_ON).
+export const NEURO_SUPPORT_OFF_DETAILS: Partial<Record<NeuroSupportKey, string>> = {
+  lowStimulation:
+    'Home comes back to its full self. Anything you folded shut stays folded until you open it, the same as any other day.',
+  roomyText:
+    'Line spacing goes back to Normal. Your phone\'s text size is untouched, because this app never set it.',
+  routineReminders:
+    'A routine with a time on it stops speaking. The routine itself, and its time, stay exactly where they are.',
+  noteReminders:
+    'Anything in the inbox with a day on it stops coming back on that day. Nothing in the inbox is deleted.',
+  datedReminders:
+    'Bills, upkeep, renewals and expiring benefits stop speaking before their date. The dates themselves stay.',
+};
+
+// Shown on the way out when the capture inbox was one of the things this
+// profile was asking for, so its absence from the list is stated rather than
+// left looking like an oversight.
+export const NEURO_PROFILE_UNLIST_NOTE =
+  'Somewhere to put a thought stays where it is. That one is on Home for everybody, so taking it away here would be removing something the app gives anyone rather than putting a setting back. It hides from the Home rows in Profile if you want it gone.';

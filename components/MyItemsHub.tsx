@@ -11,7 +11,7 @@ import {
   useMenuCardBottom,
 } from '../constants/floatingButton';
 import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
-import { textShadow, typography } from '../constants/typography';
+import { MENU_MAX_FONT_SCALE, textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { ActiveRingCircle } from './ActiveRingCircle';
 import { modalAnimationType } from '../lib/visualPreferences';
@@ -206,7 +206,7 @@ export function MyItemsHub({
         <View style={styles.backdrop}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
           <View style={[styles.card, { bottom: cardBottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN, borderColor: tabColor }]}>
-            <Text style={[styles.cardHeader, { color: tabColor }]} maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}>
+            <Text style={[styles.cardHeader, { color: tabColor }]} maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}>
               {label}
             </Text>
             {categories ? (
@@ -241,7 +241,6 @@ export function MyItemsHub({
   );
 }
 
-const LABEL_MAX_FONT_SCALE = 1.3;
 
 // 2/3 of LensHub's own corner icon (32px) -- explicitly asked to read
 // smaller/quieter than the real corner icons, not just as prominent.

@@ -31,6 +31,10 @@ function load(relPath) {
 const {
   ALL_LETTER_SPACING_KEYS,
   ALL_LINE_SPACING_KEYS,
+  PINNED_LINE_RATIO,
+  chromeLineBudget,
+  chromeLineHeight,
+  pinnedLineHeight,
   DEFAULT_LETTER_SPACING,
   DEFAULT_LINE_SPACING,
   LETTER_SPACING_CAPTIONS,
@@ -229,6 +233,74 @@ for (const key of ALL_LETTER_SPACING_KEYS) {
 // one screen and a crossed wire there would be invisible.
 check('no key is shared between the two', ALL_LETTER_SPACING_KEYS.filter((k) => ALL_LINE_SPACING_KEYS.includes(k)), ['normal']);
 check('and roomy stays a line spacing key', isLineSpacingKey('roomy'), true);
+
+// ------------------------------------------------- furniture gets a budget
+
+// The TabHub bug, as a test: a 10px menu label in a fixed-height card. The
+// card was built for 13 and Roomier wants 18, four rows deep, which is most
+// of a row of icons clipped off the bottom.
+check('a menu label at Normal is the 13 that was hand-typed', chromeLineHeight(10, 'normal'), 13);
+check('Roomy asks for 15', chromeLineHeight(10, 'roomy'), 15);
+check('Roomier asks for 18', chromeLineHeight(10, 'roomier'), 18);
+
+// LensHub's own two, which came out at exactly what was typed there.
+check("LensHub's 11px label is 14 at Normal", chromeLineHeight(11, 'normal'), 14);
+check("and its 10px header is 13", chromeLineHeight(10, 'normal'), 13);
+
+// Nothing sensible can be asked of a size that is not one.
+for (const bad of [0, -12, NaN, Infinity, null, undefined, '12']) {
+  check(`chromeLineHeight refuses ${String(bad)}`, chromeLineHeight(bad, 'roomier'), 0);
+  check(`pinnedLineHeight refuses ${String(bad)}`, pinnedLineHeight(bad), 0);
+}
+
+// The phone's own font-size setting is the second input. Capped, because the
+// menus cap what their labels may do, and the budget has to agree with the
+// cap or the card is drawing room for text that can never appear.
+check('at the default scale the budget is just the line', chromeLineBudget(10, 'normal', 1, 1.3), 13);
+check('a bigger phone setting grows it', chromeLineBudget(10, 'normal', 1.3, 1.3), 17);
+check('past the cap it stops', chromeLineBudget(10, 'normal', 2.5, 1.3), 17);
+check('and Roomier grows from a taller line', chromeLineBudget(10, 'roomier', 1.3, 1.3), 24);
+
+// A person who turns their phone font DOWN gets the same card, not a
+// tighter one. There is nothing to win by shrinking furniture.
+check('a smaller phone setting changes nothing', chromeLineBudget(10, 'roomier', 0.85, 1.3), 18);
+
+// A garbled scale off a platform that does not report one behaves as 1
+// rather than as zero room.
+check('a missing scale behaves as 1', chromeLineBudget(10, 'roomy', NaN, 1.3), 15);
+check('a missing cap behaves as no growth', chromeLineBudget(10, 'roomy', 2, NaN), 15);
+check('and a nonsense size is still nothing', chromeLineBudget(0, 'roomy', 2, 1.3), 0);
+
+// A budget is never shorter than the line it is budgeting for, at any size,
+// at any setting, at any scale. This is the whole promise.
+for (const spacing of ALL_LINE_SPACING_KEYS) {
+  for (const fontSize of [9, 10, 11, 12, 14, 17]) {
+    for (const scale of [0.85, 1, 1.15, 1.3, 2]) {
+      const line = chromeLineHeight(fontSize, spacing);
+      const budget = chromeLineBudget(fontSize, spacing, scale, 1.3);
+      check(
+        `${fontSize}px ${spacing} at ${scale} fits`,
+        budget >= line && budget >= Math.ceil(line * Math.min(Math.max(scale, 1), 1.3)),
+        true,
+      );
+    }
+  }
+}
+
+// Pinned text ignores the setting entirely, which is what lets a box that
+// cannot change size hold the same four lines whatever is set. The corner
+// identity box is 11px and 78px tall with 16 of padding: four lines at 14
+// is 56, which fits, where Roomier would have asked for 80.
+check('pinned is the same at every setting', pinnedLineHeight(11), 14);
+check('four pinned lines fit the corner box', 4 * pinnedLineHeight(11) + 16 <= 78, true);
+check('four Roomier lines would not', 4 * chromeLineHeight(11, 'roomier') + 16 <= 78, false);
+
+// And pinned is exactly what Normal already draws, so turning the setting
+// off leaves the pinned boxes looking like everything else.
+for (const fontSize of [9, 10, 11, 12]) {
+  check(`pinned ${fontSize} matches Normal`, pinnedLineHeight(fontSize), chromeLineHeight(fontSize, 'normal'));
+}
+check('the pinned ratio is the one the files had each estimated', PINNED_LINE_RATIO, 1.3);
 
 if (failures > 0) {
   console.error(`\n${failures} of ${checks} checks failed`);

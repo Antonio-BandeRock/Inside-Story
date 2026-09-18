@@ -2,13 +2,30 @@ import { Ionicons } from '@expo/vector-icons';
 import * as NavigationBar from 'expo-navigation-bar';
 import { usePathname, useRouter, type Href } from 'expo-router';
 import { useRef, useState, type ReactNode } from 'react';
-import { Image, Modal, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, lighten, MENU_LABEL_LIGHTEN_FRACTION } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useMenuCardBottom } from '../constants/floatingButton';
 import { getTabHubIconRenderSize, TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES, type TabRoute } from '../constants/tabs';
-import { menuLabelShadow, textShadow, typography } from '../constants/typography';
+import {
+  MENU_MAX_FONT_SCALE,
+  menuLabelShadow,
+  menuLineBudget,
+  menuLineHeight,
+  textShadow,
+  typography,
+} from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { modalAnimationType, type TabHubIconChoice } from '../lib/visualPreferences';
 import { useCurrentPageHelp } from './CurrentPageHelp';
@@ -160,8 +177,35 @@ const CARD_LEFT_MARGIN = 16;
 // was unstable from one mount to the next.
 const CARD_ITEM_PADDING_VERTICAL = 4; // matches `item`'s own paddingVertical below
 const CARD_ITEM_GAP = 1; // matches `item`'s own gap below
-const CARD_ITEM_LABEL_LINE_HEIGHT = 13; // itemLabel's own fontSize (10) * ~1.3, same estimate approach as LensHub.tsx's own GRID_ITEM_LABEL_LINE_HEIGHT
-const CARD_ROW_HEIGHT = CARD_ITEM_PADDING_VERTICAL * 2 + ICON_PILL_SIZE + CARD_ITEM_GAP + CARD_ITEM_LABEL_LINE_HEIGHT;
+const CARD_ITEM_LABEL_FONT_SIZE = 10; // matches `itemLabel`'s own fontSize below
+// 2026-09-18, reported directly: "When the Dyslexia function for line spacing
+// is activated, it causes the tabhub menu icons to shift below the bottom of
+// the menu. It needs to grow in size when it is activated and go back to
+// normal when dyslexia is truned off."
+//
+// This was a hardcoded 13, an estimate of a 10px label's own line height, made
+// before the line spacing setting existed. Roomier sets every line to 1.8x its
+// font size, so the label really wanted 18 in a row built for 13, and the card
+// is four rows deep and a fixed height with overflow: 'hidden' -- 20px of
+// clipping, which is most of a row of icons.
+//
+// It reads the real number now, from the same constants/typography.ts the
+// label's own style comes from, so the two cannot disagree. Off the setting
+// again it is Math.round(10 * 1.3) = 13, the number that was typed here, so
+// Normal looks exactly as it did.
+const CARD_ITEM_LABEL_LINE_HEIGHT = menuLineHeight(CARD_ITEM_LABEL_FONT_SIZE);
+// The phone's own font-size setting is the second input, and the only one that
+// can change while the app is open, so this takes the live fontScale rather
+// than reading it once. Capped at MENU_MAX_FONT_SCALE, which is also what the
+// labels themselves are capped at, so the budget and the drawing agree.
+function cardRowHeight(fontScale: number): number {
+  return (
+    CARD_ITEM_PADDING_VERTICAL * 2 +
+    ICON_PILL_SIZE +
+    CARD_ITEM_GAP +
+    menuLineBudget(CARD_ITEM_LABEL_FONT_SIZE, fontScale)
+  );
+}
 // Real nav items rendered before Info: every TAB_ROUTES entry, plus Profile
 // (which isn't itself one of TAB_ROUTES -- see its own comment below -- but
 // renders in the same grid slot sequence right after them).
@@ -191,7 +235,9 @@ const CARD_PADDING_TOP = 4; // matches `card`'s own paddingTop below
 // makes the two read as equal.
 const CARD_ICON_PILL_INTERNAL_SPACE = (ICON_PILL_SIZE - 20) / 2;
 const CARD_PADDING_BOTTOM = CARD_PADDING_TOP + CARD_ICON_PILL_INTERNAL_SPACE;
-const CARD_HEIGHT = CARD_ROW_COUNT * CARD_ROW_HEIGHT + CARD_PADDING_TOP + CARD_PADDING_BOTTOM;
+function cardHeightFor(fontScale: number): number {
+  return CARD_ROW_COUNT * cardRowHeight(fontScale) + CARD_PADDING_TOP + CARD_PADDING_BOTTOM;
+}
 
 // The single floating "hub" button that replaced the old 7-icon bottom tab
 // bar -- stays bottom-center. The picker it opens is deliberately NOT
@@ -390,6 +436,13 @@ export function TabHub() {
   // the footer band; only the popup card floats clear above it (see
   // useMenuCardBottom's own comment in constants/floatingButton.ts).
   const cardBottom = useMenuCardBottom();
+  // The card's own height, live: it grows when the line spacing setting is
+  // turned up (which restarts the app, so this is read fresh anyway) and again
+  // with the phone's own font-size setting, which can change under a running
+  // app. The card is bottom-anchored, so the extra height goes upward into
+  // empty screen rather than down through the nav bar.
+  const { fontScale } = useWindowDimensions();
+  const cardHeight = cardHeightFor(fontScale);
 
   // 2026-09-05. The three tile kinds render through these rather than inline,
   // because the grid's order is no longer TAB_ROUTES' order: Home leads, then
@@ -431,7 +484,12 @@ export function TabHub() {
                       <TabRouteIcon route={route} size={20} />
                     </View>
                   )}
-                  <Text style={[styles.itemLabel, { color: labelColor }]} numberOfLines={1} ellipsizeMode="tail">
+                  <Text
+                    style={[styles.itemLabel, { color: labelColor }]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}
+                  >
                     {route.title}
                   </Text>
                 </TouchableOpacity>
@@ -465,6 +523,7 @@ export function TabHub() {
               <Text
                 style={[styles.itemLabel, { color: lighten(profileActive ? colors.tabProfile : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
                 numberOfLines={1}
+                maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}
               >
                 Profile
               </Text>
@@ -512,6 +571,7 @@ export function TabHub() {
               <Text
                 style={[styles.itemLabel, { color: lighten(activeRoute ? activeRoute.color : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
                 numberOfLines={1}
+                maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}
               >
                 Info
               </Text>
@@ -699,7 +759,7 @@ export function TabHub() {
             }}
           >
             <TabHubCardRing>
-              <View style={styles.card}>
+              <View style={[styles.card, { height: cardHeight }]}>
                 {/* Home leads, then the two tiles that are not tabs at all,
                     then the remaining nine in TAB_ROUTES' own order. That puts
                     what the app IS (a landing screen, the person, help) across
@@ -868,12 +928,13 @@ const styles = StyleSheet.create({
     paddingTop: CARD_PADDING_TOP,
     paddingBottom: CARD_PADDING_BOTTOM,
     paddingHorizontal: 2,
-    // Fixed, not auto-sized from flexWrap content -- see CARD_HEIGHT's own
-    // comment above for the "drops in a few pixels on every open" bug this
-    // fixes. overflow: 'hidden' pairs with it the same way LensHub.tsx's
-    // own fixed-height card does, so a slightly-off row-height estimate
-    // clips rather than visibly overflowing the card's own rounded edge.
-    height: CARD_HEIGHT,
+    // `height` is set inline per render (cardHeightFor) rather than here --
+    // fixed, not auto-sized from flexWrap content, see cardRowHeight's own
+    // comment above for the "drops in a few pixels on every open" bug that
+    // fixes and for the two settings it now has to add up. overflow: 'hidden'
+    // pairs with it the same way LensHub.tsx's own fixed-height card does, so
+    // a row that still comes out slightly taller than its budget clips rather
+    // than visibly overflowing the card's own rounded edge.
     overflow: 'hidden',
   },
   item: { width: '33.33%', alignItems: 'center', gap: 1, paddingVertical: 4 },
@@ -895,5 +956,14 @@ const styles = StyleSheet.create({
   // menuLabelShadow, not the plain textShadow every icon in this file still
   // uses -- see that constant's own comment in constants/typography.ts for
   // why this needed its own, stronger shadow.
-  itemLabel: { ...typography.caption, fontSize: 10, ...menuLabelShadow },
+  // lineHeight is set explicitly rather than inherited from typography.caption:
+  // that tier's own line height is computed for a 12px font and this label is
+  // 10px, so under Roomier it would inherit 22 for a line that needs 18. The
+  // row height above is budgeted from this same number.
+  itemLabel: {
+    ...typography.caption,
+    fontSize: CARD_ITEM_LABEL_FONT_SIZE,
+    lineHeight: CARD_ITEM_LABEL_LINE_HEIGHT,
+    ...menuLabelShadow,
+  },
 });

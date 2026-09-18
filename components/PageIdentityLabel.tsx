@@ -9,7 +9,7 @@ import {
 } from '../constants/floatingButton';
 import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
-import { textShadow, typography } from '../constants/typography';
+import { pinnedLineHeight, textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 
 import { TabRouteIcon } from './TabRouteIcon';
@@ -96,6 +96,30 @@ export function usePageIdentityBoxSpan(): { left: number; right: number } {
       };
 }
 
+// 2026-09-18, direct: "The lower right corner box that tells you where you
+// are needs to stay the same size no matter what the system gets changed to."
+//
+// This box is a fixed height by an earlier instruction of its own ("Make sure
+// that the box in the lower right corner doesn't grow larger on any tab's
+// screen," 2026-09-13), and it is positioned against the TabHub artwork on one
+// side and the nav bar below, so there is nowhere for it to grow into. Two
+// things could make its text outgrow it, and both are turned off here:
+//
+//  1. allowFontScaling={false} on both Texts, so the phone's own font-size
+//     setting does not apply. This is the app's exception, not its rule (see
+//     lib/textSpacing.ts's own "Text that is furniture" section): everything
+//     anybody reads scales, and what this box says is said elsewhere in text
+//     that does. The name of the tool you are in is under the LensHub button
+//     a few pixels away, at a cap rather than a pin, and the resting prompt
+//     names a button that is on screen beside it.
+//  2. pinnedLineHeight, so the line spacing setting does not apply either.
+//     Roomier would otherwise set an 11px line to 20 and fit three lines of
+//     the resting prompt where four are needed, which is the same clipping
+//     the TabHub menu was reported for the same day.
+
+// Both states of the box, at the size matched to LensHub's own buttonLabel
+// (the label under that corner button) so the two read as one size.
+const BOX_FONT_SIZE = 11;
 // The inline glyph's size: an Ionicons size close to the prompt's own 11px
 // font so the first line does not open up around it.
 const PROMPT_ICON_SIZE = 13;
@@ -192,7 +216,7 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
     >
       {resting && tabRoute ? (
         <>
-          <Text style={styles.prompt}>
+          <Text style={styles.prompt} allowFontScaling={false}>
             <TabRouteIcon route={tabRoute} size={PROMPT_ICON_SIZE} />
             {' Tap the '}
             <Text style={{ color: tabColor }}>{title}</Text>
@@ -200,7 +224,9 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
           </Text>
         </>
       ) : (
-        <Text style={[styles.text, { color: tabColor }]}>{activeLensLabel}</Text>
+        <Text style={[styles.text, { color: tabColor }]} allowFontScaling={false}>
+          {activeLensLabel}
+        </Text>
       )}
     </View>
   );
@@ -245,17 +271,21 @@ const styles = StyleSheet.create({
   // At rest the sentence starts at the top-left corner and wraps down,
   // rather than sitting centred the way a short tool name does.
   containerResting: { alignItems: 'stretch', justifyContent: 'flex-start', overflow: 'hidden' },
+  // lineHeight after the spread, so it overrides whatever line spacing
+  // typography.caption carries -- see this file's own 2026-09-18 comment.
   prompt: {
     ...typography.caption,
     ...textShadow,
-    fontSize: 11,
+    fontSize: BOX_FONT_SIZE,
+    lineHeight: pinnedLineHeight(BOX_FONT_SIZE),
     color: colors.textSecondary,
     textAlign: 'left',
   },
   text: {
     ...typography.caption,
     ...textShadow,
-    fontSize: 11,
+    fontSize: BOX_FONT_SIZE,
+    lineHeight: pinnedLineHeight(BOX_FONT_SIZE),
     textAlign: 'center',
   },
 });

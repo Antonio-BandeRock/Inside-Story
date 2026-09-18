@@ -13,7 +13,13 @@
 // eyebrow tier by letter-spacing), which is what establishes hierarchy now
 // -- weight no longer does, anywhere. Do not reintroduce a bold weight
 // here or override one in a screen's own StyleSheet.
-import { letterSpacingFor, lineHeightFor } from '../lib/textSpacing';
+import {
+  chromeLineBudget,
+  chromeLineHeight,
+  letterSpacingFor,
+  lineHeightFor,
+  pinnedLineHeight as pinnedLineHeightFor,
+} from '../lib/textSpacing';
 import { getLetterSpacingSync, getLineSpacingSync } from '../lib/visualPreferences';
 
 // 2026-09-17: line spacing, the one readability lever the phone does not
@@ -113,6 +119,52 @@ export const typography = {
 // coloured colors.textOnPrimary, colors.textOnButton, or colors.background
 // (all near-black, the last being every ground theme's own dark base, used
 // as TEXT colour on filled pills and buttons) carries no shadow at all.
+
+// How far the phone's own font-size setting may grow the text inside a popup
+// menu whose card is a fixed size. Lived in components/LensHub.tsx as
+// LABEL_MAX_FONT_SCALE until 2026-09-18, and was copied into
+// components/MyItemsHub.tsx as a second hand-typed 1.3; both read this now,
+// and TabHub's menu, which had no cap at all, reads it too.
+//
+// The original reasoning, kept: React Native's Text scales with that setting
+// by default (allowFontScaling defaults to true, and this app never turns it
+// off for anything anybody reads), which is the right call in general, but a
+// popup card is tuned against a specific text size and starts truncating hard
+// past a point. Tested directly, 2026-07-27, on a Samsung Galaxy A54 (9-step
+// system font scale, step 4 = that phone's own default): 2 steps above default
+// stayed readable, anything past that did not. 1.3 lands around that tested
+// ceiling. If it turns out too cramped or too cautious once retested at the
+// "too high" step, adjust this one number rather than hunting down every Text.
+//
+// 2026-09-18: a cap on its own was never the whole job. A menu card also has
+// to BUDGET for the growth it permits, which is what menuLineBudget below is
+// for. A cap with no budget just moves where the text gets cut off.
+export const MENU_MAX_FONT_SCALE = 1.3;
+
+// The height of one line of menu text, under whatever line spacing is set.
+// Built from the same `lineSpacing` the tiers above were, so a label and the
+// row it sits in can never disagree about how tall a line is.
+export function menuLineHeight(fontSize: number): number {
+  return chromeLineHeight(fontSize, lineSpacing);
+}
+
+// The room a fixed-size menu card leaves for one of those lines once the
+// phone's font-size setting has grown it as far as MENU_MAX_FONT_SCALE.
+// `fontScale` is the live value from useWindowDimensions, so the card grows
+// with the setting and comes back down when it is turned off again.
+export function menuLineBudget(fontSize: number, fontScale: number): number {
+  return chromeLineBudget(fontSize, lineSpacing, fontScale, MENU_MAX_FONT_SCALE);
+}
+
+// For the two corner boxes that cannot change size at all (PageIdentityLabel
+// and VersionLabel): a line height that ignores the line spacing setting, to
+// go with the allowFontScaling={false} that makes their text ignore the
+// phone's setting. Both halves are needed; either one alone still lets the
+// box outgrow itself.
+export function pinnedLineHeight(fontSize: number): number {
+  return pinnedLineHeightFor(fontSize);
+}
+
 export const textShadow = {
   textShadowColor: 'rgba(0, 0, 0, 0.7)',
   textShadowOffset: { width: 0, height: 1 },

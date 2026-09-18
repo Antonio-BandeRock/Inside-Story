@@ -1,7 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Fragment, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, lighten, MENU_LABEL_LIGHTEN_FRACTION } from '../constants/colors';
 import {
@@ -12,7 +21,14 @@ import {
 } from '../constants/floatingButton';
 import { TAB_ROUTES } from '../constants/tabs';
 import { TAB_REVEAL_DURATION_MS } from '../constants/tabReveal';
-import { menuLabelShadow, textShadow, typography } from '../constants/typography';
+import {
+  MENU_MAX_FONT_SCALE,
+  menuLabelShadow,
+  menuLineBudget,
+  menuLineHeight,
+  textShadow,
+  typography,
+} from '../constants/typography';
 import { HelpSheet, type HelpSection } from './HelpButton';
 import { ActiveRingCircle } from './ActiveRingCircle';
 import { modalAnimationType } from '../lib/visualPreferences';
@@ -101,20 +117,12 @@ export type LensOption<T extends string> = {
 // (Food's) instead of a shorter one, so every page benefits, not just Food.
 const CARD_WIDTH = 300;
 
-// Caps how far this popup's own text can grow under the device's system
-// font-size accessibility setting -- React Native's Text scales with that
-// setting by default (allowFontScaling defaults to true, and this app
-// never turns it off), which is the right call in general, but this
-// popup's own layout (fixed CARD_WIDTH/CARD_HEIGHT, single-line labels
-// with ellipsizeMode="tail") is tuned against a specific text size and
-// starts truncating hard past a point. Tested directly, 2026-07-27, on a
-// Samsung Galaxy A54 (9-step system font scale, step 4 = that phone's own
-// default): 2 steps above default stayed readable, anything past that
-// didn't. 1.3 is set to land around that same tested "still fine" ceiling
-// -- if it's still too cramped (or too conservative) once actually
-// retested at the "too high" step, adjust this one number rather than
-// hunting down every Text below individually.
-const LABEL_MAX_FONT_SCALE = 1.3;
+// This popup's own cap on the phone's font-size setting was a 1.3 defined
+// here, with a second hand-typed copy of it in components/MyItemsHub.tsx and
+// none at all in TabHub. It is MENU_MAX_FONT_SCALE in constants/typography.ts
+// since 2026-09-18, where its reasoning and the Galaxy A54 test behind the
+// number are recorded, and where the row-height budget that has to agree with
+// it lives too.
 
 // What the Info tile shows when nothing's selected yet -- 2026-08-07,
 // explicitly requested: "When I touch any Info button in any lens prior to
@@ -204,9 +212,33 @@ const GRID_ITEM_ICON_SIZE = 20;
 const GRID_ITEM_CUSTOM_ICON_SIZE = 30;
 const GRID_ITEM_GAP = 2;
 const GRID_ITEM_PADDING_VERTICAL = 6;
-const GRID_ITEM_LABEL_LINE_HEIGHT = 14; // itemLabel's own fontSize (11) * ~1.3
-const GRID_ROW_HEIGHT = GRID_ITEM_PADDING_VERTICAL * 2 + GRID_ITEM_PILL_SIZE + GRID_ITEM_GAP + GRID_ITEM_LABEL_LINE_HEIGHT;
-const CARD_HEADER_HEIGHT = 20; // cardHeader's own fontSize (10) * ~1.3 + its marginBottom (6)
+const GRID_ITEM_LABEL_FONT_SIZE = 11; // matches itemLabel's own fontSize below
+const CARD_HEADER_FONT_SIZE = 10; // matches cardHeader's own typography.eyebrow tier
+const CARD_HEADER_MARGIN_BOTTOM = 6; // matches cardHeader's own marginBottom below
+// 2026-09-18: these two were hand-typed estimates of a line height (14 and 20,
+// each "fontSize * ~1.3"), made before the line spacing setting existed. Under
+// Roomier every line is 1.8x its font size, so both were short by a third and
+// this card is a fixed height with overflow: 'hidden'. TabHub had the same bug
+// and it showed there first, because its card has four rows of icons and no
+// scroll to absorb the difference (see components/TabHub.tsx). Both read the
+// real number now, from the same constants/typography.ts the labels do.
+//
+// At Normal these come out at 14 and 19, which is what was typed here (the 20
+// carried a spare pixel, kept below as the card's own tuned slack rather than
+// quietly dropped).
+const GRID_ITEM_LABEL_LINE_HEIGHT = menuLineHeight(GRID_ITEM_LABEL_FONT_SIZE);
+const CARD_HEADER_SLACK = 1;
+function gridRowHeight(fontScale: number): number {
+  return (
+    GRID_ITEM_PADDING_VERTICAL * 2 +
+    GRID_ITEM_PILL_SIZE +
+    GRID_ITEM_GAP +
+    menuLineBudget(GRID_ITEM_LABEL_FONT_SIZE, fontScale)
+  );
+}
+function cardHeaderHeight(fontScale: number): number {
+  return menuLineBudget(CARD_HEADER_FONT_SIZE, fontScale) + CARD_HEADER_MARGIN_BOTTOM + CARD_HEADER_SLACK;
+}
 const CARD_PADDING_VERTICAL = 8 * 2; // card's own paddingVertical, top + bottom
 // Food's own grid switched to 3 columns, 2026-07-27, explicitly requested
 // (see `columns`/`infoInGrid` below) -- 9 builders across 3 columns is
@@ -241,7 +273,9 @@ const FOOD_ROW_COUNT = 4;
 // whether their own last row happens to fill both columns. Food itself no
 // longer relies on this at all -- see infoInGrid's own comment for why its
 // own Info sits inside the grid instead, on its own dedicated 4th row.
-const CARD_HEIGHT = CARD_HEADER_HEIGHT + FOOD_ROW_COUNT * GRID_ROW_HEIGHT + CARD_PADDING_VERTICAL + 5;
+function cardHeightFor(fontScale: number): number {
+  return cardHeaderHeight(fontScale) + FOOD_ROW_COUNT * gridRowHeight(fontScale) + CARD_PADDING_VERTICAL + 5;
+}
 
 // card's own paddingHorizontal (left/right, matching CARD_PADDING_VERTICAL's
 // naming above, which only covers top+bottom) -- needed below to work out
@@ -640,6 +674,11 @@ export function LensHub<T extends string>({
   // the footer band; only the popup card floats clear above it (see
   // useMenuCardBottom's own comment in constants/floatingButton.ts).
   const cardBottom = useMenuCardBottom();
+  // Live, so the card grows with the phone's own font-size setting instead of
+  // clipping against it, and comes back to the size above when it is turned
+  // down again. Every page's card stays pixel-identical to every other's,
+  // which is what cardHeightFor being one shared function guarantees.
+  const { fontScale } = useWindowDimensions();
 
   const itemWidthPercent = 100 / columns;
   // Info moves off the floating corner and into the grid's own flow
@@ -753,7 +792,7 @@ export function LensHub<T extends string>({
         <Text
           style={[styles.buttonLabel, { color: lighten(tabColor, MENU_LABEL_LIGHTEN_FRACTION) }]}
           numberOfLines={1}
-          maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
+          maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}
         >
           {buttonLabel ?? headerLabel ?? pageTitle}
         </Text>
@@ -790,7 +829,13 @@ export function LensHub<T extends string>({
           <View
             style={[
               styles.card,
-              { bottom: cardBottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN, width: CARD_WIDTH, height: CARD_HEIGHT, borderColor: tabColor },
+              {
+                bottom: cardBottom,
+                left: SECONDARY_HUB_CARD_LEFT_MARGIN,
+                width: CARD_WIDTH,
+                height: cardHeightFor(fontScale),
+                borderColor: tabColor,
+              },
               { opacity: cardReady ? 1 : 0 },
             ]}
             pointerEvents={cardReady ? 'auto' : 'none'}
@@ -886,7 +931,7 @@ export function LensHub<T extends string>({
                     style={[styles.itemLabel, { color: lighten(colors.textMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
                     numberOfLines={itemLabelLines}
                     ellipsizeMode="tail"
-                    maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
+                    maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}
                   >
                     {extraTile.label}
                   </Text>
@@ -942,7 +987,7 @@ export function LensHub<T extends string>({
                       ) : null}
                       {showGroupHeader ? (
                         <View style={styles.groupHeaderRow}>
-                          <Text style={[styles.groupHeaderText, { color: tabColor }]} maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}>
+                          <Text style={[styles.groupHeaderText, { color: tabColor }]} maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}>
                             {option.group}
                           </Text>
                         </View>
@@ -975,7 +1020,7 @@ export function LensHub<T extends string>({
                           style={[styles.itemLabel, { color: labelColor }]}
                           numberOfLines={itemLabelLines}
                           ellipsizeMode="tail"
-                          maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
+                          maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}
                         >
                           {option.gridLabel ?? option.label}
                         </Text>
@@ -1019,7 +1064,7 @@ export function LensHub<T extends string>({
                     <Text
                       style={[styles.itemLabel, { color: lighten(selectedOption ? tabColor : colors.textMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
                       numberOfLines={1}
-                      maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
+                      maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}
                     >
                       Info
                     </Text>
@@ -1113,7 +1158,7 @@ export function LensHub<T extends string>({
                   // alongside the same-day tabColor correction.
                   style={[styles.itemLabel, { color: lighten(selectedOption ? tabColor : colors.textMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
                   numberOfLines={1}
-                  maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
+                  maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}
                 >
                   Info
                 </Text>
@@ -1349,5 +1394,15 @@ const styles = StyleSheet.create({
   // menuLabelShadow, not the plain textShadow every icon in this file still
   // uses -- see that constant's own comment in constants/typography.ts for
   // why this needed its own, stronger shadow.
-  itemLabel: { ...typography.caption, fontSize: 11, textAlign: 'center', ...menuLabelShadow },
+  // lineHeight explicitly, not inherited: typography.caption computes its own
+  // line height for a 12px font and this label is 11px, so under Roomier it
+  // would take 22 for a line that needs 20. The row height above budgets from
+  // this same number.
+  itemLabel: {
+    ...typography.caption,
+    fontSize: GRID_ITEM_LABEL_FONT_SIZE,
+    lineHeight: GRID_ITEM_LABEL_LINE_HEIGHT,
+    textAlign: 'center',
+    ...menuLabelShadow,
+  },
 });

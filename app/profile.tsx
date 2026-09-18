@@ -60,6 +60,7 @@ import {
 } from '../lib/reminderPreferences';
 import {
   ALL_NEURO_PROFILE_KEYS,
+  describeTurnedOff,
   describeTurnedOn,
   NEURO_PROFILE_CAPTIONS,
   NEURO_PROFILE_HEADING,
@@ -67,10 +68,14 @@ import {
   NEURO_PROFILE_LABELS,
   NEURO_PROFILE_NOT_A_CONDITION,
   NEURO_PROFILE_STAYS_HERE,
+  NEURO_PROFILE_UNLIST_NOTE,
   NEURO_SUPPORT_DETAILS,
   NEURO_SUPPORT_LABELS,
+  NEURO_SUPPORT_OFF_DETAILS,
   NEURO_SUPPORT_REMINDER_KINDS,
+  supportsDroppedBy,
   supportsFor,
+  supportsTurnedOffBy,
   type NeuroProfileKey,
   type NeuroSupportKey,
 } from '../lib/neuroProfile';
@@ -1459,11 +1464,21 @@ export default function ProfileScreen() {
   // setting that turns itself on without saying so is the thing this is
   // built to avoid.
   //
-  // Turning one OFF removes the listing and deliberately switches NOTHING
-  // back off. By then the quieter Home and the reminders are settings
-  // somebody is using, and taking them away because a label changed would
-  // undo a choice nobody made. Each one goes off where it lives, and the
-  // help text on screen says so.
+  // Turning one OFF used to remove the listing and switch nothing back off,
+  // on the reasoning that the quieter Home and the reminders were by then
+  // settings somebody was using. Reported as broken on 2026-09-18: "Right
+  // now, the dyslexia function doesn't seem to actually get turned off when
+  // the pill is deselected." The pill is where those settings got turned on,
+  // so it reads as the switch, and a switch that only works one way is broken
+  // however good the reasoning behind it.
+  //
+  // So the way out now mirrors the way in exactly: a sheet naming every
+  // setting that will change and what changing it does, "Leave them on" as a
+  // full answer, and the listing itself already removed either way. The old
+  // concern is met by the sheet rather than by refusing to act, and by two
+  // narrowings: only what no still-listed profile is asking for (
+  // supportsTurnedOffBy), and only what is actually on at this moment
+  // (neuroSupportIsOn), so nothing is announced that would not really change.
   async function applyNeuroSupports(supports: NeuroSupportKey[]): Promise<boolean> {
     let needsRestart = false;
 
@@ -1498,11 +1513,92 @@ export default function ProfileScreen() {
     return needsRestart;
   }
 
+  // Whether a setting is on at this moment, so the sheet on the way out names
+  // only what will really change. Somebody who answered "Just list it" has a
+  // listing and no settings, and should see no sheet at all when they unlist.
+  function neuroSupportIsOn(support: NeuroSupportKey): boolean {
+    if (support === 'roomyText') return visualPrefs.lineSpacing !== 'normal';
+    if (support === 'lowStimulation') return visualPrefs.lowStimulation;
+    if (support === 'captureInbox') return isHomeSectionVisible(visualPrefs, 'captureInbox');
+    return (NEURO_SUPPORT_REMINDER_KINDS[support] ?? []).some((kind) =>
+      isReminderKindEnabled(reminderPrefs, kind),
+    );
+  }
+
+  // The mirror of applyNeuroSupports, in the same order and for the same
+  // reasons: Low Stimulation last, because Home rearranges around it.
+  async function revokeNeuroSupports(supports: NeuroSupportKey[]): Promise<boolean> {
+    let needsRestart = false;
+
+    if (supports.includes('roomyText') && visualPrefs.lineSpacing !== 'normal') {
+      // Back to Normal from wherever it is, not just from the Roomier this
+      // turned on: somebody who stepped it up to Roomier by hand afterwards is
+      // still somebody who has just said they want the text work off, and the
+      // sheet named this before it happened.
+      await setVisualPreferences({ lineSpacing: 'normal' });
+      needsRestart = true;
+    }
+
+    let touchedReminders = false;
+    for (const support of supports) {
+      for (const kind of NEURO_SUPPORT_REMINDER_KINDS[support] ?? []) {
+        await setReminderKindEnabled(kind, false);
+        touchedReminders = true;
+      }
+    }
+    if (touchedReminders) await syncReminderNotifications();
+
+    if (supports.includes('lowStimulation')) {
+      await setLowStimulation(false);
+    }
+
+    return needsRestart;
+  }
+
   async function toggleNeuroProfile(key: NeuroProfileKey) {
     if (neuroProfile.includes(key)) {
+      const dropped = supportsTurnedOffBy(key, neuroProfile);
+      const turningOff = dropped.filter((support) => neuroSupportIsOn(support));
+      const inboxStays = supportsDroppedBy(key, neuroProfile).includes('captureInbox');
+
       await removeNeuroProfile(key);
       setNeuroProfile((current) => current.filter((listed) => listed !== key));
       flashSaved();
+
+      if (turningOff.length === 0) return;
+
+      const lines = turningOff.map(
+        (support) => `${NEURO_SUPPORT_LABELS[support]}. ${NEURO_SUPPORT_OFF_DETAILS[support] ?? ''}`.trim(),
+      );
+      if (turningOff.includes('roomyText')) {
+        lines.push('Line spacing restarts the app for a moment so it reaches every screen.');
+      }
+      if (inboxStays) lines.push(NEURO_PROFILE_UNLIST_NOTE);
+
+      const ok = await confirmBackup({
+        title: `Turn these back off for ${NEURO_PROFILE_LABELS[key]}?`,
+        message: `${lines.join('\n\n')}\n\nNothing else changes, and no food score ever did. You can turn any of this back on by hand, or by listing ${NEURO_PROFILE_LABELS[key]} again.`,
+        confirmLabel: 'Turn them off',
+        cancelLabel: 'Leave them on',
+      });
+      if (!ok) return;
+
+      const needsRestartOff = await revokeNeuroSupports(turningOff);
+      if (needsRestartOff) {
+        showBusy('Applying...');
+        try {
+          await Updates.reloadAsync();
+        } catch (error) {
+          console.error('Updates.reloadAsync failed after a line spacing change', error);
+          hideBusy();
+          showBackupAlert(
+            'Saved',
+            'Everything is turned back off, but this device could not restart the app automatically. Close and reopen Inside Story to see the line spacing everywhere.',
+          );
+        }
+        return;
+      }
+      showBackupAlert(NEURO_PROFILE_LABELS[key], describeTurnedOff(turningOff));
       return;
     }
 
@@ -2943,9 +3039,9 @@ export default function ProfileScreen() {
             ))}
             {neuroProfile.length > 0 ? (
               <Text style={styles.helpText}>
-                Taking one back off removes it from this list and leaves the settings alone. Anything you
-                turned on stays on until you switch it off where it lives, because by then it is a setting
-                you are using rather than something attached to a label.
+                Taking one back off asks the same question this did: it names what would go back off and
+                waits for an answer, so you can unlist it and keep the settings. Anything another listing
+                here still asks for stays on either way.
               </Text>
             ) : null}
             <Text style={styles.helpText}>{NEURO_PROFILE_NOT_A_CONDITION}</Text>

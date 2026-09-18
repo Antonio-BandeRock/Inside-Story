@@ -39,13 +39,18 @@ const {
   NEURO_PROFILE_LABELS,
   NEURO_SUPPORT_DETAILS,
   NEURO_SUPPORT_LABELS,
+  NEURO_SUPPORT_OFF_DETAILS,
   NEURO_SUPPORT_REMINDER_KINDS,
+  NEURO_SUPPORTS_UNLISTING_LEAVES_ON,
   describeProfiles,
+  describeTurnedOff,
   describeTurnedOn,
   isNeuroProfileKey,
   normalizeNeuroProfileKeys,
   profilesAsking,
+  supportsDroppedBy,
   supportsFor,
+  supportsTurnedOffBy,
 } = load('lib/neuroProfile.ts');
 
 let checks = 0;
@@ -204,6 +209,49 @@ check('no two settings switch on the same reminder kind', (() => {
   }
   return null;
 })(), null);
+
+// ------------------------------------------------------- taking one back off
+
+// 2026-09-18, reported directly: "Right now, the dyslexia function doesn't
+// seem to actually get turned off when the pill is deselected." Dyslexia is
+// the simple case, since nothing else asks for the text work.
+check('unlisting Dyslexia drops the text work', supportsDroppedBy('dyslexia', ['dyslexia']), ['roomyText']);
+check('and it is switched off, not just dropped', supportsTurnedOffBy('dyslexia', ['dyslexia']), ['roomyText']);
+check('with the others listed it still only drops its own', supportsDroppedBy('dyslexia', ['autism', 'adhd', 'dyslexia']), ['roomyText']);
+
+// The case the whole function exists for: two profiles asking for the same
+// setting, one of them going away. Nothing either one still asks for may be
+// touched.
+check('unlisting ADHD with Autism still listed keeps the shared two', supportsDroppedBy('adhd', ['autism', 'adhd']), ['noteReminders', 'datedReminders']);
+check('unlisting Autism with ADHD still listed keeps the shared two', supportsDroppedBy('autism', ['autism', 'adhd']), ['lowStimulation']);
+check('unlisting ADHD alone drops everything it asked for', supportsDroppedBy('adhd', ['adhd']), supportsFor(['adhd']));
+
+// Unlisting something that was never listed does nothing at all, which is
+// what stops a double tap from switching settings off twice.
+check('unlisting what was not listed drops nothing', supportsDroppedBy('adhd', ['autism']), []);
+check('and turns nothing off', supportsTurnedOffBy('dyslexia', []), []);
+
+// The capture inbox is the one thing dropped without being switched off: it
+// is on Home for everybody, so taking it away would remove a default rather
+// than put a setting back.
+check('the inbox is dropped', supportsDroppedBy('autism', ['autism']).includes('captureInbox'), true);
+check('and deliberately left on', supportsTurnedOffBy('autism', ['autism']).includes('captureInbox'), false);
+check('which is the only exemption', NEURO_SUPPORTS_UNLISTING_LEAVES_ON, ['captureInbox']);
+
+// Everything that CAN be switched off says what switching it off does,
+// because the sheet shows that line before it happens.
+for (const support of ALL_NEURO_SUPPORT_KEYS) {
+  const revocable = !NEURO_SUPPORTS_UNLISTING_LEAVES_ON.includes(support);
+  check(`${support} says what going off does`, (NEURO_SUPPORT_OFF_DETAILS[support] ?? '').length > 0, revocable);
+}
+
+// Off is the mirror of on: same profiles, same settings, both directions.
+for (const key of ALL_NEURO_PROFILE_KEYS) {
+  check(`${key} drops exactly what it asks for when listed alone`, supportsDroppedBy(key, [key]), supportsFor([key]));
+}
+
+check('nothing off reads as nothing said', describeTurnedOff([]), '');
+check('and one thing off names it', describeTurnedOff(['roomyText']).startsWith('Turned off: Roomier line spacing.'), true);
 
 if (failures > 0) {
   console.error(`\n${failures} of ${checks} checks failed`);

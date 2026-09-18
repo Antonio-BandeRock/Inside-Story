@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.40.3',
+    date: '2026-09-18',
+    changes: [
+      'Roomier line spacing no longer pushes the bottom row of icons out through the bottom of the hub menu. Both popup menus now work out how tall they need to be from the line spacing you have set and from your phone\'s text size, instead of from a number typed in by hand, so they grow when either one goes up and come back to normal when it goes down.',
+      'Taking Autism, ADHD or Dyslexia back off in Profile now turns the settings back off. It asks first, names every setting that would change and what changing it does, and "Leave them on" is a full answer. Anything another listing still asks for is left alone, and the place to put a thought stays on Home either way, since that one is there for everybody.',
+      'The box in the lower right corner that says where you are, and the version number under it, now stay the same size whatever your phone\'s text size is set to. Both are pinned against a fixed corner with nowhere to grow into. Everything you actually read still follows your phone\'s setting, uncapped, the way it always has.',
+    ],
+  },
+  {
     version: '1.0.40.2',
     date: '2026-09-18',
     changes: [

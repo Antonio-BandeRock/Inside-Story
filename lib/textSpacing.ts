@@ -7,10 +7,10 @@
 //
 // WHAT THIS IS NOT. It is not text size. Text size already works in this
 // app and always has: React Native's Text scales with the phone's own
-// accessibility font-size setting by default, this app never turns that
-// off, and the one place it is capped is a popup with a fixed card size
-// (LABEL_MAX_FONT_SCALE in components/LensHub.tsx, tested on a Galaxy A54
-// on 2026-07-27). So somebody who needs bigger text already has bigger
+// accessibility font-size setting by default, and this app never turns
+// that off for anything anybody reads. Where it is capped, and where it
+// is pinned outright, is set out under "Text that is furniture" at the
+// foot of this file. So somebody who needs bigger text already has bigger
 // text, everywhere, including here. What they may not have is any idea
 // that it works, which is a discoverability job, not an engineering one.
 //
@@ -221,4 +221,92 @@ export function letterSpacingFor(
 // What the setting is currently doing, for the line under the picker.
 export function describeLetterSpacing(spacing: LetterSpacingKey): string {
   return LETTER_SPACING_CAPTIONS[spacing];
+}
+
+// ---------------------------------------------------------------------------
+// Text that is furniture, and text that is reading
+// ---------------------------------------------------------------------------
+//
+// 2026-09-18, from a report and a question in the same message: roomier line
+// spacing pushed the TabHub menu's bottom row of icons out through the bottom
+// of the card, "the lower right corner box that tells you where you are needs
+// to stay the same size no matter what the system gets changed to," and "how
+// do we design in ways to make sure the app remains readable and usable for
+// everything if the system phone is changed?"
+//
+// The rule this app settles on is that it holds two kinds of text and they
+// want opposite things.
+//
+// READING is everything somebody opened the app to read: a Digest entry, a
+// food score, the caption under a field, the words of a reminder. It scales
+// with the phone's own font-size setting, as far as that setting goes, and it
+// always will. It sits in things that grow with it: a ScrollView, a card with
+// no fixed height, a row that wraps. Nothing here caps it and nothing should.
+// This is the large majority of the app by a long way.
+//
+// FURNITURE is the app's own chrome: the two popup menus, the box in the
+// corner that says where you are, the version number under it. Each of those
+// is positioned against something else rather than flowing, so it cannot just
+// get taller without landing on its neighbour. Furniture gets its room
+// BUDGETED, by the two functions below, instead of discovered at layout time.
+//
+// A budget has two inputs, and the TabHub bug was the first of them being
+// ignored:
+//   1. the app's own line spacing setting, which makes every line taller, and
+//   2. the phone's own font-size setting, which makes every line taller again.
+// A fixed-height container has to add both or it draws its last row past its
+// own bottom edge. TabHub had a hardcoded 13 standing in for the first, so
+// Roomier (1.8) asked for 18 in a space built for 13, four rows deep.
+//
+// Where the container genuinely cannot change size, the text is PINNED: it
+// ignores both settings and stays the size it was drawn at. That is a real
+// cost to somebody who turned their font up, so only two pieces of furniture
+// do it, both of them small, fixed corner boxes that were asked for at a
+// fixed size directly, and neither of them says anything that is not also
+// said somewhere that scales.
+
+// The line height furniture gets when the line spacing setting has nothing to
+// say, which is Normal, the default. 1.3 is not a new number: it is what
+// TabHub, LensHub and VersionLabel had each estimated by hand in their own
+// files, and it is close to what React Native draws for a line with no
+// explicit lineHeight at all, so Normal keeps looking exactly as it did.
+export const PINNED_LINE_RATIO = 1.3;
+
+// The height of one line of furniture text, under the app's own line spacing
+// setting and nothing else.
+export function chromeLineHeight(fontSize: number, spacing: LineSpacingKey): number {
+  if (typeof fontSize !== 'number' || !Number.isFinite(fontSize) || fontSize <= 0) return 0;
+  return lineHeightFor(fontSize, spacing) ?? Math.round(fontSize * PINNED_LINE_RATIO);
+}
+
+// The room a fixed-height container has to leave for one of those lines once
+// the phone's own font-size setting is allowed to grow it, as far as
+// maxFontScale and no further.
+//
+// Pass the live scale, which on a screen is useWindowDimensions().fontScale,
+// rather than a snapshot: a phone can change that setting while the app is
+// open, and a hook re-renders where a module constant read once cannot.
+//
+// Clamped at 1 from below as well, so a person who turns their font DOWN gets
+// the same roomy card rather than a tighter one. The card is furniture; there
+// is nothing to gain by shrinking it.
+export function chromeLineBudget(
+  fontSize: number,
+  spacing: LineSpacingKey,
+  fontScale: number,
+  maxFontScale: number,
+): number {
+  const line = chromeLineHeight(fontSize, spacing);
+  if (line === 0) return 0;
+  const ceiling = Number.isFinite(maxFontScale) && maxFontScale > 1 ? maxFontScale : 1;
+  const scale = Number.isFinite(fontScale) ? Math.min(Math.max(fontScale, 1), ceiling) : 1;
+  return Math.ceil(line * scale);
+}
+
+// The line height for text that is pinned: it ignores the line spacing setting
+// the same way its own Text ignores the phone's font-size setting, so a box
+// that cannot change size holds the same number of lines whatever is set.
+export function pinnedLineHeight(fontSize: number): number {
+  if (typeof fontSize !== 'number' || !Number.isFinite(fontSize) || fontSize <= 0) return 0;
+  return Math.round(fontSize * PINNED_LINE_RATIO);
 }

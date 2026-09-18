@@ -25,6 +25,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // everywhere, all the time. Pinning to the box's bottom would make it jump
 // around depending on whether the box happened to be there.
 const GAP_BELOW_BUTTON = 4;
+// This label is positioned by subtracting its own line height from the button
+// row's bottom edge, so its size is part of where it sits: let it grow and it
+// walks up into the hub buttons. allowFontScaling={false} below pins it, the
+// same call made for the identity box above it on 2026-09-18 and for the same
+// reason (see components/PageIdentityLabel.tsx). The version number is also on
+// the About card in Profile, in text that scales like everything else there.
+//
+// 14 rather than pinnedLineHeight(9) = 12: this was tuned on-device and the
+// two extra pixels are where it sits, not how tall the text is.
 const LABEL_LINE_HEIGHT = 14;
 // How far below the button row's own bottom edge the label sits. Was 10 when
 // first tuned on-device, moved up by 5 on 2026-08-30 by direct request.
@@ -36,7 +45,7 @@ export function VersionLabel() {
   const bottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET - GAP_BELOW_BUTTON - LABEL_LINE_HEIGHT - DROP_BELOW_BUTTON;
 
   return (
-    <Text style={[styles.text, { bottom, left, right }]} pointerEvents="none">
+    <Text style={[styles.text, { bottom, left, right }]} pointerEvents="none" allowFontScaling={false}>
       v{APP_VERSION}
     </Text>
   );
