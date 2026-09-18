@@ -196,7 +196,7 @@ export const HANDS_ON_THERAPIES_ENTRIES: DigestEntry[] = [
   {
     id: 'handson-safety-and-what-to-ask',
     category: 'basicHealth',
-    title: 'What Can Go Wrong, and What to Say Before the Session Starts',
+    title: 'Telling a Practitioner What They Need to Know Prevents Most of What Goes Wrong',
     teaser:
       'Serious harm from any of these three is uncommon. Most of what does go wrong is predictable from something the practitioner was never told.',
     summary:

@@ -35,7 +35,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   {
     id: 'fermented-lactobacillus-acidophilus',
     category: 'basicHealth',
-    title: 'Lactobacillus acidophilus: The Most Recognized Yogurt Culture, and One of the Better-Studied Single Strains Overall',
+    title: 'Lactobacillus acidophilus Is the Yogurt Strain With the Most Research Behind It',
     teaser: 'The name on nearly every yogurt label, and one of the more well-researched strains on this whole list.',
     summary: "Walk down a grocery aisle and L. Acidophilus is probably the one probiotic name that actually sounds familiar, printed on yogurt cartons and supplement labels alike, often without much explanation of what it actually does. It's a homofermentative lactic acid bacterium found in most live-culture yogurt and many commercial probiotic blends. Clinical evidence supports it for improving lactose digestion (it produces lactase during fermentation, reducing residual lactose in the finished product) and for restoring gut flora after antibiotic use. Thyroid-specific human trials of this strain alone don't exist yet. Its relevance here is as one contributor to overall gut microbial diversity, the mechanism the Gut & Microbiome research keeps returning to as the target.",
     citations: [
@@ -170,7 +170,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   {
     id: 'fermented-milk-kefir',
     category: 'basicHealth',
-    title: 'Milk Kefir: The Single Most Microbially Diverse Fermented Food on This List',
+    title: 'Milk Kefir Grains Host 30 or More Bacterial and Yeast Species in One Culture',
     teaser: 'One batch, 30 or more distinct species living together, far beyond what a typical store-bought yogurt ever offers.',
     summary: "Most fermented foods on this list are built around one or two named strains. Milk kefir is built differently, on purpose. Traditional milk kefir grains host a complex symbiotic community, often 30 or more distinct bacterial and yeast species living together in one starter culture, far beyond the handful of strains in a typical commercial yogurt. That diversity is exactly what the gut-microbiome research keeps identifying as the target: diversity itself, not any single \"best\" strain. Kefir is one of the most direct, practical ways to work toward that diversity through food rather than through a supplement.",
     citations: [
@@ -250,7 +250,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   {
     id: 'fermented-filtered-water',
     category: 'basicHealth',
-    title: 'Filtered Water for Fermentation: Why Tap Water Can Quietly Undermine a Batch',
+    title: 'Chloramine in Tap Water Can Stall a Ferment, and Ordinary Filters Rarely Remove It',
     teaser: "A ferment that never quite gets going, or stalls partway through, isn't always a bad culture: sometimes it's the water it started in.",
     summary:
       "Municipal tap water is deliberately treated to kill bacteria, viruses, and other microorganisms before it reaches a home, and a fermentation culture, lactic acid bacteria, a kombucha SCOBY, water kefir grains, wild yeast, is exactly the kind of living organism that treatment is built to suppress. Chlorine is volatile and mostly dissipates from standing or boiled water within a couple of hours, but many utilities have switched to chloramine specifically because it lasts longer in the pipes: it can take two to three days to dissipate at room temperature, and most ordinary pass-through filters that remove chlorine don't remove it. Tap water composition also isn't consistent from one place to another; treatment method, pipe age, and local mineral content all vary by municipality, so there's no way to know from the tap alone what else, beyond the disinfectant, might be present in a given area's supply. Filtered water sidesteps all of this at once, without needing to know the specifics of a local water system first. Every fermentation recipe in this app's curated collection calls for filtered water for exactly this reason.",

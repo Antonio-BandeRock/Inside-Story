@@ -2183,7 +2183,7 @@ type EarthMattersTopic =
   | 'Case Studies From Around the World'
   | 'History & Origins of the Movement'
   | 'Water, Seeds & Resources'
-  | 'Industry, Greenwashing & Limits'
+  | 'Industry, Greenwashing & Honest Limits'
   | 'Policy, Economics & Power'
   | 'How You Can Take Action';
 
@@ -2209,7 +2209,7 @@ const EARTH_MATTERS_TOPIC_ORDER: EarthMattersTopic[] = [
   'Case Studies From Around the World',
   'History & Origins of the Movement',
   'Water, Seeds & Resources',
-  'Industry, Greenwashing & Limits',
+  'Industry, Greenwashing & Honest Limits',
   'Policy, Economics & Power',
   'How You Can Take Action',
 ];
@@ -2294,7 +2294,7 @@ function classifyEarthMattersTopic(entry: AnyDigestEntry): EarthMattersTopic {
     id.includes('no-till-greenwashing') ||
     id.includes('cover-crop-reality-check')
   ) {
-    return 'Industry, Greenwashing & Limits';
+    return 'Industry, Greenwashing & Honest Limits';
   }
   // Everything else remaining (verified via the throwaway script above to
   // be exactly the real soil-science/mechanism/urgency entries) falls here.
@@ -2322,7 +2322,7 @@ function groupEarthMattersEntries(entries: AnyDigestEntry[]): {
 type HomeGardeningTopic =
   | 'Getting Started: Zones, Climate & Site'
   | 'What to Grow First'
-  | 'Building Soil'
+  | 'Building Real Soil'
   | 'Your Garden & Your Microbiome'
   | 'Growing Techniques'
   | 'After the Harvest'
@@ -2336,7 +2336,7 @@ type HomeGardeningTopic =
 // Take Action" uses. "Your Garden & Your Microbiome" was added 2026-08-13,
 // direct request to build a real section on how the app's own features
 // connect to the microbiome/microbial-network research, deliberately
-// placed right after "Building Soil" -- soil is literally what the
+// placed right after "Building Real Soil" -- soil is literally what the
 // entries here are about, so learning to build it and then learning what
 // direct contact with it does to a person's own immune system is a real,
 // natural read order, ahead of the more mechanical growing-technique
@@ -2344,7 +2344,7 @@ type HomeGardeningTopic =
 const HOME_GARDENING_TOPIC_ORDER: HomeGardeningTopic[] = [
   'Getting Started: Zones, Climate & Site',
   'What to Grow First',
-  'Building Soil',
+  'Building Real Soil',
   'Your Garden & Your Microbiome',
   'Growing Techniques',
   'After the Harvest',
@@ -2381,7 +2381,7 @@ function classifyHomeGardeningTopic(entry: AnyDigestEntry): HomeGardeningTopic {
     id.includes('crop-rotation') ||
     id.includes('cover-crops-home')
   ) {
-    return 'Building Soil';
+    return 'Building Real Soil';
   }
   if (
     id.includes('hands-in-soil-immune-training') ||
@@ -5497,7 +5497,11 @@ function RelatedChips({ ids, onJumpToRelated }: { ids: string[]; onJumpToRelated
             style={styles.relatedChip}
             onPress={() => onJumpToRelated(target.id)}
           >
-            <Text style={styles.relatedChipText} numberOfLines={1}>
+            {/* 2026-09-18, direct instruction: a chip used to cut its title
+                off at one line, so somebody could not tell whether the thing
+                it pointed at was anything they cared about. No line cap now,
+                so a long title wraps inside the chip and reads in full. */}
+            <Text style={styles.relatedChipText}>
               {isProblemFoodEntry(target) ? target.foodName : target.title}
             </Text>
           </TouchableOpacity>
@@ -5742,7 +5746,6 @@ function DigestCard({
               </Text>
             ))}
             {entry.chart ? <DigestBarChart chart={entry.chart} color={colors.accent} /> : null}
-            {entry.stageNote ? <Text style={styles.stageNoteText}>{entry.stageNote}</Text> : null}
             <CitationsBlock citations={entry.citations} />
             {entry.relatedIds ? <RelatedChips ids={entry.relatedIds} onJumpToRelated={onJumpToRelated} /> : null}
             <FeedbackRow entry={entry} />
@@ -5799,7 +5802,6 @@ function DigestCard({
           <EntryPhotoSection entry={entry} tabColor={TAB_COLOR} />
           {entry.dynamicAction ? <DynamicEntryActions entry={entry} onDynamicEntriesChanged={onDynamicEntriesChanged} /> : null}
           {entry.chart ? <DigestBarChart chart={entry.chart} color={tierColor(entry.overallTier)} /> : null}
-          {entry.stageNote ? <Text style={styles.stageNoteText}>{entry.stageNote}</Text> : null}
           <CitationsBlock citations={entry.citations} />
           {entry.relatedIds ? <RelatedChips ids={entry.relatedIds} onJumpToRelated={onJumpToRelated} /> : null}
           <FeedbackRow entry={entry} onDynamicEntriesChanged={onDynamicEntriesChanged} />
@@ -7043,7 +7045,6 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
 
   },
-  stageNoteText: { ...typography.caption, color: colors.textMuted, fontStyle: 'italic', marginTop: 8, ...textShadow },
   // RecipeCardDetail's own numbered instruction steps -- same body/color
   // treatment as detailText, just its own style key so a slightly tighter
   // top margin per line (rather than detailText's single-block spacing)
@@ -7153,6 +7154,10 @@ const styles = StyleSheet.create({
     // chips sharing a row still wrap normally, each sized to its own
     // content, none of them artificially truncated below what the layout
     // actually allows.
+    //
+    // 2026-09-18: and the one-line cap is gone too, so a title longer than
+    // the row is wide now wraps inside the chip instead of being cut off
+    // mid-word. maxWidth still keeps a chip inside its container.
     maxWidth: '100%',
   },
   relatedChipText: { ...typography.captionEmphasis, color: colors.primary, ...textShadow },

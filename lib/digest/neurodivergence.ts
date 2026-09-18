@@ -52,7 +52,7 @@ export const NEURODIVERGENCE_ENTRIES: DigestEntry[] = [
   {
     id: 'neuro-diet-does-not-treat',
     category: 'basicHealth',
-    title: 'The Diet Trials for Autism Were Small, and the Pooled Result Was Nothing',
+    title: 'Six Small Trials of the Gluten-Free, Casein-Free Diet Found No Effect on Autism Symptoms',
     teaser: 'A Cochrane review found only two small randomized trials of the gluten-free, casein-free diet, too few to pool. A later meta-analysis managed six trials across 143 participants and found no effect on autism symptoms.',
     summary:
       'The gluten-free, casein-free (GFCF) diet is the most widely promoted dietary intervention for autism, and it has been tested. A Cochrane systematic review found only two small randomized controlled trials meeting its standard, 35 participants between them, which was too little to meta-analyse at all: the conclusion was that the evidence was insufficient, not that the diet worked. A later meta-analysis assembled six randomized trials totalling 143 participants and found no significant effect on core autism symptoms. That is a small evidence base by any standard. A null result of that size does not prove no individual child ever responds, and it does prove there is no demonstrated population-level benefit that would justify putting a child on a restrictive diet as a treatment. The cost side is not theoretical either, since removing gluten and dairy from the diet of a child who already eats a narrow range of foods removes more of the little that was being eaten. Where a specific food causes a specific problem for a specific person, that is worth finding, and this app has a food-trial tool for exactly that. It is a different claim from treating autism with diet.',
@@ -119,7 +119,7 @@ export const NEURODIVERGENCE_ENTRIES: DigestEntry[] = [
   {
     id: 'neuro-autism-nutrient-shortfalls',
     category: 'basicHealth',
-    title: 'The Shortfalls That Turn Up, and Why Normal Growth Does Not Rule Them Out',
+    title: 'Nutrient Shortfalls in Autistic Children Show Up Even When Height and Weight Look Normal',
     teaser: 'Reviews put vitamin D deficiency at 25% and vitamin A at 24.8% in autistic children, and a case series of 76 children admitted with nutritional deficiency found scurvy in 69.7% of them, several with normal height and weight.',
     summary:
       'Where narrow eating persists, specific deficiencies follow, and they are not random. Reviews of nutritional status in autistic children report vitamin D deficiency at around 25.0%, vitamin A at 24.8%, B vitamins at 18.0%, calcium at 10.8% and iron at 9.6%. The sharp end of this is documented in a case series of 76 children admitted with a nutritional deficiency in the context of restrictive eating: 69.7% had scurvy from vitamin C deficiency, 17.1% had vitamin A-related eye disorders, and 70% had more than one deficiency at once. A number of these children had normal growth parameters. Height and weight tracking normally is the reassurance most often relied on, and it is the wrong instrument: a diet of crackers, chips and one brand of chicken nugget supplies enough energy to grow on while supplying almost no vitamin C, vitamin A or calcium. Scurvy in a well-grown child is a regularly reported presentation, and the first signs (sore legs, refusing to walk, bleeding gums, bruising) are commonly attributed to something else for months. If eating is narrow, the thing to watch is which nutrients the accepted foods do not contain, and the thing to raise with a clinician is a blood test rather than the growth chart.',
@@ -244,7 +244,7 @@ export const NEURODIVERGENCE_ENTRIES: DigestEntry[] = [
   {
     id: 'neuro-dyslexia-what-this-app-changes',
     category: 'basicHealth',
-    title: 'What This App Lets You Change About Its Text, and What Your Phone Already Does',
+    title: 'Text Size Comes From Your Phone, Line and Letter Spacing From Profile > Appearance',
     teaser: 'Text size is your phone’s setting and this app has always followed it. Line spacing and letter spacing are this app’s settings, in Profile under Appearance.',
     summary:
       'Two separate things get confused for each other. Text size is set by your phone, not by this app, and this app follows it everywhere: turn it up in your phone settings and everything here comes up with it, including this page. On an iPhone that is Settings, then Accessibility, then Display & Text Size, then Larger Text. On an Android phone it is usually Settings, then Display, then Font size, though some phones keep it under Accessibility. Spacing is the part your phone does not touch, because raising the font size moves the lines apart by the same factor and the ratio of gap to letter never changes. That ratio is what makes lines run together. So Profile, under Appearance and Navigation, carries two settings of its own: line spacing, with a Roomy step set to the 1.5 times figure the accessibility standard asks for and a Roomier step past it, and letter spacing, which is the one with a randomized trial behind it. Both start off, both apply everywhere in the app at once, and both restart the app for a moment when changed, because the text styles are built when the app starts. Listing dyslexia in your Profile switches line spacing on and points you at the rest; you can set any of it by hand without listing anything.',

@@ -22,7 +22,7 @@ export const FERMENTATION_METHODS_ENTRIES: DigestEntry[] = [
   {
     id: 'fermentmethod-overview',
     category: 'basicHealth',
-    title: 'Six Ways to Ferment Something at Home, and What Each One Actually Does',
+    title: 'Six Home Fermentation Methods, From Lacto-Fermented Vegetables to Sourdough',
     teaser: 'Lacto-fermented vegetables, kombucha, water kefir, milk kefir, yogurt, and sourdough all work through different microbial processes, not one technique with six names.',
     summary: 'Every method below shares the same basic principle (a living microbial culture is deliberately given the conditions it needs to outcompete spoilage organisms while producing something worth eating or drinking), but the actual mechanism, culture, and result differ meaningfully method to method. Lacto-fermentation uses salt and an oxygen-free environment to favor naturally present Lactobacillus and Leuconostoc species already on raw vegetables. Kombucha and water kefir both use a mixed bacteria-and-yeast culture fermenting a sugared liquid, but a different culture each (a SCOBY vs. Kefir grains). Milk kefir and yogurt both ferment dairy, but with different cultures and a different fermentation temperature and time. Sourdough ferments flour and water using wild bacteria and yeast that mostly arrive with the flour itself. Every one of these maps directly onto a Fermentation Builder ingredient category, and every specific strain named below has its deeper, individually cited entry\'s Fermented Foods topic.',
     citations: [
@@ -47,7 +47,6 @@ export const FERMENTATION_METHODS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Maps to Fermentation Builder\'s Veg/Fruit ingredient categories.',
     relatedIds: ['fermented-sauerkraut-succession', 'fermented-lactobacillus-plantarum', 'fermented-leuconostoc-mesenteroides'],
   },
   {
@@ -63,13 +62,12 @@ export const FERMENTATION_METHODS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Maps to Fermentation Builder\'s Brewing and Bev ingredient categories.',
     relatedIds: ['fermented-kombucha'],
   },
   {
     id: 'fermentmethod-water-kefir',
     category: 'basicHealth',
-    title: 'Water Kefir: The Same Basic Idea as Kombucha, but a Different Culture and No Tea Required',
+    title: 'Water Kefir Grains Ferment Plain Sugar Water in 24 to 48 Hours, Without Tea',
     teaser: 'Water kefir grains (a different culture from kombucha\'s SCOBY) ferment plain sugar water into a milder, less tart, naturally carbonated drink in as little as 24 to 48 hours.',
     summary: 'Water kefir uses "grains," small, gelatinous, cauliflower-like clusters that are themselves a living community of multiple bacteria and yeast species living together, fermenting plain sugar water (sometimes with added dried fruit for extra nutrients) rather than tea. The fermentation itself runs meaningfully faster than kombucha, often finished in 24 to 48 hours at room temperature, producing a milder, less acidic, lightly effervescent drink. Because the grains are a different culture from a kombucha SCOBY, water kefir ferments differently from kombucha and carries a different microbial makeup. The Fermented Foods research covers water kefir\'s microbial diversity and a worth-knowing caution (measurable alcohol content that can rise further with a longer or bottle-conditioned second ferment) in more depth.',
     citations: [
@@ -79,7 +77,6 @@ export const FERMENTATION_METHODS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Maps to Fermentation Builder\'s Bev ingredient category.',
     relatedIds: ['fermented-water-kefir'],
   },
   {
@@ -95,7 +92,6 @@ export const FERMENTATION_METHODS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Maps to Fermentation Builder\'s Dairy ingredient category.',
     relatedIds: ['fermented-milk-kefir', 'fermented-streptococcus-thermophilus'],
   },
   {
@@ -112,7 +108,6 @@ export const FERMENTATION_METHODS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Maps to Fermentation Builder\'s Grain ingredient category.',
     relatedIds: ['fermentmethod-lacto-fermented-vegetables'],
   },
   {
@@ -143,7 +138,6 @@ export const FERMENTATION_METHODS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Maps to Fermentation Builder\'s Fruit and Veg ingredient categories.',
     relatedIds: ['fermentmethod-lacto-fermented-vegetables', 'fermented-sauerkraut-succession', 'interaction-curcumin-piperine'],
   },
   {

@@ -106,7 +106,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'The exact dollar figure is a survey-based estimate, not a controlled trial, and moves with local grocery prices and what actually gets planted. The underlying pattern (input cost well below harvest value) holds up across independent sources.',
     relatedIds: ['foodhistory-regen-food-desert-access-inequality', 'garden-highest-value-crops', 'garden-understanding-your-zone', 'foodhistory-regen-how-to-get-involved'],
     chart: {
       title: 'A National-Average 600-Square-Foot Garden, One Season',
@@ -140,7 +139,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A zone number describes winter cold, not growing-season length. The entries below use it as a rough regional guide alongside frost-date and calendar information, not as a precise planting calculator.',
     relatedIds: ['garden-cold-short-season-crops', 'garden-moderate-climate-crops', 'garden-warm-climate-crops', 'garden-tropical-subtropical-crops'],
   },
   {
@@ -161,13 +159,12 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'The same cool-season crop list works in the early spring or late fall of any zone, not only a cold one. The difference in zones 3 through 5 is how much of the year has to be spent inside that cool-season window.',
     relatedIds: ['garden-understanding-your-zone', 'garden-extending-the-season', 'garden-easiest-beginner-crops'],
   },
   {
     id: 'garden-moderate-climate-crops',
     category: 'homeGardening',
-    title: 'Zones 6 Through 8: The Widest Range of Crops',
+    title: 'Zones 6 Through 8 Often Fit Both a Spring and a Summer Round',
     teaser: 'This zone band, home to most of the mid-Atlantic, Midwest, and Pacific Northwest, is where a spring round and a summer round often both fit into a single season.',
     summary:
       "Zones 6 through 8 cover the broadest population base of any US zone band, and much of the generic gardening advice found online is quietly written for it without saying so. The growing season here is typically long enough to run cool-season spring crops (lettuce, peas, broccoli, spinach) to harvest, then follow directly with warm-season summer crops (tomatoes, beans, corn, squash, melons) in the same bed, and often still have room for a second cool-season round in fall before the first frost. University of Maryland Extension describes this as succession planting: staggering which crop occupies a given bed across the season, either by following one crop directly with another as soon as it's harvested, or by making several smaller plantings of the same crop two to three weeks apart to spread the harvest out instead of getting it all at once. A practical spring-to-fall sequence might run peas in early spring, bush beans once the soil warms, and carrots or beets again once the weather cools, keeping a given bed producing food for most of the growing season rather than for one harvest window.",
@@ -182,7 +179,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Succession planting matters most in exactly this zone band, since it is the one with enough season length to run two or three rounds through the same bed.',
     relatedIds: ['garden-understanding-your-zone', 'garden-highest-value-crops'],
   },
   {
@@ -199,7 +195,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A specific, regionally documented finding, not a general rule of thumb, the 92-degree fruit-set threshold and the three-region planting-window structure both come directly from University of Florida\'s extension guide.',
     relatedIds: ['garden-understanding-your-zone', 'garden-tropical-subtropical-crops'],
   },
   {
@@ -216,7 +211,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Sourced from a dedicated tropical-agriculture extension program rather than a temperate-zone guide extrapolated downward, since tropical crop timing doesn\'t follow the same logic.',
     relatedIds: ['garden-understanding-your-zone', 'garden-warm-climate-crops'],
   },
   {
@@ -233,7 +227,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Directly relevant to anyone without land access, including renters and apartment dwellers, and a practical individual-level counterpart to the Earth Matters research on food access.',
     relatedIds: ['garden-easiest-beginner-crops', 'foodhistory-regen-food-desert-access-inequality'],
   },
   {
@@ -250,7 +243,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A general pattern rather than a precise per-crop dollar ranking. Exact value depends heavily on local grocery prices for the specific crop being compared.',
     relatedIds: ['garden-economics-subsidizing-food', 'garden-moderate-climate-crops'],
   },
   {
@@ -267,7 +259,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A named extension recommendation aimed specifically at first-time gardeners, not a general "easy crops" list assembled from popular opinion.',
     relatedIds: ['garden-container-small-space', 'garden-cold-short-season-crops'],
   },
   {
@@ -284,7 +275,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Most useful in a shorter-season zone, but the same techniques help in any climate by protecting an early spring or late fall planting from an unexpected cold snap.',
     relatedIds: ['garden-cold-short-season-crops', 'garden-moderate-climate-crops'],
   },
   {
@@ -301,7 +291,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A controlled, published measurement rather than an estimate. The exact retention percentage varies by nutrient and crop, but the direction (faster loss at higher temperature, meaningful loss within days) is well established.',
     relatedIds: ['garden-economics-subsidizing-food'],
     chart: {
       title: 'Days Before Refrigerated Spinach Loses About Half Its Folate and Carotenoids',
@@ -328,7 +317,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A specific, extension-sourced set of thresholds, not a general "test your soil" gesture. Worth acting on before planting directly in ground with an unknown history, not after.',
     relatedIds: ['garden-understanding-your-zone'],
     chart: {
       title: 'Soil Lead Level and What It Means for a Vegetable Garden',
@@ -355,7 +343,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'An EPA-sourced practical guide, not a general "compost is good" gesture. The three-to-five-month timeline and the browns-to-greens ratio are both directly stated by the source, not estimated.',
     relatedIds: ['garden-no-dig-raised-beds', 'foodhistory-soil-real-depletion'],
   },
   {
@@ -376,7 +363,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'The "20 times more" figure comes from a university extension source, not a marketing claim, though the exact multiplier will vary by crop and region.',
     relatedIds: ['garden-easiest-beginner-crops', 'garden-economics-subsidizing-food'],
   },
   {
@@ -393,7 +379,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A step-by-step method directly sourced from a university extension program, and a home-scale parallel to Earth Matters\' own no-till research, not just a loosely related idea.',
     relatedIds: ['garden-composting-at-home', 'garden-soil-safety-lead', 'foodhistory-regen-brazil-case-study'],
   },
   {
@@ -409,7 +394,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A quantified water-savings figure directly from a university extension source, not a manufacturer\'s marketing claim.',
     relatedIds: ['foodhistory-regen-ogallala-water-depletion', 'garden-understanding-your-zone'],
   },
   {
@@ -425,7 +409,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'The specific 36%-versus-7% figure comes from one cited study referenced by the extension source, not a broad meta-analysis, though the underlying companion-planting pairings are well-established extension guidance.',
     relatedIds: ['garden-pollinator-friendly-earth-matters-link', 'foodhistory-regen-neonicotinoid-regulation-loophole'],
   },
   {
@@ -446,7 +429,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Specific extension-sourced timelines, not a general "fruit takes years" statement: perennial fruit is a longer commitment than any annual vegetable in this category.',
     relatedIds: ['garden-highest-value-crops', 'garden-understanding-your-zone'],
   },
   {
@@ -454,7 +436,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     category: 'homeGardening',
     title: 'Making a Harvest Surplus Last Past the Growing Season',
     teaser: 'Vegetables and meat require pressure canning, not a plain water bath, since only a pressure canner reaches the temperature needed to destroy botulism spores.',
-    summary: "A productive garden regularly produces more of something at once than a household can eat fresh, and safe preservation is what turns that surplus into food that lasts months rather than days. The National Center for Home Food Preservation, the same authoritative source the Fermentation Methods research already points to for food-safety guidance, states the one non-negotiable safety rule in home canning directly: pressure canning is the only recommended method for canning vegetables, meat, poultry, and seafood, since the bacterium that causes botulism is only reliably destroyed at the correct time and pressure inside a pressure canner. A plain boiling-water bath never reaches a high enough temperature to destroy botulism spores in these low-acid foods, which is why a water bath is safe only for high-acid foods like most fruits, jams, and properly acidified pickles. Freezing is a simpler alternative for many garden vegetables, avoiding the acidity question entirely, though most vegetables benefit from a quick blanch (a brief boil followed by an ice-water bath) first, since blanching stops the enzyme activity that would otherwise degrade color, texture, and nutrients in the freezer over time. Preserving a surplus extends the same grocery-cost savings this category's economics entry already covers well past the growing season itself, rather than losing extra produce to spoilage.",
+    summary: "A productive garden regularly produces more of something at once than a household can eat fresh, and safe preservation is what turns that surplus into food that lasts months rather than days. The National Center for Home Food Preservation, the same authoritative source the Fermentation Methods research already points to for food-safety guidance, states the one non-negotiable safety rule in home canning directly: pressure canning is the only recommended method for canning vegetables, meat, poultry, and seafood, since the bacterium that causes botulism is only reliably destroyed at the correct time and pressure inside a pressure canner. A plain boiling-water bath never reaches a high enough temperature to destroy botulism spores in these low-acid foods, which is why a water bath is safe only for high-acid foods like most fruits, jams, and properly acidified pickles. Freezing is a simpler alternative for many garden vegetables, avoiding the acidity question entirely, though most vegetables benefit from a quick blanch (a brief boil followed by an ice-water bath) first, since blanching stops the enzyme activity that would otherwise degrade color, texture, and nutrients in the freezer over time. Preserving a surplus extends the same grocery-cost savings this category's economics entry covers well past the growing season itself, rather than losing extra produce to spoilage.",
     citations: [
       {
         source: 'National Center for Home Food Preservation (University of Georgia): Canning',
@@ -462,7 +444,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'The pressure-canning-only rule for low-acid foods is a settled food-safety standard from the authoritative US source on this exact question, not a general caution.',
     relatedIds: ['garden-economics-subsidizing-food', 'fermentmethod-reputable-sources'],
   },
   {
@@ -478,7 +459,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A practical, extension-sourced how-to, directly tied to the seed-diversity concern already documented at commercial scale in the Earth Matters research.',
     relatedIds: ['foodhistory-regen-seed-diversity-loss', 'garden-easiest-beginner-crops'],
   },
   {
@@ -487,7 +467,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     title: 'Growing Up Instead of Out',
     teaser: 'Pole beans, cucumbers, and peas naturally climb, and growing them vertically on a simple trellis increases yield per square foot over letting the same crop sprawl on the ground.',
     summary:
-      "University of Wisconsin Extension states directly that trellising, staking, and caging vine-type vegetables increases yield and income per square foot of growing space, a practical answer for anyone working with a small garden rather than an open field. Crops that grow well on a support: pole beans and peas (both natural climbers), tomatoes, cucumbers, and smaller squash and melon varieties, all of which can be trained up simple wooden stakes, twine, garden netting, or a cattle-panel trellis rather than left to sprawl across the ground. Beyond the space savings, vertical growing improves air movement through a plant's stems and leaves, which reduces disease pressure compared to the same crop grown flat on damp soil, and makes fruit like cucumbers, which can hide under dense foliage when grown on the ground, much easier to actually find and harvest. Most vining crops grow strong enough to support their fruit once trained upward, though larger melons sometimes benefit from a mesh sling for extra support as they get heavy. This pairs directly with the container and small-space guidance already covered in this category: a trellised crop in a large container can produce meaningful yield in a footprint too small for the same crop grown sprawling.",
+      "University of Wisconsin Extension states directly that trellising, staking, and caging vine-type vegetables increases yield and income per square foot of growing space, a practical answer for anyone working with a small garden rather than an open field. Crops that grow well on a support: pole beans and peas (both natural climbers), tomatoes, cucumbers, and smaller squash and melon varieties, all of which can be trained up simple wooden stakes, twine, garden netting, or a cattle-panel trellis rather than left to sprawl across the ground. Beyond the space savings, vertical growing improves air movement through a plant's stems and leaves, which reduces disease pressure compared to the same crop grown flat on damp soil, and makes fruit like cucumbers, which can hide under dense foliage when grown on the ground, much easier to actually find and harvest. Most vining crops grow strong enough to support their fruit once trained upward, though larger melons sometimes benefit from a mesh sling for extra support as they get heavy. This pairs directly with the container and small-space guidance: a trellised crop in a large container can produce meaningful yield in a footprint too small for the same crop grown sprawling.",
     citations: [
       {
         source: 'University of Wisconsin Extension: Trellising, Staking and Caging, Vertical Gardening Techniques for Vine-Type Vegetables',
@@ -495,7 +475,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A direct extension source confirms the yield-per-square-foot and disease-reduction benefits; the source does not give a specific numeric multiplier, so none is stated here.',
     relatedIds: ['garden-container-small-space', 'garden-highest-value-crops'],
   },
   {
@@ -512,7 +491,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A direct guide from a horticultural institution, not a generic gardening blog, the driest/wettest distinction between herb species is a practical detail most general advice skips.',
     relatedIds: ['garden-container-small-space', 'garden-highest-value-crops'],
   },
   {
@@ -533,7 +511,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'The nutrient-density finding comes from a direct laboratory measurement against the USDA\'s reference database, and the sprout-safety caution cites a large, documented outbreak rather than a general warning.',
     relatedIds: ['garden-container-small-space', 'garden-easiest-beginner-crops'],
   },
   {
@@ -550,7 +527,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'The 50% irrigation-reduction figure and the 2-to-3-week earlier-harvest figure for black plastic mulch both come from a university extension source, not an estimate.',
     relatedIds: ['garden-watering-efficiency', 'garden-no-dig-raised-beds'],
   },
   {
@@ -567,7 +543,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A specific rotation window and plant-family grouping, directly sourced, not a general "mix it up" suggestion.',
     relatedIds: ['garden-no-dig-raised-beds', 'garden-cover-crops-home'],
   },
   {
@@ -583,7 +558,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A direct individual-level counterpart to a finding already documented at commercial scale in the Earth Matters research, not a loosely related idea.',
     relatedIds: ['garden-no-dig-raised-beds', 'garden-crop-rotation', 'foodhistory-regen-cover-crop-reality-check'],
   },
   {
@@ -604,7 +578,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A current meta-analysis found a positive effect, but its authors rate most of the underlying evidence critically low quality and explicitly withhold a strong recommendation.',
     relatedIds: ['mentalhealth-overview', 'garden-community-gardens'],
   },
   {
@@ -620,7 +593,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A randomized controlled trial, not an observational study, strong evidence, with one stated limitation (the effect faded once the growing season ended).',
     relatedIds: ['foodhistory-regen-food-desert-access-inequality', 'garden-mental-health-benefits'],
   },
   {
@@ -636,7 +608,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A direct bridge between the Earth Matters research and something an individual gardener can actually do, not a separate initiative.',
     relatedIds: [
       'foodhistory-regen-pollinator-decline-crisis',
       'foodhistory-regen-pollinator-dependent-crops',
@@ -649,7 +620,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     category: 'homeGardening',
     title: 'Put Carbon Back Into the Ground',
     teaser: 'A 19-year UC Davis field trial found compost plus cover crops raised soil carbon 12.6% over the study period, a home-scale version of the same practice Earth Matters covers at national scale.',
-    summary: "Growing food at home is also a direct way to put carbon back into soil rather than releasing it, the same soil-carbon story this Digest's Earth Matters research already documents at farm and national scale, just at the scale of a single yard or a few containers. A 19-year field trial at UC Davis's Russell Ranch Sustainable Agriculture Facility, published in Global Change Biology, compared three management approaches by sampling soil roughly 6 feet deep, not just the surface. Conventional management neither gained nor lost much carbon. Cover crops alone actually lost carbon on net once deeper soil layers were counted, even though the top foot looked like a gain, an important finding, since most home-garden advice about cover crops only ever discusses the surface. The one approach that worked: organic management combining compost application with cover crops, which raised soil carbon 12.6% over the study period, about 0.7% a year, comfortably ahead of the international '4 per 1000' initiative's 0.4%-a-year target already covered in Earth Matters. The practical takeaway for a home gardener: compost and cover crops together, not either alone, is what the best available long-term evidence actually supports for building stored soil carbon rather than just healthier-looking topsoil. This app's composting and no-dig entries (below) are the practical how-to for doing exactly this at home.",
+    summary: "Growing food at home is also a direct way to put carbon back into soil rather than releasing it, the same soil-carbon story this Digest's Earth Matters research already documents at farm and national scale, just at the scale of a single yard or a few containers. A 19-year field trial at UC Davis's Russell Ranch Sustainable Agriculture Facility, published in Global Change Biology, compared three management approaches by sampling soil roughly 6 feet deep, not just the surface. Conventional management neither gained nor lost much carbon. Cover crops alone actually lost carbon on net once deeper soil layers were counted, even though the top foot looked like a gain, an important finding, since most home-garden advice about cover crops only ever discusses the surface. The one approach that worked: organic management combining compost application with cover crops, which raised soil carbon 12.6% over the study period, about 0.7% a year, comfortably ahead of the international '4 per 1000' initiative's 0.4%-a-year target covered in Earth Matters. The practical takeaway for a home gardener: compost and cover crops together, not either alone, is what the best available long-term evidence actually supports for building stored soil carbon rather than just healthier-looking topsoil. This app's composting and no-dig entries (below) are the practical how-to for doing exactly this at home.",
     citations: [
       {
         source: 'UC Davis: Compost Key to Sequestering Carbon in the Soil (Chiartas, Tautges, Scow et al., Global Change Biology)',
@@ -657,7 +628,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A 19-year controlled field trial, not a short-term or observational study, one of the stronger evidence bases in this whole category.',
     relatedIds: [
       'garden-composting-at-home',
       'garden-no-dig-raised-beds',
@@ -669,7 +639,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-grow-what-you-can-however-small',
     category: 'homeGardening',
-    title: "It Adds Up: Why Even a Small Amount Is Worth Growing",
+    title: "20 Million Victory Gardens Supplied 42% of US Vegetables by 1944",
     teaser: 'By 1944, roughly 20 million American home "victory gardens", most of them small, ordinary backyard plots, supplied 42% of the country\'s entire vegetable supply.',
     summary: "It's easy to assume a single small garden, a few containers on a balcony, or one raised bed doesn't meaningfully move the needle, the historical record says otherwise. During World War II, the US government asked ordinary households to plant \"victory gardens\" to ease pressure on the commercial food supply, and Americans responded at a scale that's striking to look back on: by 1944, more than 20 million gardens of every size, in cities, suburbs, and rural areas alike, were producing food. According to the USDA's wartime figures (cited directly in a 1943 Roosevelt fireside chat), those gardens supplied 42% of all the vegetables grown in the country that year, nearly half the nation's produce, from millions of individually small, ordinary plots, not a handful of large farms. No single one of those 20 million gardens was doing anything remarkable on its own; the effect came entirely from scale, millions of people each growing what they reasonably could in their space. The same math applies today, just without a wartime mandate behind it: this category's economics entry already shows a favorable cost-to-value ratio scales down proportionally to a much smaller plot or a handful of containers, and the container/small-space entry below covers exactly how to do that with limited room. Growing even a little is a direct answer to food cost, freshness, and (per the carbon entry above) even the soil itself, not a token gesture that only counts at a larger scale.",
     citations: [
@@ -679,13 +649,12 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A documented historical outcome at national scale, not a projection or estimate, included as direct, concrete encouragement, not a claim that today\'s conditions exactly match wartime ones.',
     relatedIds: ['garden-economics-subsidizing-food', 'garden-container-small-space', 'garden-carbon-in-the-ground'],
   },
   {
     id: 'garden-indoor-growing-methods-overview',
     category: 'homeGardening',
-    title: 'Soil, Hydroponics, or Aeroponics: The Indoor Growing Options',
+    title: 'Aeroponics Yields Roughly 30% Over Soil, With Hydroponics in Between',
     teaser: 'Comparative research finds aeroponic systems yielding roughly 30% more than soil on average, with hydroponics landing in between, but each method trades off differently on cost, complexity, and water use.',
     summary: "Growing indoors, in a garage, spare room, basement, or a dedicated grow tent, comes down to a choice among three different growing mediums, each with its tradeoffs rather than one being simply \"better\" than the others. Soil-based container growing is the simplest and most forgiving: potting soil (not garden soil, which compacts and drains poorly in a container) buffers against overwatering and nutrient mistakes the way no soilless method does, at the cost of being messier and slower-growing than the alternatives. Hydroponics grows plants with their roots directly in a nutrient-rich water solution, no soil at all, comparative studies on tomatoes found hydroponic systems producing 100% to 250% more than the same crop grown in soil, with plants maturing 30-50% faster, at the cost of needing a reliable nutrient-dosing and pH-monitoring routine, since there's no soil left to buffer a mistake. Aeroponics goes a step further, suspending roots in open air and misting them with nutrient solution on a timed cycle, research found aeroponic systems yielding, on average, more than 30% more than hydroponics for some crops (a comparative lettuce study measured red kale up 65%, bell peppers up 53%, and squash up 50% over hydroponic controls), with water savings too: about 95% less water than field-grown produce, and roughly 40% less than hydroponics. The cost of that extra performance is mechanical complexity, aeroponics depends on a working mist pump and clean, unclogged nozzles, and a single equipment failure can dry out and kill exposed roots within hours in a way soil or standing hydroponic solution never would. For a first indoor growing attempt, soil-based containers remain the most forgiving starting point; hydroponics is a meaningful step up in yield and speed once the basic routine is comfortable; aeroponics is the highest-performing but least forgiving of the three, best reserved for someone already confident running the other two.",
     citations: [
@@ -699,7 +668,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'Published comparative studies, but yield figures vary meaningfully by crop and by the specific system tested, treat the percentages here as representative examples, not a guaranteed result for every crop and setup.',
     relatedIds: ['garden-led-grow-lights-photoperiod', 'garden-water-quality-filtration', 'garden-container-small-space'],
   },
   {
@@ -715,7 +683,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'One controlled study on one crop (dwarf tomato) at one growth stage, the general intensity/spectrum/photoperiod ranges given are widely used horticultural guidance, but the specific efficiency finding is from this single study, not a broad meta-analysis across many crops.',
     relatedIds: ['garden-indoor-growing-methods-overview'],
     chart: {
       title: 'Dwarf Tomato Seedlings: Leaf Area by Light Intensity (Vegetative Stage)',
@@ -741,16 +708,15 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'The core "typically fine for soil growing" claim traces to an Extension answer citing the EPA and University of Nebraska Extension; the hydroponic lettuce root-browning finding is from a single cited study, not independently re-verified against its original paper in this pass.',
     relatedIds: ['garden-indoor-growing-methods-overview'],
   },
   {
     id: 'garden-hands-in-soil-immune-training',
     category: 'homeGardening',
-    title: "A 28-Day Trial: What Actually Happens to a Child's Immune System When Their Play Environment Gets More Biodiverse",
+    title: "A 28-Day Trial Shifted Children's Blood Immune Markers by Adding Forest Floor to Their Yard",
     teaser: "Not a metaphor, a randomized trial. Add forest floor, sod, and diverse plants to where kids spend their days, and their blood immune markers measurably shift within a month.",
     summary:
-      "A direct, causal test of whether contact with a biodiverse natural environment changes a person's immune system, not just an association study. Researchers in Finland (Roslund et al. 2020) ran an intervention trial across 10 daycare centers and 75 children aged 3-5: the play yards at intervention daycares were enriched with forest floor material, sod, and diverse planters, while standard urban daycares and already-nature-oriented daycares served as comparison groups, over a 28-day period. The result wasn't a survey or a self-report, researchers drew blood and skin samples and measured actual immune markers before and after. Skin microbial diversity increased measurably in the intervention group, and that increase tracked directly with two statistically significant immune shifts: a rise in the percentage of regulatory T cells (the same Treg population this app's gut-microbiome research already covers as the actual cellular mechanism behind dietary fiber's anti-inflammatory effect) and a rise in the ratio of the anti-inflammatory signal IL-10 to the pro-inflammatory signal IL-17A. Plasma TGF-beta1, a cytokine directly involved in growing and maintaining Treg cells, also rose across the intervention group. None of this happened in the standard urban daycare group over the same 28 days. This is the single most direct piece of human evidence in this app's research that the same immune-tolerance machinery already covered for gut bacteria and fermented food can also be reached through a completely different, external route: getting hands, skin, and lungs into contact with a biodiverse outdoor environment, exactly what a garden provides.",
+      "A direct, causal test of whether contact with a biodiverse natural environment changes a person's immune system, not just an association study. Researchers in Finland (Roslund et al. 2020) ran an intervention trial across 10 daycare centers and 75 children aged 3-5: the play yards at intervention daycares were enriched with forest floor material, sod, and diverse planters, while standard urban daycares and already-nature-oriented daycares served as comparison groups, over a 28-day period. The result wasn't a survey or a self-report, researchers drew blood and skin samples and measured actual immune markers before and after. Skin microbial diversity increased measurably in the intervention group, and that increase tracked directly with two statistically significant immune shifts: a rise in the percentage of regulatory T cells (the same Treg population this app's gut-microbiome research covers as the actual cellular mechanism behind dietary fiber's anti-inflammatory effect) and a rise in the ratio of the anti-inflammatory signal IL-10 to the pro-inflammatory signal IL-17A. Plasma TGF-beta1, a cytokine directly involved in growing and maintaining Treg cells, also rose across the intervention group. None of this happened in the standard urban daycare group over the same 28 days. This is the single most direct piece of human evidence in this app's research that the same immune-tolerance machinery covered for gut bacteria and fermented food can also be reached through a completely different, external route: getting hands, skin, and lungs into contact with a biodiverse outdoor environment, exactly what a garden provides.",
     citations: [
       {
         source: 'Roslund MI, et al. 2020, Science Advances: "Biodiversity intervention enhances immune regulation and health-associated commensal microbiota among daycare children"',
@@ -758,7 +724,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A randomized, blood-and-skin-sample intervention trial, not an association study, one of the more directly causal pieces of evidence in this whole research base.',
     relatedIds: ['gut-scfa-treg', 'foodhistory-regen-old-friends-hypothesis', 'foodhistory-regen-karelia-biodiversity-study', 'garden-symbiosis-mission'],
   },
   {
@@ -775,7 +740,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'weak',
-    stageNote: 'A well-documented animal-model finding, deliberately not oversold as proven in humans, included for the mechanism it illustrates, not as a settled clinical claim.',
     relatedIds: ['garden-hands-in-soil-immune-training', 'foodhistory-regen-old-friends-hypothesis', 'garden-symbiosis-mission'],
   },
   {
@@ -805,17 +769,16 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-organic-fertility-amendments',
     category: 'homeGardening',
-    title: 'Manure, Bone Meal, Blood Meal, and Kelp Extract: What Each One Actually Does, and the One Safety Rule',
+    title: 'What Manure, Bone Meal, Blood Meal, and Kelp Extract Each Supply, Plus One Safety Rule',
     teaser: 'Blood meal is nearly pure nitrogen, bone meal is a slow-release phosphorus source, and kelp extract measurably raises a plant\'s growth-hormone levels, not just its mineral content, and fresh manure has one documented way to go wrong.',
     summary:
-      "Beyond compost and cover crops, already covered elsewhere in this category, several other natural amendments feed a garden without a synthetic fertilizer bag, each doing a distinctly different job rather than being interchangeable versions of the same thing. Animal manure supplies a broad nutrient mix, but the one documented safety rule matters more than anything else about it: fresh manure needs to age, ideally 6 to 12 months, or be fully composted first, since it releases ammonia and carries a nitrogen concentration high enough to scorch roots and burn plant tissue when applied fresh, aged or composted manure applied at roughly 20 to 30 pounds per 100 square feet avoids that risk entirely. Bone meal and blood meal are not the same thing despite often sitting side by side on a shelf: bone meal is roughly 15% to 22% phosphorus (with meaningful calcium too), releasing slowly over 4 to 6 months to support root development, while blood meal is 12% to 14% nitrogen with comparatively little else, acting fast to green up leafy growth, a gardener feeding root vegetables and a gardener greening up leafy crops actually want two different products. Kelp and seaweed extract work through a different mechanism entirely, not primarily as an NPK fertilizer at all: peer-reviewed research finds seaweed extract measurably raises a treated plant's endogenous cytokinin levels (a plant growth hormone, not just a mineral input), with controlled trials finding foliar seaweed spray increased tomato fruit weight by roughly 30% over untreated plants, evidence for a measurable biostimulant effect on top of whatever trace minerals the seaweed itself contributes.",
+      "Beyond compost and cover crops, several other natural amendments feed a garden without a synthetic fertilizer bag, each doing a distinctly different job rather than being interchangeable versions of the same thing. Animal manure supplies a broad nutrient mix, but the one documented safety rule matters more than anything else about it: fresh manure needs to age, ideally 6 to 12 months, or be fully composted first, since it releases ammonia and carries a nitrogen concentration high enough to scorch roots and burn plant tissue when applied fresh, aged or composted manure applied at roughly 20 to 30 pounds per 100 square feet avoids that risk entirely. Bone meal and blood meal are not the same thing despite often sitting side by side on a shelf: bone meal is roughly 15% to 22% phosphorus (with meaningful calcium too), releasing slowly over 4 to 6 months to support root development, while blood meal is 12% to 14% nitrogen with comparatively little else, acting fast to green up leafy growth, a gardener feeding root vegetables and a gardener greening up leafy crops actually want two different products. Kelp and seaweed extract work through a different mechanism entirely, not primarily as an NPK fertilizer at all: peer-reviewed research finds seaweed extract measurably raises a treated plant's endogenous cytokinin levels (a plant growth hormone, not just a mineral input), with controlled trials finding foliar seaweed spray increased tomato fruit weight by roughly 30% over untreated plants, evidence for a measurable biostimulant effect on top of whatever trace minerals the seaweed itself contributes.",
     citations: [
       { source: 'University of New Hampshire Extension: Guidelines for Using Animal Manures and Manure-Based Composts in the Garden', url: 'https://extension.unh.edu/resource/guidelines-using-animal-manures-and-manure-based-composts-garden-fact-sheet' },
       { source: 'Ask Extension: Bone meal versus blood meal', url: 'https://ask.extension.org/kb/faq.php?id=866925' },
       { source: 'Seaweed Extracts as Biostimulants of Plant Growth and Development, ResearchGate', url: 'https://www.researchgate.net/publication/225338767_Seaweed_Extracts_as_Biostimulants_of_Plant_Growth_and_Development' },
     ],
     overallTier: 'strong',
-    stageNote: 'Extension-sourced practical guidance for the manure and bone/blood meal figures, peer-reviewed trial data for the seaweed-cytokinin and tomato-yield findings specifically.',
     relatedIds: ['garden-composting-at-home', 'garden-cover-crops-home', 'foodhistory-regen-organic-yield-gap-meta-analysis'],
   },
   // Deep-dive continuation, added 2026-08-24, same day and source
@@ -837,13 +800,12 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     title: '"Organic" Doesn\'t Mean Pesticide-Free, and Knowing What It Does Allow Helps a Home Garden Too',
     teaser: 'Bt, a bacterium toxic only once a caterpillar actually eats it, and spinosad, derived from a soil microbe, are both OMRI-listed pesticides organic farms and home gardens alike are allowed to use.',
     summary:
-      "A common assumption worth correcting directly, since Earth Matters' own USDA certification entry establishes that organic farming permits specific natural and biological substances rather than banning pesticides outright: certified organic farms, and a home gardener aiming for the same standard, can use a defined list of approved products, evaluated by the Organic Materials Review Institute (OMRI) against USDA National Organic Program rules. Bacillus thuringiensis (Bt), a naturally occurring soil bacterium, is the most widely used example, its proteins are only toxic once an insect actually eats them, meaning it targets caterpillars specifically and does far less collateral damage to a garden's pollinators and beneficial insects than a broad-spectrum spray would. Spinosad, derived from a different soil organism, a bacterium called Saccharopolyspora spinosa, works against caterpillars, some beetles, and thrips through its separate mechanism. Copper-based products (copper hydroxide, copper oxide) are OMRI-approved fungicides, with a documented caution attached directly by the same standard: copper has to be used in a way that avoids building up in soil over repeated seasons, since it doesn't break down the way a biological product does. None of this replaces the prevention-first approach this category's companion-planting and beneficial-insect research already covers, it's the next option once prevention alone isn't enough, and knowing the specific, named products (Bt, spinosad, copper) beats reaching for a generic \"organic-labeled\" product without knowing what's actually in it or why.",
+      "A common assumption worth correcting directly, since Earth Matters' own USDA certification entry establishes that organic farming permits specific natural and biological substances rather than banning pesticides outright: certified organic farms, and a home gardener aiming for the same standard, can use a defined list of approved products, evaluated by the Organic Materials Review Institute (OMRI) against USDA National Organic Program rules. Bacillus thuringiensis (Bt), a naturally occurring soil bacterium, is the most widely used example, its proteins are only toxic once an insect actually eats them, meaning it targets caterpillars specifically and does far less collateral damage to a garden's pollinators and beneficial insects than a broad-spectrum spray would. Spinosad, derived from a different soil organism, a bacterium called Saccharopolyspora spinosa, works against caterpillars, some beetles, and thrips through its separate mechanism. Copper-based products (copper hydroxide, copper oxide) are OMRI-approved fungicides, with a documented caution attached directly by the same standard: copper has to be used in a way that avoids building up in soil over repeated seasons, since it doesn't break down the way a biological product does. None of this replaces the prevention-first approach this category's companion-planting and beneficial-insect research covers, it's the next option once prevention alone isn't enough, and knowing the specific, named products (Bt, spinosad, copper) beats reaching for a generic \"organic-labeled\" product without knowing what's actually in it or why.",
     citations: [
       { source: 'The list of organic pesticides approved by the USDA, AGDAILY', url: 'https://www.agdaily.com/technology/the-list-of-pesticides-approved-for-organic-production/' },
       { source: 'Proper Use of Approved Insecticides in Organic Farming Systems, Alabama Cooperative Extension System', url: 'https://www.aces.edu/blog/topics/farming/proper-use-of-approved-insecticides-in-organic-farming-systems/' },
     ],
     overallTier: 'strong',
-    stageNote: 'Extension and OMRI-sourced guidance on specific, named, currently-approved products, not a generic "organic pesticides exist" gesture.',
     relatedIds: ['foodhistory-regen-usda-organic-certification', 'garden-natural-pest-management'],
   },
   {
@@ -858,7 +820,6 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       { source: 'How Hot Composting Will Kill Weed Seeds, GrowIt BuildIt', url: 'https://growitbuildit.com/hot-composting-kill-weed-seeds/' },
     ],
     overallTier: 'strong',
-    stageNote: 'The specific temperature-and-time thresholds come from studies measuring weed-seed and pathogen mortality directly, not a rounded rule of thumb.',
     relatedIds: ['garden-composting-at-home', 'garden-organic-fertility-amendments'],
   },
   {
@@ -867,13 +828,12 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     title: 'The Three Sisters Is the Most Rigorously Studied Companion-Planting System, and USDA Research Confirms the Yield Math',
     teaser: 'Corn, beans, and squash grown together produce as much as growing 20% to 40% more separate monoculture land would, though the nitrogen the beans add mostly helps next year\'s crop, not this year\'s.',
     summary:
-      "The Three Sisters, a Native American method of growing corn, pole beans, and squash together, is a different case from the pest-reduction companion planting this category's natural-pest-management entry already covers, this is about space efficiency and yield, and it is the most rigorously studied traditional polyculture system in agricultural research specifically because it works through several distinct, individually confirmed mechanisms at once. Corn stalks give climbing beans a living trellis; squash's broad leaves shade the soil, suppressing weeds and holding moisture, functioning as a living mulch; and the three plants root at different depths and pull nutrients from different soil zones rather than competing directly for the same resources, a mechanism called niche complementarity. USDA-linked research confirms the practical payoff directly: the three grown together produce a Land Equivalent Ratio of 1.2 to 1.4, meaning the same total harvest would otherwise require 20% to 40% more separate, single-crop land to produce. The popular version of this story oversimplifies one part of it: isotopic tracing studies find only 2% to 8% of the nitrogen beans fix actually transfers to the neighboring corn and squash within that same growing season, most of it stays locked in the bean plant's tissue and only becomes available to future crops after that tissue breaks down, meaning the nitrogen benefit is measurable but works across seasons, not as an instant, same-year boost the simplified version of this story often implies.",
+      "The Three Sisters, a Native American method of growing corn, pole beans, and squash together, is a different case from the pest-reduction companion planting this category's natural-pest-management entry covers, this is about space efficiency and yield, and it is the most rigorously studied traditional polyculture system in agricultural research specifically because it works through several distinct, individually confirmed mechanisms at once. Corn stalks give climbing beans a living trellis; squash's broad leaves shade the soil, suppressing weeds and holding moisture, functioning as a living mulch; and the three plants root at different depths and pull nutrients from different soil zones rather than competing directly for the same resources, a mechanism called niche complementarity. USDA-linked research confirms the practical payoff directly: the three grown together produce a Land Equivalent Ratio of 1.2 to 1.4, meaning the same total harvest would otherwise require 20% to 40% more separate, single-crop land to produce. The popular version of this story oversimplifies one part of it: isotopic tracing studies find only 2% to 8% of the nitrogen beans fix actually transfers to the neighboring corn and squash within that same growing season, most of it stays locked in the bean plant's tissue and only becomes available to future crops after that tissue breaks down, meaning the nitrogen benefit is measurable but works across seasons, not as an instant, same-year boost the simplified version of this story often implies.",
     citations: [
       { source: 'Five Fascinating Facets of the Indigenous Three Sisters Cropping Method, University of Wisconsin-Madison', url: 'https://grow.cals.wisc.edu/departments/front-list/five-fascinating-facets-of-the-indigenous-three-sisters-cropping-method' },
       { source: 'The Science of Companion Planting: What Actually Works, GrowPerma', url: 'https://growperma.com/blog/the-science-of-companion-planting-what-actually-works' },
     ],
     overallTier: 'strong',
-    stageNote: 'The Land Equivalent Ratio figure and the isotopic nitrogen-transfer percentage both come from measured agronomic research, not a folklore-level companion-planting claim.',
     relatedIds: ['garden-natural-pest-management', 'garden-cover-crops-home', 'foodhistory-regen-rhizobia-nitrogen-fixation'],
   },
   {
@@ -881,7 +841,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     category: 'homeGardening',
     title: 'Putting It Together: A Practical First Garden',
     teaser: 'The whole case for a first garden fits in one sentence: pick crops that actually suit the climate and the available space, and the savings, freshness, and pollinator benefits follow on their own.',
-    summary: "Every entry in this category points toward the same practical sequence. Start with a growing zone and its actual frost dates, not a generic planting calendar written for a different climate. Choose crops that suit that zone, cool-hardy greens and root vegetables in a short-season climate, a full spring-and-summer rotation in a moderate one, a winter-centered calendar in a warm one, and month-by-month timing rather than a single planting season in a true tropical climate. If there's no yard, containers on a balcony or patio can still produce a harvest, especially of herbs, leafy greens, and compact tomato varieties, and a simple trellis stretches that same footprint further for anything that naturally climbs. No outdoor light at all isn't a full stop either, a soil-based container under a LED grow light, run at a sensible intensity and day length for the actual growth stage, is a viable indoor option, with hydroponics and aeroponics available as higher-yield (if less forgiving) next steps once the basics are comfortable. Favor crops that return the most grocery value for the space, herbs and repeat-harvest greens especially, and lean on the small handful of easy, forgiving crops (radishes, lettuce, bush beans, zucchini) for a first attempt rather than something more demanding, saving seed instead of buying it fresh each year once a favorite variety is found. A cheap soil test is worth doing before planting directly into ground with an unknown history, especially in an older or urban setting, and a no-dig bed built from compost and cardboard sidesteps the question of what's underneath entirely, the same compost-plus-cover-crop combination a rigorous 19-year field trial found builds stored soil carbon, not just healthier-looking topsoil. Watering efficiently (filtered water matters far more for a hydroponic setup than an ordinary soil garden) and managing pests through companion planting rather than a spray bottle both save money and protect the same pollinators the rest of this category depends on, and preserving a surplus through canning or freezing stretches a harvest well past the growing season itself. None of this requires expensive equipment or prior experience, and the payoff extends past the grocery savings covered first in this category: fresher food with measurably more of its nutrients intact, carbon put back into the ground, and, when even a few flowering plants are worked in alongside the vegetables, an individual-level answer to the pollinator crisis the Earth Matters research documents at a much larger scale. Even zero yard or balcony space isn't a full stop: a windowsill herb collection, a tray of microgreens, or a community garden plot each still produce measurable food, and a randomized trial found the last of those changes what people actually eat, not just what they intend to. None of this has to be large to matter, by 1944, more than 20 million small, ordinary American home gardens together supplied 42% of the country's entire vegetable supply. And underneath all of the practical steps above sits a deeper point: a 28-day trial found direct contact with a more biodiverse growing environment measurably shifts a person's immune regulation, the same biology already covered for gut bacteria and fermented food reached through a completely different, external route, growing food is never just about the harvest.",
+    summary: "Every entry in this category points toward the same practical sequence. Start with a growing zone and its actual frost dates, not a generic planting calendar written for a different climate. Choose crops that suit that zone, cool-hardy greens and root vegetables in a short-season climate, a full spring-and-summer rotation in a moderate one, a winter-centered calendar in a warm one, and month-by-month timing rather than a single planting season in a true tropical climate. If there's no yard, containers on a balcony or patio can still produce a harvest, especially of herbs, leafy greens, and compact tomato varieties, and a simple trellis stretches that same footprint further for anything that naturally climbs. No outdoor light at all isn't a full stop either, a soil-based container under a LED grow light, run at a sensible intensity and day length for the actual growth stage, is a viable indoor option, with hydroponics and aeroponics available as higher-yield (if less forgiving) next steps once the basics are comfortable. Favor crops that return the most grocery value for the space, herbs and repeat-harvest greens especially, and lean on the small handful of easy, forgiving crops (radishes, lettuce, bush beans, zucchini) for a first attempt rather than something more demanding, saving seed instead of buying it fresh each year once a favorite variety is found. A cheap soil test is worth doing before planting directly into ground with an unknown history, especially in an older or urban setting, and a no-dig bed built from compost and cardboard sidesteps the question of what's underneath entirely, the same compost-plus-cover-crop combination a rigorous 19-year field trial found builds stored soil carbon, not just healthier-looking topsoil. Watering efficiently (filtered water matters far more for a hydroponic setup than an ordinary soil garden) and managing pests through companion planting rather than a spray bottle both save money and protect the same pollinators the rest of this category depends on, and preserving a surplus through canning or freezing stretches a harvest well past the growing season itself. None of this requires expensive equipment or prior experience, and the payoff extends past the grocery savings covered first in this category: fresher food with measurably more of its nutrients intact, carbon put back into the ground, and, when even a few flowering plants are worked in alongside the vegetables, an individual-level answer to the pollinator crisis the Earth Matters research documents at a much larger scale. Even zero yard or balcony space isn't a full stop: a windowsill herb collection, a tray of microgreens, or a community garden plot each still produce measurable food, and a randomized trial found the last of those changes what people actually eat, not just what they intend to. None of this has to be large to matter, by 1944, more than 20 million small, ordinary American home gardens together supplied 42% of the country's entire vegetable supply. And underneath all of the practical steps above sits a deeper point: a 28-day trial found direct contact with a more biodiverse growing environment measurably shifts a person's immune regulation, the same biology covered for gut bacteria and fermented food reached through a completely different, external route, growing food is never just about the harvest.",
     citations: [],
     overallTier: 'strong',
     relatedIds: [

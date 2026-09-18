@@ -50,7 +50,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   {
     id: 'healing-stage1-eat',
     category: 'hashimotos',
-    title: 'Stage 1: What to Eat, and Why Each Food Earns Its Place',
+    title: 'Stage 1 Starts With a Short, Deliberately Narrow Food List',
     teaser: 'A short, deliberately narrow list. The goal is a stable, low-noise baseline, not variety yet.',
     summary:
       "Stage 1's food list can look almost frustratingly short compared to a normal grocery trip. That narrowness is the actual point, not an oversight. Every Stage 1 food is included for a specific, stated reason: low FODMAP (won't feed an already-overgrown small intestine), low goitrogenic load, low histamine, low antigenic/allergenic potential, nutrient-dense, and easy to digest for a currently-inflamed gut. Fresh, not aged, cured, or canned, poultry and white fish, eggs if tolerated, cooked low-FODMAP vegetables (carrots, cucumber, zucchini, green beans, bok choy, cooked spinach), white rice and sweet potato, low-FODMAP fruits in moderation (blueberries, cantaloupe, kiwi, strawberries), and olive or coconut oil as base fats. Cooking vegetables rather than eating them raw specifically helps fiber tolerance in an inflamed gut without giving up fiber's benefit, a deliberate compromise, not a permanent restriction.",
@@ -65,7 +65,6 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'Weeks 1-6 of the healing journey.',
   },
   {
     id: 'healing-stage1-bone-broth',
@@ -79,15 +78,14 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
       { source: 'Glutamine, glycine, and proline support enterocyte and gut-barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/29893587/' },
     ],
     overallTier: 'weak',
-    stageNote: 'A Stage 1 food, included with a stated caveat rather than oversold.',
   },
   {
     id: 'healing-stage1-avoid',
     category: 'hashimotos',
-    title: "Stage 1: What's Eliminated, and the Specific Reason for Each",
+    title: "Stage 1 Eliminations, Each With Its Stated Reason",
     teaser: 'Every exclusion has its stated reason. Nothing here is a generic "eat clean" gesture.',
     summary:
-      "An elimination list without reasons attached is just a list of foods to feel guilty about. Every exclusion here has an actual, stated reason behind it. Gluten and conventional dairy (screening for the celiac-Hashimoto's link and keeping the elimination phase interpretable). High-FODMAP foods (garlic, onion, most mushrooms, cauliflower, legumes), the single highest-confidence exclusion in this whole list, given how fast and well-replicated the symptom-response data is. Raw cruciferous and goitrogenic vegetables (cook first, rather than a hard exclusion). Nightshades, included as a tentative rather than confident exclusion, contested, worth isolating specifically because it's untested and easy to separate out for a later reintroduction. The 15 additives, alcohol, and added sugar/HFCS already covered elsewhere in this Digest apply with full force during exactly the window Stage 1 is trying to establish a clean baseline in, nothing new to learn, just the same concerns mattering more right now.",
+      "An elimination list without reasons attached is just a list of foods to feel guilty about. Every exclusion here has an actual, stated reason behind it. Gluten and conventional dairy (screening for the celiac-Hashimoto's link and keeping the elimination phase interpretable). High-FODMAP foods (garlic, onion, most mushrooms, cauliflower, legumes), the single highest-confidence exclusion in this whole list, given how fast and well-replicated the symptom-response data is. Raw cruciferous and goitrogenic vegetables (cook first, rather than a hard exclusion). Nightshades, included as a tentative rather than confident exclusion, contested, worth isolating specifically because it's untested and easy to separate out for a later reintroduction. The 15 additives, alcohol, and added sugar/HFCS covered elsewhere in this Digest apply with full force during exactly the window Stage 1 is trying to establish a clean baseline in, nothing new to learn, just the same concerns mattering more right now.",
     citations: [
       {
         source: 'Nightshade solanine/glycoalkaloid compounds and gut permeability: mechanistically plausible, contested, no RCT in any autoimmune population',
@@ -100,7 +98,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   {
     id: 'healing-stage1-fermented-exclusion',
     category: 'hashimotos',
-    title: "Stage 1: Why Most Fermented Foods Wait, Even Though The Research Backs Them",
+    title: "Stage 1 Holds Off on Most Fermented Foods Because They Run High in Histamine",
     teaser: 'A counterintuitive exclusion, named directly rather than smoothed over.',
     summary: "An entire category, Fermented Foods, makes the case for fermented foods and gut repair. Stage 1 asks someone to hold off on most of them anyway, and that tension deserves a direct explanation, not a quiet contradiction. Fermented foods are the single most consistently flagged high-histamine food category across low-histamine-diet literature. Since Stage 1 deliberately keeps histamine load low while a possibly-inflamed gut's DAO clearance capacity is still unknown, most ferments wait for Stage 2. Neither claim is wrong. They're optimizing for different things at different points in the timeline. The fermented-food research and Stage 1's caution are both correct, just aimed at different moments in the same journey.",
     citations: [
@@ -127,7 +125,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   {
     id: 'healing-stage2-reintroduction',
     category: 'hashimotos',
-    title: 'Stage 2: The Reintroduction Order, and Why',
+    title: 'Stage 2 Reintroduces Foods One at a Time, in a Reasoned Order',
     teaser: 'Not "just start eating everything again." A deliberate, one-variable-at-a-time method with a reasoned order.',
     summary:
       "The temptation once Stage 1 feels stable is to just start eating normally again. Stage 2 asks for something more disciplined than that, on purpose. The methodology: one food, in its purest additive-free form, a small amount on an empty stomach, a 24-hour wait, then a full portion, then 2 more days of monitoring before the next food, roughly every 3-5 days per food. The reasoned order, lowest-risk first: cooked goitrogenic vegetables and legumes first (mechanism already well-characterized, risk concentrated specifically in raw form and low-iodine status), nightshades next, since Stage 1 isolated them cleanly and a contested food deserves individual data rather than a blanket guess, dairy next, watching specifically for the lactose-intolerance-linked TSH pattern, gluten last and most cautiously, given the celiac-screening stakes. A deliberate order, not an arbitrary one. Each food's position in the sequence is chosen for a specific reason, the same discipline applied everywhere else in this category.",
@@ -138,7 +136,6 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'Roughly months 2-6 of the healing journey.',
   },
   {
     id: 'healing-stage2-fermented-entry',
@@ -193,12 +190,11 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: '6+ months, ongoing: the maintenance phase.',
   },
   {
     id: 'healing-stage3-practical-shifts',
     category: 'hashimotos',
-    title: 'Stage 3: What Actually Changes Day-to-Day',
+    title: 'Stage 3 Moves Tracking From Daily to Periodic Spot-Checks',
     teaser: 'Tracking shifts from a daily necessity to a spot-check tool, a deliberate change, not neglect.',
     summary: "It would be easy to assume \"well-healed\" means logging even more carefully, forever. The intended shift runs the opposite direction. Tracking becomes optional and periodic rather than constant, matching the core purpose directly: the goal was always personal pattern-discovery, not permanent daily logging as an end in itself. Occasional flexibility with lower-tier concerns, a \"chronic, cumulative\" category additive, in moderation, becomes reasonable once a stable baseline exists to notice a deviation against. And periodic re-baseline checks: a flare, a new symptom, or a life disruption (illness, high stress, an antibiotic course) is a legitimate reason to step back toward Stage 1 or 2 temporarily, not a failure of this stage. Stepping back isn't starting over. It's the same system working exactly as designed, responding to a new signal rather than ignoring one.",
     citations: [

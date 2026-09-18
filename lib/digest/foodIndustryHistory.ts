@@ -90,7 +90,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   {
     id: 'foodhistory-timeline-baseline-milling',
     category: 'basicHealth',
-    title: 'The Long Baseline, and the First Break (~10,000 BCE to 1911)',
+    title: 'From Stone Milling to the Steel Roller Mill, 10,000 BCE to 1911',
     teaser: 'For nearly all of agricultural history, flour still carried its fiber and B vitamins, until the steel roller mill changed that in a single generation.',
     summary: "For most of agricultural history, milling was done by stone, which couldn't fully separate wheat germ and bran from the endosperm. Flour still carried fiber, B vitamins, and oil, and food was preserved by fermentation, salting, and drying rather than industrial chemistry. This isn't a nutritional utopia (deficiency disease and famine were common). It's the baseline every later change gets measured against. The steel roller mill, adopted widely from the 1870s and effectively universal by the 1880s, could fully strip the germ and bran from wheat for the first time, producing white flour with a long shelf life and, by design, far less of the original grain's nutrition. In 1911, Crisco introduced industrially hydrogenated vegetable oil (trans fat) to the American diet, a wholly new kind of fat molecule the human body had never encountered before, engineered for shelf stability rather than nutrition. Its cardiovascular harm wasn't established until decades later (see the Food Additives research).",
     citations: [
@@ -226,7 +226,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'Contested: scientific disagreement about the mechanism, not the underlying nutrient-decline finding itself.',
     relatedIds: ['foodhistory-soil-landmark-studies', 'foodhistory-soil-real-depletion'],
   },
   {
@@ -243,7 +242,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Directly relevant to selenium and iodine, both soil-dependent nutrients already tracked as protective against thyroid autoimmunity specifically.',
     relatedIds: ['foodhistory-mechanism-soil-nutrients-bridge', 'nutrient-selenium', 'nutrient-iodine', 'magnesium-deficiency-prevalence-causes', 'garden-composting-at-home'],
     chart: {
       title: 'Trace Mineral Loss After 75 Years of Continuous Tillage',
@@ -260,7 +258,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   {
     id: 'foodhistory-pesticides-ddt',
     category: 'earthMatters',
-    title: 'DDT: The First Resolved Case',
+    title: 'DDT Took 27 Years From Government Approval to Ban',
     teaser: 'A widely used, government-approved pesticide that took 27 years to be recognized and banned, a precedent, not a hypothetical one.',
     summary:
       "DDT is the cleanest, most fully-resolved example in this whole document: introduced into mainstream agricultural use after 1945, it accumulated in the food chain and the environment for 27 years before the US banned it in 1972, following well-documented ecological and health concerns (Rachel Carson's Silent Spring, 1962, was the turning point for public awareness). Its history establishes that \"widely used, government-approved pesticide turns out to carry long-term harm, discovered only after decades of exposure\" isn't a hypothetical pattern in this space. It's a documented one, and glyphosate's current, unsettled status deserves scrutiny rather than automatic trust in either direction.",
@@ -276,7 +274,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   {
     id: 'foodhistory-pesticides-glyphosate-dispute',
     category: 'earthMatters',
-    title: 'Glyphosate: The Current Dispute',
+    title: 'Glyphosate Is Probably Carcinogenic to IARC and Cleared by the EU and WHO/FAO',
     teaser: 'IARC calls it probably carcinogenic. The EU and WHO/FAO disagree. A 2025 animal study just reopened the question at "safe" doses.',
     summary:
       'This section covers contested science. Credible bodies disagree here. IARC classified glyphosate as "probably carcinogenic to humans" (Group 2A) in March 2015, based on limited human evidence, sufficient animal evidence, and strong genotoxicity evidence. Every major regulatory body that has separately reviewed the same underlying evidence since, the EU\'s risk assessment and a joint WHO/FAO panel among them, has not confirmed IARC\'s classification, concluding glyphosate is unlikely to pose a carcinogenic risk at real-world exposure levels. A 2025 multi-institutional animal study (the Ramazzini Institute\'s "Global Glyphosate Study") dosed rats from before birth through 2 years at levels currently considered safe (the EU\'s Acceptable Daily Intake and No-Observed-Adverse-Effect-Level) and found increased tumor incidence at multiple sites in every treatment group, a recent, methodologically serious finding that directly reopens the question at doses regulators currently call safe. Separately, the large, NIH-funded Agricultural Health Study (~51,000 licensed pesticide applicators followed since the 1990s) has found specific dose-response associations between certain individual pesticides and certain cancers (fonofos and leukemia; imazethapyr and bladder/colon cancer), human evidence, though for specific pesticides rather than glyphosate broadly, and at occupational-level exposure, not ordinary dietary exposure.',
@@ -287,7 +285,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'Agricultural Health Study: occupational dose-response pesticide-cancer associations', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9880902/' },
     ],
     overallTier: 'moderate',
-    stageNote: 'Contested: read the IARC and EFSA findings alongside each other, not as one overriding the other.',
     relatedIds: ['foodhistory-pesticides-ddt', 'foodhistory-pesticides-glyphosate-gut'],
   },
   {
@@ -320,7 +317,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'American College of Cardiology / CardioSmart: roughly 70% of US dietary sodium comes from processed and restaurant food', url: 'https://www.cardiosmart.org/news/2017/6/the-bulk-of-us-salt-intake-comes-from-processed-foods' },
     ],
     overallTier: 'moderate',
-    stageNote: 'Contested on the exact dose-response curve: on the "mostly comes from processed food" point.',
     relatedIds: ['foodhistory-scapegoat-pattern'],
   },
   {
@@ -332,7 +328,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       'A direct correction, checked before including it here: the popular claim that margarine is "one molecule away from plastic" is not chemically accurate. A fact-check found margarine\'s triglycerides (a glycerol backbone with three fatty acids) and a plastic like polyethylene (a long repeating hydrocarbon polymer chain) are structurally unrelated, more than "one molecule" apart by any chemical measure. That claim is dropped here rather than repeated, because the verified story underneath it is damning enough on its own. In 1948, the American Heart Association received $1.7 million (roughly $20 million today) from Procter & Gamble, maker of Crisco, funding that transformed the AHA from a small professional society into the influential body it is today. In 1961, the AHA issued its first dietary recommendations: limit saturated fat (butter, animal fat) and replace it with polyunsaturated vegetable oils and margarine. Ancel Keys\' 1958 Seven Countries Study, the scientific foundation that 1961 guidance leaned on, has a documented selectivity problem: Keys had data available from 22 countries but published results from the 7 that fit his hypothesis. Countries like France, with high fat intake and comparatively low heart disease rates at the time, weren\'t included. The ultimate irony: the margarine widely recommended in place of butter for decades was, until the 2015-2018 US phase-out, loaded with industrially-produced trans fat, a novel fat molecule the body had never evolved to handle, later confirmed to raise LDL cholesterol and lower HDL cholesterol simultaneously, worse for cardiovascular outcomes than the saturated fat in the butter it replaced. Butter, a simple, single-ingredient whole food eaten for millennia, got recast as the dangerous choice, while an industrially hydrogenated substitute engineered for shelf life got marketed as the responsible one, for the better part of half a century, on the strength of a funding relationship and a selectively-reported study.',
     citations: [
       { source: 'AHA/Procter & Gamble funding history and Keys\' Seven Countries Study selectivity, both documented in the same review', url: 'https://pubmed.ncbi.nlm.nih.gov/36477384/' },
-      { source: 'FDA final determination on partially hydrogenated oils (2015): margarine\'s trans-fat harm, already covered in the Food Additives research', url: 'https://www.fda.gov/food/food-additives-petitions/final-determination-regarding-partially-hydrogenated-oils-removing-trans-fat' },
+      { source: 'FDA final determination on partially hydrogenated oils (2015): margarine\'s trans-fat harm, covered in the Food Additives research', url: 'https://www.fda.gov/food/food-additives-petitions/final-determination-regarding-partially-hydrogenated-oils-removing-trans-fat' },
       { source: 'Margarine and butter consumption trends across the 20th century (Wikipedia, cross-checked)', url: 'https://en.wikipedia.org/wiki/Margarine' },
     ],
     overallTier: 'moderate',
@@ -422,7 +418,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Apolipoprotein B: A More Direct Way to Measure Cholesterol\'s Actual Danger',
     teaser: "A standard lipid panel counts cholesterol. A large, 52-country study found counting the actual dangerous particles instead predicts heart attacks meaningfully better.",
-    summary: "Standard LDL cholesterol testing measures the total amount of cholesterol carried inside LDL particles, not how many actual particles there are, and that distinction turns out to matter. Apolipoprotein B (apoB) is a specific structural protein present on exactly one copy per atherogenic (artery-damaging) lipid particle, meaning an apoB blood level is a direct particle COUNT rather than an estimate. A large case-control study (12,461 heart attack cases, 14,637 controls, across 52 countries) directly compared apoB-based measures against standard cholesterol ratios as predictors of heart attack risk, and found the apoB-to-apoA1 ratio carried a substantially higher population-attributable risk (54%) than either the LDL-to-HDL ratio (37%) or the total-cholesterol-to-HDL ratio (32%), a statistically significant difference (p<0.0001) that held up consistently across ethnic groups, sexes, and ages. This matters most directly for anyone whose standard LDL number looks unremarkable but who has other risk factors, or who carries the small, dense LDL pattern already covered in the dedicated cholesterol research, since it's possible to have a normal-looking LDL-cholesterol number while still carrying an elevated count of small, dangerous particles. Worth asking a prescriber directly whether an apoB test is available, rather than assuming a standard lipid panel already captured the full picture.",
+    summary: "Standard LDL cholesterol testing measures the total amount of cholesterol carried inside LDL particles, not how many actual particles there are, and that distinction turns out to matter. Apolipoprotein B (apoB) is a specific structural protein present on exactly one copy per atherogenic (artery-damaging) lipid particle, meaning an apoB blood level is a direct particle COUNT rather than an estimate. A large case-control study (12,461 heart attack cases, 14,637 controls, across 52 countries) directly compared apoB-based measures against standard cholesterol ratios as predictors of heart attack risk, and found the apoB-to-apoA1 ratio carried a substantially higher population-attributable risk (54%) than either the LDL-to-HDL ratio (37%) or the total-cholesterol-to-HDL ratio (32%), a statistically significant difference (p<0.0001) that held up consistently across ethnic groups, sexes, and ages. This matters most directly for anyone whose standard LDL number looks unremarkable but who has other risk factors, or who carries the small, dense LDL pattern covered in the dedicated cholesterol research, since it's possible to have a normal-looking LDL-cholesterol number while still carrying an elevated count of small, dangerous particles. Worth asking a prescriber directly whether an apoB test is available, rather than assuming a standard lipid panel already captured the full picture.",
     citations: [
       { source: 'Lipids, Lipoproteins, and Apolipoproteins as Risk Markers of Myocardial Infarction in 52 Countries (INTERHEART study), PMID 18640459', url: 'https://pubmed.ncbi.nlm.nih.gov/18640459/' },
     ],
@@ -433,8 +429,8 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     id: 'foodhistory-eggs-nutrient-density',
     category: 'basicHealth',
     title: 'Eggs: Nutrient Density, Not Just an Absence of Harm',
-    teaser: "Why dietary cholesterol from eggs doesn't move blood cholesterol much for most people is already covered elsewhere. That's a defense. The positive case is separate.",
-    summary: "The existing research already covers the official reversal on eggs and dietary cholesterol (see that entry directly), but that's fundamentally a defense, evidence that eggs aren't guilty of the specific harm they were long blamed for. The separate, positive case is strong on its own terms. A current (2025) nutrition review describes eggs as providing \"high-quality protein content, together with essential nutrients such as choline and vitamins D and E, as well as antioxidants such as lutein and zeaxanthin,\" a specific nutrient combination that supports muscle, bone, and cognitive health. Choline (a tracked nutrient in the reference database) is hard to get in adequate amounts from a typical diet, and eggs are one of the single most concentrated dietary sources of it, directly relevant to the core mission given choline's role in liver and cell-membrane function. Lutein and zeaxanthin are specific antioxidants concentrated in the retina, with a well-established role in eye health that few other common whole foods deliver in meaningful amounts. The same 2025 review states plainly that \"moderate egg consumption as part of a balanced diet does not increase cardiovascular risk,\" a current, independent confirmation of what the existing eggs entry already covers from the 2020 AHA advisory. Past the old warning turning out overstated, eggs are a dense source of several specific nutrients that are otherwise easy to fall short on.",
+    teaser: "Why dietary cholesterol from eggs doesn't move blood cholesterol much for most people is. That's a defense. The positive case is separate.",
+    summary: "The existing research covers the official reversal on eggs and dietary cholesterol (see that entry directly), but that's fundamentally a defense, evidence that eggs aren't guilty of the specific harm they were long blamed for. The separate, positive case is strong on its own terms. A current (2025) nutrition review describes eggs as providing \"high-quality protein content, together with essential nutrients such as choline and vitamins D and E, as well as antioxidants such as lutein and zeaxanthin,\" a specific nutrient combination that supports muscle, bone, and cognitive health. Choline (a tracked nutrient in the reference database) is hard to get in adequate amounts from a typical diet, and eggs are one of the single most concentrated dietary sources of it, directly relevant to the core mission given choline's role in liver and cell-membrane function. Lutein and zeaxanthin are specific antioxidants concentrated in the retina, with a well-established role in eye health that few other common whole foods deliver in meaningful amounts. The same 2025 review states plainly that \"moderate egg consumption as part of a balanced diet does not increase cardiovascular risk,\" a current, independent confirmation of what the existing eggs entry covers from the 2020 AHA advisory. Past the old warning turning out overstated, eggs are a dense source of several specific nutrients that are otherwise easy to fall short on.",
     citations: [
       { source: 'Eggs in the Diet of Women During the Climacteric Period: Role in Maintaining Health, PMID 40728504', url: 'https://pubmed.ncbi.nlm.nih.gov/40728504/' },
     ],
@@ -446,7 +442,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: "Butter's Fat Chemistry: Why the Body Handles Some of It Differently Than Decades-Old Guidance Assumed",
     teaser: "Not all fat in butter is treated the same way by the body. A chemical distinction inside butter itself got flattened into one blanket \"saturated fat is bad\" rule.",
-    summary: "The 1960s-era case against butter treated \"saturated fat\" as one uniform category, but the chemistry inside butter itself is more specific than that framing allowed. Butter is a natural dietary source of butyric acid (also called butyrate), a specific short-chain fatty acid that the Gut & Microbiome research already covers in depth as a beneficial compound, shown in research to induce protective regulatory immune cells in the gut and to reduce intestinal inflammation through a specific mechanism (activating a protein called MFG-E8) in animal models of colitis. A classic physiology finding adds a second, separate layer: short- and medium-chain fatty acids, the kind found alongside butyric acid in butter, are absorbed directly into the portal vein and sent straight to the liver for immediate energy use, a different pathway from the lymphatic, chylomicron-based transport most long-chain fats (including the fats in many vegetable oils) go through on their way toward storage. Without overstating it: eating butter isn't a significant source of therapeutic-level butyrate compared to what the gut's bacteria produce by fermenting dietary fiber (still the primary source, see the dedicated research on that), and this doesn't mean butter is calorie-free or unlimited. It does mean the blanket \"all saturated fat behaves identically in the body\" assumption behind decades of butter-avoidance advice was chemically oversimplified from the start, evidence, not just history, backs a more specific picture.",
+    summary: "The 1960s-era case against butter treated \"saturated fat\" as one uniform category, but the chemistry inside butter itself is more specific than that framing allowed. Butter is a natural dietary source of butyric acid (also called butyrate), a specific short-chain fatty acid that the Gut & Microbiome research covers in depth as a beneficial compound, shown in research to induce protective regulatory immune cells in the gut and to reduce intestinal inflammation through a specific mechanism (activating a protein called MFG-E8) in animal models of colitis. A classic physiology finding adds a second, separate layer: short- and medium-chain fatty acids, the kind found alongside butyric acid in butter, are absorbed directly into the portal vein and sent straight to the liver for immediate energy use, a different pathway from the lymphatic, chylomicron-based transport most long-chain fats (including the fats in many vegetable oils) go through on their way toward storage. Without overstating it: eating butter isn't a significant source of therapeutic-level butyrate compared to what the gut's bacteria produce by fermenting dietary fiber (still the primary source, see the dedicated research on that), and this doesn't mean butter is calorie-free or unlimited. It does mean the blanket \"all saturated fat behaves identically in the body\" assumption behind decades of butter-avoidance advice was chemically oversimplified from the start, evidence, not just history, backs a more specific picture.",
     citations: [
       { source: 'The Neuropharmacology of Butyrate: The Bread and Butter of the Microbiota-Gut-Brain Axis?, PMID 27346602', url: 'https://pubmed.ncbi.nlm.nih.gov/27346602/' },
       { source: 'Butyric Acid Attenuates Intestinal Inflammation in Murine DSS-Induced Colitis Model via Milk Fat Globule-EGF Factor 8, PMID 23752130', url: 'https://pubmed.ncbi.nlm.nih.gov/23752130/' },
@@ -462,7 +458,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     category: 'hashimotos',
     title: 'The Gut Barrier Is the Physical Connection Point',
     teaser: 'Two already-verified mechanisms in the research explain how "the food changed" could plausibly reach "the immune system noticed."',
-    summary: "Everything in this category's Timeline is trend data, just two lines moving in the same direction. This is the actual proposed bridge between them, built entirely from mechanisms the research has already independently verified elsewhere, not new claims. Ultra-processed food's emulsifiers (carboxymethylcellulose, polysorbate 80) directly thin the protective gut mucus layer and increase intestinal permeability in controlled human and animal trials, already covered in the Food Additives research. Gliadin (from gluten, now a much larger share of the diet than in 1870, thanks to industrial milling and wheat breeding) triggers zonulin release, directly loosening the tight junctions between gut cells, already covered in Gut & Microbiome. A gut that's more permeable lets more undigested food protein and bacterial fragments reach the immune system than it should, the physical starting point for molecular mimicry and the Th17/Treg imbalance the research keeps finding underneath rheumatoid arthritis, IBD, multiple sclerosis, lupus, and Hashimoto's alike.",
+    summary: "Everything in this category's Timeline is trend data, just two lines moving in the same direction. This is the actual proposed bridge between them, built entirely from mechanisms the research has already independently verified elsewhere, not new claims. Ultra-processed food's emulsifiers (carboxymethylcellulose, polysorbate 80) directly thin the protective gut mucus layer and increase intestinal permeability in controlled human and animal trials, covered in the Food Additives research. Gliadin (from gluten, now a much larger share of the diet than in 1870, thanks to industrial milling and wheat breeding) triggers zonulin release, directly loosening the tight junctions between gut cells, covered in Gut & Microbiome. A gut that's more permeable lets more undigested food protein and bacterial fragments reach the immune system than it should, the physical starting point for molecular mimicry and the Th17/Treg imbalance the research keeps finding underneath rheumatoid arthritis, IBD, multiple sclerosis, lupus, and Hashimoto's alike.",
     citations: [
       { source: 'Chassaing B, et al. 2015, Nature: dietary emulsifiers thin gut mucus and alter microbiota', url: 'https://pubmed.ncbi.nlm.nih.gov/25731162/' },
       { source: 'Fasano A 2011, Physiological Reviews: zonulin, gliadin, and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
@@ -484,7 +480,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A credible, actively-researched hypothesis, not yet fully proven.',
     relatedIds: ['foodhistory-regen-old-friends-hypothesis', 'gut-scfa-treg'],
   },
   {
@@ -492,7 +487,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     category: 'hashimotos',
     title: 'Where Soil and Pesticides Plug Back Into Thyroid-Specific Nutrients',
     teaser: 'Selenium and iodine are exactly the soil-dependent trace minerals the depletion research above documents declining.',
-    summary: "This is the direct, three-way tie between this category's Soil and Pesticides sections and the rest of the research. Selenium and iodine (both soil-dependent, both already covered in the Nutrients research as protective nutrients against thyroid autoimmunity specifically) are exactly the kind of trace mineral the soil-depletion research documents declining under intensive, synthetic-fertilizer-only farming, meaning a nutrient-thinner food supply may be providing measurably less of the specific defensive nutrients someone with Hashimoto's most needs, at the same historical moment processed food and gut-barrier disruption are asking more of the immune system, not less. Whether pesticide residue itself adds a direct, additional hit to gut-microbiome diversity remains a weak-to-moderate, still-developing piece of evidence, not yet a settled one.",
+    summary: "This is the direct, three-way tie between this category's Soil and Pesticides sections and the rest of the research. Selenium and iodine (both soil-dependent, both covered in the Nutrients research as protective nutrients against thyroid autoimmunity specifically) are exactly the kind of trace mineral the soil-depletion research documents declining under intensive, synthetic-fertilizer-only farming, meaning a nutrient-thinner food supply may be providing measurably less of the specific defensive nutrients someone with Hashimoto's most needs, at the same historical moment processed food and gut-barrier disruption are asking more of the immune system, not less. Whether pesticide residue itself adds a direct, additional hit to gut-microbiome diversity remains a weak-to-moderate, still-developing piece of evidence, not yet a settled one.",
     citations: [
       {
         source: 'Micronutrients decline under long-term tillage and nitrogen fertilization, including zinc, copper, and other trace-mineral-family depletion',
@@ -532,9 +527,9 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     id: 'foodhistory-regen-timeline-origins',
     category: 'earthMatters',
     title: 'The Counter-Movement Begins (1972 to 1980s)',
-    teaser: 'Within the same synthetic-chemical era this category already covers, three independent, low-cost responses to soil degradation took root on three different continents.',
+    teaser: 'Within the same synthetic-chemical era, three independent, low-cost responses to soil degradation took root on three different continents.',
     summary:
-      "Against the same synthetic-fertilizer, synthetic-pesticide backdrop this category's Chemical Turn entry already covers, three independent, low-tech responses to visible soil degradation each took root within about a decade of each other, none coordinated with the others. In Brazil, farmer Herbert Batz imported Latin America's first zero-till-adapted seeding machines in 1972 specifically to fight the erosion conventional plowing was causing on his own land; the practice spread almost entirely by farmer-to-farmer word of mouth, with little government subsidy behind it. In Niger, aid worker Tony Rinaudo noticed in 1983 that tree stumps in barren, over-cleared farmland were still capable of resprouting on their if simply protected and pruned rather than cleared again, the accidental discovery behind what became known as farmer-managed natural regeneration (FMNR), covered in its dedicated entry below. Around the same period, the Rodale Institute (a US-based organic-farming research nonprofit founded decades earlier) began using the term \"regenerative agriculture\" specifically to describe farming aimed at rebuilding soil health and biology rather than just avoiding synthetic chemical inputs, a deliberate distinction from the plainer, older term \"organic.\"",
+      "Against the same synthetic-fertilizer, synthetic-pesticide backdrop this category's Chemical Turn entry covers, three independent, low-tech responses to visible soil degradation each took root within about a decade of each other, none coordinated with the others. In Brazil, farmer Herbert Batz imported Latin America's first zero-till-adapted seeding machines in 1972 specifically to fight the erosion conventional plowing was causing on his own land; the practice spread almost entirely by farmer-to-farmer word of mouth, with little government subsidy behind it. In Niger, aid worker Tony Rinaudo noticed in 1983 that tree stumps in barren, over-cleared farmland were still capable of resprouting on their if simply protected and pruned rather than cleared again, the accidental discovery behind what became known as farmer-managed natural regeneration (FMNR), covered in its dedicated entry below. Around the same period, the Rodale Institute (a US-based organic-farming research nonprofit founded decades earlier) began using the term \"regenerative agriculture\" specifically to describe farming aimed at rebuilding soil health and biology rather than just avoiding synthetic chemical inputs, a deliberate distinction from the plainer, older term \"organic.\"",
     citations: [
       {
         source: 'No-Till Farmer: Brazil Quickly Embraced No-Till, Led to Become a World Ag Power (Herbert Batz, 1972)',
@@ -550,7 +545,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'Dated agricultural history, not a controlled trial, but well-documented by multiple independent sources.',
     relatedIds: ['foodhistory-timeline-chemical-convenience', 'foodhistory-regen-brazil-case-study', 'foodhistory-regen-niger-fmnr-case-study'],
   },
   {
@@ -575,7 +569,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Current, directly sourced organizational and regulatory data, not a modeled projection.',
     chart: {
       title: 'ROC Certified Acreage Worldwide',
       unit: 'million acres',
@@ -599,7 +592,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A current mix of established agronomic science (biochar carriers, no-till) and newer precision techniques (DNA soil profiling) still scaling up.',
     relatedIds: ['fermented-tying-together'],
   },
   {
@@ -620,7 +612,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'This entry\'s Next Generation Farmer Fund citation is recent news, days old as of this being written, not a modeled projection.',
     relatedIds: ['foodhistory-regen-timeline-certification-era', 'foodhistory-regen-food-desert-access-inequality'],
   },
   {
@@ -646,7 +637,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   {
     id: 'foodhistory-regen-brazil-case-study',
     category: 'earthMatters',
-    title: 'Brazil: The World\'s Clearest No-Till Success Story',
+    title: 'Brazil Went From One Imported Seeder in 1972 to No-Till on Over 80% of Its Soy Farms',
     teaser: 'Started by one farmer importing a seeding machine in 1972. Today, over 80% of Brazil\'s soy farms use it, with a documented 97% cut in soil erosion.',
     summary:
       "Brazil is the single clearest, most measured real-world case study for how far a low-tech soil-protection technique can spread through farmer-to-farmer adoption alone, with almost no government subsidy driving it. Starting from Herbert Batz's 1972 import of Latin America's first zero-till seeding equipment (see this category's Counter-Movement Begins entry), no-till farming now covers over 80% of Brazil's soy farms and roughly 25.5 million hectares overall, more than 60% of the country's entire cultivated surface, second only to the United States in total zero-till area worldwide. Brazil's reported real-world results: a 97% reduction in soil erosion losses, and farm income up 57% within five years of adopting the practice. This case matters directly for the \"how fast can this actually scale\" question, since it demonstrates national-level transformation achieved primarily through peer farmer networks rather than top-down mandate. A qualifier rather than a reason to discount the erosion result itself: Brazil's no-till soy is built substantially on glyphosate-resistant genetically modified varieties, meaning less soil disturbance here has largely meant more herbicide reliance, not a chemical-free system, see this category's dedicated entry on that exact tradeoff.",
@@ -694,7 +685,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'One of the best-documented, largest-scale, lowest-cost land-restoration successes recorded anywhere, a direct counter-example to assuming African adoption lags the rest of the world.',
     relatedIds: ['foodhistory-regen-timeline-origins', 'foodhistory-regen-tying-together'],
     chart: {
       title: 'Farmer-Managed Natural Regeneration, Land Restored',
@@ -731,7 +721,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'One of the best-documented, largest official government/development-bank land-restoration projects on record.',
     relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-tying-together'],
     chart: {
       title: 'Loess Plateau Restoration, Before and After',
@@ -757,7 +746,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A rigorous, multi-decade controlled field trial, the strongest evidence tier this cluster has for the yield/economics question specifically.',
     relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-individual-farm-case-study', 'foodhistory-regen-nrcs-soil-health-demonstrations', 'foodhistory-regen-liquid-carbon-pathway'],
     chart: {
       title: 'Organic vs. Conventional Corn Yield, Drought Years',
@@ -769,7 +757,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   {
     id: 'foodhistory-regen-4-per-1000-initiative',
     category: 'earthMatters',
-    title: 'The "4 per 1000" Global Soil-Carbon Pledge, and the Scientific Pushback It Got',
+    title: 'The "4 per 1000" Soil-Carbon Pledge Drew a Credible Soil-Science Rebuttal',
     teaser: 'A 2015 international climate initiative built around one precise number, and a credible soil-science critique that the number itself may not be achievable.',
     summary:
       "France launched the international \"4 per 1000\" initiative on December 1, 2015, at the COP21 climate conference in Paris, proposing a specific target: increasing the carbon stored in the world's agricultural soils (in the top 30-40cm) by just 0.4% a year, a rate its founders argued could meaningfully offset human carbon emissions given how much more carbon farmland and forest soils hold worldwide than the atmosphere itself. The initiative has broad institutional support, over 300 governments, research institutions, and agricultural and civil-society organizations. It has also drawn a credible scientific critique that goes beyond the initiative's framing: researchers at Rothamsted Research, using some of the world's longest-running soil experiments, concluded the 0.4%-per-year target is not realistically achievable across most of the world's farmland, since soil carbon naturally moves toward a new equilibrium and then plateaus rather than climbing indefinitely, and separately flagged that reaching the target's implied nitrogen-uptake requirements is itself unrealistic in practice. The working synthesis: soil carbon can and should be rebuilt, but the specific 0.4%-a-year figure looks more like a symbolically powerful policy target than a rigorously modeled scientific one.",
@@ -784,7 +772,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A symbolically important policy initiative with a published scientific dispute over whether its headline number is achievable, both sides stated here, not just the flattering one.',
     relatedIds: ['foodhistory-regen-environmental-impact', 'foodhistory-regen-liquid-carbon-pathway'],
   },
   {
@@ -805,7 +792,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'The underlying fungal network is confirmed; several of the popular claims about what it does are overstated relative to the published evidence, both stated here.',
     relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-liquid-carbon-pathway'],
   },
   {
@@ -826,7 +812,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'weak',
-    stageNote: 'Included deliberately as a counter-example, a widely repeated regenerative-agriculture claim that a published scientific review does not support at the scale claimed.',
     relatedIds: ['foodhistory-regen-tying-together', 'foodhistory-regen-kenya-rangeland-enclosures'],
   },
   // 2026-08-10, same day, second follow-up: "Keep going with more research
@@ -860,7 +845,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Official UN agency data, the baseline the rest of this cluster is responding to.',
     relatedIds: ['foodhistory-soil-real-depletion', 'foodhistory-regen-timeline-origins'],
     chart: {
       title: "Share of World's Soil Already Degraded",
@@ -890,7 +874,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A dated historical origin point plus current, peer-reviewed confirmation, not just an anecdote.',
     relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-nrcs-soil-health-demonstrations'],
   },
   {
@@ -907,15 +890,14 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A large-scale global meta-analysis, the strongest evidence tier in this cluster besides the Rodale Institute\'s controlled trial, and it reports a tradeoff, not just benefits.',
     relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-colombia-shade-coffee-birds'],
   },
   {
     id: 'foodhistory-regen-no-till-greenwashing-critique',
     category: 'earthMatters',
-    title: '"Regenerative" Has No Official Definition, and That Gap Gets Exploited',
+    title: '"Regenerative" Has No Legally Enforced Definition Anywhere',
     teaser: 'A complication to Brazil\'s no-till success story: industrial no-till very often means MORE herbicide, not less, and major agrochemical companies are branding around exactly that.',
-    summary: 'A credible, and directly relevant complication to this cluster\'s earlier, more favorable framing: "regenerative agriculture" has no single, official, legally enforced definition anywhere, unlike the third-party-audited ROC standard covered elsewhere in this cluster. That gap creates room for the term to be applied loosely, and a Friends of the Earth report (April 2025) documents a specific, named version of the problem directly relevant to this cluster\'s Brazil case study: over 100 million US acres of no-till corn and soybean production, and 93% of those acres still rely on chemical herbicides, since removing mechanical tillage as a weed-control method very often means substituting chemical weed control instead, not eliminating it. The report names Bayer (which acquired Monsanto, the original developer of glyphosate) and Syngenta directly, both offering per-acre payments and marketing partnerships built around "regenerative" branding for herbicide-tolerant no-till systems. This directly qualifies Brazil\'s no-till success (see this category\'s dedicated entry): its adoption and its erosion-reduction results are both documented, but it is built substantially on glyphosate-resistant genetically modified soy, the same still-disputed chemistry the Pesticides research already covers, not a chemical-free system.',
+    summary: 'A credible, and directly relevant complication to this cluster\'s earlier, more favorable framing: "regenerative agriculture" has no single, official, legally enforced definition anywhere, unlike the third-party-audited ROC standard covered elsewhere in this cluster. That gap creates room for the term to be applied loosely, and a Friends of the Earth report (April 2025) documents a specific, named version of the problem directly relevant to this cluster\'s Brazil case study: over 100 million US acres of no-till corn and soybean production, and 93% of those acres still rely on chemical herbicides, since removing mechanical tillage as a weed-control method very often means substituting chemical weed control instead, not eliminating it. The report names Bayer (which acquired Monsanto, the original developer of glyphosate) and Syngenta directly, both offering per-acre payments and marketing partnerships built around "regenerative" branding for herbicide-tolerant no-till systems. This directly qualifies Brazil\'s no-till success (see this category\'s dedicated entry): its adoption and its erosion-reduction results are both documented, but it is built substantially on glyphosate-resistant genetically modified soy, the same still-disputed chemistry the Pesticides research covers, not a chemical-free system.',
     citations: [
       {
         source: 'The New Lede: As regenerative agriculture gains momentum, report warns of "greenwashing" (Friends of the Earth, April 2025)',
@@ -927,7 +909,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'Included deliberately, the same way the Savory entry above is, so this cluster does not read as accepting every regenerative-branded claim uncritically.',
     relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-timeline-certification-era', 'foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-individual-farm-case-study'],
   },
   // 2026-08-10, same day, third follow-up: "Keep going with more research
@@ -947,7 +928,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: 'Biochar Is Not a New Idea. Amazonian Farmers Were Doing It Thousands of Years Ago.',
     teaser: 'Terra preta, human-made fertile soil in the Amazon, still measurably richer than the surrounding ground centuries to millennia after it was built.',
     summary:
-      "The biochar-carrier microbial technique already covered in this cluster's Innovations entry has an ancient precedent, not a purely modern origin. Terra preta (\"black earth\" in Portuguese), also called Amazonian dark earth, is human-made fertile soil found across the Amazon basin, created deliberately by pre-Columbian Indigenous societies by working charcoal, ash, food and fish waste, and pottery fragments into otherwise poor, heavily weathered tropical soil. Radiocarbon dating places most known terra preta between roughly 2,500 and 500 years old, with the oldest confirmed patches dated to 4,800-5,000 years, and separate research has traced an even earlier, less-charred precursor soil (\"terra mulata\") back as far as 10,000 years. These soils remain measurably richer in carbon, nutrients, and biomass than the surrounding, naturally poor Amazonian ground centuries to millennia after they were made, and documented patches span a 6,000-18,000 square kilometers, with modeled estimates suggesting the true extent could reach over 150,000 square kilometers, roughly 3.2% of the entire Amazon forest. This is the direct historical precedent behind the modern biochar industry: an ancient, deliberate soil-engineering technique that worked well enough to still be measurably different from its surroundings after thousands of years.",
+      "The biochar-carrier microbial technique covered in this cluster's Innovations entry has an ancient precedent, not a purely modern origin. Terra preta (\"black earth\" in Portuguese), also called Amazonian dark earth, is human-made fertile soil found across the Amazon basin, created deliberately by pre-Columbian Indigenous societies by working charcoal, ash, food and fish waste, and pottery fragments into otherwise poor, heavily weathered tropical soil. Radiocarbon dating places most known terra preta between roughly 2,500 and 500 years old, with the oldest confirmed patches dated to 4,800-5,000 years, and separate research has traced an even earlier, less-charred precursor soil (\"terra mulata\") back as far as 10,000 years. These soils remain measurably richer in carbon, nutrients, and biomass than the surrounding, naturally poor Amazonian ground centuries to millennia after they were made, and documented patches span a 6,000-18,000 square kilometers, with modeled estimates suggesting the true extent could reach over 150,000 square kilometers, roughly 3.2% of the entire Amazon forest. This is the direct historical precedent behind the modern biochar industry: an ancient, deliberate soil-engineering technique that worked well enough to still be measurably different from its surroundings after thousands of years.",
     citations: [
       {
         source: 'Eos.org (American Geophysical Union): The Nutrient-Rich Legacy in the Amazon\'s Dark Earths (area coverage, carbon storage)',
@@ -959,7 +940,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Dated, radiocarbon-confirmed archaeology, not folklore.',
     relatedIds: ['foodhistory-regen-innovations-soil-biology'],
     chart: {
       title: 'Terra Preta, Documented vs. Modeled Extent',
@@ -977,7 +957,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: 'Engineering Corn to Do What Only Legumes Could Do Before',
     teaser: 'Gene-edited soil bacteria that fix nitrogen directly at a corn plant\'s roots, a current, peer-reviewed alternative to synthetic fertilizer, not a lab curiosity.',
     summary:
-      'A cutting-edge extension of the crop-specific microbial inoculants already covered in this cluster\'s Innovations entry: nitrogen fixation (pulling nitrogen gas out of the air and converting it into a form a plant can use) has historically only happened at meaningful scale in legume crops, through their ancient symbiosis with Rhizobium bacteria living in root nodules. Corn and most other major grain crops have no such symbiosis, so synthetic nitrogen fertilizer (itself a major, well-documented source of runoff and greenhouse-gas emissions) became so central to modern grain farming in the first place. A commercially available product, Pivot Bio\'s PROVEN 40, uses gene-editing to modify a naturally occurring soil bacterium (Klebsiella variicola) so it keeps its nitrogen-fixing genes permanently switched on while colonizing corn roots directly, rather than only briefly under nitrogen-starved conditions the way the wild strain does. A peer-reviewed field study from Purdue University and the University of Wisconsin-Madison, using isotope tracking to directly confirm the fixed nitrogen was actually taken up by the corn plants, found farmers could reliably replace 35-40 pounds per acre of the most volatile, runoff-prone synthetic nitrogen while maintaining or improving yield.',
+      'A cutting-edge extension of the crop-specific microbial inoculants covered in this cluster\'s Innovations entry: nitrogen fixation (pulling nitrogen gas out of the air and converting it into a form a plant can use) has historically only happened at meaningful scale in legume crops, through their ancient symbiosis with Rhizobium bacteria living in root nodules. Corn and most other major grain crops have no such symbiosis, so synthetic nitrogen fertilizer (itself a major, well-documented source of runoff and greenhouse-gas emissions) became so central to modern grain farming in the first place. A commercially available product, Pivot Bio\'s PROVEN 40, uses gene-editing to modify a naturally occurring soil bacterium (Klebsiella variicola) so it keeps its nitrogen-fixing genes permanently switched on while colonizing corn roots directly, rather than only briefly under nitrogen-starved conditions the way the wild strain does. A peer-reviewed field study from Purdue University and the University of Wisconsin-Madison, using isotope tracking to directly confirm the fixed nitrogen was actually taken up by the corn plants, found farmers could reliably replace 35-40 pounds per acre of the most volatile, runoff-prone synthetic nitrogen while maintaining or improving yield.',
     citations: [
       {
         source: 'PR Newswire / Pivot Bio: Peer-Reviewed Study Validates Pivot Bio\'s Gene-Edited Microbes as a Third Source of Nitrogen Delivery',
@@ -989,7 +969,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A current, peer-reviewed, commercially deployed technology, still new enough that independent long-term and multi-region confirmation is ongoing work, not yet a decades-long track record the way no-till or Rodale\'s trial have.',
     relatedIds: ['foodhistory-regen-innovations-soil-biology'],
     chart: {
       title: 'Synthetic Nitrogen Replaced Per Acre',
@@ -1016,7 +995,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Official USDA Census data, a grounding corrective to the faster-moving market and certification figures elsewhere in this cluster.',
     relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-tying-together', 'garden-cover-crops-home', 'foodhistory-regen-water-infiltration-quantified'],
     chart: {
       title: 'US Cropland Using Cover Crops (2022)',
@@ -1046,7 +1024,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A current, well-documented political case study, included deliberately as a counterweight, so this cluster does not read as though every country adopts these changes smoothly or without economic cost to farmers.',
     relatedIds: ['foodhistory-regen-tying-together', 'foodhistory-regen-environmental-impact'],
   },
   // 2026-08-10, same day, direct question: "What are the reasons why our
@@ -1080,7 +1057,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Structural, economic reasons, distinct from, and worth reading alongside, this cluster\'s dedicated lobbying-imbalance entry rather than as a substitute explanation.',
     relatedIds: ['foodhistory-regen-rodale-farming-systems-trial', 'foodhistory-regen-netherlands-nitrogen-conflict', 'foodhistory-regen-no-till-greenwashing-critique', 'foodhistory-regen-lobbying-imbalance'],
   },
   {
@@ -1101,7 +1077,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Public, federally-disclosed lobbying data, an auditable fact pattern, not an allegation.',
     relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-pesticide-liability-shields', 'foodhistory-regen-reform-coalition-orgs'],
   },
   {
@@ -1122,7 +1097,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A live, currently-unfolding state-legislative fight, independently verified against news reporting and a legal-tracking organization, not a historical or hypothetical example.',
     relatedIds: ['foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-lobbying-imbalance', 'foodhistory-regen-no-till-greenwashing-critique', 'foodhistory-regen-reform-coalition-orgs'],
   },
   {
@@ -1143,7 +1117,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Named organizations with a public policy platform, not an anonymous or purely hypothetical opposition movement.',
     relatedIds: ['foodhistory-regen-lobbying-imbalance', 'foodhistory-regen-why-not-mandated', 'foodhistory-regen-how-to-get-involved', 'foodhistory-regen-pesticide-liability-shields', 'foodhistory-regen-right-to-repair-farm-equipment'],
   },
   {
@@ -1152,7 +1125,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: 'How an Everyday Person Can Actually Get Involved, Right Now',
     teaser: "Two live channels, not vague civic-mindedness: the next US Farm Bill is in active committee markup this year, and USDA rulemaking has open public-comment windows.",
     summary:
-      'Two concrete, currently-open channels exist for a private citizen to have an actual, on-the-record effect on this exact policy fight, not just symbolic gestures. First: the US Farm Bill, the single largest piece of federal food and agriculture legislation, renewed roughly every five years, is in active committee markup in Congress this year, the House Committee on Agriculture and the Senate Committee on Agriculture, Nutrition, and Forestry are the current decision points, and both committees hold public hearings and listening sessions; a constituent can find their representative\'s and senators\' committee membership and direct contact information at house.gov and senate.gov. Second: USDA rulemaking for Farm Bill programs is published in the Federal Register with a legally required public-comment period, typically 30-90 days, searchable directly at regulations.gov, these comments become a permanent part of the administrative record USDA is required to review before finalizing a rule, not a symbolic exercise. Beyond direct civic engagement, supporting or donating to one of the named reform coalitions covered in this cluster\'s dedicated entry, or choosing products carrying the third-party-audited Regenerative Organic Certified label (see this cluster\'s Certification Era entry) and the kind of retailer-level investment this cluster\'s Whole Foods entry already covers, are both smaller-scale ways an individual purchasing decision connects back to the same underlying policy fight.',
+      'Two concrete, currently-open channels exist for a private citizen to have an actual, on-the-record effect on this exact policy fight, not just symbolic gestures. First: the US Farm Bill, the single largest piece of federal food and agriculture legislation, renewed roughly every five years, is in active committee markup in Congress this year, the House Committee on Agriculture and the Senate Committee on Agriculture, Nutrition, and Forestry are the current decision points, and both committees hold public hearings and listening sessions; a constituent can find their representative\'s and senators\' committee membership and direct contact information at house.gov and senate.gov. Second: USDA rulemaking for Farm Bill programs is published in the Federal Register with a legally required public-comment period, typically 30-90 days, searchable directly at regulations.gov, these comments become a permanent part of the administrative record USDA is required to review before finalizing a rule, not a symbolic exercise. Beyond direct civic engagement, supporting or donating to one of the named reform coalitions covered in this cluster\'s dedicated entry, or choosing products carrying the third-party-audited Regenerative Organic Certified label (see this cluster\'s Certification Era entry) and the kind of retailer-level investment this cluster\'s Whole Foods entry covers, are both smaller-scale ways an individual purchasing decision connects back to the same underlying policy fight.',
     citations: [
       {
         source: 'USDA Economic Research Service: Farm & Commodity Policy, US Farm Bill Development and Passage (committee process, public comment)',
@@ -1164,7 +1137,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Currently-open civic channels, not a general or evergreen suggestion, worth confirming committee markup status and comment-period deadlines directly, since a live legislative process moves and this entry\'s own "right now" framing will age.',
     relatedIds: ['foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-timeline-certification-era', 'foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-co2-nutrient-decline', 'foodhistory-regen-right-to-repair-farm-equipment', 'garden-economics-subsidizing-food'],
   },
   // 2026-08-10/11, same day, fifth follow-up: "Keep going with more research
@@ -1182,7 +1154,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: "Soil Carbon Credits: A Financing Idea With Documented Integrity Problems",
     teaser: '40-60% of enrolled farmers were already doing the practice, or planning to, before the payment showed up, a quantified additionality problem, not a hypothetical one.',
     summary:
-      'A growing financing mechanism intended to reward farmers directly for soil-carbon-building practices (see this cluster\'s own "4 per 1000" entry for the underlying science) has documented, structural integrity problems of its own, distinct from the greenwashing already covered elsewhere in this cluster. There is no universal, mandatory verification standard across the voluntary soil-carbon-credit market, and different registries use different measurement and accounting methods, making credits hard to compare or trust as equivalent. The single biggest documented problem is additionality: research has found 40-60% of farmers enrolled in carbon programs were already implementing the qualifying practices, or already planning to, regardless of the carbon payment, meaning a share of sold credits may not represent any actual, additional emissions reduction at all. Permanence is a second problem: soil carbon can reverse if a farmer stops the practice, and studies of long-term conservation programs found 15-25% reversal within ten years of a program ending. A co-founder of Nori, one of the earlier soil-carbon-credit companies, has said directly that he doesn\'t think soil carbon makes sense as an offset mechanism at all, specifically because of this longevity problem, a credible insider critique, not only an outside one.',
+      'A growing financing mechanism intended to reward farmers directly for soil-carbon-building practices (see this cluster\'s own "4 per 1000" entry for the underlying science) has documented, structural integrity problems of its own, distinct from the greenwashing. There is no universal, mandatory verification standard across the voluntary soil-carbon-credit market, and different registries use different measurement and accounting methods, making credits hard to compare or trust as equivalent. The single biggest documented problem is additionality: research has found 40-60% of farmers enrolled in carbon programs were already implementing the qualifying practices, or already planning to, regardless of the carbon payment, meaning a share of sold credits may not represent any actual, additional emissions reduction at all. Permanence is a second problem: soil carbon can reverse if a farmer stops the practice, and studies of long-term conservation programs found 15-25% reversal within ten years of a program ending. A co-founder of Nori, one of the earlier soil-carbon-credit companies, has said directly that he doesn\'t think soil carbon makes sense as an offset mechanism at all, specifically because of this longevity problem, a credible insider critique, not only an outside one.',
     citations: [
       {
         source: 'Earth.Org: Soil Carbon Credits, Promises and Problems (verification standards, permanence/reversal data)',
@@ -1194,7 +1166,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'Included deliberately alongside the other counter-examples in this cluster (Savory, the no-till/greenwashing entry), a financing tool with documented, unresolved integrity problems, not a settled solution.',
     relatedIds: ['foodhistory-regen-4-per-1000-initiative', 'foodhistory-regen-no-till-greenwashing-critique'],
   },
   {
@@ -1215,7 +1186,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A structural parallel to this cluster\'s US crop-insurance entry, included specifically so the "why isn\'t this mandated" question doesn\'t read as a uniquely American problem.',
     relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-tying-together'],
   },
   {
@@ -1232,7 +1202,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A large, systematic review with a mixed result reported directly, the strongest, most rigorous evidence tier this cluster has for the specific nutrient-density question, and it does not support a uniform claim in either direction.',
     relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-fao-baseline-stakes'],
   },
   {
@@ -1253,7 +1222,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'An official, dated federal policy with measured follow-through (agreement counts), not just a symbolic announcement.',
     relatedIds: ['foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-terra-preta-ancient-biochar', 'foodhistory-regen-how-to-get-involved'],
   },
   // 2026-08-11, same day, direct request: "We need some information about
@@ -1288,7 +1256,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Current, survey-based national data, this is an active, still-unfolding crisis as of this being written, not a settled historical event.',
     relatedIds: ['foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-neonicotinoid-regulation-loophole', 'foodhistory-regen-pollinator-habitat-regenerative-link', 'foodhistory-regen-how-to-get-involved', 'garden-pollinator-friendly-earth-matters-link'],
   },
   {
@@ -1309,7 +1276,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A peer-reviewed classification framework plus official USDA agricultural-economics data, not an estimate or a single anecdote.',
     relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-pollinator-nutrition-stakes', 'foodhistory-regen-fao-baseline-stakes', 'garden-pollinator-friendly-earth-matters-link'],
   },
   {
@@ -1330,7 +1296,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A peer-reviewed, landmark finding directly connecting pollinator health to human nutrient intake, the clearest health-relevant citation in this whole cluster.',
     relatedIds: ['foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-fao-baseline-stakes'],
   },
   {
@@ -1351,7 +1316,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'The underlying pesticide-pollinator science here is comparatively well-settled, unlike glyphosate\'s disputed cancer classification covered elsewhere in this cluster, the complication in this entry is regulatory enforcement, not scientific uncertainty.',
     relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-pesticide-liability-shields', 'garden-natural-pest-management'],
   },
   {
@@ -1372,16 +1336,15 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A complication to the honeybee-centric framing most pollinator coverage defaults to, included specifically so this sub-cluster doesn\'t leave the impression that managed honeybee recovery alone would fully solve the problem.',
     relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-pollinator-habitat-regenerative-link'],
   },
   {
     id: 'foodhistory-regen-pollinator-habitat-regenerative-link',
     category: 'earthMatters',
     title: 'Where This Sub-Cluster Connects Back to Everything Else in This Category',
-    teaser: 'Hedgerows, flower strips, and cover crops, already covered in this cluster for entirely separate reasons, are also measured pollinator-recovery tools, not a separate initiative.',
+    teaser: 'Hedgerows, flower strips, and cover crops, covered in this cluster for entirely separate reasons, are also measured pollinator-recovery tools, not a separate initiative.',
     summary:
-      "Research closes the loop directly back to the regenerative practices already covered throughout the rest of this cluster, rather than treating pollinator recovery as a separate initiative needing its distinct set of techniques. Flowering cover crops (see this cluster's Innovations and cover-crop-reality-check entries) provide forage for both managed and wild bees during otherwise bare-field periods, while hedgerows planted along field margins measurably increase wild bee richness and persistence, providing both floral resources and nesting habitat lost to modern, edge-to-edge monoculture. Direct, controlled comparisons found wild bee abundance and species richness highest in dedicated flower strips, followed by improved hedgerows, both clearly outperforming plain grass margins or natural regrowth left alone. Agroforestry (this cluster's dedicated entry) delivers the identical dual benefit already documented there for biodiversity and yield. This is a concrete, already-actionable example of exactly the practical promise the rest of this cluster makes in the abstract: a farm rebuilding its soil biology, via cover crops, hedgerows, and reduced tillage, is very often simultaneously rebuilding the wild pollinator habitat its crops, and the broader food system's nutrient supply covered above, depend on.",
+      "Research closes the loop directly back to the regenerative practices covered throughout the rest of this cluster, rather than treating pollinator recovery as a separate initiative needing its distinct set of techniques. Flowering cover crops (see this cluster's Innovations and cover-crop-reality-check entries) provide forage for both managed and wild bees during otherwise bare-field periods, while hedgerows planted along field margins measurably increase wild bee richness and persistence, providing both floral resources and nesting habitat lost to modern, edge-to-edge monoculture. Direct, controlled comparisons found wild bee abundance and species richness highest in dedicated flower strips, followed by improved hedgerows, both clearly outperforming plain grass margins or natural regrowth left alone. Agroforestry (this cluster's dedicated entry) delivers the identical dual benefit already documented there for biodiversity and yield. This is a concrete, already-actionable example of exactly the practical promise the rest of this cluster makes in the abstract: a farm rebuilding its soil biology, via cover crops, hedgerows, and reduced tillage, is very often simultaneously rebuilding the wild pollinator habitat its crops, and the broader food system's nutrient supply covered above, depend on.",
     citations: [
       {
         source: 'Xerces Society: Supporting Pollinators on Farmland',
@@ -1393,7 +1356,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'The deliberate closing entry of this sub-cluster, ties pollinator recovery directly back to the same practices this whole category has already documented, rather than treating it as a separate problem needing a separate solution.',
     relatedIds: ['foodhistory-regen-wild-bees-buzz-pollination', 'foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-cover-crop-reality-check', 'foodhistory-regen-agroforestry-quantified', 'foodhistory-regen-pollinator-decline-crisis', 'garden-pollinator-friendly-earth-matters-link', 'foodhistory-regen-colombia-shade-coffee-birds'],
   },
   // 2026-08-11, same day, a seventh continuation: "Keep going with more
@@ -1425,7 +1387,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A well-documented, dated crisis parallel to the honeybee colony losses covered elsewhere in this sub-cluster, included specifically because bat pollination is agriculturally significant, and almost never mentioned alongside bee-focused pollinator coverage.',
     relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-pollinator-habitat-regenerative-link'],
   },
   {
@@ -1446,7 +1407,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A landmark, peer-reviewed study with a 2024 follow-up confirming no recovery, not a one-time finding left unconfirmed.',
     relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-wild-bees-buzz-pollination', 'foodhistory-regen-pollinator-habitat-regenerative-link'],
   },
   {
@@ -1467,14 +1427,13 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Official USDA market data, a live economic indicator, not a projection or modeled estimate.',
     relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-pollinator-dependent-crops'],
   },
   {
     id: 'foodhistory-regen-honeybee-genetic-bottleneck',
     category: 'earthMatters',
     title: "An Underlying Reason Managed Honeybees Are So Vulnerable in the First Place",
-    teaser: "Fewer than 600 queen mothers produce over a million commercial queen bees in the US every year, a genetic bottleneck comparable to the crop-monoculture risk already covered elsewhere in this cluster.",
+    teaser: "Fewer than 600 queen mothers produce over a million commercial queen bees in the US every year, a genetic bottleneck comparable to the crop-monoculture risk.",
     summary:
       'An underlying structural vulnerability helps explain why the managed honeybee population can lose 62% of its colonies in a single reporting period (see this sub-cluster\'s dedicated entry), rather than absorbing disease and pesticide pressure the way a more genetically diverse population might: US commercial queen producers rely on fewer than 600 queen mothers annually to breed over a million commercial queen bees, a quantified genetic bottleneck. Offspring from this narrow breeding base show measured high relatedness and reduced genetic diversity both within and between colonies, and genome-wide sequencing research found strong genetic similarity across most major US commercial honeybee stocks, since a relatively small number of queen-breeding operations concentrated mainly in Hawaii, California, and the southeastern US supply the large majority of the country\'s managed colonies. This is structurally the same risk already documented for monoculture agave (this sub-cluster\'s bat entry) and, more broadly, for any single-variety-dependent food crop covered elsewhere in this whole cluster: a genetically narrow population is a population where one disease, one parasite, or one pesticide sensitivity can spread further and hit harder than it would across a diverse one, and breeding efforts specifically selecting for Varroa-mite resistance in a few stocks (a worthwhile goal on its own) illustrate the same underlying tradeoff between optimizing for one trait and preserving overall genetic diversity.',
     citations: [
@@ -1488,7 +1447,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A quantified, structural vulnerability factor, explains part of WHY the crisis hits as hard as it does, distinct from the direct causes (mites, pesticides, habitat loss) already covered in this sub-cluster\'s crisis entry.',
     relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-bat-pollinators-white-nose'],
   },
   // 2026-08-11, same day, an eighth continuation: "Keep going with more
@@ -1508,7 +1466,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: "Does Organic Farming Actually Help Pollinators? A Current Meta-Analysis Says Yes, With Conditions",
     teaser: 'A 2025 review of 42 studies across four continents found measurably higher pollinator abundance and diversity on organic farms, strongest for bumblebees, and strongest in otherwise simple, low-diversity landscapes.',
     summary:
-      "This closes the loop directly back to the rest of this cluster: does the organic/regenerative farming already covered throughout this whole category actually measurably help pollinators, or is the connection mostly assumed? A current (2025) meta-analysis in the Journal of Applied Ecology compiled 42 individual studies from four continents, covering 76 separate species-richness comparisons and 57 abundance comparisons between organic and conventional farms, and found a positive effect: pollinator species richness and abundance were both measurably higher on organic farms, with bumblebee diversity benefiting the most of any pollinator group, while moths and hoverflies showed a positive but statistically weaker signal. The complication, consistent with this whole cluster's standing discipline of naming context rather than claiming a universal effect: the benefit was context-dependent, strongest in simple, already low-diversity agricultural landscapes (where organic practices add the most relative habitat value) and weakest in organic pasture systems specifically, with landscape context, crop type, and even sampling method all measurably affecting the size of the underlying effect.",
+      "This closes the loop directly back to the rest of this cluster: does the organic/regenerative farming covered throughout this whole category actually measurably help pollinators, or is the connection mostly assumed? A current (2025) meta-analysis in the Journal of Applied Ecology compiled 42 individual studies from four continents, covering 76 separate species-richness comparisons and 57 abundance comparisons between organic and conventional farms, and found a positive effect: pollinator species richness and abundance were both measurably higher on organic farms, with bumblebee diversity benefiting the most of any pollinator group, while moths and hoverflies showed a positive but statistically weaker signal. The complication, consistent with this whole cluster's standing discipline of naming context rather than claiming a universal effect: the benefit was context-dependent, strongest in simple, already low-diversity agricultural landscapes (where organic practices add the most relative habitat value) and weakest in organic pasture systems specifically, with landscape context, crop type, and even sampling method all measurably affecting the size of the underlying effect.",
     citations: [
       {
         source: 'Walker et al. 2025, Journal of Applied Ecology: "The context-dependent benefits of organic farming on pollinator biodiversity: A meta-analysis"',
@@ -1516,7 +1474,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A current, large-scale meta-analysis, the strongest evidence tier this pollinator sub-cluster has for the direct organic-farming-to-pollinator-abundance question, reported with its context-dependence rather than a blanket claim.',
     relatedIds: ['foodhistory-regen-pollinator-habitat-regenerative-link', 'foodhistory-regen-agroforestry-quantified'],
   },
   {
@@ -1537,7 +1494,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A distinct causal mechanism from every other pollinator threat already covered in this sub-cluster, timing disruption, not direct toxicity or habitat destruction.',
     relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-insect-apocalypse-hallmann'],
   },
   {
@@ -1562,7 +1518,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Extends this whole cluster\'s established international framing to pollinator vulnerability specifically, a structurally different, more precarious exposure than commercial US/EU agriculture has, not the same risk at a smaller scale.',
     relatedIds: ['foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-tying-together', 'foodhistory-regen-food-desert-access-inequality'],
   },
   {
@@ -1583,7 +1538,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A look at an actively-researched technology, included specifically so this sub-cluster doesn\'t leave the impression that a technological fix is already close to solving the underlying decline documented throughout it.',
     relatedIds: ['foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-smallholder-pollinator-vulnerability'],
   },
   // 2026-08-11, same day, a new sub-cluster: "I think we should move to
@@ -1618,7 +1572,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Peer-reviewed, quantified financial-market evidence, the strongest evidence tier this new sub-cluster has for whether boycotts have a measurable effect at all, distinct from whether that effect always produces the specific change demanded.',
     relatedIds: ['foodhistory-regen-nestle-boycott-case-study', 'foodhistory-regen-ufw-grape-boycott-labor'],
   },
   {
@@ -1639,7 +1592,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A dated, well-documented case study, one of the clearest historical examples of a boycott producing formal international policy change, with a note that it needed a second round of pressure to hold.',
     relatedIds: ['foodhistory-regen-boycott-effectiveness-evidence', 'foodhistory-regen-ufw-grape-boycott-labor'],
   },
   {
@@ -1660,7 +1612,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A dated, well-documented labor-rights case study, deliberately included to broaden this whole cluster\'s coverage beyond environmental practice into farmworker conditions specifically.',
     relatedIds: ['foodhistory-regen-boycott-effectiveness-evidence', 'foodhistory-regen-nestle-boycott-case-study'],
   },
   {
@@ -1681,7 +1632,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Official SEC rules and a named, currently-active organizational pathway, an actionable, not just theoretical, mechanism, with a note that most individual resolutions still lose their vote.',
     relatedIds: ['foodhistory-regen-how-to-get-involved', 'foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-seed-industry-consolidation'],
   },
   {
@@ -1702,7 +1652,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'An official, quantified spending figure and a named advocacy infrastructure already organized around it, an underused, concrete civic lever, not a theoretical one.',
     relatedIds: ['foodhistory-regen-how-to-get-involved', 'foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-food-waste-scale', 'foodhistory-regen-food-desert-access-inequality'],
   },
   {
@@ -1723,7 +1672,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A both-sides treatment: the model\'s structural strength (a legally binding stakeholder requirement) and its documented, now-being-fixed weakness are both included, consistent with this whole cluster\'s standing discipline.',
     relatedIds: ['foodhistory-regen-timeline-certification-era', 'foodhistory-regen-whole-foods-organic-industry'],
   },
   {
@@ -1744,7 +1692,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A large-scale movement with mixed academic evidence on direct financial effect, reported rather than assuming divestment automatically works, included alongside a smaller, food-system-specific parallel rather than only the better-known fossil-fuel version.',
     relatedIds: ['foodhistory-regen-shareholder-activism-mechanics', 'foodhistory-regen-institutional-purchasing-power'],
   },
   // 2026-08-11, same day, a second continuation of the economic-power
@@ -1773,7 +1720,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A complication to this sub-cluster\'s more favorable boycott-effectiveness entry, reported directly rather than letting "vote with your dollar" read as a uniformly reliable lever either way.',
     relatedIds: ['foodhistory-regen-boycott-effectiveness-evidence', 'foodhistory-regen-nestle-boycott-case-study'],
   },
   {
@@ -1794,7 +1740,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'SEC-regulated, currently operating platforms with verifiable investment totals, a positive, direct-funding lever, not a pressure campaign.',
     relatedIds: ['foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-timeline-certification-era'],
   },
   // 2026-08-11, same day, direct question: "Seeing where the data has
@@ -1809,7 +1754,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     id: 'foodhistory-regen-ogallala-water-depletion',
     category: 'earthMatters',
     title: 'The Missing Resource Underneath Every Entry in This Cluster: Water',
-    teaser: 'The same almond industry already covered in this cluster (99% of US bee colonies, $209/colony rentals) sits on top of an aquifer that could be 70% depleted within 50 years, and federal policy is directly named as part of why.',
+    teaser: 'The same almond industry covered in this cluster (99% of US bee colonies, $209/colony rentals) sits on top of an aquifer that could be 70% depleted within 50 years, and federal policy is directly named as part of why.',
     summary:
       "Every entry in this whole cluster, soil, pesticides, pollinators, has an unspoken water problem underneath it that hasn't been named directly until now. The Ogallala Aquifer, the largest groundwater source in the US, underlies eight states and provides roughly 30% of all US irrigation groundwater, supporting about a fifth of the country's total agricultural output. Irrigation accounts for 90% of Ogallala withdrawals, and between 1900 and 2008, farmers drained more than 273 million acre-feet from it, a staggering volume equivalent to two-thirds of Lake Erie. The depletion is current, and accelerating: parts of Kansas have already reached \"Day Zero\" (wells running dry) across roughly 30% of the aquifer beneath the state, water levels in the Texas Panhandle have dropped 44 feet, and a 2019 study found climate change could push the depletion rate up by as much as 50% by 2050. The complication, connecting straight back to this cluster's \"why isn't this mandated\" entry: academic research traced this past drought and individual farmer choice to a \"production treadmill\" built directly into federal policy, crop subsidies (a $37.2 billion in 2020, up 65% that year alone) keep farming viable at low crop prices, which pushes farmers to expand irrigated acreage to stay solvent regardless of long-term water cost, and the same expanded irrigation was found to fail at actually improving local income, education, or health outcomes even as it accelerates depletion.",
     citations: [
@@ -1823,7 +1768,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A current, well-documented crisis with a direct, cited policy mechanism, the same structural-disincentive pattern already established in this cluster\'s crop-insurance entry, now shown to apply to water too.',
     relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-how-to-get-involved', 'garden-watering-efficiency', 'foodhistory-regen-water-infiltration-quantified', 'foodhistory-regen-india-water-harvesting-case-study'],
   },
   {
@@ -1843,7 +1787,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'An official CDC-sourced mechanism directly connecting industrial livestock practice to human infectious disease, the clearest, most direct link to the core gut-microbiome-and-autoimmune-disease research anywhere in this whole cluster.',
     relatedIds: ['foodhistory-regen-fao-baseline-stakes', 'gut-scfa-treg', 'foodhistory-regen-institutional-purchasing-power', 'foodhistory-regen-how-to-get-involved'],
   },
   // 2026-08-11, same day, direct continuation: "Keep going with more
@@ -1877,16 +1820,15 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A deliberate correction of a popular but imprecise statistic, the same discipline already applied elsewhere in this cluster to the Savory claim, the FAO hectare figure, and the no-till/greenwashing entry.',
     relatedIds: ['foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-seed-industry-consolidation', 'foodhistory-regen-svalbard-seed-vault', 'garden-seed-saving'],
   },
   {
     id: 'foodhistory-regen-seed-industry-consolidation',
     category: 'earthMatters',
     title: 'Four Companies Now Control More Than Half the World\'s Commercial Seed Supply',
-    teaser: 'In the 1980s, the ten biggest seed companies controlled under 15% of the market. Today four companies alone control 56%, the same companies already covered in this cluster\'s pesticide and lobbying research.',
+    teaser: 'In the 1980s, the ten biggest seed companies controlled under 15% of the market. Today four companies alone control 56%, the same companies covered in this cluster\'s pesticide and lobbying research.',
     summary:
-      'A direct, quantified consolidation trend, and a structural parallel to the genetic-bottleneck pattern already documented twice elsewhere in this cluster (commercial honeybee breeding, agave monoculture): four companies, Bayer, Syngenta, Corteva, and BASF, now control 56% of the global commercial seed market and 61% of the global pesticide market. This is a fast, recent consolidation, not a decades-old status quo: in the seed sector specifically, the combined market share of the top four rose from 21% to 57% over roughly 25 years, and the ten largest seed companies now control 70% of the market, up from under 15% in the 1980s. Bayer and Corteva alone, the two largest players, control 42% of the global commercial seed market between them, and both are heavily concentrated in just two crops, Bayer draws roughly 75% of its seed sales from maize and soybeans, Corteva a full 85%. This is the same Bayer already covered in this cluster\'s pesticide-liability-shield and lobbying-imbalance entries, now shown controlling a comparably outsized share of the seed supply itself, not just the chemicals applied to it.',
+      'A direct, quantified consolidation trend, and a structural parallel to the genetic-bottleneck pattern already documented twice elsewhere in this cluster (commercial honeybee breeding, agave monoculture): four companies, Bayer, Syngenta, Corteva, and BASF, now control 56% of the global commercial seed market and 61% of the global pesticide market. This is a fast, recent consolidation, not a decades-old status quo: in the seed sector specifically, the combined market share of the top four rose from 21% to 57% over roughly 25 years, and the ten largest seed companies now control 70% of the market, up from under 15% in the 1980s. Bayer and Corteva alone, the two largest players, control 42% of the global commercial seed market between them, and both are heavily concentrated in just two crops, Bayer draws roughly 75% of its seed sales from maize and soybeans, Corteva a full 85%. This is the same Bayer covered in this cluster\'s pesticide-liability-shield and lobbying-imbalance entries, now shown controlling a comparably outsized share of the seed supply itself, not just the chemicals applied to it.',
     citations: [
       {
         source: 'Heinrich Böll Stiftung (Pesticide Atlas): Corporations, big profits with toxic trade (56%/61% figures)',
@@ -1898,7 +1840,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Current, independently-tracked market-concentration data, directly ties this cluster\'s pesticide/lobbying research on Bayer to the seed supply specifically, not a separate corporate story.',
     relatedIds: ['foodhistory-regen-seed-diversity-loss', 'foodhistory-regen-lobbying-imbalance', 'foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-shareholder-activism-mechanics', 'foodhistory-regen-seed-patent-litigation'],
   },
   {
@@ -1919,7 +1860,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A positive institutional response to the diversity-loss problem, reported alongside its complication rather than only the reassuring half of the story.',
     relatedIds: ['foodhistory-regen-seed-diversity-loss', 'foodhistory-regen-ogallala-water-depletion'],
   },
   {
@@ -1928,7 +1868,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: 'A Different Threat to Food\'s Nutrient Content: Rising CO2 Itself, Not Farming Practice',
     teaser: 'A rigorous 7-site, 40-cultivar field study found single-digit declines in zinc, iron, and protein under the CO2 levels expected by mid-century, modest per crop, but reaching 2.3 billion people who get most of their dietary zinc and iron from exactly these staples.',
     summary:
-      "This cluster's nutrient-density entry already covers whether FARMING PRACTICE (organic vs. Conventional) changes how nutritious food is. Separate research asks a different question: does rising atmospheric CO2 itself, independent of how a crop is farmed, change its nutrient content. The most rigorous answer comes from Myers et al. 2014 (Nature), a study using free-air CO2 enrichment (FACE) technology across seven field-experiment sites in Japan, Australia, and the United States, testing 40 crop cultivars across up to six growing seasons for a total of 143 comparisons, at the CO2 concentration levels expected by roughly mid-century. The precise findings, modest per crop rather than dramatic: wheat showed 9.3% lower zinc and 6.3% lower protein, rice showed 3.3% lower zinc and 7.8% lower protein, field peas and soybeans showed comparable single-digit declines in zinc and iron. The reason this matters despite modest individual percentages: the study found roughly 2.3 billion people worldwide get at least 60% of their dietary zinc and/or iron from these same C3 staple crops, with 1.9 billion relying on them for 70% or more of at least one of those nutrients, a small percentage decline applied across that much of the global food supply is a population-scale nutrition risk, not a rounding error. C4 crops (maize, sorghum, several others) use a different photosynthetic pathway and were found substantially less affected, a practical distinction for which staple crops carry more of this specific risk.",
+      "This cluster's nutrient-density entry covers whether FARMING PRACTICE (organic vs. Conventional) changes how nutritious food is. Separate research asks a different question: does rising atmospheric CO2 itself, independent of how a crop is farmed, change its nutrient content. The most rigorous answer comes from Myers et al. 2014 (Nature), a study using free-air CO2 enrichment (FACE) technology across seven field-experiment sites in Japan, Australia, and the United States, testing 40 crop cultivars across up to six growing seasons for a total of 143 comparisons, at the CO2 concentration levels expected by roughly mid-century. The precise findings, modest per crop rather than dramatic: wheat showed 9.3% lower zinc and 6.3% lower protein, rice showed 3.3% lower zinc and 7.8% lower protein, field peas and soybeans showed comparable single-digit declines in zinc and iron. The reason this matters despite modest individual percentages: the study found roughly 2.3 billion people worldwide get at least 60% of their dietary zinc and/or iron from these same C3 staple crops, with 1.9 billion relying on them for 70% or more of at least one of those nutrients, a small percentage decline applied across that much of the global food supply is a population-scale nutrition risk, not a rounding error. C4 crops (maize, sorghum, several others) use a different photosynthetic pathway and were found substantially less affected, a practical distinction for which staple crops carry more of this specific risk.",
     citations: [
       {
         source: 'Myers SS, et al. 2014, Nature: "Increasing CO2 threatens human nutrition" (exact per-crop percentage declines, 2.3 billion figure)',
@@ -1936,7 +1876,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A rigorous, multi-site field study, the exact figures here were independently re-verified against the primary source after an initial aggregated search result gave clearly inflated numbers that did not match the paper.',
     relatedIds: ['foodhistory-regen-nutrient-density-honest-evidence', 'foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-how-to-get-involved'],
   },
   {
@@ -1957,7 +1896,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A direct multiplier on this cluster\'s already-established urgency baseline, every resource documented elsewhere in this cluster is partly being spent on food that is never eaten.',
     relatedIds: ['foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-institutional-purchasing-power'],
   },
   // 2026-08-12, same day, tenth continuation: "Keep going with more
@@ -1986,7 +1924,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A complication to a popular, intuitive policy assumption (build a grocery store, diets improve): the research found it more complicated than that.',
     relatedIds: ['foodhistory-regen-smallholder-pollinator-vulnerability', 'foodhistory-regen-institutional-purchasing-power', 'foodhistory-regen-whole-foods-organic-industry', 'garden-economics-subsidizing-food', 'garden-container-small-space', 'garden-community-gardens'],
   },
   {
@@ -1995,7 +1932,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: "A Live, Current Fight Over Who Actually Controls a Farmer's Tractor",
     teaser: 'A 2023 US PIRG survey found roughly 1 in 3 surveyed farmers feared losing their farm over a repair they couldn\'t get done in time. In 2026, John Deere paid $99 million to settle exactly that fight.',
     summary:
-      "A current, direct extension of this cluster's economic-power research, and a different kind of corporate-accountability fight than the pesticide-liability-shield battle already covered: who is legally allowed to repair a farmer's equipment. Modern farm machinery runs on proprietary software, and manufacturers like John Deere have documented histories of restricting repair access to authorized dealers only, even for equipment the farmer owns, an estimated $4.2 billion annual cost to American farmers (roughly $3 billion in equipment downtime, $1.2 billion in inflated repair costs from having no competing option). The human stakes: a 2023 US PIRG survey of 53 farmers across 14 states found roughly one in three feared they could lose their farm entirely over a repair they couldn't get completed in time, since a tractor breakdown during a narrow planting or harvest window can threaten an entire season's crop regardless of how quickly the actual mechanical fix would otherwise be. Colorado became the first US state to pass a right-to-repair law for farm equipment in 2023, guaranteeing farmers and independent mechanics access to the same software and repair materials Deere's authorized dealers already had. The federal government followed directly: the FTC and several state attorneys general sued Deere in January 2025, and in 2026 Deere agreed to a $99 million settlement, requiring the company, under 10 years of direct FTC and state supervision, to give farmers and independent repair providers the same diagnostic software and repair resources it already provides its authorized dealer network.",
+      "A current, direct extension of this cluster's economic-power research, and a different kind of corporate-accountability fight than the pesticide-liability-shield battle covered: who is legally allowed to repair a farmer's equipment. Modern farm machinery runs on proprietary software, and manufacturers like John Deere have documented histories of restricting repair access to authorized dealers only, even for equipment the farmer owns, an estimated $4.2 billion annual cost to American farmers (roughly $3 billion in equipment downtime, $1.2 billion in inflated repair costs from having no competing option). The human stakes: a 2023 US PIRG survey of 53 farmers across 14 states found roughly one in three feared they could lose their farm entirely over a repair they couldn't get completed in time, since a tractor breakdown during a narrow planting or harvest window can threaten an entire season's crop regardless of how quickly the actual mechanical fix would otherwise be. Colorado became the first US state to pass a right-to-repair law for farm equipment in 2023, guaranteeing farmers and independent mechanics access to the same software and repair materials Deere's authorized dealers already had. The federal government followed directly: the FTC and several state attorneys general sued Deere in January 2025, and in 2026 Deere agreed to a $99 million settlement, requiring the company, under 10 years of direct FTC and state supervision, to give farmers and independent repair providers the same diagnostic software and repair resources it already provides its authorized dealer network.",
     citations: [
       {
         source: 'Federal Trade Commission: FTC, States Secure Settlement with Deere & Company, Advancing Farmers\' Right to Repair (2026, $99 million, 10-year terms)',
@@ -2007,7 +1944,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A current, live legal and legislative fight, resolved with a settlement within this same research thread\'s timeframe, not a historical or hypothetical example.',
     relatedIds: ['foodhistory-regen-pesticide-liability-shields', 'foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-how-to-get-involved'],
   },
   {
@@ -2028,7 +1964,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A current scientific hypothesis with supporting pieces, reported at the same confidence level its authors give it, not yet proven end to end.',
     relatedIds: ['gut-scfa-treg', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-organic-farming-pollinator-abundance', 'foodhistory-regen-old-friends-hypothesis', 'foodhistory-regen-karelia-biodiversity-study'],
   },
   // --- The Gut Connection, extended 2026-08-13: a real, direct request to
@@ -2048,7 +1983,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: "The Old Friends Hypothesis: What the Immune System Actually Needs From the Natural World",
     teaser: 'Not "dirt is good for you." A specific claim: the immune system needs ongoing contact with the exact organisms it co-evolved with, or a part of its regulatory machinery never finishes building correctly.',
     summary:
-      "The older \"hygiene hypothesis\" gets repeated as \"kids who grow up too clean develop more allergies\", a popular oversimplification that immunologist Graham Rook deliberately corrected with a more precise successor framework in 2003, refined further in a comprehensive 2013 review. The \"Old Friends\" hypothesis makes a narrower, more mechanistic claim: it isn't exposure to microbes in general that matters, it's exposure to a specific set of organisms (soil-dwelling bacteria, environmental saprophytes, gut symbionts, and historically, intestinal worms) that were present throughout the hundreds of thousands of years the human immune system was evolving, and that the immune system now effectively expects as a developmental input. These organisms are proposed to drive the expansion of regulatory T cells and other immunoregulatory circuits, the same Treg-mediated tolerance machinery already covered in this app's Gut & Microbiome research. They are not harmless organisms being tolerated; the immune system uses cues from them to calibrate how aggressively to respond to everything else, including the body's own tissues. Modern urban life, with its reduction in contact with soil, farm animals, and a diverse outdoor environment, removes many of those cues at once, a proposed reason chronic inflammatory and autoimmune disease has risen fastest in exactly the populations that lost this contact first. This is a distinct, complementary mechanism from the \"disappearing microbiota\" research already covered elsewhere in this Digest (antibiotics, C-sections, and formula feeding depleting a person's internal gut flora), that's about losing microbes a person already carries; Old Friends is about losing ongoing contact with the external, environmental organisms the immune system also needs.",
+      "The older \"hygiene hypothesis\" gets repeated as \"kids who grow up too clean develop more allergies\", a popular oversimplification that immunologist Graham Rook deliberately corrected with a more precise successor framework in 2003, refined further in a comprehensive 2013 review. The \"Old Friends\" hypothesis makes a narrower, more mechanistic claim: it isn't exposure to microbes in general that matters, it's exposure to a specific set of organisms (soil-dwelling bacteria, environmental saprophytes, gut symbionts, and historically, intestinal worms) that were present throughout the hundreds of thousands of years the human immune system was evolving, and that the immune system now effectively expects as a developmental input. These organisms are proposed to drive the expansion of regulatory T cells and other immunoregulatory circuits, the same Treg-mediated tolerance machinery covered in this app's Gut & Microbiome research. They are not harmless organisms being tolerated; the immune system uses cues from them to calibrate how aggressively to respond to everything else, including the body's own tissues. Modern urban life, with its reduction in contact with soil, farm animals, and a diverse outdoor environment, removes many of those cues at once, a proposed reason chronic inflammatory and autoimmune disease has risen fastest in exactly the populations that lost this contact first. This is a distinct, complementary mechanism from the \"disappearing microbiota\" research covered elsewhere in this Digest (antibiotics, C-sections, and formula feeding depleting a person's internal gut flora), that's about losing microbes a person already carries; Old Friends is about losing ongoing contact with the external, environmental organisms the immune system also needs.",
     citations: [
       {
         source: "Rook GA, Lowry CA, Raison CL 2013, Evolution, Medicine, and Public Health: \"Microbial 'Old Friends', immunoregulation and stress resilience\"",
@@ -2056,7 +1991,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A well-established, actively-developed framework in immunology, the specific molecular mechanisms by which each organism does this are still being characterized, as the framework\'s originators say.',
     relatedIds: ['gut-scfa-treg', 'foodhistory-mechanism-disappearing-microbiota', 'foodhistory-regen-soil-gut-microbiome-axis', 'foodhistory-regen-karelia-biodiversity-study', 'foodhistory-regen-microbiome-symbiosis-mission'],
   },
   {
@@ -2086,7 +2020,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A large, repeatedly-measured population comparison, followed by a national intervention with quantified, favorable outcomes, one of the stronger evidence chains in this whole cluster.',
     relatedIds: ['foodhistory-regen-old-friends-hypothesis', 'foodhistory-regen-soil-gut-microbiome-axis', 'garden-hands-in-soil-immune-training'],
   },
   {
@@ -2118,7 +2051,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A peer-reviewed mechanism, checked directly against a popular figure that overstates it: the mechanism holds, the specific number does not.',
     relatedIds: ['foodhistory-regen-mycorrhizal-networks', 'foodhistory-regen-4-per-1000-initiative', 'foodhistory-regen-rodale-farming-systems-trial'],
   },
   {
@@ -2135,7 +2067,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A large, precisely quantified meta-analysis that both confirms the underlying popular claim (regenerative practices improve water infiltration) and corrects which specific practice actually drives it.',
     relatedIds: ['foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-cover-crop-reality-check', 'garden-watering-efficiency'],
   },
   {
@@ -2144,7 +2075,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: 'A Single, 33-Year Farm-Scale Transition, Tracked Year by Year',
     teaser: "A North Dakota ranch's soil organic matter climbed from 1.9% in 1991 to as high as 7.9% today, with crop yields running 20-25% above the county average, one farm, extensively documented, not independently peer-reviewed.",
     summary:
-      "Every regenerative-agriculture case study already built in this cluster works at national or regional scale, Brazil's no-till movement, Niger's farmer-managed regeneration, China's Loess Plateau restoration. A different, individual-farm-scale example is also extensively documented: a 5,000-acre ranch in Burleigh County, North Dakota, run by the same family since a series of severe weather losses in the early 1990s forced a change in practice. Tracked figures over more than three decades: soil organic matter rose from 1.9% in 1991 to a range now reported between 5.3% and 7.9%, a multi-fold increase directly tied to the same water-holding-capacity and infiltration mechanisms already covered elsewhere in this cluster. By 2010, the operation had eliminated synthetic fertilizer entirely, and it no longer requires fungicides or pesticides at all, while running crop yields a 20-25% above the county average through a combination of continuous no-till, multi-species cover and companion cropping, and managed rotational grazing that gives most pastures a full year to recover between grazing periods. This is an extensively documented case, covered repeatedly by agricultural extension services and industry press over more than a decade, but it is one family's individually tracked farm data, not an independently peer-reviewed academic study the way the Rodale Institute's controlled 40-plus-year trial is, a different and lower tier of evidence than a designed, replicated experiment.",
+      "Every regenerative-agriculture case study already built in this cluster works at national or regional scale, Brazil's no-till movement, Niger's farmer-managed regeneration, China's Loess Plateau restoration. A different, individual-farm-scale example is also extensively documented: a 5,000-acre ranch in Burleigh County, North Dakota, run by the same family since a series of severe weather losses in the early 1990s forced a change in practice. Tracked figures over more than three decades: soil organic matter rose from 1.9% in 1991 to a range now reported between 5.3% and 7.9%, a multi-fold increase directly tied to the same water-holding-capacity and infiltration mechanisms. By 2010, the operation had eliminated synthetic fertilizer entirely, and it no longer requires fungicides or pesticides at all, while running crop yields a 20-25% above the county average through a combination of continuous no-till, multi-species cover and companion cropping, and managed rotational grazing that gives most pastures a full year to recover between grazing periods. This is an extensively documented case, covered repeatedly by agricultural extension services and industry press over more than a decade, but it is one family's individually tracked farm data, not an independently peer-reviewed academic study the way the Rodale Institute's controlled 40-plus-year trial is, a different and lower tier of evidence than a designed, replicated experiment.",
     citations: [
       {
         source: "Center for Regenerative Agriculture and Resilient Systems (CSU Chico): profile of the farm's soil organic matter and yield data",
@@ -2156,7 +2087,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'An extensively documented individual case, tiered below the peer-reviewed Rodale trial and the government-tracked national case studies elsewhere in this cluster, since it rests on one family\'s tracked data rather than independent academic replication.',
     relatedIds: ['foodhistory-regen-rodale-farming-systems-trial', 'foodhistory-regen-brazil-case-study', 'foodhistory-regen-no-till-greenwashing-critique'],
   },
   {
@@ -2177,7 +2107,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A standard USDA field-diagnostic tool, directly demonstrating the same soil-aggregate mechanism already covered elsewhere in this cluster rather than a separate claim.',
     relatedIds: ['foodhistory-regen-water-infiltration-quantified', 'foodhistory-regen-darwin-earthworms-vermicompost', 'foodhistory-regen-rodale-farming-systems-trial'],
   },
   {
@@ -2186,7 +2115,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: "The Mid-Century Shift That's the Direct Ancestor of the System This Whole Cluster Responds To",
     teaser: 'A celebrated achievement, credited with saving hundreds of millions of people from famine, that also required inputs only well-capitalized farmers could actually afford.',
     summary:
-      "This cluster's already-built history entries mention the Green Revolution as one line inside a broader 1945-1976 timeline; its specific mechanism and consequences deserve their direct account, since it's the actual historical origin of the input-dependent, monoculture-based farming system every other entry in this cluster is responding to. Beginning in the 1940s-60s, American scientist Norman Borlaug developed short-stemmed, disease-resistant wheat varieties capable of absorbing far more synthetic nitrogen fertilizer than traditional varieties without collapsing under the weight of their grain, tripling Mexico's wheat production and, alongside comparable rice and maize breeding efforts, credited with helping prevent famine across large parts of Asia and Latin America as global population surged. The tradeoff was structural rather than incidental: these high-yield varieties only performed as advertised with heavy, ongoing synthetic fertilizer and irrigation input, a lasting requirement (see this cluster's already-covered DDT and synthetic-fertilizer entries for the environmental side of that same shift). The human-scale consequence, less discussed than the yield gains: farmers who could afford the seed, fertilizer, and irrigation investment thrived, while resource-poor, smallholder farmers who couldn't fell into documented debt and, in many cases, lost their land entirely, a direct structural predecessor of the seed-cost and input-cost pressures still facing farmers today. The shift toward a small number of staple monoculture crops also reduced agricultural biodiversity, leaving those systems more vulnerable to pests and disease, the same genetic-narrowness risk pattern this cluster has already documented independently in commercial honeybee breeding and today's seed-industry consolidation.",
+      "This cluster's already-built history entries mention the Green Revolution as one line inside a broader 1945-1976 timeline; its specific mechanism and consequences deserve their direct account, since it's the actual historical origin of the input-dependent, monoculture-based farming system every other entry in this cluster is responding to. Beginning in the 1940s-60s, American scientist Norman Borlaug developed short-stemmed, disease-resistant wheat varieties capable of absorbing far more synthetic nitrogen fertilizer than traditional varieties without collapsing under the weight of their grain, tripling Mexico's wheat production and, alongside comparable rice and maize breeding efforts, credited with helping prevent famine across large parts of Asia and Latin America as global population surged. The tradeoff was structural rather than incidental: these high-yield varieties only performed as advertised with heavy, ongoing synthetic fertilizer and irrigation input, a lasting requirement (see the DDT and synthetic-fertilizer entries for the environmental side of that same shift). The human-scale consequence, less discussed than the yield gains: farmers who could afford the seed, fertilizer, and irrigation investment thrived, while resource-poor, smallholder farmers who couldn't fell into documented debt and, in many cases, lost their land entirely, a direct structural predecessor of the seed-cost and input-cost pressures still facing farmers today. The shift toward a small number of staple monoculture crops also reduced agricultural biodiversity, leaving those systems more vulnerable to pests and disease, the same genetic-narrowness risk pattern this cluster has already documented independently in commercial honeybee breeding and today's seed-industry consolidation.",
     citations: [
       {
         source: 'Britannica: Green revolution (Borlaug\'s wheat breeding, Mexico/India yield history)',
@@ -2198,7 +2127,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A well-documented historical turning point, presented with both its celebrated achievement and its structural human cost, rather than either alone.',
     relatedIds: ['foodhistory-timeline-chemical-convenience', 'foodhistory-regen-seed-diversity-loss', 'foodhistory-regen-farmer-mental-health-debt-crisis'],
   },
   {
@@ -2219,7 +2147,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A peer-reviewed CDC-sourced dataset behind a specific, quantified figure, not an estimate, the direct human-cost counterpart to this cluster\'s already-covered economic and policy research.',
     relatedIds: ['foodhistory-regen-green-revolution-consequences', 'foodhistory-regen-why-not-mandated', 'foodhistory-regen-how-to-get-involved', 'foodhistory-regen-ogallala-water-depletion'],
   },
   {
@@ -2228,7 +2155,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: 'Two Supreme Court Cases That Decided Whether Saving Your Harvested Seed Is Legal',
     teaser: 'One Saskatchewan canola farmer and one Indiana soybean farmer both lost, in two different countries\' highest courts, over the exact same underlying question: does buying a patented seed once mean you can never plant its descendants again.',
     summary:
-      "This cluster's already-covered seed-industry consolidation (four companies now controlling 56% of the global commercial seed market) is enforced through tested legal mechanisms, not just market dominance, and two Supreme Court decisions, one Canadian, one American, set the actual legal ground rules still in force today. In Canada, Monsanto sued Saskatchewan canola farmer Percy Schmeiser in 1998 after his fields were found to contain the company's patented, herbicide-resistant canola, which Schmeiser maintained had arrived through unintentional cross-contamination from neighboring farms, not deliberate purchase. Canada's Supreme Court ruled 5-4 in 2004 that Monsanto's gene patent was valid and enforceable even against unintentional contamination, though it also ruled each side would pay its legal costs, letting Schmeiser walk away without paying Monsanto anything despite technically losing. In the United States, Indiana soybean farmer Vernon Bowman bought ordinary grain-elevator soybeans, intended for animal feed or consumption, and knowingly planted them specifically because he suspected most would carry Monsanto's patented Roundup Ready trait, then saved and replanted the resulting harvest across multiple seasons rather than buying fresh licensed seed each year. In a unanimous 2013 ruling, the US Supreme Court held that Monsanto's patent rights survive a single sale and are not exhausted by it, meaning a farmer who plants a patented seed and grows a new generation of seed from it has created a legally new, infringing article regardless of how the original seed was obtained. Together, these two high-court decisions established the actual legal mechanism (not just the market share) by which patent holders can enforce control over seed saving, the traditional farming practice these companies' own genetically engineered seed licenses now generally prohibit outright.",
+      "The seed-industry consolidation (four companies now controlling 56% of the global commercial seed market) is enforced through tested legal mechanisms, not just market dominance, and two Supreme Court decisions, one Canadian, one American, set the actual legal ground rules still in force today. In Canada, Monsanto sued Saskatchewan canola farmer Percy Schmeiser in 1998 after his fields were found to contain the company's patented, herbicide-resistant canola, which Schmeiser maintained had arrived through unintentional cross-contamination from neighboring farms, not deliberate purchase. Canada's Supreme Court ruled 5-4 in 2004 that Monsanto's gene patent was valid and enforceable even against unintentional contamination, though it also ruled each side would pay its legal costs, letting Schmeiser walk away without paying Monsanto anything despite technically losing. In the United States, Indiana soybean farmer Vernon Bowman bought ordinary grain-elevator soybeans, intended for animal feed or consumption, and knowingly planted them specifically because he suspected most would carry Monsanto's patented Roundup Ready trait, then saved and replanted the resulting harvest across multiple seasons rather than buying fresh licensed seed each year. In a unanimous 2013 ruling, the US Supreme Court held that Monsanto's patent rights survive a single sale and are not exhausted by it, meaning a farmer who plants a patented seed and grows a new generation of seed from it has created a legally new, infringing article regardless of how the original seed was obtained. Together, these two high-court decisions established the actual legal mechanism (not just the market share) by which patent holders can enforce control over seed saving, the traditional farming practice these companies' own genetically engineered seed licenses now generally prohibit outright.",
     citations: [
       {
         source: 'Wikipedia (cross-checked against the Supreme Court of Canada\'s published judgment): Monsanto Canada Inc v Schmeiser, 2004 SCC 34',
@@ -2240,7 +2167,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Two verifiable, high-court legal decisions, not disputed claims, the actual legal mechanism behind the market-concentration numbers already covered elsewhere in this cluster.',
     relatedIds: ['foodhistory-regen-seed-industry-consolidation', 'foodhistory-regen-seed-diversity-loss'],
   },
   // 2026-08-13, same day, direct follow-up: "Include all of the various
@@ -2276,7 +2202,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A controlled, four-year peer-reviewed watershed comparison, not an anecdote, one of the more directly measured case studies in this whole cluster.',
     relatedIds: ['foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-tying-together', 'foodhistory-regen-farmer-mental-health-debt-crisis'],
     chart: {
       title: 'Bundelkhand Watershed, Before vs. After Water Harvesting (2014-17)',
@@ -2304,7 +2229,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A complication kept in rather than smoothed over, the same discipline already applied to the holistic-grazing entry elsewhere in this cluster.',
     relatedIds: ['foodhistory-regen-holistic-grazing-disputed', 'foodhistory-regen-elephant-dung-fertilizer', 'foodhistory-regen-tying-together'],
     chart: {
       title: 'Soil CO2 Flux, Enclosed vs. Open Grazing Land (West Pokot, Kenya)',
@@ -2330,7 +2254,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'weak',
-    stageNote: "The study's authors call this preliminary and explicitly ask for larger-scale trials, reported at exactly that confidence level, not upgraded to sound more settled than it is.",
     relatedIds: ['foodhistory-regen-kenya-rangeland-enclosures', 'foodhistory-regen-tying-together'],
   },
   {
@@ -2355,7 +2278,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A current, peer-reviewed landscape-level study, not a single farm anecdote, and a complementary-conservation finding rather than a simple shade-coffee-fixes-everything claim.',
     relatedIds: ['foodhistory-regen-agroforestry-quantified', 'foodhistory-regen-pollinator-habitat-regenerative-link', 'foodhistory-regen-tying-together'],
     chart: {
       title: 'Forest Cover Needed for Forest-Specialist Birds vs. The Bird Friendly Standard',
@@ -2395,7 +2317,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'Reframing the Debate Surrounding the Yield Gap between Organic and Conventional Farming, Agriculture (MDPI) 2019', url: 'https://www.mdpi.com/2073-4395/9/2/82' },
     ],
     overallTier: 'strong',
-    stageNote: 'Two independent, large-scale meta-analyses in agreement on the general size and shape of the gap, the strongest kind of evidence this category cites.',
     relatedIds: ['foodhistory-regen-yield-gap-context-dependent', 'foodhistory-regen-india-zbnf-case-study', 'garden-organic-fertility-amendments'],
   },
   {
@@ -2411,7 +2332,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'Yield increases during the organic transition: improving soil quality or increasing experience?, ScienceDirect', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0378429003001990' },
     ],
     overallTier: 'moderate',
-    stageNote: 'Field trials and a long-term transition study, more context-dependent and mixed than the clean global-average figure above, tiered moderate for that variability rather than one settled number.',
     relatedIds: ['foodhistory-regen-organic-yield-gap-meta-analysis', 'foodhistory-regen-water-infiltration-quantified', 'foodhistory-regen-india-zbnf-case-study'],
   },
   {
@@ -2426,7 +2346,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'Impact of Zero Budget Natural Farming on Crop Yields in Andhra Pradesh, SE India, Sustainability (MDPI) 2022', url: 'https://doi.org/10.3390/su14031689' },
     ],
     overallTier: 'strong',
-    stageNote: 'A controlled, multi-season, multi-site field trial directly comparing all three farming methods on the same measured outcomes, not a single-farm or single-season anecdote.',
     relatedIds: ['foodhistory-regen-organic-yield-gap-meta-analysis', 'foodhistory-regen-sikkim-organic-state', 'foodhistory-regen-water-infiltration-quantified'],
     chart: {
       title: 'Andhra Pradesh Groundnut Yield by Farming Method',
@@ -2442,7 +2361,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   {
     id: 'foodhistory-regen-sikkim-organic-state',
     category: 'earthMatters',
-    title: "Sikkim Became the World's First Fully Organic State, and the Outcome Is a Mixed Picture",
+    title: "Sikkim Banned Synthetic Pesticides in 2016, With Documented Tradeoffs in Yield and Market Access",
     teaser: 'An Indian state banned synthetic pesticides and fertilizers outright in 2016, won an FAO policy award for it, and researchers later confirmed the ban actually held, alongside documented tradeoffs in yield and market access.',
     summary:
       "Sikkim, a small Indian state in the eastern Himalayas, began a phased transition away from synthetic agricultural chemicals starting with a 2003 state resolution, and completed it in 2016, when it was declared the world's first 100% organic state, certifying roughly 75,000 hectares of farmland. The transition combined a legal ban on synthetic pesticide and fertilizer sale, phased farmer training and institutional support, and enforcement, not just a voluntary target. The achievement was internationally recognized: Sikkim won the Food and Agriculture Organization's 2018 Future Policy Award, beating 51 other nominated policies from 25 countries, and a later independent field study confirmed the ban had actually held, no farmer surveyed was found using chemical inputs even after roughly two decades. What the same body of research also documents, and this entry reports directly rather than only the award-winning framing: challenges accompanied the transition, including farmers' dependence on middlemen from a lack of organized organic marketing infrastructure, high certification costs, documented food-security concerns tied to declining productivity in some crops during the shift, and inadequate storage and processing infrastructure to support the new organic supply chain. Sikkim is a verified case that a full synthetic-input ban is achievable and enforceable at state scale, and one that the transition carried measurable economic costs alongside its environmental and policy success, not a clean, uncomplicated win.",
@@ -2451,7 +2370,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'World Future Council: Press release, 2018 Future Policy Award winners announced (Sikkim, Gold Prize)', url: 'https://www.worldfuturecouncil.org/press-release-2018-fpa2018-winners/' },
     ],
     overallTier: 'moderate',
-    stageNote: 'A verified state-level policy transition with an independently confirmed compliance outcome, tiered moderate rather than strong specifically because its documented economic tradeoffs (market access, certification cost, food-security concerns) are unresolved, not because the transition itself is in doubt.',
     relatedIds: ['foodhistory-regen-india-zbnf-case-study', 'foodhistory-regen-organic-yield-gap-meta-analysis'],
   },
   // Deep-dive continuation, added 2026-08-24, same day and same source
@@ -2481,7 +2399,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'The Soil Food Web: Nature\'s Way to Build Healthy Soils, Piedmont Master Gardeners', url: 'https://www.piedmontmastergardeners.org/article/the-soil-food-web-natures-way-to-build-healthy-soils/' },
     ],
     overallTier: 'strong',
-    stageNote: 'The mineralization pathway itself is well-established soil science; the specific percentage contributions vary by study and soil type, reported here as a range rather than one fixed number.',
     relatedIds: ['foodhistory-regen-mycorrhizal-networks', 'foodhistory-regen-uc-davis-century-experiment', 'foodhistory-regen-rhizobia-nitrogen-fixation', 'garden-composting-at-home'],
   },
   {
@@ -2496,7 +2413,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'Molecular Basis of Root Nodule Symbiosis between Bradyrhizobium and \'Crack-Entry\' Legume Groundnut, PMC7076665', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7076665/' },
     ],
     overallTier: 'strong',
-    stageNote: 'A well-established, textbook-level mechanism in plant biology, not a disputed or emerging finding.',
     relatedIds: ['foodhistory-regen-soil-food-web-mineralization', 'foodhistory-regen-engineered-nitrogen-fixing-microbes', 'garden-cover-crops-home'],
   },
   {
@@ -2505,13 +2421,12 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: '"Certified Organic" Is a Specific, Legally Enforced Standard, Not a Marketing Word',
     teaser: 'Land needs three full years free of prohibited substances before a single crop grown on it can legally be called organic, and annual on-site inspections and residue testing are what actually enforce the label.',
     summary:
-      "The word \"organic\" on a US food label is not self-declared, it is a regulated legal claim under the USDA's National Organic Program, with a specific, checkable set of requirements behind it. Land must go a full 36 months, three complete years, without any prohibited substance applied to it before anything grown on it can be sold, labeled, or represented as organic, a waiting period with no shortcut, which is exactly why a farm's transition period (already covered elsewhere in this category as a documented yield-gap factor) carries a measurable financial cost before any organic premium becomes available. The underlying rule for what counts as prohibited is a specific structure, not a vague \"natural good, synthetic bad\" rule of thumb: for crops, synthetic substances are banned by default unless specifically allowed, while natural substances are allowed by default unless specifically prohibited (arsenic and strychnine are both banned examples of a natural substance). Enforcement isn't paperwork alone, certifying agents conduct annual on-site inspections and periodic residue testing to verify compliance, the same verification mechanism behind Sikkim's independently confirmed compliance already covered in this category. Knowing this specific structure is what actually lets a shopper or gardener evaluate a competing claim like \"pesticide-free\" or \"natural,\" neither of which carries this same enforced, third-party-verified meaning.",
+      "The word \"organic\" on a US food label is not self-declared, it is a regulated legal claim under the USDA's National Organic Program, with a specific, checkable set of requirements behind it. Land must go a full 36 months, three complete years, without any prohibited substance applied to it before anything grown on it can be sold, labeled, or represented as organic, a waiting period with no shortcut, which is exactly why a farm's transition period (covered elsewhere in this category as a documented yield-gap factor) carries a measurable financial cost before any organic premium becomes available. The underlying rule for what counts as prohibited is a specific structure, not a vague \"natural good, synthetic bad\" rule of thumb: for crops, synthetic substances are banned by default unless specifically allowed, while natural substances are allowed by default unless specifically prohibited (arsenic and strychnine are both banned examples of a natural substance). Enforcement isn't paperwork alone, certifying agents conduct annual on-site inspections and periodic residue testing to verify compliance, the same verification mechanism behind Sikkim's independently confirmed compliance. Knowing this specific structure is what actually lets a shopper or gardener evaluate a competing claim like \"pesticide-free\" or \"natural,\" neither of which carries this same enforced, third-party-verified meaning.",
     citations: [
       { source: 'USDA Agricultural Marketing Service: Organic Transitioning', url: 'https://www.ams.usda.gov/services/organic-certification/transitioning-to-organic' },
       { source: 'USDA Agricultural Marketing Service: Allowed and Prohibited Substances', url: 'https://www.ams.usda.gov/sites/default/files/media/Allowed-Prohibited%20Substances.pdf' },
     ],
     overallTier: 'strong',
-    stageNote: 'Directly sourced from the federal regulation itself (USDA AMS), not a summary or a third-party interpretation.',
     relatedIds: ['foodhistory-regen-organic-yield-gap-meta-analysis', 'foodhistory-regen-sikkim-organic-state', 'garden-organic-approved-pesticides'],
   },
   {
@@ -2526,7 +2441,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'Cosmic Flavour, Spiritual Nutrition?: The Biodynamic Agricultural Method and the Legacy of Rudolf Steiner\'s Anthroposophy in Viticulture', url: 'https://www.researchgate.net/publication/257937877_Cosmic_Flavour_Spiritual_Nutrition_The_Biodynamic_Agricultural_Method_and_the_Legacy_of_Rudolf_Steiner\'s_Anthroposophy_in_Viticulture' },
     ],
     overallTier: 'weak',
-    stageNote: 'Tiered weak specifically for the biodynamic-specific preparations and astrological timing, the same claims the cited literature review itself finds little evidence for, not for organic methods broadly, which this same entry credits directly.',
     relatedIds: ['foodhistory-regen-usda-organic-certification', 'foodhistory-regen-organic-yield-gap-meta-analysis'],
   },
   {
@@ -2535,13 +2449,12 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: 'Who Actually Owns the Land Food Gets Grown On? Foreign Ownership Gets the Headlines, Domestic Consolidation Is the Bigger Number',
     teaser: 'Foreign investors hold about 3.6% of US private agricultural land, a measured and growing figure, and the same researchers flagging it directly name domestic farmland consolidation into fewer, larger operations as the actual bigger structural story.',
     summary:
-      "The documentary this batch of research is checked against is itself titled around a direct question, who owns the world's food-producing land, and the checkable answer is more layered than either a reassuring or an alarming one-line version. USDA's most recent disclosure data finds foreign investors holding 45.85 million acres of US agricultural land as of 2023, 3.61% of all privately held agricultural land, concentrated heavily in a handful of states (Texas, Maine, and Alabama lead), with Canadian investors the single largest foreign holder by a wide margin, not the nationalities most often assumed. That number has been climbing at a measured pace, and institutional (non-farmer) investors, largely domestic, poured over $12 billion into US farmland in 2021 alone, a separate trend from foreign purchases specifically. The more direct structural story, per the same researchers tracking this data, is domestic farmland consolidation: the same total acreage held by steadily fewer, larger farm operations over time, squeezing out small and mid-sized family farms regardless of who technically holds the deed, a distinctly different, more foundational concern than foreign ownership alone, and one directly connected to this category's already-covered farmer mental-health and debt-crisis research.",
+      "The documentary this batch of research is checked against is itself titled around a direct question, who owns the world's food-producing land, and the checkable answer is more layered than either a reassuring or an alarming one-line version. USDA's most recent disclosure data finds foreign investors holding 45.85 million acres of US agricultural land as of 2023, 3.61% of all privately held agricultural land, concentrated heavily in a handful of states (Texas, Maine, and Alabama lead), with Canadian investors the single largest foreign holder by a wide margin, not the nationalities most often assumed. That number has been climbing at a measured pace, and institutional (non-farmer) investors, largely domestic, poured over $12 billion into US farmland in 2021 alone, a separate trend from foreign purchases specifically. The more direct structural story, per the same researchers tracking this data, is domestic farmland consolidation: the same total acreage held by steadily fewer, larger farm operations over time, squeezing out small and mid-sized family farms regardless of who technically holds the deed, a distinctly different, more foundational concern than foreign ownership alone, and one directly connected to the farmer mental-health and debt-crisis research.",
     citations: [
       { source: 'Foreign Footprints: Trends in U.S. Agricultural Land Ownership, American Farm Bureau Federation', url: 'https://www.fb.org/market-intel/foreign-footprints-trends-in-u-s-agricultural-land-ownership' },
       { source: 'Farmland Consolidation, Not Chinese Ownership, Is the Real National Security Threat, Union of Concerned Scientists', url: 'https://blog.ucs.org/omanjana-goswami/farmland-consolidation-not-chinese-ownership-is-the-real-national-security-threat/' },
     ],
     overallTier: 'moderate',
-    stageNote: 'The foreign-ownership figures come directly from a federal disclosure system (AFIDA) whose own data quality is publicly questioned by researchers using it, tiered moderate for that reason; the domestic-consolidation framing is a researcher interpretation of the same underlying trend, not a separately audited statistic.',
     relatedIds: ['foodhistory-regen-seed-industry-consolidation', 'foodhistory-regen-farmer-mental-health-debt-crisis'],
   },
   {
@@ -2556,7 +2469,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'Compost Key to Sequestering Carbon in the Soil, UC Davis', url: 'https://www.ucdavis.edu/climate/news/compost-key-sequestering-carbon-soil' },
     ],
     overallTier: 'strong',
-    stageNote: 'A single long-term trial, not a meta-analysis, but 19 years and full-depth (not just surface) sampling make this one of the more rigorous individual studies in this whole category.',
     relatedIds: ['foodhistory-regen-soil-food-web-mineralization', 'garden-composting-at-home', 'garden-cover-crops-home', 'foodhistory-regen-4-per-1000-initiative'],
   },
   {
@@ -2571,7 +2483,6 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'JADAM Farming: How Canadian Farmers Are Crushing Pest Problems Naturally, Organic Agriculture Centre of Canada', url: 'https://organicagcentre.ca/technology-and-digital-innovation/jadam-farming-how-canadian-farmers-are-crushing-pest-problems-naturally-2/' },
     ],
     overallTier: 'moderate',
-    stageNote: 'The core microbial-input logic is well-supported by this category\'s broader soil-biology research; the specific 80% cost-reduction figure is farmer-reported field experience, not yet a controlled trial the way the ZBNF entry\'s Andhra Pradesh data is.',
     relatedIds: ['foodhistory-regen-india-zbnf-case-study', 'foodhistory-regen-soil-food-web-mineralization'],
   },
   {
@@ -2619,10 +2530,9 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: "An AI Research Assistant's Reading of This Category, Not the App Creator's Words",
     teaser: 'An explicit attribution: this is Claude, the AI assistant that helped research and build this app, giving its considered opinion, not a personal statement from the person who built Inside Story.',
-    summary: "This is the one entry in the whole Digest written this way: everything below is the AI research assistant's synthesized opinion after independently researching every piece of this category, offered to be weighed and argued with, not the app creator's personal statement, and not something he said that got written down here. Every individual piece of this category traces to a citation elsewhere in the same category, not asserted new here. Where this assistant would push back gently on the strongest version of the story: autoimmune disease incidence rising alongside industrialized food is not, by itself, proof the food caused it. A meaningful share of the rise, though nobody can cleanly separate it out, is better diagnosis and testing (the ANA-antibody test itself became far more sensitive and far more commonly ordered across exactly this same window), an aging population living long enough to develop disease that would once have gone undiagnosed, and non-food environmental exposures (air pollution, endocrine-disrupting plastics, occupational chemicals) that the Lifestyle & Environment research already covers as independent contributors running on their parallel timeline. This caveat doesn't let the food-industry story off the hook, either. The gut-barrier mechanism is directly measured rather than speculative. Emulsifiers really do thin mucus, gliadin really does trigger zonulin, and both effects show up in controlled trials, not just population correlations. The soil/nutrient story survives its methodological critique in a narrower but still supported form. And the pattern of \"food industry replaces a whole ingredient with an industrially engineered substitute, decades pass, the substitute's harm gets discovered afterward\" isn't a one-off. It happened with trans fat, and the DDT story shows the identical pattern outside food specifically. Glyphosate's current, unsettled status looks like it's sitting exactly where trans fat sat in the 1980s: officially cleared, disputed, with animal data already pointing at a problem years before consensus catches up. This assistant's overall take: the food-industry-to-autoimmune-disease connection reads as a substantial contributor operating alongside several other contributors, not the single, sole explanation, and not something to dismiss as \"just correlation\" either, given how directly several of the individual mechanistic links (not just the population trend lines) have actually been demonstrated. The practical version of that read lines up with what this app is already built around, though that alignment came from the app's creator, not the other way around: since you can't wait for a settled, all-cause answer before acting, eating more like the pre-1870s baseline (whole ingredients, fermentation, minimal industrial processing, food grown without leaning entirely on synthetic inputs) is a reasonable, evidence-consistent bet regardless of how the harder causal questions eventually resolve. The creator has an independently-formed thesis about where autoimmune disease actually begins, rooted in his wife's long Hashimoto's journey, distinct from, and predating, this AI-generated synthesis above.",
+    summary: "This is the one entry in the whole Digest written this way: everything below is the AI research assistant's synthesized opinion after independently researching every piece of this category, offered to be weighed and argued with, not the app creator's personal statement, and not something he said that got written down here. Every individual piece of this category traces to a citation elsewhere in the same category, not asserted new here. Where this assistant would push back gently on the strongest version of the story: autoimmune disease incidence rising alongside industrialized food is not, by itself, proof the food caused it. A meaningful share of the rise, though nobody can cleanly separate it out, is better diagnosis and testing (the ANA-antibody test itself became far more sensitive and far more commonly ordered across exactly this same window), an aging population living long enough to develop disease that would once have gone undiagnosed, and non-food environmental exposures (air pollution, endocrine-disrupting plastics, occupational chemicals) that the Lifestyle & Environment research covers as independent contributors running on their parallel timeline. This caveat doesn't let the food-industry story off the hook, either. The gut-barrier mechanism is directly measured rather than speculative. Emulsifiers really do thin mucus, gliadin really does trigger zonulin, and both effects show up in controlled trials, not just population correlations. The soil/nutrient story survives its methodological critique in a narrower but still supported form. And the pattern of \"food industry replaces a whole ingredient with an industrially engineered substitute, decades pass, the substitute's harm gets discovered afterward\" isn't a one-off. It happened with trans fat, and the DDT story shows the identical pattern outside food specifically. Glyphosate's current, unsettled status looks like it's sitting exactly where trans fat sat in the 1980s: officially cleared, disputed, with animal data already pointing at a problem years before consensus catches up. This assistant's overall take: the food-industry-to-autoimmune-disease connection reads as a substantial contributor operating alongside several other contributors, not the single, sole explanation, and not something to dismiss as \"just correlation\" either, given how directly several of the individual mechanistic links (not just the population trend lines) have actually been demonstrated. The practical version of that read lines up with what this app is already built around, though that alignment came from the app's creator, not the other way around: since you can't wait for a settled, all-cause answer before acting, eating more like the pre-1870s baseline (whole ingredients, fermentation, minimal industrial processing, food grown without leaning entirely on synthetic inputs) is a reasonable, evidence-consistent bet regardless of how the harder causal questions eventually resolve. The creator has an independently-formed thesis about where autoimmune disease actually begins, rooted in his wife's long Hashimoto's journey, distinct from, and predating, this AI-generated synthesis above.",
     citations: [],
     overallTier: 'moderate',
-    stageNote: 'Explicitly the AI research assistant\'s stated opinion, not a citation-backed claim and not the app creator\'s words, written for discussion, 2026-08-07, attribution clarified 2026-08-08 after a direct question about who actually wrote it.',
     relatedIds: [
       'foodhistory-mechanism-gut-barrier',
       'foodhistory-soil-dilution-vs-depletion',

@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.40.2',
+    date: '2026-09-18',
+    changes: [
+      'Digest titles now say what the entry is about. 116 of them were headlines that named a subject and then made a promise, so you could not tell from the shelf whether the entry was worth opening. Each one now states the subject and the finding.',
+      'The small grey italic note at the foot of every Digest entry is gone, all 205 of them. Those were notes about why an entry had been included, which is a decision behind the writing rather than anything about the subject.',
+      'The "already covered elsewhere" refrain is out of the Digest. Where it pointed at a place you can actually go, the pointer stayed and the word "already" went, since the app has no way of knowing what you have read.',
+      'Two topic names are back the way they were: "Industry, Greenwashing & Honest Limits" and "Building Real Soil".',
+      'A Related pill now wraps onto a second line, so the full title of what it points at is readable instead of cut off.',
+    ],
+  },
+  {
     version: '1.0.40.1',
     date: '2026-09-18',
     changes: [

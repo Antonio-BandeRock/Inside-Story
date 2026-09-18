@@ -56,7 +56,6 @@ export const PLANT_BASED_NUTRITION_ENTRIES: DigestEntry[] = [
       { source: 'Can lifestyle changes reverse coronary heart disease? The Lifestyle Heart Trial, Ornish D et al., The Lancet, 1990, PMID 1973470', url: 'https://pubmed.ncbi.nlm.nih.gov/1973470/' },
     ],
     overallTier: 'moderate',
-    stageNote: 'A randomized design with hard, objectively-measured angiographic outcomes, stronger evidence than an observational diet-pattern study. Tiered moderate rather than strong specifically because of its small size (48 people total, 28 in the experimental group), a limitation on how confidently this one trial\'s exact numbers generalize, even though the direction and mechanism are well-supported elsewhere.',
     relatedIds: ['cvd-tmao-gut-microbiome-real-data', 'cvd-mediterranean-diet-predimed', 'pbn-esselstyn-cohort-longterm', 'cvd-plant-based-diet-existing-disease', 'prostate-ornish-lifestyle-trial', 'type2-low-fat-vegan-diet-rct', 'ckd-plant-based-diet-incidence-risk', 'masld-vegetarian-diet-rct-weight-loss-mechanism', 'gout-whole-food-plant-based-pilot-rct'],
   },
   {
@@ -70,7 +69,6 @@ export const PLANT_BASED_NUTRITION_ENTRIES: DigestEntry[] = [
       { source: 'Updating a 12-Year Experience With Arrest and Reversal Therapy for Coronary Heart Disease, Esselstyn CB, American Journal of Cardiology, 1999', url: 'https://www.dresselstyn.com/site/study03/' },
     ],
     overallTier: 'weak',
-    stageNote: 'An uncontrolled case series, not a controlled trial, no comparison group means regression to the mean and self-selection can\'t be ruled out. Tiered weak on study design alone, despite long follow-up and objectively measured outcomes, the same honesty this app applies to every other uncontrolled case series.',
     relatedIds: ['pbn-ornish-lifestyle-heart-trial'],
   },
 ];

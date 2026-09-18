@@ -81,7 +81,6 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: "A concrete reason gut/liver-supportive eating (the core focus) is directly relevant to thyroid outcomes, not just a general wellness gesture.",
   },
   {
     id: 'organ-liver-autoimmune-overlap',
@@ -219,7 +218,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   {
     id: 'organ-overtreatment-bone-heart-risk',
     category: 'hashimotos',
-    title: 'The Risk on the Other Side: What Happens When a Dose Runs Too High, Not Too Low',
+    title: 'Levothyroxine Dosed Too High Pushes TSH Below Range and Carries Bone and Heart Risk',
     teaser: 'Nearly everything covered here is about the risk of too little thyroid hormone. There is an opposite risk too, and it deserves equal attention.',
     summary: "Every entry in this category so far has been about what happens when thyroid hormone runs low. The less-discussed flip side matters just as much. Levothyroxine dosed a little too high, enough to push TSH below the normal range even without any overt symptoms, a state called subclinical hyperthyroidism, carries its measurable risks, particularly for anyone taking it long-term. A decade-long study of older adults found a low TSH level was associated with a threefold higher risk of atrial fibrillation developing over the following ten years (relative risk 3.1). A separate study from the Study of Osteoporotic Fractures found women with a suppressed TSH had a 3.6-fold higher risk of hip fracture and a 4.5-fold higher risk of vertebral fracture compared to women with normal TSH. Neither finding is a reason to fear levothyroxine itself. Undertreatment carries its well-documented risks throughout this whole category. It's a practical argument for exactly the kind of periodic lab monitoring the Self Advocacy category already recommends, rather than assuming a dose set once, years ago, is still the right one now. \"On thyroid medication\" and \"correctly dosed\" are not the same claim, and only periodic testing can confirm the second one.",
     citations: [
@@ -246,7 +245,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   {
     id: 'organ-tying-together',
     category: 'hashimotos',
-    title: 'Tying It All Together: Why So Many Organs, and Why So Much of It Reverses',
+    title: 'One Hormone Reaches Ten Organ Systems, Which Is Also Why Most Effects Reverse',
     teaser: 'Ten organ systems in this category, and the same reason connects nearly all of them.',
     summary:
       "Thyroid hormone doesn't act on one organ. It regulates cellular metabolism nearly everywhere in the body, which is exactly why Hashimoto's shows up in the liver, heart, brain, kidneys, muscles, skin, and reproductive system all at once. One hormone deficit touches that many metabolic processes simultaneously, without the disease itself spreading anywhere. The encouraging thread running through this whole category: most of these organ-level effects are documented as reversible with treatment (liver enzymes normalizing within months, kidney filtration rate recovering, coronary microvascular function improving, hair and muscle symptoms resolving) because the underlying cause in each case is often the shared hormone deficit itself, not separate, independent organ damage. The liver gets the most attention here for a reason: it does the largest single share of the body's T4-to-T3 conversion, making it less a bystander and more a second organ actually running the thyroid's job.",

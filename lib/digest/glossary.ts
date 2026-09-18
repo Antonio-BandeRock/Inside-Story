@@ -440,7 +440,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Insulin Resistance',
     teaser: 'A state where the body\'s cells stop responding normally to insulin, a shared thread behind several conditions already tracked.',
-    summary: 'A physiological state where cells respond less effectively to insulin, the hormone that normally moves sugar out of the bloodstream and into cells. A precursor to type 2 diabetes, and a shared underlying mechanism connecting several other conditions already covered in depth, PCOS, fatty liver disease, chronic kidney disease, and gout among them, each with its documented link back to this same root cause. See this Digest\'s dedicated Type 2 Diabetes research for the full, connected picture across all of them.',
+    summary: 'A physiological state where cells respond less effectively to insulin, the hormone that normally moves sugar out of the bloodstream and into cells. A precursor to type 2 diabetes, and a shared underlying mechanism connecting several other conditions covered in depth, PCOS, fatty liver disease, chronic kidney disease, and gout among them, each with its documented link back to this same root cause. See this Digest\'s dedicated Type 2 Diabetes research for the full, connected picture across all of them.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['type2-metabolic-syndrome-cluster'],

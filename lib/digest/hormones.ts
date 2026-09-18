@@ -23,7 +23,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
   {
     id: 'hormone-what-is-a-hormone',
     category: 'basicHealth',
-    title: 'What a Hormone Actually Is, and Why This Category Exists Alongside Nutrients',
+    title: 'A Hormone Is a Chemical Messenger the Body Makes and Reads Itself',
     teaser: "A nutrient is something eaten. A hormone is something the body itself makes and uses as a signal, and food changes how well that signaling works.",
     summary: "A hormone is a chemical messenger, produced by a gland or tissue, released into the bloodstream, and read by receptors on distant target cells, coordinating everything from blood-sugar regulation to the menstrual cycle to the body's stress response. This is a different kind of thing from a nutrient: a nutrient is raw material the body takes in from outside; a hormone is a signal the body manufactures and sends internally. The reason this category belongs alongside the Essential Nutrients series: food and lifestyle don't just supply the raw materials hormones are built from (cholesterol for steroid hormones, tyrosine and iodine for thyroid hormone, amino acids for insulin itself), they also directly influence how much of a given hormone gets made, how sensitive the body's own tissues are to it, and how quickly it gets cleared, mechanistic connections covered one hormone at a time in the entries below.",
     citations: [
@@ -34,7 +34,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
   {
     id: 'insulin-overview-mechanism',
     category: 'basicHealth',
-    title: 'Insulin: The Mechanism Behind the Single Most-Referenced Hormone',
+    title: 'Insulin Binds a Receptor and Opens the Door for Glucose to Enter Cells',
     teaser: 'Insulin binds a specific receptor, triggers a signaling cascade, and physically opens the door that lets glucose enter muscle and fat cells at all.',
     summary: "Insulin, produced by the pancreas, is the body's primary anabolic hormone, coordinating how cells take up and store glucose, fat, and amino acids after eating. The mechanism is a multi-step cascade, not a simple on/off switch: insulin binds its receptor on a target cell's surface, triggering a signaling chain through insulin receptor substrate (IRS) proteins and an enzyme called PI3-kinase, which ultimately causes GLUT4, a glucose transporter protein, to move to the cell's surface and physically let glucose in, especially in muscle and fat tissue. This mechanism is exactly what breaks down in insulin resistance, covered directly in the next entry, and it's the same underlying biology the T2D, PCOS, and MASLD research each independently converges on as their shared central mechanism.",
     citations: [
@@ -58,7 +58,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
   {
     id: 'cortisol-overview-hpa-axis',
     category: 'basicHealth',
-    title: 'Cortisol & the HPA Axis: The Body\'s Central Stress-Response System',
+    title: 'Cortisol Is the End Product of a Three-Organ Hypothalamic-Pituitary-Adrenal Relay',
     teaser: 'A three-organ relay, not a single gland, and already traced its downstream effects through four separate everyday topics.',
     summary: "Cortisol is produced by the adrenal glands as the end product of a three-organ signaling relay called the hypothalamic-pituitary-adrenal (HPA) axis: the hypothalamus signals the pituitary, the pituitary signals the adrenal glands, and the adrenal glands release cortisol, which in a healthy, functioning system then signals back to the hypothalamus and pituitary to turn the whole cascade back down, a self-regulating feedback loop. Cortisol is adaptive in short bursts: it mobilizes glucose for immediate energy and modulates immune activity during an acute stressor. The Lifestyle & Environment research already traces this exact mechanism through four separate, seemingly unrelated everyday topics (alcohol, sleep disruption, high-intensity exercise, and a glucose crash after a sugary drink), all converging on the same HPA-axis pathway, cross-linked directly below rather than repeated here.",
     citations: [
@@ -83,7 +83,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
     id: 'thyroid-hormones-overview',
     category: 'basicHealth',
     title: 'Thyroid Hormones (T3, T4, TSH): A Compact Overview, Since The Depth Lives Elsewhere',
-    teaser: "The single most extensively researched hormone system by far, Hashimoto's and Graves' between them already cover this topic in dedicated depth.",
+    teaser: "The single most extensively researched hormone system by far, Hashimoto's and Graves' between them cover this topic in dedicated depth.",
     summary: "T4 (thyroxine) is the thyroid gland's primary output, a mostly-inactive precursor hormone that gets converted into T3 (triiodothyronine), the biologically active form actually used by cells throughout the body, largely outside the thyroid gland itself, in the liver, muscle, and other tissue. TSH (thyroid-stimulating hormone), released by the pituitary, is the feedback signal that tells the thyroid how much T4 to make, rising when thyroid hormone runs low and falling when it runs high, the same basic feedback-loop shape cortisol's HPA axis follows above. The depth on this specific hormone system already exists in substantial detail across its Hashimoto's and Graves' categories (TPO/TSI antibodies, the T4-to-T3 conversion pathway, levothyroxine timing, iodine's two-edged role) rather than repeated here, this entry exists mainly so \"Hormones\" as a category has a place for the single most-covered hormone system in this whole app, pointing directly to where its actual depth lives.",
     citations: [
       { source: "Graves' Disease, National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK)", url: 'https://www.niddk.nih.gov/health-information/endocrine-diseases/graves-disease' },
@@ -153,7 +153,6 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
       { source: 'Oral EA et al. 2002, New England Journal of Medicine: Leptin-Replacement Therapy for Lipodystrophy', url: 'https://pubmed.ncbi.nlm.nih.gov/11856796/' },
     ],
     overallTier: 'strong',
-    stageNote: 'The leptin-replacement trial itself was small (9 patients); the underlying lipodystrophy syndrome and its metabolic consequences are well characterized across a larger body of research.',
     relatedIds: ['leptin-discovery-ob-mice', 'masld-overview', 'insulin-resistance-real-cluster'],
   },
   {
@@ -166,20 +165,18 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
       { source: 'Welt CK et al. 2004, New England Journal of Medicine: Recombinant Human Leptin in Women with Hypothalamic Amenorrhea', url: 'https://pubmed.ncbi.nlm.nih.gov/15342807/' },
     ],
     overallTier: 'moderate',
-    stageNote: 'A small trial (8 women); directly measured, but not yet the basis of an approved treatment for hypothalamic amenorrhea outside a research setting.',
     relatedIds: ['leptin-discovery-ob-mice', 'pcos-overview'],
   },
   {
     id: 'adiponectin-overview',
     category: 'basicHealth',
-    title: "Adiponectin: The Fat Hormone That Runs Backward From Leptin",
+    title: "Adiponectin Falls as Body Fat Rises, the Opposite of Leptin",
     teaser: "Unlike leptin, adiponectin levels go down as body fat goes up, and higher levels are consistently linked to better insulin sensitivity and less inflammation.",
     summary: "Adiponectin is another hormone made by fat tissue, but it behaves in the opposite direction from leptin: rather than rising with body fat, adiponectin levels tend to fall as fat mass, especially visceral fat, increases. Higher adiponectin is consistently associated with better insulin sensitivity, lower inflammation, and a protective effect on blood vessels, through receptors (AdipoR1 and AdipoR2) that activate an energy-sensing enzyme (AMPK) in muscle and liver tissue. Regular exercise is independently documented to raise adiponectin levels. This is the hormone behind the documentary's sumo-wrestler segment: active wrestlers, despite very high total body fat, were reported to carry higher adiponectin than their size alone would predict, illustrating why fat amount and fat function aren't the same measurement, though that specific sumo comparison traces to the documentary and secondary science journalism rather than a dedicated peer-reviewed study, kept distinct here from the well-established general adiponectin science above.",
     citations: [
       { source: 'Kadowaki T, Yamauchi T. 2005, Endocrine Reviews: Adiponectin and Adiponectin Receptors', url: 'https://pubmed.ncbi.nlm.nih.gov/15897298/' },
     ],
     overallTier: 'strong',
-    stageNote: 'The adiponectin mechanism itself is well established; the sumo-wrestler illustration specifically is weak, documentary-sourced, and not independently verified here in a dedicated peer-reviewed study.',
     relatedIds: ['mito-sugar-visceral-fat-cytokine-chain', 'glossary-visceral-fat', 'type2-metabolic-syndrome-cluster', 'gout-metabolic-cluster-connection'],
   },
   {
@@ -192,7 +189,6 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
       { source: 'Abella V et al. 2017, Nature Reviews Rheumatology: Leptin in the interplay of inflammation, metabolism and immune system disorders', url: 'https://pubmed.ncbi.nlm.nih.gov/28053336/' },
     ],
     overallTier: 'moderate',
-    stageNote: 'Most directly documented in rheumatoid arthritis, lupus, and multiple sclerosis specifically; extension to every other tracked autoimmune condition is a reasonable mechanistic inference from shared Th17/regulatory-T-cell biology, not yet individually confirmed disease-by-disease.',
     relatedIds: ['mito-visceral-fat-treg-depletion', 'mito-visceral-fat-treg-reinfusion', 'leptin-resistance-obesity-paradox'],
   },
   {
@@ -212,7 +208,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Perimenopause: A Multi-Year Shift Toward Estrogen Dominance, Not a Simple Decline of Both Hormones Together',
     teaser: 'Progesterone drops first and further, a specific imbalance, not just "hormones going down," and it can last 6-10 years before menopause itself.',
-    summary: "Perimenopause is a multi-year transition (commonly 6-10 years) that begins with subtle changes in cycle length and ends 12 months after the final menstrual period. The specific hormonal shift isn't simply \"both hormones declining together\": more eggs get recruited and stimulated per cycle during this transition, producing higher-than-normal estrogen levels alongside lower-than-normal progesterone, since more cycles become anovulatory (no egg released) or have a shortened luteal phase, meaning less progesterone gets made at all. This shifted estrogen-to-progesterone balance is the documented driver behind many perimenopausal symptoms (hot flashes, sleep disruption, mood changes), not simply low hormones across the board. The Self Advocacy research already covers the counterintuitive finding that a full hormone panel usually isn't what actually confirms perimenopause is happening, symptom pattern and menstrual-cycle change are the more reliable signal, covered in depth there rather than repeated here.",
+    summary: "Perimenopause is a multi-year transition (commonly 6-10 years) that begins with subtle changes in cycle length and ends 12 months after the final menstrual period. The specific hormonal shift isn't simply \"both hormones declining together\": more eggs get recruited and stimulated per cycle during this transition, producing higher-than-normal estrogen levels alongside lower-than-normal progesterone, since more cycles become anovulatory (no egg released) or have a shortened luteal phase, meaning less progesterone gets made at all. This shifted estrogen-to-progesterone balance is the documented driver behind many perimenopausal symptoms (hot flashes, sleep disruption, mood changes), not simply low hormones across the board. The Self Advocacy research covers the counterintuitive finding that a full hormone panel usually isn't what actually confirms perimenopause is happening, symptom pattern and menstrual-cycle change are the more reliable signal, covered in depth there rather than repeated here.",
     citations: [
       { source: 'Steroid Hormone Secretion Over the Course of the Perimenopause: Findings From the Swiss Perimenopause Study', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8712488/' },
     ],
@@ -237,7 +233,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Testosterone Decline With Age Is Gradual, and Common, With a Direct Connection to The Prostate Research',
     teaser: 'By 70, roughly 30% of men are testosterone deficient. By 80, roughly half are. And research links low testosterone to elevated disease risk of its own.',
-    summary: "Testosterone decline with age is well-documented, and common, not a rare condition: total testosterone falls at a measured rate of roughly 0.4% per year in men aged 40-70, with free (biologically active) testosterone declining faster, around 1.3% per year. The cumulative prevalence is striking: roughly 20% of men over 60, 30% over 70, and up to 50% over 80 have clinically low testosterone by standard criteria. Documented health consequences of low testosterone include increased risk of diabetes, dementia, cardiovascular disease, and reduced quality of life, not simply reduced libido as popularly assumed. Read alongside the Prostate Health category: both conditions share the same aging-male population, and testosterone-replacement decisions in men with BPH or prostate cancer risk require careful coordination with a urologist specifically, since androgens directly influence prostate tissue growth, the same mechanism the prostate research already covers for 5-alpha-reductase inhibitors working in the opposite direction.",
+    summary: "Testosterone decline with age is well-documented, and common, not a rare condition: total testosterone falls at a measured rate of roughly 0.4% per year in men aged 40-70, with free (biologically active) testosterone declining faster, around 1.3% per year. The cumulative prevalence is striking: roughly 20% of men over 60, 30% over 70, and up to 50% over 80 have clinically low testosterone by standard criteria. Documented health consequences of low testosterone include increased risk of diabetes, dementia, cardiovascular disease, and reduced quality of life, not simply reduced libido as popularly assumed. Read alongside the Prostate Health category: both conditions share the same aging-male population, and testosterone-replacement decisions in men with BPH or prostate cancer risk require careful coordination with a urologist specifically, since androgens directly influence prostate tissue growth, the same mechanism the prostate research covers for 5-alpha-reductase inhibitors working in the opposite direction.",
     citations: [
       { source: 'Prevalence of Low Testosterone According to Health Behavior in Older Adults Men', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7824172/' },
       { source: 'Understanding the Secular Decline in Testosterone: Mechanisms, Consequences, and Clinical Perspectives', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12841019/' },

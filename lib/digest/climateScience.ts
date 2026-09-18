@@ -76,7 +76,6 @@ export const CLIMATE_SCIENCE_ENTRIES: DigestEntry[] = [
       { source: 'British Antarctic Survey: Historic Drilling Campaign Reaches More Than 1.2-Million-Year-Old Ice', url: 'https://www.bas.ac.uk/news/historic-drilling-campaign-reaches-ice-more-than-1-2-million-years-old/' },
     ],
     overallTier: 'moderate',
-    stageNote: 'The ice age itself is confirmed; the detailed climate record it contains is still being analyzed.',
     relatedIds: ['climate-keeling-curve-co2-record'],
   },
   {
@@ -103,7 +102,6 @@ export const CLIMATE_SCIENCE_ENTRIES: DigestEntry[] = [
       { source: 'Philip et al. 2021, Climatic Change: Pathways and Pitfalls in Extreme Event Attribution', url: 'https://link.springer.com/article/10.1007/s10584-021-03071-7' },
     ],
     overallTier: 'moderate',
-    stageNote: 'The underlying method is peer-reviewed; any single rapid-response study released within days of an event has not itself gone through full journal peer review.',
     relatedIds: ['climate-model-track-record'],
   },
   {
@@ -128,7 +126,6 @@ export const CLIMATE_SCIENCE_ENTRIES: DigestEntry[] = [
       { source: 'Armstrong McKay et al. 2022, Science: Exceeding 1.5°C Global Warming Could Trigger Multiple Climate Tipping Points', url: 'https://pubmed.ncbi.nlm.nih.gov/36074831/' },
     ],
     overallTier: 'moderate',
-    stageNote: 'The mechanisms behind each named tipping point are well established; the specific temperature threshold and timing for any one of them carry acknowledged scientific uncertainty.',
     relatedIds: ['climate-ice-sheet-mass-loss', 'climate-warmest-years-on-record'],
   },
   {
@@ -166,7 +163,6 @@ export const CLIMATE_SCIENCE_ENTRIES: DigestEntry[] = [
       { source: 'International Energy Agency: Renewables 2025, Executive Summary', url: 'https://www.iea.org/reports/renewables-2025/executive-summary' },
     ],
     overallTier: 'moderate',
-    stageNote: 'The cost and deployment data are measured market facts; the multi-year forecast built on top of them depends on policy choices that can and did change between the 2024 and 2025 editions of this same report.',
     relatedIds: ['climate-greenhouse-effect-mechanism'],
   },
 ];

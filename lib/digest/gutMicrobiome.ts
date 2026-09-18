@@ -45,7 +45,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   {
     id: 'gut-scfa-treg',
     category: 'hashimotos',
-    title: 'Short-Chain Fatty Acids: The First Line of Defense, Doing Its Actual Job',
+    title: 'Gut Bacteria Turn Fiber Into Short-Chain Fatty Acids the Immune System Reads',
     teaser: 'Somewhere in a gut, right now, bacteria are turning fiber into a signal the immune system can actually read: the most food-controllable lever in the entire research base.',
     summary: "Picture the gut lining the way a systems engineer might picture a network's outermost firewall: the first checkpoint deciding what gets let through and what doesn't. That checkpoint isn't passive. It's actively staffed by trillions of gut bacteria, and what they do with the fiber someone eats determines a lot about how well that checkpoint actually holds. When those bacteria ferment dietary fiber, they produce short-chain fatty acids, mainly butyrate, propionate, and acetate. These aren't leftover byproducts. They're potent signaling molecules that drive measurable immune tolerance through regulatory T cell (Treg) induction, through two separate, independently confirmed mechanisms: HDAC inhibition (chemically loosening how tightly certain genes are wound, making tolerance-promoting genes easier to switch on) and direct signaling through a trio of receptors, GPR43, GPR41, and GPR109A, carried by both gut cells and immune cells. Two independently published studies (Smith et al. 2013, Science; Furusawa et al. 2013, Nature) confirmed this from two different angles, landing on the same conclusion from two different directions: SCFAs directly train the immune system toward tolerance, not attack. This is the actual mechanistic bridge between \"eat more fiber\" and \"calm an overactive immune system,\" biology standing behind what could otherwise sound like a vague wellness slogan. It's also, by a wide margin, the single most directly food-controllable lever available. Unlike a gene, a diagnosis, or a decade of processed-food history, how much fiber reaches the gut tomorrow is a choice available today.",
     citations: [
@@ -156,7 +156,6 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'weak',
-    stageNote: 'The framework spans the Stages 2-3 ("Digging" and "Gut Repair").',
   },
   {
     id: 'gut-zonulin-timeline',
@@ -176,7 +175,6 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A realistic milestone marker for the Stage 3 ("Gut Repair").',
     chart: {
       title: 'Trial Timelines for a Measured Zonulin Reduction',
       unit: ' wks',
@@ -248,7 +246,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   {
     id: 'gut-th17-treg-imbalance',
     category: 'hashimotos',
-    title: 'Th17/Treg Imbalance: The Mechanism That Keeps Showing Up No Matter Which Disease You Read About',
+    title: 'A Shifted Th17/Treg Balance Turns Up Across Unrelated Autoimmune Diseases',
     teaser: 'Follow enough different autoimmune diseases far enough back and they keep arriving at the exact same immune-cell imbalance.',
     summary: "Read enough autoimmune-disease research and a strange thing starts to happen: papers about completely unrelated conditions (joints, gut, nerves, skin) keep circling back to the same underlying immune-cell story. That story is a shifted balance between Th17 cells, which drive inflammation, and regulatory T cells, or Tregs, which promote tolerance. This imbalance is independently documented across rheumatoid arthritis, inflammatory bowel disease, multiple sclerosis, lupus, and Hashimoto's alike, and the gut microbiome, through the exact SCFA mechanism covered at the top of this category, is one of the most directly food-influenced levers on that balance that's actually been identified anywhere in this research. This is the unifying thread behind why the cross-disease research covered under Other Autoimmune Diseases gets treated as corroborating evidence, rather than dismissed as noise from an unrelated condition. On this one specific mechanism, it isn't unrelated at all.",
     citations: [
@@ -262,7 +260,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   {
     id: 'gut-molecular-mimicry',
     category: 'hashimotos',
-    title: 'Molecular Mimicry: How Something in the Gut Ends Up Implicated in a Thyroid Disease At All',
+    title: 'Molecular Mimicry Explains How Gut Bacteria Get Linked to an Attack on the Thyroid',
     teaser: 'The immunology explaining one of the strangest-sounding claims in autoimmune research: that gut bacteria could be connected to an attack on the thyroid.',
     summary:
       '"Gut bacteria might be connected to your thyroid" is probably the claim in this entire Digest that sounds the most far-fetched on first hearing it. Molecular mimicry is the well-established immunology that makes it plausible. When a microbial protein happens to structurally resemble a human protein closely enough, the antibodies the immune system trained to recognize and attack that microbe can mistakenly cross-react with the body\'s own tissue instead, a case of biological mistaken identity, not a metaphor. This is one of the leading proposed mechanisms connecting gut bacterial composition to thyroid autoimmunity specifically, standing alongside, not replacing, the zonulin/permeability pathway and the SCFA/Treg pathway covered elsewhere in this same category. Three different mechanisms, each with its evidence, all pointing the same direction, not one vague "gut-thyroid connection" repeated three times over, but three separate, specific reasons the connection holds up.',
@@ -285,7 +283,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   {
     id: 'gut-tying-together',
     category: 'hashimotos',
-    title: 'Tying It All Together: The Gut Barrier Is the Hub',
+    title: 'Almost Every Entry Here Comes Back to Gut Barrier Permeability',
     teaser: "Seventeen entries, one physical checkpoint underneath nearly all of them: the body's actual first line of defense.",
     summary: "Step back far enough from the seventeen entries in this category and a single, physical structure keeps reappearing underneath almost all of them: the intestinal barrier itself, and how permeable it currently is. Think of it the way a systems engineer might think about a network's outermost firewall, the first checkpoint deciding what gets let through and what doesn't, and the one point in the whole system where a single failure has the widest possible downstream effect. Strengthen that checkpoint (fiber and SCFAs, specific probiotic strains like E. Coli Nissle or B. Bifidum, zinc carnosine) and less gets through that shouldn't. Weaken it (gluten's zonulin trigger, chronic antibiotic disruption, a gut that's already inflamed) and more does, setting off molecular mimicry, feeding a Th17/Treg imbalance, and touching nearly every other mechanism this category covers. That is the literal, mechanistic reason the gut functions as the body's first line of defense, rather than one wellness topic sitting alongside dozens of others of equal weight. The caveats scattered through this category (L-glutamine's null result, the 4R Protocol's unvalidated packaging, \"leaky gut\" as a contested diagnosis) matter just as much as the positive findings do. The barrier itself is measurable. Not every proposed fix for it has actually been proven to work, and knowing the difference is exactly what turns \"protect your gut\" from a slogan into something a person can actually act on.",
     citations: [

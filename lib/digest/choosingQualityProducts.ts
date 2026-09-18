@@ -34,7 +34,7 @@ export const CHOOSING_QUALITY_PRODUCTS_ENTRIES: DigestEntry[] = [
   {
     id: 'quality-cinnamon-ceylon-vs-cassia',
     category: 'basicHealth',
-    title: 'Almost All Grocery-Store Cinnamon Is Cassia, and It Carries a Liver-Relevant Compound Ceylon Barely Has',
+    title: 'Grocery-Store Cinnamon Is Almost Always Cassia, Which Carries Far More Coumarin Than Ceylon',
     teaser: 'Cassia cinnamon can carry over 100 times the coumarin of Ceylon cinnamon, a measurable, easily avoidable difference hiding behind one shared spice-jar name.',
     summary:
       'What most stores simply label "cinnamon" is almost always Cassia (Cinnamomum cassia or aromaticum), a cheaper, more pungent bark that also carries a meaningfully higher amount of coumarin, a naturally occurring compound the European Food Safety Authority (EFSA) has set a tolerable daily intake limit for (0.1 mg per kilogram of body weight) because of its link to liver toxicity at sustained higher doses. Lab analysis has found Cassia samples running 2,650 to 7,017 milligrams of coumarin per kilogram, against negligible amounts in true Ceylon cinnamon (Cinnamomum verum), one teaspoon of Cassia can carry 5 to 12 milligrams of coumarin, while the same teaspoon of Ceylon carries under 0.02 milligrams, a substantial difference that only matters at sustained daily use, not an occasional sprinkle. Practically: Ceylon cinnamon is lighter in color, has a softer, more brittle, multi-layered "cigar" roll if bought as a whole stick (Cassia forms one thick, single curl), and is worth specifically seeking out and reading the species name on the label for anyone using cinnamon daily rather than occasionally.',

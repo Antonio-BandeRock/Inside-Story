@@ -105,7 +105,6 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'Worth discussing with a doctor before combining any extended fast with existing thyroid medication.',
   },
   {
     // 2026-08-19, direct request to research the mechanism chain behind
@@ -136,7 +135,6 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A randomized controlled trial for the fructose-to-visceral-fat step, and a well-established, widely-replicated mechanism for the visceral-fat-to-cytokine step. Together they tell a well-supported, textbook-level story, though the trial itself was 10 weeks in one specific population, not a lifetime of ordinary eating.',
     relatedIds: [
       'additive-sugar-umbrella-review-45-outcomes',
       'additive-hfcs',
@@ -244,9 +242,9 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   {
     id: 'mito-exercise-cortisol',
     category: 'hashimotos',
-    title: 'Why Low Intensity, Specifically: The Cortisol/Overtraining Mechanism',
+    title: 'High-Intensity Exercise Drives Cortisol Up, Which Is Why Gentler Work Is Preferred',
     teaser: 'The reason to prefer gentle exercise for an autoimmune condition, reached by a completely different route than the previous entry.',
-    summary: "If exercise intensity doesn't meaningfully change the inflammation-marker story, why does the research still lean toward recommending low intensity specifically? The answer runs through a different mechanism entirely. High-intensity exercise drives cortisol toward levels comparable to Cushing's syndrome and can shift immune balance toward a Th2-dominant profile, the identical HPA-axis/cortisol-suppressing-deiodinase pathway already covered under Lifestyle & Environment for alcohol, juice, and chronic stress, reached here by an entirely different route. One more appearance of the same recurring hormone pathway the research keeps circling back to, one mechanism rather than another separate warning.",
+    summary: "If exercise intensity doesn't meaningfully change the inflammation-marker story, why does the research still lean toward recommending low intensity specifically? The answer runs through a different mechanism entirely. High-intensity exercise drives cortisol toward levels comparable to Cushing's syndrome and can shift immune balance toward a Th2-dominant profile, the identical HPA-axis/cortisol-suppressing-deiodinase pathway covered under Lifestyle & Environment for alcohol, juice, and chronic stress, reached here by an entirely different route. One more appearance of the same recurring hormone pathway the research keeps circling back to, one mechanism rather than another separate warning.",
     citations: [
       {
         source: 'Overtraining, excessive exercise, and altered immunity: is this a T helper-1 versus T helper-2 lymphocyte response? (Sports Medicine)',

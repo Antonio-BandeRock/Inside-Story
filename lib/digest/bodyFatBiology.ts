@@ -37,7 +37,6 @@ export const BODY_FAT_BIOLOGY_ENTRIES: DigestEntry[] = [
       { source: 'Stunkard AJ et al. 1990, New England Journal of Medicine: The Body-Mass Index of Twins Who Have Been Reared Apart', url: 'https://pubmed.ncbi.nlm.nih.gov/2336075/' },
     ],
     overallTier: 'strong',
-    stageNote: 'A well-replicated twin-study design; heritability figures like this describe population-level variance, not a fixed prediction for any one individual.',
     relatedIds: ['leptin-discovery-ob-mice', 'history-heritability-family-risk'],
   },
   {
@@ -51,7 +50,6 @@ export const BODY_FAT_BIOLOGY_ENTRIES: DigestEntry[] = [
       { source: 'Pontzer H et al. 2016, Current Biology: Constrained Total Energy Expenditure and Metabolic Adaptation to Physical Activity in Adult Humans', url: 'https://pubmed.ncbi.nlm.nih.gov/26832439/' },
     ],
     overallTier: 'moderate',
-    stageNote: 'Directly measured data from multiple populations, but the underlying model (that total energy expenditure is constrained rather than additive) is still actively debated within the research field, not a settled finding.',
     relatedIds: ['bodyfat-hadza-cardiovascular-health', 'type2-metabolic-syndrome-cluster'],
   },
   {
@@ -64,7 +62,6 @@ export const BODY_FAT_BIOLOGY_ENTRIES: DigestEntry[] = [
       { source: 'Raichlen DA et al. 2017, American Journal of Human Biology: Physical activity patterns and biomarkers of cardiovascular disease risk in hunter-gatherers', url: 'https://pubmed.ncbi.nlm.nih.gov/27723159/' },
     ],
     overallTier: 'moderate',
-    stageNote: 'Observational, one population; directly measured, but not a controlled experiment isolating activity from diet and other lifestyle differences.',
     relatedIds: ['bodyfat-constrained-energy-expenditure', 'cvd-overview'],
   },
   {
@@ -77,7 +74,6 @@ export const BODY_FAT_BIOLOGY_ENTRIES: DigestEntry[] = [
       { source: 'Matsuzawa Y et al. 1995, Obesity Research: Pathophysiology and pathogenesis of visceral fat obesity', url: 'https://pubmed.ncbi.nlm.nih.gov/8581775/' },
     ],
     overallTier: 'strong',
-    stageNote: 'The general visceral-fat-vs-subcutaneous-fat science is well established and widely replicated; the specific sumo-wrestler comparison is a documentary illustration, not independently verified here against a dedicated peer-reviewed study.',
     relatedIds: ['adiponectin-overview', 'mito-sugar-visceral-fat-cytokine-chain', 'glossary-visceral-fat', 'gout-metabolic-cluster-connection'],
   },
 ];

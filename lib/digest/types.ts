@@ -13,12 +13,15 @@
 // Every citation here is a compressed pointer (short attribution + a real
 // PMID/DOI where one exists), not a full bibliography entry -- the point is
 // letting someone verify a claim exists in the literature, not reproducing
-// the literature itself. Deliberately no direct dependency on any
-// not-yet-built feature (the 5-stage healing-journey framework named in
-// CLAUDE.md is "decided, not yet built" as of this writing) -- `stageNote`
-// below is a short, freeform hint for now, not a real key into a stage
-// system that doesn't exist in code yet. Wire it up for real once that
-// system ships, rather than fabricating the integration today.
+// the literature itself.
+//
+// 2026-09-18: the `stageNote` field is gone from every entry and from this
+// file. It rendered as an unlabelled grey italic line under the citations,
+// and 44 of its 205 values were commentary about why an entry had been put
+// on a shelf rather than anything about the subject. Direct instruction was
+// to delete all of them. Do not reintroduce a freeform note field here: an
+// entry's evidence strength belongs in `overallTier` and in each citation's
+// own tier, where it is labelled and legible.
 
 // Type-only import, erased entirely at compile time -- no real runtime
 // circular dependency risk, the same precedent lib/sixDimensionsReference.ts
@@ -526,10 +529,6 @@ export type DigestEntry = {
   // RCT and one weak case report is tagged 'weak' here on purpose -- the
   // overall claim is only as strong as its weakest real support.
   overallTier: EvidenceTier;
-  // A short, human-readable hint at where in a healing journey this is
-  // most relevant -- e.g. "Most relevant once trigger foods are already
-  // identified" -- NOT a key into the not-yet-built 5-stage system.
-  stageNote?: string;
   // Other entries' own `id`s (any category, including ProblemFoodEntry's)
   // worth surfacing as "related" -- e.g. the vitamin D nutrient entry
   // relates to the leaky-gut CLDN2 gut-microbiome entry.
@@ -618,7 +617,6 @@ export type ProblemFoodEntry = {
   // Real, concrete substitutes or workarounds -- not "eat less of it."
   swaps: string[];
   citations: DigestCitation[];
-  stageNote?: string;
   relatedIds?: string[];
   // Same chart mechanism as DigestEntry's own `chart` -- see that field's
   // comment. Duplicated here rather than hoisted onto a shared base type,

@@ -19,7 +19,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
   {
     id: 'nutrient-selenium',
     category: 'hashimotos',
-    title: "Selenium: The Single Strongest-Evidenced Supplement in The Entire Research Base",
+    title: "Selenium Lowered TPO Antibodies Across 21 Randomized Trials, With One Caveat",
     teaser: 'Out of every supplement researched here, one stands clearly above the rest in trial-level evidence, with one caveat.',
     summary: "If someone with Hashimoto's asked which single supplement has the most trial evidence behind it, out of everything covered anywhere, the answer is selenium, and it isn't particularly close. A systematic meta-analysis of 21 randomized controlled trials, 1,610 subjects combined, found selenium supplementation measurably reduces TPO antibody levels over 3-6 months, the strongest trial-level evidence behind any Hashimoto's-specific supplement claim researched anywhere here. A separate Cochrane Library review of the same general evidence base (a smaller slice, 4 studies, 463 participants) rated it unclear-to-high risk of bias and concluded the evidence was \"incomplete and not reliable to help inform clinical decision making.\" That's not a contradiction. Cochrane's methodology is deliberately stricter about bias risk than a typical meta-analysis. But it's a reason to hold this tier a notch more provisionally than the larger meta-analysis alone would suggest. Still the strongest single finding in this entire research base, and still worth an asterisk rather than an unqualified endorsement.",
     citations: [
@@ -136,7 +136,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
   {
     id: 'nutrient-ashwagandha',
     category: 'hashimotos',
-    title: "Ashwagandha: The Most Commonly Asked-About Herb in Hashimoto's Communities",
+    title: "Ashwagandha Improved TSH, T3, and T4 in One 50-Person Subclinical Hypothyroid Trial",
     teaser: "Nigella sativa already got its entry here for trial evidence. Ashwagandha, the herb Hashimoto's patients actually ask about most, hadn't, until now.",
     summary: "Nigella sativa (black seed) already earned its entry for trial evidence, but it isn't the herbal supplement most commonly discussed in Hashimoto's patient communities. That title belongs to ashwagandha, an adaptogenic herb used in Ayurvedic medicine for centuries, and it has trial evidence behind it too, if still limited. A double-blind, placebo-controlled trial of 50 subclinical hypothyroid patients (46 completed) found 8 weeks of 600mg daily ashwagandha root extract significantly improved TSH, T3, and T4 compared to placebo, a measured effect, not just a traditional-use claim. Because of how it works, as a thyroid-hormone-raising herb, it carries a mechanistic reason for caution in anyone already hyperthyroid or being treated for Graves' disease, not just Hashimoto's. Adding a hormone-raising supplement on top of a condition that already has too much thyroid hormone is an avoidable risk, not a theoretical one. Worth discussing with a doctor before starting, the same standing advice already given for every supplement candidate, especially given this evidence is still just one trial deep, not the multi-study depth selenium's entry has.",
     citations: [
@@ -150,7 +150,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
     category: 'hashimotos',
     title: 'Iodine Pills Carry a Different Risk Than Iodine-Rich Food',
     teaser: 'The same warning already given about kelp applies just as much to a bottle of "thyroid support" iodine tablets, arguably more.',
-    summary: "The iodine entry above already makes the case that iodine is an exception to \"more is better.\" Excess intake, especially a sudden increase from a lower baseline, is a documented trigger for autoimmune thyroid flares in genetically susceptible people, and Problem Foods & Swaps already covers exactly how that plays out with kelp and other iodine-heavy sea vegetables. The same mechanism applies at least as strongly, arguably more, to a different and easy-to-overlook source: standalone potassium iodide or iodine supplement pills, often marketed directly as \"thyroid support\" to the exact population, people with a diagnosed thyroid condition, most at risk of the excess-iodine trigger the research already documents. A supplement pill makes it far easier to take a large, concentrated, precisely-repeatable dose than eating kelp ever would, which makes it a higher-risk exposure route for the identical underlying mechanism, not a separate concern needing its new evidence base. A \"thyroid support\" label on a supplement bottle is not, on its own, a reason to trust it's safe for a Hashimoto's-specific iodine level. Worth checking with a doctor before starting one, the same as any other supplement decision.",
+    summary: "The iodine entry above already makes the case that iodine is an exception to \"more is better.\" Excess intake, especially a sudden increase from a lower baseline, is a documented trigger for autoimmune thyroid flares in genetically susceptible people, and Problem Foods & Swaps covers exactly how that plays out with kelp and other iodine-heavy sea vegetables. The same mechanism applies at least as strongly, arguably more, to a different and easy-to-overlook source: standalone potassium iodide or iodine supplement pills, often marketed directly as \"thyroid support\" to the exact population, people with a diagnosed thyroid condition, most at risk of the excess-iodine trigger the research already documents. A supplement pill makes it far easier to take a large, concentrated, precisely-repeatable dose than eating kelp ever would, which makes it a higher-risk exposure route for the identical underlying mechanism, not a separate concern needing its new evidence base. A \"thyroid support\" label on a supplement bottle is not, on its own, a reason to trust it's safe for a Hashimoto's-specific iodine level. Worth checking with a doctor before starting one, the same as any other supplement decision.",
     citations: [
       {
         source: "Iodine intake from universal salt iodization programs and Hashimoto's thyroiditis: a systematic review",
@@ -186,7 +186,6 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'Shoba et al. 1998, Planta Medica: piperine\'s effect on curcumin bioavailability', url: 'https://pubmed.ncbi.nlm.nih.gov/9619120/' },
     ],
     overallTier: 'moderate',
-    stageNote: 'Most relevant once gut-repair work is already underway (Wentz Stage 3), introduced slowly per this app\'s phased fermented-drink guidance.',
     relatedIds: [
       'recipe-ferment-tonic-tart-cherry-ginger-turmeric',
       'recipe-ferment-coconut-kefir',

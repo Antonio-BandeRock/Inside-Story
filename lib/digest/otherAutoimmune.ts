@@ -48,7 +48,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   {
     id: 'other-rheumatoid-arthritis',
     category: 'hashimotos',
-    title: 'Rheumatoid Arthritis: The Same Vitamin D Puzzle, One More Time',
+    title: 'Rheumatoid Arthritis Research Runs Into the Same Open Vitamin D Question',
     teaser: 'A disease of the joints, nowhere near the thyroid, and the same open question about vitamin D shows up here too.',
     summary: "Rheumatoid arthritis has nothing to do with the thyroid gland itself. It's the immune system attacking the lining of the joints, producing the swelling, stiffness, and pain the disease is known for. So it's a surprise that RA research keeps running into a question the Hashimoto's research already knows well. Across multiple studies, people with lower vitamin D status tend to have more active, more severe RA, a consistent correlation. But when researchers actually give people vitamin D in a controlled trial to see whether raising their levels calms the disease down, the results come back inconsistent. Sometimes it helps, sometimes it barely moves at all. It's the identical \"consistent correlation, unreliable intervention\" shape already documented separately for Hashimoto's. Underneath both diseases, the research also keeps surfacing the same biological culprits covered elsewhere: documented loss of the short-chain-fatty-acid-producing gut bacteria this whole app keeps returning to, and the same Th17/Treg imbalance that recurs throughout this entire category. One disease finding this pattern could be a fluke. Two starts to look like something. By the time a third condition shows the identical shape, it stops looking like coincidence at all.",
     citations: [
@@ -60,7 +60,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   {
     id: 'other-ibd',
     category: 'hashimotos',
-    title: "Inflammatory Bowel Disease: The One Disease Where You Can Actually Watch the Gut Heal",
+    title: "Inflammatory Bowel Disease Can Be Watched Healing Directly, on Camera",
     teaser: "Every other entry in this category has to infer what's happening in the gut. This one can watch it, on camera, in time.",
     summary: "Most of the diseases in this category force researchers to infer gut damage indirectly, from symptoms, from blood markers, from statistical association. Inflammatory bowel disease (Crohn's and ulcerative colitis) is different. A gastroenterologist can thread a camera through the colon and watch the actual tissue, inflamed or healed, directly. That direct visibility is exactly why one particular study matters more here than almost anywhere else in the research. A randomized controlled trial of the Autoimmune Protocol diet in IBD patients found improvement not just in how people felt, but in what the camera actually showed: measurably reduced inflammation on direct endoscopic exam. That's a stronger form of evidence than the single small AIP pilot study otherwise relied on for Hashimoto's specifically, precisely because IBD doesn't require guessing whether the gut actually got better. IBD research also directly measures something the rest of this category can usually only assume: people with IBD show documented depletion of the exact short-chain-fatty-acid-producing bacteria the gut-repair research keeps pointing to as a missing piece. When a disease that can literally show its gut healing on camera confirms the same mechanism the whole gut-repair argument is built around, that's about as close to direct proof as any single piece of cross-disease evidence in this category gets.",
     citations: [
@@ -73,7 +73,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   {
     id: 'other-multiple-sclerosis',
     category: 'hashimotos',
-    title: 'Multiple Sclerosis: The Same Vitamin D Question, a Third Time',
+    title: 'Multiple Sclerosis Reaches the Same Unresolved Vitamin D Question a Third Time',
     teaser: 'Three different diseases, three different research communities, the same unresolved question about one vitamin.',
     summary:
       "Multiple sclerosis attacks the protective coating around nerve fibers, producing symptoms that can range from numbness to serious mobility loss, about as far, physically, from a thyroid condition as an autoimmune disease can get. And yet MS research runs into the identical wall Hashimoto's and rheumatoid arthritis research have both already hit: a consistent correlation between vitamin D status and disease activity, sitting right alongside controlled supplementation trials that can't consistently reproduce a benefit. Three separate diseases, studied by three separate research communities with no reason to be influenced by each other's results, landing on the exact same unresolved shape. At this point the pattern itself is the finding. This isn't one uncertain vitamin D study. It's the same uncertainty appearing independently three separate times, a different, more informative thing to know than any single one of those three studies would be on its own.",
@@ -86,7 +86,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   {
     id: 'other-type1-diabetes',
     category: 'hashimotos',
-    title: "Type 1 Diabetes: What Happens Before Anyone's Old Enough to Choose Their Own Diet",
+    title: "Type 1 Diabetes Pushes the Gut-Autoimmunity Story Back to Infancy",
     teaser: 'This disease pushes the whole gut-autoimmunity story back to infancy, long before a first solid meal.',
     summary: "Every other entry in this category is really a story about a food choice made, at some point, by an adult. Type 1 diabetes tells a different, earlier story: the destruction of the pancreas's insulin-producing cells, and the research behind it, starts asking questions about someone's very first months of life. Research links how an infant is fed and how early they're exposed to antibiotics to their later risk of developing this disease, meaning the gut-microbiome \"training\" the Gut & Microbiome research describes in adults may begin far earlier than any adult dietary choice could ever reach. T1D research adds one more specific data point on top of that: celiac disease and T1D co-occur together far more often than chance alone would explain, a statistical signal that whatever predisposes someone to one autoimmune attack often predisposes them to a second. It's a reminder that this whole category's focus on adult food choices, however well-grounded, is still only part of a bigger story, one that, in at least this one disease, starts before a person could ever have made a food choice at all.",
     citations: [
@@ -98,7 +98,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   {
     id: 'other-lupus',
     category: 'hashimotos',
-    title: 'Lupus: The Strongest Gut-Autoimmunity Evidence in This Whole Category',
+    title: 'Lupus Has Both a Named Bacterium and a Human Trial Behind Its Gut Evidence',
     teaser: 'A named bacterium, caught in the act, plus a human clinical trial, two of the hardest kinds of evidence to get, both in one disease.',
     summary:
       'Most of this category has to work with indirect evidence: a correlation here, a mechanism demonstrated in a different species there. Lupus research delivers something rarer, two of the most direct, hardest-to-obtain kinds of evidence in the entire gut-autoimmunity story, both inside the same disease. The first is a named culprit, not a vague "imbalanced microbiome": a specific gut bacterial strain, Blautia (Ruminococcus) gnavus, shown to directly cause zonulin-mediated gut permeability, with the effect confirmed to work differently in men and women. The second is an actual human randomized controlled trial, not an observation, an intervention, where giving lupus patients a probiotic yogurt containing L. Rhamnosus and B. Bifidum measurably improved both their disease activity and their disability scores. A named organism caught directly causing harm, and a clinical trial showing a food-based fix actually helping. That combination doesn\'t exist anywhere else in this category, which is exactly why lupus carries more weight here than its relatively minor role in most people\'s mental picture of "autoimmune disease" might suggest.',

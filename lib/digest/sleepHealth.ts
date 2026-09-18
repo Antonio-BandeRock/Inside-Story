@@ -66,7 +66,6 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'The existence of an active clearance process in the sleeping brain is well established. The exact mechanism, and whether it speeds up or slows down during sleep specifically, is a current, unresolved scientific dispute, not a settled fact.',
     relatedIds: ['sleep-architecture', 'sleep-circadian-rhythm-basics'],
   },
   {
@@ -130,7 +129,6 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A direct mechanistic complement to the sleep-loss-raises-inflammation direction already covered elsewhere in this topic, both directions are documented and current research treats them as one connected feedback loop, not two separate findings.',
     relatedIds: ['sleep-autoimmune-risk', 'sleep-autoimmune-disease-real-data', 'lifestyle-il6-deiodinase'],
   },
   {
@@ -138,7 +136,7 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Quantified Sleep Disruption Inside Two Conditions Already Built Out',
     teaser: 'Insomnia affects roughly 45% of rheumatoid arthritis patients, nearly 8 times the general population\'s rate, and correlates directly with disease-activity scores, not just with pain.',
-    summary: "Two conditions already covered in depth elsewhere give the inflammation-disrupts-sleep mechanism measured numbers rather than a general principle alone. In rheumatoid arthritis, a meta-analysis found insomnia prevalence around 45%, against roughly 5.6% in the general population, and a review found RA patients about four times more likely to develop insomnia at all. Sleep disturbance in RA correlates directly with DAS28 disease-activity scores and with elevated CRP and ESR, not just with joint pain on its own, and each one-point rise on a standard sleep-quality scale (the PSQI) tracked with a 2.4-point drop in quality-of-life scores. One caveat worth keeping: disease-modifying RA treatment appears to improve sleep mainly by reducing inflammation and pain rather than through any direct effect on sleep itself, and the review covering this states plainly that solid, controlled evidence for a direct effect from biologic drugs remains limited. In inflammatory bowel disease, a study of 131 patients found elevated CRP independently linked to poor sleep quality even in patients with no nighttime GI symptoms at all, 70% of patients with high CRP reported poor sleep versus 39% of those with normal CRP, and the statistical link held (odds ratio 4.89) after accounting for nighttime symptoms directly, evidence that inflammation itself, not simply being woken up by cramping or diarrhea, is driving the sleep disruption.",
+    summary: "Two conditions covered in depth elsewhere give the inflammation-disrupts-sleep mechanism measured numbers rather than a general principle alone. In rheumatoid arthritis, a meta-analysis found insomnia prevalence around 45%, against roughly 5.6% in the general population, and a review found RA patients about four times more likely to develop insomnia at all. Sleep disturbance in RA correlates directly with DAS28 disease-activity scores and with elevated CRP and ESR, not just with joint pain on its own, and each one-point rise on a standard sleep-quality scale (the PSQI) tracked with a 2.4-point drop in quality-of-life scores. One caveat worth keeping: disease-modifying RA treatment appears to improve sleep mainly by reducing inflammation and pain rather than through any direct effect on sleep itself, and the review covering this states plainly that solid, controlled evidence for a direct effect from biologic drugs remains limited. In inflammatory bowel disease, a study of 131 patients found elevated CRP independently linked to poor sleep quality even in patients with no nighttime GI symptoms at all, 70% of patients with high CRP reported poor sleep versus 39% of those with normal CRP, and the statistical link held (odds ratio 4.89) after accounting for nighttime symptoms directly, evidence that inflammation itself, not simply being woken up by cramping or diarrhea, is driving the sleep disruption.",
     citations: [
       {
         source: 'PMC: The Impact of Insomnia on the Clinical Course and Treatment Outcomes of Rheumatoid Arthritis',
@@ -150,7 +148,6 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Both figures come from cited studies with a stated sample size and a statistical result (an odds ratio, a correlation with a named disease-activity score), not a general association.',
     relatedIds: ['sleep-inflammation-cytokine-mechanism', 'ra-depression-anxiety-comorbidity', 'ibd-depression-anxiety-bidirectional-real-data'],
   },
   {
@@ -198,7 +195,6 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'A large, objectively measured prospective cohort study (accelerometer data, not self-report), with a direct statistical comparison between regularity and duration as competing predictors, not just an association pulled from a smaller or less rigorous dataset.',
     relatedIds: ['sleep-circadian-rhythm-basics', 'sleep-cbti-first-line', 'sleep-tying-together'],
   },
   {

@@ -2568,7 +2568,6 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     linkedCuratedRecipeId: 'curated_ferment_tonic_tart_cherry_ginger_turmeric',
     linkedBuilderType: 'fermentation',
-    stageNote: 'Most relevant once gluten and dairy are already ruled out as triggers, since the tonic is built specifically to avoid both.',
     relatedIds: [
       'fermentmethod-wild-tonics',
       'interaction-curcumin-piperine',

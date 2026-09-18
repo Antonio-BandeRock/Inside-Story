@@ -540,11 +540,30 @@ function walk(dir, out) {
   return out;
 }
 
+// Two Digest topic names the owner asked for back by name on 2026-09-18,
+// after a sweep had shortened both to get this script quiet. "Building
+// Real Soil" trips the filler-word rule and "Industry, Greenwashing &
+// Honest Limits" trips the honesty rule, and both stay as they are: the
+// person naming the shelves outranks the detector. A false positive gets
+// fixed here, never by editing the text back.
+const OWNER_CHOICE = ['Industry, Greenwashing & Honest Limits', 'Building Real Soil'];
+
+function isOwnerChoice(text, index, length) {
+  for (const phrase of OWNER_CHOICE) {
+    let at = -1;
+    while ((at = text.indexOf(phrase, at + 1)) !== -1) {
+      if (index >= at && index + length <= at + phrase.length) return true;
+    }
+  }
+  return false;
+}
+
 // An exemption is decided by the words immediately around the hit, not by
 // the paragraph it sits in. Testing the whole paragraph was the first
 // version and it was wrong in the expensive direction: one legitimate "in
 // its own right" anywhere in a summary exempted every other "own" in it.
 function allowedAt(category, text, index, length) {
+  if (isOwnerChoice(text, index, length)) return true;
   if (!category.allowNear) return false;
   const window = text.slice(Math.max(0, index - 24), index + length + 24);
   return category.allowNear.some((re) => re.test(window));

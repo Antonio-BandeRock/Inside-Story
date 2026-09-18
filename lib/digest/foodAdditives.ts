@@ -32,7 +32,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-nitrates-nitrites',
     category: 'hashimotos',
-    title: 'Nitrates & Nitrites: The One Additive on This List With a Direct, Well-Established Thyroid Mechanism',
+    title: 'Nitrates and Nitrites Compete With Iodine at the Thyroid, and Carry a Cancer Classification',
     teaser: 'A cured-meat preservative that does double duty: one cancer classification, and one specific thyroid mechanism most people never hear about.',
     summary:
       "Bacon, deli meat, hot dogs: sodium nitrate and nitrite are what keep them pink and safe from botulism. Separately from IARC classifying processed meat as a Group 1 carcinogen (via N-nitroso compound formation when cured meat is cooked at high heat), nitrate itself is a documented goitrogen. It competitively blocks the sodium-iodide symporter (NIS), the exact same transporter the thyroid uses to pull iodine out of the bloodstream. In someone already iodine-marginal, that competition can measurably reduce thyroid iodine uptake, a specific, checkable mechanism, not just \"processed meat is bad\" in general.",
@@ -143,7 +143,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-msg',
     category: 'basicHealth',
-    title: 'MSG: The Most Over-Blamed Additive on This List, Controlled Trials Mostly Clear It',
+    title: 'Double-Blind Trials Mostly Failed to Reproduce the Symptoms Blamed on MSG',
     teaser: '"Chinese restaurant syndrome" became a cultural phenomenon. Double-blind trials mostly couldn\'t reproduce it.',
     summary:
       "Few food additives have carried as much cultural baggage as MSG, built almost entirely around a symptom pattern that controlled science has struggled to actually reproduce. The FDA classifies MSG as Generally Recognized As Safe, and double-blind placebo-controlled trials have largely failed to reproduce \"Chinese restaurant syndrome\" symptoms when MSG is given in capsule form without a person knowing which they received. High-dose animal studies, far beyond realistic dietary exposure, often injected rather than fed, do show hypothalamic effects, a different question from ordinary dietary use. Included here as a deliberate counterexample. Not every commonly feared additive holds up under experimental scrutiny, and this is one of the clearer cases where it doesn't.",
@@ -192,7 +192,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-trans-fats',
     category: 'basicHealth',
-    title: 'Trans Fats: The One Additive on This List With the Strongest Evidence of All, Which Is Exactly Why It Was Banned',
+    title: 'Trans Fats Raise LDL and Lower HDL at Once, Which Is Why the FDA Banned Them',
     teaser: "Decades of strong evidence, a full FDA ban, and the clearest case of any additive on this list.",
     summary: "Of everything on this list, trans fats are the one case where the evidence was strong enough, and the harm severe enough, that regulators actually acted decisively. Artificial trans fats raise LDL cholesterol while simultaneously lowering HDL, a combined effect essentially unique among dietary fats, with decades of strong RCT and cohort evidence tying them to cardiovascular disease. The FDA revoked their Generally Recognized As Safe status in 2015 and completed a full ban from the U.S. Food supply by 2018. Relevant here less for a thyroid-specific mechanism and more because systemic vascular inflammation is one of the general inflammatory-burden pathways the Lifestyle & Environment research keeps surfacing across unrelated topics. A cross-cutting reason this one still matters even though the direct thyroid link is thinner than its cardiovascular case.",
     citations: [
@@ -262,7 +262,6 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A large-scale synthesis of already-published meta-analyses, not new primary research, and the paper itself states no outcome reached "convincing" quality anywhere in the review.',
     relatedIds: ['additive-hfcs', 'mito-sugar-visceral-fat-cytokine-chain', 'gout-fructose-sugar-drinks', 'problem-sugar-sweetened-beverages', 'additive-upf-convincing-evidence-class-i'],
   },
   {
@@ -297,7 +296,6 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'The review\'s own "class I convincing" label describes the strength and consistency of an association across many pooled studies, not a guarantee of high-certainty proof. Even its top-tier outcomes carried only moderate or low GRADE evidence quality individually, and observational data of this kind cannot fully rule out residual confounding, a limitation the paper\'s authors state directly.',
     relatedIds: ['additive-sugar-umbrella-review-45-outcomes', 'problem-commercial-premade', 'lifestyle-ultra-processed-food', 'diet-anti-processed'],
   },
   {
@@ -315,7 +313,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-phosphates',
     category: 'basicHealth',
-    title: 'Phosphate Additives: The Same Mineral the Body Needs, But the Additive Form Absorbs Almost Twice as Efficiently',
+    title: 'Phosphate Additives Absorb Almost Twice as Efficiently as Phosphorus in Whole Food',
     teaser: 'Phosphorus is essential. The engineered, additive form of it behaves differently in the body than the same mineral occurring naturally in whole food.',
     summary: "Phosphorus is an essential mineral. Nobody's suggesting avoiding it. What's worth knowing is that the additive form and the whole-food form aren't absorbed the same way. Phosphate additives, used as preservatives and texture enhancers in processed meat, cheese, and baked goods, are absorbed at roughly 90%, compared to 40-60% for phosphate naturally bound in whole foods like meat, dairy, and legumes, well-established physiology. What that difference actually does downstream is more open than often presented. A 3-week randomized crossover trial in early-stage CKD patients found higher phosphate-additive intake did raise urinary phosphorus excretion as expected, but did not significantly raise albuminuria or FGF23 in that specific trial. No thyroid-specific data exists here. Flagged as an example of \"the same nutrient behaves differently depending on its source,\" directly echoing the 6-DFF (6 Dimensions of Food Friendliness) scoring philosophy that source and form matter, not just a nutrient's name.",
     citations: [

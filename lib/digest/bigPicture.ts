@@ -63,7 +63,7 @@ export const BIG_PICTURE_ENTRIES: DigestEntry[] = [
   {
     id: 'bigpicture-the-body-beyond-thyroid',
     category: 'hashimotos',
-    title: 'Afternoon: The Body Beyond the Thyroid',
+    title: 'Afternoon: Zinc, Iron, B12, and the Liver Behind an Energy Crash',
     teaser: 'An energy crash that looks like "just the thyroid" is sometimes the liver, the adrenal glands, or three overlapping deficiencies at once.',
     summary: "An afternoon energy crash could be the thyroid itself, or it could be zinc, iron, or B12, each independently common in Hashimoto's and each capable of producing the exact same fatigue on its own (see Nutrients & Micronutrients). It could be the liver, which does the largest single share of the body's T4-to-T3 conversion and is directly, measurably affected by hypothyroidism itself (see Organs & Body Systems). It could even be a second, less-discussed autoimmune process quietly targeting the adrenal glands alongside the thyroid, a named clinical combination with its history. None of these possibilities cancel each other out. That's why individual data gets tracked over time instead of assuming every symptom traces back to the same single cause.",
     citations: [],
