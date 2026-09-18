@@ -1,6 +1,8 @@
 import { useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { fitMenuCard, type MenuCardFit } from '@/lib/menuFit';
+
 // Shared sizing/position for the app's bottom-center floating buttons --
 // TabHub's own button and HelpSheet's close button both anchor to the
 // exact same spot, so they read as one consistent "reach here with your
@@ -92,6 +94,31 @@ const MENU_ABOVE_FOOTER_GAP = 10;
 // LensHub's, but both open a card ending up at this same height).
 export function useMenuCardBottom(): number {
   return useFooterBandHeight() + MENU_ABOVE_FOOTER_GAP;
+}
+
+// What a popup menu card should actually render at, given what it wants to be.
+//
+// 2026-09-18, direct request: "Do the display size and landscape pass too."
+// Every hub reads its position from this file, so the question of how much
+// room that position leaves belongs here too rather than being hand-copied
+// into each hub (which is how the five separate offsets above would have
+// drifted if they had not been kept in one place).
+//
+// useWindowDimensions() reports dp, not pixels, which is the whole reason one
+// measurement is enough: Android's Display size setting, a landscape or
+// split-screen viewport, a foldable, and an Android 16+ large screen that
+// ignores the orientation lock all shrink the same number. See lib/menuFit.ts
+// for the arithmetic that showed the menus already overflow, and for why the
+// fit itself lives in a pure function rather than in this hook.
+//
+// Reading the window height here also means the card re-fits when any of those
+// change under it (a rotation, a split-screen resize, Display size being
+// changed while the app is open), where a module constant read once cannot.
+export function useMenuCardFit(desired: number, minHeight?: number): MenuCardFit {
+  const { height: windowHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const cardBottom = useMenuCardBottom();
+  return fitMenuCard({ desired, windowHeight, cardBottom, topInset: insets.top, minHeight });
 }
 
 // Gap between adjacent floating hub buttons (TabHub, LensHub, and any

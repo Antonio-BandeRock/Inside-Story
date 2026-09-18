@@ -9,6 +9,7 @@ import {
   SECONDARY_HUB_CARD_LEFT_MARGIN,
   useBottomLeftHubPosition,
   useMenuCardBottom,
+  useMenuCardFit,
 } from '../constants/floatingButton';
 import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { MENU_MAX_FONT_SCALE, textShadow, typography } from '../constants/typography';
@@ -146,6 +147,17 @@ export function MyItemsHub({
   });
   const { left: lensHubLeft } = useBottomLeftHubPosition();
   const cardBottom = useMenuCardBottom();
+  // How tall this card is allowed to get. It is content-sized, so on a normal
+  // phone with a few saved items it is far shorter than this and the cap never
+  // comes into play. 2026-09-18, direct request: "Do the display size and
+  // landscape pass too." The cap used to be a flat 320 typed into the style,
+  // with a second flat 260 on the scroll inside it, which is a fixed height
+  // measured against nothing, exactly like the two popup menus were. Both are
+  // gone: this clamps the same 320 to the room the window has (see
+  // lib/menuFit.ts for what shrinks that room), and the list inside simply
+  // shrinks to whatever is left after the header, rather than carrying its own
+  // separately-maintained number that has to be kept 60 less than this one.
+  const cardMaxHeight = useMenuCardFit(CARD_MAX_HEIGHT).height;
   // 2026-08-09: the TabHub button's own real artwork width now depends on
   // which icon is currently chosen (see TabHub.tsx's own 2026-08-09
   // comment) -- reads the same live preference and calls the same shared
@@ -205,7 +217,12 @@ export function MyItemsHub({
       >
         <View style={styles.backdrop}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
-          <View style={[styles.card, { bottom: cardBottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN, borderColor: tabColor }]}>
+          <View
+            style={[
+              styles.card,
+              { bottom: cardBottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN, borderColor: tabColor, maxHeight: cardMaxHeight },
+            ]}
+          >
             <Text style={[styles.cardHeader, { color: tabColor }]} maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}>
               {label}
             </Text>
@@ -268,6 +285,12 @@ const CORNER_ICON_SHADOW = {
   textShadowRadius: 5,
 } as const;
 
+// The tallest this card is allowed to get on a screen with room to spare.
+// Unchanged from the flat 320 that used to sit in the `card` style; it is a
+// ceiling on a content-sized card, not a height, so most of the time nothing
+// reaches it.
+const CARD_MAX_HEIGHT = 320;
+
 const styles = StyleSheet.create({
   button: {
     position: 'absolute',
@@ -294,10 +317,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     width: 240,
     padding: 16,
-    // Caps how tall the card can grow once real saved items exist --
-    // sectionsScroll below is what actually scrolls once content exceeds
-    // the room this leaves it (roughly this minus the header/padding).
-    maxHeight: 320,
+    // `maxHeight` is set inline per render (CARD_MAX_HEIGHT, clamped by
+    // useMenuCardFit) rather than here, so a window too short for the cap
+    // shrinks it instead of running the card off the top of the screen.
+    // categoriesScroll below is what scrolls once there is more content than
+    // the room this leaves it.
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 10,
@@ -310,7 +334,12 @@ const styles = StyleSheet.create({
     ...textShadow,
   },
   categoriesScroll: {
-    maxHeight: 260,
+    // No number of its own: it takes whatever is left inside the card's
+    // maxHeight once the header has had its line, so it stays right when the
+    // cap shrinks on a short window and when the header grows with the phone's
+    // font-size setting. A flat 260 here could only ever be right for one
+    // combination of the two.
+    flexShrink: 1,
   },
   categoryRow: {
     flexDirection: 'row',

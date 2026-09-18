@@ -18,6 +18,7 @@ import {
   SECONDARY_HUB_CARD_LEFT_MARGIN,
   useBottomLeftHubPosition,
   useMenuCardBottom,
+  useMenuCardFit,
 } from '../constants/floatingButton';
 import { TAB_ROUTES } from '../constants/tabs';
 import { TAB_REVEAL_DURATION_MS } from '../constants/tabReveal';
@@ -679,6 +680,20 @@ export function LensHub<T extends string>({
   // down again. Every page's card stays pixel-identical to every other's,
   // which is what cardHeightFor being one shared function guarantees.
   const { fontScale } = useWindowDimensions();
+  // ...and it shrinks again when the window is too short to hold it. This is
+  // the taller of the two popup menus, so it is the one that overflows first:
+  // at Normal spacing it already wants 402 dp of window, and a 411 dp landscape
+  // phone, an Android Display size of Large, a split-screen half, a foldable's
+  // outer screen and an Android 16+ large screen that ignores the orientation
+  // lock all report less than that. The grid below has scrolled since
+  // 2026-08-07 for a different reason (Digest outgrew the shared row budget),
+  // and that same ScrollView is what makes a clamped card here still reach
+  // every option. 2026-09-18, direct request: "Do the display size and
+  // landscape pass too." See lib/menuFit.ts.
+  const cardFit = useMenuCardFit(
+    cardHeightFor(fontScale),
+    cardHeaderHeight(fontScale) + 2 * gridRowHeight(fontScale) + CARD_PADDING_VERTICAL,
+  );
 
   const itemWidthPercent = 100 / columns;
   // Info moves off the floating corner and into the grid's own flow
@@ -833,7 +848,7 @@ export function LensHub<T extends string>({
                 bottom: cardBottom,
                 left: SECONDARY_HUB_CARD_LEFT_MARGIN,
                 width: CARD_WIDTH,
-                height: cardHeightFor(fontScale),
+                height: cardFit.height,
                 borderColor: tabColor,
               },
               { opacity: cardReady ? 1 : 0 },

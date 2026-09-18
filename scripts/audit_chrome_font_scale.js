@@ -59,7 +59,7 @@ const READING_TEXT_IN_CHROME = [
   {
     file: 'components/MyItemsHub.tsx',
     style: 'styles.categoryLabel',
-    why: 'Inside categoriesScroll, a ScrollView with a maxHeight: the list of saved things grows and then scrolls, so a longer row is reading text in a container that can take it.',
+    why: 'Inside categoriesScroll, which shrinks to fit inside whatever the card is allowed to be and scrolls past that: the list of saved things grows, so a longer row is reading text in a container that can take it.',
   },
   {
     file: 'components/MyItemsHub.tsx',

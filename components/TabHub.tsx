@@ -7,6 +7,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -15,7 +16,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, lighten, MENU_LABEL_LIGHTEN_FRACTION } from '../constants/colors';
-import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useMenuCardBottom } from '../constants/floatingButton';
+import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useMenuCardBottom, useMenuCardFit } from '../constants/floatingButton';
 import { getTabHubIconRenderSize, TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES, type TabRoute } from '../constants/tabs';
 import {
@@ -442,7 +443,13 @@ export function TabHub() {
   // app. The card is bottom-anchored, so the extra height goes upward into
   // empty screen rather than down through the nav bar.
   const { fontScale } = useWindowDimensions();
-  const cardHeight = cardHeightFor(fontScale);
+  // ...and it shrinks again when the window is too short to hold it, which is
+  // what Android's Display size setting, a split-screen or landscape viewport,
+  // a foldable, and an Android 16+ large screen all do. The grid below scrolls,
+  // so a clamped card still reaches every tab. 2026-09-18, direct request: "Do
+  // the display size and landscape pass too." See lib/menuFit.ts.
+  const cardFit = useMenuCardFit(cardHeightFor(fontScale), cardRowHeight(fontScale) * 2 + CARD_PADDING_TOP + CARD_PADDING_BOTTOM);
+  const cardHeight = cardFit.height;
 
   // 2026-09-05. The three tile kinds render through these rather than inline,
   // because the grid's order is no longer TAB_ROUTES' order: Home leads, then
@@ -759,16 +766,29 @@ export function TabHub() {
             }}
           >
             <TabHubCardRing>
-              <View style={[styles.card, { height: cardHeight }]}>
-                {/* Home leads, then the two tiles that are not tabs at all,
-                    then the remaining nine in TAB_ROUTES' own order. That puts
-                    what the app IS (a landing screen, the person, help) across
-                    the top row, and leaves three clean rows of three domains
-                    beneath it. */}
-                {renderTabTile(TAB_ROUTES[0])}
-                {renderProfileTile()}
-                {renderInfoTile()}
-                {TAB_ROUTES.slice(1).map(renderTabTile)}
+              {/* The frame is the fixed height; the grid inside it scrolls. Before
+                  2026-09-18 the grid WAS the card, at a fixed height with
+                  overflow: 'hidden', so a window too short for that height simply
+                  clipped the bottom row away with no way to reach it. A ScrollView
+                  whose content is shorter than its frame does not scroll, so this
+                  is unconditional rather than gated on cardFit.scrolls, the same
+                  way LensHub's grid has worked since 2026-08-07. */}
+              <View style={[styles.cardFrame, { height: cardHeight }]}>
+                <ScrollView
+                  style={styles.cardScroll}
+                  contentContainerStyle={styles.card}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {/* Home leads, then the two tiles that are not tabs at all,
+                      then the remaining nine in TAB_ROUTES' own order. That puts
+                      what the app IS (a landing screen, the person, help) across
+                      the top row, and leaves three clean rows of three domains
+                      beneath it. */}
+                  {renderTabTile(TAB_ROUTES[0])}
+                  {renderProfileTile()}
+                  {renderInfoTile()}
+                  {TAB_ROUTES.slice(1).map(renderTabTile)}
+                </ScrollView>
               </View>
             </TabHubCardRing>
           </View>
@@ -917,25 +937,34 @@ const styles = StyleSheet.create({
   // padding so the whole group of icons sits close together. Replaces its
   // old flat borderWidth/borderColor -- cardRing above is what now reads
   // as this card's edge.
-  card: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  // The card splits in two as of 2026-09-18: this frame holds the surface, the
+  // rounded corners and the fixed height, and `card` below is the grid that
+  // scrolls inside it.
+  cardFrame: {
     // colors.menuSurface, not colors.surface -- see the comment on that
     // token: surface's own blue hue was the real reason Schedules' icon
     // kept blending in, not a lack of darkness/lightness.
     backgroundColor: colors.menuSurface,
     borderRadius: 14 - CARD_RING_WIDTH,
+    // `height` is set inline per render (useMenuCardFit over cardHeightFor)
+    // rather than here. It is fixed rather than auto-sized from flexWrap
+    // content: see cardRowHeight's comment above for the "drops in a few pixels
+    // on every open" bug that fixes, and for the two settings it has to add up,
+    // and lib/menuFit.ts for the window height it now gets clamped to as well.
+    // overflow: 'hidden' pairs with it the same way LensHub.tsx's fixed-height
+    // card does, so a row that still comes out slightly taller than its budget
+    // clips rather than visibly overflowing the card's rounded edge.
+    overflow: 'hidden',
+  },
+  // flexGrow, not flex: the ScrollView must be allowed to fill the frame, but
+  // never to stretch its content taller than the frame and swallow the scroll.
+  cardScroll: { flexGrow: 0, flexShrink: 1 },
+  card: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     paddingTop: CARD_PADDING_TOP,
     paddingBottom: CARD_PADDING_BOTTOM,
     paddingHorizontal: 2,
-    // `height` is set inline per render (cardHeightFor) rather than here --
-    // fixed, not auto-sized from flexWrap content, see cardRowHeight's own
-    // comment above for the "drops in a few pixels on every open" bug that
-    // fixes and for the two settings it now has to add up. overflow: 'hidden'
-    // pairs with it the same way LensHub.tsx's own fixed-height card does, so
-    // a row that still comes out slightly taller than its budget clips rather
-    // than visibly overflowing the card's own rounded edge.
-    overflow: 'hidden',
   },
   item: { width: '33.33%', alignItems: 'center', gap: 1, paddingVertical: 4 },
   // The inactive/plain state -- same footprint as ActiveRingCircle's

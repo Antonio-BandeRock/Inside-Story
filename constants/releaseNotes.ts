@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.40.4',
+    date: '2026-09-18',
+    changes: [
+      'The popup menus now check how tall the screen actually is before they draw. Turning up Display size on an Android phone, opening the app on a tablet or a foldable, or running it beside another app in split screen all leave less room than a phone held upright, and the taller of the two menus wanted more room than a landscape phone has. A menu that will not fit now shrinks to the space there is and scrolls, so every option is still reachable instead of sitting off the top of the screen.',
+      'The saved-items menu had two heights typed into it by hand, one for the card and one for the list inside it, which had to be kept a fixed distance apart. Both are gone. The card takes the room the screen has, and the list takes what is left after the heading.',
+    ],
+  },
+  {
     version: '1.0.40.3',
     date: '2026-09-18',
     changes: [

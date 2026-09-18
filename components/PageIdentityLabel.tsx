@@ -203,6 +203,15 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   // that the box in the lower right corner doesn't grow larger on any
   // tab's screen." Fixed again, and the prompt fits inside it: at 11px
   // the sentence runs to four lines at most on a phone, 78px holds four.
+  // Checked against a short viewport 2026-09-18, on the same pass that taught
+  // the two popup menus to measure themselves ("Do the display size and
+  // landscape pass too"): this box needs no such measurement. It is 78 dp tall
+  // and anchored roughly 14 dp above the bottom inset, so it asks for about 92
+  // dp of window. The shortest screen this app can be opened on is several
+  // times that, and the box is pinned to the bottom edge rather than the top,
+  // so a window losing height takes nothing away from it. The menus overflowed
+  // because they are tall and grow upward; this one is short and does not grow
+  // at all, which is the whole point of it.
   const boxHeight = FLOATING_BUTTON_SIZE + buttonIconOverhangY * 2;
   return (
     <View
