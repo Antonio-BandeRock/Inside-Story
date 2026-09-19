@@ -2934,7 +2934,7 @@ export default function ProfileScreen() {
               Learn about a condition without adding it to what this app tracks and helps with for you personally,
               whether you are wondering about yourself or someone else. Anything selected here gets a separate
               Other Conditions list in Life &gt; Conditions, apart from yours, shows up among the Home tab&apos;s
-              Something to Read cards, and a recipe carrying a note about it lists that note separately from the ones
+              Digest cards, and a recipe carrying a note about it lists that note separately from the ones
               about you. Nothing selected here ever changes your food scores, meal plans, advisories or safe
               foods.
             </Text>

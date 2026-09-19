@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.14',
+    date: '2026-09-19',
+    changes: [
+      'The reading cards on Home are back in a group of their own, named Digest, in the purple the tab wore, under a newspaper icon. Each card still takes the colour of the tab its entry lives on.',
+    ],
+  },
+  {
     version: '1.0.41.13',
     date: '2026-09-19',
     changes: [

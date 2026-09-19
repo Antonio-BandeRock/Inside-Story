@@ -75,10 +75,17 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   worthALook: '/insights',
   fuelGauges: '/insights',
   weekTrend: '/trends',
-  // 2026-09-19: the Digest tab is gone, so the reading cards are Home's
-  // and sit in its group at the top; each card wears the colour of the
-  // tab its entry now lives on (see renderDigestCards in app/(tabs)/index.tsx).
-  digestCards: '/',
+  // 2026-09-19: the Digest tab is gone, but the cards keep a group of
+  // their own. They sat in the Home group for one release (1.0.41.13),
+  // and the correction the same day was "they need to be out on their
+  // own together like they were before, and they should be listed in a
+  // group called Digest", in the purple the tab wore, "since it doesn't
+  // exist otherwise." /digest is not a TAB_ROUTE any more, so the group
+  // reads its name, icon and colour from HOME_GROUP_IDENTITY in
+  // constants/homeGroups.ts, the same way Profile does. Each card inside
+  // still wears the colour of the tab its entry now lives on (see
+  // renderDigestCards in app/(tabs)/index.tsx).
+  digestCards: '/digest',
   // Life's, 2026-09-17, alongside the Grocery List for the same reason:
   // these are the things a day is actually run on, and Life is where both
   // are built.

@@ -747,15 +747,16 @@ const HOME_LENS_DESTINATIONS: Partial<
     href: '/capture' as Href,
   },
   // 2026-09-19: the Digest tab is gone, its categories spread over Life,
-  // Garden and Food, and by direct instruction the cards "should become
-  // part of the Home area on the Home screen and the cards should each be
-  // the color of the tab they come from." So this section is Home's now
-  // (see lib/homeSections.ts), in Home's colour, and each card below wears
-  // the colour and icon of the tab its entry lives on.
+  // Garden and Food, and the cards "should each be the color of the tab
+  // they come from." They spent one release in the Home group before the
+  // correction the same day: a group of their own again, called Digest,
+  // in the purple the tab wore, under the newspaper rather than the ribbon
+  // (see constants/homeGroups.ts). Each card below still wears the colour
+  // and icon of the tab its entry lives on.
   digestCards: {
-    label: 'Something to Read',
-    icon: 'book-outline',
-    color: colors.tabHome,
+    label: 'Digest',
+    icon: 'newspaper',
+    color: colors.tabPurpleDigest,
     scrollTo: true,
   },
 };
@@ -2416,8 +2417,9 @@ export default function HomeScreen() {
   // the instruction was to match them: "match the Home band title and card
   // headers too."
   //
-  // 2026-09-19: the Digest tab is gone and the cards sit in the Home group.
-  // Each card's colour and icon now come from the tab its entry lives on
+  // 2026-09-19: the Digest tab is gone and the cards sit in a Digest group
+  // of their own on Home (constants/homeGroups.ts, '/digest'), purple, under
+  // the newspaper. Each card's colour and icon come from the tab its entry lives on
   // (Life for a condition, Health Literacy or Earth Matters; Garden for
   // Horticulture; Food for a recipe), looked up through TAB_ROUTES so they
   // can never drift from what TabHub draws: "the cards should each be the
@@ -2434,12 +2436,12 @@ export default function HomeScreen() {
         {visibleFlipCards.map((card) => {
           const tabPath = tabPathForDigestCategory(card.groupKey);
           const tab = TAB_ROUTES.find((route) => route.path === tabPath);
-          const cardColor = tab?.color ?? colors.tabHome;
+          const cardColor = tab?.color ?? colors.tabPurpleDigest;
           return (
             <FlipCard
               key={card.groupKey}
-              icon={<Ionicons name={tab?.icon ?? 'book-outline'} size={18} color={cardColor} style={textShadow} />}
-              header={DIGEST_CATEGORY_LABEL_BY_KEY[card.groupKey] ?? 'Something to Read'}
+              icon={<Ionicons name={tab?.icon ?? 'newspaper'} size={18} color={cardColor} style={textShadow} />}
+              header={DIGEST_CATEGORY_LABEL_BY_KEY[card.groupKey] ?? 'Digest'}
               hook={card.hook}
               backTitle={card.backTitle}
               backBody={card.backBody}

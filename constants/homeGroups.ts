@@ -7,10 +7,10 @@
 // the kind of thing that drifts. So it moved here, next to TAB_ROUTES
 // itself, and both screens read the one answer.
 //
-// Ten of the eleven come straight from TAB_ROUTES, so they can never drift
-// from the tab's own. Profile is the exception: TabHub's menu puts it
+// Nine of the eleven come straight from TAB_ROUTES, so they can never drift
+// from the tab's own. Profile is one exception: TabHub's menu puts it
 // second, right after Home, but it is a Stack screen rather than a tab, and
-// adding it to TAB_ROUTES would make it an eleventh swipeable tab. So its
+// adding it to TAB_ROUTES would make it a tenth swipeable tab. So its
 // identity is stated here, matching TabHub's own tile
 // (components/TabHub.tsx, renderProfileTile).
 //
@@ -29,6 +29,16 @@
 // second colour for its words alone: Reports' near-white, which is the
 // lightest thing any tab wears and the one the request named. The accent
 // stripe and the icon stay grey, so Profile still reads as Profile.
+//
+// The Digest is the other, since 2026-09-19. The tab was taken apart that
+// day (its reading lives on Life, Garden and Food now), and the flip cards
+// on Home spent one release in the Home group before the correction: "they
+// need to be out on their own together like they were before, and they
+// should be listed in a group called Digest", in the purple the tab wore,
+// "since it doesn't exist otherwise." The ribbon went with the tab; the
+// newspaper was chosen from four offered (newspaper, book, library,
+// bookmarks) because it is the one that says "digest", a periodical of
+// short pieces from many subjects, which is what the cards are.
 import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { colors } from './colors';
@@ -50,6 +60,11 @@ export const HOME_GROUP_IDENTITY: Record<string, HomeGroupIdentity> = {
     icon: 'person-circle',
     color: colors.menuIconMuted,
     textColor: colors.tabReports,
+  },
+  '/digest': {
+    title: 'Digest',
+    icon: 'newspaper',
+    color: colors.tabPurpleDigest,
   },
 };
 
