@@ -27,6 +27,67 @@
     "Mediterranean",
     "Dairy-Free"
   ],
+  "curated_bev_beet_apple_lemon_juice": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_blueberry_lemonade": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_cantaloupe_agua_fresca": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_carrot_orange_ginger_juice": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_chamomile_honey_lemon": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_cinnamon_cardamom_coffee": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free"
+  ],
+  "curated_bev_cranberry_orange_cooler": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_cucumber_mint_water": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
   "curated_bev_electrolyte_water": [
     "Vegan",
     "Plant-Based/Flexitarian",
@@ -48,7 +109,90 @@
     "Plant-Based/Flexitarian",
     "Gluten-Free"
   ],
+  "curated_bev_hibiscus_lime_iced_tea": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_homemade_chai": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free"
+  ],
+  "curated_bev_homemade_oat_milk": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
   "curated_bev_iced_green_tea_mint": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_mango_lassi": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_bev_peach_iced_black_tea": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_pineapple_ginger_juice": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_rooibos_cinnamon_latte": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free"
+  ],
+  "curated_bev_stovetop_apple_cider": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_stovetop_hot_cocoa": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free"
+  ],
+  "curated_bev_strawberry_lemon_water": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_tart_cherry_cooler": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_warm_lemon_ginger": [
     "Vegan",
     "Plant-Based/Flexitarian",
     "Gluten-Free",
@@ -614,10 +758,70 @@
     "Dairy-Free",
     "High-Protein"
   ],
+  "curated_sauce_applesauce": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_sauce_avocado_lime": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
   "curated_sauce_basic_tomato": [
     "Vegan",
     "Plant-Based/Flexitarian",
     "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_sauce_blueberry_maple": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_sauce_carrot_ginger_dressing": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_sauce_coconut_ginger": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_sauce_cranberry_orange": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_sauce_cucumber_mint_raita": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_sauce_fresh_tomato_salsa": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
     "Gluten-Free",
     "Dairy-Free",
     "Paleo"
@@ -631,12 +835,97 @@
     "Paleo",
     "AIP"
   ],
+  "curated_sauce_ginger_lime_marinade": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_sauce_lemon_garlic_herb_marinade": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_sauce_lemon_mustard_vinaigrette": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_sauce_mango_salsa": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_sauce_onion_gravy": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_sauce_orange_ginger_dressing": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_sauce_parsley_chimichurri": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_sauce_roasted_red_pepper": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_sauce_roasted_tomato_garlic": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
   "curated_sauce_simple_pesto": [
     "Vegetarian",
     "Plant-Based/Flexitarian",
     "Mediterranean",
     "Gluten-Free",
     "High-Protein"
+  ],
+  "curated_sauce_tahini_ginger": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
   ],
   "curated_sauce_tahini_lemon": [
     "Vegan",
@@ -645,6 +934,19 @@
     "Dairy-Free",
     "Paleo",
     "AIP"
+  ],
+  "curated_sauce_tzatziki": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_sauce_yogurt_ranch": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
   ],
   "curated_side_baked_chicken_thighs_brussels_sweet_potato": [
     "Omnivore",

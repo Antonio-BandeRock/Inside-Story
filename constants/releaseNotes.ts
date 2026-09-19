@@ -41,6 +41,16 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.3',
+    date: '2026-09-19',
+    changes: [
+      'Beverages went from 4 recipes to 24. The 20 new ones are teas and coffee (chamomile with honey and lemon, a rooibos cinnamon latte, hibiscus lime iced tea, peach iced black tea, homemade chai, cinnamon cardamom coffee), warm and spiced drinks (stovetop hot cocoa, stovetop apple cider, warm lemon ginger water), juices and milks (pineapple ginger, carrot orange ginger, beet apple lemon, homemade oat milk, mango lassi), and flavored waters and coolers (cucumber mint, strawberry lemon, cranberry orange, tart cherry, cantaloupe agua fresca, blueberry lemonade).',
+      'Sauces went from 4 to 24. The 20 new ones are dressings and marinades (lemon mustard vinaigrette, orange ginger, carrot ginger, yogurt ranch, a ginger lime marinade and a lemon garlic herb marinade), dips and yogurt sauces (tzatziki, cucumber mint raita, avocado lime, tahini ginger), salsas and herb sauces (fresh tomato salsa, mango salsa, parsley chimichurri), and cooked sauces (roasted tomato garlic, roasted red pepper, coconut ginger, onion gravy, unsweetened applesauce, cranberry orange, blueberry maple).',
+      'Both groups are split into named shelves now, the way the other groups already are.',
+      'Every one of the 40 is built from ingredients that already score clean across the conditions this app tracks, and each carries the same per-condition cautions the other recipes do. Where a bottled version leans on vinegar, sugar or soy sauce, these use lemon, lime, fruit or maple syrup instead, so the vinegar cautions never come up.',
+    ],
+  },
+  {
     version: '1.0.41.2',
     date: '2026-09-19',
     changes: [

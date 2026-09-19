@@ -119,7 +119,8 @@ function groupKeyFor(entry: DigestEntry): RecipeGroupKey | null {
 //
 // 2026-09-19, 1.0.41.2: Sides and Snacks got tables of their own, after 45
 // new recipes took them to 30 and 24. Sides had been left as one list on
-// purpose while it held five.
+// purpose while it held five. 1.0.41.3, the same day: Beverages and Sauces
+// got theirs, after 40 more took each from 4 to 24.
 type SubgroupRule = { label: string; match: RegExp; unless?: RegExp };
 
 const SEAFOOD = /salmon|cod\b|halibut|trout|shrimp|scallop|sole\b|sardine|tuna|mackerel|crab|mussel|tilapia|snapper|anchov/;
@@ -204,6 +205,25 @@ const RECIPE_SUBGROUPS: Partial<Record<RecipeGroupKey, SubgroupRule[]>> = {
     { label: 'Dips, Spreads & Dippers', match: /dip|hummus|tahini|almond butter|avocado/ },
     { label: 'No-Bake Bites, Bars & Balls', match: /bites|bars|balls|clusters/ },
     { label: 'Fruit & Yogurt', match: /.*/ },
+  ],
+  // Drinks are grouped by what somebody is in the mood for: something hot,
+  // something brewed, something pressed, or a glass of water that tastes
+  // of something. "Warm Lemon Ginger Water" is a warm drink first and a
+  // water second, which is why the warm rule sits above the catch-all.
+  beverage: [
+    { label: 'Teas & Coffee', match: /\btea\b|chai|coffee|rooibos|chamomile|hibiscus/ },
+    { label: 'Warm & Spiced', match: /golden milk|cocoa|cider|tonic|warm/ },
+    { label: 'Juices & Milks', match: /juice|milk|lassi/ },
+    { label: 'Waters & Coolers', match: /.*/ },
+  ],
+  // Sauces are grouped by what they go on and whether they need a pan.
+  // The cooked shelf is the catch-all, so a raw sauce added later needs a
+  // rule of its own in the same pass that writes it.
+  sauce: [
+    { label: 'Dressings & Marinades', match: /vinaigrette|dressing|marinade/ },
+    { label: 'Salsas & Herb Sauces', match: /salsa|chimichurri|pesto/ },
+    { label: 'Dips & Yogurt Sauces', match: /tzatziki|raita|avocado|tahini/ },
+    { label: 'Cooked & Simmered Sauces', match: /.*/ },
   ],
 };
 

@@ -1,0 +1,2508 @@
+[
+  {
+    "id": "curated_bev_cucumber_mint_water",
+    "name": "Cucumber Mint Water",
+    "flavorProfile": "Cool and faintly green, with mint and lime lifting plain water without sweetening it.",
+    "healthBenefit": "Plain water with enough flavor that it gets drunk. No sugar, and a little potassium from the cucumber.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 500,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cucumber",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "thinly sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, spearmint, fresh",
+        "quantity": 2.5,
+        "unit": "g",
+        "cutPrep": "torn",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "thinly sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Put the cucumber, mint and lime slices in a jug and pour the water over them.",
+      "Chill for at least an hour so the flavors move into the water.",
+      "Drink within a day. The cucumber goes soft after that."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 4
+  },
+  {
+    "id": "curated_bev_strawberry_lemon_water",
+    "name": "Strawberry Lemon Water",
+    "flavorProfile": "Lightly fruity and tart, with the strawberries coloring the water pink as they sit.",
+    "healthBenefit": "A way to drink more water that carries almost none of the sugar of a fruit juice, since the berries flavor it rather than being blended into it.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 500,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Strawberry",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "halved",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 20,
+        "unit": "g",
+        "cutPrep": "thinly sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Put the halved strawberries and lemon slices in a jug and press them once or twice with a spoon to release a little juice.",
+      "Pour the water over and chill for at least an hour.",
+      "Eat the strawberries once the water is gone."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 5
+  },
+  {
+    "id": "curated_bev_warm_lemon_ginger",
+    "name": "Warm Lemon Ginger Water",
+    "flavorProfile": "Warm and sharp, with the ginger heat building as it steeps and the honey rounding the lemon.",
+    "healthBenefit": "Ginger is one of the better-studied plant remedies for nausea, and a warm drink first thing tends to get drunk when a cold glass of water does not.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 250,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Ginger root",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "thinly sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Standard Honey (Blossom Honey)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Heat the water until it is steaming but not boiling.",
+      "Drop in the ginger slices and let them steep for 5 minutes.",
+      "Stir in the lemon juice and honey once the water is cool enough to drink."
+    ],
+    "builderType": "beverage",
+    "servings": 1,
+    "sortOrder": 6
+  },
+  {
+    "id": "curated_bev_chamomile_honey_lemon",
+    "name": "Chamomile Tea with Honey and Lemon",
+    "flavorProfile": "Soft and apple-like, with a little honey and a squeeze of lemon on top.",
+    "healthBenefit": "Caffeine-free, so it suits the last hour of the day. Chamomile has a small body of trial evidence for sleep and mild anxiety, most of it short and small.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Brewing",
+        "baseName": "Herbal Tea (Chamomile / Peppermint / Rooibos / Mate)",
+        "quantity": 250,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Standard Honey (Blossom Honey)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Brew a chamomile tea bag, or a heaped teaspoon of dried chamomile flowers, in 250ml of just-boiled water for 5 minutes with a saucer over the cup.",
+      "Remove the bag or strain out the flowers.",
+      "Stir in the honey and lemon juice once the tea has cooled enough to drink."
+    ],
+    "builderType": "beverage",
+    "servings": 1,
+    "sortOrder": 7
+  },
+  {
+    "id": "curated_bev_rooibos_cinnamon_latte",
+    "name": "Rooibos Cinnamon Latte",
+    "flavorProfile": "Rounded and slightly sweet, with the red tea tasting almost of vanilla under the warm milk.",
+    "healthBenefit": "A caffeine-free latte. Rooibos brews strong without the tannin bitterness black tea gets, so it stands up to milk without sugar doing the work.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Brewing",
+        "baseName": "Herbal Tea (Chamomile / Peppermint / Rooibos / Mate)",
+        "quantity": 150,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Dairy",
+        "baseName": "Milk, whole, 3.25% milkfat, with added vitamin D",
+        "quantity": 100,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Brew two rooibos tea bags in 150ml of boiling water for 7 minutes, so the tea is strong enough to taste through the milk.",
+      "Warm the milk in a small pan with the cinnamon until it steams, whisking to froth it.",
+      "Remove the tea bags, stir in the maple syrup, and pour the milk over the tea."
+    ],
+    "builderType": "beverage",
+    "servings": 1,
+    "sortOrder": 8
+  },
+  {
+    "id": "curated_bev_hibiscus_lime_iced_tea",
+    "name": "Hibiscus Lime Iced Tea",
+    "flavorProfile": "Deep red, tart like cranberry, with lime sharpening it and honey taking the edge off.",
+    "healthBenefit": "Hibiscus has several small trials behind a modest blood pressure reduction. The honey is light enough that a glass carries a fraction of the sugar in bottled iced tea.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Brewing",
+        "baseName": "Hibiscus / Fruit Tea (Unsweetened)",
+        "quantity": 500,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Standard Honey (Blossom Honey)",
+        "quantity": 10,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Brew two hibiscus tea bags, or a tablespoon of dried hibiscus flowers, in 500ml of boiling water for 10 minutes.",
+      "Strain, and stir in the honey while the tea is still warm so it dissolves.",
+      "Chill, then add the lime juice and serve over ice."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 9
+  },
+  {
+    "id": "curated_bev_peach_iced_black_tea",
+    "name": "Peach Iced Black Tea",
+    "flavorProfile": "Brisk black tea with ripe peach sweetness steeped in, and no added sugar at all.",
+    "healthBenefit": "The peach slices sweeten the tea while they sit in it, which is how this gets its flavor without a syrup. Brewed black tea carries polyphenols and about half the caffeine of coffee.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Brewing",
+        "baseName": "Black Tea (Brewed)",
+        "quantity": 500,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Peach",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Brew two black tea bags in 500ml of boiling water for 4 minutes and remove them, so the tea does not turn bitter.",
+      "Drop the peach slices into the hot tea and leave it to cool on the counter.",
+      "Chill for 2 hours, add the lemon juice, and serve over ice with the peach slices left in."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 10
+  },
+  {
+    "id": "curated_bev_homemade_chai",
+    "name": "Homemade Chai",
+    "flavorProfile": "Warm and spiced, with ginger heat, cardamom and clove behind strong black tea and milk.",
+    "healthBenefit": "Made at home, a cup of chai carries a teaspoon of honey. The coffee-shop version is built on a syrup concentrate that puts it closer to a dessert.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Brewing",
+        "baseName": "Black Tea (Brewed)",
+        "quantity": 150,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Dairy",
+        "baseName": "Milk, whole, 3.25% milkfat, with added vitamin D",
+        "quantity": 100,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Ginger root",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cardamom, ground",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cloves, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Standard Honey (Blossom Honey)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Simmer the ginger, cinnamon, cardamom and cloves in 150ml of water in a small pan for 5 minutes.",
+      "Take the pan off the heat, add a black tea bag, and steep for 3 minutes.",
+      "Remove the tea bag, add the milk, and warm gently without boiling.",
+      "Strain into a cup and stir in the honey."
+    ],
+    "builderType": "beverage",
+    "servings": 1,
+    "sortOrder": 11
+  },
+  {
+    "id": "curated_bev_cinnamon_cardamom_coffee",
+    "name": "Cinnamon Cardamom Coffee",
+    "flavorProfile": "Ordinary drip coffee with a warm, faintly floral edge from spices brewed in with the grounds.",
+    "healthBenefit": "The spices go into the filter, so the flavor comes through without any syrup. A splash of milk is the only thing added to the cup.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Brewing",
+        "baseName": "Brewed Black Coffee",
+        "quantity": 250,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cardamom, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Dairy",
+        "baseName": "Milk, whole, 3.25% milkfat, with added vitamin D",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Stir the cinnamon and cardamom into the ground coffee before brewing, so they brew through with it.",
+      "Brew as you normally would, by drip, pour-over or press.",
+      "Add the milk to the cup."
+    ],
+    "builderType": "beverage",
+    "servings": 1,
+    "sortOrder": 12
+  },
+  {
+    "id": "curated_bev_stovetop_hot_cocoa",
+    "name": "Stovetop Hot Cocoa",
+    "flavorProfile": "Dark and chocolatey, less sweet than a packet mix, with a pinch of salt bringing the cocoa forward.",
+    "healthBenefit": "Unsweetened cocoa is one of the denser sources of flavanols, and making it from powder means you decide the sugar: two teaspoons of maple syrup here, against three to four in a packet.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Milk, whole, 3.25% milkfat, with added vitamin D",
+        "quantity": 250,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Brewing",
+        "baseName": "Pure Cocoa / Cacao Powder (Unsweetened)",
+        "quantity": 8,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 10,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Whisk the cocoa, cinnamon and salt with a splash of the milk in a small pan until there are no lumps.",
+      "Add the rest of the milk and the maple syrup and warm over medium-low heat, whisking, until steaming.",
+      "Do not let it boil. Pour into a cup."
+    ],
+    "builderType": "beverage",
+    "servings": 1,
+    "sortOrder": 13
+  },
+  {
+    "id": "curated_bev_stovetop_apple_cider",
+    "name": "Stovetop Apple Cider",
+    "flavorProfile": "Warm, sweet and spiced, tasting of the apples themselves rather than of a concentrate.",
+    "healthBenefit": "Made from whole apples simmered and pressed, it has no added sugar and keeps some of the apple pectin that a filtered juice loses.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Apple",
+        "quantity": 300,
+        "unit": "g",
+        "cutPrep": "quartered",
+        "cookingMethod": "Simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 500,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cloves, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Put the quartered apples, water, cinnamon and cloves in a pan and bring to a simmer.",
+      "Simmer, covered, for 30 minutes, until the apples have collapsed.",
+      "Mash the apples in the pan, then strain through a sieve, pressing to get the liquid out.",
+      "Stir in the lemon juice and serve warm."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 14
+  },
+  {
+    "id": "curated_bev_cranberry_orange_cooler",
+    "name": "Cranberry Orange Cooler",
+    "flavorProfile": "Tart and bright, with orange juice softening the cranberry bite.",
+    "healthBenefit": "Bottled cranberry drinks are mostly sugar water because the fruit is so sour. Simmering whole berries and sweetening lightly keeps the fruit and cuts the sugar to a third.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Cranberry",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "Simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 400,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Simmer the cranberries in the water for 10 minutes, until every berry has burst.",
+      "Strain through a sieve, pressing the berries to get the liquid out, and stir in the maple syrup while it is warm.",
+      "Chill, then add the orange juice and serve over ice."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 15
+  },
+  {
+    "id": "curated_bev_tart_cherry_cooler",
+    "name": "Tart Cherry Cooler",
+    "flavorProfile": "Sour and deep, with lime and a little honey rounding it into something you want a second glass of.",
+    "healthBenefit": "Sour cherries are the variety studied for muscle recovery and sleep, in small trials using concentrated juice. This is the whole fruit, lightly sweetened, at far less sugar than a bottled concentrate.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Sour Cherry",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": "pitted",
+        "cookingMethod": "Simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 400,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Standard Honey (Blossom Honey)",
+        "quantity": 10,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Simmer the pitted cherries in the water for 8 minutes, until they have softened and colored the water deep red.",
+      "Strain, pressing the cherries, and stir in the honey while the liquid is warm.",
+      "Chill, add the lime juice, and serve over ice."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 16
+  },
+  {
+    "id": "curated_bev_cantaloupe_agua_fresca",
+    "name": "Cantaloupe Lime Agua Fresca",
+    "flavorProfile": "Light, sweet and melon-forward, thinned with water so it drinks like a cooler rather than a smoothie.",
+    "healthBenefit": "Cantaloupe is one of the highest vitamin A fruits, and blending it with water rather than juicing it keeps the fiber in the glass.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Cantaloupe Melon",
+        "quantity": 300,
+        "unit": "g",
+        "cutPrep": "cubed",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 250,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Standard Honey (Blossom Honey)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Blend the cantaloupe, water, lime juice and honey until smooth.",
+      "Taste. A ripe melon may not need the honey at all.",
+      "Serve over ice. Stir before pouring if it has separated."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 17
+  },
+  {
+    "id": "curated_bev_blueberry_lemonade",
+    "name": "Blueberry Lemonade",
+    "flavorProfile": "Tart lemonade turned purple by whole blueberries, sweeter from the fruit than from the syrup.",
+    "healthBenefit": "A glass of standard lemonade carries about 25g of sugar. Blueberries do part of the sweetening here, which brings this to well under half that and adds their anthocyanins.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Blueberry",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 400,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 20,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Blend the blueberries with 100ml of the water until smooth, then strain through a sieve to catch the skins.",
+      "Stir the blueberry juice, lemon juice, maple syrup and the rest of the water together.",
+      "Serve over ice."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 18
+  },
+  {
+    "id": "curated_bev_pineapple_ginger_juice",
+    "name": "Pineapple Ginger Juice",
+    "flavorProfile": "Sweet, tropical and hot at the back, with lime holding the pineapple sugar in check.",
+    "healthBenefit": "Fresh pineapple carries bromelain, an enzyme that a pasteurized juice has lost, along with a full day of vitamin C in a glass. Blending and lightly straining keeps more fiber than a juicer would.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Pineapple",
+        "quantity": 250,
+        "unit": "g",
+        "cutPrep": "cubed",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Ginger root",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "peeled",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 100,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Blend the pineapple, ginger, lime juice and water until smooth.",
+      "Strain through a coarse sieve if you want it thinner, or drink it as it is.",
+      "Serve cold."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 19
+  },
+  {
+    "id": "curated_bev_carrot_orange_ginger_juice",
+    "name": "Carrot Orange Ginger Juice",
+    "flavorProfile": "Sweet and earthy from the carrot, bright from the orange, with a ginger kick.",
+    "healthBenefit": "Two vegetables-worth of beta-carotene in a glass, and the orange supplies the vitamin C. No juicer needed: a blender and a sieve do it.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": "peeled and segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Ginger root",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "peeled",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 150,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Blend the carrot, orange, ginger and water on high for a full minute, until the carrot is completely broken down.",
+      "Strain through a fine sieve, pressing the pulp with the back of a spoon.",
+      "Serve cold. Stir before drinking."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 20
+  },
+  {
+    "id": "curated_bev_beet_apple_lemon_juice",
+    "name": "Beet Apple Lemon Juice",
+    "flavorProfile": "Earthy and sweet, deep magenta, with lemon keeping the beet from tasting like soil.",
+    "healthBenefit": "Beets are the food source of dietary nitrate that trials have tied to lower blood pressure and better exercise endurance. The apple sweetens it without any added sugar.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Beetroot",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "peeled and chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Apple",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": "cored and chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 150,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Blend the beet, apple, lemon juice and water on high for a full minute.",
+      "Strain through a fine sieve, pressing the pulp.",
+      "Serve cold. Beet stains, so rinse the blender straight away."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 21
+  },
+  {
+    "id": "curated_bev_homemade_oat_milk",
+    "name": "Homemade Oat Milk",
+    "flavorProfile": "Mild, faintly sweet and creamy, with none of the gums or oils a carton version carries.",
+    "healthBenefit": "Two ingredients plus a date and a pinch of salt. Carton oat milk is usually made with added oil, and often with sugar released by enzymes. This has neither.",
+    "servings": 3,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Oats",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 750,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Date",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "pitted",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Blend the oats, cold water, date and salt for 30 seconds and no longer. Over-blending is what makes oat milk slimy.",
+      "Pour through a fine sieve or a cloth into a jar without pressing the pulp, which would push the starch through.",
+      "Keep refrigerated for up to 4 days. It separates, so shake before pouring."
+    ],
+    "builderType": "beverage",
+    "sortOrder": 22
+  },
+  {
+    "id": "curated_bev_mango_lassi",
+    "name": "Mango Lassi",
+    "flavorProfile": "Thick, cold and sweet, with cardamom giving the mango a floral edge.",
+    "healthBenefit": "Greek yogurt gives this the protein a fruit juice lacks, so it holds you between meals. The mango does nearly all the sweetening.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "glass",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Mango",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": "cubed",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 120,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Dairy",
+        "baseName": "Milk, whole, 3.25% milkfat, with added vitamin D",
+        "quantity": 60,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Standard Honey (Blossom Honey)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cardamom, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Blend the mango, yogurt, milk, honey and cardamom until smooth.",
+      "Add a splash more milk if it is too thick to pour.",
+      "Serve cold."
+    ],
+    "builderType": "beverage",
+    "servings": 1,
+    "sortOrder": 23
+  },
+  {
+    "id": "curated_sauce_lemon_mustard_vinaigrette",
+    "name": "Lemon Mustard Vinaigrette",
+    "flavorProfile": "Sharp and clean, with the mustard holding the oil and lemon together so it coats rather than puddles.",
+    "healthBenefit": "A bottled dressing lists sugar, thickeners and refined oil; this is olive oil and lemon. The oil helps the fat-soluble vitamins in whatever you pour it over absorb.",
+    "servings": 4,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "tbsp",
+    "ingredients": [
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 45,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 22.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Mustard, prepared, yellow",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Put everything in a small jar with a tight lid.",
+      "Shake hard for 20 seconds, until it turns cloudy and thick.",
+      "Keeps refrigerated for a week. Shake again before each use."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 4
+  },
+  {
+    "id": "curated_sauce_orange_ginger_dressing",
+    "name": "Orange Ginger Dressing",
+    "flavorProfile": "Sweet and citrusy with a ginger bite, lighter than a vinaigrette because orange juice makes up half of it.",
+    "healthBenefit": "The orange juice replaces vinegar, which matters if vinegar bothers your stomach, and it carries the sweetness so no sugar is added.",
+    "servings": 4,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "tbsp",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Ginger root",
+        "quantity": 3,
+        "unit": "g",
+        "cutPrep": "grated",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Whisk the orange juice, lime juice, ginger and salt together.",
+      "Whisk in the olive oil in a thin stream so it comes together.",
+      "Use the same day, while the orange is fresh."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 5
+  },
+  {
+    "id": "curated_sauce_carrot_ginger_dressing",
+    "name": "Carrot Ginger Dressing",
+    "flavorProfile": "Bright orange, sweet and gingery, thick enough to cling to a salad the way the Japanese restaurant version does.",
+    "healthBenefit": "A whole carrot blended into the dressing, so the beta-carotene comes with the oil that helps it absorb.",
+    "servings": 6,
+    "servingSizeAmount": 2,
+    "servingSizeUnit": "tbsp",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Ginger root",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "peeled",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Blend the carrot, ginger, lime juice, water, maple syrup and salt until completely smooth, scraping down the sides once.",
+      "Add the olive oil and blend again briefly.",
+      "Thin with a little more water if it is thicker than you want. Keeps refrigerated for 5 days."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 6
+  },
+  {
+    "id": "curated_sauce_yogurt_ranch",
+    "name": "Yogurt Ranch Dressing",
+    "flavorProfile": "Cool, herby and tangy, with the dill and garlic doing what the packet does without the powder.",
+    "healthBenefit": "Greek yogurt in place of the mayonnaise and buttermilk base, which swaps most of the fat for protein and adds live cultures.",
+    "servings": 4,
+    "servingSizeAmount": 2,
+    "servingSizeUnit": "tbsp",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 120,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 15,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 1.5,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Fresh Dill Weed",
+        "quantity": 2,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Parsley Spices",
+        "quantity": 2,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Stir the yogurt, water and lemon juice together until smooth.",
+      "Stir in the garlic, dill, parsley, salt and pepper.",
+      "Let it sit for 15 minutes before using so the garlic mellows. Keeps refrigerated for 4 days."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 7
+  },
+  {
+    "id": "curated_sauce_ginger_lime_marinade",
+    "name": "Ginger Lime Marinade",
+    "flavorProfile": "Sharp, hot and a little sweet, for chicken, fish, tofu or vegetables headed for the grill.",
+    "healthBenefit": "Enough acid and oil to season and tenderize 500g of protein or vegetables, without the soy sauce and sugar a bottled marinade is built on.",
+    "servings": 4,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "tbsp",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Ginger root",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "grated",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 3,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Whisk everything together in a bowl.",
+      "Pour over 500g of chicken, fish, tofu or sliced vegetables and turn to coat.",
+      "Marinate fish for 20 minutes and anything else for 1 to 4 hours in the fridge, then cook. Discard what the raw food sat in."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 8
+  },
+  {
+    "id": "curated_sauce_lemon_garlic_herb_marinade",
+    "name": "Lemon Garlic Herb Marinade",
+    "flavorProfile": "Lemony and green, with garlic and fresh herbs, for chicken, fish or vegetables.",
+    "healthBenefit": "Marinating in lemon and olive oil before grilling has been shown to reduce the formation of heterocyclic amines, the compounds that form when meat chars.",
+    "servings": 4,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "tbsp",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 45,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 3,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Fresh Dill Weed",
+        "quantity": 2,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Parsley Spices",
+        "quantity": 2,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Whisk everything together in a bowl.",
+      "Pour over 500g of chicken, fish or sliced vegetables and turn to coat.",
+      "Marinate fish for 20 minutes and chicken for 1 to 4 hours in the fridge, then cook. Discard what the raw food sat in."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 9
+  },
+  {
+    "id": "curated_sauce_tzatziki",
+    "name": "Tzatziki",
+    "flavorProfile": "Cold, thick and garlicky, with grated cucumber and dill through it.",
+    "healthBenefit": "Mostly Greek yogurt and cucumber, so it carries protein and live cultures where a mayonnaise-based dip carries fat. Squeezing the cucumber is what keeps it thick.",
+    "servings": 6,
+    "servingSizeAmount": 0.25,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 200,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cucumber",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "grated and squeezed dry",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 1.5,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Fresh Dill Weed",
+        "quantity": 3,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 5,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Grate the cucumber, toss it with the salt, and leave it in a sieve for 10 minutes. Squeeze it in your hands until no more water comes out.",
+      "Stir the cucumber into the yogurt with the garlic, dill, lemon juice and olive oil.",
+      "Chill for 30 minutes before serving. Keeps refrigerated for 3 days."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 10
+  },
+  {
+    "id": "curated_sauce_cucumber_mint_raita",
+    "name": "Cucumber Mint Raita",
+    "flavorProfile": "Cool and mild, with mint and lime, made to sit beside something hot and spiced.",
+    "healthBenefit": "The cooling side dish of Indian cooking, and the reason a spiced meal is easier on the stomach. Yogurt protein and cucumber water, nothing else to speak of.",
+    "servings": 4,
+    "servingSizeAmount": 0.25,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 200,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cucumber",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "finely diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, spearmint, fresh",
+        "quantity": 3,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Stir the yogurt until smooth.",
+      "Fold in the cucumber, mint, lime juice and salt.",
+      "Serve cold, the same day."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 11
+  },
+  {
+    "id": "curated_sauce_avocado_lime",
+    "name": "Avocado Lime Sauce",
+    "flavorProfile": "Smooth, green and tangy, thin enough to drizzle over tacos, bowls or grilled fish.",
+    "healthBenefit": "Avocado supplies the creaminess with monounsaturated fat and potassium, and a spoonful of yogurt thins it without any oil.",
+    "servings": 4,
+    "servingSizeAmount": 0.25,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro)",
+        "quantity": 3,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Blend the avocado, lime juice, yogurt, water, cilantro and salt until smooth.",
+      "Add water a spoonful at a time until it pours.",
+      "Use the same day. It browns at the surface after that, though it is still fine underneath."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 12
+  },
+  {
+    "id": "curated_sauce_tahini_ginger",
+    "name": "Tahini Ginger Sauce",
+    "flavorProfile": "Nutty, sharp and a little sweet, the sauce a grain bowl or a tray of roasted vegetables usually gets from peanuts.",
+    "healthBenefit": "Sesame in place of peanuts, so it is safe for a peanut allergy and brings calcium and magnesium along with the fat.",
+    "servings": 4,
+    "servingSizeAmount": 2,
+    "servingSizeUnit": "tbsp",
+    "ingredients": [
+      {
+        "category": "SaucesCondiments",
+        "baseName": "Tahini",
+        "quantity": 45,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 45,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Ginger root",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "grated",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 1.5,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Stir the tahini and lime juice together. It will seize and thicken; keep stirring.",
+      "Add the water a little at a time, stirring, until it loosens into a pourable sauce.",
+      "Stir in the ginger, garlic, maple syrup and salt. Keeps refrigerated for a week and thickens as it sits."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 13
+  },
+  {
+    "id": "curated_sauce_fresh_tomato_salsa",
+    "name": "Fresh Tomato Salsa",
+    "flavorProfile": "Chunky, juicy and sharp, with raw onion, cilantro and lime.",
+    "healthBenefit": "Raw tomato, onion and lime, with the salt in your control. Jarred salsa can carry more sodium per serving than a bag of chips.",
+    "servings": 4,
+    "servingSizeAmount": 0.25,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 250,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Onion",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "finely diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Stir the tomato, onion, cilantro, lime juice and salt together in a bowl.",
+      "Let it sit for 15 minutes so the salt draws the juice out of the tomato.",
+      "Best the same day. Drain off the extra liquid if it sits longer."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 14
+  },
+  {
+    "id": "curated_sauce_mango_salsa",
+    "name": "Mango Salsa",
+    "flavorProfile": "Sweet, sharp and crunchy, with red pepper and lime against ripe mango.",
+    "healthBenefit": "A fruit salsa that brings vitamin C from both the mango and the pepper, and turns plain grilled fish or chicken into a meal without a sauce.",
+    "servings": 4,
+    "servingSizeAmount": 0.25,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Mango",
+        "quantity": 200,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Red Bell Pepper",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "finely diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Onion",
+        "quantity": 25,
+        "unit": "g",
+        "cutPrep": "finely diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Coriander (cilantro)",
+        "quantity": 4,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Stir the mango, red pepper, onion, cilantro, lime juice and salt together.",
+      "Let it sit for 10 minutes before serving.",
+      "Best the same day."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 15
+  },
+  {
+    "id": "curated_sauce_parsley_chimichurri",
+    "name": "Parsley Garlic Chimichurri",
+    "flavorProfile": "Green, garlicky and sharp, loose enough to spoon over grilled meat or roasted vegetables.",
+    "healthBenefit": "A whole bunch of parsley goes into a small batch, which makes this one of the few sauces that counts as a serving of leafy greens. Lemon stands in for the usual vinegar.",
+    "servings": 6,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "tbsp",
+    "ingredients": [
+      {
+        "category": "Herbs",
+        "baseName": "Parsley Spices",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "finely chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Oregano",
+        "quantity": 2,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 6,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 60,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Stir the parsley, oregano, garlic, salt and pepper together in a bowl.",
+      "Stir in the olive oil and lemon juice. It should be loose and spoonable, not a paste.",
+      "Let it sit for 30 minutes before serving. Keeps refrigerated for 3 days."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 16
+  },
+  {
+    "id": "curated_sauce_roasted_tomato_garlic",
+    "name": "Roasted Tomato Garlic Sauce",
+    "flavorProfile": "Deeper and sweeter than a stovetop tomato sauce, with the garlic gone soft and mellow in the oven.",
+    "healthBenefit": "Roasting concentrates the tomatoes and makes their lycopene more available than it is raw, and the olive oil they roast in helps it absorb.",
+    "servings": 4,
+    "servingSizeAmount": 0.5,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Tomato",
+        "quantity": 400,
+        "unit": "g",
+        "cutPrep": "halved",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 6,
+        "unit": "g",
+        "cutPrep": "whole cloves, peeled",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 15,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400°F (200°C).",
+      "Lay the tomato halves cut side up on a baking sheet with the garlic cloves tucked between them. Drizzle with the olive oil and sprinkle with the salt and pepper.",
+      "Roast for 35 to 40 minutes, until the tomato edges have browned and the garlic is soft.",
+      "Blend everything from the sheet, juices included, until smooth. Keeps refrigerated for 5 days."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 17
+  },
+  {
+    "id": "curated_sauce_roasted_red_pepper",
+    "name": "Roasted Red Pepper Sauce",
+    "flavorProfile": "Smoky-sweet and smooth, the color of paprika, good on eggs, grains, fish or pasta.",
+    "healthBenefit": "Red bell peppers carry more vitamin C by weight than oranges, and roasting them adds sweetness with no sugar.",
+    "servings": 4,
+    "servingSizeAmount": 0.25,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Red Bell Pepper",
+        "quantity": 300,
+        "unit": "g",
+        "cutPrep": "halved and seeded",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 3,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 15,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Roast the pepper halves skin side up under a hot broiler, or at 450°F (230°C), for 15 to 20 minutes, until the skins are blackened in patches.",
+      "Put them in a covered bowl for 10 minutes, then slip the skins off.",
+      "Blend the peppers with the garlic, olive oil, lemon juice and salt until smooth. Keeps refrigerated for 5 days."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 18
+  },
+  {
+    "id": "curated_sauce_coconut_ginger",
+    "name": "Coconut Ginger Sauce",
+    "flavorProfile": "Rich, gently spiced and golden, a quick curry sauce for vegetables, fish or chickpeas.",
+    "healthBenefit": "Coconut milk gives it body without cream or flour, and the turmeric and ginger bring the pair of anti-inflammatory spices that the most trials have looked at.",
+    "servings": 4,
+    "servingSizeAmount": 0.25,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 5,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Ginger root",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "grated",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 3,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Turmeric, dried, ground",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 200,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": "Simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Warm the oil in a small pan and cook the ginger, garlic and turmeric for 1 minute, until fragrant.",
+      "Pour in the coconut milk and simmer for 5 minutes, until slightly thickened.",
+      "Take it off the heat and stir in the lime juice and salt."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 19
+  },
+  {
+    "id": "curated_sauce_onion_gravy",
+    "name": "Onion Gravy",
+    "flavorProfile": "Dark, sweet from slow-cooked onions, and thick enough to pour over mash or roasted vegetables.",
+    "healthBenefit": "Built on slowly browned onions and vegetable stock rather than meat drippings and flour, so it is gluten-free and carries a fraction of the saturated fat.",
+    "servings": 4,
+    "servingSizeAmount": 0.25,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Onion",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": "thinly sliced",
+        "cookingMethod": "Sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 10,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "PantryStaples",
+        "baseName": "Vegetable stock",
+        "quantity": 300,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "PantryStaples",
+        "baseName": "Arrowroot flour",
+        "quantity": 8,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Cook the onions in the olive oil over medium-low heat for 20 minutes, stirring now and then, until they are deep golden and soft.",
+      "Add all but 2 tablespoons of the stock and simmer for 5 minutes.",
+      "Stir the arrowroot into the reserved cold stock, then stir it into the pan. Simmer gently for 1 minute, until it thickens. Do not boil it hard, which thins arrowroot back out.",
+      "Season with the salt and pepper."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 20
+  },
+  {
+    "id": "curated_sauce_applesauce",
+    "name": "Unsweetened Applesauce",
+    "flavorProfile": "Soft, warm and tasting of apples and cinnamon, with a little lemon keeping it bright.",
+    "healthBenefit": "Jarred applesauce is often sweetened; this one takes all its sugar from the fruit and keeps the pectin, a soluble fiber that gut bacteria feed on.",
+    "servings": 4,
+    "servingSizeAmount": 0.5,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Apple",
+        "quantity": 500,
+        "unit": "g",
+        "cutPrep": "peeled, cored and chopped",
+        "cookingMethod": "Simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 60,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Put the apples, water and cinnamon in a pan, cover, and simmer over low heat for 15 to 20 minutes, until the apples fall apart.",
+      "Mash with a fork for a chunky sauce or blend for a smooth one.",
+      "Stir in the lemon juice. Keeps refrigerated for a week."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 21
+  },
+  {
+    "id": "curated_sauce_cranberry_orange",
+    "name": "Cranberry Orange Sauce",
+    "flavorProfile": "Tart, jammy and bright with orange, for roast poultry, a grain bowl or stirred into yogurt.",
+    "healthBenefit": "The canned version is around a third sugar by weight. Here the maple syrup is a fifth of that, and the whole berries and orange do the rest.",
+    "servings": 6,
+    "servingSizeAmount": 0.25,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Cranberry",
+        "quantity": 200,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "Simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "juiced, zest reserved",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 60,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Put the cranberries, orange juice, maple syrup and water in a pan and bring to a simmer.",
+      "Simmer for 10 to 12 minutes, stirring, until the berries have burst and the sauce has thickened.",
+      "Stir in the orange zest and let it cool. It thickens further as it cools. Keeps refrigerated for 10 days."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 22
+  },
+  {
+    "id": "curated_sauce_blueberry_maple",
+    "name": "Blueberry Maple Sauce",
+    "flavorProfile": "Warm, glossy and purple, with whole berries in a light syrup, for pancakes, oatmeal or yogurt.",
+    "healthBenefit": "A tablespoon of maple syrup across the batch, so a serving carries about a teaspoon of added sugar next to a half cup of berries.",
+    "servings": 4,
+    "servingSizeAmount": 2,
+    "servingSizeUnit": "tbsp",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Blueberry",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "Simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Put the blueberries, maple syrup, lemon juice and water in a small pan.",
+      "Simmer for 5 to 7 minutes, stirring, until some of the berries have burst and the liquid has turned syrupy.",
+      "Serve warm or cold. Keeps refrigerated for 5 days."
+    ],
+    "builderType": "sauce",
+    "sortOrder": 23
+  }
+]
