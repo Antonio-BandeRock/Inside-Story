@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.40.7',
+    date: '2026-09-18',
+    changes: [
+      'My Safe Foods now carries three marks on every food instead of a form to fill in. The plus puts a food on your safe list in one tap. The question mark is for a food you have not worked out yet, which takes it off the safe list without calling it a problem. The minus is for a food you know is not for you. Tapping a mark that is already lit clears it and hands the food back to the app.',
+      'Every food now says what is already known about it. If a food trial cleared it, or you reacted to it, the row says so and gives the date. The row also says whether this app normally counts the food as safe for the conditions you track, whether it is flagged for one of them, or whether the app has never scored it, which is not the same as it being fine.',
+      'Every Food: pick a category and work through the whole food database a screenful at a time, rather than having to think of each name before you can search for it.',
+      'In Your Schedule: every food in the meals you have planned over the next six weeks, marked the same way, so a generated plan can be gone through food by food.',
+      'The meal plan generator now reads your marks. Dishes using a food you marked as not for you are left out, and if that empties a meal slot, the plan says which food did it rather than looking like it had nothing to offer. A food you marked with a question mark stays in and gets named in the day\'s notes, since you have not ruled it out.',
+    ],
+  },
+  {
     version: '1.0.40.6',
     date: '2026-09-18',
     changes: [

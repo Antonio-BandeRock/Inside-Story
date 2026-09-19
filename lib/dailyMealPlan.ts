@@ -48,10 +48,12 @@ import {
   createIngredientResolutionCaches,
   curatedRecipeContainsAnyIngredient,
   getCuratedRecipe,
+  getCuratedRecipeBaseNameMatches,
   getCuratedRecipeIdsContainingIngredient,
   getCuratedRecipeIdsWithSweetener,
   getCuratedRecipeNutrientTotals,
   getDietaryReferenceIntakesForCurrentUser,
+  getMySafeFoodCalls,
   getPrimaryNutrientAmountsBulk,
   getUserNutrientTargets,
   getUserProfile,
@@ -978,6 +980,25 @@ type CandidatePools = {
   // warning rather than silently guessed at, see driByCode's own comment
   // in buildCandidatePools for why this matters beyond just labeling.
   profileIncomplete: boolean;
+  // 2026-09-18. What somebody said about individual foods under My Safe
+  // Foods, carried into the generator so a plan built by rule answers to
+  // the person it is built for. This is wiring point 4 of the Rule Engine
+  // (CLAUDE.md): a fact about a food has to reach what gets recommended,
+  // not only what gets described.
+  //
+  // The two answers are treated differently on purpose, because they mean
+  // different things. A food marked not-for-me takes its dishes out of the
+  // pool entirely, since there is no point recommending a meal somebody has
+  // already ruled out. A food marked with a question mark stays in and gets
+  // named in the day's notes, since nobody has ruled it out, and quietly
+  // dropping those dishes would shrink a six-week plan over foods nobody
+  // has decided about yet.
+  myUnsureFoodsByRecipeId: Map<string, string[]>;
+  // The foods behind any dishes that were taken out, and how many dishes
+  // that was, so an empty meal slot can say why instead of reading as the
+  // app having nothing to offer.
+  myAvoidSetAsideFoods: string[];
+  myAvoidSetAsideCount: number;
 };
 
 // getDietaryReferenceIntakesForCurrentUser deliberately returns EVERY row
@@ -1094,11 +1115,35 @@ async function mapWithLimit<T, R>(items: T[], limit: number, fn: (item: T) => Pr
 }
 
 async function buildCandidatePools(conditionCodes: string[], dietPreferences: RecipeDietTag[]): Promise<CandidatePools> {
-  const pool = getEntriesForCategory('recipes').filter(isEligibleRecipeEntry).filter((entry) => {
+  const conditionAndDietPool = getEntriesForCategory('recipes').filter(isEligibleRecipeEntry).filter((entry) => {
     if (recipeSafeAcrossConditions(entry, conditionCodes) === null) return false;
     if (!recipeMatchesAllDietPreferences(entry, dietPreferences)) return false;
     return true;
   });
+
+  // 2026-09-18: the person's own calls, applied before anything else is
+  // scored or picked. See CandidatePools above for why avoid and unsure
+  // part company here.
+  const myCalls = await getMySafeFoodCalls();
+  const myAvoidNames: string[] = [];
+  const myUnsureNames: string[] = [];
+  for (const call of myCalls.values()) {
+    if (call.verdict === 'avoid') myAvoidNames.push(call.foodName);
+    else if (call.verdict === 'unsure') myUnsureNames.push(call.foodName);
+  }
+  const [avoidFoodsByRecipeId, myUnsureFoodsByRecipeId] = await Promise.all([
+    getCuratedRecipeBaseNameMatches(myAvoidNames),
+    getCuratedRecipeBaseNameMatches(myUnsureNames),
+  ]);
+  const setAsideFoods = new Set<string>();
+  const pool = conditionAndDietPool.filter((entry) => {
+    const hits = avoidFoodsByRecipeId.get(entry.linkedCuratedRecipeId);
+    if (!hits || hits.length === 0) return true;
+    for (const name of hits) setAsideFoods.add(name);
+    return false;
+  });
+  const myAvoidSetAsideFoods = Array.from(setAsideFoods).sort((a, b) => a.localeCompare(b));
+  const myAvoidSetAsideCount = conditionAndDietPool.length - pool.length;
 
   const breakfastPoolEntries = pool.filter((entry) => BREAKFAST_ELIGIBLE_RECIPE_IDS.has(entry.linkedCuratedRecipeId));
   const lunchMainTypes = new Set(['side', 'salad', 'soup', 'handheld', 'smoothie']);
@@ -1229,6 +1274,9 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
     driRows,
     driByCode,
     profileIncomplete,
+    myUnsureFoodsByRecipeId,
+    myAvoidSetAsideFoods,
+    myAvoidSetAsideCount,
   };
 }
 
@@ -1518,6 +1566,30 @@ async function generateOneDay(
   const allPicks = [breakfast, ...lunch, ...dinner].filter((p): p is DailyMealPlanPick => p !== null);
   const healthRating: 'green' | 'yellow' | 'red' | null =
     allPicks.length === 0 ? null : allPicks.every((p) => recipeSafeAcrossConditions(p.entry, conditionCodes) === 'green') ? 'green' : 'yellow';
+
+  // 2026-09-18: say where the person's own calls landed on this day.
+  // A food they marked with a question mark is named rather than removed,
+  // and a slot that came up empty says whether it was their own
+  // not-for-me list that emptied it, rather than leaving them to guess.
+  const unsureToday = new Set<string>();
+  for (const pick of allPicks) {
+    const names = pools.myUnsureFoodsByRecipeId.get(pick.entry.linkedCuratedRecipeId);
+    if (names) for (const name of names) unsureToday.add(name);
+  }
+  if (unsureToday.size > 0) {
+    const named = Array.from(unsureToday).sort((a, b) => a.localeCompare(b)).join(', ');
+    warnings.push(
+      `Today uses ${named}, which you marked with a question mark under My Safe Foods. Left in, since you have not ruled it out. A food trial is how you settle one.`,
+    );
+  }
+  if ((breakfast === null || lunch.length === 0 || dinner.length === 0) && pools.myAvoidSetAsideCount > 0) {
+    const foods = pools.myAvoidSetAsideFoods;
+    const namedFoods = foods.length === 1 ? foods[0] : `${foods.slice(0, -1).join(', ')} and ${foods[foods.length - 1]}`;
+    const dishes = pools.myAvoidSetAsideCount === 1 ? 'One dish was' : `${pools.myAvoidSetAsideCount} dishes were`;
+    warnings.push(
+      `${dishes} set aside because ${foods.length === 1 ? 'it uses' : 'they use'} ${namedFoods}, which you marked as not for you under My Safe Foods.`,
+    );
+  }
 
   warnings.push(...checkPairingRequirements(allPicks, nutrientTotals, driByCode));
 

@@ -2334,6 +2334,40 @@ export async function getCuratedRecipeIdsContainingIngredient(recipeIds: string[
   return new Set(rows.map((row) => row.recipe_id));
 }
 
+// 2026-09-18: which curated recipes use any of these foods, and which food
+// each one uses. The meal plan generator asks this so somebody's own calls
+// under My Safe Foods reach what it recommends, which is the fourth of the
+// Rule Engine's wiring points (CLAUDE.md).
+//
+// Deliberately not narrowed by a recipe id list, unlike its neighbour
+// above: the candidate pool runs to several hundred recipes, and passing
+// those plus the food names as bound parameters would sail past SQLite's
+// 999-variable ceiling. The caller intersects the result with its own pool,
+// which costs nothing. The names themselves are chunked for the same
+// reason, since there is no limit on how many foods somebody rules on.
+export async function getCuratedRecipeBaseNameMatches(baseNames: string[]): Promise<Map<string, string[]>> {
+  const matches = new Map<string, string[]>();
+  const wanted = Array.from(new Set(baseNames.map((name) => name.trim().toLowerCase()).filter(Boolean)));
+  if (wanted.length === 0) return matches;
+  const db = await getReferenceDatabase();
+  for (let start = 0; start < wanted.length; start += 200) {
+    const chunk = wanted.slice(start, start + 200);
+    const placeholders = chunk.map(() => '?').join(', ');
+    const rows = await db.getAllAsync<{ recipeId: string; baseName: string }>(
+      `SELECT DISTINCT recipe_id AS recipeId, base_name AS baseName
+       FROM curated_recipe_ingredients
+       WHERE lower(base_name) IN (${placeholders})`,
+      ...chunk,
+    );
+    for (const row of rows) {
+      const list = matches.get(row.recipeId) ?? [];
+      if (!list.includes(row.baseName)) list.push(row.baseName);
+      matches.set(row.recipeId, list);
+    }
+  }
+  return matches;
+}
+
 // Fetches the curated recipe strains a real curated fermentation recipe
 // declares it uses (see curated_recipe_strains just below) -- a real,
 // separate lookup from getCuratedRecipe's own ingredient resolution, since
@@ -3748,7 +3782,22 @@ export async function getPersonalizedSafeFoodIds(conditionCodes: string[]): Prom
 // in one list nothing else looks at. See my_safe_foods for why the key is a
 // lowercased base name.
 
-export type MySafeFoodVerdict = 'safe' | 'avoid';
+// 2026-09-18, direct instruction: "If the thing added to the safe food
+// list is not safe for me, or is unknown whether it is safe for me, I
+// should be able to select a question mark, and if I know a food is not
+// safe for me, I should be able to select another symbol that means to
+// move it off of the safe food list."
+//
+// So there are three answers, not two. 'unsure' is the question mark: it
+// takes a food off the safe list the same way 'avoid' does, because a
+// question is not a yes, and it keeps the two apart so the app can tell
+// the difference between a food somebody has ruled out and one they have
+// not worked out yet. The second is what a food trial is for, and the
+// screen offers one.
+//
+// The column is plain TEXT with no CHECK constraint, so a device already
+// holding rows needs no migration.
+export type MySafeFoodVerdict = 'safe' | 'unsure' | 'avoid';
 
 export type MySafeFoodRecord = {
   foodKey: string;
@@ -3846,8 +3895,107 @@ function personSaysSafe(
   safeIds: Set<string>,
 ): boolean {
   const call = calls.get(baseName.toLowerCase());
+  // 'unsure' and 'avoid' both answer no here. The difference between them
+  // is what the person meant, which the My Safe Foods screen shows and the
+  // meal plan generator reads; it is not a difference in whether a food
+  // belongs on a list called safe.
   if (call) return call.verdict === 'safe';
   return safeIds.has(`${foodId}|${source}`);
+}
+
+// 2026-09-18, direct instruction: "Each of the foods, if any of them have
+// been used in trials, and have been determined to be safe because of
+// that, it should be stated. If the food is normally safe for their
+// condition, it should be stated."
+//
+// Both halves of that, for a screenful of food names at once. Somebody
+// being asked to rule on a food deserves to see what the app and their
+// own history already say about it, rather than being asked cold.
+export type MyFoodBackground = {
+  // What this app works out on its own. 'unscored' is the honest third
+  // answer: no score data for this food at all, which is not the same as
+  // nothing being wrong with it.
+  appView: 'safe' | 'flagged' | 'unscored';
+  // The last food trial that reached a verdict for this food, if there was
+  // one.
+  trialOutcome: 'cleared' | 'flagged' | null;
+  trialResolvedOn: string | null;
+};
+
+// Keyed by the same lowercased name mySafeFoodKey uses, so a caller can
+// look a row up with the key it already has.
+export async function getMyFoodBackground(
+  baseNames: string[],
+  conditionCodes: string[] = [],
+): Promise<Map<string, MyFoodBackground>> {
+  const result = new Map<string, MyFoodBackground>();
+  const wanted = new Set(baseNames.map((name) => mySafeFoodKey(name)).filter(Boolean));
+  if (wanted.size === 0) return result;
+  const wantedList = Array.from(wanted);
+
+  const safeIds = await getPersonalizedSafeFoodIds(conditionCodes);
+  const db = await getReferenceDatabase();
+  const placeholders = wantedList.map(() => '?').join(', ');
+  // One name can cover several rows, one per national source. If any of
+  // them comes through clean, the name reads as normally safe: the person
+  // is being told about a food, not about one database row.
+  const rows = await db.getAllAsync<{ baseName: string; foodId: number; source: string; scored: number }>(
+    `SELECT f.base_name AS baseName, f.food_id AS foodId, f.source AS source,
+            CASE WHEN EXISTS (
+              SELECT 1 FROM food_scores fs WHERE fs.food_id = f.food_id AND fs.source = f.source
+            ) THEN 1 ELSE 0 END AS scored
+     FROM foods f
+     WHERE f.hidden = 0 AND f.base_name IS NOT NULL
+       AND lower(f.base_name) IN (${placeholders})`,
+    ...wantedList,
+  );
+  for (const row of rows) {
+    const key = row.baseName.toLowerCase();
+    const current = result.get(key) ?? { appView: 'unscored' as const, trialOutcome: null, trialResolvedOn: null };
+    if (safeIds.has(`${row.foodId}|${row.source}`)) current.appView = 'safe';
+    else if (row.scored === 1 && current.appView !== 'safe') current.appView = 'flagged';
+    result.set(key, current);
+  }
+
+  // listFoodTrials comes back newest first, so the first resolved trial
+  // seen for a name is the one that still stands.
+  const trials = await listFoodTrials(200);
+  for (const trial of trials) {
+    if (trial.status !== 'cleared' && trial.status !== 'flagged') continue;
+    const key = mySafeFoodKey(trial.foodName);
+    if (!wanted.has(key)) continue;
+    const current = result.get(key) ?? { appView: 'unscored' as const, trialOutcome: null, trialResolvedOn: null };
+    if (current.trialOutcome) continue;
+    current.trialOutcome = trial.status;
+    current.trialResolvedOn = trial.resolvedAt;
+    result.set(key, current);
+  }
+  return result;
+}
+
+// 2026-09-18, same instruction: "The list of foods for them to say whether
+// or not a food is safe should be complete for the user to be able to go
+// through the list of foods." Every visible food in one category, one row
+// per name, with no safety filter at all: this is the list somebody rules
+// ON, so filtering it by what the app already thinks would hide exactly the
+// foods the screen exists to let them disagree about.
+export type BrowsableFood = { baseName: string; category: string; subcategory: string | null };
+
+export async function listBrowsableFoodNames(category: string): Promise<BrowsableFood[]> {
+  const db = await getReferenceDatabase();
+  const rows = await db.getAllAsync<BrowsableFood>(
+    `SELECT DISTINCT base_name AS baseName, category, subcategory
+     FROM foods
+     WHERE category = ? AND hidden = 0 AND base_name IS NOT NULL
+     ORDER BY base_name COLLATE NOCASE`,
+    category,
+  );
+  const byName = new Map<string, BrowsableFood>();
+  for (const row of rows) {
+    const key = row.baseName.toLowerCase();
+    if (!byName.has(key)) byName.set(key, row);
+  }
+  return Array.from(byName.values());
 }
 
 export async function listSafeFoodCategories(conditionCodes: string[] = []): Promise<string[]> {
@@ -13244,6 +13392,52 @@ export async function resolvePurchaseForms(): Promise<Map<string, PurchaseFormRo
     return byKey;
   }
   return byKey;
+}
+
+// 2026-09-18, direct instruction: the list of foods to rule on covers the
+// whole food list "as well as when foods are listed in their schedule."
+// Every distinct food in whatever meals are planned over the window, which
+// for a 6-week generated plan is every food that plan will put in front of
+// them. Built from the same two resolvers the shopping list below uses, so
+// the two can never disagree about what is coming up.
+//
+// The names here come from saved meals and favorites rather than the
+// reference database, so a name may not match a food row exactly. That is
+// fine: my_safe_foods keys on the name as written, which is the name the
+// person is looking at.
+export type ScheduledFoodName = { foodName: string; category: string; meals: string[] };
+
+export async function listScheduledFoodNames(daysAhead = 42): Promise<ScheduledFoodName[]> {
+  const db = await getDatabase();
+  const startDate = new Date().toISOString().slice(0, 10);
+  const endDate = addDaysToLocalDate(startDate, Math.max(1, daysAhead) - 1);
+  const rows = await db.getAllAsync<{ source_favorite_id: string | null; source_meal_id: string | null; title: string }>(
+    `SELECT source_favorite_id, source_meal_id, title FROM schedule_items
+     WHERE item_type = 'meal' AND status = 'planned' AND substr(scheduled_for, 1, 10) BETWEEN ? AND ?
+     ORDER BY scheduled_for`,
+    startDate,
+    endDate,
+  );
+  const byName = new Map<string, ScheduledFoodName>();
+  for (const row of rows) {
+    const entries = row.source_favorite_id
+      ? await shoppingListItemsForFavorite(row.source_favorite_id, row.title)
+      : row.source_meal_id
+        ? await shoppingListItemsForMeal(row.source_meal_id, row.title)
+        : [];
+    for (const entry of entries) {
+      const name = entry.foodName.trim();
+      if (!name) continue;
+      const key = name.toLowerCase();
+      const existing = byName.get(key);
+      if (existing) {
+        if (!existing.meals.includes(entry.mealName)) existing.meals.push(entry.mealName);
+      } else {
+        byName.set(key, { foodName: name, category: entry.category ?? 'Other', meals: [entry.mealName] });
+      }
+    }
+  }
+  return Array.from(byName.values()).sort((a, b) => a.foodName.localeCompare(b.foodName));
 }
 
 // daysAhead counts today as day 1 of the window, matching how "every 3 to 4
