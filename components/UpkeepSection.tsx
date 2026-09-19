@@ -7,7 +7,7 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
-import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -96,7 +96,7 @@ export function UpkeepSection({ tabColor }: Props) {
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
   const folds = useBandFolds();
 
   const load = useCallback(() => {
@@ -321,7 +321,7 @@ export function UpkeepSection({ tabColor }: Props) {
       ) : null}
 
       {summary.overdue.length > 0 ? (
-        <LifeBand folds={folds} color={tabColor} id="life:upkeep:overdue" title="Overdue" icon="alert-circle-outline" count={summary.overdue.length}>
+        <TabBand folds={folds} color={tabColor} id="life:upkeep:overdue" title="Overdue" icon="alert-circle-outline" count={summary.overdue.length}>
           {summary.overdue.map((standing) => (
             <View key={standing.item.id} style={styles.row}>
               <View style={styles.rowMain}>
@@ -330,11 +330,11 @@ export function UpkeepSection({ tabColor }: Props) {
               </View>
             </View>
           ))}
-        </LifeBand>
+        </TabBand>
       ) : null}
 
       {summary.dueSoon.length > 0 ? (
-        <LifeBand folds={folds} color={tabColor} id="life:upkeep:due-soon" title={`Next ${DUE_SOON_DAYS} days`} icon="time-outline" count={summary.dueSoon.length}>
+        <TabBand folds={folds} color={tabColor} id="life:upkeep:due-soon" title={`Next ${DUE_SOON_DAYS} days`} icon="time-outline" count={summary.dueSoon.length}>
           {summary.dueSoon.map((standing) => (
             <View key={standing.item.id} style={styles.row}>
               <View style={styles.rowMain}>
@@ -343,11 +343,11 @@ export function UpkeepSection({ tabColor }: Props) {
               </View>
             </View>
           ))}
-        </LifeBand>
+        </TabBand>
       ) : null}
 
       {grouped.map((group) => (
-        <LifeBand
+        <TabBand
           key={group.category.code}
           folds={folds}
           color={tabColor}
@@ -460,7 +460,7 @@ export function UpkeepSection({ tabColor }: Props) {
               </View>
             );
           })}
-        </LifeBand>
+        </TabBand>
       ))}
     </View>
   );

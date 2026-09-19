@@ -6,7 +6,7 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
-import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -120,7 +120,7 @@ export function WorkSection({ tabColor }: Props) {
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
   const folds = useBandFolds();
 
   const load = useCallback(() => {
@@ -235,7 +235,7 @@ export function WorkSection({ tabColor }: Props) {
           </View>
 
           {summary.expiringUnused.length > 0 ? (
-            <LifeBand folds={folds} color={tabColor} id="life:work:about-to-go" title="About to go" icon="briefcase-outline">
+            <TabBand folds={folds} color={tabColor} id="life:work:about-to-go" title="About to go" icon="briefcase-outline">
               {summary.expiringUnused.map((standing) => (
                 <View key={standing.benefit.id} style={styles.row}>
                   <View style={styles.rowMain}>
@@ -244,11 +244,11 @@ export function WorkSection({ tabColor }: Props) {
                   </View>
                 </View>
               ))}
-            </LifeBand>
+            </TabBand>
           ) : null}
 
           {summary.matchesShort.length > 0 ? (
-            <LifeBand folds={folds} color={tabColor} id="life:work:money-you-are-turning-down" title="Money you are turning down" icon="briefcase-outline">
+            <TabBand folds={folds} color={tabColor} id="life:work:money-you-are-turning-down" title="Money you are turning down" icon="briefcase-outline">
               {summary.matchesShort.map(({ benefit, gap }) => (
                 <View key={benefit.id} style={styles.row}>
                   <View style={styles.rowMain}>
@@ -257,7 +257,7 @@ export function WorkSection({ tabColor }: Props) {
                   </View>
                 </View>
               ))}
-            </LifeBand>
+            </TabBand>
           ) : null}
 
           <View style={band.box}>
@@ -405,7 +405,7 @@ export function WorkSection({ tabColor }: Props) {
             const gap = matchGap(benefit);
             return (
               <View key={benefit.id} style={benefit.active ? null : styles.dimmed}>
-              <LifeBand folds={folds} color={tabColor} id={`life:work:benefit:${benefit.id}`} title={benefit.name} icon="briefcase-outline">
+              <TabBand folds={folds} color={tabColor} id={`life:work:benefit:${benefit.id}`} title={benefit.name} icon="briefcase-outline">
                 <Text style={styles.rowMeta}>
                   {BENEFIT_KINDS.find((entry) => entry.code === benefit.kind)?.label}
                 </Text>
@@ -519,7 +519,7 @@ export function WorkSection({ tabColor }: Props) {
                     <Text style={styles.actionTextRemove}>Remove</Text>
                   </TouchableOpacity>
                 </View>
-              </LifeBand>
+              </TabBand>
               </View>
             );
           })}
@@ -540,7 +540,7 @@ export function WorkSection({ tabColor }: Props) {
 
           {WORK_PROMPT_GROUPS.map((group) => {
             return (
-              <LifeBand key={group.code} folds={folds} color={tabColor} id={`life:work:ask:${group.code}`} title={group.label} icon="help-circle-outline" count={group.prompts.length}>
+              <TabBand key={group.code} folds={folds} color={tabColor} id={`life:work:ask:${group.code}`} title={group.label} icon="help-circle-outline" count={group.prompts.length}>
                 <Text style={styles.rowMeta}>{group.why}</Text>
                 {group.prompts.map((prompt) => (
                   <View key={prompt.ask} style={styles.row}>
@@ -550,7 +550,7 @@ export function WorkSection({ tabColor }: Props) {
                     </View>
                   </View>
                 ))}
-              </LifeBand>
+              </TabBand>
             );
           })}
         </>
@@ -633,7 +633,7 @@ export function WorkSection({ tabColor }: Props) {
           ) : null}
 
           {trend ? (
-            <LifeBand folds={folds} color={tabColor} id="life:work:each-one-over-time" title="Each one over time" icon="briefcase-outline">
+            <TabBand folds={folds} color={tabColor} id="life:work:each-one-over-time" title="Each one over time" icon="briefcase-outline">
               {trend.dimensions.map((entry) => (
                 <View key={entry.dimension} style={styles.row}>
                   <View style={styles.rowMain}>
@@ -648,7 +648,7 @@ export function WorkSection({ tabColor }: Props) {
                 {formatBenefitAmount('days', trend.weeksCovered)} of weeks covered. Nothing here is compared against
                 anyone else, because there is nobody to compare it to.
               </Text>
-            </LifeBand>
+            </TabBand>
           ) : null}
         </>
       ) : null}

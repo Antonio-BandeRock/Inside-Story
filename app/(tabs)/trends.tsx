@@ -20,6 +20,9 @@ import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { TrendLineChart } from '../../components/TrendLineChart';
 import { colors } from '../../constants/colors';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from '../../components/HomeSectionBand';
+import { makeTabBandStyles, TabBand } from '../../components/TabBand';
+import { useBandFolds } from '../../hooks/useBandFolds';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { describeTherapyResponse, summarizeTherapyResponse, type TherapyResponseResult } from '../../lib/therapyResponse';
@@ -82,6 +85,7 @@ import { CORE_NUTRIENT_CODES } from './index';
 // used everywhere a box on THIS page needs its border to carry that
 // identity. Matches the same rule applied there, 2026-07-27.
 const TAB_COLOR = colors.tabTrends;
+const band = makeTabBandStyles(TAB_COLOR);
 
 type TrendsLens = 'nutrients' | 'sixDs' | 'symptoms' | 'eatingWindow' | 'weight' | 'movement' | 'labs' | 'groceries' | 'patterns' | 'therapyResponse';
 
@@ -413,6 +417,7 @@ const TRENDS_HELP_SECTIONS: HelpSection[] = [
 export default function TrendsScreen() {
   useRegisterScreenHelp('Trends', TRENDS_HELP_SECTIONS, '/trends');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const autoOpenLensHub = useAutoOpenLensHubSignal();
   const [lens, setLens] = useState<TrendsLens>('nutrients');
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -733,14 +738,15 @@ export default function TrendsScreen() {
       <SwipeableTabScreen enabled={!revealed}>
         <GatedTabContent pageTitle="Trends" variant="trends" revealed={revealed}>
           <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
-            <Text style={styles.sectionHeading}>{activeLensLabel}</Text>
+            <View style={band.heading}>
+              <Text style={band.headingText}>{activeLensLabel}</Text>
+            </View>
 
             {showsRangePicker ? (
               <>
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  style={styles.fullBleedScroll}
                   contentContainerStyle={styles.nutrientPillRow}
                 >
                   {RANGE_PILLS.map((pill) => {
@@ -767,7 +773,7 @@ export default function TrendsScreen() {
                 </ScrollView>
 
                 {showCustomPicker ? (
-                  <View style={styles.customPanel}>
+                  <View style={band.box}>
                     <View style={styles.pillRow}>
                       <TouchableOpacity
                         style={[styles.smallPill, !customIsRange && styles.pillActive]}
@@ -849,7 +855,7 @@ export default function TrendsScreen() {
                 ) : null}
               </>
             ) : (
-              <View style={styles.pillRow}>
+              <View style={[band.inset, styles.pillRow]}>
                 {DAY_RANGE_OPTIONS.map((option) => (
                   <TouchableOpacity
                     key={option.value}
@@ -867,8 +873,7 @@ export default function TrendsScreen() {
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  style={styles.fullBleedScroll}
-                  contentContainerStyle={[styles.nutrientPillRow, styles.spaced]}
+                  contentContainerStyle={styles.nutrientPillRow}
                 >
                   {CORE_NUTRIENT_CODES.map((code) => (
                     <TouchableOpacity
@@ -884,9 +889,11 @@ export default function TrendsScreen() {
                 </ScrollView>
 
                 {loading ? (
-                  <Text style={[styles.loadingText, styles.panelStandalone]}>Loading…</Text>
+                  <View style={band.boxMuted}>
+                    <Text style={styles.loadingText}>Loading…</Text>
+                  </View>
                 ) : resolvedRange.isSingleDay ? (
-                  <View style={styles.chartCard}>
+                  <View style={[band.box, styles.chartCard]}>
                     {latestNutrientPoint ? (
                       <>
                         <Text style={[styles.singleDayHeading, { color: nutrientStatusColor(nutrientSeries?.latestStatus ?? null) }]}>
@@ -903,7 +910,7 @@ export default function TrendsScreen() {
                     )}
                   </View>
                 ) : (
-                  <View style={styles.chartCard}>
+                  <View style={[band.box, styles.chartCard]}>
                     <TrendLineChart
                       points={(nutrientSeries?.points ?? []).map((point) => ({ date: point.date, value: point.value }))}
                       yMin={0}
@@ -919,9 +926,11 @@ export default function TrendsScreen() {
               </>
             ) : lens === 'sixDs' ? (
               loading ? (
-                <Text style={[styles.loadingText, styles.panelStandalone]}>Loading…</Text>
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>Loading…</Text>
+                </View>
               ) : resolvedRange.isSingleDay ? (
-                <View style={styles.chartCard}>
+                <View style={[band.box, styles.chartCard]}>
                   {sixDsSeries && sixDsSeries.length > 0 ? (
                     <>
                       <Text style={[styles.singleDayHeading, { color: colors.statusFlagged }]}>
@@ -936,7 +945,7 @@ export default function TrendsScreen() {
                   )}
                 </View>
               ) : (
-                <View style={styles.chartCard}>
+                <View style={[band.box, styles.chartCard]}>
                   {/* The total over the whole range, so a person sent here
                       by Home's "24 flags this week" finds that same 24
                       rather than having to add up the points. Same sum
@@ -958,9 +967,11 @@ export default function TrendsScreen() {
               )
             ) : lens === 'symptoms' ? (
               loading ? (
-                <Text style={[styles.loadingText, styles.panelStandalone]}>Loading…</Text>
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>Loading…</Text>
+                </View>
               ) : (
-                <View style={styles.chartCard}>
+                <View style={[band.box, styles.chartCard]}>
                   <TrendLineChart
                     points={(symptomsSeries ?? []).map((point) => ({
                       date: point.date,
@@ -986,18 +997,22 @@ export default function TrendsScreen() {
               )
             ) : lens === 'eatingWindow' ? (
               loading ? (
-                <Text style={[styles.loadingText, styles.panelStandalone]}>Loading…</Text>
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>Loading…</Text>
+                </View>
               ) : !eatingWindowProfile ? (
                 // Deliberately not an empty chart: with fasting off there
                 // is no window to be outside of, so a flat zero line would
                 // be claiming compliance with a rule that was never set.
-                <Text style={[styles.loadingText, styles.panelStandalone]}>
-                  This tracks meals kept outside a declared eating window, and you do not have one set. Turn on
-                  intermittent fasting in Profile, with a start and end time, and any meal you choose to keep outside
-                  it will show up here.
-                </Text>
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>
+                    This tracks meals kept outside a declared eating window, and you do not have one set. Turn on
+                    intermittent fasting in Profile, with a start and end time, and any meal you choose to keep outside
+                    it will show up here.
+                  </Text>
+                </View>
               ) : (
-                <View style={styles.chartCard}>
+                <View style={[band.box, styles.chartCard]}>
                   <Text style={styles.caption}>
                     {`Your eating window: ${formatTime12(eatingWindowProfile.start)} - ${formatTime12(eatingWindowProfile.end)}`}
                   </Text>
@@ -1023,7 +1038,9 @@ export default function TrendsScreen() {
               )
             ) : lens === 'weight' ? (
               loading ? (
-                <Text style={[styles.loadingText, styles.panelStandalone]}>Loading…</Text>
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>Loading…</Text>
+                </View>
               ) : (
                 (() => {
                   // Always stored in kg (recordBodyMeasurement's own
@@ -1038,7 +1055,7 @@ export default function TrendsScreen() {
                   const { yMin, yMax } = paddedTrendRange(displayPoints.map((point) => point.value));
                   const latest = displayPoints[displayPoints.length - 1];
                   return (
-                    <View style={styles.chartCard}>
+                    <View style={[band.box, styles.chartCard]}>
                       <TrendLineChart
                         points={displayPoints}
                         yMin={yMin}
@@ -1057,7 +1074,9 @@ export default function TrendsScreen() {
               )
             ) : lens === 'movement' ? (
               loading ? (
-                <Text style={[styles.loadingText, styles.panelStandalone]}>Loading…</Text>
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>Loading…</Text>
+                </View>
               ) : (
                 (() => {
                   const steps = movementSeries?.steps ?? [];
@@ -1068,8 +1087,8 @@ export default function TrendsScreen() {
                   const sleepAverage = sleep.length > 0 ? sleep.reduce((sum, point) => sum + point.value, 0) / sleep.length : null;
                   return (
                     <>
-                      <View style={styles.chartCard}>
-                        <Text style={styles.patternSectionHeading}>Steps per day</Text>
+                      <TabBand folds={folds} color={TAB_COLOR} id={'trends:movement:steps-per-day'} title={'Steps per day'} icon="walk-outline">
+                        <View style={styles.chartCard}>
                         <TrendLineChart
                           points={steps}
                           yMin={Math.max(0, stepsRange.yMin)}
@@ -1082,9 +1101,10 @@ export default function TrendsScreen() {
                             {Math.round(stepsAverage).toLocaleString()} a day over {steps.length} recorded day{steps.length === 1 ? '' : 's'}
                           </Text>
                         ) : null}
-                      </View>
-                      <View style={styles.chartCard}>
-                        <Text style={styles.patternSectionHeading}>Hours slept</Text>
+                        </View>
+                      </TabBand>
+                      <TabBand folds={folds} color={TAB_COLOR} id={'trends:movement:hours-slept'} title={'Hours slept'} icon="moon-outline">
+                        <View style={styles.chartCard}>
                         <TrendLineChart
                           points={sleep}
                           yMin={Math.max(0, sleepRange.yMin)}
@@ -1097,7 +1117,8 @@ export default function TrendsScreen() {
                             {sleepAverage.toFixed(1)} h a night over {sleep.length} recorded night{sleep.length === 1 ? '' : 's'}
                           </Text>
                         ) : null}
-                      </View>
+                        </View>
+                      </TabBand>
                     </>
                   );
                 })()
@@ -1114,13 +1135,19 @@ export default function TrendsScreen() {
                   minWidth={220}
                 />
                 {groceryFoods.length === 0 && !loading ? (
-                  <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>
-                    Nothing to chart yet. Prices show up here once you have entered some on a grocery list.
-                  </Text>
+                  <View style={band.boxMuted}>
+                    <Text style={styles.loadingText}>
+                      Nothing to chart yet. Prices show up here once you have entered some on a grocery list.
+                    </Text>
+                  </View>
                 ) : !selectedGroceryFood ? (
-                  <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>Pick a food above to see what it has cost over time.</Text>
+                  <View style={band.boxMuted}>
+                    <Text style={styles.loadingText}>Pick a food above to see what it has cost over time.</Text>
+                  </View>
                 ) : loading ? (
-                  <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>Loading…</Text>
+                  <View style={band.boxMuted}>
+                    <Text style={styles.loadingText}>Loading…</Text>
+                  </View>
                 ) : (
                   (() => {
                     const summary = groceryFoods.find((food) => food.foodName === selectedGroceryFood);
@@ -1144,7 +1171,7 @@ export default function TrendsScreen() {
                     // were comparable.
                     const units = Array.from(new Set(rows.map((row) => row.priceUnit ?? 'total')));
                     return (
-                      <View style={[styles.chartCard, styles.spaced]}>
+                      <View style={[band.box, styles.chartCard]}>
                         <TrendLineChart
                           points={points}
                           yMin={yMin}
@@ -1182,7 +1209,7 @@ export default function TrendsScreen() {
               </>
             ) : lens === 'therapyResponse' ? (
               <>
-                <View style={styles.disclaimerCard}>
+                <View style={band.boxMuted}>
                   <Text style={styles.disclaimerText}>
                     {
                       'This compares your check-ins on the days after each hands-on session against your check-ins on days away from any session. It is a count from your data, not a verdict on the therapy, and nothing here says a session caused anything.'
@@ -1191,21 +1218,29 @@ export default function TrendsScreen() {
                 </View>
 
                 {loading ? (
-                  <Text style={[styles.loadingText, styles.panelStandalone]}>Reading your sessions and check-ins…</Text>
+                  <View style={band.boxMuted}>
+                    <Text style={styles.loadingText}>Reading your sessions and check-ins…</Text>
+                  </View>
                 ) : !therapyResponse || therapyResponse.totalSessions === 0 ? (
-                  <Text style={[styles.loadingText, styles.panelStandalone]}>
-                    {
-                      'No hands-on sessions logged in this range yet. Log one under Signals > Hands-On Therapies after your next appointment.'
-                    }
-                  </Text>
+                  <View style={band.boxMuted}>
+                    <Text style={styles.loadingText}>
+                      {
+                        'No hands-on sessions logged in this range yet. Log one under Signals > Hands-On Therapies after your next appointment.'
+                      }
+                    </Text>
+                  </View>
                 ) : (
                   therapyResponse.summaries.map((summary) => {
                     const label = therapyTypeLabel(summary.therapyType);
                     return (
-                      <View key={summary.therapyType} style={[styles.chartCard, styles.spaced]}>
-                        <Text style={styles.patternSectionHeading}>
-                          {label} · {summary.sessionCount} {summary.sessionCount === 1 ? 'session' : 'sessions'}
-                        </Text>
+                      <TabBand
+                        key={summary.therapyType}
+                        folds={folds}
+                        color={TAB_COLOR}
+                        id={`trends:therapy:${summary.therapyType}`}
+                        title={`${label} · ${summary.sessionCount} ${summary.sessionCount === 1 ? 'session' : 'sessions'}`}
+                        icon="hand-left-outline"
+                      >
                         <Text style={styles.patternRowCaption}>{describeTherapyResponse(summary, label.toLowerCase())}</Text>
 
                         {summary.hasEnoughData ? (
@@ -1234,7 +1269,7 @@ export default function TrendsScreen() {
                             </Text>
                           </>
                         ) : null}
-                      </View>
+                      </TabBand>
                     );
                   })
                 )}
@@ -1251,9 +1286,13 @@ export default function TrendsScreen() {
                   minWidth={220}
                 />
                 {!selectedTestCode ? (
-                  <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>Pick a test above to see its trend.</Text>
+                  <View style={band.boxMuted}>
+                    <Text style={styles.loadingText}>Pick a test above to see its trend.</Text>
+                  </View>
                 ) : loading ? (
-                  <Text style={[styles.loadingText, styles.spaced, styles.panelStandalone]}>Loading…</Text>
+                  <View style={band.boxMuted}>
+                    <Text style={styles.loadingText}>Loading…</Text>
+                  </View>
                 ) : (
                   (() => {
                     const test = labTests.find((t) => t.code === selectedTestCode);
@@ -1265,7 +1304,7 @@ export default function TrendsScreen() {
                         : undefined;
                     const latest = labSeries && labSeries.length > 0 ? labSeries[labSeries.length - 1] : null;
                     return (
-                      <View style={[styles.chartCard, styles.spaced]}>
+                      <View style={[band.box, styles.chartCard]}>
                         <TrendLineChart
                           points={points}
                           yMin={yMin}
@@ -1290,7 +1329,7 @@ export default function TrendsScreen() {
               </>
             ) : (
               <>
-                <View style={styles.disclaimerCard}>
+                <View style={band.boxMuted}>
                   <Text style={styles.disclaimerText}>
                     {
                       "This shows what you actually ate before each flare or reaction you've logged, and what shows up more than once. It's a count from your data, not a diagnosis, and not proof anything here actually causes anything. Something worth a second look deserves a trial, not just a spot on this list."
@@ -1298,7 +1337,7 @@ export default function TrendsScreen() {
                   </Text>
                 </View>
 
-                <View style={styles.pillRow}>
+                <View style={[band.inset, styles.pillRow]}>
                   {PATTERN_WINDOW_HOURS.map((hours) => (
                     <TouchableOpacity
                       key={hours}
@@ -1311,24 +1350,29 @@ export default function TrendsScreen() {
                 </View>
 
                 {loading ? (
-                  <Text style={[styles.loadingText, styles.panelStandalone]}>Looking through your logged history…</Text>
+                  <View style={band.boxMuted}>
+                    <Text style={styles.loadingText}>Looking through your logged history…</Text>
+                  </View>
                 ) : !patternResult || patternResult.totalSymptomInstances === 0 ? (
-                  <Text style={[styles.loadingText, styles.panelStandalone]}>
-                    {"Log a flare or food reaction in Signals first; there's nothing to look for a pattern in yet."}
-                  </Text>
+                  <View style={band.boxMuted}>
+                    <Text style={styles.loadingText}>
+                      {"Log a flare or food reaction in Signals first; there's nothing to look for a pattern in yet."}
+                    </Text>
+                  </View>
                 ) : patternResult.foodCandidates.length === 0 &&
                   patternResult.dimensionCandidates.length === 0 &&
                   patternResult.categoryCandidates.length === 0 ? (
-                  <Text style={[styles.loadingText, styles.panelStandalone]}>
-                    {"Nothing showed up before 2 or more of your "}
-                    {patternResult.totalSymptomInstances}
-                    {" logged flares/reactions in this window. That's a result too; try a longer window, or keep logging."}
-                  </Text>
+                  <View style={band.boxMuted}>
+                    <Text style={styles.loadingText}>
+                      {"Nothing showed up before 2 or more of your "}
+                      {patternResult.totalSymptomInstances}
+                      {" logged flares/reactions in this window. That's a result too; try a longer window, or keep logging."}
+                    </Text>
+                  </View>
                 ) : (
                   <>
                     {patternResult.foodCandidates.length > 0 ? (
-                      <View style={styles.chartCard}>
-                        <Text style={styles.patternSectionHeading}>Specific foods</Text>
+                      <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:specific-foods'} title={'Specific foods'} icon="nutrition-outline">
                         {patternResult.foodCandidates.map((candidate) => {
                           const key = `${candidate.foodId}|${candidate.source}`;
                           return (
@@ -1351,12 +1395,11 @@ export default function TrendsScreen() {
                             </View>
                           );
                         })}
-                      </View>
+                      </TabBand>
                     ) : null}
 
                     {patternResult.dimensionCandidates.length > 0 ? (
-                      <View style={[styles.chartCard, styles.spaced]}>
-                        <Text style={styles.patternSectionHeading}>Condition scoring factors</Text>
+                      <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:scoring-factors'} title={'Condition scoring factors'} icon="analytics-outline">
                         {patternResult.dimensionCandidates.map((candidate) => (
                           <View
                             key={`${candidate.conditionCode}::${candidate.subCriterion}::${candidate.tier}`}
@@ -1373,7 +1416,7 @@ export default function TrendsScreen() {
                             </View>
                           </View>
                         ))}
-                      </View>
+                      </TabBand>
                     ) : (personalizationProfile?.trackedConditions.length ?? 0) === 0 ? (
                       // 2026-08-26 -- an honest reason for an empty section,
                       // not a silent gap: dimension candidates only ever
@@ -1381,15 +1424,13 @@ export default function TrendsScreen() {
                       // now, so tracking nothing means there's genuinely
                       // nothing this section could ever check, regardless
                       // of what's actually been logged.
-                      <View style={[styles.chartCard, styles.spaced]}>
-                        <Text style={styles.patternSectionHeading}>Condition scoring factors</Text>
+                      <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:scoring-factors'} title={'Condition scoring factors'} icon="analytics-outline">
                         <Text style={styles.loadingText}>Set your tracked conditions in Profile to check for this.</Text>
-                      </View>
+                      </TabBand>
                     ) : null}
 
                     {patternResult.categoryCandidates.length > 0 ? (
-                      <View style={[styles.chartCard, styles.spaced]}>
-                        <Text style={styles.patternSectionHeading}>Food categories</Text>
+                      <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:food-categories'} title={'Food categories'} icon="grid-outline">
                         {patternResult.categoryCandidates.map((candidate) => (
                           <View key={candidate.category} style={styles.patternRow}>
                             <View style={styles.patternRowText}>
@@ -1400,14 +1441,13 @@ export default function TrendsScreen() {
                             </View>
                           </View>
                         ))}
-                      </View>
+                      </TabBand>
                     ) : null}
                   </>
                 )}
 
                 {!loading && patternResult ? (
-                  <View style={styles.chartCard}>
-                    <Text style={styles.patternSectionHeading}>Work, week by week</Text>
+                  <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:work-weeks'} title={'Work, week by week'} icon="briefcase-outline">
                     {patternResult.workStrainRefusal ? (
                       <Text style={styles.patternRowCaption}>
                         {describeStrainRefusal(patternResult.workStrainRefusal)}
@@ -1430,12 +1470,11 @@ export default function TrendsScreen() {
                         <Text style={styles.patternRowCaption}>{STRAIN_CAVEAT}</Text>
                       </>
                     )}
-                  </View>
+                  </TabBand>
                 ) : null}
 
                 {!loading && patternResult ? (
-                  <View style={styles.chartCard}>
-                    <Text style={styles.patternSectionHeading}>Movement, week by week</Text>
+                  <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:movement-weeks'} title={'Movement, week by week'} icon="walk-outline">
                     {patternResult.movementRefusal ? (
                       <Text style={styles.patternRowCaption}>
                         {describeMovementRefusal(patternResult.movementRefusal)}
@@ -1455,7 +1494,7 @@ export default function TrendsScreen() {
                         <Text style={styles.patternRowCaption}>{MOVEMENT_CAVEAT}</Text>
                       </>
                     ) : null}
-                  </View>
+                  </TabBand>
                 ) : null}
               </>
             )}
@@ -1495,7 +1534,9 @@ const SEVERITY_LABELS: Record<number, string> = { 1: 'Mild', 2: 'Moderate', 3: '
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { flex: 1 },
-  content: { paddingHorizontal: 20, paddingBottom: 32 },
+  // No side inset, 2026-09-19: every top-level element is a band that
+  // reaches both edges, and the pill rows take band.inset instead.
+  content: { paddingBottom: 32, gap: HOME_BAND_GAP },
   // 2026-08-16, direct on-device report: Pattern Finder's own real, honest
   // empty-state text ("Log a flare or food reaction in Signals first...")
   // read as "does nothing" -- traced to this being the one real Text style
@@ -1508,64 +1549,29 @@ const styles = StyleSheet.create({
   // Finder's own empty state is genuinely reachable with real, current
   // on-device data (zero logged flares/reactions, confirmed directly).
   // 2026-08-29, standing rule: no text sits directly on a tab's
-  // photographic background. panelStandalone is for text with no card
-  // to join (an empty state, an error or loading line);
-  // groupHeadingChip is for a heading introducing a GROUP of separate
-  // cards. A heading that labels ONE card should move inside that
-  // card instead of using either.
-  panelStandalone: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-  },
-  groupHeadingChip: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  loadingText: { ...typography.body, ...textShadow, color: colors.textSecondary, marginBottom: 16 },
+  // photographic background. Since 2026-09-19 an empty state, an error
+  // or a loading line sits in band.boxMuted, and the lens name in
+  // band.heading, both from components/TabBand.tsx.
+  loadingText: { ...typography.body, ...textShadow, color: colors.textSecondary },
   spaced: { marginTop: 12 },
 
-  // sectionHeading/pillRow's own pills sit above chartCard, not inside it
-  // (page-level lens name/filters, not "content in a box") -- left neutral
-  // for that reason. caption/legendText below ARE rendered inside
-  // chartCard, so they follow TAB_COLOR, 2026-07-27.
-  // 2026-08-29: sitting above the card means sitting on the photo, so it
-  // carries its own surface now (standing rule: no text directly on the
-  // tab background). Its colour is unchanged.
-  sectionHeading: {
-    ...typography.sectionTitle,
-    color: colors.textPrimary,
-    marginBottom: 10,
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    ...textShadow,
-  },
+  // pillRow's pills sit above a chart, not inside it (page-level
+  // filters, not "content in a box"), so they stay neutral. caption and
+  // legendText below ARE rendered inside a chart's band, so they follow
+  // TAB_COLOR, 2026-07-27.
   caption: { ...typography.body, color: TAB_COLOR, marginTop: 8, textAlign: 'center', ...textShadow },
   singleDayHeading: { ...typography.sectionTitle, fontSize: 26, textAlign: 'center', ...textShadow },
   // Added 2026-07-27: the chart itself used to float with no surrounding
   // box at all, the one page in this family with no "info box" anywhere --
   // wraps it in the same colors.surface/TAB_COLOR-border treatment every
   // other page's boxes use (see TAB_COLOR's own comment above).
-  chartCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-    alignItems: 'center',
-  },
+  // 2026-09-19: the surface is band.box now; this only centres a chart.
+  chartCard: { alignItems: 'center' },
 
-  pillRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  // See index.tsx's own fullBleedScroll (Home) comment -- same trick, same reason:
-  // cancels `content`'s paddingHorizontal so the scrollable viewport spans
-  // the true screen width instead of clipping inside that inset.
-  fullBleedScroll: { marginHorizontal: -20 },
-  nutrientPillRow: { flexDirection: 'row', gap: 8, marginBottom: 16, paddingHorizontal: 20 },
+  pillRow: { flexDirection: 'row', gap: 8 },
+  // The scroller spans the screen (content has no side inset now); the
+  // padding here keeps the first and last pill off the edge.
+  nutrientPillRow: { flexDirection: 'row', gap: 8, paddingHorizontal: HOME_BAND_CONTENT_PADDING },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
   smallPill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
@@ -1582,15 +1588,8 @@ const styles = StyleSheet.create({
 
   },
 
-  // The custom date panel -- a plain, neutral box (matches disclaimerCard's
-  // own treatment below), tucked directly under the pill row it belongs to
-  // rather than styled like a real data card.
-  customPanel: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-  },
+  // The custom date panel sits in band.box, directly under the pill row
+  // it belongs to.
   customLabel: { ...typography.eyebrow, color: colors.menuIconMuted, marginBottom: 6, ...textShadow },
   dateRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dateFieldGroup: { alignItems: 'flex-start' },
@@ -1605,14 +1604,7 @@ const styles = StyleSheet.create({
   // neutral box (colors.surface, no TAB_COLOR border) rather than the
   // usual chartCard treatment, so it doesn't visually read as "just
   // another data box" the way the real candidate lists below it do.
-  disclaimerCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-  },
   disclaimerText: { ...typography.body, color: colors.textSecondary, ...textShadow },
-  patternSectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 12, fontSize: 16, ...textShadow },
   patternRow: {
     flexDirection: 'row',
     alignItems: 'center',

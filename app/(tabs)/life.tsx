@@ -11,7 +11,7 @@ import { FinanceGoalsSection } from '../../components/FinanceGoalsSection';
 import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
-import { LifeBand, makeLifeBandStyles } from '../../components/LifeBand';
+import { TabBand, makeTabBandStyles } from '../../components/TabBand';
 import { DidIDoItSection } from '../../components/DidIDoItSection';
 import { KitchenSection } from '../../components/KitchenSection';
 import { RoutinesSection } from '../../components/RoutinesSection';
@@ -135,7 +135,7 @@ import { parsePriceInput } from '../../lib/groceryList';
 // that did not have to be bought, which is a fact.
 
 const TAB_COLOR = colors.tabLife;
-const band = makeLifeBandStyles(TAB_COLOR);
+const band = makeTabBandStyles(TAB_COLOR);
 
 // 'groceryList' is a lens in the menu only: picking it opens the grocery
 // list screen (the same one Home's own Grocery List row opens) rather than
@@ -969,7 +969,7 @@ export default function LifeScreen() {
           </View>
         ) : null}
 
-        <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:every-month-as-things-stand" title="Every month, as things stand" icon="cash-outline">
+        <TabBand folds={folds} color={TAB_COLOR} id="life:finances:every-month-as-things-stand" title="Every month, as things stand" icon="cash-outline">
           {renderStat('Coming in', formatFinanceMoney(summary.monthlyIncome))}
           {renderStat('Regular bills', formatFinanceMoney(summary.monthlyCommitted))}
           {summary.monthlySetAside > 0 ? renderStat('Set aside', formatFinanceMoney(summary.monthlySetAside)) : null}
@@ -982,9 +982,9 @@ export default function LifeScreen() {
             Worked out from {summary.activeCount} active {summary.activeCount === 1 ? 'entry' : 'entries'}, with weekly
             and every-two-weeks amounts converted using the real number of payments in a year rather than four a month.
           </Text>
-        </LifeBand>
+        </TabBand>
 
-        <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:what-has-actually-gone-out-this-month" title="What has actually gone out this month" icon="cash-outline">
+        <TabBand folds={folds} color={TAB_COLOR} id="life:finances:what-has-actually-gone-out-this-month" title="What has actually gone out this month" icon="cash-outline">
           {renderStat('Recorded spending', formatFinanceMoney(picture.knownSpendTotal))}
           {tracked.grocerySpend > 0 ? renderStat('  from groceries', formatFinanceMoney(tracked.grocerySpend)) : null}
           {tracked.therapySpend > 0 ? renderStat('  from therapies', formatFinanceMoney(tracked.therapySpend)) : null}
@@ -1002,10 +1002,10 @@ export default function LifeScreen() {
               would have cost is not something this app knows, so it is counted rather than priced.
             </Text>
           ) : null}
-        </LifeBand>
+        </TabBand>
 
         {summary.byGroup.length > 0 ? (
-          <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:where-your-regular-money-goes" title="Where your regular money goes" icon="cash-outline">
+          <TabBand folds={folds} color={TAB_COLOR} id="life:finances:where-your-regular-money-goes" title="Where your regular money goes" icon="cash-outline">
             {summary.byGroup.map((group) => {
               const share = summary.monthlyCommitted + summary.monthlySetAside > 0
                 ? group.monthly / (summary.monthlyCommitted + summary.monthlySetAside)
@@ -1022,7 +1022,7 @@ export default function LifeScreen() {
                 </View>
               );
             })}
-          </LifeBand>
+          </TabBand>
         ) : null}
       </View>
     );
@@ -1049,7 +1049,7 @@ export default function LifeScreen() {
 
         {income.length > 0 ? (
           <>
-            <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:where-your-money-comes-from" title="Where your money comes from" icon="cash-outline">
+            <TabBand folds={folds} color={TAB_COLOR} id="life:finances:where-your-money-comes-from" title="Where your money comes from" icon="cash-outline">
               <Text style={styles.bodyText}>{describeIncomeMix(incomeMix)}</Text>
               {incomeMix.streams.map((entry) => (
                 <View key={entry.name} style={styles.barRow}>
@@ -1065,18 +1065,18 @@ export default function LifeScreen() {
                   </View>
                 </View>
               ))}
-            </LifeBand>
+            </TabBand>
 
-            <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:coming-in" title="Coming in" icon="cash-outline">
+            <TabBand folds={folds} color={TAB_COLOR} id="life:finances:coming-in" title="Coming in" icon="cash-outline">
               {income.map((row) => renderRecurringRow(row))}
-            </LifeBand>
+            </TabBand>
           </>
         ) : null}
 
         {expenses.length > 0 ? (
-          <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:going-out" title="Going out" icon="cash-outline">
+          <TabBand folds={folds} color={TAB_COLOR} id="life:finances:going-out" title="Going out" icon="cash-outline">
             {expenses.map((row) => renderRecurringRow(row))}
-          </LifeBand>
+          </TabBand>
         ) : null}
 
         {recurring.length === 0 && !recurringForm ? (
@@ -1552,7 +1552,7 @@ export default function LifeScreen() {
           </View>
         ) : null}
 
-        <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:monthly-limits" title="Monthly limits" icon="cash-outline">
+        <TabBand folds={folds} color={TAB_COLOR} id="life:finances:monthly-limits" title="Monthly limits" icon="cash-outline">
           {budgetRows.length === 0 ? (
             <Text style={styles.bodyText}>
               Set a limit on a category you want to keep an eye on, and this shows how much of it is used up. Groceries
@@ -1649,10 +1649,10 @@ export default function LifeScreen() {
               <Text style={styles.secondaryButtonText}>+ Set a limit</Text>
             </TouchableOpacity>
           )}
-        </LifeBand>
+        </TabBand>
 
         {tracked.grocerySpend > 0 || tracked.therapySpend > 0 || tracked.groceryLinesWithoutPrice > 0 ? (
-          <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:already-counted-for-you" title="Already counted for you" icon="cash-outline">
+          <TabBand folds={folds} color={TAB_COLOR} id="life:finances:already-counted-for-you" title="Already counted for you" icon="cash-outline">
             {tracked.grocerySpend > 0 ? renderStat('Groceries', formatFinanceMoney(tracked.grocerySpend)) : null}
             {tracked.therapySpend > 0 ? renderStat('Hands-on therapies', formatFinanceMoney(tracked.therapySpend)) : null}
             <Text style={styles.footnote}>
@@ -1662,11 +1662,11 @@ export default function LifeScreen() {
                 ? ` ${picture.incompleteRecords} of them have no amount recorded and are left out rather than guessed at.`
                 : ''}
             </Text>
-          </LifeBand>
+          </TabBand>
         ) : null}
 
         {entries.length > 0 ? (
-          <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:recorded-in-x" title={`Recorded in ${monthLabel(month)}`} icon="cash-outline">
+          <TabBand folds={folds} color={TAB_COLOR} id="life:finances:recorded-in-x" title={`Recorded in ${monthLabel(month)}`} icon="cash-outline">
             {entries.map((row) => (
               <View key={row.id} style={styles.listRow}>
                 <View style={styles.listMain}>
@@ -1691,7 +1691,7 @@ export default function LifeScreen() {
                 </View>
               </View>
             ))}
-          </LifeBand>
+          </TabBand>
         ) : !entryForm ? (
           <View style={band.box}>
             <Text style={styles.bodyText}>
@@ -1708,7 +1708,7 @@ export default function LifeScreen() {
   function renderUpcoming() {
     return (
       <View style={band.column}>
-        <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:next-x-days" title={`Next ${UPCOMING_WINDOW_DAYS} days`} icon="cash-outline">
+        <TabBand folds={folds} color={TAB_COLOR} id="life:finances:next-x-days" title={`Next ${UPCOMING_WINDOW_DAYS} days`} icon="cash-outline">
           {soon.bills.length === 0 ? (
             <Text style={styles.bodyText}>
               Nothing with a set date is due in the next {UPCOMING_WINDOW_DAYS} days. Adding a day of the month to a
@@ -1731,10 +1731,10 @@ export default function LifeScreen() {
           {soon.bills.length > 0 ? (
             <Text style={styles.footnote}>Total due in this window: {formatFinanceMoney(soon.total)}</Text>
           ) : null}
-        </LifeBand>
+        </TabBand>
 
         {funds.length > 0 ? (
-          <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:worth-putting-by-each-month" title="Worth putting by each month" icon="cash-outline">
+          <TabBand folds={folds} color={TAB_COLOR} id="life:finances:worth-putting-by-each-month" title="Worth putting by each month" icon="cash-outline">
             <Text style={styles.bodyText}>
               A bill that lands once or twice a year is the one most likely to wreck a month, because it sits outside
               the monthly rhythm. This is what each would cost if you set it aside a bit at a time instead.
@@ -1765,11 +1765,11 @@ export default function LifeScreen() {
             <Text style={styles.footnote}>
               This app does not move money, so nothing here is set aside for you. It is the figure to aim at.
             </Text>
-          </LifeBand>
+          </TabBand>
         ) : null}
 
         {soon.needsSetup.length > 0 ? (
-          <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:needs-a-due-date" title="Needs a due date" icon="cash-outline">
+          <TabBand folds={folds} color={TAB_COLOR} id="life:finances:needs-a-due-date" title="Needs a due date" icon="cash-outline">
             <Text style={styles.bodyText}>
               These still count toward your monthly figures. They cannot be put on a calendar yet, because each one is
               missing the piece that says when it lands.
@@ -1787,7 +1787,7 @@ export default function LifeScreen() {
                 <Text style={styles.listAmount}>{formatFinanceMoney(item.amount)}</Text>
               </View>
             ))}
-          </LifeBand>
+          </TabBand>
         ) : null}
       </View>
     );
@@ -1906,7 +1906,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { flex: 1 },
   // No side inset, 2026-09-19: every lens is a column of edge-to-edge
-  // bands (components/LifeBand.tsx), so the inset lives inside each band
+  // bands (components/TabBand.tsx), so the inset lives inside each band
   // rather than around the page.
   content: { paddingBottom: 32 },
 

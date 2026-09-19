@@ -23,7 +23,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { AppTextInput } from './AppTextInput';
 import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
-import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -81,7 +81,7 @@ const SOURCE_LABEL: Record<KitchenInventoryItem['source'], string> = {
 };
 
 export function KitchenSection({ tabColor }: { tabColor: string }) {
-  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
   const folds = useBandFolds();
   const [items, setItems] = useState<KitchenInventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -393,7 +393,7 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
           </Text>
         </View>
       ) : (
-        <LifeBand folds={folds} color={tabColor} id={`life:kitchen:${kind}`} title={kind === 'food' ? 'What is in your kitchen' : 'What the house has'} icon="restaurant-outline" count={items.length}>
+        <TabBand folds={folds} color={tabColor} id={`life:kitchen:${kind}`} title={kind === 'food' ? 'What is in your kitchen' : 'What the house has'} icon="restaurant-outline" count={items.length}>
         <View style={band.rows}>
           {items.map((item) => {
             const expanded = expandedId === item.id;
@@ -692,7 +692,7 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
             );
           })}
         </View>
-        </LifeBand>
+        </TabBand>
       )}
     </View>
   );

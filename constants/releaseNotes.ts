@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.8',
+    date: '2026-09-19',
+    changes: [
+      'Trends and Reports now use the same edge-to-edge bands as Life and Schedules. Every chart, summary, note and report sits in a full-width band, and the titled sections in Movement, Therapy Response and Pattern Finder fold open and closed and remember how you left them.',
+      'A trend chart now fits the band it sits in instead of running past its edge.',
+    ],
+  },
+  {
     version: '1.0.41.7',
     date: '2026-09-19',
     changes: [

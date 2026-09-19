@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useInfoAlert } from './InfoAlert';
-import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -106,7 +106,7 @@ function describeLastSync(state: HealthSyncState): string {
 
 export function MovementSection({ tabColor }: Props) {
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
   const folds = useBandFolds();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
@@ -406,7 +406,7 @@ export function MovementSection({ tabColor }: Props) {
         )}
       </View>
 
-      <LifeBand folds={folds} color={tabColor} id="life:movement:what-the-phone-has" title="What the phone has" icon="walk-outline">
+      <TabBand folds={folds} color={tabColor} id="life:movement:what-the-phone-has" title="What the phone has" icon="walk-outline">
         <Text style={styles.helperText}>
           Read as recorded, nothing added. An empty row means the store had nothing for it, not that the figure was zero.
         </Text>
@@ -449,10 +449,10 @@ export function MovementSection({ tabColor }: Props) {
             })}
           </View>
         ) : null}
-      </LifeBand>
+      </TabBand>
 
       {availability === 'available' ? (
-        <LifeBand folds={folds} color={tabColor} id="life:movement:send-to-the-phone" title="Send to the phone" icon="walk-outline">
+        <TabBand folds={folds} color={tabColor} id="life:movement:send-to-the-phone" title="Send to the phone" icon="walk-outline">
           <Text style={styles.helperText}>
             What is logged here, into Health Connect, so other apps on the phone see the same day. Each send replaces that day&apos;s earlier record rather than adding to it.
           </Text>
@@ -473,7 +473,7 @@ export function MovementSection({ tabColor }: Props) {
             <Text style={styles.rowMeta}>Write access for hydration and nutrition is not granted. Connect, or change it in Health Connect settings.</Text>
           )}
           {imperial ? <Text style={styles.footnote}>Volumes go over in millilitres, which is what Health Connect stores; other apps show them in their units.</Text> : null}
-        </LifeBand>
+        </TabBand>
       ) : null}
       {infoAlertElement}
     </View>

@@ -5,7 +5,7 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
-import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -103,7 +103,7 @@ export function FinanceMoneySection({ tabColor }: Props) {
 
   const totals = useMemo(() => netWorth(accounts), [accounts]);
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
   const folds = useBandFolds();
 
   // Only debts with everything the simulation needs can be modelled. One
@@ -197,7 +197,7 @@ export function FinanceMoneySection({ tabColor }: Props) {
     <View style={band.column}>
       {infoAlertElement}
 
-      <LifeBand folds={folds} color={tabColor} id="life:finances:net-worth" title="Net worth" icon="wallet-outline">
+      <TabBand folds={folds} color={tabColor} id="life:finances:net-worth" title="Net worth" icon="wallet-outline">
         {accounts.length === 0 ? (
           <Text style={styles.bodyText}>
             Add what you own and what you owe, and this becomes one number that answers whether things are moving in the
@@ -243,7 +243,7 @@ export function FinanceMoneySection({ tabColor }: Props) {
             <Text style={styles.primaryButtonText}>+ Add an account</Text>
           </TouchableOpacity>
         ) : null}
-      </LifeBand>
+      </TabBand>
 
       {form ? (
         <View style={band.box}>
@@ -318,7 +318,7 @@ export function FinanceMoneySection({ tabColor }: Props) {
       ) : null}
 
       {accounts.length > 0 ? (
-        <LifeBand folds={folds} color={tabColor} id="life:finances:accounts" title="Accounts" icon="wallet-outline">
+        <TabBand folds={folds} color={tabColor} id="life:finances:accounts" title="Accounts" icon="wallet-outline">
           {accounts.map((account) => {
             const liability = isLiability(account.kind);
             const cost = carryCost({ balance: account.balance, apr: account.apr, side: liability ? 'liability' : 'asset' });
@@ -389,11 +389,11 @@ export function FinanceMoneySection({ tabColor }: Props) {
             </View>
             );
           })}
-        </LifeBand>
+        </TabBand>
       ) : null}
 
       {duplicated.length > 0 ? (
-        <LifeBand folds={folds} color={tabColor} id="life:finances:counted-twice" title="Counted twice" icon="wallet-outline">
+        <TabBand folds={folds} color={tabColor} id="life:finances:counted-twice" title="Counted twice" icon="wallet-outline">
           <Text style={styles.bodyText}>
             The same payment looks like it is recorded in two places. Your monthly bills count it once, and the payoff
             plan counts it again as that debt&apos;s minimum payment, so between them one payment is being treated as
@@ -415,10 +415,10 @@ export function FinanceMoneySection({ tabColor }: Props) {
             account leaves the bill as the single record, and clearing the bill&apos;s link leaves the debt plan as the
             single record.
           </Text>
-        </LifeBand>
+        </TabBand>
       ) : null}
 
-      <LifeBand folds={folds} color={tabColor} id="life:finances:paying-off-what-you-owe" title="Paying off what you owe" icon="wallet-outline">
+      <TabBand folds={folds} color={tabColor} id="life:finances:paying-off-what-you-owe" title="Paying off what you owe" icon="wallet-outline">
         {debts.length === 0 && incomplete.length === 0 ? (
           <Text style={styles.bodyText}>
             Nothing owed, or nothing entered yet. Add a card or a loan with its interest rate and minimum payment, and
@@ -464,7 +464,7 @@ export function FinanceMoneySection({ tabColor }: Props) {
             ) : null}
           </>
         )}
-      </LifeBand>
+      </TabBand>
     </View>
   );
 }

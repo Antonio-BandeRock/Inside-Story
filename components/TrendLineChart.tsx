@@ -1,7 +1,8 @@
 import { Fragment, useState } from 'react';
-import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { type LayoutChangeEvent, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING } from './HomeSectionBand';
 import { textShadow, typography } from '../constants/typography';
 
 const HEIGHT = 140;
@@ -15,6 +16,8 @@ const NODE_RADIUS = 6;
 // actually meant. Wide enough for a real 3-digit value ("120%") without
 // crowding the leftmost plotted point.
 const Y_AXIS_LABEL_WIDTH = 34;
+// Room past the last node so its right half is not clipped.
+const SVG_RIGHT_MARGIN = 10;
 
 const MONTH_ABBREVIATIONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -57,8 +60,19 @@ export function TrendLineChart({
   emptyMessage?: string;
   lineColor?: string;
 }) {
+  // The chart fills whatever it is placed in, 2026-09-19. It used to take
+  // the window width minus a 20 dp page inset, which was wider than the
+  // card around it and ran past a full-width band's padding once Trends
+  // moved to bands. The window figure only covers the first frame, before
+  // onLayout has reported the container's width.
   const { width: windowWidth } = useWindowDimensions();
-  const plotWidth = Math.max(160, windowWidth - 40 - NODE_RADIUS * 2 - Y_AXIS_LABEL_WIDTH);
+  const [containerWidth, setContainerWidth] = useState<number | null>(null);
+  const availableWidth = containerWidth ?? windowWidth - 2 * (HOME_BAND_CONTENT_PADDING + HOME_BAND_ACCENT_WIDTH);
+  const plotWidth = Math.max(160, availableWidth - SVG_RIGHT_MARGIN - NODE_RADIUS * 2 - Y_AXIS_LABEL_WIDTH);
+  const onLayout = (event: LayoutChangeEvent) => {
+    const width = Math.round(event.nativeEvent.layout.width);
+    if (width > 0 && width !== containerWidth) setContainerWidth(width);
+  };
 
   // Real tap-to-select, 2026-08-15 -- direct feedback: "each dot has no
   // data. Are we 19% of the RDA?" The yMin/yMax gutter labels above answer
@@ -108,7 +122,7 @@ export function TrendLineChart({
   const referenceY = referenceLine != null ? valueToY(referenceLine) : null;
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={onLayout}>
       {/* The real "what's THIS dot" answer -- date + formatted value of
           whichever point is currently selected, always something (defaults
           to the latest real point), placed above the chart so it reads as
@@ -117,7 +131,7 @@ export function TrendLineChart({
         {formatShortDate(selectedPoint.date)}: {valueFormatter(selectedPoint.value)}
       </Text>
 
-      <Svg width={plotRightEdge + NODE_RADIUS + 10} height={HEIGHT}>
+      <Svg width={plotRightEdge + NODE_RADIUS + SVG_RIGHT_MARGIN} height={HEIGHT}>
         {/* Real yMax/yMin value labels -- real context for the chart's own
             overall range, kept alongside the per-point readout above rather
             than replaced by it. */}
@@ -182,13 +196,15 @@ export function TrendLineChart({
 }
 
 const styles = StyleSheet.create({
-  container: { alignItems: 'center' },
+  // Full width so onLayout measures the room the caller gives it, even
+  // inside a parent that centres its children.
+  container: { width: '100%', alignItems: 'center' },
   selectedValueText: { ...typography.sectionTitle, color: colors.textPrimary, fontSize: 18, marginBottom: 8, textAlign: 'center', ...textShadow },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 2 },
   labelText: { ...typography.caption, color: colors.textMuted, ...textShadow },
-  // No border of its own, 2026-07-27 -- this component's only real caller
-  // (app/(tabs)/trends.tsx) now always wraps it in its own bordered
-  // chartCard, so a second border here would nest one box inside another.
+  // No border of its own, 2026-07-27: every caller wraps it in a
+  // surface already, so a second border here would nest one box inside
+  // another.
   emptyBox: {
     paddingVertical: 24,
     paddingHorizontal: 16,

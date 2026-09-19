@@ -5,7 +5,7 @@ import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { VoiceInputButton } from './VoiceInputButton';
-import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -125,7 +125,7 @@ export function EmergencySection({ tabColor }: Props) {
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
   const folds = useBandFolds();
 
   const load = useCallback(() => {
@@ -218,7 +218,7 @@ export function EmergencySection({ tabColor }: Props) {
         <Text style={styles.warningText}>{NOT_A_MEDICAL_ALERT}</Text>
       </View>
 
-      <LifeBand folds={folds} color={tabColor} id="life:emergency:how-old-this-is" title="How old this is" icon="medkit-outline">
+      <TabBand folds={folds} color={tabColor} id="life:emergency:how-old-this-is" title="How old this is" icon="medkit-outline">
         <Text style={[styles.bodyText, fresh.stale ? styles.warn : null]}>{describeFreshness(fresh)}</Text>
         <Text style={styles.helperText}>
           Confirming means going through the whole thing and saying it is still right. It is a
@@ -248,10 +248,10 @@ export function EmergencySection({ tabColor }: Props) {
         >
           <Text style={styles.primaryButtonText}>I have checked it</Text>
         </TouchableOpacity>
-      </LifeBand>
+      </TabBand>
 
       {gaps.length > 0 ? (
-        <LifeBand folds={folds} color={tabColor} id="life:emergency:still-empty" title="Still empty" icon="medkit-outline">
+        <TabBand folds={folds} color={tabColor} id="life:emergency:still-empty" title="Still empty" icon="medkit-outline">
           <Text style={styles.bodyText}>{describeMissing(gaps)}</Text>
           <Text style={styles.helperText}>
             Listed by how much each one actually matters rather than in the order the fields sit
@@ -265,12 +265,12 @@ export function EmergencySection({ tabColor }: Props) {
               </View>
             </View>
           ))}
-        </LifeBand>
+        </TabBand>
       ) : null}
 
       {/* Contacts first among the editable parts. One name and one number is
           the difference between a card and a piece of paper. */}
-      <LifeBand folds={folds} color={tabColor} id="life:emergency:who-to-call" title="Who to call" icon="medkit-outline">
+      <TabBand folds={folds} color={tabColor} id="life:emergency:who-to-call" title="Who to call" icon="medkit-outline">
         {contacts.length === 0 ? (
           <Text style={styles.bodyText}>
             Nobody yet. One person who would answer their phone and knows enough to speak for you
@@ -391,9 +391,9 @@ export function EmergencySection({ tabColor }: Props) {
             <Text style={styles.primaryButtonText}>Add someone</Text>
           </TouchableOpacity>
         )}
-      </LifeBand>
+      </TabBand>
 
-      <LifeBand folds={folds} color={tabColor} id="life:emergency:what-only-you-can-tell-it" title="What only you can tell it" icon="medkit-outline">
+      <TabBand folds={folds} color={tabColor} id="life:emergency:what-only-you-can-tell-it" title="What only you can tell it" icon="medkit-outline">
         <Text style={styles.helperText}>
           Your conditions, medications and food allergies are already recorded elsewhere in the app
           and are read straight onto the card, so they are not asked for again here. These are the
@@ -440,9 +440,9 @@ export function EmergencySection({ tabColor }: Props) {
             <Text style={styles.primaryButtonText}>Edit these</Text>
           </TouchableOpacity>
         )}
-      </LifeBand>
+      </TabBand>
 
-      <LifeBand folds={folds} color={tabColor} id="life:emergency:the-card" title="The card" icon="medkit-outline">
+      <TabBand folds={folds} color={tabColor} id="life:emergency:the-card" title="The card" icon="medkit-outline">
         <Text style={styles.helperText}>
           Everything above, assembled with what the app already holds, as plain text you can read
           off the screen or send to someone. Anything you have not filled in is left out rather than
@@ -474,9 +474,9 @@ export function EmergencySection({ tabColor }: Props) {
           wallet, or set up on the medical ID screen your phone already has, it is reachable when
           your phone is locked and you are not able to unlock it.
         </Text>
-      </LifeBand>
+      </TabBand>
 
-      <LifeBand folds={folds} color={tabColor} id="life:emergency:why-the-order-is-what-it-is" title="Why the order is what it is" icon="medkit-outline">
+      <TabBand folds={folds} color={tabColor} id="life:emergency:why-the-order-is-what-it-is" title="Why the order is what it is" icon="medkit-outline">
         {ESSENTIALS_IN_ORDER.map((entry, index) => (
           <View key={entry.code} style={styles.row}>
             <View style={styles.rowMain}>
@@ -485,7 +485,7 @@ export function EmergencySection({ tabColor }: Props) {
             </View>
           </View>
         ))}
-      </LifeBand>
+      </TabBand>
     </View>
   );
 }

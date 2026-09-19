@@ -56,19 +56,19 @@ const SURFACE_COMPONENTS = new Set([
   // lens builds its fold bands with. Renders HomeSectionBand and places
   // its children inside it, nothing else.
   'ScheduleBand',
-  // components/LifeBand.tsx, 2026-09-19: the wrapper every Life lens builds
+  // components/TabBand.tsx, 2026-09-19: the wrapper every converted lens builds
   // its fold bands with. Renders HomeSectionBand with its children inside.
-  'LifeBand',
+  'TabBand',
 ]);
 
 // Shared style objects a file holds in a local name rather than in its
-// own StyleSheet.create: `const band = makeLifeBandStyles(tabColor)` gives
-// every Life lens the same box, boxMuted, heading and row surfaces, so a
+// own StyleSheet.create: `const band = makeTabBandStyles(tabColor)` gives
+// every converted lens the same box, boxMuted, heading and row surfaces, so a
 // `band.box` reference resolves through THAT file's StyleSheet rather
 // than this one's. Keyed by the local name, valued by the file whose
 // StyleSheet.create defines the keys.
 const SHARED_STYLE_OBJECTS = new Map([
-  ['band', path.join('components', 'LifeBand.tsx')],
+  ['band', path.join('components', 'TabBand.tsx')],
 ]);
 
 // Exported style objects confirmed to set backgroundColor, so a StyleSheet

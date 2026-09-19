@@ -6,7 +6,7 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
-import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -79,7 +79,7 @@ export function FinanceGoalsSection({ tabColor }: Props) {
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
   const folds = useBandFolds();
 
   const load = useCallback(() => {
@@ -251,7 +251,7 @@ export function FinanceGoalsSection({ tabColor }: Props) {
         const statusWord = STATUS_LABEL[goal.status] ?? '';
         return (
           <View key={goal.id} style={goal.status === 'active' ? null : styles.dimmed}>
-            <LifeBand
+            <TabBand
               folds={folds}
               color={tabColor}
               id={`life:finances:goal:${goal.id}`}
@@ -499,13 +499,13 @@ export function FinanceGoalsSection({ tabColor }: Props) {
                 Add at least one cost and this goal starts being something the app can follow. Until then it is a note.
               </Text>
             ) : null}
-            </LifeBand>
+            </TabBand>
           </View>
         );
       })}
 
       {goals.length > 0 ? (
-        <LifeBand folds={folds} color={tabColor} id="life:finances:why-there-is-no-single-percentage" title="Why there is no single percentage" icon="flag-outline">
+        <TabBand folds={folds} color={tabColor} id="life:finances:why-there-is-no-single-percentage" title="Why there is no single percentage" icon="flag-outline">
           <Text style={styles.bodyText}>
             A goal needing {formatGoalAmount('money', 500, '')} and {formatGoalAmount('time', 20, 'hours')}, with half of
             each in, is not half done. It is half funded and half worked, and those are two separate facts. Money with no
@@ -516,7 +516,7 @@ export function FinanceGoalsSection({ tabColor }: Props) {
             instead is how many costs are met and which one is furthest behind, which is what actually says whether the
             thing in your way is money or a weekend.
           </Text>
-        </LifeBand>
+        </TabBand>
       ) : null}
     </View>
   );

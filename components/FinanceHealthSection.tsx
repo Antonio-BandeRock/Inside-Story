@@ -5,7 +5,7 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
-import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -161,7 +161,7 @@ export function FinanceHealthSection({ tabColor }: Props) {
   );
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
   const folds = useBandFolds();
 
   const num = (raw: string): number | null => (raw.trim() ? parsePriceInput(raw) : null);
@@ -247,7 +247,7 @@ export function FinanceHealthSection({ tabColor }: Props) {
       {infoAlertElement}
 
       {/* Where you stand with the plan */}
-      <LifeBand folds={folds} color={tabColor} id="life:finances:your-plan-this-year" title="Your plan this year" icon="medkit-outline">
+      <TabBand folds={folds} color={tabColor} id="life:finances:your-plan-this-year" title="Your plan this year" icon="medkit-outline">
         {standing && plan ? (
           <>
             {renderBar('Deductible', standing.deductible.met, standing.deductible.limit, standing.deductible.fraction)}
@@ -273,7 +273,7 @@ export function FinanceHealthSection({ tabColor }: Props) {
             </TouchableOpacity>
           </>
         )}
-      </LifeBand>
+      </TabBand>
 
       {openForm === 'plan' ? (
         <View style={band.box}>
@@ -313,7 +313,7 @@ export function FinanceHealthSection({ tabColor }: Props) {
       ) : null}
 
       {/* HSA and FSA */}
-      <LifeBand folds={folds} color={tabColor} id="life:finances:hsa-fsa" title="HSA & FSA" icon="medkit-outline">
+      <TabBand folds={folds} color={tabColor} id="life:finances:hsa-fsa" title="HSA & FSA" icon="medkit-outline">
         {accounts.length === 0 ? (
           <Text style={styles.bodyText}>
             If you have an FSA, add it. That money is forfeited if it is not spent by your plan’s deadline, and a date on
@@ -338,7 +338,7 @@ export function FinanceHealthSection({ tabColor }: Props) {
         <TouchableOpacity style={styles.primaryButton} onPress={() => setOpenForm('account')}>
           <Text style={styles.primaryButtonText}>+ Add an account</Text>
         </TouchableOpacity>
-      </LifeBand>
+      </TabBand>
 
       {openForm === 'account' ? (
         <View style={band.box}>
@@ -376,7 +376,7 @@ export function FinanceHealthSection({ tabColor }: Props) {
       ) : null}
 
       {/* What each condition costs */}
-      <LifeBand folds={folds} color={tabColor} id="life:finances:what-each-condition-costs" title="What each condition costs" icon="medkit-outline">
+      <TabBand folds={folds} color={tabColor} id="life:finances:what-each-condition-costs" title="What each condition costs" icon="medkit-outline">
         <Text style={styles.bodyText}>{describeConditionCosts(rollup, conditionName)}</Text>
         {rollup.byCondition.map((entry) => (
           <View key={entry.conditionCode} style={styles.listRow}>
@@ -398,10 +398,10 @@ export function FinanceHealthSection({ tabColor }: Props) {
             ones.
           </Text>
         ) : null}
-      </LifeBand>
+      </TabBand>
 
       {/* Bills */}
-      <LifeBand folds={folds} color={tabColor} id="life:finances:medical-bills" title="Medical bills" icon="medkit-outline">
+      <TabBand folds={folds} color={tabColor} id="life:finances:medical-bills" title="Medical bills" icon="medkit-outline">
         {bills.length === 0 ? (
           <Text style={styles.bodyText}>
             Add a bill with the figures from its Explanation of Benefits and this checks the arithmetic: what your plan
@@ -446,7 +446,7 @@ export function FinanceHealthSection({ tabColor }: Props) {
         <TouchableOpacity style={styles.primaryButton} onPress={() => setOpenForm('bill')}>
           <Text style={styles.primaryButtonText}>+ Add a bill</Text>
         </TouchableOpacity>
-      </LifeBand>
+      </TabBand>
 
       {openForm === 'bill' ? (
         <View style={band.box}>

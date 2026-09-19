@@ -10,6 +10,8 @@ import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
+import { HOME_BAND_GAP } from '../../components/HomeSectionBand';
+import { makeTabBandStyles } from '../../components/TabBand';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
@@ -18,6 +20,7 @@ import { buildReport, renderReportText, type ReportDocument } from '../../lib/re
 import { exportReportAsPdf } from '../../lib/reportPdf';
 
 const TAB_COLOR = colors.tabReports;
+const band = makeTabBandStyles(TAB_COLOR);
 
 // One real lens -- a report is one document, not several different views
 // the way Trends' own five lenses genuinely are. Kept as a real LensOption
@@ -156,9 +159,11 @@ export default function ReportsScreen() {
       <SwipeableTabScreen enabled={!revealed}>
         <GatedTabContent pageTitle="Reports" variant="reports" revealed={revealed}>
           <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
-            <Text style={[styles.sectionHeading, styles.groupHeadingChip]}>{activeLensLabel}</Text>
+            <View style={band.heading}>
+              <Text style={band.headingText}>{activeLensLabel}</Text>
+            </View>
 
-            <View style={styles.pillRow}>
+            <View style={[band.inset, styles.pillRow]}>
               {DAY_RANGE_OPTIONS.map((option) => (
                 <TouchableOpacity
                   key={option.value}
@@ -174,24 +179,24 @@ export default function ReportsScreen() {
             </View>
 
             {loading ? (
-              <Text style={[styles.loadingText, styles.panelStandalone]}>Putting your report together…</Text>
+              <View style={band.boxMuted}><Text style={styles.loadingText}>Putting your report together…</Text></View>
             ) : loadError ? (
-              <Text style={[styles.loadingText, styles.panelStandalone]}>The report could not be built. {loadError}</Text>
+              <View style={band.boxMuted}><Text style={styles.loadingText}>The report could not be built. {loadError}</Text></View>
             ) : (
-              <View style={styles.reportCard}>
+              <View style={band.box}>
                 <Text style={styles.reportText}>{reportText}</Text>
               </View>
             )}
 
             {reportText && !loading ? (
-              <>
+              <View style={[band.inset, styles.shareRow]}>
                 <TouchableOpacity style={[styles.shareButton, exporting && styles.shareButtonBusy]} onPress={handleSharePdf} disabled={exporting}>
                   <Text style={styles.shareButtonText}>{exporting ? 'Laying out the PDF…' : 'Share as PDF'}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.shareButtonSecondary} onPress={handleShareText}>
                   <Text style={styles.shareButtonSecondaryText}>Share as text</Text>
                 </TouchableOpacity>
-              </>
+              </View>
             ) : null}
           </ScrollView>
         </GatedTabContent>
@@ -224,29 +229,12 @@ export default function ReportsScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { flex: 1 },
-  content: { paddingHorizontal: 20, paddingBottom: 32 },
-  // 2026-08-29, standing rule: no text sits directly on a tab's
-  // photographic background. panelStandalone is for text with no card
-  // to join (an empty state, an error or loading line);
-  // groupHeadingChip is for a heading introducing a GROUP of separate
-  // cards. A heading that labels ONE card should move inside that
-  // card instead of using either.
-  panelStandalone: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-  },
-  groupHeadingChip: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10, ...textShadow },
-  loadingText: { ...typography.body, color: colors.textSecondary, marginBottom: 16, ...textShadow },
+  // No side inset, 2026-09-19: the page is a column of edge-to-edge bands
+  // (components/TabBand.tsx), spaced by the one standing band gap.
+  content: { paddingBottom: 32, gap: HOME_BAND_GAP },
+  loadingText: { ...typography.body, color: colors.textSecondary, ...textShadow },
 
-  pillRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+  pillRow: { flexDirection: 'row', gap: 8 },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   pillText: { ...typography.caption, color: colors.textPrimary, ...textShadow },
@@ -262,21 +250,14 @@ const styles = StyleSheet.create({
 
   },
 
-  reportCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-  },
   // A real, deliberate monospace-adjacent choice -- this text is meant to
   // be read as a plain document (and shared verbatim via Share below), not
   // styled UI copy, so it keeps its own line breaks and alignment exactly
   // as generateReport built them.
   reportText: { ...typography.caption, color: colors.textPrimary, lineHeight: 20, ...textShadow },
 
+  shareRow: { gap: 10 },
   shareButton: {
-    marginTop: 16,
     backgroundColor: TAB_COLOR,
     borderRadius: 999,
     paddingVertical: 12,
@@ -286,7 +267,6 @@ const styles = StyleSheet.create({
   // The text share keeps a filled surface (standing rule: an
   // outline-only control sits its label on the photo).
   shareButtonSecondary: {
-    marginTop: 10,
     backgroundColor: colors.surface,
     borderRadius: 999,
     paddingVertical: 12,

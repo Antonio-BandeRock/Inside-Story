@@ -7,7 +7,7 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
-import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -169,7 +169,7 @@ export function RoutinesSection({ tabColor }: Props) {
   } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
   const folds = useBandFolds();
 
   const load = useCallback(() => {
@@ -577,7 +577,7 @@ export function RoutinesSection({ tabColor }: Props) {
         const open = openId === routine.id;
         return (
           <View key={routine.id} style={routine.active ? null : styles.dimmed}>
-          <LifeBand folds={folds} color={tabColor} id={`life:routines:${routine.id}`} title={routine.name} icon="repeat-outline" count={routine.steps.length}>
+          <TabBand folds={folds} color={tabColor} id={`life:routines:${routine.id}`} title={routine.name} icon="repeat-outline" count={routine.steps.length}>
             <Text style={styles.rowMeta}>
               {routineOccasionLabel(routine.occasion, occasions)}. {describeRoutineStanding(routine, now)}
             </Text>
@@ -785,7 +785,7 @@ export function RoutinesSection({ tabColor }: Props) {
                 )}
               </>
             ) : null}
-          </LifeBand>
+          </TabBand>
           </View>
         );
       })}

@@ -1,11 +1,13 @@
-// The band shapes Life's lenses are built from, 2026-09-19.
+// The band shapes every tab's lenses are built from, 2026-09-19.
 //
 // Direct instruction, after Conditions took the edge-to-edge look: "the
 // full screen width and new formatting for everything is needed wherever
-// it isn't already in place." Every Life lens now stacks the same three
-// shapes, so they live here once rather than as a copy in each section:
+// it isn't already in place." Life's lenses took it first (as LifeBand,
+// renamed the same day once Reports and Trends needed the same shapes),
+// and every tab converted since stacks the same three, so they live here
+// once rather than as a copy in each screen:
 //
-// 1. LifeBand: a fold. One row carrying a name (and a count), opening on
+// 1. TabBand: a fold. One row carrying a name (and a count), opening on
 //    tap to its rows, with the open state remembered per band through
 //    useBandFolds. My Meds was the first Life lens to take it, 2026-09-13.
 // 2. box: a band that is not a fold (an intro, a form, an empty notice).
@@ -13,8 +15,10 @@
 // 3. heading: a one-row band introducing a group of boxes that are not
 //    inside a fold, on the muted surface so it reads as a label.
 //
-// Life's scroll content has no side inset any more (app/(tabs)/life.tsx),
-// so a band reaches the edge by default; nothing here cancels a margin.
+// A converted screen's scroll content has no side inset any more
+// (app/(tabs)/life.tsx was first), so a band reaches the edge by default;
+// nothing here cancels a margin. Anything that has to sit between bands
+// without being one (a pill row, a lone button) takes `inset` instead.
 import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps, ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
@@ -25,7 +29,7 @@ import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyl
 
 type Folds = ReturnType<typeof useBandFolds>;
 
-export function LifeBand({
+export function TabBand({
   folds,
   color,
   id,
@@ -59,7 +63,7 @@ export function LifeBand({
 // The non-fold shapes, in the tab's colour. A lens stacks them inside one
 // `column`, whose gap is HOME_BAND_GAP, so no shape carries a margin of
 // its own and the distance between bands cannot drift.
-export function makeLifeBandStyles(tabColor: string) {
+export function makeTabBandStyles(tabColor: string) {
   return StyleSheet.create({
     box: {
       ...homeBandStyle,

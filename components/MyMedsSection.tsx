@@ -8,7 +8,7 @@ import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 import type { DropdownOption } from './Dropdown';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
-import { LifeBand } from './LifeBand';
+import { TabBand } from './TabBand';
 import { PopoverSelect } from './PopoverSelect';
 import { WhyExplainer } from './WhyExplainer';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -55,7 +55,7 @@ import type { NutrientGapEntry } from '../lib/nutrientAnalysis';
 
 // Every band here folds, the same rule Schedules and Food follow, with the
 // open state remembered per band through useBandFolds. The band itself is
-// LifeBand, shared with every other Life lens since 2026-09-19.
+// TabBand, shared with every other Life lens since 2026-09-19.
 function todayDateString(): string {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -514,7 +514,7 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
   function renderTreatmentGroup(title: string, groupTreatments: TreatmentRecord[]) {
     if (groupTreatments.length === 0) return null;
     return (
-      <LifeBand folds={folds} color={tabColor} id={`life:myMeds:${title}`} title={title} icon="medkit-outline" count={groupTreatments.length}>
+      <TabBand folds={folds} color={tabColor} id={`life:myMeds:${title}`} title={title} icon="medkit-outline" count={groupTreatments.length}>
       <View style={styles.myMedsGroup}>
         {groupTreatments.map((treatment) => {
           const isExpanded = expandedId === treatment.id;
@@ -614,7 +614,7 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
           );
         })}
       </View>
-      </LifeBand>
+      </TabBand>
     );
   }
 
@@ -898,7 +898,7 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
           )}
 
           {interactionWarnings.length > 0 ? (
-            <LifeBand
+            <TabBand
               folds={folds}
               color={tabColor}
               id="life:myMeds:things-to-check"
@@ -916,11 +916,11 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                 </View>
               ))}
             </View>
-            </LifeBand>
+            </TabBand>
           ) : null}
 
           {referenceOnlyRules.length > 0 ? (
-            <LifeBand
+            <TabBand
               folds={folds}
               color={tabColor}
               id="life:myMeds:worth-knowing"
@@ -938,7 +938,7 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                 </View>
               ))}
             </View>
-            </LifeBand>
+            </TabBand>
           ) : null}
 
           {treatments.length === 0 ? (

@@ -7,7 +7,7 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
-import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -90,7 +90,7 @@ export function DidIDoItSection({ tabColor }: Props) {
   } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
   const folds = useBandFolds();
 
   const load = useCallback(() => {
@@ -301,7 +301,7 @@ export function DidIDoItSection({ tabColor }: Props) {
           });
         if (!showHeadings) return <View key={groupKey} style={band.column}>{rows}</View>;
         return (
-          <LifeBand
+          <TabBand
             key={groupKey}
             folds={folds}
             color={tabColor}
@@ -333,7 +333,7 @@ export function DidIDoItSection({ tabColor }: Props) {
               </View>
               {rows}
             </View>
-          </LifeBand>
+          </TabBand>
         );
       })}
     </View>
