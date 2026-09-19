@@ -1,3 +1,4 @@
+/* global __dirname */
 // Computes, for all 300 curated recipes, real condition-safety and
 // healing-stage data -- 2026-08-24, direct request: "there needs to be
 // an association between the recipes and the conditions somehow, so
@@ -104,32 +105,6 @@ function runSql(sql, params = []) {
   const text = out.toString('utf8').trim();
   return text ? JSON.parse(text) : [];
 }
-
-// ---------------------------------------------------------------------
-// Condition labels (matching CONDITION_STAGING_MODELS' own conditionLabel
-// and CONDITION_CODE_TO_DIGEST_KEY's own known 19 codes).
-// ---------------------------------------------------------------------
-const CONDITION_LABELS = {
-  hashimotos: "Hashimoto's Thyroiditis", // 2026-08-25: renamed from "Hashimoto's Disease" to match lib/conditionStages.ts
-  rheumatoid_arthritis: 'Rheumatoid Arthritis',
-  psoriasis: 'Psoriasis',
-  graves: "Graves' Disease",
-  type_1_diabetes: 'Type 1 Diabetes',
-  celiac: 'Celiac Disease',
-  ibd: 'Inflammatory Bowel Disease',
-  multiple_sclerosis: 'Multiple Sclerosis',
-  lupus: 'Lupus',
-  sjogrens: "Sjögren's Syndrome",
-  pcos: 'PCOS',
-  chronic_kidney_disease: 'Chronic Kidney Disease',
-  fatty_liver_disease: 'Fatty Liver Disease',
-  type_2_diabetes: 'Type 2 Diabetes',
-  ibs: 'Irritable Bowel Syndrome',
-  migraine: 'Migraine',
-  cardiovascular_disease: 'Cardiovascular Disease',
-  gout: 'Gout',
-  prostate_health: 'Prostate Health',
-};
 
 // ---------------------------------------------------------------------
 // Tier classification -- faithful port of lib/sixDimensionsReference.ts's
@@ -608,6 +583,24 @@ const RECIPE_PREP_OVERRIDES = {
   curated_vegan_black_bean_breakfast_bowl_avocado: { 'Legume|Black Beans': 'Boiled' },
   curated_vegan_roasted_vegetable_white_bean_bowl_garlic_herb_oil: { 'Legume|White Beans': 'Boiled' },
   curated_vegan_black_bean_sweet_potato_breakfast_hash: { 'Legume|Black Beans': 'Boiled' },
+  // 2026-09-19, the sides and snacks batch: applied before shipping, in
+  // the pass that wrote the recipes, rather than found afterwards. Every
+  // entry here is a recipe whose own instructions roast, saute, steam or
+  // simmer a cruciferous vegetable or a legume, so the Raw-first default
+  // would score a raw-goitrogen or lectin concern that the cooking
+  // removes. The raw dishes in the same batch (the cabbage and carrot
+  // slaw, the fennel and apple slaw, the cucumber salad, the carrot
+  // sticks) are deliberately absent, since Raw-first is correct for them.
+  curated_side_roasted_brussels_lemon: { 'Veg|Brussels sprout': 'Baked' },
+  curated_side_roasted_turnips_rosemary: { 'Veg|Turnip': 'Baked' },
+  curated_side_sauteed_kale_lemon: { 'Veg|Kale': 'Boiled' },
+  curated_side_braised_cabbage_apple: { 'Veg|Cabbage': 'Boiled' },
+  curated_side_broccoli_ginger: { 'Veg|Broccoli': 'Boiled' },
+  curated_side_roasted_cauliflower_turmeric: { 'Veg|Cauliflower': 'Baked' },
+  curated_side_lemon_garlic_chickpeas: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
+  curated_side_stewed_lentils_carrot: { 'Legume|Lentils': 'Boiled' },
+  curated_snack_kale_chips: { 'Veg|Kale': 'Baked' },
+  curated_snack_hummus_cucumber: { 'Legume|Chickpeas (garbanzo beans, bengal gram)': 'Boiled' },
 };
 
 // Resolves one recipe's own ingredient with its real prep method applied
@@ -698,14 +691,26 @@ function healingStageReasons(scores, stage) {
       );
     }
   }
+  // 2026-09-19: these two carried the wording the 2026-09-18 ai-ism sweep
+  // removed, because that sweep edited lib/digest/recipes.ts and never
+  // reached the generator that writes it. Re-running the pipeline put all
+  // 348 of them back on screen. The wording below is what the sweep
+  // settled on, copied from the shipped file rather than rewritten:
+  // "leaves this one unresolved" for the guide announcing its honesty,
+  // "rather than treating it as a firm rule" for the reversal, and the
+  // possessive without "own" after it. scripts/audit_ai_isms.js does not
+  // scan scripts/, so nothing catches this one except looking.
   if (eliminationTier === 'Nightshade') {
     if (laterStage) {
       reasons.push(
-        "A nightshade. The staged food guide is honest that this one is unresolved either way. If it hasn't " +
-          "bothered you through reintroduction, this stage's own broader focus means it's reasonable to stop treating it as a concern.",
+        "A nightshade. The staged food guide leaves this one unresolved either way. If it hasn't "
+          + "bothered you through reintroduction, this stage's broader focus means it's reasonable to stop treating it as a concern.",
       );
     } else {
-      reasons.push('A nightshade. The staged food guide is honest that this one is unresolved (anti-inflammatory evidence alongside patient-reported worsening). Worth testing for yourself, not a firm rule.');
+      reasons.push(
+        'A nightshade. The staged food guide leaves this one unresolved (anti-inflammatory evidence '
+          + 'alongside patient-reported worsening). Worth testing for yourself rather than treating it as a firm rule.',
+      );
     }
   }
   if (findTier(scores, 'Additives') === 'High Risk') {
@@ -815,11 +820,16 @@ function goutStageReasons(scores, stage) {
 // real canonical labels) needed the exact stored note.condition string
 // to match and silently didn't for these three. Corrected here to the
 // real, verified label text (confirmed via direct grep against each
-// source file, not re-guessed); the already-applied text in recipes.ts
-// itself was corrected separately, by a targeted string replace, not by
-// re-running this script's own apply step (see CLAUDE.md's own note on
-// why that step isn't safe to re-run). Celiac/IBD/CKD were already
+// source file, not re-guessed); the applied text in recipes.ts was
+// corrected separately, by a targeted string replace, because the apply
+// step could not be run twice at the time. Celiac/IBD/CKD were already
 // correct, confirmed the same way.
+//
+// 2026-09-19: that last limitation is gone.
+// scripts/apply_recipe_condition_data.js drops what an earlier run of
+// itself wrote before writing again, so the whole chain can be re-run
+// after a batch of new recipes, and a correction made here reaches the
+// screen without a string replace.
 const STAGED_CONDITIONS = [
   {
     code: 'hashimotos',

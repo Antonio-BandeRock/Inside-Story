@@ -41,6 +41,13 @@ export type CookingMethodIntent = 'raw' | 'cooked' | 'unconstrained';
 // getting one of them slightly wrong is small. That fallback rests on a
 // finding already verified on 2026-08-27: every ingredient checked scored
 // identically across its own non-Raw variants.
+//
+// 2026-09-19: 'Braised' and 'Stewed' joined that same Boiled group, for the
+// same reason, while side dishes were being added. Both were already in the
+// curated recipe corpus, 30 ingredient rows between them, and both were
+// falling through to 'unconstrained', which left a braised cabbage scored
+// against the raw cabbage row. That is the exact bug this module exists to
+// fix, sitting inside the module's own lookup table.
 const COOKED_METHOD_TO_PREP: Record<string, string> = {
   'sautéed': 'Fried',
   'sauteed': 'Fried',
@@ -50,6 +57,8 @@ const COOKED_METHOD_TO_PREP: Record<string, string> = {
   steamed: 'Steamed',
   boiled: 'Boiled',
   simmered: 'Boiled',
+  braised: 'Boiled',
+  stewed: 'Boiled',
   reduced: 'Boiled',
   baked: 'Baked',
   toasted: 'Baked',

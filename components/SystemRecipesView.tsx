@@ -103,7 +103,7 @@ function groupKeyFor(entry: DigestEntry): RecipeGroupKey | null {
 // Subgroups inside a band, for every builder holding more than about a
 // dozen recipes. The standing rule from the Digest applies here for the
 // same reason it applies there: a shelf covering more than one subject
-// stops being browsable once it runs long, and Sides at 131 covers seven
+// stops being browsable once it runs long, and Sides at 131 covered seven
 // different things at once.
 //
 // Read as ordered rules against the recipe's own title, first match wins,
@@ -111,11 +111,15 @@ function groupKeyFor(entry: DigestEntry): RecipeGroupKey | null {
 // carry an `unless` guard, which is what keeps King Oyster "Scallops" out
 // of Fish & Seafood and the fruit breakfast bowls out of the savory ones.
 //
-// The split was designed from the actual 411 titles rather than guessed,
-// and every id was checked to land in exactly one named subgroup with no
-// bucket left empty. The bands not listed here are all under a dozen
-// recipes and read fine as one list, Sides among them now that it holds
-// only the five dishes that are sides.
+// The split was designed from the actual titles rather than guessed, and
+// every id was checked to land in exactly one named subgroup with no
+// bucket left empty. scripts/audit_system_recipe_subgroups.js is what
+// does the checking, and it fails on a band past a dozen carrying no
+// table, so a batch of new recipes cannot quietly outgrow its shelf.
+//
+// 2026-09-19, 1.0.41.2: Sides and Snacks got tables of their own, after 45
+// new recipes took them to 30 and 24. Sides had been left as one list on
+// purpose while it held five.
 type SubgroupRule = { label: string; match: RegExp; unless?: RegExp };
 
 const SEAFOOD = /salmon|cod\b|halibut|trout|shrimp|scallop|sole\b|sardine|tuna|mackerel|crab|mussel|tilapia|snapper|anchov/;
@@ -176,6 +180,30 @@ const RECIPE_SUBGROUPS: Partial<Record<RecipeGroupKey, SubgroupRule[]>> = {
     { label: 'Vegan Protein Smoothies', match: /vegan/ },
     { label: 'Protein Smoothies', match: /protein/ },
     { label: 'Fruit Smoothies & Bowls', match: /.*/ },
+  ],
+  // Sides are grouped by how the dish is cooked and what it is made of,
+  // which is how somebody looking for a side actually chooses one: there
+  // is already a roast in the oven, or there is one burner free, or the
+  // meal needs a starch beside it.
+  side: [
+    // Green beans are a skillet vegetable here, not a legume dish, so the
+    // guard keeps them out of the bean shelf and lets them fall through.
+    { label: 'Beans & Lentils', match: /chickpea|lentil|bean/, unless: /green bean/ },
+    { label: 'Grains & Starchy Sides', match: /rice|polenta|sorghum|pilaf|mashed|potato/ },
+    { label: 'Slaws & Cold Sides', match: /slaw|salad/ },
+    { label: 'Roasted & Baked Vegetables', match: /roast|baked/ },
+    { label: 'Skillet & Stovetop Vegetables', match: /.*/ },
+  ],
+  // Snacks are grouped by what the snack is for, since a person reaching
+  // for one wants something crunchy, or something to dip, or something
+  // sweet, long before they care what is in it. The fruit shelf is the
+  // catch-all, so a savory snack added later needs a rule of its own in
+  // the same pass that writes it.
+  snack: [
+    { label: 'Chips, Crackers & Crunchy Bites', match: /chips|cracker|roasted chickpeas|trail mix/ },
+    { label: 'Dips, Spreads & Dippers', match: /dip|hummus|tahini|almond butter|avocado/ },
+    { label: 'No-Bake Bites, Bars & Balls', match: /bites|bars|balls|clusters/ },
+    { label: 'Fruit & Yogurt', match: /.*/ },
   ],
 };
 

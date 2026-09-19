@@ -1,0 +1,2664 @@
+[
+  {
+    "id": "curated_side_maple_roasted_carrots",
+    "name": "Maple Roasted Carrots",
+    "flavorProfile": "Sweet and caramelized at the edges, with the maple browning rather than sitting on top.",
+    "healthBenefit": "Beta-carotene from the carrots, which the body converts to vitamin A, and a roasting method that needs very little added fat to work.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 110,
+        "unit": "g",
+        "cutPrep": "cut into sticks",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 425°F (220°C).",
+      "Toss the carrot sticks with the olive oil, maple syrup, salt and pepper until they are evenly coated.",
+      "Spread them in a single layer on a baking sheet, leaving space between the pieces so they roast instead of steaming.",
+      "Roast for 20 to 25 minutes, turning once halfway through, until the edges are browned and a fork slides in easily."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 131
+  },
+  {
+    "id": "curated_side_roasted_brussels_lemon",
+    "name": "Roasted Brussels Sprouts with Lemon",
+    "flavorProfile": "Nutty and crisp on the cut side, sharpened by lemon juice added off the heat.",
+    "healthBenefit": "A cruciferous vegetable with fiber and vitamin K, roasted rather than boiled so the flavor compounds stay in the pan instead of the water.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Brussels sprout",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "halved",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 425°F (220°C).",
+      "Toss the halved sprouts with the olive oil, salt and pepper.",
+      "Lay them cut side down on a baking sheet, which is what gives you the browned face.",
+      "Roast for 20 to 24 minutes, until the cut sides are deep brown and the outer leaves have crisped.",
+      "Squeeze the lemon juice over them as soon as they come out of the oven."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 132
+  },
+  {
+    "id": "curated_side_roasted_butternut_cinnamon",
+    "name": "Cinnamon Roasted Butternut Squash",
+    "flavorProfile": "Soft and sweet inside, with warm cinnamon and a little salt keeping it from tasting like dessert.",
+    "healthBenefit": "One of the densest vitamin A sources in the vegetable aisle, with potassium and fiber alongside it.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Squash, winter, butternut",
+        "quantity": 120,
+        "unit": "g",
+        "cutPrep": "cubed",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400°F (200°C).",
+      "Toss the squash cubes with the olive oil, cinnamon and salt.",
+      "Spread them on a baking sheet in one layer.",
+      "Roast for 25 to 30 minutes, turning once, until the cubes are tender and browned at the corners."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 133
+  },
+  {
+    "id": "curated_side_roasted_beets_orange",
+    "name": "Roasted Beets with Orange",
+    "flavorProfile": "Earthy and sweet, cut through by orange juice and zest stirred in at the end.",
+    "healthBenefit": "Beets carry dietary nitrates and folate, and the vitamin C in the orange helps with the iron the beets bring.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Beetroot",
+        "quantity": 110,
+        "unit": "g",
+        "cutPrep": "peeled and cubed",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 400°F (200°C).",
+      "Toss the beet cubes with the olive oil and salt.",
+      "Wrap them loosely in foil or cover the baking dish, so they steam as they roast and stay moist.",
+      "Roast for 35 to 40 minutes, until a knife goes through without resistance.",
+      "Uncover, pour the orange juice over them, and stir to coat."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 134
+  },
+  {
+    "id": "curated_side_roasted_fennel_pepper",
+    "name": "Roasted Fennel and Red Pepper",
+    "flavorProfile": "The anise edge of raw fennel turns mild and sweet in the oven, and the pepper adds color and juice.",
+    "healthBenefit": "Fennel brings fiber and potassium, and red bell pepper is one of the highest vitamin C vegetables by weight.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 75,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Red Bell Pepper",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 425°F (220°C).",
+      "Toss the sliced fennel and red pepper with the olive oil, salt and pepper.",
+      "Spread them on a baking sheet in one layer.",
+      "Roast for 22 to 26 minutes, until the fennel edges have browned and the pepper has softened."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 135
+  },
+  {
+    "id": "curated_side_roasted_turnips_rosemary",
+    "name": "Rosemary Roasted Turnips",
+    "flavorProfile": "Peppery when raw, mellow and faintly sweet once roasted, with rosemary crisping against the cut faces.",
+    "healthBenefit": "A lower-starch root than potato, with vitamin C and fiber, useful when you want a roasted root without the carbohydrate load.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Turnip",
+        "quantity": 120,
+        "unit": "g",
+        "cutPrep": "peeled and cubed",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Rosemary",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 425°F (220°C).",
+      "Toss the turnip cubes with the olive oil, rosemary, salt and pepper.",
+      "Spread them on a baking sheet in one layer.",
+      "Roast for 25 to 30 minutes, turning once, until the outsides are browned and the middles are soft."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 136
+  },
+  {
+    "id": "curated_side_sweet_potato_wedges",
+    "name": "Baked Sweet Potato Wedges",
+    "flavorProfile": "Crisp along the skin, soft through the middle, salted while still hot.",
+    "healthBenefit": "Vitamin A and fiber, with the skin left on, which is where a good share of the fiber sits.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Sweet potato",
+        "quantity": 130,
+        "unit": "g",
+        "cutPrep": "cut into wedges",
+        "cookingMethod": "Baked",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 5,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 425°F (220°C).",
+      "Scrub the sweet potato and cut it into wedges, leaving the skin on.",
+      "Toss the wedges with the olive oil and pepper.",
+      "Lay them skin side down on a baking sheet and bake for 25 to 30 minutes, until the edges are browned.",
+      "Salt them while they are still hot, so it sticks."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 137
+  },
+  {
+    "id": "curated_side_roasted_zucchini_garlic",
+    "name": "Garlic Roasted Zucchini",
+    "flavorProfile": "Browned on the cut faces, garlicky, and light enough to sit beside anything.",
+    "healthBenefit": "A high-water, low-calorie vegetable that adds volume to a plate, with potassium and a little vitamin C.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 130,
+        "unit": "g",
+        "cutPrep": "sliced into half moons",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 1.5,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 425°F (220°C).",
+      "Toss the zucchini with the olive oil, garlic, salt and pepper.",
+      "Spread the pieces on a baking sheet without overlapping them, or the zucchini will release water and steam.",
+      "Roast for 18 to 22 minutes, until the cut faces have browned."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 138
+  },
+  {
+    "id": "curated_side_sauteed_kale_lemon",
+    "name": "Sautéed Kale with Lemon",
+    "flavorProfile": "Softened but still with some chew, garlicky, finished with lemon juice off the heat.",
+    "healthBenefit": "Kale carries vitamin K, vitamin C and calcium, and the lemon juice added at the end keeps the vitamin C from cooking away.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Kale",
+        "quantity": 75,
+        "unit": "g",
+        "cutPrep": "stems removed, torn",
+        "cookingMethod": "Sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 1.5,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Strip the kale leaves off their stems and tear them into pieces.",
+      "Warm the olive oil in a wide pan over medium heat and cook the garlic for about 30 seconds, until it smells sweet.",
+      "Add the kale and the salt, and turn it with tongs for 4 to 6 minutes, until it has wilted and darkened.",
+      "Take the pan off the heat and squeeze the lemon juice over the top."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 139
+  },
+  {
+    "id": "curated_side_braised_cabbage_apple",
+    "name": "Braised Cabbage with Apple",
+    "flavorProfile": "Sweet and slightly tart, cooked down until the cabbage is silky and the apple has gone soft.",
+    "healthBenefit": "Cabbage fiber plus apple pectin, a soluble fiber that feeds gut bacteria, in a dish that cooks gently enough to stay easy on digestion.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Cabbage",
+        "quantity": 110,
+        "unit": "g",
+        "cutPrep": "shredded",
+        "cookingMethod": "Braised",
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Apple",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "Braised",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 60,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Warm the olive oil in a lidded pan over medium heat.",
+      "Add the shredded cabbage and the diced apple and stir for 2 minutes to coat them.",
+      "Pour in the water, add the salt, and bring it to a simmer.",
+      "Cover and cook for 18 to 22 minutes, stirring once or twice, until the cabbage is soft and most of the liquid has gone."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 140
+  },
+  {
+    "id": "curated_side_garlicky_green_beans",
+    "name": "Garlicky Green Beans",
+    "flavorProfile": "Still snappy in the middle, with browned garlic and salt clinging to the outside.",
+    "healthBenefit": "Fiber, vitamin K and folate, cooked briefly so the beans keep their texture and their vitamin C.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Snap Beans (Green Beans)",
+        "quantity": 110,
+        "unit": "g",
+        "cutPrep": "trimmed",
+        "cookingMethod": "Sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 2,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Trim the stem ends off the beans.",
+      "Warm the olive oil in a wide pan over medium-high heat.",
+      "Add the beans and cook them for 5 to 7 minutes, shaking the pan, until they are blistered in places and still firm in the middle.",
+      "Add the sliced garlic, salt and pepper, and cook for one more minute, until the garlic is golden."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 141
+  },
+  {
+    "id": "curated_side_skillet_asparagus_lemon",
+    "name": "Skillet Asparagus with Lemon",
+    "flavorProfile": "Grassy and bright, cooked just long enough to lose the raw edge.",
+    "healthBenefit": "Asparagus carries folate and inulin, a prebiotic fiber that gut bacteria ferment, and it cooks in under five minutes.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Asparagus",
+        "quantity": 110,
+        "unit": "g",
+        "cutPrep": "trimmed",
+        "cookingMethod": "Sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Snap or cut the woody ends off the asparagus.",
+      "Warm the olive oil in a wide pan over medium-high heat.",
+      "Lay the spears in one layer and cook for 4 to 5 minutes, rolling them once, until they are bright green and lightly browned.",
+      "Season with the salt and pepper, take the pan off the heat, and squeeze the lemon juice over them."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 142
+  },
+  {
+    "id": "curated_side_sauteed_leeks_carrots",
+    "name": "Sautéed Leeks and Carrots",
+    "flavorProfile": "Gentle and sweet, the leek going soft and silky while the carrot keeps a little bite.",
+    "healthBenefit": "Leeks bring prebiotic fructans that feed gut bacteria, and the carrot adds beta-carotene, which absorbs better with the oil present.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Leek",
+        "quantity": 70,
+        "unit": "g",
+        "cutPrep": "sliced into rings",
+        "cookingMethod": "Sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "Sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Slice the leek into rings and rinse them well, since grit collects between the layers.",
+      "Warm the olive oil in a pan over medium heat and add the leek and carrot.",
+      "Cook for 5 minutes, stirring, then add the water and the salt.",
+      "Cover and cook for another 6 to 8 minutes, until the leek is soft and the carrot is tender but not mushy."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 143
+  },
+  {
+    "id": "curated_side_broccoli_ginger",
+    "name": "Ginger Skillet Broccoli",
+    "flavorProfile": "Warm ginger against bright green broccoli, cooked fast so the florets stay firm.",
+    "healthBenefit": "Broccoli is a source of sulforaphane precursors and vitamin C, and a short cook keeps more of both than boiling does.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Broccoli",
+        "quantity": 110,
+        "unit": "g",
+        "cutPrep": "cut into florets",
+        "cookingMethod": "Sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Ginger root",
+        "quantity": 3,
+        "unit": "g",
+        "cutPrep": "grated",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Warm the olive oil in a wide pan over medium-high heat and add the grated ginger for about 20 seconds.",
+      "Add the broccoli florets and toss them to coat.",
+      "Pour in the water, cover the pan, and steam for 3 minutes.",
+      "Uncover, add the salt, and cook for one more minute until the water has gone and the florets are bright green."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 144
+  },
+  {
+    "id": "curated_side_roasted_cauliflower_turmeric",
+    "name": "Turmeric Roasted Cauliflower",
+    "flavorProfile": "Golden all over, earthy from the turmeric, with browned crisp edges on the flat faces.",
+    "healthBenefit": "A cruciferous vegetable with fiber and vitamin C, roasted with turmeric, whose curcumin absorbs better alongside fat.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Cauliflower",
+        "quantity": 120,
+        "unit": "g",
+        "cutPrep": "cut into florets",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 5,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Turmeric, dried, ground",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 425°F (220°C).",
+      "Toss the cauliflower florets with the olive oil, turmeric, salt and pepper until they are evenly yellow.",
+      "Spread them on a baking sheet, cut side down where you can.",
+      "Roast for 22 to 28 minutes, until the flat faces are deeply browned."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 145
+  },
+  {
+    "id": "curated_side_lemon_herb_brown_rice",
+    "name": "Lemon Herb Brown Rice",
+    "flavorProfile": "Nutty and chewy, loosened with lemon juice and parsley stirred through at the end.",
+    "healthBenefit": "Whole-grain rice keeps its bran, which is where the fiber, magnesium and B vitamins are, and the lemon goes in off the heat.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Grains, rice, brown, long-grain, dry",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "Boiled",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 180,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Parsley Spices",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Rinse the brown rice until the water runs clear.",
+      "Bring the water to a boil with the salt, add the rice, cover, and lower the heat.",
+      "Simmer for 40 to 45 minutes, until the water is absorbed and the grains are tender.",
+      "Take it off the heat and let it sit covered for 5 minutes.",
+      "Fork through the olive oil, lemon juice and parsley."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 146
+  },
+  {
+    "id": "curated_side_creamy_polenta",
+    "name": "Creamy Polenta",
+    "flavorProfile": "Soft and loose, corn-sweet, finished with a spoon of olive oil rather than butter.",
+    "healthBenefit": "Whole-grain cornmeal keeps the germ and bran, which is where its fiber and magnesium sit, and it is naturally gluten-free.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Cornmeal, whole-grain, yellow",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "Simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 240,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 5,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.75,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Bring the water to a boil with the salt.",
+      "Pour the cornmeal in slowly while whisking, so it does not clump.",
+      "Lower the heat and cook for 20 to 25 minutes, stirring every few minutes, until it pulls away from the side of the pan.",
+      "Stir in the olive oil and the pepper, and serve it while it is still loose."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 147
+  },
+  {
+    "id": "curated_side_sorghum_pilaf",
+    "name": "Herbed Sorghum Pilaf",
+    "flavorProfile": "Chewy and a little nutty, with softened onion through it and parsley stirred in at the end.",
+    "healthBenefit": "Sorghum is a gluten-free whole grain with more fiber than white rice and a low enough glycemic response to sit well beside a light main.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Sorghum grain",
+        "quantity": 55,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "Boiled",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 220,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Onion",
+        "quantity": 25,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "Sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Parsley Spices",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Rinse the sorghum and drain it.",
+      "Warm the olive oil in a saucepan over medium heat and cook the diced onion for 4 minutes, until it turns clear.",
+      "Add the sorghum and stir for a minute to coat the grains.",
+      "Pour in the water, add the salt, and simmer covered for 50 to 60 minutes, until the grains are tender and chewy.",
+      "Drain off any water left over and stir the parsley through."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 148
+  },
+  {
+    "id": "curated_side_coconut_rice",
+    "name": "Coconut Rice",
+    "flavorProfile": "Fragrant and faintly sweet, with the coconut cooked into the grains rather than poured over them.",
+    "healthBenefit": "A dairy-free way to get a rich rice side, useful when a main is spicy or acidic and needs something plain beside it.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Rice, long grain, paddy rice, well-milled, raw",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "Boiled",
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 100,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 60,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Rinse the rice until the water runs clear, which keeps the grains separate.",
+      "Combine the coconut milk, water and salt in a saucepan and bring them to a simmer.",
+      "Add the rice, cover, and lower the heat to its lowest setting.",
+      "Cook for 15 to 18 minutes, then leave it covered off the heat for 5 more minutes before forking it through."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 149
+  },
+  {
+    "id": "curated_side_mashed_sweet_potato_lime",
+    "name": "Mashed Sweet Potato with Lime",
+    "flavorProfile": "Smooth and sweet, with lime juice keeping it from tasting flat.",
+    "healthBenefit": "Vitamin A and potassium in a soft-textured side, which helps when chewing or digestion is difficult.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Sweet potato",
+        "quantity": 140,
+        "unit": "g",
+        "cutPrep": "peeled and cubed",
+        "cookingMethod": "Boiled",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 300,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Put the sweet potato cubes in a saucepan and cover them with the water.",
+      "Bring it to a boil and simmer for 12 to 15 minutes, until a fork goes through easily.",
+      "Drain them well and return them to the dry pan for a moment so the last of the water steams off.",
+      "Mash with the olive oil, lime juice and salt until smooth."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 150
+  },
+  {
+    "id": "curated_side_cabbage_carrot_slaw",
+    "name": "Cabbage and Carrot Slaw",
+    "flavorProfile": "Crunchy and sharp, dressed with lemon and oil instead of mayonnaise.",
+    "healthBenefit": "Raw cabbage and carrot keep their vitamin C, which cooking would reduce, and the oil helps the carrot beta-carotene absorb.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Cabbage",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "finely shredded",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "grated",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 10,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 5,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Shred the cabbage as finely as you can and grate the carrot.",
+      "Whisk the lemon juice, olive oil, salt and pepper together.",
+      "Toss the vegetables in the dressing.",
+      "Let it stand for 10 minutes before serving, which softens the cabbage slightly and pulls the dressing in."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 151
+  },
+  {
+    "id": "curated_side_cucumber_dill_salad",
+    "name": "Cucumber Dill Side Salad",
+    "flavorProfile": "Cold, crisp and sour, with fresh dill through it.",
+    "healthBenefit": "A high-water side that adds volume and cooling to a heavy plate, with almost nothing in the way of calories.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Cucumber",
+        "quantity": 130,
+        "unit": "g",
+        "cutPrep": "thinly sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Fresh Dill Weed",
+        "quantity": 1.5,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Vinegar, cider",
+        "quantity": 7.5,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Slice the cucumber as thinly as you can.",
+      "Toss the slices with the salt and leave them in a colander for 10 minutes, then pat them dry.",
+      "Whisk the cider vinegar and olive oil together.",
+      "Toss the cucumber and chopped dill in the dressing and chill for 15 minutes before serving."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 152
+  },
+  {
+    "id": "curated_side_fennel_apple_slaw",
+    "name": "Fennel and Apple Slaw",
+    "flavorProfile": "Crisp and aromatic, the anise of raw fennel against sweet-tart apple.",
+    "healthBenefit": "Raw fennel keeps its fiber and potassium, and the lemon juice stops the apple browning without adding anything to it.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Fennel Bulb",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "thinly sliced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Apple",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "julienned",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 10,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Slice the fennel bulb as thinly as possible and cut the apple into matchsticks.",
+      "Toss them with the lemon juice straight away, which keeps the apple from browning.",
+      "Add the olive oil and salt and toss again.",
+      "Serve it cold, within an hour, while the fennel is still crisp."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 153
+  },
+  {
+    "id": "curated_side_lemon_garlic_chickpeas",
+    "name": "Lemon Garlic Chickpeas",
+    "flavorProfile": "Warm, garlicky and lemony, with some of the chickpeas crushed so the dish holds together.",
+    "healthBenefit": "Plant protein and soluble fiber in a side that can carry a meal when the main is light.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Legume",
+        "baseName": "Chickpeas (garbanzo beans, bengal gram)",
+        "quantity": 130,
+        "unit": "g",
+        "cutPrep": "cooked and drained",
+        "cookingMethod": "Sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 5,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 2,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 10,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Parsley Spices",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Warm the olive oil in a pan over medium heat and cook the garlic for 30 seconds.",
+      "Add the drained chickpeas and the salt and cook for 5 minutes, stirring.",
+      "Crush about a third of the chickpeas against the side of the pan with the back of a spoon.",
+      "Take the pan off the heat, stir in the lemon juice and parsley, and serve warm."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 154
+  },
+  {
+    "id": "curated_side_stewed_lentils_carrot",
+    "name": "Stewed Lentils with Carrot",
+    "flavorProfile": "Soft and savory, the lentils holding their shape with sweet carrot through them.",
+    "healthBenefit": "Lentils bring plant protein, iron and soluble fiber, and the carrot adds vitamin A to a side substantial enough to stand in for a starch.",
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Legume",
+        "baseName": "Lentils",
+        "quantity": 55,
+        "unit": "g",
+        "cutPrep": "rinsed",
+        "cookingMethod": "Simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 250,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 50,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "Simmered",
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Onion",
+        "quantity": 25,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": "Sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 3.75,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.75,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Warm the olive oil in a saucepan and cook the diced onion for 4 minutes, until it turns clear.",
+      "Add the carrot and cook for 2 more minutes.",
+      "Add the rinsed lentils and the water and bring it to a simmer.",
+      "Cook uncovered for 22 to 28 minutes, until the lentils are tender and most of the liquid has gone.",
+      "Stir in the salt at the end, since salting early can keep lentils firm."
+    ],
+    "builderType": "side",
+    "servings": 1,
+    "sortOrder": 155
+  },
+  {
+    "id": "curated_snack_kale_chips",
+    "name": "Kale Chips",
+    "flavorProfile": "Thin, salty and brittle, breaking apart the moment you bite one.",
+    "healthBenefit": "A whole-leaf alternative to a packaged chip, with vitamin K and a fraction of the salt a bagged snack carries.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Kale",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": "stems removed, torn",
+        "cookingMethod": "Baked",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 5,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 300°F (150°C).",
+      "Strip the leaves off the stems, tear them into chip-sized pieces, and dry them thoroughly. Any water left on them will steam instead of crisping.",
+      "Massage the olive oil into the leaves with your hands until every piece has a thin coat.",
+      "Spread them on a baking sheet without overlapping and bake for 20 to 25 minutes, until they are dry and crisp at the edges.",
+      "Salt them as they come out of the oven."
+    ],
+    "builderType": "snack",
+    "sortOrder": 4
+  },
+  {
+    "id": "curated_snack_zucchini_chips",
+    "name": "Baked Zucchini Chips",
+    "flavorProfile": "Crisp and faintly sweet, browned at the rim with a chewier center.",
+    "healthBenefit": "A low-calorie, high-water snack baked rather than fried, so the fat is whatever you brushed on.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Squash, zucchini",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": "thinly sliced",
+        "cookingMethod": "Baked",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 5,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 225°F (110°C).",
+      "Slice the zucchini as thinly as you can, then lay the slices on paper towel and press another sheet on top to draw out water.",
+      "Toss the dried slices with the olive oil, salt and pepper.",
+      "Spread them on a lined baking sheet in one layer and bake for 90 minutes to 2 hours, turning once, until they are dry and crisp."
+    ],
+    "builderType": "snack",
+    "sortOrder": 5
+  },
+  {
+    "id": "curated_snack_sweet_potato_chips",
+    "name": "Baked Sweet Potato Chips",
+    "flavorProfile": "Sweet, salty and snappy, with the edges curling as they crisp.",
+    "healthBenefit": "Vitamin A and fiber in a chip you bake at home, which keeps the oil to a teaspoon instead of a deep fryer.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Sweet potato",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": "thinly sliced",
+        "cookingMethod": "Baked",
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 7.5,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 250°F (120°C).",
+      "Slice the sweet potato into rounds as thin as you can manage, ideally with a mandoline.",
+      "Toss the slices with the olive oil until each one has a thin coat.",
+      "Spread them on lined baking sheets in one layer and bake for 1 hour to 90 minutes, turning once, until they are crisp through.",
+      "Salt them while they are hot and let them cool before storing."
+    ],
+    "builderType": "snack",
+    "sortOrder": 6
+  },
+  {
+    "id": "curated_snack_cucumber_tahini_rounds",
+    "name": "Cucumber Rounds with Tahini",
+    "flavorProfile": "Cold and crunchy under a nutty, slightly bitter spoon of sesame.",
+    "healthBenefit": "Tahini brings calcium, magnesium and sesame fat to a vegetable that otherwise carries almost no calories, so the snack holds you longer.",
+    "servings": 1,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "serving",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Cucumber",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": "cut into thick rounds",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "SaucesCondiments",
+        "baseName": "Tahini",
+        "quantity": 25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Cut the cucumber into rounds about a centimeter thick.",
+      "Stir the tahini with the lemon juice and salt. It will seize and go stiff first, which is normal.",
+      "Add a teaspoon of water at a time, stirring, until it loosens into a spoonable cream.",
+      "Spoon a little onto each cucumber round."
+    ],
+    "builderType": "snack",
+    "sortOrder": 7
+  },
+  {
+    "id": "curated_snack_rosemary_oat_crackers",
+    "name": "Rosemary Oat Crackers",
+    "flavorProfile": "Dry, savory and herbal, snapping cleanly when you break one.",
+    "healthBenefit": "Oats bring beta-glucan, a soluble fiber tied to cholesterol handling, in a cracker with three ingredients instead of a label full of them.",
+    "servings": 3,
+    "servingSizeAmount": 6,
+    "servingSizeUnit": "each",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Oats",
+        "quantity": 90,
+        "unit": "g",
+        "cutPrep": "ground to flour",
+        "cookingMethod": "Baked",
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 60,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 15,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Rosemary",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": "chopped",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 350°F (175°C).",
+      "Grind the oats to a coarse flour in a blender or food processor.",
+      "Mix the oat flour with the rosemary and salt, then work in the olive oil and water until it forms a stiff dough.",
+      "Roll the dough out between two sheets of parchment until it is about 3mm thick, then cut it into squares.",
+      "Bake for 18 to 22 minutes, until the edges have browned, and let them cool completely so they crisp."
+    ],
+    "builderType": "snack",
+    "sortOrder": 8
+  },
+  {
+    "id": "curated_snack_frozen_banana_coins",
+    "name": "Frozen Banana Coins",
+    "flavorProfile": "Cold and creamy, closer to ice cream than to fruit once they are frozen through.",
+    "healthBenefit": "Potassium and fiber from one whole banana, frozen so it eats slowly and satisfies a craving for something cold and sweet.",
+    "servings": 1,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "serving",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Banana",
+        "quantity": 120,
+        "unit": "g",
+        "cutPrep": "sliced into coins",
+        "cookingMethod": "Frozen",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Slice the banana into coins about a centimeter thick.",
+      "Lay them on a parchment-lined tray so they are not touching, and dust them with the cinnamon.",
+      "Freeze for at least 2 hours, until they are solid.",
+      "Move them to a container once frozen, and eat them straight from the freezer."
+    ],
+    "builderType": "snack",
+    "sortOrder": 9
+  },
+  {
+    "id": "curated_snack_apple_cinnamon_slices",
+    "name": "Cinnamon Apple Slices",
+    "flavorProfile": "Warm and soft, the apple collapsing slightly with cinnamon through it.",
+    "healthBenefit": "Apple pectin is a soluble fiber that feeds gut bacteria, and warming the fruit makes it easier to digest than eating it raw.",
+    "servings": 1,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "serving",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Apple",
+        "quantity": 160,
+        "unit": "g",
+        "cutPrep": "sliced",
+        "cookingMethod": "Sauteed",
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Core the apple and slice it thinly, leaving the skin on.",
+      "Put the slices in a small pan with the water and the cinnamon.",
+      "Cover and cook over medium-low heat for 6 to 8 minutes, stirring once, until the slices are soft but still hold together.",
+      "Eat them warm, or chill them and eat them cold."
+    ],
+    "builderType": "snack",
+    "sortOrder": 10
+  },
+  {
+    "id": "curated_snack_orange_date_bites",
+    "name": "Orange and Date Bites",
+    "flavorProfile": "Very sweet and chewy, with orange zest cutting the sugar.",
+    "healthBenefit": "Dates carry potassium and fiber alongside their sugar, so the sweetness arrives with something slowing it down.",
+    "servings": 2,
+    "servingSizeAmount": 3,
+    "servingSizeUnit": "each",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Date",
+        "quantity": 80,
+        "unit": "g",
+        "cutPrep": "pitted",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Orange",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": "zested and juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Zest the orange, then juice it.",
+      "Blend the pitted dates with the orange zest and a tablespoon of the juice until a thick paste forms.",
+      "Roll the paste into small balls with wet hands.",
+      "Chill for 30 minutes before eating, and keep them in the fridge."
+    ],
+    "builderType": "snack",
+    "sortOrder": 11
+  },
+  {
+    "id": "curated_snack_melon_lime_cups",
+    "name": "Melon and Lime Cups",
+    "flavorProfile": "Cold, juicy and sharp, with the lime keeping the melon from tasting flat.",
+    "healthBenefit": "Cantaloupe is one of the highest vitamin A fruits, and the whole cup is mostly water, which helps on a day you are behind on drinking.",
+    "servings": 1,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Cantaloupe Melon",
+        "quantity": 160,
+        "unit": "g",
+        "cutPrep": "cubed",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Cut the cantaloupe into bite-sized cubes.",
+      "Squeeze the lime juice over them and toss.",
+      "Chill for 15 minutes before eating."
+    ],
+    "builderType": "snack",
+    "sortOrder": 12
+  },
+  {
+    "id": "curated_snack_berry_coconut_cups",
+    "name": "Berry and Coconut Cups",
+    "flavorProfile": "Tart berries under a spoonful of thick, unsweetened coconut.",
+    "healthBenefit": "Berry anthocyanins with no added sugar, and coconut milk in place of dairy for anyone avoiding it.",
+    "servings": 1,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Blueberry",
+        "quantity": 75,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Strawberry",
+        "quantity": 75,
+        "unit": "g",
+        "cutPrep": "halved",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 40,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Chill the can of coconut milk for a few hours and spoon the thick part off the top.",
+      "Put the blueberries and halved strawberries in a cup.",
+      "Spoon the thick coconut milk over them and eat cold."
+    ],
+    "builderType": "snack",
+    "sortOrder": 13
+  },
+  {
+    "id": "curated_snack_pear_ginger_yogurt",
+    "name": "Pear with Ginger Yogurt",
+    "flavorProfile": "Soft, sweet pear against cold tangy yogurt with a warm ginger edge.",
+    "healthBenefit": "Protein from the yogurt with pear fiber, and ginger, which has a long record of settling an unsettled stomach.",
+    "servings": 1,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "bowl",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Pear",
+        "quantity": 140,
+        "unit": "g",
+        "cutPrep": "diced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Ginger root",
+        "quantity": 2,
+        "unit": "g",
+        "cutPrep": "grated",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Stir the grated ginger into the yogurt and leave it for 5 minutes so the flavor spreads.",
+      "Dice the pear, leaving the skin on for the fiber.",
+      "Spoon the yogurt into a bowl and top it with the pear."
+    ],
+    "builderType": "snack",
+    "sortOrder": 14
+  },
+  {
+    "id": "curated_snack_grapefruit_honey",
+    "name": "Grapefruit with Honey",
+    "flavorProfile": "Sour and bitter, softened by a thin drizzle of honey rather than a spoonful of sugar.",
+    "healthBenefit": "A serving of grapefruit covers most of a day of vitamin C, and the honey is there in a small enough amount to change the taste without the sugar load.",
+    "servings": 1,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "serving",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Grapefruit",
+        "quantity": 180,
+        "unit": "g",
+        "cutPrep": "segmented",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Standard Honey (Blossom Honey)",
+        "quantity": 8,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Cut the grapefruit in half and run a knife around each segment to free it.",
+      "Drizzle the honey over the cut face.",
+      "Eat it with a spoon, or lift the segments out into a bowl first."
+    ],
+    "builderType": "snack",
+    "sortOrder": 15
+  },
+  {
+    "id": "curated_snack_carrot_tahini_dip",
+    "name": "Carrot Sticks with Tahini Dip",
+    "flavorProfile": "Sweet crunch against a nutty, lemony dip thick enough to hold on the stick.",
+    "healthBenefit": "Beta-carotene from the carrot absorbs better with the sesame fat in the tahini alongside it, which is why the pairing works beyond taste.",
+    "servings": 1,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "serving",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Carrot",
+        "quantity": 130,
+        "unit": "g",
+        "cutPrep": "cut into sticks",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "SaucesCondiments",
+        "baseName": "Tahini",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 10,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Cut the carrots into sticks.",
+      "Stir the tahini with the lemon juice, garlic and salt. It will thicken and seize first.",
+      "Loosen it with water, a teaspoon at a time, until it is a dip rather than a paste.",
+      "Serve the sticks alongside the bowl."
+    ],
+    "builderType": "snack",
+    "sortOrder": 16
+  },
+  {
+    "id": "curated_snack_hummus_cucumber",
+    "name": "Hummus with Cucumber Spears",
+    "flavorProfile": "Smooth and lemony, scooped up with cold cucumber instead of bread.",
+    "healthBenefit": "Plant protein and fiber from the chickpeas, with the cucumber standing in for a cracker, which is where most of the salt in this snack would otherwise come from.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "serving",
+    "ingredients": [
+      {
+        "category": "Legume",
+        "baseName": "Chickpeas (garbanzo beans, bengal gram)",
+        "quantity": 160,
+        "unit": "g",
+        "cutPrep": "cooked and drained",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "SaucesCondiments",
+        "baseName": "Tahini",
+        "quantity": 30,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Garlic",
+        "quantity": 2,
+        "unit": "g",
+        "cutPrep": "minced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 10,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.75,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Cucumber",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": "cut into spears",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Blend the chickpeas, tahini, lemon juice, garlic and salt until they are grainy.",
+      "With the blender running, pour in the olive oil and then the water until it turns smooth and pale.",
+      "Taste it and add lemon juice or salt if it needs it.",
+      "Cut the cucumber into spears and serve them with the bowl."
+    ],
+    "builderType": "snack",
+    "sortOrder": 17
+  },
+  {
+    "id": "curated_snack_beet_yogurt_dip",
+    "name": "Beet Yogurt Dip with Pepper Strips",
+    "flavorProfile": "Bright pink and earthy-sweet, with the yogurt keeping it tangy and cool.",
+    "healthBenefit": "Beet nitrates and yogurt protein together, dipped with red pepper, which is one of the highest vitamin C vegetables by weight.",
+    "servings": 2,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "serving",
+    "ingredients": [
+      {
+        "category": "Veg",
+        "baseName": "Beetroot",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "peeled and cubed",
+        "cookingMethod": "Roasted",
+        "prepNote": null
+      },
+      {
+        "category": "Dairy",
+        "baseName": "Yogurt, Greek, plain, lowfat",
+        "quantity": 150,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lemon",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Veg",
+        "baseName": "Red Bell Pepper",
+        "quantity": 120,
+        "unit": "g",
+        "cutPrep": "cut into strips",
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Roast the beet cubes, covered, at 400°F (200°C) for 35 minutes, until a knife goes through easily, and let them cool.",
+      "Blend the cooled beet with the yogurt, lemon juice and salt until smooth.",
+      "Chill the dip for 30 minutes so it firms up.",
+      "Cut the red pepper into strips and serve them alongside."
+    ],
+    "builderType": "snack",
+    "sortOrder": 18
+  },
+  {
+    "id": "curated_snack_avocado_lime_bowl",
+    "name": "Avocado with Lime and Black Pepper",
+    "flavorProfile": "Rich and buttery, sharpened by lime and lifted by a heavy grind of pepper.",
+    "healthBenefit": "Monounsaturated fat and potassium, with enough fat to stop a snack turning into hunger an hour later.",
+    "servings": 1,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "serving",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Avocado",
+        "quantity": 100,
+        "unit": "g",
+        "cutPrep": "halved",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fruit",
+        "baseName": "Lime",
+        "quantity": 7.5,
+        "unit": "g",
+        "cutPrep": "juiced",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Pepper, black, ground",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.25,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Halve the avocado and take the stone out.",
+      "Squeeze the lime juice into the hollow.",
+      "Grind the pepper over it and add the salt.",
+      "Eat it straight out of the skin with a spoon."
+    ],
+    "builderType": "snack",
+    "sortOrder": 19
+  },
+  {
+    "id": "curated_snack_date_oat_bites",
+    "name": "Date and Oat Bites",
+    "flavorProfile": "Dense, chewy and caramel-sweet, with the oats giving them body.",
+    "healthBenefit": "Oat beta-glucan and date fiber together, which slows how fast the sugar in the dates arrives.",
+    "servings": 3,
+    "servingSizeAmount": 3,
+    "servingSizeUnit": "each",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Date",
+        "quantity": 120,
+        "unit": "g",
+        "cutPrep": "pitted",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Grain",
+        "baseName": "Oats",
+        "quantity": 60,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Bev",
+        "baseName": "Water, tap",
+        "quantity": 15,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Soak the pitted dates in warm water for 10 minutes if they are dry, then drain them.",
+      "Blend the dates, oats and cinnamon until the mixture clumps together.",
+      "Add the water a little at a time if it stays crumbly.",
+      "Roll into balls and chill for an hour before eating."
+    ],
+    "builderType": "snack",
+    "sortOrder": 20
+  },
+  {
+    "id": "curated_snack_banana_oat_bars",
+    "name": "Banana Oat Bars",
+    "flavorProfile": "Soft and cakey, sweet from the banana rather than from added sugar.",
+    "healthBenefit": "Two ingredients carry this: oat fiber and banana potassium, with maple syrup as the only sweetener and very little of it.",
+    "servings": 4,
+    "servingSizeAmount": 1,
+    "servingSizeUnit": "each",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Banana",
+        "quantity": 240,
+        "unit": "g",
+        "cutPrep": "mashed",
+        "cookingMethod": "Baked",
+        "prepNote": null
+      },
+      {
+        "category": "Grain",
+        "baseName": "Oats",
+        "quantity": 120,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "Baked",
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 15,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 350°F (175°C).",
+      "Mash the bananas until almost no lumps are left.",
+      "Stir in the oats, maple syrup and cinnamon until the mixture is evenly wet.",
+      "Press it into a lined small baking dish and bake for 22 to 26 minutes, until the top springs back.",
+      "Let it cool completely in the dish before cutting, or the bars will fall apart."
+    ],
+    "builderType": "snack",
+    "sortOrder": 21
+  },
+  {
+    "id": "curated_snack_coconut_date_balls",
+    "name": "Coconut Date Balls",
+    "flavorProfile": "Sweet and rich, with coconut running through the chew.",
+    "healthBenefit": "Fiber and potassium from the dates, with coconut fat slowing the sugar, and no dairy or grain in it at all.",
+    "servings": 3,
+    "servingSizeAmount": 3,
+    "servingSizeUnit": "each",
+    "ingredients": [
+      {
+        "category": "Fruit",
+        "baseName": "Date",
+        "quantity": 130,
+        "unit": "g",
+        "cutPrep": "pitted",
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "NutSeed",
+        "baseName": "Coconut milk",
+        "quantity": 30,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Grain",
+        "baseName": "Oats",
+        "quantity": 40,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Blend the pitted dates with the oats until the mixture is grainy and sticky.",
+      "Add the coconut milk a little at a time until it holds together when squeezed.",
+      "Roll into balls with wet hands.",
+      "Chill for an hour, and keep them in the fridge."
+    ],
+    "builderType": "snack",
+    "sortOrder": 22
+  },
+  {
+    "id": "curated_snack_maple_oat_clusters",
+    "name": "Maple Oat Clusters",
+    "flavorProfile": "Toasted and crunchy, breaking into clumps rather than loose grains.",
+    "healthBenefit": "A granola you control the sugar in: one tablespoon of maple syrup across the whole batch instead of what a boxed one carries.",
+    "servings": 4,
+    "servingSizeAmount": 0.25,
+    "servingSizeUnit": "cup",
+    "ingredients": [
+      {
+        "category": "Grain",
+        "baseName": "Oats",
+        "quantity": 140,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": "Baked",
+        "prepNote": null
+      },
+      {
+        "category": "Sweets",
+        "baseName": "Maple Syrup (100% Pure)",
+        "quantity": 20,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Fats",
+        "baseName": "Olive Oil (Extra Virgin)",
+        "quantity": 10,
+        "unit": "ml",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Spices, cinnamon, ground",
+        "quantity": 1,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      },
+      {
+        "category": "Herbs",
+        "baseName": "Common salt/table salt",
+        "quantity": 0.5,
+        "unit": "g",
+        "cutPrep": null,
+        "cookingMethod": null,
+        "prepNote": null
+      }
+    ],
+    "instructions": [
+      "Preheat the oven to 325°F (160°C).",
+      "Stir the oats with the maple syrup, olive oil, cinnamon and salt until every oat is coated.",
+      "Press the mixture into a flat layer on a lined baking sheet, which is what makes it clump instead of scatter.",
+      "Bake for 18 to 22 minutes without stirring, until it is golden.",
+      "Let it cool completely on the sheet, then break it into clusters."
+    ],
+    "builderType": "snack",
+    "sortOrder": 23
+  }
+]

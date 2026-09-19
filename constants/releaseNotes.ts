@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.2',
+    date: '2026-09-19',
+    changes: [
+      'Sides went from 5 recipes to 30. The 25 new ones are roasted and baked vegetables (carrots, brussels sprouts, butternut squash, beets, fennel and red pepper, turnips, zucchini, cauliflower), stovetop vegetables (sauteed kale, braised cabbage with apple, garlicky green beans, skillet asparagus, leeks and carrots, ginger broccoli), grain and starchy sides (lemon herb brown rice, creamy polenta, sorghum pilaf, coconut rice, mashed sweet potato with lime, baked sweet potato wedges), three slaws and cold sides, and two legume sides.',
+      'Snacks went from 4 to 24. The 20 new ones are chips and crackers you bake at home, things to dip and something to dip them in, fruit and yogurt cups, and no-bake bites, bars and balls.',
+      'Both groups are split into named shelves now, the way the longer groups already were, so you are not scrolling one long list to find a slaw.',
+      'Your generated meal plan pairs a light main with one of 30 side dishes instead of one of 5, so the same side stops coming back every few days.',
+      'A braised or stewed dish is counted with cooked numbers now. Those two cooking words were missing from the table that decides which version of a food to score, so a braised cabbage was scored as raw cabbage. 30 ingredients across the existing recipes were affected.',
+      '42 stale cautions came off 53 recipes you could already open. Each one warned about a raw cruciferous vegetable or a raw legume in a dish that cooks or ferments it, the sauerkraut recipe warning about raw cabbage among them. The corrections had been made three weeks ago and had not reached the screen.',
+    ],
+  },
+  {
     version: '1.0.41.1',
     date: '2026-09-19',
     changes: [

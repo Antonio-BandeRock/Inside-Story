@@ -17,7 +17,7 @@
 // Mains and Sides, split by SIDE_DISH_RECIPE_IDS in lib/recipeDishRole.ts, so
 // this also prints that split and checks it is a clean partition: every
 // side-builder recipe in exactly one of the two, and nothing left over. That
-// printout is the thing that stops the five from quietly drifting the way the
+// printout is the thing that stops that list from drifting quietly the way the
 // builder-type counts did.
 //
 // Run: node scripts/audit_system_recipe_subgroups.js
@@ -66,12 +66,23 @@ function readSubgroupTables() {
   return new Function(body)();
 }
 
-// --- the five side dishes, read out of lib/recipeDishRole.ts -------------
+// --- the side dishes, read out of lib/recipeDishRole.ts ------------------
+//
+// Comment lines inside the set are dropped before the quoted ids are read.
+// The list is grouped by comments now that it holds thirty rather than
+// five, and an apostrophe in one of them ("somebody's lunch") otherwise
+// opens a string that swallows every id after it, which is a silent
+// failure: the audit reports a rule matching nothing and two ids missing,
+// and says nothing about why.
 function readSideDishIds() {
   const source = fs.readFileSync(DISH_ROLE, 'utf8');
   const start = source.indexOf('SIDE_DISH_RECIPE_IDS = new Set<string>([');
   if (start === -1) throw new Error('SIDE_DISH_RECIPE_IDS not found in recipeDishRole.ts');
-  const body = source.slice(start, source.indexOf(']);', start));
+  const body = source
+    .slice(start, source.indexOf(']);', start))
+    .split('\n')
+    .map((line) => line.replace(/\/\/.*$/, ''))
+    .join('\n');
   const ids = new Set([...body.matchAll(/'([^']+)'/g)].map((match) => match[1]));
   if (ids.size === 0) throw new Error('SIDE_DISH_RECIPE_IDS is empty');
   return ids;
@@ -127,7 +138,7 @@ const fail = (message) => { console.log(`  PROBLEM: ${message}`); problems += 1;
 
 console.log(`${recipes.length} recipes across ${byBand.size} bands\n`);
 
-// The Side Builder split, printed every run so the five cannot drift.
+// The Side Builder split, printed every run so the list cannot drift.
 const sideBuilder = recipes.filter((recipe) => recipe.builder === 'side');
 const asMains = sideBuilder.filter((recipe) => bandFor(recipe) === 'main');
 const asSides = sideBuilder.filter((recipe) => sideDishIds.has(recipe.curated));
