@@ -9,6 +9,7 @@ import { AppActionSheet, type AppActionSheetAction } from '../../components/AppA
 import { useConfirmSheet } from '../../components/ConfirmSheet';
 import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
+import { FoodSafetyRow, useFoodSafetyMarks } from '../../components/FoodSafetyMarks';
 import {
   addDaysToLocalDate,
   applyRotationSelection,
@@ -119,10 +120,6 @@ const TAB_COLOR = colors.tabSchedules;
 // module for.
 const mealTypes = ['beverage', 'breakfast', 'dinner', 'lunch', 'salad', 'smoothie', 'snack'];
 
-// Only these four have a "usual time" concept in Profile -- salad/smoothie
-// are meal *formats*, not day-parts, so there's no single typical hour for
-// either of them the way there is for breakfast/lunch/dinner/snack.
-const USUAL_TIME_MEAL_TYPES = new Set(['breakfast', 'lunch', 'dinner', 'snack']);
 
 // Six schedule domains, one lens tab each -- mirrors the Insights tab's
 // lens pattern (see app/(tabs)/insights.tsx). Meals is the only one with
@@ -2398,6 +2395,23 @@ function TodaysMealsLens() {
 
   useFocusEffect(useCallback(() => load(), [load]));
 
+  // 2026-09-18, direct instruction: "The same needs to be applied to the
+  // scheduled meal foods." Every ingredient on this screen gets the three
+  // marks My Safe Foods carries, so a food can be ruled on where somebody
+  // actually meets it, which is the meal in front of them rather than a
+  // list somewhere else. The names are collected first and looked up in
+  // one batch rather than one query per row.
+  const ingredientNames = useMemo(() => {
+    const names: string[] = [];
+    for (const meal of meals) {
+      for (const component of meal.components) {
+        for (const ingredient of component.ingredients) names.push(ingredient.foodName);
+      }
+    }
+    return names;
+  }, [meals]);
+  const marks = useFoodSafetyMarks(ingredientNames);
+
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       {errorMessage ? <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View> : null}
@@ -2411,6 +2425,16 @@ function TodaysMealsLens() {
         </Text>
         </View>
       ) : (
+        <>
+        <View style={styles.bandBox}>
+          <Text style={styles.emptyText}>
+            Every ingredient below carries the same three marks as My Safe Foods. Plus means safe for you, the
+            question mark means you have not worked it out yet, the minus means not for you. Tapping a mark that
+            is already lit clears it. What you mark here follows the food everywhere, including the next meal
+            plan this app generates.
+          </Text>
+        </View>
+        {
         // 2026-09-13: one fold band per meal, the time leading its title so
         // the folded list still reads as the day in order. One open at a
         // time, as before, since this is read at the stove.
@@ -2465,10 +2489,13 @@ function TodaysMealsLens() {
                             <Text style={styles.rowMeta}>No ingredients recorded.</Text>
                           ) : (
                             component.ingredients.map((ingredient, ingredientIndex) => (
-                              <Text key={`${ingredient.foodName}-${ingredientIndex}`} style={styles.rowMeta}>
-                                {`${ingredient.foodName}: ${roundForDisplay(ingredient.quantity)} ${ingredient.unit}`}
-                                {ingredient.notes ? ` (${ingredient.notes})` : ''}
-                              </Text>
+                              <FoodSafetyRow
+                                key={`${ingredient.foodName}-${ingredientIndex}`}
+                                foodName={ingredient.foodName}
+                                primaryText={`${ingredient.foodName}: ${roundForDisplay(ingredient.quantity)} ${ingredient.unit}`}
+                                metaText={ingredient.notes ? ingredient.notes : null}
+                                marks={marks}
+                              />
                             ))
                           )}
 
@@ -2492,6 +2519,8 @@ function TodaysMealsLens() {
             </View>
           );
         })
+        }
+        </>
       )}
     </ScrollView>
   );

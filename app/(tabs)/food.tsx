@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -31,9 +31,8 @@ import { MySafeFoodsView } from '../../components/MySafeFoodsView';
 import { FoodProductDetailView } from '../../components/FoodProductDetailView';
 import { ScanProductView } from '../../components/ScanProductView';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from '../../components/HomeSectionBand';
+import { HOME_BAND_GAP } from '../../components/HomeSectionBand';
 import { colors } from '../../constants/colors';
-import { typography } from '../../constants/typography';
 import {
   listBakedGoods,
   listBeverages,
@@ -97,6 +96,11 @@ type FoodLens =
   // the My Foods menu and the Desktop, next to My Food Products, the same
   // way every other list on that menu is.
   | 'mySafeFoods'
+  // Everything built in one of the builders below, saved or favorited,
+  // in one place grouped by the builder that made it, 2026-09-18. It
+  // took over from the "Saved & Favorites" submenu, which was a menu of
+  // twenty-three links to twenty-three one-list screens.
+  | 'myRecipes'
   | 'mealBuilder'
   | 'sideBuilder'
   | 'saladBuilder'
@@ -142,6 +146,8 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
   myFoodProduct: 'One scanned product: its label, nutrients per 100g, and every price you have logged for it.',
   mySafeFoods:
     'The foods you say are safe for you, the ones you have not worked out yet, and the ones you say are not. Three marks on every row: plus for safe, a question mark for undecided, a minus for not for you. Search a food, browse a whole category at a time, or work through whatever is in your schedule. Each row says what a food trial found and what this app makes of the food for the conditions you track. What you mark comes ahead of what the app works out, so Safe Foods in Insights and your generated meal plan both follow it.',
+  myRecipes:
+    'Everything you have built in one of the Food tools and saved, and everything you have marked a favorite, grouped by the tool that made it. Open one to see its ingredients, nutrients and condition scores, or to build on it again.',
   findMeal:
     'Every meal you can reach without opening a builder, in groups you tap to open: meals you have logged or saved, meals already on your schedule, and the system recipes. Tap a meal to see what it is made of, then Use this meal logs it now, logs it for earlier today, puts it on your schedule, or swaps it in for a meal that was planned. To build something new from what is here, tick dishes from as many meals as you like; a Meal you are building box at the top shows the combination, and Build a meal with these opens Meal Builder with all of them loaded.',
   mealBuilder:
@@ -197,6 +203,7 @@ const FOOD_LENS_FULL_NAMES: Record<FoodLens, string> = {
   myFoodsDetail: 'Saved Item',
   myFoodProduct: 'Food Product',
   mySafeFoods: 'My Safe\nFoods',
+  myRecipes: 'My\nRecipes',
   findMeal: 'Log or\nSchedule a Meal',
   mealBuilder: 'Meal\nBuilder',
   sideBuilder: 'Sides\nBuilder',
@@ -211,6 +218,41 @@ const FOOD_LENS_FULL_NAMES: Record<FoodLens, string> = {
   handheldsBuilder: 'Handhelds\nBuilder',
   dessertBuilder: 'Desserts\nBuilder',
 };
+
+// What My Recipes holds: every builder's saved list and favorites list,
+// in builder order, each its own band. Module level so this is the same
+// array on every render (FoodItemsView loads when the list it is given
+// changes). A band with nothing in it is not drawn, so somebody who has
+// only ever made smoothies sees two headings rather than twenty-three.
+//
+// Meal Builder has favorites only, no standalone saved list, which is
+// the same asymmetry the old Saved & Favorites submenu carried: see
+// mealFavoriteCount's own comment below for why.
+const MY_RECIPES_SECTIONS: FoodItemsListParams[] = [
+  { itemType: 'meal', status: 'favorite', title: 'Favorite Meals' },
+  { itemType: 'side', status: 'saved', title: 'Saved Sides' },
+  { itemType: 'side', status: 'favorite', title: 'Favorite Sides' },
+  { itemType: 'salad', status: 'saved', title: 'Saved Salads & Bowls' },
+  { itemType: 'salad', status: 'favorite', title: 'Favorite Salads & Bowls' },
+  { itemType: 'smoothie', status: 'saved', title: 'Saved Smoothies' },
+  { itemType: 'smoothie', status: 'favorite', title: 'Favorite Smoothies' },
+  { itemType: 'fermentation', status: 'saved', title: 'Saved Fermentations' },
+  { itemType: 'fermentation', status: 'favorite', title: 'Favorite Fermentations' },
+  { itemType: 'beverage', status: 'saved', title: 'Saved Beverages' },
+  { itemType: 'beverage', status: 'favorite', title: 'Favorite Beverages' },
+  { itemType: 'snack', status: 'saved', title: 'Saved Snacks' },
+  { itemType: 'snack', status: 'favorite', title: 'Favorite Snacks' },
+  { itemType: 'bakedGoods', status: 'saved', title: 'Saved Baked Goods' },
+  { itemType: 'bakedGoods', status: 'favorite', title: 'Favorite Baked Goods' },
+  { itemType: 'soup', status: 'saved', title: 'Saved Soups' },
+  { itemType: 'soup', status: 'favorite', title: 'Favorite Soups' },
+  { itemType: 'sauce', status: 'saved', title: 'Saved Sauces' },
+  { itemType: 'sauce', status: 'favorite', title: 'Favorite Sauces' },
+  { itemType: 'handheld', status: 'saved', title: 'Saved Handhelds' },
+  { itemType: 'handheld', status: 'favorite', title: 'Favorite Handhelds' },
+  { itemType: 'dessert', status: 'saved', title: 'Saved Desserts' },
+  { itemType: 'dessert', status: 'favorite', title: 'Favorite Desserts' },
+];
 
 // Per-builder Info content (LensHub's own bottom-left Info tile) -- one
 // real section each, reusing FOOD_LENS_COPY's own text as the single
@@ -529,6 +571,9 @@ export default function FoodScreen() {
   // (see the FoodLens type). Set as the row is tapped, read by the render
   // switch and by the corner box's own label.
   const [listParams, setListParams] = useState<FoodItemsListParams | null>(null);
+  // Which of the two list screens a dish was opened from, so closing its
+  // detail goes back there rather than always to the one-list screen.
+  const [listLens, setListLens] = useState<'myFoodsList' | 'myRecipes'>('myFoodsList');
   const [detailParams, setDetailParams] = useState<{ itemType: string; id: string; title: string } | null>(null);
   const [productParams, setProductParams] = useState<{ id: string; title: string } | null>(null);
   const activeLensLabel =
@@ -541,7 +586,13 @@ export default function FoodScreen() {
           : FOOD_LENS_FULL_NAMES[lens];
   function openMyFoodsList(params: FoodItemsListParams) {
     setListParams(params);
+    setListLens('myFoodsList');
     setLens('myFoodsList');
+    setRevealed(true);
+  }
+  function openMyRecipes() {
+    setListLens('myRecipes');
+    setLens('myRecipes');
     setRevealed(true);
   }
   // A scan that came from a grocery list goes back to that list, whether
@@ -578,30 +629,20 @@ export default function FoodScreen() {
   // works exactly as it always has, fully independent of this state -- see
   // that component's own open/onOpenChange comment for the full "why."
   const [myFoodsOpen, setMyFoodsOpen] = useState(false);
-  // 2026-08-17: the "Saved & Favorites" submenu -- a SECOND, hidden-trigger-
-  // button MyItemsHub instance (see that component's own hideTriggerButton
-  // comment) opened by tapping the real "Saved & Favorites" row inside the
-  // primary My Foods popup above. Composes correctly with zero extra
-  // plumbing: MyItemsHub's own row handler already calls setOpen(false) on
-  // the popup that owns the row BEFORE firing that row's own onPress, the
-  // same close-then-open sequencing LensHub's own extraTile already relies
-  // on, so the primary popup always closes itself first.
-  const [savedFavoritesOpen, setSavedFavoritesOpen] = useState(false);
   // 2026-08-23: the Food tab's own resting-screen "Desktop" -- everything
-  // My Foods' popup above already knows how to show (myFoodsCategories/
-  // savedAndFavoritesCategories, both already computed further down), now
-  // ALSO shown as the tab's own default resting content instead of a
-  // small, easy-to-miss corner icon, direct request: "an area where their
-  // things that they create through their use of that Tab's lenses...
-  // accessed by using a menu system just like the Digest uses." Reuses
-  // the same data My Foods' popup already computes, drilled in-place
-  // (Digest's own topic-menu pattern: tap a row, the same content area
-  // swaps to that row's own list, a back link returns to the top level)
-  // rather than opening a Modal the way the popup's own submenu does --
-  // the popup itself is untouched, still available as a quick shortcut
+  // My Foods' popup already knows how to show (myFoodsCategories, computed
+  // further down), ALSO shown as the tab's own default resting content
+  // instead of a small, easy-to-miss corner icon, direct request: "an area
+  // where their things that they create through their use of that Tab's
+  // lenses... accessed by using a menu system just like the Digest uses."
+  // The popup itself is untouched, still available as a quick shortcut
   // even once a builder is open, since this Desktop only ever shows at
   // rest (see GatedTabContent's own restingContent, passed below).
-  const [desktopSubmenu, setDesktopSubmenu] = useState<'saved-favorites' | null>(null);
+  //
+  // 2026-09-18: it no longer drills into a submenu of its own. The one
+  // submenu it had, Saved & Favorites, became My Recipes, which is a lens
+  // holding every one of those lists at once rather than a menu of links
+  // to them.
   // A real food-trial round trip, 2026-08-14 -- see lib/pendingFoodTrialReturn.ts's
   // own comment for the full "why." A ref, not state, deliberately -- this
   // screen itself never unmounts on a tab switch (app/(tabs)/_layout.tsx's
@@ -1036,7 +1077,7 @@ export default function FoodScreen() {
     setDessertFavoriteCount(dessertFavorites.length);
     setMealFavoriteCount(mealFavorites.length);
   }
-  // 2026-08-23: the Desktop (see desktopSubmenu's own comment above) has
+  // 2026-08-23: the Desktop (see foodDesktopContent below) has
   // no popup "onOpen" moment of its own to hook a refetch onto the way My
   // Foods' popup does -- it's just always there at rest. useFocusEffect
   // fires on the screen's initial mount too, not only later focus events,
@@ -1057,16 +1098,40 @@ export default function FoodScreen() {
   // hooking into every individual setRevealed(true) call site above (the
   // large useFocusEffect alone has a dozen of them), so this stays correct
   // regardless of which path actually reveals a lens.
-  useEffect(() => {
-    if (revealed) setDesktopSubmenu(null);
-  }, [revealed]);
+
   // 2026-08-17: restructured from one flat 24-tile list into the requested
-  // 4-tier grouping -- "the My Foods menu should list things in the
-  // following way: My Food Products... My Whole Foods... System Meals...
-  // Saved & Favorites (a sub menu appears with the choices for each
-  // builder)." System Meals moved to last on 2026-09-13, see its own row. The real "Scan a Product" action tile that used to lead this
-  // list is gone entirely -- moved to Home, per the same direct request
-  // ("Move the Scan a Product link to the home screen for now").
+  // grouping, "the My Foods menu should list things in the following way:
+  // My Food Products... My Whole Foods... System Meals... Saved &
+  // Favorites (a sub menu appears with the choices for each builder)."
+  // System Meals moved to last on 2026-09-13, and Saved & Favorites became
+  // My Recipes on 2026-09-18, both by direct instruction; see each row.
+  // The "Scan a Product" action tile that used to lead this list is gone
+  // entirely, moved to Home per the same 2026-08-17 request ("Move the
+  // Scan a Product link to the home screen for now").
+  const myRecipesCount =
+    sideCount +
+    sideFavoriteCount +
+    saladCount +
+    saladFavoriteCount +
+    smoothieCount +
+    smoothieFavoriteCount +
+    fermentationCount +
+    fermentationFavoriteCount +
+    beverageCount +
+    beverageFavoriteCount +
+    snackCount +
+    snackFavoriteCount +
+    bakedGoodsCount +
+    bakedGoodsFavoriteCount +
+    soupCount +
+    soupFavoriteCount +
+    sauceCount +
+    sauceFavoriteCount +
+    handheldCount +
+    handheldFavoriteCount +
+    dessertCount +
+    dessertFavoriteCount +
+    mealFavoriteCount;
   const myFoodsCategories: MyItemsCategory[] = [
     {
       // "My Food Products" -- unchanged from its own 2026-08-16 original
@@ -1081,12 +1146,26 @@ export default function FoodScreen() {
         openMyFoodsList({ itemType: 'scannedProduct', status: 'saved', title: 'My Food Products' }),
     },
     {
+      // "There should also be a My Recipes listed in Food under My Food
+      // Products, above My Safe Foods. This is where everything they create
+      // on their own from the Food Builder lenses exist and are grouped."
+      // 2026-09-18. It replaced the "Saved & Favorites" tile that used to
+      // sit fourth and open a submenu of twenty-three links; the lists are
+      // the same lists, shown as bands on one screen instead.
+      id: 'my-recipes',
+      label: 'My Recipes',
+      icon: 'bookmarks-outline',
+      count: myRecipesCount,
+      onPress: openMyRecipes,
+    },
+    {
       // 2026-09-18, direct instruction: "the user should be responsible for
       // the final say in what foods are safe for them... it being available
-      // on the Food screen listed under My Food Products." Placed second, so
-      // it sits under My Food Products exactly as asked, and well inside the
-      // "the person's things first, the app's library after them" order this
-      // list has followed since 2026-09-13.
+      // on the Food screen listed under My Food Products." It sits under My
+      // Food Products, with only My Recipes in between (asked for on
+      // 2026-09-18 to go exactly there), and well inside the "the person's
+      // things first, the app's library after them" order this list has
+      // followed since 2026-09-13.
       id: 'my-safe-foods',
       label: 'My Safe Foods',
       icon: 'shield-checkmark-outline',
@@ -1113,21 +1192,12 @@ export default function FoodScreen() {
       onPress: () => router.push({ pathname: '/garden', params: { openGardenLens: 'harvestLog' } }),
     },
     {
-      // "Saved & Favorites" -- opens the second, submenu MyItemsHub instance
-      // below (savedAndFavoritesCategories), holding every builder's own
-      // real saved/favorite pair. See savedFavoritesOpen's own comment above
-      // for how this composes with zero extra plumbing.
-      id: 'saved-favorites',
-      label: 'Saved & Favorites',
-      icon: 'bookmarks-outline',
-      onPress: () => setSavedFavoritesOpen(true),
-    },
-    {
-      // "System Meals" -- this app's own curated Recipes library (the
-      // Digest's app-authored recipe cards), not anything the user created.
-      // Last, below Saved & Favorites, 2026-09-13, direct instruction: "On
-      // the Food screen, make System Meals be last under Saved & Favorites."
-      // The person's own things first, the app's library after them.
+      // "System Meals" -- this app's own curated Recipes library, not
+      // anything the person created. Last, 2026-09-13, direct instruction:
+      // "On the Food screen, make System Meals be last under Saved &
+      // Favorites." The person's own things first, the app's library after
+      // them. Saved & Favorites became My Recipes on 2026-09-18 and this
+      // row stayed where it was, at the end.
       id: 'system-meals',
       label: 'System Meals',
       icon: 'book-outline',
@@ -1135,12 +1205,10 @@ export default function FoodScreen() {
     },
   ];
 
-  // The Desktop's own top-level list, 2026-08-23 -- byte-for-byte
-  // myFoodsCategories above, except "Saved & Favorites" drills in place
-  // (setDesktopSubmenu) instead of opening the popup's own Modal. A
-  // one-line .map() rather than a second hand-written array, so the other
-  // three rows (My Food Products/My Whole Foods/System Meals) can never
-  // silently drift out of sync between the popup and the Desktop.
+  // The Desktop's own top-level list, 2026-08-23: myFoodsCategories above
+  // with one row in front of it. Spread rather than a second hand-written
+  // array, so the rows can never silently drift out of sync between the
+  // popup and the Desktop.
   const desktopMyFoodsCategories: MyItemsCategory[] = [
     // 2026-08-30, direct steer: "these are very powerful tools that should also
     // be available on the Food screen. Find a meal should be available on the
@@ -1162,220 +1230,16 @@ export default function FoodScreen() {
         setRevealed(true);
       },
     },
-    ...myFoodsCategories.map((category) =>
-      category.id === 'saved-favorites' ? { ...category, onPress: () => setDesktopSubmenu('saved-favorites') } : category,
-    ),
+    ...myFoodsCategories,
   ];
 
-  // The real submenu opened by "Saved & Favorites" above -- every builder's
-  // own saved/favorite pair, unchanged in content and order from what used
-  // to be the tail of the single flat myFoodsCategories list.
-  const savedAndFavoritesCategories: MyItemsCategory[] = [
-    {
-      id: 'side-saved',
-      icon: 'bookmark-outline',
-      label: 'Saved Sides',
-      count: sideCount,
-      onPress: () => openMyFoodsList({ itemType: 'side', status: 'saved', title: 'Saved Sides' }),
-    },
-    {
-      id: 'side-favorite',
-      icon: 'heart-outline',
-      label: 'Favorite Sides',
-      count: sideFavoriteCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'side', status: 'favorite', title: 'Favorite Sides' }),
-    },
-    {
-      id: 'salad-saved',
-      icon: 'bookmark-outline',
-      label: 'Saved Salads & Bowls',
-      count: saladCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'salad', status: 'saved', title: 'Saved Salads & Bowls' }),
-    },
-    {
-      id: 'salad-favorite',
-      icon: 'heart-outline',
-      label: 'Favorite Salads & Bowls',
-      count: saladFavoriteCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'salad', status: 'favorite', title: 'Favorite Salads & Bowls' }),
-    },
-    {
-      id: 'smoothie-saved',
-      icon: 'bookmark-outline',
-      label: 'Saved Smoothies',
-      count: smoothieCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'smoothie', status: 'saved', title: 'Saved Smoothies' }),
-    },
-    {
-      id: 'smoothie-favorite',
-      icon: 'heart-outline',
-      label: 'Favorite Smoothies',
-      count: smoothieFavoriteCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'smoothie', status: 'favorite', title: 'Favorite Smoothies' }),
-    },
-    {
-      id: 'fermentation-saved',
-      icon: 'bookmark-outline',
-      label: 'Saved Fermentations',
-      count: fermentationCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'fermentation', status: 'saved', title: 'Saved Fermentations' }),
-    },
-    {
-      id: 'fermentation-favorite',
-      icon: 'heart-outline',
-      label: 'Favorite Fermentations',
-      count: fermentationFavoriteCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'fermentation', status: 'favorite', title: 'Favorite Fermentations' }),
-    },
-    {
-      id: 'beverage-saved',
-      icon: 'bookmark-outline',
-      label: 'Saved Beverages',
-      count: beverageCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'beverage', status: 'saved', title: 'Saved Beverages' }),
-    },
-    {
-      id: 'beverage-favorite',
-      icon: 'heart-outline',
-      label: 'Favorite Beverages',
-      count: beverageFavoriteCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'beverage', status: 'favorite', title: 'Favorite Beverages' }),
-    },
-    {
-      id: 'snack-saved',
-      icon: 'bookmark-outline',
-      label: 'Saved Snacks',
-      count: snackCount,
-      onPress: () => openMyFoodsList({ itemType: 'snack', status: 'saved', title: 'Saved Snacks' }),
-    },
-    {
-      id: 'snack-favorite',
-      icon: 'heart-outline',
-      label: 'Favorite Snacks',
-      count: snackFavoriteCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'snack', status: 'favorite', title: 'Favorite Snacks' }),
-    },
-    {
-      id: 'baked-goods-saved',
-      icon: 'bookmark-outline',
-      label: 'Saved Baked Goods',
-      count: bakedGoodsCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'bakedGoods', status: 'saved', title: 'Saved Baked Goods' }),
-    },
-    {
-      id: 'baked-goods-favorite',
-      icon: 'heart-outline',
-      label: 'Favorite Baked Goods',
-      count: bakedGoodsFavoriteCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'bakedGoods', status: 'favorite', title: 'Favorite Baked Goods' }),
-    },
-    {
-      id: 'soup-saved',
-      icon: 'bookmark-outline',
-      label: 'Saved Soups',
-      count: soupCount,
-      onPress: () => openMyFoodsList({ itemType: 'soup', status: 'saved', title: 'Saved Soups' }),
-    },
-    {
-      id: 'soup-favorite',
-      icon: 'heart-outline',
-      label: 'Favorite Soups',
-      count: soupFavoriteCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'soup', status: 'favorite', title: 'Favorite Soups' }),
-    },
-    {
-      id: 'sauce-saved',
-      icon: 'bookmark-outline',
-      label: 'Saved Sauces',
-      count: sauceCount,
-      onPress: () => openMyFoodsList({ itemType: 'sauce', status: 'saved', title: 'Saved Sauces' }),
-    },
-    {
-      id: 'sauce-favorite',
-      icon: 'heart-outline',
-      label: 'Favorite Sauces',
-      count: sauceFavoriteCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'sauce', status: 'favorite', title: 'Favorite Sauces' }),
-    },
-    {
-      id: 'handheld-saved',
-      icon: 'bookmark-outline',
-      label: 'Saved Handhelds',
-      count: handheldCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'handheld', status: 'saved', title: 'Saved Handhelds' }),
-    },
-    {
-      id: 'handheld-favorite',
-      icon: 'heart-outline',
-      label: 'Favorite Handhelds',
-      count: handheldFavoriteCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'handheld', status: 'favorite', title: 'Favorite Handhelds' }),
-    },
-    {
-      id: 'dessert-saved',
-      icon: 'bookmark-outline',
-      label: 'Saved Desserts',
-      count: dessertCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'dessert', status: 'saved', title: 'Saved Desserts' }),
-    },
-    {
-      id: 'dessert-favorite',
-      icon: 'heart-outline',
-      label: 'Favorite Desserts',
-      count: dessertFavoriteCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'dessert', status: 'favorite', title: 'Favorite Desserts' }),
-    },
-    // No 'meal-saved' tile alongside it -- see mealFavoriteCount's own
-    // comment above for why Meal Builder has nothing standalone to browse
-    // besides its favorites.
-    {
-      id: 'meal-favorite',
-      icon: 'heart-outline',
-      label: 'Favorite Meals',
-      count: mealFavoriteCount,
-      onPress: () =>
-        openMyFoodsList({ itemType: 'meal', status: 'favorite', title: 'Favorite Meals' }),
-    },
-  ];
-
-  // The Desktop's own scrollable body, 2026-08-23 -- see desktopSubmenu's
-  // own comment above for the full "why." A plain heading (no per-topic
-  // description the way Digest's own topic menu gets, this tab has
-  // nothing written for that yet) plus a breadcrumb back link once
-  // drilled into "Saved & Favorites," the same shape Digest's own
-  // drilldown header already established. No floating-button clearance
-  // at the end since 2026-09-13: GatedTabContent now insets the whole
-  // resting area above the footer band, and the hub buttons sit inside
-  // that band, so the last row already stops above them.
+  // The Desktop's own scrollable body, 2026-08-23. No floating-button
+  // clearance at the end since 2026-09-13: GatedTabContent insets the
+  // whole resting area above the footer band, and the hub buttons sit
+  // inside that band, so the last row already stops above them.
   const foodDesktopContent = (
     <ScrollView contentContainerStyle={styles.desktopContent} showsVerticalScrollIndicator={false}>
-      {desktopSubmenu === 'saved-favorites' ? (
-        <TouchableOpacity onPress={() => setDesktopSubmenu(null)} activeOpacity={0.7}>
-          <Text style={styles.desktopBackLink}>‹ Back to My Foods</Text>
-        </TouchableOpacity>
-      ) : null}
-      <TabDesktopMenu
-        categories={desktopSubmenu === 'saved-favorites' ? savedAndFavoritesCategories : desktopMyFoodsCategories}
-        tabColor={TAB_COLOR}
-      />
+      <TabDesktopMenu categories={desktopMyFoodsCategories} tabColor={TAB_COLOR} />
     </ScrollView>
   );
 
@@ -1395,13 +1259,9 @@ export default function FoodScreen() {
           variant="produce"
           revealed={revealed}
           restingContent={foodDesktopContent}
-          restingIntro={
-            desktopSubmenu === 'saved-favorites'
-              ? { body: 'Your saved and favorite foods from every tool here.' }
-              : {
-                  body: 'Recipes you have built here, your saved and favorite foods, garden harvests, and the store-bought products you allow in your diet.',
-                }
-          }
+          restingIntro={{
+            body: 'Recipes you have built here, your saved and favorite foods, garden harvests, and the store-bought products you allow in your diet.',
+          }}
         >
           {lens === 'findMeal' ? (
             <FindMealView
@@ -1454,21 +1314,31 @@ export default function FoodScreen() {
               onOpenBuilder={(params) => router.push({ pathname: '/food', params })}
               // Back to the Desktop, drilled into Saved & Favorites when
               // that is where this list lives.
-              onClose={() => {
-                setRevealed(false);
-                setDesktopSubmenu(listParams.itemType === 'scannedProduct' ? null : 'saved-favorites');
+              onClose={() => setRevealed(false)}
+            />
+          ) : lens === 'myRecipes' ? (
+            <FoodItemsView
+              sections={MY_RECIPES_SECTIONS}
+              title="My Recipes"
+              intro="Everything you have built here and saved, plus everything you have marked a favorite, under the tool that made it. Tap one to open it, or to build on it again."
+              onOpenProduct={(id, title) => {
+                setProductParams({ id, title });
+                setLens('myFoodProduct');
               }}
+              onOpenDetail={(itemType, id, title) => {
+                setDetailParams({ itemType, id, title });
+                setLens('myFoodsDetail');
+              }}
+              onOpenBuilder={(params) => router.push({ pathname: '/food', params })}
+              onClose={() => setRevealed(false)}
             />
           ) : lens === 'myFoodsDetail' && detailParams ? (
-            <FoodItemDetailView {...detailParams} onClose={() => setLens('myFoodsList')} />
+            <FoodItemDetailView {...detailParams} onClose={() => setLens(listLens)} />
           ) : lens === 'myFoodProduct' && productParams ? (
-            <FoodProductDetailView {...productParams} onClose={() => setLens('myFoodsList')} />
+            <FoodProductDetailView {...productParams} onClose={() => setLens(listLens)} />
           ) : lens === 'mySafeFoods' ? (
             <MySafeFoodsView
-              onClose={() => {
-                setRevealed(false);
-                setDesktopSubmenu(null);
-              }}
+              onClose={() => setRevealed(false)}
               // The tile carries a count, and somebody adding a food expects
               // to see it there when they come back rather than on the next
               // focus, so the list says when it changed.
@@ -1657,13 +1527,9 @@ export default function FoodScreen() {
         </GatedTabContent>
       </SwipeableTabScreen>
 
-      {/* At rest the drilled-in submenu is a place of its own, so the box
-          names it; the tab's own top level shows nothing, per the rule that
-          the box is absent only on one of the ten tabs themselves. */}
-      <PageIdentityLabel
-        title="Food"
-        activeLensLabel={revealed ? activeLensLabel : desktopSubmenu === 'saved-favorites' ? 'Saved & Favorites' : undefined}
-      />
+      {/* At rest the tab's own top level shows nothing in the box, per the
+          rule that it is absent only on one of the ten tabs themselves. */}
+      <PageIdentityLabel title="Food" activeLensLabel={revealed ? activeLensLabel : undefined} />
       <MyItemsHub
         label="My Foods"
         tabColor={TAB_COLOR}
@@ -1671,20 +1537,6 @@ export default function FoodScreen() {
         onOpen={loadMyFoodsCounts}
         open={myFoodsOpen}
         onOpenChange={setMyFoodsOpen}
-      />
-      {/* "Saved & Favorites" submenu, 2026-08-17 -- see savedFavoritesOpen's
-          own comment above. No onOpen refetch of its own: the primary My
-          Foods popup already refetches the same counts every time IT opens
-          (loadMyFoodsCounts), and this submenu only ever opens as a direct
-          result of that popup opening first, so its own counts are already
-          current by the time it shows. */}
-      <MyItemsHub
-        label="Saved & Favorites"
-        tabColor={TAB_COLOR}
-        categories={savedAndFavoritesCategories}
-        open={savedFavoritesOpen}
-        onOpenChange={setSavedFavoritesOpen}
-        hideTriggerButton
       />
       <LensHub
         pageTitle="Food"
@@ -1726,25 +1578,4 @@ const styles = StyleSheet.create({
   // resting column already puts the standard band gap between its prompt
   // box (which now carries the My Foods heading and blurb) and this.
   desktopContent: { paddingHorizontal: 0, paddingTop: 0, paddingBottom: HOME_BAND_GAP, gap: HOME_BAND_GAP },
-  desktopBackLink: {
-    ...typography.body,
-    color: colors.textOnPrimary,
-    fontWeight: '400',
-    alignSelf: 'flex-start',
-    // desktopContent no longer insets anything, so the pill insets itself.
-    marginLeft: HOME_BAND_CONTENT_PADDING,
-    backgroundColor: TAB_COLOR,
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-
-    // Dark text: cancel any shadow inherited from a base style it is
-
-    // composed with. See constants/typography.ts.
-
-    textShadowColor: 'transparent',
-
-    textShadowRadius: 0,
-
-  },
 });

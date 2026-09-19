@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
@@ -24,6 +23,7 @@ import {
 } from '../lib/db';
 import { getTrackedConditionsWithNames, type TrackedConditionRef } from '../lib/foodPersonalization';
 import { AppTextInput } from './AppTextInput';
+import { FoodMarkButtons, foodAppLine, foodTrialLine } from './FoodSafetyMarks';
 import { categoryLabel } from './FoodLookup';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
@@ -505,41 +505,6 @@ export function MySafeFoodsView({ onClose, onChanged }: { onClose: () => void; o
   );
 }
 
-// What a food trial found, said plainly, with the date so somebody can tell
-// a call they made last week from one they made in March.
-function trialLine(background: MyFoodBackground): string | null {
-  if (background.trialOutcome === null) return null;
-  const on = background.trialResolvedOn;
-  const when = on ? ` on ${trialDateLabel(on)}` : '';
-  return background.trialOutcome === 'cleared'
-    ? `Cleared in a food trial${when}`
-    : `You reacted to this in a food trial${when}`;
-}
-
-function trialDateLabel(value: string): string {
-  const [year, month, day] = value.slice(0, 10).split('-').map(Number);
-  if (!year || !month || !day) return value.slice(0, 10);
-  return new Date(year, month - 1, day).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
-// What this app's own scoring makes of the food. The wording changes when
-// somebody tracks no conditions, because "safe for the conditions you track"
-// would be an empty claim there, and because an unscored food is a gap in
-// the data rather than a verdict either way.
-function appLine(background: MyFoodBackground, conditionCount: number): string {
-  if (background.appView === 'unscored') return 'This app has not scored this food';
-  if (background.appView === 'safe') {
-    return conditionCount > 0
-      ? 'Normally safe for the conditions you track'
-      : "Nothing in this app's scoring flags it";
-  }
-  return conditionCount > 0 ? 'Flagged for a condition you track' : "This app's scoring flags it";
-}
-
 // One food, wherever it is listed. The name opens the note form, since
 // changing a note is the ordinary case and setMySafeFood is an upsert; the
 // three marks to the right are the whole answer on their own.
@@ -564,7 +529,7 @@ function FoodRow({
   onMark: (foodName: string, category: string | null, verdict: MySafeFoodVerdict) => void;
   onOpenNote: (draft: Draft) => void;
 }) {
-  const trial = background ? trialLine(background) : null;
+  const trial = background ? foodTrialLine(background) : null;
   return (
     <View style={styles.itemRow}>
       <TouchableOpacity
@@ -611,61 +576,13 @@ function FoodRow({
           ) : null}
           {background ? (
             <Text style={styles.rowMeta} numberOfLines={2}>
-              {appLine(background, conditionCount)}
+              {foodAppLine(background, conditionCount)}
             </Text>
           ) : null}
         </View>
       </TouchableOpacity>
-      <View style={styles.markRow}>
-        <MarkButton
-          icon={verdict === 'safe' ? 'checkmark-circle' : 'add-circle-outline'}
-          color={colors.tabFood}
-          on={verdict === 'safe'}
-          label={`Mark ${foodName} safe for you`}
-          onPress={() => onMark(foodName, category, 'safe')}
-        />
-        <MarkButton
-          icon={verdict === 'unsure' ? 'help-circle' : 'help-circle-outline'}
-          color={colors.statusYellowOnSurface}
-          on={verdict === 'unsure'}
-          label={`Mark ${foodName} as not worked out yet`}
-          onPress={() => onMark(foodName, category, 'unsure')}
-        />
-        <MarkButton
-          icon={verdict === 'avoid' ? 'close-circle' : 'remove-circle-outline'}
-          color={colors.statusRedOnSurface}
-          on={verdict === 'avoid'}
-          label={`Move ${foodName} off your safe list`}
-          onPress={() => onMark(foodName, category, 'avoid')}
-        />
-      </View>
+      <FoodMarkButtons foodName={foodName} category={category} verdict={verdict} onMark={onMark} />
     </View>
-  );
-}
-
-function MarkButton({
-  icon,
-  color,
-  on,
-  label,
-  onPress,
-}: {
-  icon: keyof typeof Ionicons.glyphMap;
-  color: string;
-  on: boolean;
-  label: string;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      style={[styles.markButton, on && styles.markButtonOn]}
-      onPress={onPress}
-      accessibilityLabel={label}
-      activeOpacity={0.7}
-      hitSlop={4}
-    >
-      <Ionicons name={icon} size={22} color={on ? color : colors.textSecondary} />
-    </TouchableOpacity>
   );
 }
 
@@ -794,13 +711,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
   },
-  markRow: { flexDirection: 'row', alignItems: 'center', paddingRight: 6 },
-  markButton: {
-    paddingHorizontal: 5,
-    paddingVertical: 12,
-    borderRadius: 8,
-  },
-  markButtonOn: { backgroundColor: colors.surface },
   rowTextWrap: { flex: 1, marginRight: 12 },
   rowTitle: {
     ...typography.bodyEmphasis,

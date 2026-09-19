@@ -41,6 +41,15 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.40.8',
+    date: '2026-09-18',
+    changes: [
+      'Food has a new My Recipes, sitting under My Food Products and above My Safe Foods. It holds everything you have built in one of the Food tools and saved, plus everything you have marked a favorite, grouped under the tool that made it: meals, sides, salads, smoothies, ferments, drinks, snacks, baked goods, soups, sauces, handhelds and desserts.',
+      'My Recipes replaces the old Saved & Favorites submenu. That was a menu of twenty-three links, each opening a separate screen, so finding something meant remembering which tool you built it with. Now every list is on one screen, each one showing how many things are in it, and a list you have nothing in stays out of your way.',
+      'Every one of those lists still opens, edits, logs, schedules and deletes the way it did before. Nothing was moved or renamed.',
+    ],
+  },
+  {
     version: '1.0.40.7',
     date: '2026-09-18',
     changes: [

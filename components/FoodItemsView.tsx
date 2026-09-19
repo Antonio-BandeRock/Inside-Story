@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -35,7 +35,7 @@ import {
   listSnacks,
   listSoups,
 } from '../lib/db';
-import { useConfirmSheet } from './ConfirmSheet';
+import { useConfirmSheet, type ConfirmSheetRequest } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 
 // A Food lens since 2026-09-13 (it was app/food-items.tsx, a Stack push
@@ -77,11 +77,24 @@ export function FoodItemsView({
   itemType,
   status,
   title,
+  sections,
+  intro,
   onOpenProduct,
   onOpenDetail,
   onOpenBuilder,
   onClose,
-}: FoodItemsListParams & {
+}: Partial<FoodItemsListParams> & {
+  // 2026-09-18: several lists at once, one fold band each, which is what My
+  // Recipes asks for. Direct instruction: "There should also be a My Recipes
+  // listed in Food under My Food Products, above My Safe Foods. This is
+  // where everything they create on their own from the Food Builder lenses
+  // exist and are grouped." Grouped means the things themselves are here,
+  // under a heading per builder, rather than a menu of links to them, so
+  // this screen takes a list of lists and the single-list case (every
+  // caller before today) is that list with one entry in it.
+  sections?: FoodItemsListParams[];
+  // A line above the bands saying what the screen holds.
+  intro?: string;
   // A scanned product's own detail (FoodProductDetailView).
   onOpenProduct: (id: string, title: string) => void;
   // A saved dish's own detail (FoodItemDetailView).
@@ -92,29 +105,135 @@ export function FoodItemsView({
   // Back to wherever this list was opened from.
   onClose: () => void;
 }) {
-  const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
-  const [items, setItems] = useState<FoodItemEntry[] | null>(null);
+
+  const resolvedSections = useMemo<FoodItemsListParams[]>(
+    () => sections ?? [{ itemType: itemType ?? '', status: status ?? '', title: title ?? '' }],
+    [sections, itemType, status, title],
+  );
+  const grouped = resolvedSections.length > 1;
+  const [itemsByKey, setItemsByKey] = useState<Record<string, FoodItemEntry[] | null>>({});
+  const [openKey, setOpenKey] = useState<string | null>(null);
 
   useEffect(() => {
     let isCurrent = true;
-    setItems(null);
-    loadItems(itemType, status).then((loaded) => {
-      if (isCurrent) setItems(loaded);
+    setItemsByKey({});
+    Promise.all(
+      resolvedSections.map(
+        async (section) => [sectionKey(section), await loadItems(section.itemType, section.status)] as const,
+      ),
+    ).then((pairs) => {
+      if (isCurrent) setItemsByKey(Object.fromEntries(pairs));
     });
     return () => {
       isCurrent = false;
     };
-  }, [itemType, status]);
+  }, [resolvedSections]);
+
+  const reloadSection = useCallback(async (section: FoodItemsListParams) => {
+    const loaded = await loadItems(section.itemType, section.status);
+    setItemsByKey((prev) => ({ ...prev, [sectionKey(section)]: loaded }));
+  }, []);
+
+  // Once every list has arrived, a grouped screen shows only the headings
+  // that have something under them. Twenty-three empty bands would bury the
+  // two a person actually uses.
+  const loadedCount = resolvedSections.filter((section) => itemsByKey[sectionKey(section)] != null).length;
+  const allLoaded = loadedCount === resolvedSections.length;
+  const shownSections = grouped
+    ? resolvedSections.filter((section) => (itemsByKey[sectionKey(section)] ?? []).length > 0)
+    : resolvedSections;
+
+  return (
+    <View style={styles.wrapper}>
+      <ScrollView contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
+        {/* The way back, at the top since the bottom belongs to the hub
+            buttons now. Same pill as the Desktop's own "Back to My Foods". */}
+        <TouchableOpacity onPress={onClose} activeOpacity={0.7}>
+          <Text style={styles.backLink}>‹ Back</Text>
+        </TouchableOpacity>
+        {intro ? (
+          <View style={styles.introBox}>
+            <Text style={styles.introText}>{intro}</Text>
+          </View>
+        ) : null}
+        {/* One band per list, its name as the header, each item an inset box
+            beneath (the same shape Log or Schedule a Meal's sections took on
+            2026-09-13). */}
+        {shownSections.map((section) => (
+          <FoodItemsSection
+            key={sectionKey(section)}
+            section={section}
+            items={itemsByKey[sectionKey(section)] ?? null}
+            grouped={grouped}
+            expanded={grouped ? openKey === sectionKey(section) : true}
+            onToggle={() => setOpenKey(openKey === sectionKey(section) ? null : sectionKey(section))}
+            onReload={() => reloadSection(section)}
+            onOpenProduct={onOpenProduct}
+            onOpenDetail={onOpenDetail}
+            onOpenBuilder={onOpenBuilder}
+            showInfoAlert={showInfoAlert}
+            confirmSheet={confirmSheet}
+          />
+        ))}
+        {grouped && allLoaded && shownSections.length === 0 ? (
+          <View style={styles.introBox}>
+            <Text style={styles.emptyText}>
+              Nothing here yet. Anything you build in one of the Food tools and save, or mark as a favorite, is
+              listed here under the tool that made it.
+            </Text>
+          </View>
+        ) : null}
+      </ScrollView>
+      {infoAlertElement}
+      {confirmSheetElement}
+    </View>
+  );
+}
+
+function sectionKey(section: FoodItemsListParams): string {
+  return `${section.itemType}-${section.status}`;
+}
+
+// One list: its band, its rows, and the Edit/Track/Delete actions on them.
+// Split out of FoodItemsView on 2026-09-18 so a screen can carry several of
+// these without a second copy of any of it.
+function FoodItemsSection({
+  section,
+  items,
+  grouped,
+  expanded,
+  onToggle,
+  onReload,
+  onOpenProduct,
+  onOpenDetail,
+  onOpenBuilder,
+  showInfoAlert,
+  confirmSheet,
+}: {
+  section: FoodItemsListParams;
+  items: FoodItemEntry[] | null;
+  grouped: boolean;
+  expanded: boolean;
+  onToggle: () => void;
+  onReload: () => Promise<void>;
+  onOpenProduct: (id: string, title: string) => void;
+  onOpenDetail: (itemType: string, id: string, title: string) => void;
+  onOpenBuilder: (params: Record<string, string>) => void;
+  showInfoAlert: (title: string, message: string) => void;
+  confirmSheet: (request: ConfirmSheetRequest) => Promise<boolean>;
+}) {
+  const router = useRouter();
+  const { itemType, status, title } = section;
 
   // Refetches in place after a delete, rather than navigating anywhere --
   // the person is deleting FROM this list, so staying on it (now one item
   // shorter) is the expected result, same as any list-with-delete pattern
   // elsewhere in the app.
   async function refreshItems() {
-    setItems(await loadItems(itemType, status));
+    await onReload();
   }
 
   async function handleDelete(item: FoodItemEntry) {
@@ -136,248 +255,252 @@ export function FoodItemsView({
     await refreshItems();
   }
 
-  return (
-    <View style={styles.wrapper}>
-      <ScrollView contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
-        {/* The way back, at the top since the bottom belongs to the hub
-            buttons now. Same pill as the Desktop's own "Back to My Foods". */}
-        <TouchableOpacity onPress={onClose} activeOpacity={0.7}>
-          <Text style={styles.backLink}>‹ Back</Text>
-        </TouchableOpacity>
-        {/* One band for the whole list, its name as the header, each item an
-            inset box beneath (the same shape Log or Schedule a Meal's
-            sections took on 2026-09-13). */}
-        <HomeSectionBand
-          kind="static"
-          title={title || 'Saved Items'}
-          icon={status === 'favorite' ? 'heart-outline' : itemType === 'scannedProduct' ? 'barcode-outline' : 'bookmark-outline'}
-          color={colors.tabFood}
-          contentStyle={styles.bandBody}
-        >
-        {items === null ? null : items.length === 0 ? (
-          <Text style={styles.emptyText}>Nothing here yet.</Text>
-        ) : (
-          items.map((item) => (
-            <View key={item.id} style={styles.itemRow}>
-              <TouchableOpacity
-                style={styles.itemTapArea}
-                onPress={() => {
-                  // "My Food Products," 2026-08-16 -- a real, dedicated
-                  // detail screen (app/food-product-detail.tsx), genuinely
-                  // different in shape from every builder's own saved
-                  // item (one nutrient panel, one photo, real price-over-
-                  // time history, no 6-Dimensions ingredient breakdown),
-                  // so this is checked and returned first, ahead of the
-                  // big itemType OR-chain just below that food-item-
-                  // detail.tsx's own shape actually applies to.
-                  if (itemType === 'scannedProduct') {
-                    onOpenProduct(item.id, item.title);
-                    return;
-                  }
-                  // Only a real saved item (not yet a favorite -- those are
-                  // a different, JSON-payload shape with no ingredients to
-                  // show yet, see lib/db.ts's own favorites table) has
-                  // anything for food-item-detail.tsx to actually show.
-                  if (
-                    status === 'saved' &&
-                    (itemType === 'side' ||
-                      itemType === 'salad' ||
-                      itemType === 'smoothie' ||
-                      itemType === 'fermentation' ||
-                      itemType === 'beverage' ||
-                      itemType === 'snack' ||
-                      itemType === 'bakedGoods' ||
-                      itemType === 'soup' ||
-                      itemType === 'sauce' ||
-                      itemType === 'handheld' ||
-                      itemType === 'dessert')
-                  ) {
-                    onOpenDetail(itemType, item.id, item.title);
-                    return;
-                  }
-                  // "Use this Favorite," 2026-08-08 -- tapping a favorite
-                  // resumes the matching builder pre-loaded with its own
-                  // saved ingredients (via app/(tabs)/food.tsx's own
-                  // fromSideFavoriteId/fromSaladFavoriteId/etc. params, the
-                  // exact same shape as the Edit button's editSideId/etc.
-                  // params just below, except this always produces a
-                  // genuinely NEW saved item rather than editing the
-                  // favorite itself -- a favorite is a reusable template,
-                  // not a record with its own detail view). Written inline
-                  // for the same typed-routes reason the Edit button's own
-                  // block already explains.
-                  if (status === 'favorite') {
-                    if (itemType === 'side') {
-                      onOpenBuilder({ fromSideFavoriteId: item.id });
-                      return;
-                    } else if (itemType === 'salad') {
-                      onOpenBuilder({ fromSaladFavoriteId: item.id });
-                      return;
-                    } else if (itemType === 'smoothie') {
-                      onOpenBuilder({ fromSmoothieFavoriteId: item.id });
-                      return;
-                    } else if (itemType === 'fermentation') {
-                      onOpenBuilder({ fromFermentationFavoriteId: item.id });
-                      return;
-                    } else if (itemType === 'beverage') {
-                      onOpenBuilder({ fromBeverageFavoriteId: item.id });
-                      return;
-                    } else if (itemType === 'snack') {
-                      onOpenBuilder({ fromSnackFavoriteId: item.id });
-                      return;
-                    } else if (itemType === 'bakedGoods') {
-                      onOpenBuilder({ fromBakedGoodsFavoriteId: item.id });
-                      return;
-                    } else if (itemType === 'soup') {
-                      onOpenBuilder({ fromSoupFavoriteId: item.id });
-                      return;
-                    } else if (itemType === 'sauce') {
-                      onOpenBuilder({ fromSauceFavoriteId: item.id });
-                      return;
-                    } else if (itemType === 'handheld') {
-                      onOpenBuilder({ fromHandheldFavoriteId: item.id });
-                      return;
-                    } else if (itemType === 'dessert') {
-                      onOpenBuilder({ fromDessertFavoriteId: item.id });
-                      return;
-                    }
-                    // 'meal' favorites (see saveMealFavorite in lib/db.ts),
-                    // 2026-08-08 -- resumes Meal Builder pre-loaded with the
-                    // favorite's own saved components (see
-                    // MealBuilder.tsx's own favoriteId prop/effect).
-                    if (itemType === 'meal') {
-                      onOpenBuilder({ mealFavoriteId: item.id });
-                      return;
-                    }
-                  }
-                  showInfoAlert(
-                    item.title,
-                    'Full detail view (Nutrients, Condition Scores, and Cooking & Prep for this item) is coming soon.',
-                  );
-                }}
-              >
-                <View style={styles.itemTextWrap}>
-                  <Text style={styles.itemTitle} numberOfLines={1}>
-                    {item.title}
-                  </Text>
-                  {item.subtitle ? (
-                    <Text style={styles.itemSubtitle} numberOfLines={1}>
-                      {item.subtitle}
-                    </Text>
+  const bandIcon =
+    status === 'favorite' ? 'heart-outline' : itemType === 'scannedProduct' ? 'barcode-outline' : 'bookmark-outline';
+  const bandTitle = grouped && items !== null ? `${title} (${items.length})` : title || 'Saved Items';
+  const body = (
+    <>
+            {items === null ? null : items.length === 0 ? (
+              <Text style={styles.emptyText}>Nothing here yet.</Text>
+            ) : (
+              items.map((item) => (
+                <View key={item.id} style={styles.itemRow}>
+                  <TouchableOpacity
+                    style={styles.itemTapArea}
+                    onPress={() => {
+                      // "My Food Products," 2026-08-16 -- a real, dedicated
+                      // detail screen (app/food-product-detail.tsx), genuinely
+                      // different in shape from every builder's own saved
+                      // item (one nutrient panel, one photo, real price-over-
+                      // time history, no 6-Dimensions ingredient breakdown),
+                      // so this is checked and returned first, ahead of the
+                      // big itemType OR-chain just below that food-item-
+                      // detail.tsx's own shape actually applies to.
+                      if (itemType === 'scannedProduct') {
+                        onOpenProduct(item.id, item.title);
+                        return;
+                      }
+                      // Only a real saved item (not yet a favorite -- those are
+                      // a different, JSON-payload shape with no ingredients to
+                      // show yet, see lib/db.ts's own favorites table) has
+                      // anything for food-item-detail.tsx to actually show.
+                      if (
+                        status === 'saved' &&
+                        (itemType === 'side' ||
+                          itemType === 'salad' ||
+                          itemType === 'smoothie' ||
+                          itemType === 'fermentation' ||
+                          itemType === 'beverage' ||
+                          itemType === 'snack' ||
+                          itemType === 'bakedGoods' ||
+                          itemType === 'soup' ||
+                          itemType === 'sauce' ||
+                          itemType === 'handheld' ||
+                          itemType === 'dessert')
+                      ) {
+                        onOpenDetail(itemType, item.id, item.title);
+                        return;
+                      }
+                      // "Use this Favorite," 2026-08-08 -- tapping a favorite
+                      // resumes the matching builder pre-loaded with its own
+                      // saved ingredients (via app/(tabs)/food.tsx's own
+                      // fromSideFavoriteId/fromSaladFavoriteId/etc. params, the
+                      // exact same shape as the Edit button's editSideId/etc.
+                      // params just below, except this always produces a
+                      // genuinely NEW saved item rather than editing the
+                      // favorite itself -- a favorite is a reusable template,
+                      // not a record with its own detail view). Written inline
+                      // for the same typed-routes reason the Edit button's own
+                      // block already explains.
+                      if (status === 'favorite') {
+                        if (itemType === 'side') {
+                          onOpenBuilder({ fromSideFavoriteId: item.id });
+                          return;
+                        } else if (itemType === 'salad') {
+                          onOpenBuilder({ fromSaladFavoriteId: item.id });
+                          return;
+                        } else if (itemType === 'smoothie') {
+                          onOpenBuilder({ fromSmoothieFavoriteId: item.id });
+                          return;
+                        } else if (itemType === 'fermentation') {
+                          onOpenBuilder({ fromFermentationFavoriteId: item.id });
+                          return;
+                        } else if (itemType === 'beverage') {
+                          onOpenBuilder({ fromBeverageFavoriteId: item.id });
+                          return;
+                        } else if (itemType === 'snack') {
+                          onOpenBuilder({ fromSnackFavoriteId: item.id });
+                          return;
+                        } else if (itemType === 'bakedGoods') {
+                          onOpenBuilder({ fromBakedGoodsFavoriteId: item.id });
+                          return;
+                        } else if (itemType === 'soup') {
+                          onOpenBuilder({ fromSoupFavoriteId: item.id });
+                          return;
+                        } else if (itemType === 'sauce') {
+                          onOpenBuilder({ fromSauceFavoriteId: item.id });
+                          return;
+                        } else if (itemType === 'handheld') {
+                          onOpenBuilder({ fromHandheldFavoriteId: item.id });
+                          return;
+                        } else if (itemType === 'dessert') {
+                          onOpenBuilder({ fromDessertFavoriteId: item.id });
+                          return;
+                        }
+                        // 'meal' favorites (see saveMealFavorite in lib/db.ts),
+                        // 2026-08-08 -- resumes Meal Builder pre-loaded with the
+                        // favorite's own saved components (see
+                        // MealBuilder.tsx's own favoriteId prop/effect).
+                        if (itemType === 'meal') {
+                          onOpenBuilder({ mealFavoriteId: item.id });
+                          return;
+                        }
+                      }
+                      showInfoAlert(
+                        item.title,
+                        'Full detail view (Nutrients, Condition Scores, and Cooking & Prep for this item) is coming soon.',
+                      );
+                    }}
+                  >
+                    <View style={styles.itemTextWrap}>
+                      <Text style={styles.itemTitle} numberOfLines={1}>
+                        {item.title}
+                      </Text>
+                      {item.subtitle ? (
+                        <Text style={styles.itemSubtitle} numberOfLines={1}>
+                          {item.subtitle}
+                        </Text>
+                      ) : null}
+                    </View>
+                    <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+                  </TouchableOpacity>
+                  {/* Edit/Delete, 2026-08-01 -- explicitly requested after a
+                      saved side turned out to have no way to fix a mistaken
+                      ingredient once saved. Scoped to real saved items only
+                      (not favorites -- a different, not-yet-editable shape, see
+                      the tap handler's own comment above), and only for
+                      itemTypes supportsEdit/deleteItem below actually support --
+                      grows by one case in each of those, not a UI change here,
+                      as more builders get their own real save path. */}
+                  {status === 'saved' && supportsEdit(itemType) ? (
+                    <TouchableOpacity
+                      style={styles.itemActionButton}
+                      onPress={() => {
+                        // Side/Salad/Smoothie/Fermentation/Beverage/Snack/
+                        // BakedGoods/Soup/Sauces/Handhelds/Dessert each push into
+                        // app/(tabs)/food.tsx's own builder pre-loaded via
+                        // editSideId/editSaladId/editSmoothieId/
+                        // editFermentationId/editBeverageId/editSnackId/
+                        // editBakedGoodsId/editSoupId/editSauceId/
+                        // editHandheldId/editDessertId (see that file and
+                        // SideBuilder.tsx/SaladBuilder.tsx/SmoothieBuilder.tsx/
+                        // FermentationBuilder.tsx/BeverageBuilder.tsx/
+                        // SnackBuilder.tsx/BakedGoodsBuilder.tsx/SoupBuilder.tsx/
+                        // SaucesBuilder.tsx/HandheldsBuilder.tsx/
+                        // DessertBuilder.tsx's own props).
+                        // Written inline (not returned from a helper) so each
+                        // route's own literal
+                        // pathname/params stay visible to Expo Router's
+                        // typed-routes checking -- a helper returning a plain
+                        // `string` pathname would widen it past what
+                        // router.push's typed Href accepts.
+                        if (itemType === 'side') {
+                          onOpenBuilder({ editSideId: item.id });
+                        } else if (itemType === 'salad') {
+                          onOpenBuilder({ editSaladId: item.id });
+                        } else if (itemType === 'smoothie') {
+                          onOpenBuilder({ editSmoothieId: item.id });
+                        } else if (itemType === 'fermentation') {
+                          onOpenBuilder({ editFermentationId: item.id });
+                        } else if (itemType === 'beverage') {
+                          onOpenBuilder({ editBeverageId: item.id });
+                        } else if (itemType === 'snack') {
+                          onOpenBuilder({ editSnackId: item.id });
+                        } else if (itemType === 'bakedGoods') {
+                          onOpenBuilder({ editBakedGoodsId: item.id });
+                        } else if (itemType === 'soup') {
+                          onOpenBuilder({ editSoupId: item.id });
+                        } else if (itemType === 'sauce') {
+                          onOpenBuilder({ editSauceId: item.id });
+                        } else if (itemType === 'handheld') {
+                          onOpenBuilder({ editHandheldId: item.id });
+                        } else if (itemType === 'dessert') {
+                          onOpenBuilder({ editDessertId: item.id });
+                        }
+                      }}
+                      accessibilityLabel={`Edit ${item.title}`}
+                      hitSlop={8}
+                    >
+                      <Ionicons name="pencil-outline" size={19} color={colors.textSecondary} />
+                    </TouchableOpacity>
+                  ) : null}
+                  {/* Track, 2026-08-20 -- the Fermentation Tracker's own real
+                      entry point from a saved fermentation. Scoped to
+                      itemType==='fermentation' && status==='saved' only, the
+                      same real "editable saved item" scope Edit above already
+                      uses -- a favorite has nothing to track yet (see the tap
+                      handler's own "Use this Favorite" comment above), and no
+                      other itemType has a Tracker to open. */}
+                  {status === 'saved' && itemType === 'fermentation' ? (
+                    <TouchableOpacity
+                      style={styles.itemActionButton}
+                      onPress={() => {
+                        // The tracker is still a Stack screen. Marking the trip
+                        // keeps this list open through it (the same mechanism
+                        // that keeps a builder open through a food-trial trip),
+                        // so coming back lands here rather than on the tab's
+                        // resting screen.
+                        markPendingFoodTrialReturn();
+                        router.push({ pathname: '/fermentation-tracker', params: { fermentationId: item.id, fermentationName: item.title } });
+                      }}
+                      accessibilityLabel={`Track ${item.title}`}
+                      hitSlop={8}
+                    >
+                      <Ionicons name="flask-outline" size={19} color={colors.textSecondary} />
+                    </TouchableOpacity>
+                  ) : null}
+                  {/* Favorites are deletable too, 2026-08-08 -- the same generic
+                      favorites table every itemType shares (see handleDelete's
+                      own comment above), so this reuses supportsDelete's
+                      existing itemType check rather than a separate favorite-
+                      specific allowlist. No Edit button for a favorite -- "Use
+                      this Favorite" (the tap handler above) already opens it in
+                      a real, editable builder before anything is saved. */}
+                  {(status === 'saved' || status === 'favorite') && supportsDelete(itemType) ? (
+                    <TouchableOpacity
+                      style={styles.itemActionButton}
+                      onPress={() => handleDelete(item)}
+                      accessibilityLabel={`Delete ${item.title}`}
+                      hitSlop={8}
+                    >
+                      <Ionicons name="trash-outline" size={19} color={colors.danger} />
+                    </TouchableOpacity>
                   ) : null}
                 </View>
-                <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
-              </TouchableOpacity>
-              {/* Edit/Delete, 2026-08-01 -- explicitly requested after a
-                  saved side turned out to have no way to fix a mistaken
-                  ingredient once saved. Scoped to real saved items only
-                  (not favorites -- a different, not-yet-editable shape, see
-                  the tap handler's own comment above), and only for
-                  itemTypes supportsEdit/deleteItem below actually support --
-                  grows by one case in each of those, not a UI change here,
-                  as more builders get their own real save path. */}
-              {status === 'saved' && supportsEdit(itemType) ? (
-                <TouchableOpacity
-                  style={styles.itemActionButton}
-                  onPress={() => {
-                    // Side/Salad/Smoothie/Fermentation/Beverage/Snack/
-                    // BakedGoods/Soup/Sauces/Handhelds/Dessert each push into
-                    // app/(tabs)/food.tsx's own builder pre-loaded via
-                    // editSideId/editSaladId/editSmoothieId/
-                    // editFermentationId/editBeverageId/editSnackId/
-                    // editBakedGoodsId/editSoupId/editSauceId/
-                    // editHandheldId/editDessertId (see that file and
-                    // SideBuilder.tsx/SaladBuilder.tsx/SmoothieBuilder.tsx/
-                    // FermentationBuilder.tsx/BeverageBuilder.tsx/
-                    // SnackBuilder.tsx/BakedGoodsBuilder.tsx/SoupBuilder.tsx/
-                    // SaucesBuilder.tsx/HandheldsBuilder.tsx/
-                    // DessertBuilder.tsx's own props).
-                    // Written inline (not returned from a helper) so each
-                    // route's own literal
-                    // pathname/params stay visible to Expo Router's
-                    // typed-routes checking -- a helper returning a plain
-                    // `string` pathname would widen it past what
-                    // router.push's typed Href accepts.
-                    if (itemType === 'side') {
-                      onOpenBuilder({ editSideId: item.id });
-                    } else if (itemType === 'salad') {
-                      onOpenBuilder({ editSaladId: item.id });
-                    } else if (itemType === 'smoothie') {
-                      onOpenBuilder({ editSmoothieId: item.id });
-                    } else if (itemType === 'fermentation') {
-                      onOpenBuilder({ editFermentationId: item.id });
-                    } else if (itemType === 'beverage') {
-                      onOpenBuilder({ editBeverageId: item.id });
-                    } else if (itemType === 'snack') {
-                      onOpenBuilder({ editSnackId: item.id });
-                    } else if (itemType === 'bakedGoods') {
-                      onOpenBuilder({ editBakedGoodsId: item.id });
-                    } else if (itemType === 'soup') {
-                      onOpenBuilder({ editSoupId: item.id });
-                    } else if (itemType === 'sauce') {
-                      onOpenBuilder({ editSauceId: item.id });
-                    } else if (itemType === 'handheld') {
-                      onOpenBuilder({ editHandheldId: item.id });
-                    } else if (itemType === 'dessert') {
-                      onOpenBuilder({ editDessertId: item.id });
-                    }
-                  }}
-                  accessibilityLabel={`Edit ${item.title}`}
-                  hitSlop={8}
-                >
-                  <Ionicons name="pencil-outline" size={19} color={colors.textSecondary} />
-                </TouchableOpacity>
-              ) : null}
-              {/* Track, 2026-08-20 -- the Fermentation Tracker's own real
-                  entry point from a saved fermentation. Scoped to
-                  itemType==='fermentation' && status==='saved' only, the
-                  same real "editable saved item" scope Edit above already
-                  uses -- a favorite has nothing to track yet (see the tap
-                  handler's own "Use this Favorite" comment above), and no
-                  other itemType has a Tracker to open. */}
-              {status === 'saved' && itemType === 'fermentation' ? (
-                <TouchableOpacity
-                  style={styles.itemActionButton}
-                  onPress={() => {
-                    // The tracker is still a Stack screen. Marking the trip
-                    // keeps this list open through it (the same mechanism
-                    // that keeps a builder open through a food-trial trip),
-                    // so coming back lands here rather than on the tab's
-                    // resting screen.
-                    markPendingFoodTrialReturn();
-                    router.push({ pathname: '/fermentation-tracker', params: { fermentationId: item.id, fermentationName: item.title } });
-                  }}
-                  accessibilityLabel={`Track ${item.title}`}
-                  hitSlop={8}
-                >
-                  <Ionicons name="flask-outline" size={19} color={colors.textSecondary} />
-                </TouchableOpacity>
-              ) : null}
-              {/* Favorites are deletable too, 2026-08-08 -- the same generic
-                  favorites table every itemType shares (see handleDelete's
-                  own comment above), so this reuses supportsDelete's
-                  existing itemType check rather than a separate favorite-
-                  specific allowlist. No Edit button for a favorite -- "Use
-                  this Favorite" (the tap handler above) already opens it in
-                  a real, editable builder before anything is saved. */}
-              {(status === 'saved' || status === 'favorite') && supportsDelete(itemType) ? (
-                <TouchableOpacity
-                  style={styles.itemActionButton}
-                  onPress={() => handleDelete(item)}
-                  accessibilityLabel={`Delete ${item.title}`}
-                  hitSlop={8}
-                >
-                  <Ionicons name="trash-outline" size={19} color={colors.danger} />
-                </TouchableOpacity>
-              ) : null}
-            </View>
-          ))
-        )}
-        </HomeSectionBand>
-      </ScrollView>
-      {infoAlertElement}
-      {confirmSheetElement}
-    </View>
+              ))
+            )}
+    </>
+  );
+
+  if (grouped) {
+    return (
+      <HomeSectionBand
+        kind="fold"
+        title={bandTitle}
+        icon={bandIcon}
+        color={colors.tabFood}
+        expanded={expanded}
+        onToggle={onToggle}
+        contentStyle={styles.bandBody}
+      >
+        {body}
+      </HomeSectionBand>
+    );
+  }
+  return (
+    <HomeSectionBand kind="static" title={bandTitle} icon={bandIcon} color={colors.tabFood} contentStyle={styles.bandBody}>
+      {body}
+    </HomeSectionBand>
   );
 }
 
@@ -656,6 +779,19 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
   },
   bandBody: { gap: HOME_BAND_GAP },
+  // A line of its own above the bands, on a surface rather than
+  // straight on the Food background (see CLAUDE.md's standing rule).
+  introBox: {
+    marginHorizontal: HOME_BAND_CONTENT_PADDING,
+    borderRadius: 10,
+    backgroundColor: colors.surfaceMuted,
+    padding: 12,
+  },
+  introText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    ...textShadow,
+  },
   emptyText: {
     ...typography.body,
     color: colors.textPrimary,
