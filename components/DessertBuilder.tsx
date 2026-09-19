@@ -1852,28 +1852,33 @@ export function DessertBuilder({
           {/* "Find a Recipe" leads the card, 2026-09-13, direct instruction:
               "For each of the builders, the Find a Recipe area should be
               above and it should say at the bottom of them 'Or Create a
-              New Recipe'." The four links are unchanged from their
-              2026-08-16 form (each a deep link into the Digest category
-              that shows the full recipe); only their place and the two
-              headings moved. Same guard as before: an edit or a favorite
-              resume in progress is never offered a reason to leave. */}
+              New Recipe'." Two links rather than four, 2026-09-18: the
+              recipes left the Digest for Food ("I also think that all
+              recipes should live in Food rather than having the system
+              meals exist in the Digest"), where My Recipes holds saved
+              dishes, favorites and recipes somebody shared in one place,
+              and System Recipes holds the ones built into the app. Same
+              guard as before: an edit or a favorite resume in progress is
+              never offered a reason to leave. */}
           {!editDessertId && !fromFavoriteId ? (
             <View style={styles.findRecipeSection}>
               <Text style={[styles.findRecipeHeading, { color: tabColor }]}>Find a Recipe</Text>
-              <TouchableOpacity style={styles.findRecipeLink} onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}>
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>My Kitchen (your saved desserts)</Text>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/food', params: { openFoodLens: 'myRecipes' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  My Recipes (your saved desserts)
+                </Text>
                 <Ionicons name="chevron-forward" size={16} color={tabColor} />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.findRecipeLink} onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}>
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>Recipes Shared With Me</Text>
-                <Ionicons name="chevron-forward" size={16} color={tabColor} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.findRecipeLink} onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'recipes' } })}>
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>Recipes (built into the app)</Text>
-                <Ionicons name="chevron-forward" size={16} color={tabColor} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.findRecipeLink} onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myFavorites' } })}>
-                <Text style={styles.findRecipeLinkText} numberOfLines={1}>My Favorites</Text>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/food', params: { openFoodLens: 'systemRecipes' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  System Recipes (built into the app)
+                </Text>
                 <Ionicons name="chevron-forward" size={16} color={tabColor} />
               </TouchableOpacity>
               <Text style={[styles.findRecipeHeading, styles.createNewLabel, { color: tabColor }]}>Or Create a New Recipe</Text>

@@ -3573,8 +3573,7 @@ export default function ProfileScreen() {
           (lib/dailyMealPlan.ts) already lives on Schedule; this is the
           second real door into that one generator, not a second
           implementation of it. Reuses the same openScheduleLens deep-link
-          pattern Garden's own openGardenLens already established, and
-          Digest's own openDigestLens before that. */}
+          pattern Garden's own openGardenLens already established. */}
       <View style={styles.card}>
         {renderCardHeader('meal-plan', 'Meal Plan')}
         {!collapsedSections.has('meal-plan') ? (

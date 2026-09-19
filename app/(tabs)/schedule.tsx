@@ -4231,10 +4231,9 @@ function ComingSoonLens({
 
 export default function ScheduleScreen() {
   useRegisterScreenHelp('Schedules', SCHEDULE_HELP_SECTIONS, '/schedule');
-  // 2026-08-26 -- the same real deep-link mechanism purple-digest.tsx's
-  // own openDigestLens already established, so Profile can jump straight
-  // into the Daily Meal Plan lens rather than leaving someone to find it
-  // themselves via LensHub afterward.
+  // 2026-08-26 -- the same deep-link mechanism every other tab takes, so
+  // Profile can jump straight into the Daily Meal Plan lens rather than
+  // leaving someone to find it themselves via LensHub afterward.
   const { openScheduleLens, scheduleTreatmentId } = useLocalSearchParams<{ openScheduleLens?: string; scheduleTreatmentId?: string }>();
   const [lens, setLens] = useState<Lens>('meals');
   const activeLensLabel = LENSES.find((option) => option.key === lens)?.label;
@@ -4296,10 +4295,9 @@ export default function ScheduleScreen() {
   useFocusEffect(
     useCallback(() => {
       // openScheduleLens overrides the normal "always land on the resting
-      // picker" reset below, the same way purple-digest.tsx's own
-      // openDigestLens does -- without this, a real deep link from
-      // Profile would still show the LensHub picker for a beat instead of
-      // the lens it was actually sent to.
+      // picker" reset below, the same way food.tsx's own openFoodLens
+      // does. Without this, a deep link from Profile would still show the
+      // LensHub picker for a beat instead of the lens it was sent to.
       // 2026-08-29: generalised from the single 'dailyMealPlan' case to
       // any real lens key, so Home's "Meals logged today" tile can land on
       // Past Meals instead of dropping someone on the lens picker. Matched

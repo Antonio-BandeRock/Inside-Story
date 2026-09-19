@@ -16,9 +16,11 @@
 // security-requirement note exists) before anything gets written at all --
 // stageSharedItem writes a real staging row (lib/sharing.ts's own
 // shared_recipes table), never a permanent saved record directly. The
-// "try it, then decide" half lives on the resulting Digest card
-// itself (see DynamicEntryActions' own 'shared' branch in
-// app/(tabs)/purple-digest.tsx).
+// "try it, then decide" half lives on the card the recipe gets, under
+// Recipes Shared With Me in Food's My Recipes (see the 'shared' branch
+// of components/DynamicEntryActions.tsx). That heading sat in the
+// Digest under My Kitchen until 2026-09-18, when the recipes moved to
+// Food and it followed them.
 //
 // Never writes anything before a real, explicit confirmation -- the same
 // discipline this app already holds every other "external, unverified
@@ -126,15 +128,16 @@ export default function ImportSharedScreen() {
           <Ionicons name="checkmark-circle-outline" size={40} color={colors.accent} />
           <Text style={styles.title}>Saved to Shared Recipes</Text>
           <Text style={styles.text}>
-            {previewName(envelope)} is now under Recipes Shared With Me, in My Kitchen -- shared by {envelope.fromName}. Try
-            it, then save it to your own recipes or as a favorite, or just delete it if it&apos;s not for you.
+            {previewName(envelope)} is now under Recipes Shared With Me, in My Recipes on the Food screen, shared by
+            {envelope.fromName}. Try it, then save it to your own recipes or as a favorite, or just delete it if
+            it&apos;s not for you.
           </Text>
           <TouchableOpacity
             style={styles.primaryButton}
             activeOpacity={0.85}
-            onPress={() => router.replace({ pathname: '/(tabs)/purple-digest' })}
+            onPress={() => router.replace({ pathname: '/(tabs)/food', params: { openFoodLens: 'myRecipes' } })}
           >
-            <Text style={styles.primaryButtonText}>Open My Kitchen</Text>
+            <Text style={styles.primaryButtonText}>Open My Recipes</Text>
           </TouchableOpacity>
         </View>
       </View>

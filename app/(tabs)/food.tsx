@@ -27,6 +27,7 @@ import { TabDesktopMenu } from '../../components/TabDesktopMenu';
 import { FindMealView } from '../../components/FindMealView';
 import { FoodItemDetailView } from '../../components/FoodItemDetailView';
 import { FoodItemsView, type FoodItemsListParams } from '../../components/FoodItemsView';
+import { countSystemRecipes, SystemRecipesView } from '../../components/SystemRecipesView';
 import { MySafeFoodsView } from '../../components/MySafeFoodsView';
 import { FoodProductDetailView } from '../../components/FoodProductDetailView';
 import { ScanProductView } from '../../components/ScanProductView';
@@ -101,6 +102,12 @@ type FoodLens =
   // took over from the "Saved & Favorites" submenu, which was a menu of
   // twenty-three links to twenty-three one-list screens.
   | 'myRecipes'
+  // The recipes the app ships with, grouped by the builder that makes
+  // each one, 2026-09-18: "I would like the System recipes from Digest
+  // to move to Food on the Food page and be access from System Meals,
+  // but change System Meals to System Recipes." It was a push into the
+  // Digest's own Recipes category until then.
+  | 'systemRecipes'
   | 'mealBuilder'
   | 'sideBuilder'
   | 'saladBuilder'
@@ -148,6 +155,8 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
     'The foods you say are safe for you, the ones you have not worked out yet, and the ones you say are not. Three marks on every row: plus for safe, a question mark for undecided, a minus for not for you. Search a food, browse a whole category at a time, or work through whatever is in your schedule. Each row says what a food trial found and what this app makes of the food for the conditions you track. What you mark comes ahead of what the app works out, so Safe Foods in Insights and your generated meal plan both follow it.',
   myRecipes:
     'Everything you have built in one of the Food tools and saved, and everything you have marked a favorite, grouped by the tool that made it. Open one to see its ingredients, nutrients and condition scores, or to build on it again.',
+  systemRecipes:
+    'Every recipe that comes with the app, grouped by the tool that makes it. Open one to read the whole thing: what it makes, what goes in it, how to cook it, what it gives you, and any cautions for the conditions you track. Build This Recipe opens that tool already loaded with it, so you can change it into your own.',
   findMeal:
     'Every meal you can reach without opening a builder, in groups you tap to open: meals you have logged or saved, meals already on your schedule, and the system recipes. Tap a meal to see what it is made of, then Use this meal logs it now, logs it for earlier today, puts it on your schedule, or swaps it in for a meal that was planned. To build something new from what is here, tick dishes from as many meals as you like; a Meal you are building box at the top shows the combination, and Build a meal with these opens Meal Builder with all of them loaded.',
   mealBuilder:
@@ -204,6 +213,7 @@ const FOOD_LENS_FULL_NAMES: Record<FoodLens, string> = {
   myFoodProduct: 'Food Product',
   mySafeFoods: 'My Safe\nFoods',
   myRecipes: 'My\nRecipes',
+  systemRecipes: 'System\nRecipes',
   findMeal: 'Log or\nSchedule a Meal',
   mealBuilder: 'Meal\nBuilder',
   sideBuilder: 'Sides\nBuilder',
@@ -700,6 +710,19 @@ export default function FoodScreen() {
         setRevealed(true);
         return;
       }
+      // Where the eleven builders send somebody looking for a recipe to
+      // start from, 2026-09-18. They used to reach into the Digest for
+      // this; the recipes live here now, so the links land on the two
+      // lenses that hold them.
+      if (openFoodLens === 'myRecipes') {
+        openMyRecipes();
+        return;
+      }
+      if (openFoodLens === 'systemRecipes') {
+        setLens('systemRecipes');
+        setRevealed(true);
+        return;
+      }
       if (scheduleItemId) {
         setLens('mealBuilder');
         setRevealed(true);
@@ -1192,16 +1215,24 @@ export default function FoodScreen() {
       onPress: () => router.push({ pathname: '/garden', params: { openGardenLens: 'harvestLog' } }),
     },
     {
-      // "System Meals" -- this app's own curated Recipes library, not
-      // anything the person created. Last, 2026-09-13, direct instruction:
-      // "On the Food screen, make System Meals be last under Saved &
-      // Favorites." The person's own things first, the app's library after
-      // them. Saved & Favorites became My Recipes on 2026-09-18 and this
-      // row stayed where it was, at the end.
-      id: 'system-meals',
-      label: 'System Meals',
+      // "System Recipes" -- the recipes the app ships with, not anything
+      // the person created. Last, 2026-09-13, direct instruction: "On the
+      // Food screen, make System Meals be last under Saved & Favorites."
+      // The person's things first, the app's library after them. Saved &
+      // Favorites became My Recipes on 2026-09-18 and this row stayed
+      // where it was, at the end.
+      //
+      // Renamed and re-pointed the same day: it used to push into the
+      // Digest's own Recipes category, and now opens here, on this tab,
+      // as a lens of its own.
+      id: 'system-recipes',
+      label: 'System Recipes',
       icon: 'book-outline',
-      onPress: () => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'recipes' } }),
+      count: countSystemRecipes(),
+      onPress: () => {
+        setLens('systemRecipes');
+        setRevealed(true);
+      },
     },
   ];
 
@@ -1320,7 +1351,15 @@ export default function FoodScreen() {
             <FoodItemsView
               sections={MY_RECIPES_SECTIONS}
               title="My Recipes"
-              intro="Everything you have built here and saved, plus everything you have marked a favorite, under the tool that made it. Tap one to open it, or to build on it again."
+              intro="Everything you have built here and saved, plus everything you have marked a favorite, under the tool that made it. Tap one to read the whole recipe, or to build on it again."
+              // 2026-09-18: "My Recipes should be setup the same way with
+              // the user's recipes used and grouped from the builders that
+              // would make them... it expands to show everything it would
+              // have shown from when it was listed in Digest. The recipe,
+              // the measurements, the prepwork, everything." So a row opens
+              // here instead of pushing a screen, matching System Recipes
+              // above.
+              expandInPlace
               onOpenProduct={(id, title) => {
                 setProductParams({ id, title });
                 setLens('myFoodProduct');
@@ -1329,6 +1368,11 @@ export default function FoodScreen() {
                 setDetailParams({ itemType, id, title });
                 setLens('myFoodsDetail');
               }}
+              onOpenBuilder={(params) => router.push({ pathname: '/food', params })}
+              onClose={() => setRevealed(false)}
+            />
+          ) : lens === 'systemRecipes' ? (
+            <SystemRecipesView
               onOpenBuilder={(params) => router.push({ pathname: '/food', params })}
               onClose={() => setRevealed(false)}
             />

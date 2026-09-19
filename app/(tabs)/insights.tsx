@@ -571,8 +571,7 @@ export default function InsightsScreen() {
     useCallback(() => {
       // openInsightsLens overrides the normal "always land on the resting
       // picker" reset below, the same way schedule.tsx's own
-      // openScheduleLens and purple-digest.tsx's own openDigestLens
-      // already do. 2026-08-29, direct report about Home's "Worth a look"
+      // openScheduleLens and food.tsx's own openFoodLens already do. 2026-08-29, direct report about Home's "Worth a look"
       // tile: "goes to the Insights screen with nothing else selected. A
       // person who taps that will never know where they are supposed to
       // look for the thing that is worth a look." Correct -- that tile

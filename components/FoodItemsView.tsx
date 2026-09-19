@@ -35,6 +35,11 @@ import {
   listSnacks,
   listSoups,
 } from '../lib/db';
+import { buildEntryForMyRecipe, buildSharedRecipeEntries } from '../lib/digestDynamicEntries';
+import type { DigestEntry } from '../lib/digest/types';
+import { DynamicEntryActions } from './DynamicEntryActions';
+import { EntryPhotoSection } from './EntryPhotoSection';
+import { RecipeBuildRow, RecipeDetailCard } from './RecipeDetailCard';
 import { useConfirmSheet, type ConfirmSheetRequest } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 
@@ -79,6 +84,7 @@ export function FoodItemsView({
   title,
   sections,
   intro,
+  expandInPlace,
   onOpenProduct,
   onOpenDetail,
   onOpenBuilder,
@@ -95,6 +101,15 @@ export function FoodItemsView({
   sections?: FoodItemsListParams[];
   // A line above the bands saying what the screen holds.
   intro?: string;
+  // My Recipes only, 2026-09-18: "When the user selects a meal, side,
+  // smoothie, etc from the drop down collapsable card, it expands to
+  // show everything it would have shown from when it was listed in
+  // Digest. The recipe, the measurements, the prepwork, everything."
+  // So a row opens where it sits, the same way System Recipes opens one,
+  // rather than pushing a detail screen. My Food Products (the only
+  // other caller) keeps its own tap, since a scanned label is a
+  // different shape with no recipe in it.
+  expandInPlace?: boolean;
   // A scanned product's own detail (FoodProductDetailView).
   onOpenProduct: (id: string, title: string) => void;
   // A saved dish's own detail (FoodItemDetailView).
@@ -116,6 +131,14 @@ export function FoodItemsView({
   const grouped = resolvedSections.length > 1;
   const [itemsByKey, setItemsByKey] = useState<Record<string, FoodItemEntry[] | null>>({});
   const [openKey, setOpenKey] = useState<string | null>(null);
+  // Recipes somebody sent, 2026-09-18: they lived in the Digest under My
+  // Kitchen until the recipes themselves moved here ("I also think that
+  // all recipes should live in Food rather than having the system meals
+  // exist in the Digest"), and a share is a recipe waiting to become one
+  // of these, so it belongs at the top of the same screen. Loaded here
+  // rather than inside the band because a fold band mounts nothing while
+  // it is closed, and the heading has to say how many are in there.
+  const [sharedEntries, setSharedEntries] = useState<DigestEntry[]>([]);
 
   useEffect(() => {
     let isCurrent = true;
@@ -131,6 +154,19 @@ export function FoodItemsView({
       isCurrent = false;
     };
   }, [resolvedSections]);
+
+  const reloadShared = useCallback(async () => {
+    if (!expandInPlace) return;
+    try {
+      setSharedEntries(await buildSharedRecipeEntries());
+    } catch (error) {
+      console.error('[FoodItemsView] Could not load shared recipes', error);
+    }
+  }, [expandInPlace]);
+
+  useEffect(() => {
+    void reloadShared();
+  }, [reloadShared]);
 
   const reloadSection = useCallback(async (section: FoodItemsListParams) => {
     const loaded = await loadItems(section.itemType, section.status);
@@ -162,6 +198,38 @@ export function FoodItemsView({
         {/* One band per list, its name as the header, each item an inset box
             beneath (the same shape Log or Schedule a Meal's sections took on
             2026-09-13). */}
+        {sharedEntries.length > 0 ? (
+          <HomeSectionBand
+            kind="fold"
+            title={`Recipes Shared With Me (${sharedEntries.length})`}
+            icon="gift-outline"
+            color={colors.tabFood}
+            expanded={openKey === 'sharedRecipes'}
+            onToggle={() => setOpenKey(openKey === 'sharedRecipes' ? null : 'sharedRecipes')}
+            contentStyle={styles.bandBody}
+          >
+            {sharedEntries.map((entry) => (
+              <View key={entry.id} style={styles.itemBlock}>
+                <View style={styles.sharedRecipeBody}>
+                  <Text style={styles.sharedRecipeTitle}>{entry.title}</Text>
+                  {entry.summary ? <Text style={styles.sharedRecipeSummary}>{entry.summary}</Text> : null}
+                  {entry.recipeCard ? (
+                    <RecipeDetailCard card={entry.recipeCard} tabColor={colors.tabFood} tabTextColor={colors.tabFood} />
+                  ) : null}
+                  <DynamicEntryActions
+                    entry={entry}
+                    tabColor={colors.tabFood}
+                    tabTextColor={colors.tabFood}
+                    onDynamicEntriesChanged={() => {
+                      void reloadShared();
+                      resolvedSections.forEach((section) => void reloadSection(section));
+                    }}
+                  />
+                </View>
+              </View>
+            ))}
+          </HomeSectionBand>
+        ) : null}
         {shownSections.map((section) => (
           <FoodItemsSection
             key={sectionKey(section)}
@@ -171,6 +239,7 @@ export function FoodItemsView({
             expanded={grouped ? openKey === sectionKey(section) : true}
             onToggle={() => setOpenKey(openKey === sectionKey(section) ? null : sectionKey(section))}
             onReload={() => reloadSection(section)}
+            expandInPlace={expandInPlace ?? false}
             onOpenProduct={onOpenProduct}
             onOpenDetail={onOpenDetail}
             onOpenBuilder={onOpenBuilder}
@@ -207,6 +276,7 @@ function FoodItemsSection({
   expanded,
   onToggle,
   onReload,
+  expandInPlace,
   onOpenProduct,
   onOpenDetail,
   onOpenBuilder,
@@ -219,6 +289,7 @@ function FoodItemsSection({
   expanded: boolean;
   onToggle: () => void;
   onReload: () => Promise<void>;
+  expandInPlace: boolean;
   onOpenProduct: (id: string, title: string) => void;
   onOpenDetail: (itemType: string, id: string, title: string) => void;
   onOpenBuilder: (params: Record<string, string>) => void;
@@ -227,6 +298,9 @@ function FoodItemsSection({
 }) {
   const router = useRouter();
   const { itemType, status, title } = section;
+  // Which row in THIS list is open. One at a time, the same way the
+  // bands themselves behave.
+  const [openItemId, setOpenItemId] = useState<string | null>(null);
 
   // Refetches in place after a delete, rather than navigating anywhere --
   // the person is deleting FROM this list, so staying on it (now one item
@@ -264,10 +338,19 @@ function FoodItemsSection({
               <Text style={styles.emptyText}>Nothing here yet.</Text>
             ) : (
               items.map((item) => (
-                <View key={item.id} style={styles.itemRow}>
+                <View key={item.id} style={styles.itemBlock}>
+                <View style={styles.itemRow}>
                   <TouchableOpacity
                     style={styles.itemTapArea}
                     onPress={() => {
+                      // In My Recipes the row opens here rather than
+                      // going anywhere. Everything the old destinations
+                      // offered is inside the opened row (see
+                      // MyRecipeDetail below), so nothing was lost.
+                      if (expandInPlace && itemType !== 'scannedProduct') {
+                        setOpenItemId(openItemId === item.id ? null : item.id);
+                        return;
+                      }
                       // "My Food Products," 2026-08-16 -- a real, dedicated
                       // detail screen (app/food-product-detail.tsx), genuinely
                       // different in shape from every builder's own saved
@@ -301,58 +384,18 @@ function FoodItemsSection({
                         onOpenDetail(itemType, item.id, item.title);
                         return;
                       }
-                      // "Use this Favorite," 2026-08-08 -- tapping a favorite
-                      // resumes the matching builder pre-loaded with its own
-                      // saved ingredients (via app/(tabs)/food.tsx's own
-                      // fromSideFavoriteId/fromSaladFavoriteId/etc. params, the
-                      // exact same shape as the Edit button's editSideId/etc.
-                      // params just below, except this always produces a
-                      // genuinely NEW saved item rather than editing the
-                      // favorite itself -- a favorite is a reusable template,
-                      // not a record with its own detail view). Written inline
-                      // for the same typed-routes reason the Edit button's own
-                      // block already explains.
+                      // "Use this Favorite," 2026-08-08: tapping a favorite
+                      // resumes the matching builder pre-loaded with its saved
+                      // ingredients, which always produces a NEW saved item
+                      // rather than editing the favorite itself, since a
+                      // favorite is a reusable template and not a record with
+                      // a detail view. Which param does that per builder is in
+                      // FAVORITE_BUILDER_PARAM below, shared with the opened
+                      // row, so the two can never name different params.
                       if (status === 'favorite') {
-                        if (itemType === 'side') {
-                          onOpenBuilder({ fromSideFavoriteId: item.id });
-                          return;
-                        } else if (itemType === 'salad') {
-                          onOpenBuilder({ fromSaladFavoriteId: item.id });
-                          return;
-                        } else if (itemType === 'smoothie') {
-                          onOpenBuilder({ fromSmoothieFavoriteId: item.id });
-                          return;
-                        } else if (itemType === 'fermentation') {
-                          onOpenBuilder({ fromFermentationFavoriteId: item.id });
-                          return;
-                        } else if (itemType === 'beverage') {
-                          onOpenBuilder({ fromBeverageFavoriteId: item.id });
-                          return;
-                        } else if (itemType === 'snack') {
-                          onOpenBuilder({ fromSnackFavoriteId: item.id });
-                          return;
-                        } else if (itemType === 'bakedGoods') {
-                          onOpenBuilder({ fromBakedGoodsFavoriteId: item.id });
-                          return;
-                        } else if (itemType === 'soup') {
-                          onOpenBuilder({ fromSoupFavoriteId: item.id });
-                          return;
-                        } else if (itemType === 'sauce') {
-                          onOpenBuilder({ fromSauceFavoriteId: item.id });
-                          return;
-                        } else if (itemType === 'handheld') {
-                          onOpenBuilder({ fromHandheldFavoriteId: item.id });
-                          return;
-                        } else if (itemType === 'dessert') {
-                          onOpenBuilder({ fromDessertFavoriteId: item.id });
-                          return;
-                        }
-                        // 'meal' favorites (see saveMealFavorite in lib/db.ts),
-                        // 2026-08-08 -- resumes Meal Builder pre-loaded with the
-                        // favorite's own saved components (see
-                        // MealBuilder.tsx's own favoriteId prop/effect).
-                        if (itemType === 'meal') {
-                          onOpenBuilder({ mealFavoriteId: item.id });
+                        const favoriteParam = FAVORITE_BUILDER_PARAM[itemType];
+                        if (favoriteParam) {
+                          onOpenBuilder({ [favoriteParam]: item.id });
                           return;
                         }
                       }
@@ -372,7 +415,11 @@ function FoodItemsSection({
                         </Text>
                       ) : null}
                     </View>
-                    <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+                    <Ionicons
+                      name={expandInPlace && itemType !== 'scannedProduct' ? (openItemId === item.id ? 'chevron-up' : 'chevron-down') : 'chevron-forward'}
+                      size={18}
+                      color={colors.textSecondary}
+                    />
                   </TouchableOpacity>
                   {/* Edit/Delete, 2026-08-01 -- explicitly requested after a
                       saved side turned out to have no way to fix a mistaken
@@ -477,6 +524,20 @@ function FoodItemsSection({
                     </TouchableOpacity>
                   ) : null}
                 </View>
+                {openItemId === item.id ? (
+                  <MyRecipeDetail
+                    itemType={itemType}
+                    status={status}
+                    item={item}
+                    onOpenDetail={onOpenDetail}
+                    onOpenBuilder={onOpenBuilder}
+                    onChanged={() => {
+                      setOpenItemId(null);
+                      void onReload();
+                    }}
+                  />
+                ) : null}
+                </View>
               ))
             )}
     </>
@@ -503,6 +564,124 @@ function FoodItemsSection({
     </HomeSectionBand>
   );
 }
+
+// One saved dish or favorite, opened where it sits: its ingredients with
+// their measurements, how it was made, what it gives you, what is worth
+// knowing about it for the conditions the person tracks, its photo, and
+// the Schedule, Share and Remove from Favorites actions. The same
+// RecipeDetailCard and DynamicEntryActions the Digest renders, built
+// from the person's own record rather than a curated one (see
+// buildEntryForMyRecipe in lib/digestDynamicEntries.ts), which is what
+// 2026-09-18 asked for: "it expands to show everything it would have
+// shown from when it was listed in Digest."
+//
+// Loaded when the row opens rather than with the list: a full card means
+// resolving every ingredient and running the nutrition and condition
+// work over it, which is far too much to do for a list nobody has opened
+// a row of yet.
+function MyRecipeDetail({
+  itemType,
+  status,
+  item,
+  onOpenDetail,
+  onOpenBuilder,
+  onChanged,
+}: {
+  itemType: string;
+  status: string;
+  item: FoodItemEntry;
+  onOpenDetail: (itemType: string, id: string, title: string) => void;
+  onOpenBuilder: (params: Record<string, string>) => void;
+  // Removing a favorite from inside the opened row takes the row itself
+  // away, so the list has to reload behind it.
+  onChanged: () => void;
+}) {
+  const [entry, setEntry] = useState<DigestEntry | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isCurrent = true;
+    setLoading(true);
+    buildEntryForMyRecipe(itemType, status, item.id)
+      .then((built) => {
+        if (!isCurrent) return;
+        setEntry(built);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error(`[FoodItemsView] Could not build ${itemType} ${item.id}`, error);
+        if (isCurrent) setLoading(false);
+      });
+    return () => {
+      isCurrent = false;
+    };
+  }, [itemType, status, item.id]);
+
+  // The two places tapping a row used to go. Both are still one tap from
+  // here, so opening in place took nothing away.
+  const detailAvailable = status === 'saved' && supportsEdit(itemType);
+  const favoriteParam = status === 'favorite' ? FAVORITE_BUILDER_PARAM[itemType] : undefined;
+
+  return (
+    <View style={styles.itemDetail}>
+      {favoriteParam ? (
+        <RecipeBuildRow
+          label="Use This Favorite"
+          tabColor={colors.tabFood}
+          onPress={() => onOpenBuilder({ [favoriteParam]: item.id })}
+        />
+      ) : null}
+      {detailAvailable ? (
+        <RecipeBuildRow
+          label="Nutrients, Scores & Prep"
+          tabColor={colors.tabFood}
+          onPress={() => onOpenDetail(itemType, item.id, item.title)}
+        />
+      ) : null}
+      {entry ? (
+        <>
+          {entry.recipeCard ? (
+            <RecipeDetailCard card={entry.recipeCard} tabColor={colors.tabFood} tabTextColor={colors.tabFood} />
+          ) : null}
+          <EntryPhotoSection entry={entry} tabColor={colors.tabFood} />
+          {entry.dynamicAction ? (
+            <DynamicEntryActions
+              entry={entry}
+              tabColor={colors.tabFood}
+              tabTextColor={colors.tabFood}
+              isFavorite={status === 'favorite'}
+              onDynamicEntriesChanged={onChanged}
+            />
+          ) : null}
+        </>
+      ) : (
+        <Text style={styles.emptyText}>
+          {loading ? 'Opening...' : 'Nothing to show for this one yet.'}
+        </Text>
+      )}
+    </View>
+  );
+}
+
+// Which param resumes the matching builder from a favorite, 2026-08-08's
+// "Use this Favorite" -- a favorite is a reusable template, so this always
+// produces a new saved item rather than editing the favorite itself.
+// Named here rather than written inline twice now that both the row tap
+// and the opened row need it.
+const FAVORITE_BUILDER_PARAM: Record<string, string> = {
+  meal: 'mealFavoriteId',
+  side: 'fromSideFavoriteId',
+  salad: 'fromSaladFavoriteId',
+  smoothie: 'fromSmoothieFavoriteId',
+  fermentation: 'fromFermentationFavoriteId',
+  beverage: 'fromBeverageFavoriteId',
+  snack: 'fromSnackFavoriteId',
+  bakedGoods: 'fromBakedGoodsFavoriteId',
+  soup: 'fromSoupFavoriteId',
+  sauce: 'fromSauceFavoriteId',
+  handheld: 'fromHandheldFavoriteId',
+  dessert: 'fromDessertFavoriteId',
+};
 
 // Fetches whichever builder's own data this category actually needs --
 // the one place this screen knows about specific builders/tables at all.
@@ -798,13 +977,27 @@ const styles = StyleSheet.create({
     ...textShadow,
   },
   // An inset box inside the band rather than a second band (a band inside
-  // a band would put its accent 16px in).
+  // a band would put its accent 16px in). The surface belongs to the
+  // whole block since 2026-09-18, so an opened row sits on the same one
+  // as the row that opened it rather than on a second box below it.
+  itemBlock: {
+    borderRadius: 10,
+    backgroundColor: colors.surfaceMuted,
+  },
   itemRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 10,
-    backgroundColor: colors.surfaceMuted,
     paddingLeft: 12,
+  },
+  sharedRecipeBody: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 12 },
+  sharedRecipeTitle: { ...typography.bodyEmphasis, fontWeight: '400', color: colors.textPrimary, ...textShadow },
+  sharedRecipeSummary: { ...typography.caption, color: colors.textSecondary, marginTop: 2, ...textShadow },
+  itemDetail: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
+    marginHorizontal: 12,
+    paddingTop: 10,
+    paddingBottom: 12,
   },
   // The tappable "open detail" part of the row -- everything except the
   // Edit/Delete buttons, which sit outside it as their own separate

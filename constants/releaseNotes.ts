@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.40.9',
+    date: '2026-09-18',
+    changes: [
+      'The recipes that come with the app have moved out of the Digest and into Food, where the rest of your food already is. Open Food, then System Recipes, and they are grouped under the tool that makes each one: sides, salads and bowls, smoothies, ferments, drinks, snacks, baked goods, soups, sauces, handhelds and desserts.',
+      'Open any one of them and you get the whole recipe where it sits: what it makes, every ingredient with its measurement, the prep and cooking steps, what it gives you, and any cautions for the conditions you track. Build This Recipe opens the tool with the recipe already loaded, so you can change it into your own.',
+      'My Recipes now opens the same way. A saved dish or a favorite expands in place to the full recipe, with the Schedule, Share and Remove buttons the Digest used to carry.',
+      'Recipes somebody shared with you now arrive at the top of My Recipes in Food, rather than in the Digest under My Kitchen.',
+      'The Find a Recipe links at the top of every Food tool now point at My Recipes and System Recipes on this tab, two links instead of four, rather than sending you over to the Digest.',
+      'The Digest keeps every recipe it had. Each condition still shows its Meals You Can Eat, and a search or a related link still opens a recipe there. The Digest menu no longer lists Recipes, My Kitchen or My Favorites, because those all live in Food now.',
+    ],
+  },
+  {
     version: '1.0.40.8',
     date: '2026-09-18',
     changes: [

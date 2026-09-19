@@ -2,22 +2,20 @@ import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObjec
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { FlatList, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
+import { FlatList, Linking, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
-import { useConfirmSheet } from '../../components/ConfirmSheet';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DigestBarChart } from '../../components/DigestChart';
 import { DIGEST_CONDITION_ICONS } from '../../components/DigestConditionIcons';
 import { EdgeShadow } from '../../components/EdgeShadow';
-import { EntryPhotoSection, resolvePhotoTarget } from '../../components/EntryPhotoSection';
+import { EntryPhotoSection } from '../../components/EntryPhotoSection';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { HelpSheet, type HelpSection } from '../../components/HelpButton';
-import { useInfoAlert } from '../../components/InfoAlert';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
-
+import { CuratedRecipeShareButton, RECIPE_BUILDER_PARAM, RecipeBuildRow, RecipeDetailCard } from '../../components/RecipeDetailCard';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
@@ -29,35 +27,14 @@ import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { CONDITION_CODE_TO_DIGEST_KEY, DIGEST_KEY_TO_CONDITION_CODE } from '../../lib/conditionCodeMap';
 import { CONDITION_STAGING_MODELS } from '../../lib/conditionStages';
 import {
-  deleteFavorite,
   getConditionStages,
   getCuratedRecipe,
   getDietPreferences,
   getUserConditions,
-  getUserProfile,
   getVisibleFoodBaseNames,
   saveBuilderFavorite,
-  scheduleMeal,
-  scheduleSingleComponent,
-  type BuilderFavoriteItemType,
 } from '../../lib/db';
-import { buildMyFavoritesEntries, buildMyKitchenEntries, buildSharedRecipeEntries } from '../../lib/digestDynamicEntries';
 import { getDigestFeedbackFor, setDigestFeedback, type DigestFeedbackValue } from '../../lib/digestFeedback';
-import { getPhotoForTarget } from '../../lib/mealPhotos';
-import { shareFileIfAvailable } from '../../lib/nativeSharing';
-import {
-  buildBuilderFavoritePayload,
-  deleteSharedRecipe,
-  encodeMealShareLink,
-  encodeShareLink,
-  encodeShareLinkFromCuratedRecipe,
-  promoteSharedRecipeToFavorite,
-  promoteSharedRecipeToSaved,
-  writeIsFileForComponent,
-  writeIsFileForCuratedRecipe,
-  writeIsFileForMeal,
-} from '../../lib/sharing';
-import { buildTime24, formatTime12 } from '../../lib/timeOfDay';
 import {
   ALL_DIGEST_ENTRIES,
   DIGEST_CATEGORY_META,
@@ -69,10 +46,8 @@ import {
   searchEntriesScored,
   type AnyDigestEntry,
   type DigestCategoryKey,
-  type DigestEntry,
   type EvidenceTier,
   RECIPE_DIET_TAGS,
-  type RecipeCard,
   type RecipeDietTag,
   type SearchMatchInfo,
 } from '../../lib/digest';
@@ -158,26 +133,6 @@ const FIXED_HEADER_HORIZONTAL_PADDING = 16;
 const SHELF_CARD_WIDTH = 200;
 const SHELF_CARD_GAP = 10;
 const SHELF_CARD_STRIDE = SHELF_CARD_WIDTH + SHELF_CARD_GAP;
-
-// A recipe entry's own linkedBuilderType (see lib/digest/recipes.ts) maps
-// onto one real param per builder in app/(tabs)/food.tsx -- openSideRecipeId,
-// openSaladRecipeId, etc., 2026-08-14, the exact same per-builder-named-
-// param convention editSideId/fromSideFavoriteId/etc. already use there.
-// DigestCard's own "Build This Recipe" button reads this to know which
-// param to push.
-const RECIPE_BUILDER_PARAM: Record<BuilderFavoriteItemType, string> = {
-  side: 'openSideRecipeId',
-  salad: 'openSaladRecipeId',
-  smoothie: 'openSmoothieRecipeId',
-  fermentation: 'openFermentationRecipeId',
-  beverage: 'openBeverageRecipeId',
-  snack: 'openSnackRecipeId',
-  bakedGoods: 'openBakedGoodsRecipeId',
-  soup: 'openSoupRecipeId',
-  sauce: 'openSauceRecipeId',
-  handheld: 'openHandheldRecipeId',
-  dessert: 'openDessertRecipeId',
-};
 
 const DIGEST_HELP_SECTIONS: HelpSection[] = [
   {
@@ -1909,64 +1864,6 @@ function hasStageNote(entry: AnyDigestEntry, conditionCode: string, stageCode: s
   return key !== null && entry.recipeCard.conditionNotes.some((note) => note.condition === key);
 }
 
-// 2026-08-25, direct report: "If there is a warning, it absolutely must
-// ONLY be for that conditions. There shouldn't be random warnings on
-// Hashimoto's (or any other condition) for other conditions." Correct --
-// recipeCard.conditionNotes' own "Worth knowing if you have..." box (see
-// RecipeCardDetail below) was rendering every hand-written and computed
-// note on a recipe at once, unconditionally, regardless of which
-// condition's own page the recipe was opened from -- a Hashimoto's
-// recipe would show its own real Gout/CVD/RA notes too, not because they
-// were relevant to Hashimoto's, just because nothing scoped the list.
-//
-// A plain condition-code -> keyword map, built from a direct audit of
-// every real condition.condition string this app's own hand-written
-// notes actually use (not guessed): several are compound, prose-style
-// labels ("Type 2 Diabetes / PCOS", "Inflammatory Bowel Disease /
-// Irritable Bowel Syndrome / Celiac") rather than one clean tag per
-// note, and some use a shorter form than this Digest's own canonical
-// DIGEST_CATEGORY_META label ("Hashimoto's" alone, not "Hashimoto's
-// Disease"). Each keyword here is the shortest real substring confirmed
-// to appear in every variant actually in use, so a substring check
-// against it catches all of them without needing an exact match.
-const CONDITION_NOTE_KEYWORDS: Record<string, string> = {
-  hashimotos: 'Hashimoto',
-  graves: 'Graves',
-  celiac: 'Celiac',
-  chronic_kidney_disease: 'Chronic Kidney Disease',
-  gout: 'Gout',
-  ibd: 'Inflammatory Bowel Disease',
-  ibs: 'Irritable Bowel Syndrome',
-  migraine: 'Migraine',
-  type_1_diabetes: 'Type 1 Diabetes',
-  type_2_diabetes: 'Type 2 Diabetes',
-  pcos: 'PCOS',
-  rheumatoid_arthritis: 'Rheumatoid Arthritis',
-  psoriasis: 'Psoriasis',
-  multiple_sclerosis: 'Multiple Sclerosis',
-  lupus: 'Lupus',
-  sjogrens: 'Sjögren',
-  fatty_liver_disease: 'Fatty Liver',
-  cardiovascular_disease: 'Cardiovascular',
-  prostate_health: 'Prostate',
-};
-
-// Whether one real conditionNotes entry belongs on the active condition's
-// own page. No active condition (plain Recipes browsing, or any other
-// non-condition-scoped context) shows everything, unchanged from before
-// this fix. Once scoped: a note that doesn't mention ANY of the 19
-// tracked conditions by name at all ("Pregnancy," "Anyone taking
-// levothyroxine," "Any autoimmune condition") is a genuinely general
-// caution, not a warning for some OTHER specific condition, so it still
-// shows everywhere -- only a note that DOES name one or more specific
-// conditions gets scoped to just those.
-function conditionNoteAppliesTo(noteConditionText: string, activeConditionCode?: string): boolean {
-  if (!activeConditionCode) return true;
-  const mentioned = Object.entries(CONDITION_NOTE_KEYWORDS).filter(([, keyword]) => noteConditionText.includes(keyword));
-  if (mentioned.length === 0) return true;
-  return mentioned.some(([code]) => code === activeConditionCode);
-}
-
 // The one caution actually shown in a recipe's own "A note for this
 // condition" box once opened from a specific condition's own page --
 // 2026-08-24 direct follow-up: prefers a real, computed stage-specific
@@ -2542,62 +2439,6 @@ function groupRecipesEntries(entries: AnyDigestEntry[]): {
   return { topics, tyingTogether: null };
 }
 
-// My Kitchen/My Favorites (2026-08-15) group by the same real per-type
-// shelf order Recipes' own RECIPES_TOPIC_ORDER already uses, plus a real
-// "Favorite Meals" 12th group for My Favorites specifically -- but reads
-// each entry's own dynamicGroupLabel directly (set once, at build time, in
-// lib/digestDynamicEntries.ts) rather than re-deriving a topic from
-// linkedBuilderType the way classifyRecipesTopic does, since these
-// entries' real grouping is already known the moment they're built.
-const DYNAMIC_ENTRY_GROUP_ORDER = [
-  // 2026-08-15, direct request: "it shows up in their My Kitchen area
-  // under a heading of Recipes Shared With Me" -- leads the whole shelf,
-  // since a real, genuine share someone just sent is the thing most worth
-  // seeing first.
-  'Recipes Shared With Me',
-  'Sides',
-  'Salads & Bowls',
-  'Smoothies',
-  'Fermentation',
-  'Beverages',
-  'Snacks',
-  'Baked Goods',
-  'Soups',
-  'Sauces',
-  'Handhelds',
-  'Desserts',
-  'Favorite Meals',
-];
-
-function classifyDynamicEntryTopic(entry: AnyDigestEntry): string {
-  return (!isProblemFoodEntry(entry) && entry.dynamicGroupLabel) || 'Other';
-}
-
-function groupDynamicEntries(entries: AnyDigestEntry[]): {
-  topics: { label: string; entries: AnyDigestEntry[] }[];
-  tyingTogether: AnyDigestEntry | null;
-} {
-  const buckets = new Map<string, AnyDigestEntry[]>();
-  for (const entry of entries) {
-    const label = classifyDynamicEntryTopic(entry);
-    if (!buckets.has(label)) buckets.set(label, []);
-    buckets.get(label)!.push(entry);
-  }
-  const ordered = DYNAMIC_ENTRY_GROUP_ORDER.filter((label) => buckets.has(label)).map((label) => ({
-    label,
-    entries: sortDigestEntriesLogically(buckets.get(label)!),
-  }));
-  // A real safety net, not expected to ever fire given
-  // digestDynamicEntries.ts only ever sets one of the labels above -- any
-  // real group outside that fixed order sorts alphabetically after it
-  // rather than silently dropping content.
-  const extra = [...buckets.keys()]
-    .filter((label) => !DYNAMIC_ENTRY_GROUP_ORDER.includes(label))
-    .sort((a, b) => a.localeCompare(b))
-    .map((label) => ({ label, entries: sortDigestEntriesLogically(buckets.get(label)!) }));
-  return { topics: [...ordered, ...extra], tyingTogether: null };
-}
-
 // A single, shared dispatcher used everywhere a lens' own entries need
 // grouping into real topic shelves -- Earth Matters, Home Gardening,
 // Recipes, and My Kitchen/My Favorites each route to their own dedicated
@@ -2618,7 +2459,6 @@ function classifyTopicForCategory(entry: AnyDigestEntry, category: DigestCategor
   if (category === 'earthMatters') return classifyEarthMattersTopic(entry);
   if (category === 'homeGardening') return classifyHomeGardeningTopic(entry);
   if (category === 'recipes') return classifyRecipesTopic(entry);
-  if (category === 'myKitchen' || category === 'myFavorites') return classifyDynamicEntryTopic(entry);
   return classifyConditionTopic(entry);
 }
 
@@ -2643,7 +2483,6 @@ function groupEntriesForLens(
   if (category === 'earthMatters') return groupEarthMattersEntries(entries);
   if (category === 'homeGardening') return groupHomeGardeningEntries(entries);
   if (category === 'recipes') return groupRecipesEntries(entries);
-  if (category === 'myKitchen' || category === 'myFavorites') return groupDynamicEntries(entries);
   const conditionCode = DIGEST_KEY_TO_CONDITION_CODE[category];
   return groupConditionEntries(entries, conditionCode, conditionCode ? declaredStages?.[conditionCode] : undefined, dietPreferences);
 }
@@ -2786,26 +2625,21 @@ export default function PurpleDigestScreen() {
     if (autoOpenLensHub) setOpenTrigger(autoOpenLensHub);
   }, [autoOpenLensHub]);
 
-  // A deep link straight into one specific category, 2026-08-16 -- built
-  // for the Food builders' own new "Or Find a Recipe" links (My Kitchen /
-  // Recipes Shared With Me / Recipes / My Favorites all point straight
-  // here now, rather than the builder itself showing a duplicated, stripped-
-  // down recipe list -- see SideBuilder.tsx's own header comment on that
-  // section for the full reasoning). Read once here and consumed by the
-  // focus effect just below; anything other than these three real category
-  // keys is ignored, falling through to the ordinary reset. Mirrors
-  // food.tsx's own editSideId-style deep-link params exactly, including why
-  // this is safe to leave unconsumed after the fact: SwipeableTabScreen's
-  // own swipe-driven navigation never carries params at all, so a later
-  // swipe away and back always lands back on a bare, param-free route.
-  // openEntryId, 2026-08-23: a real deep link straight to one specific
-  // entry's own card, not just its category -- built for Home's own
-  // Digest flip cards ("Read more" needs to land on the exact entry it
-  // teased, not just that entry's own lens). Handled in the same
-  // useFocusEffect below as openDigestLens, via the same jumpToRelated
-  // this screen's own Related-entry chips already use, rather than a
-  // second, parallel navigation mechanism.
-  const { openDigestLens, openEntryId } = useLocalSearchParams<{ openDigestLens?: string; openEntryId?: string }>();
+  // A deep link straight to one specific entry's card, 2026-08-23,
+  // built for Home's Digest flip cards: Read More has to land on the
+  // exact entry it teased, not just that entry's lens. Handled in the
+  // useFocusEffect below via the same jumpToRelated the Related-entry
+  // chips already use, rather than a second navigation mechanism.
+  //
+  // It is safe to leave unconsumed: SwipeableTabScreen's swipe-driven
+  // navigation carries no params at all, so a later swipe away and back
+  // lands on a bare route.
+  //
+  // openDigestLens, its companion since 2026-08-16, is gone as of
+  // 2026-09-18. It carried the Food builders' Find a Recipe links into
+  // My Kitchen, Recipes and My Favorites; those links point at Food now,
+  // because that is where the recipes themselves live.
+  const { openEntryId } = useLocalSearchParams<{ openEntryId?: string }>();
   const [lens, setLens] = useState<PurpleDigestLens>('basicHealth');
   // Hide-sync for any Digest entry tagged with `relatedFoodNames` (currently
   // just the Fruits, Vegetables, Nuts & Seeds profile guide -- see
@@ -2905,65 +2739,6 @@ export default function PurpleDigestScreen() {
         cancelled = true;
       };
     }, []),
-  );
-  // 2026-08-15 -- the one genuinely new architectural pattern this whole
-  // Digest introduces: My Kitchen/My Favorites' real content is the
-  // PERSON'S OWN local data, computed live via lib/digestDynamicEntries.ts,
-  // never bundled in lib/digest/*.ts the way every other category's
-  // content is. null means "not loaded (yet)", distinct from a real, empty
-  // [] (nothing saved/favorited yet) -- see the entries useMemo below for
-  // how that distinction is used. Loaded via useFocusEffect (not a plain
-  // useEffect) specifically so it refires both on a genuine tab re-focus
-  // AND on `lens` itself changing while already focused (switching from
-  // Recipes to My Kitchen via LensHub, say) -- lens is a real dependency of
-  // the memoized callback below, and useFocusEffect re-runs its own
-  // callback whenever that identity changes while the screen stays
-  // focused, not just on a focus/blur transition. This is what makes a
-  // side saved a moment ago in Side Builder show up here with no restart
-  // needed.
-  const [dynamicEntries, setDynamicEntries] = useState<{
-    myKitchen: DigestEntry[] | null;
-    myFavorites: DigestEntry[] | null;
-  }>({ myKitchen: null, myFavorites: null });
-  // 2026-08-15 -- bumped after a real, in-place action changes a person's
-  // own saved/favorited/staged-shared data (a photo saved, a thumbs-up
-  // added a favorite, a staged share promoted or deleted) so the effect
-  // below re-fetches without needing a genuine focus/blur transition.
-  // Threaded down through BasicHealthShelves/DigestCard/DynamicEntryActions
-  // as onDynamicEntriesChanged -- the exact same real prop-drilling shape
-  // onJumpToRelated already established.
-  const [dynamicEntriesRefreshToken, setDynamicEntriesRefreshToken] = useState(0);
-  const refreshDynamicEntries = useCallback(() => setDynamicEntriesRefreshToken((token) => token + 1), []);
-  useFocusEffect(
-    useCallback(() => {
-      if (lens !== 'myKitchen' && lens !== 'myFavorites') return;
-      let cancelled = false;
-      // My Kitchen also carries a real, dynamic "Recipes Shared With Me"
-      // group -- see lib/digestDynamicEntries.ts's own buildSharedRecipeEntries
-      // and CLAUDE.md's own 2026-08-15 sharing-staging entry for why this
-      // lives inside myKitchen rather than as its own category.
-      const loader =
-        lens === 'myKitchen'
-          ? Promise.all([buildMyKitchenEntries(), buildSharedRecipeEntries()]).then(([kitchen, shared]) => [...shared, ...kitchen])
-          : buildMyFavoritesEntries();
-      loader
-        .then((built) => {
-          if (!cancelled) setDynamicEntries((prev) => ({ ...prev, [lens]: built }));
-        })
-        .catch((error) => {
-          console.error(`[PurpleDigest] Failed to load ${lens}`, error);
-          if (!cancelled) setDynamicEntries((prev) => ({ ...prev, [lens]: [] }));
-        });
-      return () => {
-        cancelled = true;
-      };
-      // dynamicEntriesRefreshToken is deliberately never read inside this
-      // callback -- it exists purely to force a fresh re-run after a real
-      // in-place change (a photo save, a thumbs-up favorite-add, a staged
-      // share promoted/deleted), the same real "bump a counter to trigger
-      // a refetch" pattern this app already uses elsewhere.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [lens, dynamicEntriesRefreshToken]),
   );
   // The Search All lens's own COMMITTED query text -- 2026-08-08, no longer
   // written to on every keystroke (see DigestSearchInput's own comment
@@ -3099,31 +2874,13 @@ export default function PurpleDigestScreen() {
   // left to track.
   useFocusEffect(
     useCallback(() => {
-      // openDigestLens overrides the normal "always land on the resting
-      // picker" reset below, the same way food.tsx's own editSideId etc.
-      // already do -- without this, a real deep link from a Food builder
-      // would still show the LensHub picker for a beat (or permanently,
-      // once revealed was reset false on focus) instead of the category it
-      // was actually sent to.
-      if (openDigestLens === 'myKitchen' || openDigestLens === 'myFavorites' || openDigestLens === 'recipes') {
-        setLens(openDigestLens);
-        // 2026-08-23: a fresh deep-link arrival lands on that category's
-        // own top-level menu, same as picking it from LensHub would --
-        // without this, a stale selectedTopicGroup left over from a
-        // previous visit could show that category already drilled into a
-        // topic instead of its own menu.
-        setSelectedTopicGroup(null);
-        setSelectedBasicHealthSubgroup(null);
-        setRevealed(true);
-        return;
-      }
-      // openEntryId takes the same "reveal and land directly" precedence
-      // as openDigestLens above -- jumpToRelated already does everything a
-      // fresh arrival needs (right category, right topic, the entry
-      // expanded, scrolled into view), it just also needs revealed set
-      // true first, since jumpToRelated itself assumes the screen is
-      // already showing a category, not still on the resting LensHub
-      // picker the way a brand-new navigation always starts.
+      // openEntryId takes precedence over the normal "always land on the
+      // resting picker" reset below: jumpToRelated already does
+      // everything a fresh arrival needs (right category, right topic,
+      // the entry expanded, scrolled into view), it just also needs
+      // revealed set true first, since jumpToRelated assumes the screen
+      // is already showing a category rather than the resting LensHub
+      // picker a brand-new navigation always starts on.
       if (openEntryId) {
         setRevealed(true);
         jumpToRelated(openEntryId);
@@ -3150,7 +2907,7 @@ export default function PurpleDigestScreen() {
       // ref, always the current object regardless of which render's
       // closure captured it), so there's no real stale-closure risk here.
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [openDigestLens, openEntryId]),
+    }, [openEntryId]),
   );
 
   // Which single entry (by id) is currently expanded to its full detail,
@@ -3231,17 +2988,18 @@ export default function PurpleDigestScreen() {
   const basicHealthMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'basicHealth')!;
   const earthMattersMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'earthMatters')!;
   const gardeningMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'homeGardening')!;
-  // 2026-08-14 -- a real, new "Recipes" category, given the same fixed,
-  // always-near-the-top treatment as the three above rather than sorted
-  // alphabetically among the 19 conditions (see recipes.ts's own header
-  // comment): a real, discoverable food-building tool, not a disease
-  // condition.
-  const recipesMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'recipes')!;
-  // 2026-08-15 -- given the same fixed, always-near-the-top treatment,
-  // right after Recipes: real, personal, computed content, not a disease
-  // condition either.
-  const myKitchenMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'myKitchen')!;
-  const myFavoritesMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'myFavorites')!;
+  // Recipes, My Kitchen and My Favorites had tiles here from 2026-08-14
+  // and 2026-08-15. All three left on 2026-09-18, by direct instruction:
+  // "I also think that all recipes should live in Food rather than having
+  // the system meals exist in the Digest. My Kitchen in Digest is already
+  // bascially what is available in Food as Saved & Favorites." Food now
+  // carries System Recipes and My Recipes, each grouped by the builder
+  // that makes the thing.
+  //
+  // Recipes content itself stays in this file: every condition still
+  // shelves its own "Meals You Can Eat" from it (classifyConditionTopic),
+  // and a Search All hit or a Related chip still opens the recipes lens.
+  // It simply has no tile of its own in the picker any more.
   const conditionMetas = DIGEST_CATEGORY_META.filter(
     (meta) =>
       meta.key !== 'basicHealth' &&
@@ -3261,9 +3019,6 @@ export default function PurpleDigestScreen() {
     basicHealthMeta,
     earthMattersMeta,
     gardeningMeta,
-    recipesMeta,
-    myKitchenMeta,
-    myFavoritesMeta,
     ...pinnedConditionMetas,
     ...otherConditionMetas,
   ];
@@ -3422,14 +3177,6 @@ export default function PurpleDigestScreen() {
   // feedback tap, an unrelated state change elsewhere on screen).
   const entries = useMemo(() => {
     if (lens === 'search') return [];
-    // My Kitchen/My Favorites: real, live, per-user data, not static
-    // getEntriesForCategory content -- null (not yet loaded) reads as
-    // genuinely empty here rather than "show everything", the opposite of
-    // visibleFoodNames' own null handling below, since there's no bundled
-    // fallback content to show while this loads the way there is for a
-    // real hide-sync check.
-    if (lens === 'myKitchen') return dynamicEntries.myKitchen ?? [];
-    if (lens === 'myFavorites') return dynamicEntries.myFavorites ?? [];
     const raw = getEntriesForCategory(lens);
     // See visibleFoodNames' own comment above -- still loading (null) means
     // show everything; once resolved, drop any relatedFoodNames-tagged
@@ -3452,7 +3199,7 @@ export default function PurpleDigestScreen() {
       if (isProblemFoodEntry(entry)) return false;
       return entry.recipeCard?.dietTags?.includes(recipeDietFilter) ?? false;
     });
-  }, [lens, visibleFoodNames, dynamicEntries, recipeDietFilter]);
+  }, [lens, visibleFoodNames, recipeDietFilter]);
   // searchQuery/categorySearchQuery are already the debounced, COMMITTED
   // values by construction now (see DigestSearchInput below) -- a real,
   // second attempt at the reported keyboard-lag fix, 2026-08-08. The first
@@ -4347,7 +4094,6 @@ export default function PurpleDigestScreen() {
                       onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
                       onJumpToRelated={jumpToRelated}
                       matchInfoById={categorySearchMatchInfo}
-                      onDynamicEntriesChanged={refreshDynamicEntries}
                       // 2026-08-23: was basicHealth-only; simplified once the
                       // menu-first pattern generalized to every category --
                       // harmless for the rest of them anyway, since none of
@@ -4459,7 +4205,6 @@ export default function PurpleDigestScreen() {
                     groupRefs={groupRefs}
                     onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
                     onJumpToRelated={jumpToRelated}
-                    onDynamicEntriesChanged={refreshDynamicEntries}
                     hideTopLevelLabel={selectedTopicGroup}
                     currentHeaderTitle={drilldownTopicLabel ?? undefined}
                   />
@@ -4521,7 +4266,6 @@ export default function PurpleDigestScreen() {
                         groupRefs={groupRefs}
                         onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
                         onJumpToRelated={jumpToRelated}
-                        onDynamicEntriesChanged={refreshDynamicEntries}
                         hideTopLevelLabel={selectedTopicGroup}
                         currentHeaderTitle={drilldownTopicLabel ?? undefined}
                         activeConditionCode={activeConditionCode}
@@ -4571,7 +4315,6 @@ export default function PurpleDigestScreen() {
                               expanded={expandedId === tyingTogether.id}
                               onToggle={() => toggleEntry(tyingTogether.id, lens as DigestCategoryKey)}
                               onJumpToRelated={jumpToRelated}
-                              onDynamicEntriesChanged={refreshDynamicEntries}
                             />
                           </Animated.View>
                         </View>
@@ -5218,7 +4961,6 @@ function BasicHealthShelves({
   onToggleEntry,
   onJumpToRelated,
   matchInfoById,
-  onDynamicEntriesChanged,
   hideTopLevelLabel,
   currentHeaderTitle,
   activeConditionCode,
@@ -5234,10 +4976,6 @@ function BasicHealthShelves({
   // is exactly what ShelfTabCard needs to know not to render a match
   // indicator at all outside of search.
   matchInfoById?: Map<string, SearchMatchInfo>;
-  // 2026-08-15 -- real, in-place refresh for My Kitchen/My Favorites after
-  // a photo save, a thumbs-up favorite-add, or a staged share getting
-  // promoted/deleted. A harmless no-op prop everywhere else in this Digest.
-  onDynamicEntriesChanged?: () => void;
   // 2026-08-23, direct report: drilled into Essential Nutrients, every one
   // of its own 22 shelves still read "Essential Nutrients › Magnesium,"
   // "Essential Nutrients › Vitamin D," and so on -- redundant once the
@@ -5392,7 +5130,6 @@ function BasicHealthShelves({
                   expanded
                   onToggle={() => onToggleEntry(expandedEntry.id)}
                   onJumpToRelated={onJumpToRelated}
-                  onDynamicEntriesChanged={onDynamicEntriesChanged}
                   activeConditionCode={activeConditionCode}
                   activeStageCode={activeStageCode}
                 />
@@ -5597,25 +5334,16 @@ function renderRichText(text: string, boldStyle: TextStyle) {
 // toggle shape this app's own PopoverSelect-adjacent controls already use
 // elsewhere.
 // 2026-08-15, direct request: a thumbs-up doubles as "add to favorites"
-// for any entry that has a real favoritable backing -- a My Kitchen
-// creation, or one of the 47 curated Recipes. Only ever called on the real
-// "just became up" transition (see FeedbackRow's own handlePress below),
-// so re-tapping an already-up thumb, or toggling down then up again,
-// never creates a duplicate favorite. Returns false (a real, silent no-op,
-// not an error) for every entry with nothing real to favorite -- an
-// already-favorited My Favorites entry, a favorite MEAL/staged-share
-// entry (no single componentId to snapshot), or any of this Digest's
-// 1,500+ ordinary science/content entries.
+// for any entry with something behind it to favorite, which since
+// 2026-09-18 means a curated recipe (the My Kitchen half left with the
+// lens). Only called on the "just became up" transition (see
+// FeedbackRow's handlePress below), so re-tapping an already-up thumb, or
+// toggling down then up again, never creates a duplicate favorite.
+// Returns false, silently and not as an error, for every entry with
+// nothing to favorite, which is most of this Digest's 1,500+ science and
+// content entries.
 async function tryAddEntryToFavorites(entry: AnyDigestEntry): Promise<boolean> {
   if (isProblemFoodEntry(entry)) return false;
-  if (entry.category === 'myFavorites') return false;
-
-  if (entry.category === 'myKitchen' && entry.dynamicAction?.kind === 'component') {
-    const payload = await buildBuilderFavoritePayload(entry.dynamicAction.componentType, entry.dynamicAction.componentId);
-    if (!payload) return false;
-    await saveBuilderFavorite(entry.dynamicAction.componentType, payload);
-    return true;
-  }
 
   if (entry.linkedCuratedRecipeId && entry.linkedBuilderType) {
     const recipe = await getCuratedRecipe(entry.linkedCuratedRecipeId);
@@ -5633,7 +5361,7 @@ async function tryAddEntryToFavorites(entry: AnyDigestEntry): Promise<boolean> {
   return false;
 }
 
-function FeedbackRow({ entry, onDynamicEntriesChanged }: { entry: AnyDigestEntry; onDynamicEntriesChanged?: () => void }) {
+function FeedbackRow({ entry }: { entry: AnyDigestEntry }) {
   const entryId = entry.id;
   const [value, setValue] = useState<DigestFeedbackValue | null>(null);
   const [justFavorited, setJustFavorited] = useState(false);
@@ -5660,10 +5388,7 @@ function FeedbackRow({ entry, onDynamicEntriesChanged }: { entry: AnyDigestEntry
     if (becameUp) {
       tryAddEntryToFavorites(entry)
         .then((added) => {
-          if (added) {
-            setJustFavorited(true);
-            onDynamicEntriesChanged?.();
-          }
+          if (added) setJustFavorited(true);
         })
         .catch((error) => console.error('[FeedbackRow] Failed to add to favorites', error));
     }
@@ -5708,7 +5433,6 @@ function DigestCard({
   expanded,
   onToggle,
   onJumpToRelated,
-  onDynamicEntriesChanged,
   activeConditionCode,
   activeStageCode,
 }: {
@@ -5716,9 +5440,6 @@ function DigestCard({
   expanded: boolean;
   onToggle: () => void;
   onJumpToRelated: (id: string) => void;
-  // 2026-08-15 -- real, in-place refresh for My Kitchen/My Favorites, see
-  // BasicHealthShelves' own comment on the identical prop.
-  onDynamicEntriesChanged?: () => void;
   // 2026-08-24, see BasicHealthShelves' own comment on the identical prop.
   activeConditionCode?: string;
   // 2026-08-24, see BasicHealthShelves' own comment on the identical prop.
@@ -5776,709 +5497,39 @@ function DigestCard({
           <EntryMetaRow entry={entry} />
           <Text style={styles.detailText}>{renderRichText(entry.summary, styles.detailTextEmphasis)}</Text>
           {entry.linkedCuratedRecipeId && entry.linkedBuilderType ? (
-            <View style={styles.recipeButtonRow}>
-              <TouchableOpacity
-                style={[styles.buildRecipeButton, styles.recipeButtonFlex]}
-                activeOpacity={0.85}
-                onPress={() => {
-                  const paramName = RECIPE_BUILDER_PARAM[entry.linkedBuilderType!];
-                  router.push({ pathname: '/food', params: { [paramName]: entry.linkedCuratedRecipeId! } });
-                }}
-              >
-                <Ionicons name="hammer-outline" size={18} color={colors.background} />
-                <Text style={styles.buildRecipeButtonText}>Build This Recipe</Text>
-              </TouchableOpacity>
-              <CuratedRecipeShareButton recipeId={entry.linkedCuratedRecipeId} builderType={entry.linkedBuilderType} />
-            </View>
+            <RecipeBuildRow
+              label="Build This Recipe"
+              tabColor={TAB_COLOR}
+              onPress={() => {
+                const paramName = RECIPE_BUILDER_PARAM[entry.linkedBuilderType!];
+                router.push({ pathname: '/food', params: { [paramName]: entry.linkedCuratedRecipeId! } });
+              }}
+            >
+              <CuratedRecipeShareButton
+                recipeId={entry.linkedCuratedRecipeId}
+                builderType={entry.linkedBuilderType}
+                tabColor={TAB_COLOR}
+              />
+            </RecipeBuildRow>
           ) : null}
           {entry.recipeCard ? (
-            <RecipeCardDetail
+            <RecipeDetailCard
               card={entry.recipeCard}
+              tabColor={TAB_COLOR}
+              tabTextColor={TAB_TEXT_COLOR}
               activeConditionCaution={resolveActiveConditionCaution(entry, activeConditionCode, activeStageCode)}
               activeConditionSeverity={resolveActiveConditionSeverity(entry, activeConditionCode)}
               activeConditionCode={activeConditionCode}
             />
           ) : null}
           <EntryPhotoSection entry={entry} tabColor={TAB_COLOR} />
-          {entry.dynamicAction ? <DynamicEntryActions entry={entry} onDynamicEntriesChanged={onDynamicEntriesChanged} /> : null}
           {entry.chart ? <DigestBarChart chart={entry.chart} color={tierColor(entry.overallTier)} /> : null}
           <CitationsBlock citations={entry.citations} />
           {entry.relatedIds ? <RelatedChips ids={entry.relatedIds} onJumpToRelated={onJumpToRelated} /> : null}
-          <FeedbackRow entry={entry} onDynamicEntriesChanged={onDynamicEntriesChanged} />
+          <FeedbackRow entry={entry} />
         </View>
       ) : null}
     </TouchableOpacity>
-  );
-}
-
-// 2026-08-15, direct request: every Recipes-category entry gets a real,
-// detailed card -- a scaled ingredient list, step-by-step instructions, a
-// stated yield, a nutrition rating, and condition-specific cautions,
-// alongside the flavor description this whole entry was already built
-// around. Reuses the same detailLabel/detailText labeled-section pattern
-// every other card already uses (see DigestCard's own ProblemFoodEntry
-// branch above), rather than a separate visual language just for this one
-// field -- only entry.recipeCard's own real, computed content differs.
-// 2026-08-24, direct request: every recipe "identified" as omnivore,
-// vegetarian, or vegan, plus whichever named popular diet philosophies it
-// fits (Mediterranean, Paleo, AIP, and so on) -- see RecipeDietTag's own
-// comment in types.ts for the full tag vocabulary and
-// scripts/compute_recipe_diet_tags.js for the real, auditable rule
-// behind every tag. The base tier (Vegan/Vegetarian/Omnivore) always
-// leads the row since it's the one distinction every recipe carries;
-// the rest are unordered, whichever apply.
-//
-// 2026-08-25, direct report: "haphazardly placed there as if poured out
-// onto the table instead of being aligned and orderly... they are linked
-// somehow but not to what they should be linked to." Two real fixes:
-// (1) tags is now always re-sorted against RECIPE_DIET_TAGS' own single
-// canonical order before rendering, rather than trusting whatever order
-// happened to already be stored per recipe -- guarantees the same
-// left-to-right order on every single card, not just most of them.
-// (2) each pill is now a real, correctly wired tap target (it carried no
-// onPress at all before this pass, despite reading as tappable), opening
-// that specific diet's own real Digest explanation via the same
-// showInfoAlert overlay this app already uses for tap-to-explain
-// content elsewhere (DimensionFlags' own onExplain, CuratedRecipeShareButton's
-// own status alerts) -- deliberately an overlay rather than a full
-// jumpToRelated navigation, so "a way to get back to the recipe" is
-// simply closing it, guaranteed, rather than a new navigation-history
-// feature layered onto this screen's own already-intricate lens/topic
-// state.
-function RecipeDietTagRow({ tags, onExplainDiet }: { tags: RecipeDietTag[]; onExplainDiet: (tag: RecipeDietTag) => void }) {
-  if (tags.length === 0) return null;
-  const ordered = [...tags].sort((a, b) => RECIPE_DIET_TAGS.indexOf(a) - RECIPE_DIET_TAGS.indexOf(b));
-  return (
-    <View style={styles.dietTagRow}>
-      {ordered.map((tag) => (
-        <TouchableOpacity key={tag} style={styles.dietTagPill} onPress={() => onExplainDiet(tag)} activeOpacity={0.75}>
-          <Text style={styles.dietTagPillText}>{tag}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-}
-
-// The one real Digest entry each diet tag explains -- 2026-08-25, built
-// alongside the same fix, so every one of the 10 real RecipeDietTag
-// values has a genuine destination, not five working links and five
-// dead ends. Five of the ten (Vegan, Plant-Based/Flexitarian,
-// Mediterranean, AIP, High-Protein) already had a real entry in this
-// Digest's own Popular Diets & Eating Styles topic; the other five
-// (Vegetarian, Omnivore, Gluten-Free, Dairy-Free, Paleo) were written
-// fresh for this pass (lib/digest/popularDiets.ts), matching that
-// topic's own citation and evidence-tiering discipline.
-const DIET_TAG_ENTRY_ID: Record<RecipeDietTag, string> = {
-  Vegan: 'diet-vegan',
-  Vegetarian: 'diet-vegetarian',
-  Omnivore: 'diet-omnivore',
-  'Plant-Based/Flexitarian': 'diet-plant-based-flexitarian',
-  Mediterranean: 'diet-mediterranean',
-  'Gluten-Free': 'diet-gluten-free',
-  'Dairy-Free': 'diet-dairy-free',
-  Paleo: 'diet-paleo',
-  AIP: 'diet-aip',
-  'High-Protein': 'diet-high-protein',
-};
-
-function RecipeCardDetail({
-  card,
-  activeConditionCaution,
-  activeConditionSeverity,
-  activeConditionCode,
-}: {
-  card: RecipeCard;
-  // 2026-08-24, direct correction: "Meals You Can Eat" now shows every
-  // recipe for a condition, clean ones first, flagged ones after -- this
-  // is the one, specific caution for whichever condition's own page this
-  // recipe was opened from (undefined everywhere else, including plain
-  // Recipes browsing, where no single condition context exists). Kept
-  // deliberately separate from the "Worth knowing if you have..." box
-  // below (card.conditionNotes, which lists every condition's own note
-  // at once regardless of context) rather than folded into it -- stuffing
-  // a mechanically generated caution for all 19 conditions into that
-  // always-visible box on every recipe would have buried the real,
-  // hand-written notes already there under a wall of near-duplicate text.
-  activeConditionCaution?: string;
-  // 2026-08-25, direct correction: "All of the conditions list all 300
-  // meals saying they can eat all of them. That cannot be." Colors and
-  // labels this box genuinely differently depending on how serious the
-  // real flag actually is, rather than one undifferentiated "caution"
-  // treatment for everything from a mild sodium note to an absolute,
-  // never-safe gluten hit. 'green' never reaches here (a genuinely clean
-  // recipe has no activeConditionCaution to show in the first place).
-  activeConditionSeverity?: 'green' | 'yellow' | 'red';
-  // 2026-08-25, direct report: "There shouldn't be random warnings on
-  // Hashimoto's (or any other condition) for other conditions." Scopes
-  // the "Worth knowing if you have..." box below via
-  // conditionNoteAppliesTo, same prop every other condition-context
-  // consumer on this card already receives.
-  activeConditionCode?: string;
-}) {
-  const [showInfoAlert, infoAlertElement] = useInfoAlert();
-
-  // 2026-08-25, direct report: the diet-tag pills "are linked somehow
-  // but not to what they should be linked to." Opens the real Digest
-  // entry (DIET_TAG_ENTRY_ID) for the tapped diet right here, in the
-  // same overlay this app already uses for tap-to-explain content
-  // elsewhere -- "a way to get back to the recipe" is just closing it.
-  function explainDietTag(tag: RecipeDietTag) {
-    const entry = findDigestEntryById(DIET_TAG_ENTRY_ID[tag]);
-    if (!entry || isProblemFoodEntry(entry)) {
-      showInfoAlert(tag, 'No further explanation is available for this diet type yet.');
-      return;
-    }
-    const parts = [entry.summary];
-    if (entry.citations.length > 0) {
-      parts.push(`Source${entry.citations.length > 1 ? 's' : ''}:\n${entry.citations.map((c) => c.source).join('\n')}`);
-    }
-    showInfoAlert(entry.title, parts.join('\n\n'));
-  }
-
-  return (
-    <View>
-      {infoAlertElement}
-      {card.dietTags ? <RecipeDietTagRow tags={card.dietTags} onExplainDiet={explainDietTag} /> : null}
-
-      {activeConditionCaution ? (
-        <View style={activeConditionSeverity === 'red' ? styles.recipeConditionBoxRed : styles.recipeConditionBoxYellow}>
-          <Text style={activeConditionSeverity === 'red' ? styles.recipeConditionLabelRed : styles.recipeConditionLabelYellow}>
-            {activeConditionSeverity === 'red' ? 'Approach with caution' : 'Worth knowing'}
-          </Text>
-          <Text style={styles.recipeNutritionText}>{activeConditionCaution}</Text>
-        </View>
-      ) : null}
-
-      <Text style={styles.detailLabel}>Makes</Text>
-      <Text style={styles.detailText}>{card.yield}</Text>
-
-      <Text style={styles.detailLabel}>Ingredients</Text>
-      {card.ingredients.map((ingredient, index) => (
-        <Text key={index} style={styles.swapText}>
-          {'•'} {ingredient.text}
-        </Text>
-      ))}
-
-      {card.instructions ? (
-        <>
-          <Text style={styles.detailLabel}>How to make it</Text>
-          {card.instructions.map((step, index) => (
-            <Text key={index} style={styles.recipeStepText}>
-              {index + 1}. {step}
-            </Text>
-          ))}
-        </>
-      ) : null}
-
-      <View style={styles.recipeNutritionBox}>
-        <Text style={styles.recipeNutritionLabel}>What this dish gives you</Text>
-        {card.nutritionHighlights.map((highlight, index) => (
-          <Text key={index} style={styles.recipeNutritionText}>
-            {'•'} <Text style={styles.detailTextEmphasis}>{highlight.nutrient}:</Text> {highlight.note}
-          </Text>
-        ))}
-      </View>
-
-      {(() => {
-        // 2026-08-25, direct report: "If there is a warning, it
-        // absolutely must ONLY be for that conditions." Filtered through
-        // conditionNoteAppliesTo before rendering, rather than showing
-        // every note on the recipe regardless of which condition's own
-        // page it was opened from.
-        const scopedNotes = card.conditionNotes.filter((note) => conditionNoteAppliesTo(note.condition, activeConditionCode));
-        if (scopedNotes.length === 0) return null;
-        return (
-          <View style={styles.recipeConditionBox}>
-            <Text style={styles.recipeConditionLabel}>Worth knowing if you have...</Text>
-            {scopedNotes.map((note, index) => (
-              <View key={index} style={index > 0 ? styles.recipeConditionItemSpaced : undefined}>
-                <Text style={styles.recipeConditionCondition}>{note.condition}</Text>
-                <Text style={styles.recipeNutritionText}>{note.note}</Text>
-              </View>
-            ))}
-          </View>
-        );
-      })()}
-
-      {card.flavorNotes ? (
-        <>
-          <Text style={styles.detailLabel}>Flavor palette</Text>
-          <Text style={styles.detailText}>{card.flavorNotes}</Text>
-        </>
-      ) : null}
-    </View>
-  );
-}
-
-// 2026-08-15, direct request: "I want the user to be able to share a
-// recipe from the provided app recipes and their favorites and from their
-// saved recipes." My Kitchen/My Favorites already share via
-// DynamicEntryActions (they carry a real dynamicAction); a curated Recipe
-// entry doesn't (there's no user-owned componentId to key one off), so it
-// gets this small, separate real share button instead, sitting right next
-// to "Build This Recipe."
-function CuratedRecipeShareButton({ recipeId, builderType }: { recipeId: string; builderType: BuilderFavoriteItemType }) {
-  const [sharing, setSharing] = useState(false);
-  const [showInfoAlert, infoAlertElement] = useInfoAlert();
-
-  async function handleShare() {
-    setSharing(true);
-    try {
-      const profile = await getUserProfile();
-      const fromName = profile.firstName?.trim() || 'A friend';
-      // Still built and checked -- confirms the recipe genuinely resolves
-      // to something real before bothering the OS share sheet at all -- but
-      // deliberately never shown: see the matching comment on the other
-      // handleShare below for why the plain-text message stays genuinely
-      // plain now, with no embedded link at all.
-      const link = await encodeShareLinkFromCuratedRecipe(recipeId, builderType, fromName);
-      if (!link) {
-        showInfoAlert('Nothing to share', "This couldn't be prepared for sharing.");
-        return;
-      }
-      const recipe = await getCuratedRecipe(recipeId);
-      const ingredientLines = (recipe?.ingredients ?? [])
-        .map((ingredient) => `${ingredient.quantity} ${ingredient.unit} ${ingredient.foodName}`)
-        .join('\n');
-      const message = [recipe?.name ?? '', ingredientLines, `Shared from Inside Story by ${fromName}.`]
-        .filter(Boolean)
-        .join('\n\n');
-      // Step 6, 2026-08-15 -- a real, local .is file (the actual, real
-      // signed envelope, richer than the deep link -- see lib/sharing.ts's
-      // own writeIsFile), preferred over the plain photo below since the
-      // photo already travels embedded inside the .is file's own content,
-      // matching what a deep-link share already does. Anyone without the
-      // app sees exactly the same plain message either way -- the .is file
-      // (like the deep link before it) is completely inert to them.
-      //
-      // Two real, separate native actions, not one combined share --
-      // 2026-08-16, see lib/nativeSharing.ts's own header comment for the
-      // full, confirmed reason: React Native's core Share module silently
-      // drops its own `url` field on Android before it ever reaches native
-      // code, so a combined `{message, url}` call was never actually
-      // attaching this file on Android at all, only ever sending the plain
-      // message. Share.share({message}) still fires first, unconditionally
-      // -- that half already worked correctly -- then shareFileIfAvailable
-      // offers the real attachment as its own, second step.
-      const isFileUri = await writeIsFileForCuratedRecipe(recipeId, builderType, fromName);
-      const photoUri = isFileUri ? null : await getPhotoForTarget({ kind: 'curatedRecipe', recipeId });
-      const attachmentUri = isFileUri ?? photoUri;
-      await Share.share({ message });
-      if (attachmentUri) {
-        await shareFileIfAvailable(attachmentUri, {
-          mimeType: isFileUri ? '*/*' : 'image/jpeg',
-          dialogTitle: isFileUri ? 'Share this recipe' : 'Share this photo',
-        });
-      }
-    } catch (error) {
-      console.error('[CuratedRecipeShareButton] Failed to share', error);
-      showInfoAlert('Something went wrong', "This couldn't be shared. Please try again.");
-    } finally {
-      setSharing(false);
-    }
-  }
-
-  return (
-    <>
-      {infoAlertElement}
-      <TouchableOpacity style={styles.recipeShareButton} activeOpacity={0.85} onPress={handleShare} disabled={sharing}>
-        <Ionicons name="share-outline" size={18} color={TAB_COLOR} />
-      </TouchableOpacity>
-    </>
-  );
-}
-
-// 2026-08-15, real Schedule/Share actions for My Kitchen/My Favorites --
-// direct request: "All items should be available to be added to the
-// schedule from here on anytime in the future... there should be a way to
-// share the recipes... to anyone else who has this app, or in a textual
-// sort of way through messaging." Only ever rendered for an entry that
-// carries a real dynamicAction (see lib/digestDynamicEntries.ts) -- every
-// other entry in this whole Digest returns null here immediately.
-const DYNAMIC_ENTRY_MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack', 'beverage', 'salad', 'smoothie'];
-// Today through 2 years out -- generous enough for "anytime in the
-// future" without an unbounded list; matches Profile's own
-// BIRTH_DAY_OPTIONS convention of a flat 1-31 day list with no real
-// days-in-month validation (an invalid combination like Feb 30 rolls
-// forward via the JS Date constructor's own normal overflow behavior,
-// the same accepted quirk Profile's own date fields already carry).
-// A real, stable module-level constant, computed once at import time, not
-// a function called fresh in JSX on every render -- PopoverSelect is
-// memo()-wrapped, and this app's own history already documents in
-// exhaustive detail exactly what a fresh array identity on every render
-// does to that memo (the Nutrient Ranking freeze investigation).
-const FUTURE_YEAR_OPTIONS = Array.from({ length: 3 }, (_, index) => String(new Date().getFullYear() + index));
-const SCHEDULE_MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) => String(index + 1));
-const SCHEDULE_DAY_OPTIONS = Array.from({ length: 31 }, (_, index) => String(index + 1));
-const SCHEDULE_HOUR_OPTIONS = Array.from({ length: 12 }, (_, index) => String(index + 1));
-const SCHEDULE_MINUTE_OPTIONS = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, '0'));
-
-// 2026-08-15 -- a real, plain dispatcher, narrowing entry.dynamicAction's
-// own three real kinds (see lib/digest/types.ts) into the right one of two
-// real sibling components: a not-yet-decided staged share gets its own
-// real "try it, then decide" action set (SharedRecipeActions), never
-// Schedule/Share; a genuine saved/favorited component or favorite meal
-// keeps the original Schedule/Share pair (SavedOrFavoriteActions).
-function DynamicEntryActions({ entry, onDynamicEntriesChanged }: { entry: DigestEntry; onDynamicEntriesChanged?: () => void }) {
-  const action = entry.dynamicAction;
-  if (!action) return null;
-  if (action.kind === 'shared') {
-    return <SharedRecipeActions sharedRecipeId={action.sharedRecipeId} onDynamicEntriesChanged={onDynamicEntriesChanged} />;
-  }
-  return <SavedOrFavoriteActions entry={entry} action={action} onDynamicEntriesChanged={onDynamicEntriesChanged} />;
-}
-
-// "Try it, then decide" -- 2026-08-15 direct request: "It stays there
-// until they try it and decide if they want to add it to their own saved
-// recipes or as a favorite... if they didn't like the recipe they can
-// just delete it." Deliberately no Schedule/Share here -- there's nothing
-// real to schedule or re-share until the person has actually decided what
-// to do with a share someone else sent them.
-function SharedRecipeActions({
-  sharedRecipeId,
-  onDynamicEntriesChanged,
-}: {
-  sharedRecipeId: string;
-  onDynamicEntriesChanged?: () => void;
-}) {
-  const [busy, setBusy] = useState<'saved' | 'favorite' | 'delete' | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const [showInfoAlert, infoAlertElement] = useInfoAlert();
-
-  async function handleSaveToRecipes() {
-    setBusy('saved');
-    try {
-      const result = await promoteSharedRecipeToSaved(sharedRecipeId);
-      if (result && result.length > 0) {
-        setMessage('Saved to My Kitchen, under your saved recipes.');
-        onDynamicEntriesChanged?.();
-      }
-    } catch (error) {
-      console.error('[SharedRecipeActions] Failed to save', error);
-      showInfoAlert('Something went wrong', "This couldn't be saved. Please try again.");
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function handleSaveAsFavorite() {
-    setBusy('favorite');
-    try {
-      const result = await promoteSharedRecipeToFavorite(sharedRecipeId);
-      if (result) {
-        setMessage('Saved to your Favorites.');
-        onDynamicEntriesChanged?.();
-      }
-    } catch (error) {
-      console.error('[SharedRecipeActions] Failed to save as favorite', error);
-      showInfoAlert('Something went wrong', "This couldn't be saved. Please try again.");
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function handleDelete() {
-    setBusy('delete');
-    try {
-      await deleteSharedRecipe(sharedRecipeId);
-      onDynamicEntriesChanged?.();
-    } catch (error) {
-      console.error('[SharedRecipeActions] Failed to delete', error);
-      showInfoAlert('Something went wrong', "This couldn't be deleted. Please try again.");
-      setBusy(null);
-    }
-  }
-
-  return (
-    <View>
-      {infoAlertElement}
-      <View style={styles.dynamicActionRow}>
-        <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleSaveToRecipes} disabled={busy !== null}>
-          <Ionicons name="bookmark-outline" size={16} color={TAB_COLOR} />
-          <Text style={styles.dynamicActionButtonText}>{busy === 'saved' ? 'Saving…' : 'Save to My Recipes'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleSaveAsFavorite} disabled={busy !== null}>
-          <Ionicons name="heart-outline" size={16} color={TAB_COLOR} />
-          <Text style={styles.dynamicActionButtonText}>{busy === 'favorite' ? 'Saving…' : 'Save as Favorite'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleDelete} disabled={busy !== null}>
-          <Ionicons name="trash-outline" size={16} color={colors.danger} />
-          <Text style={[styles.dynamicActionButtonText, styles.dynamicActionButtonTextDanger]}>
-            {busy === 'delete' ? 'Deleting…' : 'Delete'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-      {message ? <Text style={styles.dynamicActionConfirm}>{message}</Text> : null}
-    </View>
-  );
-}
-
-function SavedOrFavoriteActions({
-  entry,
-  action,
-  onDynamicEntriesChanged,
-}: {
-  entry: DigestEntry;
-  action: { kind: 'component'; componentType: BuilderFavoriteItemType; componentId: string } | { kind: 'meal'; mealFavoriteId: string };
-  onDynamicEntriesChanged?: () => void;
-}) {
-  const today = useMemo(() => new Date(), []);
-  const [schedulingOpen, setSchedulingOpen] = useState(false);
-  const [scheduleMealType, setScheduleMealType] = useState<string | null>(null);
-  const [scheduleYear, setScheduleYear] = useState(String(today.getFullYear()));
-  const [scheduleMonth, setScheduleMonth] = useState(String(today.getMonth() + 1));
-  const [scheduleDay, setScheduleDay] = useState(String(today.getDate()));
-  const [scheduleHour, setScheduleHour] = useState('');
-  const [scheduleMinute, setScheduleMinute] = useState('');
-  const [scheduleAmpm, setScheduleAmpm] = useState<'AM' | 'PM' | ''>('');
-  const [scheduling, setScheduling] = useState(false);
-  const [scheduledMessage, setScheduledMessage] = useState<string | null>(null);
-  const [sharing, setSharing] = useState(false);
-  const [removing, setRemoving] = useState(false);
-  const [showInfoAlert, infoAlertElement] = useInfoAlert();
-  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
-
-  async function handleConfirmSchedule() {
-    if (!scheduleMealType || !scheduleYear || !scheduleMonth || !scheduleDay) return;
-    // Hour/minute/AM-PM are optional -- a real, honest noon default rather
-    // than forcing a time nobody asked to specify. buildTime24 already
-    // returns null for an incomplete answer (see its own comment), which
-    // this deliberately treats as "no time given" rather than an error.
-    const time24 = buildTime24(scheduleHour, scheduleMinute, scheduleAmpm) ?? '12:00';
-    const pad2 = (value: string) => value.padStart(2, '0');
-    const scheduledFor = `${scheduleYear.padStart(4, '0')}-${pad2(scheduleMonth)}-${pad2(scheduleDay)}T${time24}`;
-
-    setScheduling(true);
-    try {
-      if (action.kind === 'meal') {
-        await scheduleMeal({
-          title: entry.title,
-          mealType: scheduleMealType,
-          scheduledFor,
-          sourceFavoriteId: action.mealFavoriteId,
-        });
-      } else {
-        await scheduleSingleComponent({
-          componentType: action.componentType,
-          componentId: action.componentId,
-          title: entry.title,
-          mealType: scheduleMealType,
-          scheduledFor,
-        });
-      }
-      setScheduledMessage(
-        `Scheduled for ${scheduleMonth}/${scheduleDay}/${scheduleYear}${
-          scheduleHour ? ` at ${formatTime12(time24)}` : ''
-        }. Find it on the Schedule tab's Meals lens.`,
-      );
-      setSchedulingOpen(false);
-    } catch (error) {
-      console.error('[DynamicEntryActions] Failed to schedule', error);
-      showInfoAlert('Something went wrong', "This couldn't be scheduled. Please try again.");
-    } finally {
-      setScheduling(false);
-    }
-  }
-
-  async function handleShare() {
-    setSharing(true);
-    try {
-      const profile = await getUserProfile();
-      const fromName = profile.firstName?.trim() || 'A friend';
-      const link =
-        action.kind === 'meal'
-          ? await encodeMealShareLink(action.mealFavoriteId, fromName)
-          : await encodeShareLink(action.componentType, action.componentId, fromName);
-      if (!link) {
-        showInfoAlert('Nothing to share', "This couldn't be prepared for sharing. Try again once it's fully saved.");
-        return;
-      }
-      // 2026-08-15, direct on-device report: embedding the deep link in
-      // this plain-text message meant everyone -- including someone
-      // without the app -- saw a long, unreadable encoded blob at the
-      // bottom of a normal-looking text message. Base64-encoding it (see
-      // lib/sharing.ts's own encodeEnvelope) made that blob look like an
-      // opaque token instead of visibly broken text, but it's still a real
-      // wall of characters nobody without the app has any use for -- and
-      // the same day's own follow-up named the actual right fix directly:
-      // once real device-to-device sharing exists (the app's own future
-      // Connections list plus a real, OS-registered .is file format, see
-      // CLAUDE.md's own security-requirement note), THAT is the real
-      // mechanism for a rich, ready-to-import share reaching someone who
-      // has the app -- plain text is genuinely just plain text, for anyone,
-      // with nothing hidden in it. `link` above is still built and checked
-      // (confirms this is genuinely shareable before bothering the OS share
-      // sheet), just never shown -- the same real envelope/base64 encoding
-      // it produces is exactly what a future .is file is expected to reuse,
-      // written to a file instead of embedded in a URL.
-      const ingredientLines = (entry.recipeCard?.ingredients ?? []).map((ingredient) => ingredient.text).join('\n');
-      const message = [entry.title, entry.recipeCard?.yield ?? '', ingredientLines, `Shared from Inside Story by ${fromName}.`]
-        .filter(Boolean)
-        .join('\n\n');
-      // Step 6, 2026-08-15 -- the real .is file this whole comment block
-      // above already named as "the actual right fix" now exists (see
-      // lib/sharing.ts's own writeIsFile/app.json's own real
-      // android.intentFilters). Preferred over the plain photo below since
-      // the photo already travels embedded inside the .is file's own
-      // content, matching what a deep-link share already does. Anyone
-      // without the app sees exactly the same plain message either way --
-      // the .is file (like the deep link before it) is completely inert to
-      // them.
-      //
-      // Two real, separate native actions, not one combined share --
-      // 2026-08-16, see lib/nativeSharing.ts's own header comment for the
-      // full, confirmed reason: React Native's core Share module silently
-      // drops its own `url` field on Android before it ever reaches native
-      // code, so a combined `{message, url}` call was never actually
-      // attaching this file on Android at all, only ever sending the plain
-      // message. Share.share({message}) still fires first, unconditionally
-      // -- that half already worked correctly -- then shareFileIfAvailable
-      // offers the real attachment as its own, second step.
-      const isFileUri =
-        action.kind === 'meal'
-          ? await writeIsFileForMeal(action.mealFavoriteId, fromName)
-          : await writeIsFileForComponent(action.componentType, action.componentId, fromName);
-      const photoTarget = resolvePhotoTarget(entry);
-      const photoUri = !isFileUri && photoTarget ? await getPhotoForTarget(photoTarget) : null;
-      const attachmentUri = isFileUri ?? photoUri;
-      await Share.share({ message });
-      if (attachmentUri) {
-        await shareFileIfAvailable(attachmentUri, {
-          mimeType: isFileUri ? '*/*' : 'image/jpeg',
-          dialogTitle: isFileUri ? 'Share this' : 'Share this photo',
-        });
-      }
-    } catch (error) {
-      console.error('[DynamicEntryActions] Failed to share', error);
-      showInfoAlert('Something went wrong', "This couldn't be shared. Please try again.");
-    } finally {
-      setSharing(false);
-    }
-  }
-
-  // 2026-08-21, direct report: "Once I add a prebuilt item... it ends up
-  // in My Favorites, there doesn't appear to be a way to remove it from
-  // my favorites for any reason I might have to do that. There should
-  // always be a way to do that." This component (SavedOrFavoriteActions)
-  // is shared by both My Kitchen and My Favorites entries -- Schedule/
-  // Share made sense for either, but this third button only makes sense
-  // for a real favorite (see the `entry.category === 'myFavorites'` guard
-  // on the button itself below), not a saved builder record. Same
-  // confirmSheet pattern food-items.tsx's own favorite-delete flow already
-  // uses, for the same "this cannot be undone" reason -- a favorite's own
-  // ingredient list lives only in its own payload_json (see
-  // lib/digestDynamicEntries.ts's own header comment), not tied to a
-  // still-existing saved record elsewhere that could rebuild it.
-  async function handleRemoveFavorite() {
-    const ok = await confirmSheet({
-      title: `Remove "${entry.title}" from Favorites?`,
-      message: 'This cannot be undone.',
-      confirmLabel: 'Remove',
-      destructive: true,
-    });
-    if (!ok) return;
-    setRemoving(true);
-    try {
-      await deleteFavorite(action.kind === 'meal' ? action.mealFavoriteId : action.componentId);
-      onDynamicEntriesChanged?.();
-    } catch (error) {
-      console.error('[DynamicEntryActions] Failed to remove favorite', error);
-      showInfoAlert('Something went wrong', "This couldn't be removed. Please try again.");
-      setRemoving(false);
-    }
-  }
-
-  return (
-    <View>
-      {infoAlertElement}
-      {confirmSheetElement}
-      <View style={styles.dynamicActionRow}>
-        <TouchableOpacity
-          style={styles.dynamicActionButton}
-          activeOpacity={0.85}
-          onPress={() => setSchedulingOpen((open) => !open)}
-          disabled={removing}
-        >
-          <Ionicons name="calendar-outline" size={16} color={TAB_COLOR} />
-          <Text style={styles.dynamicActionButtonText}>Schedule</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleShare} disabled={sharing || removing}>
-          <Ionicons name="share-outline" size={16} color={TAB_COLOR} />
-          <Text style={styles.dynamicActionButtonText}>{sharing ? 'Preparing…' : 'Share'}</Text>
-        </TouchableOpacity>
-        {entry.category === 'myFavorites' ? (
-          <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleRemoveFavorite} disabled={removing}>
-            <Ionicons name="heart-dislike-outline" size={16} color={colors.danger} />
-            <Text style={[styles.dynamicActionButtonText, styles.dynamicActionButtonTextDanger]}>
-              {removing ? 'Removing…' : 'Remove from Favorites'}
-            </Text>
-          </TouchableOpacity>
-        ) : null}
-      </View>
-
-      {scheduledMessage ? <Text style={styles.dynamicActionConfirm}>{scheduledMessage}</Text> : null}
-
-      {schedulingOpen ? (
-        <View style={styles.dynamicScheduleForm}>
-          <Text style={styles.detailLabel}>Meal type</Text>
-          <PopoverSelect
-            options={DYNAMIC_ENTRY_MEAL_TYPES}
-            selected={scheduleMealType}
-            onSelect={setScheduleMealType}
-            tabColor={TAB_COLOR}
-            placeholder="Choose"
-          />
-
-          <Text style={styles.detailLabel}>Date</Text>
-          <View style={styles.dynamicScheduleRow}>
-            <PopoverSelect options={FUTURE_YEAR_OPTIONS} selected={scheduleYear} onSelect={setScheduleYear} tabColor={TAB_COLOR} minWidth={64} />
-            <PopoverSelect options={SCHEDULE_MONTH_OPTIONS} selected={scheduleMonth} onSelect={setScheduleMonth} tabColor={TAB_COLOR} minWidth={44} />
-            <PopoverSelect options={SCHEDULE_DAY_OPTIONS} selected={scheduleDay} onSelect={setScheduleDay} tabColor={TAB_COLOR} minWidth={44} />
-          </View>
-
-          <Text style={styles.detailLabel}>Time (optional, defaults to noon)</Text>
-          <View style={styles.dynamicScheduleRow}>
-            <PopoverSelect
-              options={SCHEDULE_HOUR_OPTIONS}
-              selected={scheduleHour}
-              onSelect={setScheduleHour}
-              tabColor={TAB_COLOR}
-              minWidth={44}
-              placeholder="Hr"
-            />
-            <PopoverSelect
-              options={SCHEDULE_MINUTE_OPTIONS}
-              selected={scheduleMinute}
-              onSelect={setScheduleMinute}
-              tabColor={TAB_COLOR}
-              minWidth={44}
-              placeholder="Min"
-            />
-            <View style={styles.ampmRow}>
-              {(['AM', 'PM'] as const).map((option) => (
-                <TouchableOpacity
-                  key={option}
-                  style={[styles.ampmPill, scheduleAmpm === option ? styles.ampmPillActive : null]}
-                  activeOpacity={0.85}
-                  onPress={() => setScheduleAmpm(scheduleAmpm === option ? '' : option)}
-                >
-                  <Text style={[styles.ampmPillText, scheduleAmpm === option ? styles.ampmPillTextActive : null]}>{option}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.buildRecipeButton, (!scheduleMealType || scheduling) ? styles.buildRecipeButtonDisabled : null]}
-            activeOpacity={0.85}
-            onPress={handleConfirmSchedule}
-            disabled={!scheduleMealType || scheduling}
-          >
-            <Text style={styles.buildRecipeButtonText}>{scheduling ? 'Scheduling…' : 'Confirm'}</Text>
-          </TouchableOpacity>
-        </View>
-      ) : null}
-    </View>
   );
 }
 
@@ -6612,8 +5663,7 @@ const styles = StyleSheet.create({
   // menuLabelShadow use in this file, not just pills -- 12 styles
   // (categoryHeaderText here, plus digestTopicMenuItemLabel, shelfHeading,
   // shelfCardTitle, cardTitle, demoHeading, demoSubheading, detailLabel,
-  // dynamicActionButtonText, recipeNutritionLabel, citationsLabel,
-  // relatedLabel) were spreading a bold typography preset (label/
+  // citationsLabel, relatedLabel) were spreading a bold typography preset (label/
   // bodyEmphasis/eyebrow/screenTitle) together with menuLabelShadow, each
   // now carries an explicit `fontWeight: '400'` override after the
   // spread so the preset's own fontSize/letterSpacing survive but its
@@ -6848,10 +5898,11 @@ const styles = StyleSheet.create({
   // rather than helping them read.
   matchTermPillText: { ...typography.caption, color: TAB_TEXT_COLOR, fontSize: 11 },
   // 2026-08-25, direct report: "drop shadowed is fine only if the font is
-  // not already bolded," the same rule dietTagPillText was already fixed
-  // under -- matchTermPillText (below) already carries menuLabelShadow, so
-  // this filled/title-matched variant loses its own fontWeight: '400'
-  // rather than stacking bold on top of an already-shadowed pill.
+  // not already bolded," the same rule dietTagPillText (which now lives
+  // in components/RecipeDetailCard.tsx) was already fixed under --
+  // matchTermPillText (below) already carries menuLabelShadow, so this
+  // filled/title-matched variant loses its fontWeight: '400' rather than
+  // stacking bold on top of an already-shadowed pill.
   matchTermPillTextTitle: { color: colors.background,
 
     // Dark text: cancel any shadow inherited from a base style it is
@@ -6904,43 +5955,6 @@ const styles = StyleSheet.create({
     maxWidth: 160,
   },
   crossConditionPillText: { ...typography.caption, ...textShadow, color: TAB_TEXT_COLOR, fontSize: 11 },
-  // RecipeDietTagRow's own pills, same filled-pill shape as
-  // matchTermPillTitle above, sitting right at the top of a recipe's own
-  // detail view since "which diets this fits" is meant to be identifiable
-  // at a glance, not buried under the ingredient list.
-  // 2026-08-25, direct report: "haphazardly placed there as if poured
-  // out onto the table instead of being aligned and orderly." alignItems
-  // 'flex-start' keeps a wrapped second row starting flush at the row's
-  // own left edge rather than stretching to match the tallest pill on
-  // the line above it, the real cause of the uneven look -- RecipeDietTagRow
-  // itself now also always re-sorts tags into one fixed, canonical order
-  // (see that component's own comment) before rendering, so the same
-  // recipe never shows its own pills in a different order than last time.
-  dietTagRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', gap: 6, marginBottom: 8 },
-  dietTagPill: {
-    backgroundColor: TAB_COLOR,
-    borderRadius: 10,
-    paddingVertical: 3,
-    paddingHorizontal: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  // No menuLabelShadow here, direct report: "drop shadowed is fine only
-  // if the font is not already bolded" -- this text is already
-  // fontWeight '700' against a solid, opaque TAB_COLOR fill (not a photo
-  // background needing a shadow for contrast the way this app's other
-  // shadowed labels do), so bold alone already carries full legibility.
-  dietTagPillText: { ...typography.caption, color: colors.background, fontSize: 11, fontWeight: '400',
-
-    // Dark text: cancel any shadow inherited from a base style it is
-
-    // composed with. See constants/typography.ts.
-
-    textShadowColor: 'transparent',
-
-    textShadowRadius: 0,
-
-  },
   detailLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
   detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, ...textShadow },
   // Emphasis inside Digest body content (the **...** spans renderRichText
@@ -6953,164 +5967,6 @@ const styles = StyleSheet.create({
   // decorative. Renamed from detailTextBold, which no longer described it.
   detailTextEmphasis: { color: TAB_TEXT_COLOR },
   swapText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 2, ...textShadow },
-  // The Recipes category's own real CTA, 2026-08-14 -- solid-filled with
-  // TAB_COLOR (not the lightened popoverBackground tint other screens use
-  // for a primary action), since this is the one, unambiguous "do the
-  // thing" button on an entry that otherwise only ever shows plain,
-  // read-only research text.
-  buildRecipeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: TAB_COLOR,
-    borderRadius: 10,
-    paddingVertical: 12,
-    marginTop: 12,
-  },
-  buildRecipeButtonText: { ...typography.bodyEmphasis, color: colors.background,
-
-    // Dark text: cancel any shadow inherited from a base style it is
-
-    // composed with. See constants/typography.ts.
-
-    textShadowColor: 'transparent',
-
-    textShadowRadius: 0,
-
-  },
-  buildRecipeButtonDisabled: { opacity: 0.5 },
-  // "Build This Recipe" plus its own small, real Share button sitting
-  // right beside it, 2026-08-15 -- see CuratedRecipeShareButton's own
-  // comment.
-  recipeButtonRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  recipeButtonFlex: { flex: 1, marginTop: 0 },
-  recipeShareButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: TAB_COLOR,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 12,
-  },
-  // DynamicEntryActions' own Schedule/Share (or Save/Favorite/Delete) row,
-  // 2026-08-15 -- a lighter touch than buildRecipeButton's own solid fill,
-  // since these are co-equal secondary actions sitting side by side rather
-  // than the one unambiguous CTA a curated Recipe's own "Build This
-  // Recipe" button is.
-  dynamicActionRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
-  dynamicActionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    borderWidth: 1,
-    borderColor: TAB_COLOR,
-    borderRadius: 10,
-    paddingVertical: 10,
-  },
-  dynamicActionButtonText: { ...typography.bodyEmphasis, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR },
-  dynamicActionButtonTextDanger: { color: colors.danger },
-  dynamicActionConfirm: { ...typography.caption, color: colors.accent, marginTop: 8, ...textShadow },
-  dynamicScheduleForm: {
-    marginTop: 12,
-    padding: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  dynamicScheduleRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  ampmRow: { flexDirection: 'row', gap: 6 },
-  ampmPill: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  ampmPillActive: { backgroundColor: TAB_COLOR, borderColor: TAB_COLOR },
-  ampmPillText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
-  ampmPillTextActive: { color: colors.background,
-
-    // Dark text: cancel any shadow inherited from a base style it is
-
-    // composed with. See constants/typography.ts.
-
-    textShadowColor: 'transparent',
-
-    textShadowRadius: 0,
-
-  },
-  // RecipeCardDetail's own numbered instruction steps -- same body/color
-  // treatment as detailText, just its own style key so a slightly tighter
-  // top margin per line (rather than detailText's single-block spacing)
-  // reads correctly as a real numbered list rather than one dense paragraph.
-  recipeStepText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 4, ...textShadow },
-  // The "what this dish gives you" nutrition callout -- a real, tinted box
-  // (the same lightened-tab-color recipe already used elsewhere in this
-  // app for a highlighted callout) so it reads as a distinct rating rather
-  // than blending into the surrounding plain paragraphs.
-  recipeNutritionBox: {
-    backgroundColor: `${TAB_COLOR}18`,
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 10,
-  },
-  recipeNutritionLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginBottom: 4 },
-  recipeNutritionText: { ...typography.body, color: colors.textPrimary, lineHeight: 18, marginTop: 2, ...textShadow },
-  // The per-condition caution box -- a real, distinct tint from the
-  // nutrition callout above (a warm accent rather than the tab's own
-  // color) so a caution reads visually different from a highlight, and
-  // only ever renders when a real recipeCard.conditionNotes entry exists.
-  recipeConditionBox: {
-    backgroundColor: `${colors.accent}18`,
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 10,
-  },
-  recipeConditionLabel: { ...typography.eyebrow, color: colors.accent, marginBottom: 4, ...textShadow },
-  recipeConditionCondition: { ...typography.bodyEmphasis, color: colors.accent, marginTop: 4, ...textShadow },
-  recipeConditionItemSpaced: { marginTop: 6 },
-  // 2026-08-25, direct correction: "That cannot be" -- a flagged recipe's
-  // own per-condition caution box needs to read as genuinely different
-  // from a mild highlight once the flag itself is serious, not the same
-  // warm-accent tint every other callout on this card already uses.
-  // Reuses the exact same statusYellow/statusRedBg palette this app's
-  // own DimensionFlags component already established for the identical
-  // yellow/red severity concept (see that component's own comment on
-  // why a muted, dark-tinted fill plus a solid border reads correctly
-  // on this app's dark surface, rather than a solid fill).
-  recipeConditionBoxYellow: {
-    backgroundColor: colors.statusYellowBg,
-    borderWidth: 1,
-    borderColor: colors.statusYellow,
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 10,
-  },
-  recipeConditionBoxRed: {
-    backgroundColor: colors.statusRedBg,
-    borderWidth: 1,
-    borderColor: colors.danger,
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 10,
-  },
-  // colors.statusYellowStandalone, not the darker statusYellow -- checked
-  // by real contrast math before picking, not assumed from DimensionFlags'
-  // own pairing: that component only ever uses statusYellow as a BORDER
-  // (an empty colored square, no text inside it at all), and statusYellow
-  // directly on statusYellowBg measures a genuinely illegible 1.59:1 for
-  // actual label text. statusYellowStandalone (the brighter amber added
-  // 2026-08-18 specifically because the darker one read poorly as text)
-  // measures 5.67:1 here, comfortably past the 4.5:1 floor.
-  recipeConditionLabelYellow: { ...typography.eyebrow, color: colors.statusYellowStandalone, marginBottom: 4, ...textShadow },
-  // colors.danger on statusRedBg measures 5.17:1, verified the same way.
-  recipeConditionLabelRed: { ...typography.eyebrow, color: colors.danger, marginBottom: 4, ...textShadow },
   feedbackRow: {
     flexDirection: 'row',
     alignItems: 'center',

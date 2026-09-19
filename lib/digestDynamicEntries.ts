@@ -360,6 +360,60 @@ export async function buildMyFavoritesEntries(): Promise<DigestEntry[]> {
   return entries;
 }
 
+// One thing in Food's own My Recipes, opened in place, 2026-09-18:
+// "When the user selects a meal, side, smoothie, etc from the drop down
+// collapsable card, it expands to show everything it would have shown
+// from when it was listed in Digest. The recipe, the measurements, the
+// prepwork, everything."
+//
+// So this is the per-item half of buildMyKitchenEntries and
+// buildMyFavoritesEntries above, which build every entry at once for a
+// whole Digest category. Food's list is long and mostly closed, so it
+// asks for one at a time, as each row is opened, and gets back the same
+// entry those two build. Everything underneath is theirs, unchanged:
+// one resolve per item, real depth data where a builder has written it,
+// the thinner live condition check where it has not.
+//
+// The whole entry rather than just its recipeCard, because the opened
+// row carries the Schedule/Share/Remove actions too, and those read the
+// title, the dynamicAction and the photo target off the same entry.
+export async function buildEntryForMyRecipe(
+  itemType: string,
+  status: string,
+  id: string,
+): Promise<DigestEntry | null> {
+  const conditions = await getTrackedConditions();
+
+  if (status === 'favorite') {
+    if (itemType === 'meal') {
+      return (await buildMyFavoritesMealEntry(id, conditions)) ?? null;
+    }
+    const componentType = itemType as MealComponentType;
+    if (!COMPONENT_TYPES.includes(componentType)) return null;
+    // listFavorites rather than getBuilderFavorite, for the same reason
+    // buildMyFavoritesEntries gives: getBuilderFavorite touches
+    // last_used_at, and reading a recipe should not reorder anything.
+    const records = await listFavorites(500, componentType as BuilderFavoriteItemType);
+    const record = records.find((candidate) => candidate.id === id);
+    if (!record) return null;
+    try {
+      const payload = JSON.parse(record.payload_json) as BuilderFavoritePayload;
+      if (!payload?.name || !Array.isArray(payload.ingredients)) return null;
+      return await buildMyFavoritesComponentEntry(componentType, id, payload, conditions);
+    } catch (error) {
+      console.error(`[digestDynamicEntries] Failed to parse favorite ${id}`, error);
+      return null;
+    }
+  }
+
+  const componentType = itemType as MealComponentType;
+  if (!COMPONENT_TYPES.includes(componentType)) return null;
+  const options = await listMealComponentOptions(componentType);
+  const option = options.find((candidate) => candidate.id === id);
+  if (!option) return null;
+  return await buildMyKitchenEntryForOption(componentType, option, conditions);
+}
+
 // --- Recipes Shared With Me ----------------------------------------------
 //
 // A real, genuine share someone sent -- lands here, inside My Kitchen,
