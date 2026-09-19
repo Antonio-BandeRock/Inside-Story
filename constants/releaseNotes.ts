@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.11',
+    date: '2026-09-19',
+    changes: [
+      'Profile now uses the same edge-to-edge bands as every tab. Each settings card reaches both edges of the screen, the six group headings are full-width bands, and the page scrolls a full screen past its last card so your background shows.',
+    ],
+  },
+  {
     version: '1.0.41.10',
     date: '2026-09-19',
     changes: [

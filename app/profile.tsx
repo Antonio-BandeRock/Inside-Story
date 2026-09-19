@@ -19,6 +19,7 @@ import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonS
 import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import { APP_VERSION } from '../constants/version';
 import { isSignedIn as isOneDriveSignedIn } from '../lib/oneDriveAuth';
 import { getBackupsFolder, getSharedFolder } from '../lib/oneDriveFolders';
@@ -2542,12 +2543,18 @@ export default function ProfileScreen() {
       style={[styles.screen, showGenericBackground && styles.transparentBackground]}
       contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}
     >
-      <Text style={styles.intro}>
-        Everything below is optional. This app works fine with nothing set here; unset fields simply mean
-        you’ll see recommendations for every applicable population instead of one tailored to you. Nothing here
-        is guessed on your behalf.
-      </Text>
-      {savedFlash ? <Text style={styles.savedFlash}>Saved</Text> : null}
+      <View style={styles.introBox}>
+        <Text style={styles.intro}>
+          Everything below is optional. This app works fine with nothing set here; unset fields simply mean
+          you’ll see recommendations for every applicable population instead of one tailored to you. Nothing here
+          is guessed on your behalf.
+        </Text>
+      </View>
+      {savedFlash ? (
+        <View style={styles.savedFlashBox}>
+          <Text style={styles.savedFlash}>Saved</Text>
+        </View>
+      ) : null}
 
       {renderGroupHeading('About You')}
       {/* Personal Info, 2026-08-09, regrouped from 5 separate cards
@@ -4615,9 +4622,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     position: 'relative',
   },
+  // Edge to edge, 2026-09-19: no side inset, so every card reaches both
+  // edges of the screen the way the bands on every tab do, and one
+  // HOME_BAND_GAP between stacked surfaces in place of the margins each
+  // card and heading used to carry. The bottom padding is set inline from
+  // useFloatingButtonScrollPadding, a full window of run-out.
   container: {
-    padding: 20,
-    paddingBottom: 40,
+    gap: HOME_BAND_GAP,
   },
   // 2026-08-21, the sticky bar profileTitleRow now sits inside, replacing
   // the native header removed the same day (see app/_layout.tsx's profile
@@ -4630,7 +4641,7 @@ const styles = StyleSheet.create({
   // once scrolled to the top.
   stickyTitleBar: {
     backgroundColor: colors.background,
-    paddingHorizontal: 20,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
     paddingBottom: 12,
   },
   // 2026-08-16, HelpButton sits beside a title now, the same "info icon
@@ -4643,14 +4654,27 @@ const styles = StyleSheet.create({
     ...textShadow,
 
   },
+  // The intro and the Saved flash each sit on a band of their own, since
+  // nothing here sits on the screen without a surface.
+  introBox: {
+    ...homeBandStyle,
+    borderColor: colors.tabProfile,
+    padding: HOME_BAND_CONTENT_PADDING,
+  },
   intro: {
     ...typography.body,
     color: colors.textSecondary,
-    marginBottom: 12,
     lineHeight: 20,
 
     ...textShadow,
 
+  },
+  savedFlashBox: {
+    ...homeBandStyle,
+    backgroundColor: colors.surfaceMuted,
+    borderColor: colors.tabProfile,
+    paddingVertical: 10,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
   },
   // A brief, isolated confirmation flash: unlike a dense table full of
   // status rows, there's nothing else on screen competing for attention in
@@ -4659,7 +4683,6 @@ const styles = StyleSheet.create({
   savedFlash: {
     ...typography.captionEmphasis,
     color: colors.primary,
-    marginBottom: 12,
 
     ...textShadow,
 
@@ -4669,14 +4692,14 @@ const styles = StyleSheet.create({
   // groupHeadingChip already defined on Schedules and Trends. Deliberately
   // narrower padding and a tighter radius than `card` below, so a heading
   // does not read as another empty card.
+  // Since 2026-09-19 a full-width heading band on the muted surface, the
+  // same shape makeTabBandStyles gives every tab's lens headings.
   groupHeadingChip: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    marginTop: 8,
-    marginBottom: 12,
+    ...homeBandStyle,
+    backgroundColor: colors.surfaceMuted,
+    borderColor: colors.tabProfile,
+    paddingVertical: 10,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
   },
   groupHeadingText: {
     ...typography.sectionTitle,
@@ -4688,15 +4711,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     ...textShadow,
   },
+  // Since 2026-09-19 an edge-to-edge band in the Profile colour, the
+  // same shape as every tab's boxes; the column's gap spaces them.
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
+    ...homeBandStyle,
+    borderColor: colors.tabProfile,
+    padding: HOME_BAND_CONTENT_PADDING,
   },
   label: {
     ...typography.sectionTitle,
