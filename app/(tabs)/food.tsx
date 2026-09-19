@@ -33,6 +33,7 @@ import { FoodProductDetailView } from '../../components/FoodProductDetailView';
 import { ScanProductView } from '../../components/ScanProductView';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { HOME_BAND_GAP } from '../../components/HomeSectionBand';
+import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { colors } from '../../constants/colors';
 import {
   listBakedGoods,
@@ -401,6 +402,7 @@ const FOOD_HELP_SECTIONS: HelpSection[] = [
 export default function FoodScreen() {
   useRegisterScreenHelp('Food', FOOD_HELP_SECTIONS, '/food');
   const router = useRouter();
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
   // Set when reached via a saved side's/salad's/smoothie's/fermentation's/
   // beverage's/snack's/baked good's/soup's/sauce's own Edit button (see
   // components/FoodItemsView.tsx), 2026-08-01 (editSaladId/editSmoothieId/
@@ -1264,12 +1266,16 @@ export default function FoodScreen() {
     ...myFoodsCategories,
   ];
 
-  // The Desktop's own scrollable body, 2026-08-23. No floating-button
-  // clearance at the end since 2026-09-13: GatedTabContent insets the
-  // whole resting area above the footer band, and the hub buttons sit
-  // inside that band, so the last row already stops above them.
+  // The Desktop's own scrollable body, 2026-08-23. It went without
+  // floating-button clearance from 2026-09-13 (GatedTabContent insets the
+  // resting area above the footer band, so the last row already stopped
+  // above the hub buttons), and takes the shared padding again from
+  // 2026-09-19 for the one-window run-out every scrolling screen carries.
   const foodDesktopContent = (
-    <ScrollView contentContainerStyle={styles.desktopContent} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      contentContainerStyle={[styles.desktopContent, { paddingBottom: scrollBottomPadding }]}
+      showsVerticalScrollIndicator={false}
+    >
       <TabDesktopMenu categories={desktopMyFoodsCategories} tabColor={TAB_COLOR} />
     </ScrollView>
   );

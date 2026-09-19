@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { AppTextInput } from '../../components/AppTextInput';
 import { ConditionsSection } from '../../components/ConditionsSection';
@@ -634,15 +634,10 @@ function blankEntryForm(): EntryForm {
 
 export default function LifeScreen() {
   useRegisterScreenHelp('Life', LIFE_HELP_SECTIONS, '/life');
+  // One full window of run-out is part of this now, on every screen
+  // (see useFloatingButtonScrollPadding), so the Conditions lens no
+  // longer adds its own.
   const scrollBottomPadding = useFloatingButtonScrollPadding();
-  // Direct instruction, 2026-09-19: "always allow the bottom of the
-  // screen to scroll beyond the bottom of where the last thing is." The
-  // hub-button padding alone leaves the last band parked just above the
-  // corner box; half a window of run-out lets it be scrolled well clear.
-  // Measured against the window, not typed, so a short viewport gets a
-  // proportionally shorter run-out rather than a page of empty space.
-  const windowHeight = useWindowDimensions().height;
-  const conditionsRunOut = Math.round(windowHeight / 2);
   const { openLifeLens, focusTreatmentId, openEntryId } = useLocalSearchParams<{ openLifeLens?: string; focusTreatmentId?: string; openEntryId?: string }>();
   // Conditions asks to scroll to a band it just opened from a link; its y
   // is relative to its own wrapper, so the wrapper's place in this scroll
@@ -1808,11 +1803,7 @@ export default function LifeScreen() {
     <View style={styles.screen}>
       <SwipeableTabScreen enabled={!revealed}>
         <GatedTabContent pageTitle="Life" variant="field" revealed={revealed}>
-          <ScrollView ref={scrollRef} style={styles.scroll} contentContainerStyle={[
-              styles.content,
-              { paddingBottom: lens === 'conditions' ? scrollBottomPadding + conditionsRunOut : scrollBottomPadding },
-            ]}
-          >
+          <ScrollView ref={scrollRef} style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
             {infoAlertElement}
             <AppActionSheet
               visible={confirm !== null}

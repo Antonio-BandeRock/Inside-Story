@@ -187,7 +187,20 @@ export const NAVIGATION_HAND: 'left' | 'right' = 'left';
 // contentContainerStyle={{ paddingBottom: useFloatingButtonScrollPadding() }}
 // (or merge into an existing contentContainerStyle) on every screen's
 // outermost ScrollView.
+//
+// 2026-09-19, direct instruction, after the Conditions page got a
+// half-window run-out of its own: "Do the same run-out on every
+// scrolling screen, but make them all one full screen distance so the
+// user can be able to see the background picture that might be there,
+// since they are allowed to include their own pictures as backgrounds if
+// they want." So on top of the clearance above, every screen can scroll
+// one full window past its last piece of content, which is the one way
+// the photograph behind a full page ever gets seen whole. Measured from
+// useWindowDimensions rather than typed, so a short viewport (Display
+// size, landscape, a foldable) gets exactly one of its own screens of
+// run-out and not a taller phone's.
 export function useFloatingButtonScrollPadding(extraGap = 20): number {
   const insets = useSafeAreaInsets();
-  return insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET + FLOATING_BUTTON_SIZE + extraGap;
+  const windowHeight = useWindowDimensions().height;
+  return insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET + FLOATING_BUTTON_SIZE + extraGap + windowHeight;
 }

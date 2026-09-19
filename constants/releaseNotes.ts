@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.6',
+    date: '2026-09-19',
+    changes: [
+      'Every scrolling screen now runs on for one full screen past its last item, so you can scroll the content up and see the whole background picture, yours included.',
+    ],
+  },
+  {
     version: '1.0.41.5',
     date: '2026-09-19',
     changes: [

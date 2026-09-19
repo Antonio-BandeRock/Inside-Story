@@ -6,6 +6,7 @@ import { AppTextInput } from '../components/AppTextInput';
 import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
 import { PopoverSelect } from '../components/PopoverSelect';
+import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
@@ -78,6 +79,7 @@ function daysSince(isoDate: string): number {
 
 export default function FermentationTrackerScreen() {
   const router = useRouter();
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
   const { fermentationId, fermentationName } = useLocalSearchParams<{ fermentationId?: string; fermentationName?: string }>();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
@@ -253,7 +255,7 @@ export default function FermentationTrackerScreen() {
       <Stack.Screen options={{ title: 'Fermentation Tracker' }} />
       {infoAlertElement}
       {confirmSheetElement}
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
         {/* Start Tracking -- shown whenever there's a real fermentation to
             start (either the one this screen was opened for, or, absent
             that, a picker over every saved fermentation recipe) and no

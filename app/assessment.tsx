@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
+import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import {
   AssessmentDomain,
@@ -56,6 +57,7 @@ function optionsForResponseType(type: AssessmentResponseType): { value: number; 
 }
 
 export default function AssessmentScreen() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [loading, setLoading] = useState(true);
   const [domains, setDomains] = useState<AssessmentDomain[]>([]);
   const [items, setItems] = useState<AssessmentItem[]>([]);
@@ -139,10 +141,10 @@ export default function AssessmentScreen() {
   }
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
+    <ScrollView style={styles.screen} contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
       <Text style={styles.intro}>
-        Answer as many as feel relevant; you don't have to finish every question for this to be useful. Retake
-        this any time; that's what turns today's snapshot into a trend.
+        Answer as many as feel relevant; you don&apos;t have to finish every question for this to be useful. Retake
+        this any time; that&apos;s what turns today&apos;s snapshot into a trend.
       </Text>
       <Text style={styles.progressText}>
         {answeredCount} of {items.length} answered
@@ -214,6 +216,7 @@ function AssessmentResults({
   comparison: AssessmentComparison | null;
   onDone: () => void;
 }) {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
   const hypoDomain = domains.find((d) => d.code === 'hypothyroid_symptoms');
   const ibsDomain = domains.find((d) => d.code === 'digestive_ibs');
   const wellbeingDomain = domains.find((d) => d.code === 'wellbeing');
@@ -225,12 +228,12 @@ function AssessmentResults({
   const prostateDelta = comparison ? deltaLabel(comparison.prostateUrinaryDeltaRaw, false, ' pts') : null;
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
+    <ScrollView style={styles.screen} contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
       <Text style={styles.resultsTitle}>Your check-in</Text>
       {!comparison ? (
         <Text style={styles.intro}>
-          This is your first check-in, so there's nothing to compare yet. But now you have a baseline.
-          The value here isn't today's number, it's what today's number looks like next to your next one.
+          This is your first check-in, so there&apos;s nothing to compare yet. But now you have a baseline.
+          The value here isn&apos;t today&apos;s number, it&apos;s what today&apos;s number looks like next to your next one.
         </Text>
       ) : null}
 
