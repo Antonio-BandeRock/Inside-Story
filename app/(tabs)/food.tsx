@@ -27,6 +27,7 @@ import { TabDesktopMenu } from '../../components/TabDesktopMenu';
 import { FindMealView } from '../../components/FindMealView';
 import { FoodItemDetailView } from '../../components/FoodItemDetailView';
 import { FoodItemsView, type FoodItemsListParams } from '../../components/FoodItemsView';
+import { MySafeFoodsView } from '../../components/MySafeFoodsView';
 import { FoodProductDetailView } from '../../components/FoodProductDetailView';
 import { ScanProductView } from '../../components/ScanProductView';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
@@ -40,6 +41,7 @@ import {
   listFavorites,
   listFermentations,
   listHandhelds,
+  listMySafeFoods,
   listSalads,
   listSauces,
   listScannedProducts,
@@ -91,6 +93,10 @@ type FoodLens =
   | 'myFoodsList'
   | 'myFoodsDetail'
   | 'myFoodProduct'
+  // The person's list of what is safe for them, 2026-09-18. Reached from
+  // the My Foods menu and the Desktop, next to My Food Products, the same
+  // way every other list on that menu is.
+  | 'mySafeFoods'
   | 'mealBuilder'
   | 'sideBuilder'
   | 'saladBuilder'
@@ -134,6 +140,8 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
   myFoodsList: 'One of your lists: the saved or favorite dishes from one builder, or your scanned food products.',
   myFoodsDetail: 'One saved dish: its ingredients, nutrients, condition scores and cooking notes, and whether your kitchen has what it needs.',
   myFoodProduct: 'One scanned product: its label, nutrients per 100g, and every price you have logged for it.',
+  mySafeFoods:
+    'The foods you say are safe for you, and the ones you say are not. Search for a food, mark it, and add a line about why if you want to remember it. Foods you cleared in a food trial are offered here for one tap. What you put here comes ahead of what the app works out from your tracked conditions, so the Safe Foods lens in Insights shows your version.',
   findMeal:
     'Every meal you can reach without opening a builder, in groups you tap to open: meals you have logged or saved, meals already on your schedule, and the system recipes. Tap a meal to see what it is made of, then Use this meal logs it now, logs it for earlier today, puts it on your schedule, or swaps it in for a meal that was planned. To build something new from what is here, tick dishes from as many meals as you like; a Meal you are building box at the top shows the combination, and Build a meal with these opens Meal Builder with all of them loaded.',
   mealBuilder:
@@ -188,6 +196,7 @@ const FOOD_LENS_FULL_NAMES: Record<FoodLens, string> = {
   myFoodsList: 'Saved Items',
   myFoodsDetail: 'Saved Item',
   myFoodProduct: 'Food Product',
+  mySafeFoods: 'My Safe\nFoods',
   findMeal: 'Log or\nSchedule a Meal',
   mealBuilder: 'Meal\nBuilder',
   sideBuilder: 'Sides\nBuilder',
@@ -941,9 +950,16 @@ export default function FoodScreen() {
   // scanned product be found and reused as an INGREDIENT, never browsed,
   // renamed, priced, or deleted on its own.
   const [scannedProductCount, setScannedProductCount] = useState(0);
+  // "My Safe Foods," 2026-09-18, direct instruction: "the user should be
+  // responsible for the final say in what foods are safe for them... it being
+  // available on the Food screen listed under My Food Products." Counted the
+  // same way as every other tile above, off the list itself rather than a
+  // COUNT query, since a person holds tens of these rather than thousands.
+  const [mySafeFoodCount, setMySafeFoodCount] = useState(0);
   async function loadMyFoodsCounts() {
     const [
       scannedProducts,
+      mySafeFoods,
       sides,
       sideFavorites,
       salads,
@@ -969,6 +985,7 @@ export default function FoodScreen() {
       mealFavorites,
     ] = await Promise.all([
       listScannedProducts(),
+      listMySafeFoods(),
       listSides(),
       listFavorites(50, 'side'),
       listSalads(),
@@ -994,6 +1011,7 @@ export default function FoodScreen() {
       listFavorites(50, 'meal'),
     ]);
     setScannedProductCount(scannedProducts.length);
+    setMySafeFoodCount(mySafeFoods.length);
     setSideCount(sides.length);
     setSideFavoriteCount(sideFavorites.length);
     setSaladCount(salads.length);
@@ -1061,6 +1079,22 @@ export default function FoodScreen() {
       count: scannedProductCount,
       onPress: () =>
         openMyFoodsList({ itemType: 'scannedProduct', status: 'saved', title: 'My Food Products' }),
+    },
+    {
+      // 2026-09-18, direct instruction: "the user should be responsible for
+      // the final say in what foods are safe for them... it being available
+      // on the Food screen listed under My Food Products." Placed second, so
+      // it sits under My Food Products exactly as asked, and well inside the
+      // "the person's things first, the app's library after them" order this
+      // list has followed since 2026-09-13.
+      id: 'my-safe-foods',
+      label: 'My Safe Foods',
+      icon: 'shield-checkmark-outline',
+      count: mySafeFoodCount,
+      onPress: () => {
+        setLens('mySafeFoods');
+        setRevealed(true);
+      },
     },
     {
       // "My Whole Foods" -- real home-grown harvests, tracked on the Garden
@@ -1429,6 +1463,17 @@ export default function FoodScreen() {
             <FoodItemDetailView {...detailParams} onClose={() => setLens('myFoodsList')} />
           ) : lens === 'myFoodProduct' && productParams ? (
             <FoodProductDetailView {...productParams} onClose={() => setLens('myFoodsList')} />
+          ) : lens === 'mySafeFoods' ? (
+            <MySafeFoodsView
+              onClose={() => {
+                setRevealed(false);
+                setDesktopSubmenu(null);
+              }}
+              // The tile carries a count, and somebody adding a food expects
+              // to see it there when they come back rather than on the next
+              // focus, so the list says when it changed.
+              onChanged={loadMyFoodsCounts}
+            />
           ) : lens === 'mealBuilder' ? (
             // MealBuilder owns its own layout entirely, same reasoning as
             // every other builder below -- but never sits behind a

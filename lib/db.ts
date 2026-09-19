@@ -3724,15 +3724,128 @@ export async function getPersonalizedSafeFoodIds(conditionCodes: string[]): Prom
 // conditions, so "safe" here means the same real, condition-scoped thing
 // "Meals You Can Eat" already means in the Digest, not a generic,
 // unpersonalized flag.
+// The person, having the last word on their own food.
+//
+// 2026-09-18, direct instruction: "the user should be responsible for the
+// final say in what foods are safe for them." Everything above this point
+// works out safety from the scores. These functions are the list the person
+// keeps themselves, and the two browse functions below read it, so a call
+// made here reaches every screen that browses safe foods instead of sitting
+// in one list nothing else looks at. See my_safe_foods for why the key is a
+// lowercased base name.
+
+export type MySafeFoodVerdict = 'safe' | 'avoid';
+
+export type MySafeFoodRecord = {
+  foodKey: string;
+  foodName: string;
+  verdict: MySafeFoodVerdict;
+  category: string | null;
+  note: string | null;
+  addedAt: string;
+  updatedAt: string;
+};
+
+// One place that decides what counts as the same food, so a name typed with
+// a capital or a trailing space cannot become a second row for something the
+// person has already ruled on.
+export function mySafeFoodKey(foodName: string): string {
+  return foodName.trim().toLowerCase();
+}
+
+export async function listMySafeFoods(): Promise<MySafeFoodRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<MySafeFoodRecord>(
+    `SELECT food_key AS foodKey, food_name AS foodName, verdict, category, note,
+            added_at AS addedAt, updated_at AS updatedAt
+     FROM my_safe_foods
+     ORDER BY food_name COLLATE NOCASE`,
+  );
+}
+
+// An upsert, because changing your mind about a food is the ordinary case
+// here rather than a mistake: marking the same food again replaces the call
+// and the note and keeps the date it was first added.
+export async function setMySafeFood(input: {
+  foodName: string;
+  verdict: MySafeFoodVerdict;
+  category?: string | null;
+  note?: string | null;
+}): Promise<void> {
+  const name = input.foodName.trim();
+  if (!name) return;
+  const db = await getDatabase();
+  await db.runAsync(
+    `INSERT INTO my_safe_foods (food_key, food_name, verdict, category, note, updated_at)
+     VALUES (?, ?, ?, ?, ?, datetime('now'))
+     ON CONFLICT(food_key) DO UPDATE SET
+       food_name = excluded.food_name,
+       verdict = excluded.verdict,
+       category = COALESCE(excluded.category, my_safe_foods.category),
+       note = excluded.note,
+       updated_at = datetime('now')`,
+    mySafeFoodKey(name),
+    name,
+    input.verdict,
+    input.category ?? null,
+    input.note?.trim() || null,
+  );
+}
+
+export async function removeMySafeFood(foodKey: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM my_safe_foods WHERE food_key = ?', foodKey);
+}
+
+// The calls as a lookup, for the browse functions below and for Food's own
+// tile count. Read fresh every time rather than cached the way
+// safeFoodIdsCache is: a person holds tens of these, not thousands, and a
+// cache that has to be invalidated the moment somebody changes their mind is
+// a cache working against the point of the feature.
+export async function getMySafeFoodCalls(): Promise<Map<string, MySafeFoodRecord>> {
+  const rows = await listMySafeFoods();
+  return new Map(rows.map((row) => [row.foodKey, row]));
+}
+
+// What the person said about this one food, or undefined if they have not
+// said anything about it. For a single row on screen, where reading the
+// whole list would be wasteful.
+export async function getMySafeFoodCall(foodName: string): Promise<MySafeFoodRecord | null> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<MySafeFoodRecord>(
+    `SELECT food_key AS foodKey, food_name AS foodName, verdict, category, note,
+            added_at AS addedAt, updated_at AS updatedAt
+     FROM my_safe_foods WHERE food_key = ?`,
+    mySafeFoodKey(foodName),
+  );
+  return rows[0] ?? null;
+}
+
+// Both browse functions ask the same question of each reference row, so they
+// ask it in one place: has the person ruled on this food, and if so, that is
+// the answer. Only if they have said nothing does the derived score decide.
+function personSaysSafe(
+  baseName: string,
+  foodId: number,
+  source: string,
+  calls: Map<string, MySafeFoodRecord>,
+  safeIds: Set<string>,
+): boolean {
+  const call = calls.get(baseName.toLowerCase());
+  if (call) return call.verdict === 'safe';
+  return safeIds.has(`${foodId}|${source}`);
+}
+
 export async function listSafeFoodCategories(conditionCodes: string[] = []): Promise<string[]> {
   const safeIds = await getPersonalizedSafeFoodIds(conditionCodes);
+  const calls = await getMySafeFoodCalls();
   const db = await getReferenceDatabase();
-  const rows = await db.getAllAsync<{ foodId: number; source: string; category: string }>(
-    'SELECT food_id AS foodId, source, category FROM foods WHERE hidden = 0',
+  const rows = await db.getAllAsync<{ foodId: number; source: string; baseName: string | null; category: string }>(
+    'SELECT food_id AS foodId, source, base_name AS baseName, category FROM foods WHERE hidden = 0',
   );
   const categories = new Set<string>();
   for (const row of rows) {
-    if (safeIds.has(`${row.foodId}|${row.source}`)) categories.add(row.category);
+    if (personSaysSafe(row.baseName ?? '', row.foodId, row.source, calls, safeIds)) categories.add(row.category);
   }
   return Array.from(categories).sort();
 }
@@ -3750,6 +3863,10 @@ export type SafeFood = { foodId: number; source: string; baseName: string; categ
 // directly above; same optional, defaults-to-old-behavior contract.
 export async function listSafeFoods(category: string, limit = 200, conditionCodes: string[] = []): Promise<SafeFood[]> {
   const safeIds = await getPersonalizedSafeFoodIds(conditionCodes);
+  // 2026-09-18: the person's own calls, applied here rather than in the one
+  // lens that shows this list, so a food they ruled on reads the same way
+  // everywhere it is browsed. See personSaysSafe above.
+  const calls = await getMySafeFoodCalls();
   const db = await getReferenceDatabase();
   const rows = await db.getAllAsync<SafeFood>(
     'SELECT food_id AS foodId, source, base_name AS baseName, category, subcategory FROM foods WHERE category = ? AND hidden = 0',
@@ -3757,7 +3874,7 @@ export async function listSafeFoods(category: string, limit = 200, conditionCode
   );
   const byName = new Map<string, SafeFood>();
   for (const row of rows) {
-    if (!safeIds.has(`${row.foodId}|${row.source}`)) continue;
+    if (!personSaysSafe(row.baseName, row.foodId, row.source, calls, safeIds)) continue;
     const key = row.baseName.toLowerCase();
     if (!byName.has(key)) byName.set(key, row);
   }
@@ -5658,6 +5775,41 @@ async function runDatabaseInitialization() {
       CREATE TABLE IF NOT EXISTS user_food_allergies (
         allergen_name TEXT PRIMARY KEY,
         added_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- The person's final say on what is safe for them, 2026-09-18, by
+      -- direct instruction: "the user should be responsible for the final
+      -- say in what foods are safe for them... it being available on the
+      -- Food screen listed under My Food Products."
+      --
+      -- Everything else in this app that says "safe" is DERIVED:
+      -- getPersonalizedSafeFoodIds and listSafeFoods compute it from
+      -- food_scores against whichever conditions the person tracks, and
+      -- nobody typed any of it. This table is the other direction. Nothing
+      -- computes it, nothing overwrites it, and where the two disagree this
+      -- one wins, which is what listSafeFoods and listSafeFoodCategories
+      -- apply. A derived list that cannot be corrected is a list that tells
+      -- somebody they are wrong about their own body.
+      --
+      -- food_key IS the primary key: the lowercased base name, the same
+      -- natural-key pattern user_food_allergies above uses, at the same
+      -- grain listSafeFoods already dedupes to (one row per base_name across
+      -- the national sources, so the "Spinach x7" problem named throughout
+      -- this file stays one food to a person rather than seven).
+      --
+      -- verdict is 'safe' or 'avoid'. The final say has to cut both ways or
+      -- a food the app calls safe that the person knows is not has nowhere
+      -- to go. category is a snapshot of the reference row it was added
+      -- from, so the browse functions can place a person's own pick in the
+      -- category someone would look for it in.
+      CREATE TABLE IF NOT EXISTS my_safe_foods (
+        food_key TEXT PRIMARY KEY,
+        food_name TEXT NOT NULL,
+        verdict TEXT NOT NULL DEFAULT 'safe',
+        category TEXT,
+        note TEXT,
+        added_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
       -- Autism, ADHD and dyslexia, 2026-09-17, by direct instruction:

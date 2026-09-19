@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.40.5',
+    date: '2026-09-18',
+    changes: [
+      'My Safe Foods is on the Food screen, under My Food Products. You say what is safe for you and what is not, and what you say there comes ahead of what the app works out from the conditions you track, so the Safe Foods lens in Insights shows your list rather than arguing with it.',
+      'Foods you cleared in a food trial are offered there for one tap. Nothing is added to your list without you tapping it, and you can take anything off again, which hands the food back to the app to work out.',
+    ],
+  },
+  {
     version: '1.0.40.4',
     date: '2026-09-18',
     changes: [
