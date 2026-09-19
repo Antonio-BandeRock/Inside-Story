@@ -225,7 +225,55 @@ const YELLOW_TIERS = new Set(['Use Carefully', 'Mild Risk', 'Moderate', 'Disrupt
 // confirmed gluten content (the Gluten sub-criterion's own "High Risk"
 // tier), confirmed industrial trans fat ("Present"), and active
 // inflammatory potential.
-const RED_TIERS = new Set(['Excess Risk', 'High Risk', 'High', 'Very High', 'Goitrogenic', 'Inflammatory', 'Present']);
+const RED_TIERS = new Set([
+  'Excess Risk',
+  'High Risk',
+  'High',
+  'Very High',
+  'Goitrogenic',
+  'Inflammatory',
+  'Present',
+  // 2026-09-18. Four sub-criteria store a whole phrase as their tier
+  // rather than one of the short words above, so every one of them fell
+  // through to "unknown" and could never flag anything. Two of them
+  // belong here, and the reasoning for the other two is written below
+  // because a later session will otherwise "finish the job" and be wrong.
+  //
+  // Sodium Density (DASH-Aligned), which serves cardiovascular disease:
+  // the tier carries its own verdict word and is calibrated against DASH,
+  // so it is a verdict rather than a measurement. Note that only the
+  // caution tier is listed: "Moderate Sodium" is not a reason to drop a
+  // food out of somebody's safe list.
+  'High Sodium (DASH Caution)',
+  // Carbohydrate Density Relative to Fiber, which serves type 1 diabetes,
+  // PCOS and type 2 diabetes. It is the combination that matters, and this
+  // is the one tier of its four that names the combination to watch.
+  'High Carb, Low Fiber',
+]);
+
+// Two tier vocabularies that look like they are missing from the lists
+// above and are deliberately absent:
+//
+// Protein Density (Renal Nutrient Load, chronic kidney disease) reverses
+// direction partway through the condition it serves. Before dialysis, a
+// protein-dense food is watched against the 0.6-0.8g/kg/day ceiling most
+// guidance recommends; on dialysis, protein is being removed and needs
+// replacing, so a protein-LIGHT food is the one worth a note. A severity
+// set here has no idea which stage somebody is at, so any answer it gave
+// would be wrong for half the people it applies to.
+// lib/ckdStageAdvisory.ts and ckdStageReasons() in
+// scripts/compute_recipe_condition_data.js already do this properly,
+// where the stage is known. This is the same lesson as the 2026-08-26
+// Oxalate Level fix: a raw measurement is not a verdict.
+//
+// Common Elimination-Diet Trigger Food (rheumatoid arthritis, psoriasis)
+// stores a category, not a severity. "Dairy" says which trigger family a
+// food belongs to, and the whole premise of an elimination diet is that
+// which family matters is individual. Flagging all of them would pull
+// roughly 2,200 foods out of safe foods on a claim the evidence does not
+// support. isNoteworthyConditionFlag in lib/db.ts already surfaces the
+// specific trigger name as information, which is the right weight for it,
+// and My Safe Foods is where a person settles it for themselves.
 
 export function tierSeverity(tier: string): TierSeverity {
   // Oxalate Tolerance Note stores a full instruction sentence as its own

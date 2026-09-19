@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.40.6',
+    date: '2026-09-18',
+    changes: [
+      'A food high in sodium now counts as one, and so does a food high in carbohydrate against its fiber. Both were being scored and then quietly ignored, because the app was looking for a one-word rating and these two are written as a phrase. If you track cardiovascular disease, type 1 or type 2 diabetes, or PCOS, those foods will start showing their warning and will drop out of Safe Foods.',
+      'Safe Foods now works from the same set of foods whether or not you track a condition. Tracking one used to give you a longer list than tracking none, because foods the app has never scored were being counted as safe. Having no information about a food is not the same as knowing it is fine for you, so those foods no longer appear there. You can still put any of them on your own list under My Safe Foods.',
+    ],
+  },
+  {
     version: '1.0.40.5',
     date: '2026-09-18',
     changes: [

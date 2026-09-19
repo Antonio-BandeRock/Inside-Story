@@ -3693,7 +3693,21 @@ export async function getPersonalizedSafeFoodIds(conditionCodes: string[]): Prom
   if (!cached) {
     cached = (async () => {
       const db = await getReferenceDatabase();
-      const allRows = await db.getAllAsync<{ foodId: number; source: string }>('SELECT food_id AS foodId, source FROM foods WHERE hidden = 0');
+      // 2026-09-18: the same universe getSafeFoodIds() works from, which
+      // is foods this app has actually scored. It used to start from every
+      // visible food instead, and the two disagreed by 4,727 rows: foods
+      // with no score data at all, which this path counted as safe on the
+      // grounds that nothing had flagged them. So tracking a condition made
+      // somebody's safe list LONGER than tracking nothing, which is
+      // backwards, and it meant the app vouching for foods it had never
+      // scored. Having no data about a food is not the same as knowing it
+      // is safe, which is the line the rest of this app already holds.
+      const allRows = await db.getAllAsync<{ foodId: number; source: string }>(
+        `SELECT DISTINCT f.food_id AS foodId, f.source AS source
+         FROM foods f
+         JOIN food_scores fs ON fs.food_id = f.food_id AND fs.source = f.source
+         WHERE f.hidden = 0`,
+      );
       const flaggedSets = await Promise.all(conditionCodes.map((code) => getFlaggedFoodIdsForCondition(code)));
       const safe = new Set<string>();
       outer: for (const row of allRows) {
@@ -13901,6 +13915,16 @@ function isNoteworthyConditionFlag(subCriterion: string, tier: string): boolean 
     // flagged" default tier is excluded.
     case 'Common Elimination-Diet Trigger Food':
       return tier !== 'Not a Common Trigger';
+    // 2026-09-18, alongside the same two tiers joining the red list in
+    // lib/sixDimensionsReference.ts. A saved dish held to the same
+    // standard as a curated recipe should say so when it is high in
+    // sodium or high in carbohydrate against its fiber, for the people
+    // those two sub-criteria are scored for. Only the one concerning
+    // tier of each, never the moderate one.
+    case 'Sodium Density (DASH-Aligned)':
+      return tier === 'High Sodium (DASH Caution)';
+    case 'Carbohydrate Density Relative to Fiber':
+      return tier === 'High Carb, Low Fiber';
     default:
       return false;
   }
