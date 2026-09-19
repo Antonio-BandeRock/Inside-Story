@@ -7,6 +7,8 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
+import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
@@ -167,6 +169,8 @@ export function RoutinesSection({ tabColor }: Props) {
   } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const folds = useBandFolds();
 
   const load = useCallback(() => {
     setLoading(true);
@@ -332,10 +336,10 @@ export function RoutinesSection({ tabColor }: Props) {
     });
   }
 
-  if (loading) return <Text style={[styles.bodyText, styles.panelStandalone]}>Loading…</Text>;
+  if (loading) return <View style={band.boxMuted}><Text style={styles.bodyText}>Loading…</Text></View>;
 
   return (
-    <>
+    <View style={band.column}>
       {infoAlertElement}
       <AppActionSheet
         visible={confirm !== null}
@@ -345,7 +349,7 @@ export function RoutinesSection({ tabColor }: Props) {
         actions={confirm?.actions ?? []}
       />
 
-      <View style={styles.card}>
+      <View style={band.box}>
         <Text style={styles.cardTitle}>Routines</Text>
         <Text style={styles.bodyText}>
           An order you do not want to hold in your head. Walking one shows a single step at a time, so there is
@@ -365,7 +369,7 @@ export function RoutinesSection({ tabColor }: Props) {
       </View>
 
       {form ? (
-        <View style={styles.formCard}>
+        <View style={band.box}>
           <Text style={styles.cardTitle}>{form.id ? 'Change this routine' : 'A new routine'}</Text>
 
           <View style={styles.labelRow}>
@@ -561,7 +565,7 @@ export function RoutinesSection({ tabColor }: Props) {
       ) : null}
 
       {routines.length === 0 && !form ? (
-        <View style={styles.card}>
+        <View style={band.box}>
           <Text style={styles.bodyText}>
             Nothing here yet. A first one worth trying is Morning, with the three or four things that only work
             if they happen early.
@@ -572,8 +576,8 @@ export function RoutinesSection({ tabColor }: Props) {
       {routines.map((routine, position) => {
         const open = openId === routine.id;
         return (
-          <View key={routine.id} style={[styles.card, routine.active ? null : styles.dimmed]}>
-            <Text style={styles.cardTitle}>{routine.name}</Text>
+          <View key={routine.id} style={routine.active ? null : styles.dimmed}>
+          <LifeBand folds={folds} color={tabColor} id={`life:routines:${routine.id}`} title={routine.name} icon="repeat-outline" count={routine.steps.length}>
             <Text style={styles.rowMeta}>
               {routineOccasionLabel(routine.occasion, occasions)}. {describeRoutineStanding(routine, now)}
             </Text>
@@ -781,18 +785,16 @@ export function RoutinesSection({ tabColor }: Props) {
                 )}
               </>
             ) : null}
+          </LifeBand>
           </View>
         );
       })}
-    </>
+    </View>
   );
 }
 
 function makeStyles(tabColor: string) {
   return StyleSheet.create({
-    panelStandalone: { backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 12 },
-    card: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
-    formCard: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
     dimmed: { opacity: 0.6 },
     cardTitle: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 8, ...textShadow },
     bodyText: { ...typography.body, color: colors.textSecondary, ...textShadow },

@@ -1,5 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useMemo, useState, type ComponentProps, type ReactNode } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -8,7 +7,8 @@ import { VoiceInputButton } from './VoiceInputButton';
 import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 import type { DropdownOption } from './Dropdown';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
+import { LifeBand } from './LifeBand';
 import { PopoverSelect } from './PopoverSelect';
 import { WhyExplainer } from './WhyExplainer';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -54,52 +54,14 @@ import type { NutrientGapEntry } from '../lib/nutrientAnalysis';
 // these forms, are gone; editing came here with them.
 
 // Every band here folds, the same rule Schedules and Food follow, with the
-// open state remembered per band through useBandFolds.
+// open state remembered per band through useBandFolds. The band itself is
+// LifeBand, shared with every other Life lens since 2026-09-19.
 function todayDateString(): string {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
-type Folds = ReturnType<typeof useBandFolds>;
-
-function LifeBand({
-  folds,
-  color,
-  id,
-  title,
-  icon,
-  count,
-  children,
-}: {
-  folds: Folds;
-  color: string;
-  id: string;
-  title: string;
-  icon: ComponentProps<typeof Ionicons>['name'];
-  count?: number;
-  children: ReactNode;
-}) {
-  return (
-    <View style={bandStyles.bandOut}>
-      <HomeSectionBand
-        kind="fold"
-        title={count == null ? title : `${title} (${count})`}
-        icon={icon}
-        color={color}
-        expanded={folds.isOpen(id)}
-        onToggle={() => folds.toggle(id)}
-      >
-        {children}
-      </HomeSectionBand>
-    </View>
-  );
-}
-
-// Life's own scroll content is inset 20 (app/(tabs)/life.tsx), so a band
-// reaches the edge by cancelling that, not the 16 Schedules uses.
-const LIFE_CONTENT_INSET = 20;
-const bandStyles = StyleSheet.create({ bandOut: { marginHorizontal: -LIFE_CONTENT_INSET } });
 // Only nutrients with one unambiguous, universally agreed IU->mass
 // conversion accept IU today (see lib/supplementUnits.ts) -- offered here
 // regardless of which nutrient is picked, with any that can't be
@@ -1011,7 +973,6 @@ function makeStyles(tabColor: string) {
     bandBox: {
       ...homeBandStyle,
       borderColor: tabColor,
-      marginHorizontal: -LIFE_CONTENT_INSET,
       padding: HOME_BAND_CONTENT_PADDING,
     },
     bodyContent: { paddingTop: 5, gap: HOME_BAND_GAP },
@@ -1022,7 +983,6 @@ function makeStyles(tabColor: string) {
     formCard: {
       ...homeBandStyle,
       borderColor: tabColor,
-      marginHorizontal: -LIFE_CONTENT_INSET,
       padding: HOME_BAND_CONTENT_PADDING,
     },
     helperText: { ...typography.caption, color: tabColor, marginTop: 4, marginBottom: 8, ...textShadow },

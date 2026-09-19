@@ -5,6 +5,8 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
+import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { getTrackedConditionsWithNames } from '../lib/foodPersonalization';
@@ -159,6 +161,8 @@ export function FinanceHealthSection({ tabColor }: Props) {
   );
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const folds = useBandFolds();
 
   const num = (raw: string): number | null => (raw.trim() ? parsePriceInput(raw) : null);
 
@@ -235,16 +239,15 @@ export function FinanceHealthSection({ tabColor }: Props) {
   }
 
   if (loading) {
-    return <Text style={[styles.bodyText, styles.panelStandalone]}>Adding up your health costs…</Text>;
+    return <View style={band.boxMuted}><Text style={styles.bodyText}>Adding up your health costs…</Text></View>;
   }
 
   return (
-    <>
+    <View style={band.column}>
       {infoAlertElement}
 
       {/* Where you stand with the plan */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Your plan this year</Text>
+      <LifeBand folds={folds} color={tabColor} id="life:finances:your-plan-this-year" title="Your plan this year" icon="medkit-outline">
         {standing && plan ? (
           <>
             {renderBar('Deductible', standing.deductible.met, standing.deductible.limit, standing.deductible.fraction)}
@@ -270,10 +273,10 @@ export function FinanceHealthSection({ tabColor }: Props) {
             </TouchableOpacity>
           </>
         )}
-      </View>
+      </LifeBand>
 
       {openForm === 'plan' ? (
-        <View style={styles.formCard}>
+        <View style={band.box}>
           <Text style={styles.label}>Plan name</Text>
           <AppTextInput style={styles.input} placeholder="e.g. Employer PPO" value={planForm.name}
             onChangeText={(t) => setPlanForm({ ...planForm, name: t })} />
@@ -310,8 +313,7 @@ export function FinanceHealthSection({ tabColor }: Props) {
       ) : null}
 
       {/* HSA and FSA */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>HSA & FSA</Text>
+      <LifeBand folds={folds} color={tabColor} id="life:finances:hsa-fsa" title="HSA & FSA" icon="medkit-outline">
         {accounts.length === 0 ? (
           <Text style={styles.bodyText}>
             If you have an FSA, add it. That money is forfeited if it is not spent by your plan’s deadline, and a date on
@@ -336,10 +338,10 @@ export function FinanceHealthSection({ tabColor }: Props) {
         <TouchableOpacity style={styles.primaryButton} onPress={() => setOpenForm('account')}>
           <Text style={styles.primaryButtonText}>+ Add an account</Text>
         </TouchableOpacity>
-      </View>
+      </LifeBand>
 
       {openForm === 'account' ? (
-        <View style={styles.formCard}>
+        <View style={band.box}>
           <Text style={styles.label}>Which kind</Text>
           <PopoverSelect options={ACCOUNT_KIND_OPTIONS} selected={accountForm.kind}
             onSelect={(v) => setAccountForm({ ...accountForm, kind: v })} tabColor={tabColor} />
@@ -374,8 +376,7 @@ export function FinanceHealthSection({ tabColor }: Props) {
       ) : null}
 
       {/* What each condition costs */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>What each condition costs</Text>
+      <LifeBand folds={folds} color={tabColor} id="life:finances:what-each-condition-costs" title="What each condition costs" icon="medkit-outline">
         <Text style={styles.bodyText}>{describeConditionCosts(rollup, conditionName)}</Text>
         {rollup.byCondition.map((entry) => (
           <View key={entry.conditionCode} style={styles.listRow}>
@@ -397,11 +398,10 @@ export function FinanceHealthSection({ tabColor }: Props) {
             ones.
           </Text>
         ) : null}
-      </View>
+      </LifeBand>
 
       {/* Bills */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Medical bills</Text>
+      <LifeBand folds={folds} color={tabColor} id="life:finances:medical-bills" title="Medical bills" icon="medkit-outline">
         {bills.length === 0 ? (
           <Text style={styles.bodyText}>
             Add a bill with the figures from its Explanation of Benefits and this checks the arithmetic: what your plan
@@ -446,10 +446,10 @@ export function FinanceHealthSection({ tabColor }: Props) {
         <TouchableOpacity style={styles.primaryButton} onPress={() => setOpenForm('bill')}>
           <Text style={styles.primaryButtonText}>+ Add a bill</Text>
         </TouchableOpacity>
-      </View>
+      </LifeBand>
 
       {openForm === 'bill' ? (
-        <View style={styles.formCard}>
+        <View style={band.box}>
           <View style={styles.labelRow}>
             <Text style={styles.label}>Who from</Text>
             <VoiceInputButton onResult={(t) => setBillForm({ ...billForm, provider: t })} color={tabColor} />
@@ -508,7 +508,7 @@ export function FinanceHealthSection({ tabColor }: Props) {
           </View>
         </View>
       ) : null}
-    </>
+    </View>
   );
 }
 
@@ -521,16 +521,6 @@ const SOURCE_LABELS: Record<string, string> = {
 
 function makeStyles(tabColor: string) {
   return StyleSheet.create({
-    panelStandalone: { backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 12 },
-    card: {
-      backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16,
-      borderWidth: 2, borderColor: tabColor,
-    },
-    formCard: {
-      backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16,
-      borderWidth: 2, borderColor: tabColor,
-    },
-    cardTitle: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10, ...textShadow },
     bodyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
     footnote: { ...typography.caption, color: colors.textMuted, marginTop: 10, ...textShadow },
     helperText: { ...typography.caption, color: colors.textMuted, marginTop: 6, marginBottom: 4, ...textShadow },

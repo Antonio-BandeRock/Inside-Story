@@ -56,6 +56,19 @@ const SURFACE_COMPONENTS = new Set([
   // lens builds its fold bands with. Renders HomeSectionBand and places
   // its children inside it, nothing else.
   'ScheduleBand',
+  // components/LifeBand.tsx, 2026-09-19: the wrapper every Life lens builds
+  // its fold bands with. Renders HomeSectionBand with its children inside.
+  'LifeBand',
+]);
+
+// Shared style objects a file holds in a local name rather than in its
+// own StyleSheet.create: `const band = makeLifeBandStyles(tabColor)` gives
+// every Life lens the same box, boxMuted, heading and row surfaces, so a
+// `band.box` reference resolves through THAT file's StyleSheet rather
+// than this one's. Keyed by the local name, valued by the file whose
+// StyleSheet.create defines the keys.
+const SHARED_STYLE_OBJECTS = new Map([
+  ['band', path.join('components', 'LifeBand.tsx')],
 ]);
 
 // Exported style objects confirmed to set backgroundColor, so a StyleSheet
@@ -164,6 +177,7 @@ function styleRefNames(attrValue, sourceFile) {
   let inlineBackground = false;
   const text = attrValue ? attrValue.getText(sourceFile) : '';
   for (const match of text.matchAll(/styles\.([A-Za-z0-9_]+)/g)) names.push(match[1]);
+  for (const match of text.matchAll(/\b(band)\.([A-Za-z0-9_]+)/g)) names.push(match[1] + '.' + match[2]);
   if (/backgroundColor\s*:/.test(text) && !/backgroundColor\s*:\s*['"]?transparent/.test(text)) {
     inlineBackground = true;
   }
@@ -199,6 +213,14 @@ const parsed = files.map((file) => {
 
 const fileHelpers = new Map();
 
+// The style maps behind SHARED_STYLE_OBJECTS, looked up once.
+const sharedStyleBackgrounds = new Map();
+for (const [localName, relativeFile] of SHARED_STYLE_OBJECTS) {
+  const owner = parsed.find((entry) => entry.file.endsWith(relativeFile));
+  if (!owner) throw new Error(`SHARED_STYLE_OBJECTS: ${relativeFile} not found`);
+  sharedStyleBackgrounds.set(localName, owner.styleBackgrounds);
+}
+
 for (const { file, sourceFile, styleBackgrounds } of parsed) {
   // Starts at the node ITSELF, not its parent: a <Text> carrying its own
   // backgroundColor (a footnote styled as its own chip) is already
@@ -219,6 +241,12 @@ for (const { file, sourceFile, styleBackgrounds } of parsed) {
         const { names, inlineBackground } = styleRefNames(getStyleAttr(current), sourceFile);
         if (inlineBackground) return true;
         for (const styleName of names) {
+          const shared = styleName.indexOf('.');
+          if (shared > 0) {
+            const owner = sharedStyleBackgrounds.get(styleName.slice(0, shared));
+            if (owner && owner.get(styleName.slice(shared + 1))) return true;
+            continue;
+          }
           if (styleBackgrounds.get(styleName)) return true;
         }
       }

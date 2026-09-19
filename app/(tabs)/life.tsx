@@ -11,6 +11,7 @@ import { FinanceGoalsSection } from '../../components/FinanceGoalsSection';
 import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
+import { LifeBand, makeLifeBandStyles } from '../../components/LifeBand';
 import { DidIDoItSection } from '../../components/DidIDoItSection';
 import { KitchenSection } from '../../components/KitchenSection';
 import { RoutinesSection } from '../../components/RoutinesSection';
@@ -30,6 +31,7 @@ import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
+import { useBandFolds } from '../../hooks/useBandFolds';
 import {
   expenseCategoriesByGroup,
   financeCategoriesFor,
@@ -133,6 +135,7 @@ import { parsePriceInput } from '../../lib/groceryList';
 // that did not have to be bought, which is a fact.
 
 const TAB_COLOR = colors.tabLife;
+const band = makeLifeBandStyles(TAB_COLOR);
 
 // 'groceryList' is a lens in the menu only: picking it opens the grocery
 // list screen (the same one Home's own Grocery List row opens) rather than
@@ -638,6 +641,7 @@ export default function LifeScreen() {
   // (see useFloatingButtonScrollPadding), so the Conditions lens no
   // longer adds its own.
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const folds = useBandFolds();
   const { openLifeLens, focusTreatmentId, openEntryId } = useLocalSearchParams<{ openLifeLens?: string; focusTreatmentId?: string; openEntryId?: string }>();
   // Conditions asks to scroll to a band it just opened from a link; its y
   // is relative to its own wrapper, so the wrapper's place in this scroll
@@ -945,14 +949,14 @@ export default function LifeScreen() {
   function renderOverview() {
     const nothingYet = recurring.length === 0 && entries.length === 0 && picture.knownSpendTotal === 0;
     return (
-      <>
-        <View style={styles.card}>
+      <View style={band.column}>
+        <View style={band.box}>
           <Text style={styles.cardTitle}>{monthLabel(month)}</Text>
           <Text style={styles.bodyText}>{describeMonthPicture(picture)}</Text>
         </View>
 
         {nothingYet ? (
-          <View style={styles.card}>
+          <View style={band.box}>
             <Text style={styles.cardTitle}>Start with what repeats</Text>
             <Text style={styles.bodyText}>
               Add what comes in and the bills that go out every month under Bills & Income. That alone answers what is
@@ -965,8 +969,7 @@ export default function LifeScreen() {
           </View>
         ) : null}
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Every month, as things stand</Text>
+        <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:every-month-as-things-stand" title="Every month, as things stand" icon="cash-outline">
           {renderStat('Coming in', formatFinanceMoney(summary.monthlyIncome))}
           {renderStat('Regular bills', formatFinanceMoney(summary.monthlyCommitted))}
           {summary.monthlySetAside > 0 ? renderStat('Set aside', formatFinanceMoney(summary.monthlySetAside)) : null}
@@ -979,10 +982,9 @@ export default function LifeScreen() {
             Worked out from {summary.activeCount} active {summary.activeCount === 1 ? 'entry' : 'entries'}, with weekly
             and every-two-weeks amounts converted using the real number of payments in a year rather than four a month.
           </Text>
-        </View>
+        </LifeBand>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>What has actually gone out this month</Text>
+        <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:what-has-actually-gone-out-this-month" title="What has actually gone out this month" icon="cash-outline">
           {renderStat('Recorded spending', formatFinanceMoney(picture.knownSpendTotal))}
           {tracked.grocerySpend > 0 ? renderStat('  from groceries', formatFinanceMoney(tracked.grocerySpend)) : null}
           {tracked.therapySpend > 0 ? renderStat('  from therapies', formatFinanceMoney(tracked.therapySpend)) : null}
@@ -1000,11 +1002,10 @@ export default function LifeScreen() {
               would have cost is not something this app knows, so it is counted rather than priced.
             </Text>
           ) : null}
-        </View>
+        </LifeBand>
 
         {summary.byGroup.length > 0 ? (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Where your regular money goes</Text>
+          <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:where-your-regular-money-goes" title="Where your regular money goes" icon="cash-outline">
             {summary.byGroup.map((group) => {
               const share = summary.monthlyCommitted + summary.monthlySetAside > 0
                 ? group.monthly / (summary.monthlyCommitted + summary.monthlySetAside)
@@ -1021,9 +1022,9 @@ export default function LifeScreen() {
                 </View>
               );
             })}
-          </View>
+          </LifeBand>
         ) : null}
-      </>
+      </View>
     );
   }
 
@@ -1032,9 +1033,9 @@ export default function LifeScreen() {
     const expenses = recurring.filter((row) => row.direction === 'expense');
 
     return (
-      <>
+      <View style={band.column}>
         {!recurringForm ? (
-          <View style={styles.actionRow}>
+          <View style={[band.inset, styles.actionRow]}>
             <TouchableOpacity style={styles.primaryButton} onPress={() => openAddRecurring('expense')}>
               <Text style={styles.primaryButtonText}>+ Add a bill</Text>
             </TouchableOpacity>
@@ -1048,8 +1049,7 @@ export default function LifeScreen() {
 
         {income.length > 0 ? (
           <>
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Where your money comes from</Text>
+            <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:where-your-money-comes-from" title="Where your money comes from" icon="cash-outline">
               <Text style={styles.bodyText}>{describeIncomeMix(incomeMix)}</Text>
               {incomeMix.streams.map((entry) => (
                 <View key={entry.name} style={styles.barRow}>
@@ -1065,31 +1065,29 @@ export default function LifeScreen() {
                   </View>
                 </View>
               ))}
-            </View>
+            </LifeBand>
 
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Coming in</Text>
+            <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:coming-in" title="Coming in" icon="cash-outline">
               {income.map((row) => renderRecurringRow(row))}
-            </View>
+            </LifeBand>
           </>
         ) : null}
 
         {expenses.length > 0 ? (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Going out</Text>
+          <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:going-out" title="Going out" icon="cash-outline">
             {expenses.map((row) => renderRecurringRow(row))}
-          </View>
+          </LifeBand>
         ) : null}
 
         {recurring.length === 0 && !recurringForm ? (
-          <View style={styles.card}>
+          <View style={band.box}>
             <Text style={styles.bodyText}>
               Nothing added yet. Rent or mortgage, power, phone, insurance and whatever comes in are the ones worth
               adding first: between them they usually account for most of a month.
             </Text>
           </View>
         ) : null}
-      </>
+      </View>
     );
   }
 
@@ -1163,7 +1161,7 @@ export default function LifeScreen() {
     const previewRule = 'rule' in built ? built.rule : null;
     const previewNext = previewRule ? nextOccurrence(previewRule, todayLocal()) : null;
     return (
-      <View style={styles.formCard}>
+      <View style={band.box}>
         <Text style={styles.label}>What kind</Text>
         <PopoverSelect
           options={DIRECTION_OPTIONS}
@@ -1413,15 +1411,17 @@ export default function LifeScreen() {
 
   function renderSpending() {
     return (
-      <>
+      <View style={band.column}>
         {!entryForm ? (
-          <TouchableOpacity style={styles.primaryButton} onPress={() => setEntryForm(blankEntryForm())}>
-            <Text style={styles.primaryButtonText}>+ Record something</Text>
-          </TouchableOpacity>
+          <View style={band.inset}>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => setEntryForm(blankEntryForm())}>
+              <Text style={styles.primaryButtonText}>+ Record something</Text>
+            </TouchableOpacity>
+          </View>
         ) : null}
 
         {entryForm ? (
-          <View style={styles.formCard}>
+          <View style={band.box}>
             <Text style={styles.label}>What kind</Text>
             <PopoverSelect
               options={DIRECTION_OPTIONS}
@@ -1552,8 +1552,7 @@ export default function LifeScreen() {
           </View>
         ) : null}
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Monthly limits</Text>
+        <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:monthly-limits" title="Monthly limits" icon="cash-outline">
           {budgetRows.length === 0 ? (
             <Text style={styles.bodyText}>
               Set a limit on a category you want to keep an eye on, and this shows how much of it is used up. Groceries
@@ -1650,11 +1649,10 @@ export default function LifeScreen() {
               <Text style={styles.secondaryButtonText}>+ Set a limit</Text>
             </TouchableOpacity>
           )}
-        </View>
+        </LifeBand>
 
         {tracked.grocerySpend > 0 || tracked.therapySpend > 0 || tracked.groceryLinesWithoutPrice > 0 ? (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Already counted for you</Text>
+          <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:already-counted-for-you" title="Already counted for you" icon="cash-outline">
             {tracked.grocerySpend > 0 ? renderStat('Groceries', formatFinanceMoney(tracked.grocerySpend)) : null}
             {tracked.therapySpend > 0 ? renderStat('Hands-on therapies', formatFinanceMoney(tracked.therapySpend)) : null}
             <Text style={styles.footnote}>
@@ -1664,12 +1662,11 @@ export default function LifeScreen() {
                 ? ` ${picture.incompleteRecords} of them have no amount recorded and are left out rather than guessed at.`
                 : ''}
             </Text>
-          </View>
+          </LifeBand>
         ) : null}
 
         {entries.length > 0 ? (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Recorded in {monthLabel(month)}</Text>
+          <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:recorded-in-x" title={`Recorded in ${monthLabel(month)}`} icon="cash-outline">
             {entries.map((row) => (
               <View key={row.id} style={styles.listRow}>
                 <View style={styles.listMain}>
@@ -1694,9 +1691,9 @@ export default function LifeScreen() {
                 </View>
               </View>
             ))}
-          </View>
+          </LifeBand>
         ) : !entryForm ? (
-          <View style={styles.card}>
+          <View style={band.box}>
             <Text style={styles.bodyText}>
               Nothing recorded by hand this month. This is for the things that are not already tracked somewhere else:
               a meal out, a repair, fuel. Groceries and therapy sessions you have already priced are counted without
@@ -1704,15 +1701,14 @@ export default function LifeScreen() {
             </Text>
           </View>
         ) : null}
-      </>
+      </View>
     );
   }
 
   function renderUpcoming() {
     return (
-      <>
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Next {UPCOMING_WINDOW_DAYS} days</Text>
+      <View style={band.column}>
+        <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:next-x-days" title={`Next ${UPCOMING_WINDOW_DAYS} days`} icon="cash-outline">
           {soon.bills.length === 0 ? (
             <Text style={styles.bodyText}>
               Nothing with a set date is due in the next {UPCOMING_WINDOW_DAYS} days. Adding a day of the month to a
@@ -1735,11 +1731,10 @@ export default function LifeScreen() {
           {soon.bills.length > 0 ? (
             <Text style={styles.footnote}>Total due in this window: {formatFinanceMoney(soon.total)}</Text>
           ) : null}
-        </View>
+        </LifeBand>
 
         {funds.length > 0 ? (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Worth putting by each month</Text>
+          <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:worth-putting-by-each-month" title="Worth putting by each month" icon="cash-outline">
             <Text style={styles.bodyText}>
               A bill that lands once or twice a year is the one most likely to wreck a month, because it sits outside
               the monthly rhythm. This is what each would cost if you set it aside a bit at a time instead.
@@ -1770,12 +1765,11 @@ export default function LifeScreen() {
             <Text style={styles.footnote}>
               This app does not move money, so nothing here is set aside for you. It is the figure to aim at.
             </Text>
-          </View>
+          </LifeBand>
         ) : null}
 
         {soon.needsSetup.length > 0 ? (
-          <View style={styles.card}>
-            <Text style={styles.cardTitle}>Needs a due date</Text>
+          <LifeBand folds={folds} color={TAB_COLOR} id="life:finances:needs-a-due-date" title="Needs a due date" icon="cash-outline">
             <Text style={styles.bodyText}>
               These still count toward your monthly figures. They cannot be put on a calendar yet, because each one is
               missing the piece that says when it lands.
@@ -1793,9 +1787,9 @@ export default function LifeScreen() {
                 <Text style={styles.listAmount}>{formatFinanceMoney(item.amount)}</Text>
               </View>
             ))}
-          </View>
+          </LifeBand>
         ) : null}
-      </>
+      </View>
     );
   }
 
@@ -1814,9 +1808,7 @@ export default function LifeScreen() {
             />
 
             {lens === 'conditions' ? (
-              // Pulled back out to the screen edge so its bands run edge to
-              // edge, the way Home's and System Recipes' do.
-              <View style={styles.edgeToEdge} onLayout={(event) => { conditionsTop.current = event.nativeEvent.layout.y; }}>
+              <View onLayout={(event) => { conditionsTop.current = event.nativeEvent.layout.y; }}>
                 <ConditionsSection tabColor={TAB_COLOR} openEntryId={openEntryId} scrollToY={scrollConditionsTo} />
               </View>
             ) : null}
@@ -1833,8 +1825,8 @@ export default function LifeScreen() {
             {lens === 'didIDoIt' ? <DidIDoItSection tabColor={TAB_COLOR} /> : null}
 
             {lens === 'finances' ? (
-            <>
-            <View style={styles.sectionPillRow}>
+            <View style={band.column}>
+            <View style={[band.inset, styles.sectionPillRow]}>
               {SECTIONS.map((entry) => (
                 <TouchableOpacity
                   key={entry.key}
@@ -1847,7 +1839,7 @@ export default function LifeScreen() {
             </View>
 
             {loading ? (
-              <Text style={[styles.bodyText, styles.panelStandalone]}>Adding things up…</Text>
+              <View style={band.boxMuted}><Text style={styles.bodyText}>Adding things up…</Text></View>
             ) : section === 'overview' ? (
               renderOverview()
             ) : section === 'health' ? (
@@ -1863,7 +1855,7 @@ export default function LifeScreen() {
             ) : (
               renderUpcoming()
             )}
-            </>
+            </View>
             ) : null}
           </ScrollView>
         </GatedTabContent>
@@ -1913,19 +1905,15 @@ function financeGroupLabel(group: string): string {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { flex: 1 },
-  content: { paddingHorizontal: 20, paddingBottom: 32 },
-  edgeToEdge: { marginHorizontal: -20 },
+  // No side inset, 2026-09-19: every lens is a column of edge-to-edge
+  // bands (components/LifeBand.tsx), so the inset lives inside each band
+  // rather than around the page.
+  content: { paddingBottom: 32 },
 
   // Every standalone line of text gets a surface, per the standing
   // no-text-on-the-tab-background rule.
-  panelStandalone: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-  },
 
-  sectionPillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
+  sectionPillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pill: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -1947,22 +1935,6 @@ const styles = StyleSheet.create({
   },
   pillTextSmall: { ...typography.caption, color: colors.textPrimary, ...textShadow },
 
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-  },
-  formCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-  },
   cardTitle: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10, ...textShadow },
   bodyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
   footnote: { ...typography.caption, color: colors.textMuted, marginTop: 10, ...textShadow },
@@ -2044,7 +2016,7 @@ const styles = StyleSheet.create({
   actionText: { ...typography.caption, color: TAB_COLOR, ...textShadow },
   actionTextRemove: { ...typography.caption, color: colors.danger, ...textShadow },
 
-  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 },
+  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   formActions: { flexDirection: 'row', gap: 10, marginTop: 16 },
   primaryButton: {
     backgroundColor: colors.buttonColor,

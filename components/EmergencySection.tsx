@@ -5,6 +5,8 @@ import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { VoiceInputButton } from './VoiceInputButton';
+import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
@@ -123,6 +125,8 @@ export function EmergencySection({ tabColor }: Props) {
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const folds = useBandFolds();
 
   const load = useCallback(() => {
     setLoading(true);
@@ -189,7 +193,7 @@ export function EmergencySection({ tabColor }: Props) {
   }
 
   if (loading || !profile || !fromApp) {
-    return <Text style={[styles.bodyText, styles.panelStandalone]}>Loading…</Text>;
+    return <View style={band.boxMuted}><Text style={styles.bodyText}>Loading…</Text></View>;
   }
 
   const draft = editing ?? {};
@@ -197,7 +201,7 @@ export function EmergencySection({ tabColor }: Props) {
     (editing ? draft[key] : profile[key]) ?? '';
 
   return (
-    <>
+    <View style={band.column}>
       {infoAlertElement}
       <AppActionSheet
         visible={confirm !== null}
@@ -209,13 +213,12 @@ export function EmergencySection({ tabColor }: Props) {
 
       {/* Not a card among cards, and deliberately not dismissible. Everything
           below it is only safe to build on top of this being read. */}
-      <View style={styles.warningCard}>
+      <View style={[band.box, styles.warningCard]}>
         <Text style={styles.warningTitle}>This is not a medical alert</Text>
         <Text style={styles.warningText}>{NOT_A_MEDICAL_ALERT}</Text>
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>How old this is</Text>
+      <LifeBand folds={folds} color={tabColor} id="life:emergency:how-old-this-is" title="How old this is" icon="medkit-outline">
         <Text style={[styles.bodyText, fresh.stale ? styles.warn : null]}>{describeFreshness(fresh)}</Text>
         <Text style={styles.helperText}>
           Confirming means going through the whole thing and saying it is still right. It is a
@@ -245,11 +248,10 @@ export function EmergencySection({ tabColor }: Props) {
         >
           <Text style={styles.primaryButtonText}>I have checked it</Text>
         </TouchableOpacity>
-      </View>
+      </LifeBand>
 
       {gaps.length > 0 ? (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Still empty</Text>
+        <LifeBand folds={folds} color={tabColor} id="life:emergency:still-empty" title="Still empty" icon="medkit-outline">
           <Text style={styles.bodyText}>{describeMissing(gaps)}</Text>
           <Text style={styles.helperText}>
             Listed by how much each one actually matters rather than in the order the fields sit
@@ -263,13 +265,12 @@ export function EmergencySection({ tabColor }: Props) {
               </View>
             </View>
           ))}
-        </View>
+        </LifeBand>
       ) : null}
 
       {/* Contacts first among the editable parts. One name and one number is
           the difference between a card and a piece of paper. */}
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Who to call</Text>
+      <LifeBand folds={folds} color={tabColor} id="life:emergency:who-to-call" title="Who to call" icon="medkit-outline">
         {contacts.length === 0 ? (
           <Text style={styles.bodyText}>
             Nobody yet. One person who would answer their phone and knows enough to speak for you
@@ -390,10 +391,9 @@ export function EmergencySection({ tabColor }: Props) {
             <Text style={styles.primaryButtonText}>Add someone</Text>
           </TouchableOpacity>
         )}
-      </View>
+      </LifeBand>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>What only you can tell it</Text>
+      <LifeBand folds={folds} color={tabColor} id="life:emergency:what-only-you-can-tell-it" title="What only you can tell it" icon="medkit-outline">
         <Text style={styles.helperText}>
           Your conditions, medications and food allergies are already recorded elsewhere in the app
           and are read straight onto the card, so they are not asked for again here. These are the
@@ -440,10 +440,9 @@ export function EmergencySection({ tabColor }: Props) {
             <Text style={styles.primaryButtonText}>Edit these</Text>
           </TouchableOpacity>
         )}
-      </View>
+      </LifeBand>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>The card</Text>
+      <LifeBand folds={folds} color={tabColor} id="life:emergency:the-card" title="The card" icon="medkit-outline">
         <Text style={styles.helperText}>
           Everything above, assembled with what the app already holds, as plain text you can read
           off the screen or send to someone. Anything you have not filled in is left out rather than
@@ -475,10 +474,9 @@ export function EmergencySection({ tabColor }: Props) {
           wallet, or set up on the medical ID screen your phone already has, it is reachable when
           your phone is locked and you are not able to unlock it.
         </Text>
-      </View>
+      </LifeBand>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Why the order is what it is</Text>
+      <LifeBand folds={folds} color={tabColor} id="life:emergency:why-the-order-is-what-it-is" title="Why the order is what it is" icon="medkit-outline">
         {ESSENTIALS_IN_ORDER.map((entry, index) => (
           <View key={entry.code} style={styles.row}>
             <View style={styles.rowMain}>
@@ -487,23 +485,17 @@ export function EmergencySection({ tabColor }: Props) {
             </View>
           </View>
         ))}
-      </View>
-    </>
+      </LifeBand>
+    </View>
   );
 }
 
 function makeStyles(tabColor: string) {
   return StyleSheet.create({
-    panelStandalone: { backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 12 },
-    card: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
-
     // Its own colour, because it is the one thing on this screen that is not a
     // feature. Danger rather than the tab colour: reading it wrong is the
     // failure mode this whole area has to guard against.
-    warningCard: {
-      backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16,
-      borderWidth: 2, borderColor: colors.danger,
-    },
+    warningCard: { borderColor: colors.danger },
     warningTitle: { ...typography.sectionTitle, color: colors.danger, marginBottom: 8, ...textShadow },
     warningText: { ...typography.body, color: colors.textPrimary, ...textShadow },
 

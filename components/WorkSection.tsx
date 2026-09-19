@@ -6,6 +6,8 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
+import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { WORK_PROMPT_COUNT, WORK_PROMPT_GROUPS } from '../constants/workBenefitPrompts';
@@ -115,10 +117,11 @@ export function WorkSection({ tabColor }: Props) {
   const [benefitForm, setBenefitForm] = useState<BenefitForm | null>(null);
   const [useForm, setUseForm] = useState<{ id: string; kind: BenefitKind; amount: string } | null>(null);
   const [checkinForm, setCheckinForm] = useState<CheckinForm | null>(null);
-  const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const folds = useBandFolds();
 
   const load = useCallback(() => {
     setLoading(true);
@@ -194,10 +197,10 @@ export function WorkSection({ tabColor }: Props) {
     load();
   }
 
-  if (loading) return <Text style={[styles.bodyText, styles.panelStandalone]}>Loading…</Text>;
+  if (loading) return <View style={band.boxMuted}><Text style={styles.bodyText}>Loading…</Text></View>;
 
   return (
-    <>
+    <View style={band.column}>
       {infoAlertElement}
       <AppActionSheet
         visible={confirm !== null}
@@ -207,7 +210,7 @@ export function WorkSection({ tabColor }: Props) {
         actions={confirm?.actions ?? []}
       />
 
-      <View style={styles.pillRow}>
+      <View style={[band.inset, styles.pillRow]}>
         {SECTIONS.map((entry) => (
           <TouchableOpacity
             key={entry.key}
@@ -221,7 +224,7 @@ export function WorkSection({ tabColor }: Props) {
 
       {section === 'overview' ? (
         <>
-          <View style={styles.card}>
+          <View style={band.box}>
             <Text style={styles.cardTitle}>What your work gives you</Text>
             <Text style={styles.bodyText}>{describeWorkSummary(summary)}</Text>
             {summary.recorded === 0 ? (
@@ -232,8 +235,7 @@ export function WorkSection({ tabColor }: Props) {
           </View>
 
           {summary.expiringUnused.length > 0 ? (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>About to go</Text>
+            <LifeBand folds={folds} color={tabColor} id="life:work:about-to-go" title="About to go" icon="briefcase-outline">
               {summary.expiringUnused.map((standing) => (
                 <View key={standing.benefit.id} style={styles.row}>
                   <View style={styles.rowMain}>
@@ -242,12 +244,11 @@ export function WorkSection({ tabColor }: Props) {
                   </View>
                 </View>
               ))}
-            </View>
+            </LifeBand>
           ) : null}
 
           {summary.matchesShort.length > 0 ? (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Money you are turning down</Text>
+            <LifeBand folds={folds} color={tabColor} id="life:work:money-you-are-turning-down" title="Money you are turning down" icon="briefcase-outline">
               {summary.matchesShort.map(({ benefit, gap }) => (
                 <View key={benefit.id} style={styles.row}>
                   <View style={styles.rowMain}>
@@ -256,10 +257,10 @@ export function WorkSection({ tabColor }: Props) {
                   </View>
                 </View>
               ))}
-            </View>
+            </LifeBand>
           ) : null}
 
-          <View style={styles.card}>
+          <View style={band.box}>
             <Text style={styles.cardTitle}>How work has been going</Text>
             <Text style={styles.bodyText}>{describeWorkTrend(trend)}</Text>
             {!thisWeek ? (
@@ -282,13 +283,15 @@ export function WorkSection({ tabColor }: Props) {
       {section === 'have' ? (
         <>
           {!benefitForm ? (
-            <TouchableOpacity style={styles.primaryButton} onPress={() => setBenefitForm(blankBenefitForm())}>
-              <Text style={styles.primaryButtonText}>+ Add something you get</Text>
-            </TouchableOpacity>
+            <View style={band.inset}>
+              <TouchableOpacity style={styles.primaryButton} onPress={() => setBenefitForm(blankBenefitForm())}>
+                <Text style={styles.primaryButtonText}>+ Add something you get</Text>
+              </TouchableOpacity>
+            </View>
           ) : null}
 
           {benefitForm ? (
-            <View style={styles.formCard}>
+            <View style={band.box}>
               <View style={styles.labelRow}>
                 <Text style={styles.label}>What is it</Text>
                 <VoiceInputButton onResult={(t) => setBenefitForm({ ...benefitForm, name: t })} color={tabColor} />
@@ -389,7 +392,7 @@ export function WorkSection({ tabColor }: Props) {
           ) : null}
 
           {benefits.length === 0 && !benefitForm ? (
-            <View style={styles.card}>
+            <View style={band.box}>
               <Text style={styles.bodyText}>
                 Nothing here yet. Worth Asking has the questions to take to whoever runs your benefits, and whatever
                 comes back goes in here with its amount and its date.
@@ -401,8 +404,8 @@ export function WorkSection({ tabColor }: Props) {
             const standing = benefitStanding(benefit, todayLocal());
             const gap = matchGap(benefit);
             return (
-              <View key={benefit.id} style={[styles.card, !benefit.active && styles.dimmed]}>
-                <Text style={styles.cardTitle}>{benefit.name}</Text>
+              <View key={benefit.id} style={benefit.active ? null : styles.dimmed}>
+              <LifeBand folds={folds} color={tabColor} id={`life:work:benefit:${benefit.id}`} title={benefit.name} icon="briefcase-outline">
                 <Text style={styles.rowMeta}>
                   {BENEFIT_KINDS.find((entry) => entry.code === benefit.kind)?.label}
                 </Text>
@@ -516,6 +519,7 @@ export function WorkSection({ tabColor }: Props) {
                     <Text style={styles.actionTextRemove}>Remove</Text>
                   </TouchableOpacity>
                 </View>
+              </LifeBand>
               </View>
             );
           })}
@@ -524,7 +528,7 @@ export function WorkSection({ tabColor }: Props) {
 
       {section === 'ask' ? (
         <>
-          <View style={styles.card}>
+          <View style={band.box}>
             <Text style={styles.cardTitle}>Worth asking about</Text>
             <Text style={styles.bodyText}>
               {WORK_PROMPT_COUNT} questions to put to whoever runs your benefits. They are questions rather than a list
@@ -535,27 +539,18 @@ export function WorkSection({ tabColor }: Props) {
           </View>
 
           {WORK_PROMPT_GROUPS.map((group) => {
-            const open = openGroup === group.code;
             return (
-              <View key={group.code} style={styles.card}>
-                <TouchableOpacity onPress={() => setOpenGroup(open ? null : group.code)}>
-                  <Text style={styles.cardTitle}>{group.label}</Text>
-                  <Text style={styles.rowMeta}>{group.why}</Text>
-                  <Text style={[styles.actionText, styles.spacedAction]}>
-                    {open ? 'Hide the questions' : `Show the ${group.prompts.length} questions`}
-                  </Text>
-                </TouchableOpacity>
-                {open
-                  ? group.prompts.map((prompt) => (
-                      <View key={prompt.ask} style={styles.row}>
-                        <View style={styles.rowMain}>
-                          <Text style={styles.rowTitle}>{prompt.ask}</Text>
-                          {prompt.note ? <Text style={styles.rowMeta}>{prompt.note}</Text> : null}
-                        </View>
-                      </View>
-                    ))
-                  : null}
-              </View>
+              <LifeBand key={group.code} folds={folds} color={tabColor} id={`life:work:ask:${group.code}`} title={group.label} icon="help-circle-outline" count={group.prompts.length}>
+                <Text style={styles.rowMeta}>{group.why}</Text>
+                {group.prompts.map((prompt) => (
+                  <View key={prompt.ask} style={styles.row}>
+                    <View style={styles.rowMain}>
+                      <Text style={styles.rowTitle}>{prompt.ask}</Text>
+                      {prompt.note ? <Text style={styles.rowMeta}>{prompt.note}</Text> : null}
+                    </View>
+                  </View>
+                ))}
+              </LifeBand>
             );
           })}
         </>
@@ -563,7 +558,7 @@ export function WorkSection({ tabColor }: Props) {
 
       {section === 'feel' ? (
         <>
-          <View style={styles.card}>
+          <View style={band.box}>
             <Text style={styles.cardTitle}>How work has been going</Text>
             <Text style={styles.bodyText}>{describeWorkTrend(trend)}</Text>
             <Text style={styles.footnote}>{SDT_ATTRIBUTION}</Text>
@@ -593,7 +588,7 @@ export function WorkSection({ tabColor }: Props) {
           </View>
 
           {checkinForm ? (
-            <View style={styles.formCard}>
+            <View style={band.box}>
               {WORK_DIMENSIONS.map((dimension) => (
                 <View key={dimension.code}>
                   <Text style={styles.label}>{dimension.question}</Text>
@@ -638,8 +633,7 @@ export function WorkSection({ tabColor }: Props) {
           ) : null}
 
           {trend ? (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Each one over time</Text>
+            <LifeBand folds={folds} color={tabColor} id="life:work:each-one-over-time" title="Each one over time" icon="briefcase-outline">
               {trend.dimensions.map((entry) => (
                 <View key={entry.dimension} style={styles.row}>
                   <View style={styles.rowMain}>
@@ -654,19 +648,16 @@ export function WorkSection({ tabColor }: Props) {
                 {formatBenefitAmount('days', trend.weeksCovered)} of weeks covered. Nothing here is compared against
                 anyone else, because there is nobody to compare it to.
               </Text>
-            </View>
+            </LifeBand>
           ) : null}
         </>
       ) : null}
-    </>
+    </View>
   );
 }
 
 function makeStyles(tabColor: string) {
   return StyleSheet.create({
-    panelStandalone: { backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 12 },
-    card: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
-    formCard: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
     dimmed: { opacity: 0.6 },
     cardTitle: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 8, ...textShadow },
     bodyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
@@ -715,7 +706,6 @@ function makeStyles(tabColor: string) {
     rowMeta: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
     rowActions: { flexDirection: 'row', gap: 14, marginTop: 12, flexWrap: 'wrap' },
     actionText: { ...typography.caption, color: tabColor, ...textShadow },
-    spacedAction: { marginTop: 8 },
     actionTextRemove: { ...typography.caption, color: colors.danger, ...textShadow },
 
     barTrack: { height: 8, borderRadius: 4, backgroundColor: colors.border, overflow: 'hidden', marginVertical: 8 },

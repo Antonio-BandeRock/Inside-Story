@@ -7,6 +7,8 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
+import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
@@ -94,6 +96,8 @@ export function UpkeepSection({ tabColor }: Props) {
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const folds = useBandFolds();
 
   const load = useCallback(() => {
     setLoading(true);
@@ -173,10 +177,10 @@ export function UpkeepSection({ tabColor }: Props) {
     });
   }
 
-  if (loading) return <Text style={[styles.bodyText, styles.panelStandalone]}>Loading…</Text>;
+  if (loading) return <View style={band.boxMuted}><Text style={styles.bodyText}>Loading…</Text></View>;
 
   return (
-    <>
+    <View style={band.column}>
       {infoAlertElement}
       <AppActionSheet
         visible={confirm !== null}
@@ -186,7 +190,7 @@ export function UpkeepSection({ tabColor }: Props) {
         actions={confirm?.actions ?? []}
       />
 
-      <View style={styles.card}>
+      <View style={band.box}>
         <Text style={styles.cardTitle}>Upkeep</Text>
         <Text style={styles.bodyText}>{describeUpkeepSummary(summary)}</Text>
         {!form ? (
@@ -203,7 +207,7 @@ export function UpkeepSection({ tabColor }: Props) {
       </View>
 
       {form ? (
-        <View style={styles.formCard}>
+        <View style={band.box}>
           <View style={styles.labelRow}>
             <Text style={styles.label}>What is it</Text>
             <VoiceInputButton onResult={(t) => setForm({ ...form, name: t })} color={tabColor} />
@@ -317,8 +321,7 @@ export function UpkeepSection({ tabColor }: Props) {
       ) : null}
 
       {summary.overdue.length > 0 ? (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Overdue</Text>
+        <LifeBand folds={folds} color={tabColor} id="life:upkeep:overdue" title="Overdue" icon="alert-circle-outline" count={summary.overdue.length}>
           {summary.overdue.map((standing) => (
             <View key={standing.item.id} style={styles.row}>
               <View style={styles.rowMain}>
@@ -327,12 +330,11 @@ export function UpkeepSection({ tabColor }: Props) {
               </View>
             </View>
           ))}
-        </View>
+        </LifeBand>
       ) : null}
 
       {summary.dueSoon.length > 0 ? (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Next {DUE_SOON_DAYS} days</Text>
+        <LifeBand folds={folds} color={tabColor} id="life:upkeep:due-soon" title={`Next ${DUE_SOON_DAYS} days`} icon="time-outline" count={summary.dueSoon.length}>
           {summary.dueSoon.map((standing) => (
             <View key={standing.item.id} style={styles.row}>
               <View style={styles.rowMain}>
@@ -341,12 +343,19 @@ export function UpkeepSection({ tabColor }: Props) {
               </View>
             </View>
           ))}
-        </View>
+        </LifeBand>
       ) : null}
 
       {grouped.map((group) => (
-        <View key={group.category.code} style={styles.card}>
-          <Text style={styles.cardTitle}>{group.category.label}</Text>
+        <LifeBand
+          key={group.category.code}
+          folds={folds}
+          color={tabColor}
+          id={`life:upkeep:${group.category.code}`}
+          title={group.category.label}
+          icon="construct-outline"
+          count={group.entries.length}
+        >
           {group.entries.map((item) => {
             const standing = upkeepStanding(item, todayLocal());
             return (
@@ -451,17 +460,14 @@ export function UpkeepSection({ tabColor }: Props) {
               </View>
             );
           })}
-        </View>
+        </LifeBand>
       ))}
-    </>
+    </View>
   );
 }
 
 function makeStyles(tabColor: string) {
   return StyleSheet.create({
-    panelStandalone: { backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 12 },
-    card: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
-    formCard: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
     dimmed: { opacity: 0.6 },
     cardTitle: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 8, ...textShadow },
     bodyText: { ...typography.body, color: colors.textSecondary, ...textShadow },

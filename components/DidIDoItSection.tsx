@@ -7,6 +7,8 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
+import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
@@ -88,6 +90,8 @@ export function DidIDoItSection({ tabColor }: Props) {
   } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const folds = useBandFolds();
 
   const load = useCallback(() => {
     setLoading(true);
@@ -153,10 +157,10 @@ export function DidIDoItSection({ tabColor }: Props) {
     });
   }
 
-  if (loading) return <Text style={[styles.bodyText, styles.panelStandalone]}>Loading…</Text>;
+  if (loading) return <View style={band.boxMuted}><Text style={styles.bodyText}>Loading…</Text></View>;
 
   return (
-    <>
+    <View style={band.column}>
       {infoAlertElement}
       <AppActionSheet
         visible={confirm !== null}
@@ -166,7 +170,7 @@ export function DidIDoItSection({ tabColor }: Props) {
         actions={confirm?.actions ?? []}
       />
 
-      <View style={styles.card}>
+      <View style={band.box}>
         <Text style={styles.cardTitle}>Did I Do It</Text>
         <Text style={styles.bodyText}>
           What you ticked off, and when. Most of these get ticked while you walk a routine, at the step that
@@ -185,7 +189,7 @@ export function DidIDoItSection({ tabColor }: Props) {
       </View>
 
       {form ? (
-        <View style={styles.formCard}>
+        <View style={band.box}>
           <Text style={styles.cardTitle}>{form.id ? 'Change this one' : 'Something to check'}</Text>
 
           <View style={styles.labelRow}>
@@ -233,7 +237,7 @@ export function DidIDoItSection({ tabColor }: Props) {
       ) : null}
 
       {checks.length === 0 && !form ? (
-        <View style={styles.card}>
+        <View style={band.box}>
           <Text style={styles.bodyText}>
             Nothing here yet. The ones worth adding first are the ones you have gone back upstairs to check:
             the pill, the stove, the back door.
@@ -241,40 +245,16 @@ export function DidIDoItSection({ tabColor }: Props) {
         </View>
       ) : null}
 
-      {groups.map((group) => (
-        <View key={group.routine ? group.routine.id : 'loose'}>
-          {showHeadings ? (
-            <View style={styles.groupHeadingChip}>
-              <Text style={styles.groupHeadingText}>{group.heading}</Text>
-              {group.routine ? (
-                <>
-                  <Text style={styles.rowMeta}>
-                    {describeCheckRoutine(group.checks[0].id, routines)}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() =>
-                      router.push({ pathname: '/routine', params: { id: group.routine?.id ?? '' } })
-                    }
-                  >
-                    <Text style={styles.actionText}>Walk it</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <Text style={styles.rowMeta}>
-                  The only way these get ticked off is a tap here.
-                </Text>
-              )}
-            </View>
-          ) : null}
-
-          {group.checks.map((check) => {
+      {groups.map((group) => {
+        const groupKey = group.routine ? group.routine.id : 'loose';
+        const rows = group.checks.map((check) => {
             const standing = standings.get(check.id);
             const done = standing?.doneThisPeriod === true;
             const position = checks.indexOf(check);
             return (
               <View
                 key={check.id}
-                style={[styles.card, check.active ? null : styles.dimmed, done ? styles.cardDone : null]}
+                style={[showHeadings ? band.row : band.box, check.active ? null : styles.dimmed, done ? styles.cardDone : null]}
               >
                 <Text style={styles.cardTitle}>{check.name}</Text>
                 <Text style={[styles.rowMeta, done ? styles.metaDone : null]}>{standing?.line}</Text>
@@ -318,21 +298,53 @@ export function DidIDoItSection({ tabColor }: Props) {
                 </View>
               </View>
             );
-          })}
-        </View>
-      ))}
-    </>
+          });
+        if (!showHeadings) return <View key={groupKey} style={band.column}>{rows}</View>;
+        return (
+          <LifeBand
+            key={groupKey}
+            folds={folds}
+            color={tabColor}
+            id={`life:didIDoIt:${groupKey}`}
+            title={group.heading}
+            icon="checkmark-done-outline"
+            count={group.checks.length}
+          >
+            <View style={band.rows}>
+              <View style={band.row}>
+                {group.routine ? (
+                  <>
+                    <Text style={styles.rowMeta}>
+                      {describeCheckRoutine(group.checks[0].id, routines)}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        router.push({ pathname: '/routine', params: { id: group.routine?.id ?? '' } })
+                      }
+                    >
+                      <Text style={styles.actionText}>Walk it</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <Text style={styles.rowMeta}>
+                    The only way these get ticked off is a tap here.
+                  </Text>
+                )}
+              </View>
+              {rows}
+            </View>
+          </LifeBand>
+        );
+      })}
+    </View>
   );
 }
 
 function makeStyles(tabColor: string) {
   return StyleSheet.create({
-    panelStandalone: { backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 12 },
-    card: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
-    // A done card steps back rather than lighting up. Nothing here is a
+    // A done row steps back rather than lighting up. Nothing here is a
     // score, and a row that has been answered is finished being interesting.
-    cardDone: { borderColor: colors.border },
-    formCard: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
+    cardDone: { opacity: 0.75 },
     dimmed: { opacity: 0.6 },
     cardTitle: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 8, ...textShadow },
     bodyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
@@ -347,14 +359,6 @@ function makeStyles(tabColor: string) {
 
     rowMeta: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
     metaDone: { color: colors.textSecondary },
-
-    // A heading introducing a group of separate cards, so it carries its own
-    // surface rather than sitting on the tab's photograph.
-    groupHeadingChip: {
-      backgroundColor: colors.surfaceMuted, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12,
-      marginBottom: 10, borderLeftWidth: 3, borderLeftColor: tabColor,
-    },
-    groupHeadingText: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
 
     rowActions: { flexDirection: 'row', gap: 14, marginTop: 10, flexWrap: 'wrap' },
     actionText: { ...typography.caption, color: tabColor, ...textShadow },

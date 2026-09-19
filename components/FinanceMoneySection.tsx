@@ -5,6 +5,8 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
+import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
@@ -101,6 +103,8 @@ export function FinanceMoneySection({ tabColor }: Props) {
 
   const totals = useMemo(() => netWorth(accounts), [accounts]);
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const folds = useBandFolds();
 
   // Only debts with everything the simulation needs can be modelled. One
   // missing interest rate would silently make a debt look free, so those
@@ -187,14 +191,13 @@ export function FinanceMoneySection({ tabColor }: Props) {
     load();
   }
 
-  if (loading) return <Text style={[styles.bodyText, styles.panelStandalone]}>Adding up your accounts…</Text>;
+  if (loading) return <View style={band.boxMuted}><Text style={styles.bodyText}>Adding up your accounts…</Text></View>;
 
   return (
-    <>
+    <View style={band.column}>
       {infoAlertElement}
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Net worth</Text>
+      <LifeBand folds={folds} color={tabColor} id="life:finances:net-worth" title="Net worth" icon="wallet-outline">
         {accounts.length === 0 ? (
           <Text style={styles.bodyText}>
             Add what you own and what you owe, and this becomes one number that answers whether things are moving in the
@@ -240,10 +243,10 @@ export function FinanceMoneySection({ tabColor }: Props) {
             <Text style={styles.primaryButtonText}>+ Add an account</Text>
           </TouchableOpacity>
         ) : null}
-      </View>
+      </LifeBand>
 
       {form ? (
-        <View style={styles.formCard}>
+        <View style={band.box}>
           <View style={styles.labelRow}>
             <Text style={styles.label}>Name</Text>
             <VoiceInputButton onResult={(t) => setForm({ ...form, name: t })} color={tabColor} />
@@ -315,8 +318,7 @@ export function FinanceMoneySection({ tabColor }: Props) {
       ) : null}
 
       {accounts.length > 0 ? (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Accounts</Text>
+        <LifeBand folds={folds} color={tabColor} id="life:finances:accounts" title="Accounts" icon="wallet-outline">
           {accounts.map((account) => {
             const liability = isLiability(account.kind);
             const cost = carryCost({ balance: account.balance, apr: account.apr, side: liability ? 'liability' : 'asset' });
@@ -387,12 +389,11 @@ export function FinanceMoneySection({ tabColor }: Props) {
             </View>
             );
           })}
-        </View>
+        </LifeBand>
       ) : null}
 
       {duplicated.length > 0 ? (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Counted twice</Text>
+        <LifeBand folds={folds} color={tabColor} id="life:finances:counted-twice" title="Counted twice" icon="wallet-outline">
           <Text style={styles.bodyText}>
             The same payment looks like it is recorded in two places. Your monthly bills count it once, and the payoff
             plan counts it again as that debt&apos;s minimum payment, so between them one payment is being treated as
@@ -414,11 +415,10 @@ export function FinanceMoneySection({ tabColor }: Props) {
             account leaves the bill as the single record, and clearing the bill&apos;s link leaves the debt plan as the
             single record.
           </Text>
-        </View>
+        </LifeBand>
       ) : null}
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Paying off what you owe</Text>
+      <LifeBand folds={folds} color={tabColor} id="life:finances:paying-off-what-you-owe" title="Paying off what you owe" icon="wallet-outline">
         {debts.length === 0 && incomplete.length === 0 ? (
           <Text style={styles.bodyText}>
             Nothing owed, or nothing entered yet. Add a card or a loan with its interest rate and minimum payment, and
@@ -464,17 +464,13 @@ export function FinanceMoneySection({ tabColor }: Props) {
             ) : null}
           </>
         )}
-      </View>
-    </>
+      </LifeBand>
+    </View>
   );
 }
 
 function makeStyles(tabColor: string) {
   return StyleSheet.create({
-    panelStandalone: { backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 12 },
-    card: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
-    formCard: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
-    cardTitle: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10, ...textShadow },
     bodyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
     footnote: { ...typography.caption, color: colors.textMuted, marginTop: 10, ...textShadow },
     helperText: { ...typography.caption, color: colors.textMuted, marginTop: 6, marginBottom: 4, ...textShadow },

@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.7',
+    date: '2026-09-19',
+    changes: [
+      'Every Life lens now uses the same edge-to-edge bands as Conditions. Finances, Work, Upkeep, Emergency, My Meds, Kitchen, Movement, Routines and Did I Do It each show their sections as full-width bands that fold open and closed, with the introduction and forms in the same full-width shape. Grocery List opens as a separate page and is unchanged.',
+      'Each band remembers whether you left it open or closed, the same as on Home.',
+    ],
+  },
+  {
     version: '1.0.41.6',
     date: '2026-09-19',
     changes: [

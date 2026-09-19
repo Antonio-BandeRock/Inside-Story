@@ -6,6 +6,8 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
+import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
@@ -77,6 +79,8 @@ export function FinanceGoalsSection({ tabColor }: Props) {
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
+  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const folds = useBandFolds();
 
   const load = useCallback(() => {
     setLoading(true);
@@ -153,10 +157,10 @@ export function FinanceGoalsSection({ tabColor }: Props) {
     load();
   }
 
-  if (loading) return <Text style={[styles.bodyText, styles.panelStandalone]}>Adding up your goals…</Text>;
+  if (loading) return <View style={band.boxMuted}><Text style={styles.bodyText}>Adding up your goals…</Text></View>;
 
   return (
-    <>
+    <View style={band.column}>
       {infoAlertElement}
       <AppActionSheet
         visible={confirm !== null}
@@ -166,7 +170,7 @@ export function FinanceGoalsSection({ tabColor }: Props) {
         actions={confirm?.actions ?? []}
       />
 
-      <View style={styles.card}>
+      <View style={band.box}>
         <Text style={styles.cardTitle}>Goals</Text>
         {goals.length === 0 ? (
           <Text style={styles.bodyText}>
@@ -188,7 +192,7 @@ export function FinanceGoalsSection({ tabColor }: Props) {
       </View>
 
       {goalForm ? (
-        <View style={styles.formCard}>
+        <View style={band.box}>
           <View style={styles.labelRow}>
             <Text style={styles.label}>What is it</Text>
             <VoiceInputButton onResult={(t) => setGoalForm({ ...goalForm, name: t })} color={tabColor} />
@@ -246,11 +250,14 @@ export function FinanceGoalsSection({ tabColor }: Props) {
         const { goal } = progress;
         const statusWord = STATUS_LABEL[goal.status] ?? '';
         return (
-          <View key={goal.id} style={[styles.card, goal.status !== 'active' && styles.dimmed]}>
-            <Text style={styles.cardTitle}>
-              {goal.name}
-              {statusWord ? ` · ${statusWord}` : ''}
-            </Text>
+          <View key={goal.id} style={goal.status === 'active' ? null : styles.dimmed}>
+            <LifeBand
+              folds={folds}
+              color={tabColor}
+              id={`life:finances:goal:${goal.id}`}
+              title={statusWord ? `${goal.name} · ${statusWord}` : goal.name}
+              icon="flag-outline"
+            >
             {goal.reason ? <Text style={styles.reasonText}>{goal.reason}</Text> : null}
             <Text style={styles.bodyText}>{describeGoalProgress(progress)}</Text>
             {goal.targetDate ? (
@@ -492,13 +499,13 @@ export function FinanceGoalsSection({ tabColor }: Props) {
                 Add at least one cost and this goal starts being something the app can follow. Until then it is a note.
               </Text>
             ) : null}
+            </LifeBand>
           </View>
         );
       })}
 
       {goals.length > 0 ? (
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Why there is no single percentage</Text>
+        <LifeBand folds={folds} color={tabColor} id="life:finances:why-there-is-no-single-percentage" title="Why there is no single percentage" icon="flag-outline">
           <Text style={styles.bodyText}>
             A goal needing {formatGoalAmount('money', 500, '')} and {formatGoalAmount('time', 20, 'hours')}, with half of
             each in, is not half done. It is half funded and half worked, and those are two separate facts. Money with no
@@ -509,17 +516,14 @@ export function FinanceGoalsSection({ tabColor }: Props) {
             instead is how many costs are met and which one is furthest behind, which is what actually says whether the
             thing in your way is money or a weekend.
           </Text>
-        </View>
+        </LifeBand>
       ) : null}
-    </>
+    </View>
   );
 }
 
 function makeStyles(tabColor: string) {
   return StyleSheet.create({
-    panelStandalone: { backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 12 },
-    card: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
-    formCard: { backgroundColor: colors.surface, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 2, borderColor: tabColor },
     dimmed: { opacity: 0.6 },
     cardTitle: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10, ...textShadow },
     bodyText: { ...typography.body, color: colors.textSecondary, ...textShadow },

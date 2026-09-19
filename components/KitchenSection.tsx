@@ -17,12 +17,14 @@
 // has been claimed. A bottle "added today" and one "added 3 months ago" are
 // different kinds of fact, and only one of them is worth acting on.
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { AppTextInput } from './AppTextInput';
 import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
+import { LifeBand, makeLifeBandStyles } from './LifeBand';
+import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { formatGroceryAmount } from '../lib/groceryList';
@@ -79,6 +81,8 @@ const SOURCE_LABEL: Record<KitchenInventoryItem['source'], string> = {
 };
 
 export function KitchenSection({ tabColor }: { tabColor: string }) {
+  const band = useMemo(() => makeLifeBandStyles(tabColor), [tabColor]);
+  const folds = useBandFolds();
   const [items, setItems] = useState<KitchenInventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -273,11 +277,11 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
   }
 
   return (
-    <View>
+    <View style={band.column}>
       {infoAlertElement}
       {confirmSheetElement}
 
-      <View style={styles.card}>
+      <View style={[band.box, styles.card]}>
         <View style={styles.kindRow}>
           {(['food', 'non_food'] as const).map((option) => (
             <TouchableOpacity
@@ -381,20 +385,21 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
       </View>
 
       {loading ? (
-        <Text style={[styles.bodyText, styles.standalone]}>Looking…</Text>
+        <View style={band.boxMuted}><Text style={styles.bodyText}>Looking…</Text></View>
       ) : items.length === 0 ? (
-        <View style={styles.card}>
+        <View style={band.box}>
           <Text style={styles.bodyText}>
             Nothing here yet. Add something above, log a garden harvest, or tick an item off a grocery list.
           </Text>
         </View>
       ) : (
-        <ScrollView style={styles.list} nestedScrollEnabled>
+        <LifeBand folds={folds} color={tabColor} id={`life:kitchen:${kind}`} title={kind === 'food' ? 'What is in your kitchen' : 'What the house has'} icon="restaurant-outline" count={items.length}>
+        <View style={band.rows}>
           {items.map((item) => {
             const expanded = expandedId === item.id;
             const partly = item.quantityRemaining < item.quantity;
             return (
-              <View key={item.id} style={styles.itemCard}>
+              <View key={item.id} style={[band.row, styles.itemCard]}>
                 <TouchableOpacity
                   activeOpacity={0.85}
                   onPress={() => {
@@ -686,41 +691,19 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
               </View>
             );
           })}
-        </ScrollView>
+        </View>
+        </LifeBand>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
-    padding: 14,
-    marginBottom: 12,
-    gap: 8,
-  },
+  card: { gap: 8 },
   cardTitle: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary },
   bodyText: { ...typography.body, ...textShadow, color: colors.textSecondary },
   caveat: { ...typography.caption, ...textShadow, color: colors.textMuted },
-  standalone: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 12,
-  },
-  list: { maxHeight: 460 },
-  itemCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
-    padding: 12,
-    marginBottom: 10,
-    gap: 3,
-  },
+  itemCard: { gap: 3 },
   itemName: { ...typography.label, ...textShadow, color: colors.textPrimary },
   itemMeta: { ...typography.caption, ...textShadow, color: colors.textSecondary },
   actions: { marginTop: 10, gap: 8 },
